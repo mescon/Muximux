@@ -9,110 +9,145 @@ const en_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbutto
 	return /** @type {LocalizedString} */ (`Choose how the overview button appears in the navigation bar`)
 };
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const sv_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const sv_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Välj hur översiktsknappen visas i navigeringsfältet`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const uk_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const uk_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Оберіть, як кнопка огляду відображається на панелі навігації`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const zh_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const zh_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`选择概览按钮在导航栏中的显示方式`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const es_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const es_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Elige cómo aparece el botón de resumen en la barra de navegación`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const hi_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const hi_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`चुनें कि नेविगेशन बार में अवलोकन बटन कैसे दिखाई दे`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const pt_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const pt_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Escolhe como o botão de visão geral aparece na barra de navegação`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const bn_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const bn_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`নেভিগেশন বারে সংক্ষিপ্ত বিবরণ বোতাম কীভাবে প্রদর্শিত হবে তা নির্বাচন করুন`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const ru_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const ru_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Выберите, как кнопка обзора отображается в панели навигации`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const ja_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const ja_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ナビゲーションバーでの概要ボタンの表示方法を選択`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const vi_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const vi_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Chọn cách nút tổng quan hiển thị trong thanh điều hướng`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const yue_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const yue_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`揀選概覽按鈕喺導覽列入面點樣顯示`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const tr_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const tr_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Genel bakış düğmesinin navigasyon çubuğunda nasıl görüneceğini seçin`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const ar_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const ar_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`اختر كيف يظهر زر النظرة العامة في شريط التنقل`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const wuu_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const wuu_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`选择总览按钮在导航栏里如何显示`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const mr_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const mr_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`नेव्हिगेशन बारमध्ये विहंगावलोकन बटण कसे दिसावे ते निवडा`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const nb_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const nb_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Velg hvordan oversiktsknappen vises i navigasjonsfeltet`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const fi_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const fi_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Valitse miten yleiskatsauspainike näkyy navigaatiopalkissa`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const da_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const da_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vælg hvordan oversigtsknappen vises i navigationsbjælken`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const et_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const et_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vali, kuidas ülevaate nupp navigeerimisribal kuvatakse`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const lv_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const lv_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Izvēlieties, kā pārskata poga parādās navigācijas joslā`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const lt_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const lt_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pasirinkite, kaip apžvalgos mygtukas rodomas navigacijos juostoje`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const pl_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const pl_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Wybierz, jak przycisk przeglądu pojawia się na pasku nawigacji`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const de_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const de_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Wählen Sie, wie der Übersichts-Button in der Navigationsleiste erscheint`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const nl_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const nl_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Kies hoe de overzichtsknop in de navigatiebalk verschijnt`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const fr_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const fr_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Choisis comment le bouton de vue d'ensemble apparaît dans la barre de navigation`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const it_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const it_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Scegli come appare il pulsante panoramica nella barra di navigazione`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const hu_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const hu_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Válassza ki, hogyan jelenjen meg az áttekintés gomb a navigációs sávban`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const cs_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const cs_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zvolte, jak se tlačítko přehledu zobrazí v navigační liště`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const ro_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const ro_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Alege cum apare butonul de prezentare generală în bara de navigare`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const el_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const el_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Επιλέξτε πώς εμφανίζεται το κουμπί επισκόπησης στη μπάρα πλοήγησης`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const bg_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const bg_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Избери как се показва бутонът за преглед в навигационната лента`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const hr_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const hr_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Odaberite kako se gumb za pregled prikazuje u navigacijskoj traci`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const sr_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const sr_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Izaberite kako se dugme za pregled pojavljuje u navigacionoj traci`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const sk_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const sk_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zvoľte, ako sa tlačidlo prehľadu zobrazí v navigačnej lište`)
+};
 
-/** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */
-const sl_general_overviewbuttondesc2 = en_general_overviewbuttondesc2;
+const sl_general_overviewbuttondesc2 = /** @type {(inputs: General_Overviewbuttondesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Izberite, kako se gumb za pregled prikaže v navigacijski vrstici`)
+};
 
 /**
 * | output |

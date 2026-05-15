@@ -1862,18 +1862,36 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 	indexLen := strconv.Itoa(len(indexContent))
 	indexETag := fmt.Sprintf(`"%x"`, sha256.Sum256(indexContent))
 
+	// Pre-compress text-friendly assets once at startup. Saves WAN /
+	// VPN-tunnelled users a few hundred KB on cold load without
+	// per-request CPU cost - the brotli/gzip encoders run during
+	// server.New, not on the hot path.
+	compressed := buildPrecompressedAssets(fsys)
+	// Also pre-compress the post-base-path-injection index since it
+	// served separately from the file-system walk above (the bytes
+	// don't match what's in fsys after injection).
+	indexAsset := buildSingleAsset(indexContent, "text/html; charset=utf-8")
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isSPARoute(r.URL.Path) {
 			h := w.Header()
 			h.Set(headerContentType, "text/html; charset=utf-8")
-			h.Set("Content-Length", indexLen)
 			h.Set("ETag", indexETag)
 			h.Set("Cache-Control", "no-cache")
 			if r.Header.Get("If-None-Match") == indexETag {
 				w.WriteHeader(http.StatusNotModified)
 				return
 			}
-			w.Write(indexContent)
+			// Vary so a downstream cache doesn't poison the
+			// uncompressed body for clients that asked for br/gz.
+			h.Set("Vary", "Accept-Encoding")
+			body := selectVariant(indexAsset, r.Header.Get("Accept-Encoding"), h)
+			if body == nil {
+				h.Set("Content-Length", indexLen)
+				w.Write(indexContent)
+			} else {
+				w.Write(body)
+			}
 			return
 		}
 		// /assets/* paths are emitted by Vite with content-hashed
@@ -1890,8 +1908,76 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 		} else {
 			w.Header().Set("Cache-Control", "no-cache")
 		}
+		// Try the pre-compressed cache first. selectVariant writes
+		// Content-Type / Content-Encoding / Content-Length and
+		// returns the body to write; nil means no cached variant
+		// matches the client's Accept-Encoding (or the path isn't
+		// in the cache), in which case we fall through to the raw
+		// file server.
+		if asset := compressed.byPath[r.URL.Path]; asset != nil {
+			h := w.Header()
+			h.Set("Vary", "Accept-Encoding")
+			body := selectVariant(asset, r.Header.Get("Accept-Encoding"), h)
+			if body != nil {
+				w.Write(body)
+				return
+			}
+			// Fall through to uncompressed via the file server so
+			// we still set the right Content-Length etc.
+		}
 		fileServer.ServeHTTP(w, r)
 	}), scriptHash
+}
+
+// selectVariant inspects the client's Accept-Encoding, picks the
+// best variant the asset cache holds, sets Content-Type +
+// Content-Encoding + Content-Length headers, and returns the
+// body to write. Returns nil when no compressed variant is
+// preferable (caller serves the original).
+func selectVariant(a *precompressedAsset, acceptEncoding string, h http.Header) []byte {
+	if a == nil {
+		return nil
+	}
+	h.Set(headerContentType, a.contentType)
+	switch pickEncoding(acceptEncoding) {
+	case "br":
+		h.Set("Content-Encoding", "br")
+		h.Set("Content-Length", strconv.Itoa(len(a.brotli)))
+		return a.brotli
+	case "gzip":
+		h.Set("Content-Encoding", "gzip")
+		h.Set("Content-Length", strconv.Itoa(len(a.gzip)))
+		return a.gzip
+	}
+	h.Set("Content-Length", strconv.Itoa(len(a.original)))
+	return a.original
+}
+
+// buildSingleAsset produces a precompressedAsset wrapper around
+// in-memory bytes (used for the index.html after base-path
+// injection, which doesn't live on disk anywhere). Failures
+// during encoding fall back to "no compressed variant", which
+// the caller handles by serving the original.
+func buildSingleAsset(data []byte, contentType string) *precompressedAsset {
+	if len(data) < minPrecompressSize {
+		return &precompressedAsset{contentType: contentType, original: data}
+	}
+	gz, gerr := encodeGzip(data)
+	br, berr := encodeBrotli(data)
+	if gerr != nil || berr != nil {
+		logging.Warn("Pre-compress index failed; serving raw",
+			"source", "server",
+			"gzip_err", gerr,
+			"brotli_err", berr,
+		)
+		return &precompressedAsset{contentType: contentType, original: data}
+	}
+	return &precompressedAsset{
+		contentType: contentType,
+		original:    data,
+		gzip:        gz,
+		brotli:      br,
+	}
 }
 
 // computeDashboardURL returns the absolute URL the operator's browser

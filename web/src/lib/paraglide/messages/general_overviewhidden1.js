@@ -9,110 +9,145 @@ const en_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1In
 	return /** @type {LocalizedString} */ (`Hidden`)
 };
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const sv_general_overviewhidden1 = en_general_overviewhidden1;
+const sv_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dold`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const uk_general_overviewhidden1 = en_general_overviewhidden1;
+const uk_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Прихована`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const zh_general_overviewhidden1 = en_general_overviewhidden1;
+const zh_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`隐藏`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const es_general_overviewhidden1 = en_general_overviewhidden1;
+const es_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Oculto`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const hi_general_overviewhidden1 = en_general_overviewhidden1;
+const hi_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`छिपा हुआ`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const pt_general_overviewhidden1 = en_general_overviewhidden1;
+const pt_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Oculto`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const bn_general_overviewhidden1 = en_general_overviewhidden1;
+const bn_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`লুকানো`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const ru_general_overviewhidden1 = en_general_overviewhidden1;
+const ru_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Скрыта`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const ja_general_overviewhidden1 = en_general_overviewhidden1;
+const ja_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`非表示`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const vi_general_overviewhidden1 = en_general_overviewhidden1;
+const vi_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ẩn`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const yue_general_overviewhidden1 = en_general_overviewhidden1;
+const yue_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`隱藏`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const tr_general_overviewhidden1 = en_general_overviewhidden1;
+const tr_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Gizli`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const ar_general_overviewhidden1 = en_general_overviewhidden1;
+const ar_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`مخفي`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const wuu_general_overviewhidden1 = en_general_overviewhidden1;
+const wuu_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`隐藏`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const mr_general_overviewhidden1 = en_general_overviewhidden1;
+const mr_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`लपवलेले`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const nb_general_overviewhidden1 = en_general_overviewhidden1;
+const nb_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skjult`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const fi_general_overviewhidden1 = en_general_overviewhidden1;
+const fi_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Piilotettu`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const da_general_overviewhidden1 = en_general_overviewhidden1;
+const da_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skjult`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const et_general_overviewhidden1 = en_general_overviewhidden1;
+const et_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Peidetud`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const lv_general_overviewhidden1 = en_general_overviewhidden1;
+const lv_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Paslēpta`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const lt_general_overviewhidden1 = en_general_overviewhidden1;
+const lt_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Paslėptas`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const pl_general_overviewhidden1 = en_general_overviewhidden1;
+const pl_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ukryty`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const de_general_overviewhidden1 = en_general_overviewhidden1;
+const de_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ausgeblendet`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const nl_general_overviewhidden1 = en_general_overviewhidden1;
+const nl_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Verborgen`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const fr_general_overviewhidden1 = en_general_overviewhidden1;
+const fr_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Masqué`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const it_general_overviewhidden1 = en_general_overviewhidden1;
+const it_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nascosto`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const hu_general_overviewhidden1 = en_general_overviewhidden1;
+const hu_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Rejtett`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const cs_general_overviewhidden1 = en_general_overviewhidden1;
+const cs_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skryté`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const ro_general_overviewhidden1 = en_general_overviewhidden1;
+const ro_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ascuns`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const el_general_overviewhidden1 = en_general_overviewhidden1;
+const el_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Κρυφό`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const bg_general_overviewhidden1 = en_general_overviewhidden1;
+const bg_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Скрит`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const hr_general_overviewhidden1 = en_general_overviewhidden1;
+const hr_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skriveno`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const sr_general_overviewhidden1 = en_general_overviewhidden1;
+const sr_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skriveno`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const sk_general_overviewhidden1 = en_general_overviewhidden1;
+const sk_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skryté`)
+};
 
-/** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */
-const sl_general_overviewhidden1 = en_general_overviewhidden1;
+const sl_general_overviewhidden1 = /** @type {(inputs: General_Overviewhidden1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skrito`)
+};
 
 /**
 * | output |

@@ -9,110 +9,145 @@ const en_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs
 	return /** @type {LocalizedString} */ (`Logo`)
 };
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const sv_general_overviewlogo1 = en_general_overviewlogo1;
+const sv_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logotyp`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const uk_general_overviewlogo1 = en_general_overviewlogo1;
+const uk_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Логотип`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const zh_general_overviewlogo1 = en_general_overviewlogo1;
+const zh_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const es_general_overviewlogo1 = en_general_overviewlogo1;
+const es_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const hi_general_overviewlogo1 = en_general_overviewlogo1;
+const hi_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`लोगो`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const pt_general_overviewlogo1 = en_general_overviewlogo1;
+const pt_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logótipo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const bn_general_overviewlogo1 = en_general_overviewlogo1;
+const bn_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`লোগো`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const ru_general_overviewlogo1 = en_general_overviewlogo1;
+const ru_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Логотип`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const ja_general_overviewlogo1 = en_general_overviewlogo1;
+const ja_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ロゴ`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const vi_general_overviewlogo1 = en_general_overviewlogo1;
+const vi_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const yue_general_overviewlogo1 = en_general_overviewlogo1;
+const yue_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`標誌`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const tr_general_overviewlogo1 = en_general_overviewlogo1;
+const tr_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const ar_general_overviewlogo1 = en_general_overviewlogo1;
+const ar_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`الشعار`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const wuu_general_overviewlogo1 = en_general_overviewlogo1;
+const wuu_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const mr_general_overviewlogo1 = en_general_overviewlogo1;
+const mr_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`लोगो`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const nb_general_overviewlogo1 = en_general_overviewlogo1;
+const nb_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const fi_general_overviewlogo1 = en_general_overviewlogo1;
+const fi_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const da_general_overviewlogo1 = en_general_overviewlogo1;
+const da_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const et_general_overviewlogo1 = en_general_overviewlogo1;
+const et_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const lv_general_overviewlogo1 = en_general_overviewlogo1;
+const lv_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logotips`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const lt_general_overviewlogo1 = en_general_overviewlogo1;
+const lt_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logotipas`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const pl_general_overviewlogo1 = en_general_overviewlogo1;
+const pl_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const de_general_overviewlogo1 = en_general_overviewlogo1;
+const de_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const nl_general_overviewlogo1 = en_general_overviewlogo1;
+const nl_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const fr_general_overviewlogo1 = en_general_overviewlogo1;
+const fr_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const it_general_overviewlogo1 = en_general_overviewlogo1;
+const it_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const hu_general_overviewlogo1 = en_general_overviewlogo1;
+const hu_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logó`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const cs_general_overviewlogo1 = en_general_overviewlogo1;
+const cs_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const ro_general_overviewlogo1 = en_general_overviewlogo1;
+const ro_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const el_general_overviewlogo1 = en_general_overviewlogo1;
+const el_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Λογότυπο`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const bg_general_overviewlogo1 = en_general_overviewlogo1;
+const bg_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Лого`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const hr_general_overviewlogo1 = en_general_overviewlogo1;
+const hr_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logotip`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const sr_general_overviewlogo1 = en_general_overviewlogo1;
+const sr_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logotip`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const sk_general_overviewlogo1 = en_general_overviewlogo1;
+const sk_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logo`)
+};
 
-/** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */
-const sl_general_overviewlogo1 = en_general_overviewlogo1;
+const sl_general_overviewlogo1 = /** @type {(inputs: General_Overviewlogo1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Logotip`)
+};
 
 /**
 * | output |

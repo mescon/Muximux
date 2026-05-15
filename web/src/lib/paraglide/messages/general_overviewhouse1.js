@@ -9,110 +9,145 @@ const en_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inpu
 	return /** @type {LocalizedString} */ (`House Icon`)
 };
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const sv_general_overviewhouse1 = en_general_overviewhouse1;
+const sv_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Husikon`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const uk_general_overviewhouse1 = en_general_overviewhouse1;
+const uk_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Іконка будинку`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const zh_general_overviewhouse1 = en_general_overviewhouse1;
+const zh_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`房子图标`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const es_general_overviewhouse1 = en_general_overviewhouse1;
+const es_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Icono de casa`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const hi_general_overviewhouse1 = en_general_overviewhouse1;
+const hi_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`घर का आइकन`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const pt_general_overviewhouse1 = en_general_overviewhouse1;
+const pt_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ícone de casa`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const bn_general_overviewhouse1 = en_general_overviewhouse1;
+const bn_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ঘরের আইকন`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const ru_general_overviewhouse1 = en_general_overviewhouse1;
+const ru_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Иконка домика`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const ja_general_overviewhouse1 = en_general_overviewhouse1;
+const ja_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ハウスアイコン`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const vi_general_overviewhouse1 = en_general_overviewhouse1;
+const vi_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Biểu tượng ngôi nhà`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const yue_general_overviewhouse1 = en_general_overviewhouse1;
+const yue_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`屋仔圖示`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const tr_general_overviewhouse1 = en_general_overviewhouse1;
+const tr_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ev Simgesi`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const ar_general_overviewhouse1 = en_general_overviewhouse1;
+const ar_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`أيقونة منزل`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const wuu_general_overviewhouse1 = en_general_overviewhouse1;
+const wuu_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`房子图标`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const mr_general_overviewhouse1 = en_general_overviewhouse1;
+const mr_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`घर आयकॉन`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const nb_general_overviewhouse1 = en_general_overviewhouse1;
+const nb_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Husikon`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const fi_general_overviewhouse1 = en_general_overviewhouse1;
+const fi_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Talokuvake`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const da_general_overviewhouse1 = en_general_overviewhouse1;
+const da_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Husikon`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const et_general_overviewhouse1 = en_general_overviewhouse1;
+const et_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Maja ikoon`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const lv_general_overviewhouse1 = en_general_overviewhouse1;
+const lv_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mājiņas ikona`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const lt_general_overviewhouse1 = en_general_overviewhouse1;
+const lt_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Namo piktograma`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const pl_general_overviewhouse1 = en_general_overviewhouse1;
+const pl_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ikona domu`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const de_general_overviewhouse1 = en_general_overviewhouse1;
+const de_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Haus-Icon`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const nl_general_overviewhouse1 = en_general_overviewhouse1;
+const nl_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Huispictogram`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const fr_general_overviewhouse1 = en_general_overviewhouse1;
+const fr_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Icône maison`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const it_general_overviewhouse1 = en_general_overviewhouse1;
+const it_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Icona casa`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const hu_general_overviewhouse1 = en_general_overviewhouse1;
+const hu_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ház ikon`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const cs_general_overviewhouse1 = en_general_overviewhouse1;
+const cs_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ikona domku`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const ro_general_overviewhouse1 = en_general_overviewhouse1;
+const ro_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pictogramă casă`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const el_general_overviewhouse1 = en_general_overviewhouse1;
+const el_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Εικονίδιο σπιτιού`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const bg_general_overviewhouse1 = en_general_overviewhouse1;
+const bg_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Икона на къща`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const hr_general_overviewhouse1 = en_general_overviewhouse1;
+const hr_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ikona kuće`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const sr_general_overviewhouse1 = en_general_overviewhouse1;
+const sr_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ikona kuće`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const sk_general_overviewhouse1 = en_general_overviewhouse1;
+const sk_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ikona domu`)
+};
 
-/** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */
-const sl_general_overviewhouse1 = en_general_overviewhouse1;
+const sl_general_overviewhouse1 = /** @type {(inputs: General_Overviewhouse1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ikona hiše`)
+};
 
 /**
 * | output |

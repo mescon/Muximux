@@ -9,110 +9,145 @@ const en_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownoti
 	return /** @type {LocalizedString} */ (`Enable the Muximux notification bridge for this app`)
 };
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const sv_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const sv_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aktivera Muximux notifieringsbrygga för denna app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const uk_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const uk_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Увімкнути міст сповіщень Muximux для цього застосунку`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const zh_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const zh_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`为此应用启用 Muximux 通知桥接`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const es_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const es_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Activar el puente de notificaciones de Muximux para esta app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const hi_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const hi_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`इस ऐप के लिए Muximux नोटिफिकेशन ब्रिज सक्षम करें`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const pt_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const pt_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ativar a ponte de notificações do Muximux para esta app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const bn_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const bn_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`এই অ্যাপের জন্য Muximux নোটিফিকেশন ব্রিজ সক্রিয় করুন`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const ru_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const ru_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Включить мост уведомлений Muximux для этого приложения`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const ja_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const ja_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`このアプリで Muximux の通知ブリッジを有効にします`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const vi_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const vi_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bật cầu nối thông báo Muximux cho ứng dụng này`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const yue_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const yue_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`為呢個應用程式啟用 Muximux 通知橋接`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const tr_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const tr_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bu uygulama için Muximux bildirim köprüsünü etkinleştir`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const ar_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const ar_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`تفعيل جسر إشعارات Muximux لهذا التطبيق`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const wuu_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const wuu_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`为此应用启用 Muximux 通知桥`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const mr_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const mr_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`या अॅपसाठी Muximux सूचना ब्रिज सक्षम करा`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const nb_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const nb_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aktiver Muximux-varselbroen for denne appen`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const fi_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const fi_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ota tämän sovelluksen Muximux-ilmoitussilta käyttöön`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const da_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const da_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aktivér Muximux-notifikationsbroen for denne app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const et_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const et_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Luba selle rakenduse jaoks Muximuxi teavitussild`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const lv_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const lv_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Iespējot Muximux paziņojumu tiltu šai lietotnei`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const lt_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const lt_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Įjungti Muximux pranešimų tiltą šiai programai`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const pl_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const pl_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Włącz most powiadomień Muximux dla tej aplikacji`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const de_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const de_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Die Muximux-Benachrichtigungsbrücke für diese App aktivieren`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const nl_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const nl_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`De notificatiebrug van Muximux inschakelen voor deze app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const fr_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const fr_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Activer le pont de notifications Muximux pour cette app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const it_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const it_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Attiva il bridge di notifiche di Muximux per questa app`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const hu_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const hu_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Muximux értesítési híd engedélyezése ehhez az alkalmazáshoz`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const cs_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const cs_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Povolit most oznámení Muximux pro tuto aplikaci`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const ro_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const ro_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Activează puntea de notificări Muximux pentru această aplicație`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const el_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const el_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ενεργοποιήστε τη γέφυρα ειδοποιήσεων του Muximux για αυτήν την εφαρμογή`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const bg_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const bg_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Активирай моста за известия на Muximux за това приложение`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const hr_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const hr_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Omogući Muximux most za obavijesti za ovu aplikaciju`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const sr_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const sr_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Omogući Muximux most za obaveštenja za ovu aplikaciju`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const sk_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const sk_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Povoliť most upozornení Muximux pre túto aplikáciu`)
+};
 
-/** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */
-const sl_appform_allownotificationsdesc3 = en_appform_allownotificationsdesc3;
+const sl_appform_allownotificationsdesc3 = /** @type {(inputs: Appform_Allownotificationsdesc3Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Omogoči Muximux most za obvestila za to aplikacijo`)
+};
 
 /**
 * | output |

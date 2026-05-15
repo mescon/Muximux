@@ -9,110 +9,145 @@ const en_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1In
 	return /** @type {LocalizedString} */ (`Custom`)
 };
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const sv_general_overviewcustom1 = en_general_overviewcustom1;
+const sv_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Anpassad`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const uk_general_overviewcustom1 = en_general_overviewcustom1;
+const uk_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Власна`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const zh_general_overviewcustom1 = en_general_overviewcustom1;
+const zh_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`自定义`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const es_general_overviewcustom1 = en_general_overviewcustom1;
+const es_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Personalizado`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const hi_general_overviewcustom1 = en_general_overviewcustom1;
+const hi_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`कस्टम`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const pt_general_overviewcustom1 = en_general_overviewcustom1;
+const pt_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Personalizado`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const bn_general_overviewcustom1 = en_general_overviewcustom1;
+const bn_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`কাস্টম`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const ru_general_overviewcustom1 = en_general_overviewcustom1;
+const ru_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Пользовательская`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const ja_general_overviewcustom1 = en_general_overviewcustom1;
+const ja_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`カスタム`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const vi_general_overviewcustom1 = en_general_overviewcustom1;
+const vi_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tùy chỉnh`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const yue_general_overviewcustom1 = en_general_overviewcustom1;
+const yue_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`自訂`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const tr_general_overviewcustom1 = en_general_overviewcustom1;
+const tr_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Özel`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const ar_general_overviewcustom1 = en_general_overviewcustom1;
+const ar_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`مخصص`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const wuu_general_overviewcustom1 = en_general_overviewcustom1;
+const wuu_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`自定义`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const mr_general_overviewcustom1 = en_general_overviewcustom1;
+const mr_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`सानुकूल`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const nb_general_overviewcustom1 = en_general_overviewcustom1;
+const nb_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Egendefinert`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const fi_general_overviewcustom1 = en_general_overviewcustom1;
+const fi_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mukautettu`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const da_general_overviewcustom1 = en_general_overviewcustom1;
+const da_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Brugerdefineret`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const et_general_overviewcustom1 = en_general_overviewcustom1;
+const et_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Kohandatud`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const lv_general_overviewcustom1 = en_general_overviewcustom1;
+const lv_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pielāgota`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const lt_general_overviewcustom1 = en_general_overviewcustom1;
+const lt_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pasirinktinis`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const pl_general_overviewcustom1 = en_general_overviewcustom1;
+const pl_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Własny`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const de_general_overviewcustom1 = en_general_overviewcustom1;
+const de_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Benutzerdefiniert`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const nl_general_overviewcustom1 = en_general_overviewcustom1;
+const nl_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aangepast`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const fr_general_overviewcustom1 = en_general_overviewcustom1;
+const fr_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Personnalisé`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const it_general_overviewcustom1 = en_general_overviewcustom1;
+const it_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Personalizzato`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const hu_general_overviewcustom1 = en_general_overviewcustom1;
+const hu_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Egyéni`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const cs_general_overviewcustom1 = en_general_overviewcustom1;
+const cs_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vlastní`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const ro_general_overviewcustom1 = en_general_overviewcustom1;
+const ro_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Personalizat`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const el_general_overviewcustom1 = en_general_overviewcustom1;
+const el_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Προσαρμοσμένο`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const bg_general_overviewcustom1 = en_general_overviewcustom1;
+const bg_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Персонализиран`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const hr_general_overviewcustom1 = en_general_overviewcustom1;
+const hr_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Prilagođeno`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const sr_general_overviewcustom1 = en_general_overviewcustom1;
+const sr_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Prilagođeno`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const sk_general_overviewcustom1 = en_general_overviewcustom1;
+const sk_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vlastné`)
+};
 
-/** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */
-const sl_general_overviewcustom1 = en_general_overviewcustom1;
+const sl_general_overviewcustom1 = /** @type {(inputs: General_Overviewcustom1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Po meri`)
+};
 
 /**
 * | output |

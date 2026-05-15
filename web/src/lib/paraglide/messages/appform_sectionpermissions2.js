@@ -9,110 +9,145 @@ const en_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermis
 	return /** @type {LocalizedString} */ (`Permissions`)
 };
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const sv_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const sv_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Behörigheter`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const uk_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const uk_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Дозволи`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const zh_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const zh_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`权限`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const es_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const es_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permisos`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const hi_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const hi_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`अनुमतियाँ`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const pt_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const pt_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permissões`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const bn_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const bn_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`অনুমতি`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const ru_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const ru_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Разрешения`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const ja_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const ja_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`権限`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const vi_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const vi_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Quyền`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const yue_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const yue_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`權限`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const tr_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const tr_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`İzinler`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const ar_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const ar_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`الأذونات`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const wuu_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const wuu_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`权限`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const mr_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const mr_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`परवानग्या`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const nb_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const nb_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillatelser`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const fi_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const fi_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Käyttöoikeudet`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const da_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const da_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tilladelser`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const et_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const et_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Õigused`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const lv_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const lv_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Atļaujas`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const lt_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const lt_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Leidimai`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const pl_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const pl_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Uprawnienia`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const de_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const de_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Berechtigungen`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const nl_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const nl_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permissies`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const fr_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const fr_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permissions`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const it_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const it_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permessi`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const hu_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const hu_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Engedélyek`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const cs_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const cs_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Oprávnění`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const ro_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const ro_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permisiuni`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const el_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const el_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Δικαιώματα`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const bg_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const bg_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Разрешения`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const hr_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const hr_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dozvole`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const sr_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const sr_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dozvole`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const sk_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const sk_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Oprávnenia`)
+};
 
-/** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */
-const sl_appform_sectionpermissions2 = en_appform_sectionpermissions2;
+const sl_appform_sectionpermissions2 = /** @type {(inputs: Appform_Sectionpermissions2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dovoljenja`)
+};
 
 /**
 * | output |

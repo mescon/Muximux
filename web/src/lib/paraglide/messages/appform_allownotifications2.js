@@ -9,110 +9,145 @@ const en_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifica
 	return /** @type {LocalizedString} */ (`Allow notifications`)
 };
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const sv_appform_allownotifications2 = en_appform_allownotifications2;
+const sv_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillåt notifieringar`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const uk_appform_allownotifications2 = en_appform_allownotifications2;
+const uk_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Дозволити сповіщення`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const zh_appform_allownotifications2 = en_appform_allownotifications2;
+const zh_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`允许通知`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const es_appform_allownotifications2 = en_appform_allownotifications2;
+const es_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permitir notificaciones`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const hi_appform_allownotifications2 = en_appform_allownotifications2;
+const hi_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`नोटिफिकेशन की अनुमति दें`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const pt_appform_allownotifications2 = en_appform_allownotifications2;
+const pt_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permitir notificações`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const bn_appform_allownotifications2 = en_appform_allownotifications2;
+const bn_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`নোটিফিকেশন অনুমতি দিন`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const ru_appform_allownotifications2 = en_appform_allownotifications2;
+const ru_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Разрешить уведомления`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const ja_appform_allownotifications2 = en_appform_allownotifications2;
+const ja_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`通知を許可`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const vi_appform_allownotifications2 = en_appform_allownotifications2;
+const vi_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Cho phép thông báo`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const yue_appform_allownotifications2 = en_appform_allownotifications2;
+const yue_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`允許通知`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const tr_appform_allownotifications2 = en_appform_allownotifications2;
+const tr_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bildirimlere izin ver`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const ar_appform_allownotifications2 = en_appform_allownotifications2;
+const ar_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`السماح بالإشعارات`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const wuu_appform_allownotifications2 = en_appform_allownotifications2;
+const wuu_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`允许通知`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const mr_appform_allownotifications2 = en_appform_allownotifications2;
+const mr_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`सूचना अनुमती द्या`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const nb_appform_allownotifications2 = en_appform_allownotifications2;
+const nb_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillat varsler`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const fi_appform_allownotifications2 = en_appform_allownotifications2;
+const fi_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Salli ilmoitukset`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const da_appform_allownotifications2 = en_appform_allownotifications2;
+const da_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillad notifikationer`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const et_appform_allownotifications2 = en_appform_allownotifications2;
+const et_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Luba teavitused`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const lv_appform_allownotifications2 = en_appform_allownotifications2;
+const lv_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Atļaut paziņojumus`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const lt_appform_allownotifications2 = en_appform_allownotifications2;
+const lt_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Leisti pranešimus`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const pl_appform_allownotifications2 = en_appform_allownotifications2;
+const pl_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zezwól na powiadomienia`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const de_appform_allownotifications2 = en_appform_allownotifications2;
+const de_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Benachrichtigungen erlauben`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const nl_appform_allownotifications2 = en_appform_allownotifications2;
+const nl_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Notificaties toestaan`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const fr_appform_allownotifications2 = en_appform_allownotifications2;
+const fr_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Autoriser les notifications`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const it_appform_allownotifications2 = en_appform_allownotifications2;
+const it_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Consenti notifiche`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const hu_appform_allownotifications2 = en_appform_allownotifications2;
+const hu_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Értesítések engedélyezése`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const cs_appform_allownotifications2 = en_appform_allownotifications2;
+const cs_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Povolit oznámení`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const ro_appform_allownotifications2 = en_appform_allownotifications2;
+const ro_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permite notificările`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const el_appform_allownotifications2 = en_appform_allownotifications2;
+const el_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Να επιτρέπονται οι ειδοποιήσεις`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const bg_appform_allownotifications2 = en_appform_allownotifications2;
+const bg_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Позволи известия`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const hr_appform_allownotifications2 = en_appform_allownotifications2;
+const hr_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dopusti obavijesti`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const sr_appform_allownotifications2 = en_appform_allownotifications2;
+const sr_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dozvoli obaveštenja`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const sk_appform_allownotifications2 = en_appform_allownotifications2;
+const sk_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Povoliť upozornenia`)
+};
 
-/** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */
-const sl_appform_allownotifications2 = en_appform_allownotifications2;
+const sl_appform_allownotifications2 = /** @type {(inputs: Appform_Allownotifications2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dovoli obvestila`)
+};
 
 /**
 * | output |

@@ -9,110 +9,145 @@ const en_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2
 	return /** @type {LocalizedString} */ (`Delegate browser features to the embedded iframe. Without these, modern browsers block camera, microphone, geolocation, and similar APIs for cross-origin content.`)
 };
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const sv_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const sv_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegera webbläsarfunktioner till den inbäddade iframen. Utan dessa blockerar moderna webbläsare kamera, mikrofon, geolocation och liknande API:er för innehåll med annan ursprungsdomän.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const uk_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const uk_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Делегує функції браузера вбудованому iframe. Без них сучасні браузери блокують камеру, мікрофон, geolocation та подібні API для крос-доменного вмісту.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const zh_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const zh_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`将浏览器功能委托给嵌入的 iframe。如果不启用，现代浏览器会阻止跨域内容使用摄像头、麦克风、地理位置等 API。`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const es_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const es_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegar funciones del navegador al iframe integrado. Sin esto, los navegadores modernos bloquean cámara, micrófono, geolocalización y APIs similares para contenido de origen cruzado.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const hi_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const hi_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`एम्बेडेड iframe को ब्राउज़र सुविधाएं सौंपें। इनके बिना, आधुनिक ब्राउज़र cross-origin सामग्री के लिए कैमरा, माइक्रोफ़ोन, geolocation और इसी तरह के API ब्लॉक कर देते हैं।`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const pt_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const pt_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delega funcionalidades do navegador para o iframe integrado. Sem estas, os navegadores modernos bloqueiam câmara, microfone, geolocation e APIs semelhantes para conteúdo de origem cruzada.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const bn_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const bn_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`এম্বেড করা iframe-এ ব্রাউজার বৈশিষ্ট্য অর্পণ করুন। এগুলি ছাড়া, আধুনিক ব্রাউজারগুলি cross-origin কন্টেন্টের জন্য ক্যামেরা, মাইক্রোফোন, geolocation এবং অনুরূপ API ব্লক করে।`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const ru_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const ru_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Делегировать возможности браузера встроенному iframe. Без этого современные браузеры блокируют доступ к камере, микрофону, geolocation и подобным API для cross-origin контента.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const ja_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const ja_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ブラウザ機能を埋め込み iframe に委譲します。これがないと、最近のブラウザはクロスオリジンコンテンツに対してカメラ、マイク、位置情報、その他類似の API をブロックします。`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const vi_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const vi_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ủy quyền các tính năng trình duyệt cho iframe nhúng. Nếu không có, các trình duyệt hiện đại sẽ chặn camera, micro, geolocation và các API tương tự đối với nội dung cross-origin.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const yue_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const yue_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`將瀏覽器功能授權俾嵌入嘅 iframe。冇咗呢啲，現代瀏覽器會喺跨來源內容入面封鎖鏡頭、咪、定位同類似嘅 API。`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const tr_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const tr_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tarayıcı özelliklerini gömülü iframe'e devret. Bunlar olmadan modern tarayıcılar; çapraz kaynaklı içerik için kamera, mikrofon, geolocation ve benzeri API'leri engeller.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const ar_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const ar_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`تفويض ميزات المتصفح إلى iframe المضمّن. بدونها، تحظر المتصفحات الحديثة الكاميرا والميكروفون وgeolocation وواجهات API مشابهة للمحتوى من أصول مختلفة.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const wuu_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const wuu_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`把浏览器功能授权给嵌入个 iframe。不开个话，现代浏览器会挡掉跨域内容个摄像头、麦克风、geolocation 等等 API。`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const mr_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const mr_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`एम्बेड केलेल्या iframe ला ब्राउझर वैशिष्ट्ये नियुक्त करा. यांच्याशिवाय, आधुनिक ब्राउझर्स क्रॉस-ओरिजिन सामग्रीसाठी कॅमेरा, मायक्रोफोन, geolocation आणि तत्सम API ब्लॉक करतात.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const nb_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const nb_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deleger nettleserfunksjoner til den innebygde iframen. Uten disse blokkerer moderne nettlesere kamera, mikrofon, geolocation og lignende API-er for innhold på tvers av opphav.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const fi_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const fi_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegoi selaimen ominaisuudet upotetulle iframe-kehykselle. Ilman näitä modernit selaimet estävät kameran, mikrofonin, geolocationin ja vastaavat API:t cross-origin-sisällölle.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const da_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const da_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deleger browserfunktioner til den indlejrede iframe. Uden disse blokerer moderne browsere kamera, mikrofon, geolocation og lignende API'er for krydsdomæneindhold.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const et_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const et_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegeeri brauseri funktsioonid manustatud iframe'ile. Ilma nendeta blokeerivad kaasaegsed brauserid kaamera, mikrofoni, geolocation ja sarnased API-d teiste domeenide sisu jaoks.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const lv_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const lv_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deleģēt pārlūka funkcijas iegultajam iframe. Bez tām mūsdienu pārlūki bloķē kameru, mikrofonu, geolocation un līdzīgus API cross-origin saturam.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const lt_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const lt_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Suteikti naršyklės funkcijas įterptam iframe. Be jų, šiuolaikinės naršyklės blokuoja kamerą, mikrofoną, geolocation ir panašius API skirtingos kilmės turiniui.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const pl_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const pl_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deleguj funkcje przeglądarki do osadzonego iframe. Bez tego nowoczesne przeglądarki blokują kamerę, mikrofon, geolokalizację i podobne API dla treści z innego źródła.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const de_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const de_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Browser-Funktionen an das eingebettete iframe delegieren. Ohne diese blockieren moderne Browser Kamera, Mikrofon, Geolocation und ähnliche APIs für Inhalte mit fremder Herkunft.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const nl_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const nl_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Browserfuncties delegeren aan het ingebedde iframe. Zonder deze blokkeren moderne browsers camera, microfoon, geolocation en vergelijkbare API's voor content met een andere origin.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const fr_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const fr_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Délègue les fonctionnalités du navigateur à l'iframe intégré. Sans cela, les navigateurs modernes bloquent la caméra, le microphone, la géolocalisation et autres API similaires pour le contenu cross-origin.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const it_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const it_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delega le funzionalità del browser all'iframe incorporato. Senza questi, i browser moderni bloccano fotocamera, microfono, geolocalizzazione e API simili per contenuti cross-origin.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const hu_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const hu_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Böngészőfunkciók delegálása a beágyazott iframe-nek. Ezek nélkül a modern böngészők blokkolják a kamera, mikrofon, geolocation és hasonló API-kat a cross-origin tartalom számára.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const cs_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const cs_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegovat funkce prohlížeče vloženému iframe. Bez nich moderní prohlížeče blokují kameru, mikrofon, geolocation a podobná API pro obsah z jiných domén.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const ro_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const ro_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deleagă funcționalitățile browserului către iframe-ul încorporat. Fără acestea, browserele moderne blochează camera, microfonul, geolocation și alte API-uri similare pentru conținutul cross-origin.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const el_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const el_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Παραχωρήστε λειτουργίες του προγράμματος περιήγησης στο ενσωματωμένο iframe. Χωρίς αυτές, τα σύγχρονα προγράμματα περιήγησης μπλοκάρουν την κάμερα, το μικρόφωνο, τη γεωτοποθεσία και παρόμοια APIs για περιεχόμενο διαφορετικής προέλευσης.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const bg_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const bg_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Делегирай функции на браузъра към вградения iframe. Без тях, модерните браузъри блокират камера, микрофон, geolocation и подобни API за съдържание от различен произход.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const hr_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const hr_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegirajte značajke preglednika ugrađenom iframeu. Bez ovoga, moderni preglednici blokiraju kameru, mikrofon, geolocation i slične API-je za sadržaj s različitog porijekla.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const sr_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const sr_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegirajte funkcije pregledača ugrađenom iframe-u. Bez ovoga, moderni pregledači blokiraju kameru, mikrofon, geolocation i slične API-je za sadržaj sa različitim poreklom.`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const sk_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const sk_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delegujte funkcie prehliadača do vloženého iframe. Bez nich moderné prehliadače blokujú kameru, mikrofón, geolocation a podobné API pre obsah s odlišným pôvodom (cross-origin).`)
+};
 
-/** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */
-const sl_appform_permissionsdesc2 = en_appform_permissionsdesc2;
+const sl_appform_permissionsdesc2 = /** @type {(inputs: Appform_Permissionsdesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Prenesi funkcije brskalnika na vgrajeni iframe. Brez tega sodobni brskalniki blokirajo kamero, mikrofon, geolocation in podobne API-je za vsebino z drugačnim izvorom.`)
+};
 
 /**
 * | output |

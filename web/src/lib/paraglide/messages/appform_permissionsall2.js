@@ -9,110 +9,145 @@ const en_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2In
 	return /** @type {LocalizedString} */ (`Allow all permissions`)
 };
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const sv_appform_permissionsall2 = en_appform_permissionsall2;
+const sv_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillåt alla behörigheter`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const uk_appform_permissionsall2 = en_appform_permissionsall2;
+const uk_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Дозволити всі дозволи`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const zh_appform_permissionsall2 = en_appform_permissionsall2;
+const zh_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`允许所有权限`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const es_appform_permissionsall2 = en_appform_permissionsall2;
+const es_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permitir todos los permisos`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const hi_appform_permissionsall2 = en_appform_permissionsall2;
+const hi_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`सभी अनुमतियाँ दें`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const pt_appform_permissionsall2 = en_appform_permissionsall2;
+const pt_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permitir todas as permissões`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const bn_appform_permissionsall2 = en_appform_permissionsall2;
+const bn_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`সব অনুমতি দিন`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const ru_appform_permissionsall2 = en_appform_permissionsall2;
+const ru_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Разрешить все разрешения`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const ja_appform_permissionsall2 = en_appform_permissionsall2;
+const ja_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`すべての権限を許可`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const vi_appform_permissionsall2 = en_appform_permissionsall2;
+const vi_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Cho phép tất cả quyền`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const yue_appform_permissionsall2 = en_appform_permissionsall2;
+const yue_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`允許所有權限`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const tr_appform_permissionsall2 = en_appform_permissionsall2;
+const tr_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tüm izinlere izin ver`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const ar_appform_permissionsall2 = en_appform_permissionsall2;
+const ar_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`السماح بجميع الأذونات`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const wuu_appform_permissionsall2 = en_appform_permissionsall2;
+const wuu_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`允许所有权限`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const mr_appform_permissionsall2 = en_appform_permissionsall2;
+const mr_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`सर्व परवानग्या द्या`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const nb_appform_permissionsall2 = en_appform_permissionsall2;
+const nb_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillat alle tillatelser`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const fi_appform_permissionsall2 = en_appform_permissionsall2;
+const fi_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Salli kaikki käyttöoikeudet`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const da_appform_permissionsall2 = en_appform_permissionsall2;
+const da_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tillad alle tilladelser`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const et_appform_permissionsall2 = en_appform_permissionsall2;
+const et_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Luba kõik õigused`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const lv_appform_permissionsall2 = en_appform_permissionsall2;
+const lv_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Atļaut visas atļaujas`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const lt_appform_permissionsall2 = en_appform_permissionsall2;
+const lt_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Leisti visus leidimus`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const pl_appform_permissionsall2 = en_appform_permissionsall2;
+const pl_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zezwól na wszystkie uprawnienia`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const de_appform_permissionsall2 = en_appform_permissionsall2;
+const de_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Alle Berechtigungen erlauben`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const nl_appform_permissionsall2 = en_appform_permissionsall2;
+const nl_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Alle permissies toestaan`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const fr_appform_permissionsall2 = en_appform_permissionsall2;
+const fr_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Autoriser toutes les permissions`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const it_appform_permissionsall2 = en_appform_permissionsall2;
+const it_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Consenti tutti i permessi`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const hu_appform_permissionsall2 = en_appform_permissionsall2;
+const hu_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Összes engedély megadása`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const cs_appform_permissionsall2 = en_appform_permissionsall2;
+const cs_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Povolit všechna oprávnění`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const ro_appform_permissionsall2 = en_appform_permissionsall2;
+const ro_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Permite toate permisiunile`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const el_appform_permissionsall2 = en_appform_permissionsall2;
+const el_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Παραχώρηση όλων των δικαιωμάτων`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const bg_appform_permissionsall2 = en_appform_permissionsall2;
+const bg_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Позволи всички разрешения`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const hr_appform_permissionsall2 = en_appform_permissionsall2;
+const hr_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dopusti sve dozvole`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const sr_appform_permissionsall2 = en_appform_permissionsall2;
+const sr_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dozvoli sve dozvole`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const sk_appform_permissionsall2 = en_appform_permissionsall2;
+const sk_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Povoliť všetky oprávnenia`)
+};
 
-/** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */
-const sl_appform_permissionsall2 = en_appform_permissionsall2;
+const sl_appform_permissionsall2 = /** @type {(inputs: Appform_Permissionsall2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dovoli vsa dovoljenja`)
+};
 
 /**
 * | output |

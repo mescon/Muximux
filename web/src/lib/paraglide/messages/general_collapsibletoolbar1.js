@@ -9,110 +9,145 @@ const en_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibleto
 	return /** @type {LocalizedString} */ (`Collapsible Toolbar`)
 };
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const sv_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const sv_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Hopfällbart verktygsfält`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const uk_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const uk_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Згортана панель інструментів`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const zh_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const zh_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`可折叠工具栏`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const es_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const es_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Barra de herramientas plegable`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const hi_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const hi_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`संकुचनीय टूलबार`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const pt_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const pt_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Barra de ferramentas recolhível`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const bn_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const bn_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`সঙ্কোচনীয় টুলবার`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const ru_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const ru_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Сворачиваемая панель инструментов`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const ja_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const ja_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`折りたたみ可能なツールバー`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const vi_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const vi_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Thanh công cụ thu gọn`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const yue_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const yue_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`可摺疊工具列`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const tr_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const tr_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Daraltılabilir Araç Çubuğu`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const ar_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const ar_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`شريط أدوات قابل للطي`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const wuu_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const wuu_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`可折叠工具栏`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const mr_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const mr_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`लपवता येणारा टूलबार`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const nb_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const nb_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sammenleggbar verktøylinje`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const fi_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const fi_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Kutistettava työkalupalkki`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const da_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const da_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sammenklappelig værktøjslinje`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const et_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const et_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ahendatav tööriistariba`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const lv_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const lv_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sakļaujamā rīkjosla`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const lt_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const lt_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sutraukiama įrankių juosta`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const pl_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const pl_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zwijany pasek narzędzi`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const de_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const de_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Einklappbare Werkzeugleiste`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const nl_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const nl_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Inklapbare werkbalk`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const fr_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const fr_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Barre d'outils rétractable`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const it_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const it_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Barra strumenti comprimibile`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const hu_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const hu_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Összecsukható eszköztár`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const cs_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const cs_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skládací panel nástrojů`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const ro_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const ro_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bară de instrumente pliabilă`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const el_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const el_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Πτυσσόμενη γραμμή εργαλείων`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const bg_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const bg_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Сгъваема лента с инструменти`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const hr_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const hr_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sklopiva alatna traka`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const sr_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const sr_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sklopiva alatna traka`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const sk_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const sk_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zbaliteľný panel nástrojov`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */
-const sl_general_collapsibletoolbar1 = en_general_collapsibletoolbar1;
+const sl_general_collapsibletoolbar1 = /** @type {(inputs: General_Collapsibletoolbar1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zložljiva orodna vrstica`)
+};
 
 /**
 * | output |

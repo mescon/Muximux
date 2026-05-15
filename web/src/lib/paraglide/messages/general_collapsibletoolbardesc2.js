@@ -9,110 +9,145 @@ const en_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsib
 	return /** @type {LocalizedString} */ (`Collapse utility buttons behind a cogwheel that reveals on hover`)
 };
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const sv_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const sv_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dölj verktygsknappar bakom ett kugghjul som visas vid hovring`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const uk_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const uk_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Приховувати допоміжні кнопки за шестернею, що з'являється при наведенні`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const zh_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const zh_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`将工具按钮隐藏在悬停时展开的齿轮图标后`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const es_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const es_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ocultar los botones de utilidad tras un engranaje que se revela al pasar el cursor`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const hi_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const hi_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`यूटिलिटी बटन को एक cogwheel के पीछे छिपाएं जो होवर पर दिखता है`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const pt_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const pt_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ocultar botões utilitários atrás de uma roda dentada que se revela ao passar o cursor`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const bn_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const bn_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`হোভারে প্রকাশিত একটি কগহুইলের পেছনে ইউটিলিটি বোতামগুলি লুকান`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const ru_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const ru_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Скрывать служебные кнопки за шестерёнкой, появляющейся при наведении`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const ja_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const ja_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ホバーで表示される歯車の後ろにユーティリティボタンを格納`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const vi_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const vi_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ẩn các nút tiện ích sau bánh răng, hiện ra khi di chuột qua`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const yue_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const yue_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`將工具按鈕收喺滑鼠移過時先會展開嘅齒輪後面`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const tr_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const tr_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Yardımcı düğmeleri, fareyle üzerine gelindiğinde açılan bir çark simgesinin arkasına gizle`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const ar_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const ar_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`طي أزرار الأدوات خلف ترس يظهر عند التمرير`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const wuu_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const wuu_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`把工具按钮藏在齿轮后面，鼠标悬上去就出来`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const mr_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const mr_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`होव्हरवर उघडणाऱ्या कॉगव्हीलमागे युटिलिटी बटणे लपवा`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const nb_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const nb_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skjul verktøyknapper bak et tannhjul som vises ved hovring`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const fi_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const fi_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Piilota työkalupainikkeet rattaan taakse, joka tulee näkyviin hiiren osoittaessa`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const da_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const da_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skjul værktøjsknapper bag et tandhjul der vises ved hover`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const et_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const et_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Peida utiliitide nupud hammasratta taha, mis avaneb hõljumisel`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const lv_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const lv_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sakļaut utilītpogas aiz zobratiņa, kas parādās novietojot peli virs tā`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const lt_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const lt_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Slėpti pagalbinius mygtukus už krumpliaračio, kuris pasirodo užvedus pelę`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const pl_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const pl_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ukryj przyciski narzędziowe za kółkiem zębatym, które pojawia się po najechaniu`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const de_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const de_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Werkzeug-Buttons hinter einem Zahnrad verstecken, das bei Hover erscheint`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const nl_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const nl_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Hulpknoppen verbergen achter een tandwiel dat verschijnt bij hover`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const fr_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const fr_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Masquer les boutons utilitaires derrière un engrenage qui apparaît au survol`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const it_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const it_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nascondi i pulsanti di utilità dietro un ingranaggio che appare al passaggio del mouse`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const hu_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const hu_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Eszközgombok elrejtése egy fogaskerék mögött, amely rámutatásra jelenik meg`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const cs_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const cs_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skrýt tlačítka nástrojů za ozubené kolečko, které se odkryje po najetí`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const ro_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const ro_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ascunde butoanele utilitare în spatele unei rotițe care apare la trecerea cursorului`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const el_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const el_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Απόκρυψη κουμπιών βοηθημάτων πίσω από έναν τροχό που εμφανίζεται κατά την αιώρηση`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const bg_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const bg_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Скрий бутоните за инструменти зад зъбно колело, което се показва при задържане на курсора`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const hr_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const hr_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sakrij pomoćne gumbe iza zupčanika koji se otkriva prijelaskom miša`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const sr_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const sr_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sakrij pomoćna dugmad iza zupčanika koji se otkriva prelaskom miša`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const sk_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const sk_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skryť tlačidlá nástrojov za ozubené koleso, ktoré sa odkryje po nabehnutí`)
+};
 
-/** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */
-const sl_general_collapsibletoolbardesc2 = en_general_collapsibletoolbardesc2;
+const sl_general_collapsibletoolbardesc2 = /** @type {(inputs: General_Collapsibletoolbardesc2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skrij pomožne gumbe za zobnik, ki se razkrije ob prehodu z miško`)
+};
 
 /**
 * | output |

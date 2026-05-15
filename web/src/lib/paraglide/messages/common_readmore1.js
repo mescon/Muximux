@@ -9,110 +9,145 @@ const en_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => Local
 	return /** @type {LocalizedString} */ (`Read more`)
 };
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const sv_common_readmore1 = en_common_readmore1;
+const sv_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Läs mer`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const uk_common_readmore1 = en_common_readmore1;
+const uk_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Читати далі`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const zh_common_readmore1 = en_common_readmore1;
+const zh_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`了解更多`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const es_common_readmore1 = en_common_readmore1;
+const es_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Leer más`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const hi_common_readmore1 = en_common_readmore1;
+const hi_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`और पढ़ें`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const pt_common_readmore1 = en_common_readmore1;
+const pt_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ler mais`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const bn_common_readmore1 = en_common_readmore1;
+const bn_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`আরও পড়ুন`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const ru_common_readmore1 = en_common_readmore1;
+const ru_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Подробнее`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const ja_common_readmore1 = en_common_readmore1;
+const ja_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`続きを読む`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const vi_common_readmore1 = en_common_readmore1;
+const vi_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Đọc thêm`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const yue_common_readmore1 = en_common_readmore1;
+const yue_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`睇多啲`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const tr_common_readmore1 = en_common_readmore1;
+const tr_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Devamını oku`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const ar_common_readmore1 = en_common_readmore1;
+const ar_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`اقرأ المزيد`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const wuu_common_readmore1 = en_common_readmore1;
+const wuu_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`看更多`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const mr_common_readmore1 = en_common_readmore1;
+const mr_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`अधिक वाचा`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const nb_common_readmore1 = en_common_readmore1;
+const nb_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Les mer`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const fi_common_readmore1 = en_common_readmore1;
+const fi_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Lue lisää`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const da_common_readmore1 = en_common_readmore1;
+const da_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Læs mere`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const et_common_readmore1 = en_common_readmore1;
+const et_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Loe rohkem`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const lv_common_readmore1 = en_common_readmore1;
+const lv_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Lasīt vairāk`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const lt_common_readmore1 = en_common_readmore1;
+const lt_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Skaityti daugiau`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const pl_common_readmore1 = en_common_readmore1;
+const pl_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Czytaj więcej`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const de_common_readmore1 = en_common_readmore1;
+const de_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mehr erfahren`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const nl_common_readmore1 = en_common_readmore1;
+const nl_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Meer lezen`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const fr_common_readmore1 = en_common_readmore1;
+const fr_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Lire plus`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const it_common_readmore1 = en_common_readmore1;
+const it_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Leggi di più`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const hu_common_readmore1 = en_common_readmore1;
+const hu_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tovább`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const cs_common_readmore1 = en_common_readmore1;
+const cs_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Číst více`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const ro_common_readmore1 = en_common_readmore1;
+const ro_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Citește mai mult`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const el_common_readmore1 = en_common_readmore1;
+const el_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Διαβάστε περισσότερα`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const bg_common_readmore1 = en_common_readmore1;
+const bg_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Прочети повече`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const hr_common_readmore1 = en_common_readmore1;
+const hr_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pročitaj više`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const sr_common_readmore1 = en_common_readmore1;
+const sr_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pročitaj više`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const sk_common_readmore1 = en_common_readmore1;
+const sk_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Čítať viac`)
+};
 
-/** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */
-const sl_common_readmore1 = en_common_readmore1;
+const sl_common_readmore1 = /** @type {(inputs: Common_Readmore1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Preberi več`)
+};
 
 /**
 * | output |

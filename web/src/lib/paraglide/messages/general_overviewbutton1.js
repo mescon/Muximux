@@ -9,110 +9,145 @@ const en_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1In
 	return /** @type {LocalizedString} */ (`Overview Button`)
 };
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const sv_general_overviewbutton1 = en_general_overviewbutton1;
+const sv_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Översiktsknapp`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const uk_general_overviewbutton1 = en_general_overviewbutton1;
+const uk_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Кнопка огляду`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const zh_general_overviewbutton1 = en_general_overviewbutton1;
+const zh_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`概览按钮`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const es_general_overviewbutton1 = en_general_overviewbutton1;
+const es_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Botón de resumen`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const hi_general_overviewbutton1 = en_general_overviewbutton1;
+const hi_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`अवलोकन बटन`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const pt_general_overviewbutton1 = en_general_overviewbutton1;
+const pt_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Botão de visão geral`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const bn_general_overviewbutton1 = en_general_overviewbutton1;
+const bn_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`সংক্ষিপ্ত বিবরণ বোতাম`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const ru_general_overviewbutton1 = en_general_overviewbutton1;
+const ru_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Кнопка обзора`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const ja_general_overviewbutton1 = en_general_overviewbutton1;
+const ja_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`概要ボタン`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const vi_general_overviewbutton1 = en_general_overviewbutton1;
+const vi_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nút tổng quan`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const yue_general_overviewbutton1 = en_general_overviewbutton1;
+const yue_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`概覽按鈕`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const tr_general_overviewbutton1 = en_general_overviewbutton1;
+const tr_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Genel Bakış Düğmesi`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const ar_general_overviewbutton1 = en_general_overviewbutton1;
+const ar_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`زر النظرة العامة`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const wuu_general_overviewbutton1 = en_general_overviewbutton1;
+const wuu_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`总览按钮`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const mr_general_overviewbutton1 = en_general_overviewbutton1;
+const mr_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`विहंगावलोकन बटण`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const nb_general_overviewbutton1 = en_general_overviewbutton1;
+const nb_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Oversiktsknapp`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const fi_general_overviewbutton1 = en_general_overviewbutton1;
+const fi_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Yleiskatsauspainike`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const da_general_overviewbutton1 = en_general_overviewbutton1;
+const da_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Oversigtsknap`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const et_general_overviewbutton1 = en_general_overviewbutton1;
+const et_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ülevaate nupp`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const lv_general_overviewbutton1 = en_general_overviewbutton1;
+const lv_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pārskata poga`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const lt_general_overviewbutton1 = en_general_overviewbutton1;
+const lt_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Apžvalgos mygtukas`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const pl_general_overviewbutton1 = en_general_overviewbutton1;
+const pl_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Przycisk przeglądu`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const de_general_overviewbutton1 = en_general_overviewbutton1;
+const de_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Übersichts-Button`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const nl_general_overviewbutton1 = en_general_overviewbutton1;
+const nl_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Overzichtsknop`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const fr_general_overviewbutton1 = en_general_overviewbutton1;
+const fr_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bouton de vue d'ensemble`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const it_general_overviewbutton1 = en_general_overviewbutton1;
+const it_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pulsante panoramica`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const hu_general_overviewbutton1 = en_general_overviewbutton1;
+const hu_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Áttekintés gomb`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const cs_general_overviewbutton1 = en_general_overviewbutton1;
+const cs_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tlačítko přehledu`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const ro_general_overviewbutton1 = en_general_overviewbutton1;
+const ro_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Buton prezentare generală`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const el_general_overviewbutton1 = en_general_overviewbutton1;
+const el_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Κουμπί επισκόπησης`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const bg_general_overviewbutton1 = en_general_overviewbutton1;
+const bg_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Бутон за преглед`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const hr_general_overviewbutton1 = en_general_overviewbutton1;
+const hr_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Gumb za pregled`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const sr_general_overviewbutton1 = en_general_overviewbutton1;
+const sr_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Dugme za pregled`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const sk_general_overviewbutton1 = en_general_overviewbutton1;
+const sk_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tlačidlo prehľadu`)
+};
 
-/** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */
-const sl_general_overviewbutton1 = en_general_overviewbutton1;
+const sl_general_overviewbutton1 = /** @type {(inputs: General_Overviewbutton1Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Gumb za pregled`)
+};
 
 /**
 * | output |
