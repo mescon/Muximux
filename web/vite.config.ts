@@ -27,16 +27,20 @@ export default defineConfig({
     chunkSizeWarningLimit: 1600,
     rollupOptions: {
       output: {
-        // Pull heavy third-party libs into a stable "vendor" chunk
-        // so they stay cached across deploys (filename hash only
-        // changes when their own versions bump, not on every
-        // application code change). Returning users skip
+        // Pull heavy third-party libs into stable vendor chunks so
+        // they stay cached across deploys (the chunk filename hash
+        // only changes when the library's own version bumps, not
+        // on every application code change). Returning users skip
         // re-downloading them entirely.
-        manualChunks: {
-          'vendor-dnd': ['svelte-dnd-action'],
-          'vendor-toast': ['svelte-sonner'],
-          'vendor-marked': ['marked'],
-          'vendor-zod': ['zod'],
+        //
+        // Vite 8 / rolldown requires manualChunks as a function
+        // (the older object-literal form is rejected at build).
+        manualChunks(id: string) {
+          if (id.includes('node_modules/svelte-dnd-action')) return 'vendor-dnd';
+          if (id.includes('node_modules/svelte-sonner')) return 'vendor-toast';
+          if (id.includes('node_modules/marked')) return 'vendor-marked';
+          if (id.includes('node_modules/zod')) return 'vendor-zod';
+          return undefined;
         },
       },
     },

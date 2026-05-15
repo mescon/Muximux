@@ -130,19 +130,29 @@
     }
   }
 
+  // Filter only the visible tab. The previous implementation
+  // re-filtered all three icon catalogs on every keystroke, so a
+  // search while the Lucide tab was active still scanned thousands
+  // of dashboard icons and any custom uploads. Now we filter just
+  // the active tab here; tab-switch also calls applyFilter to
+  // populate the newly-visible tab on demand.
   function applyFilter() {
     const query = searchQuery.toLowerCase().trim();
-    if (query) {
-      filteredDashboardIcons = dashboardIcons.filter(i => i.name.toLowerCase().includes(query));
-      filteredLucideIcons = lucideIcons.filter(i =>
-        i.name.toLowerCase().includes(query) ||
-        (i.categories?.some(c => c.toLowerCase().includes(query)) ?? false)
-      );
-      filteredCustomIcons = customIcons.filter(i => i.name.toLowerCase().includes(query));
+    if (activeTab === 'dashboard') {
+      filteredDashboardIcons = query
+        ? dashboardIcons.filter(i => i.name.toLowerCase().includes(query))
+        : dashboardIcons;
+    } else if (activeTab === 'lucide') {
+      filteredLucideIcons = query
+        ? lucideIcons.filter(i =>
+            i.name.toLowerCase().includes(query) ||
+            (i.categories?.some(c => c.toLowerCase().includes(query)) ?? false)
+          )
+        : lucideIcons;
     } else {
-      filteredDashboardIcons = dashboardIcons;
-      filteredLucideIcons = lucideIcons;
-      filteredCustomIcons = customIcons;
+      filteredCustomIcons = query
+        ? customIcons.filter(i => i.name.toLowerCase().includes(query))
+        : customIcons;
     }
   }
 
@@ -242,11 +252,16 @@
     }
   });
 
-  // Reset display count when search or tab changes
+  // Reset display count when search or tab changes. Also re-run
+  // applyFilter on a tab switch so the newly-visible tab's
+  // filteredXXX array is populated for the current query -
+  // applyFilter only touches the active tab, so the previously-
+  // visible tab's array stays cached until the user goes back.
   $effect(() => {
     searchQuery;
     activeTab;
     displayCount = INITIAL_BATCH;
+    applyFilter();
   });
 </script>
 

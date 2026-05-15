@@ -398,24 +398,42 @@ func (r *contentRewriter) rewriteBaseHref(result []byte) []byte {
 
 // rewriteURLBase rewrites JavaScript/JSON base path patterns for SPAs (e.g., Sonarr/Radarr).
 // Handles empty base path strings like urlBase or basePath set to blank values.
-// Uses a callback to check that the variable name is not part of a larger
-// identifier (e.g. _baseHref, this._baseHref) — only standalone names or
-// JSON keys are rewritten.
+// Skips matches that are part of a larger identifier (e.g. _baseHref,
+// this._baseHref) by inspecting the byte just before each match.
+//
+// Uses FindAllSubmatchIndex so we get match positions for free,
+// avoiding a per-match bytes.Index full-body scan that turned the
+// rewrite O(n*m) on bundles with many matches.
 func (r *contentRewriter) rewriteURLBase(result []byte) []byte {
-	return urlBaseEmptyPattern.ReplaceAllFunc(result, func(match []byte) []byte {
-		// Find where in result this match starts
-		idx := bytes.Index(result, match)
-		if idx > 0 {
-			prev := result[idx-1]
-			// If preceded by a word character or dot, this is part of a
-			// larger identifier (e.g. this._baseHref) — skip it.
+	indices := urlBaseEmptyPattern.FindAllSubmatchIndex(result, -1)
+	if len(indices) == 0 {
+		return result
+	}
+	out := make([]byte, 0, len(result))
+	lastEnd := 0
+	for _, idx := range indices {
+		start, end := idx[0], idx[1]
+		// Identifier-boundary check: if the byte immediately before
+		// the match is a word char or dot, the matched name is the
+		// tail of a longer identifier and must NOT be rewritten.
+		if start > 0 {
+			prev := result[start-1]
 			if (prev >= 'a' && prev <= 'z') || (prev >= 'A' && prev <= 'Z') ||
 				(prev >= '0' && prev <= '9') || prev == '_' || prev == '.' {
-				return match
+				out = append(out, result[lastEnd:end]...)
+				lastEnd = end
+				continue
 			}
 		}
-		return urlBaseEmptyPattern.ReplaceAll(match, r.urlBaseRepl)
-	})
+		out = append(out, result[lastEnd:start]...)
+		// ReplaceAll on the match slice expands $1..$6 against the
+		// regex's submatches in that slice. Cheaper than rebuilding
+		// the replacement by hand since the pattern is fixed.
+		out = append(out, urlBaseEmptyPattern.ReplaceAll(result[start:end], r.urlBaseRepl)...)
+		lastEnd = end
+	}
+	out = append(out, result[lastEnd:]...)
+	return out
 }
 
 // rewriteImageSet rewrites CSS image-set() functions.
@@ -1333,6 +1351,25 @@ func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 // avoid excessive memory use. In practice, HTML/CSS/JS are rarely this large.
 const maxRewriteSize = 50 * 1024 * 1024
 
+// maxPooledBodyBufSize caps which read buffers go back into the
+// pool. Without this, a single oversized response (e.g. a big
+// Sonarr/Radarr bundle) would leave a multi-megabyte buffer
+// permanently parked in the pool, hogging memory for every
+// subsequent small request that picks it up. Standard pattern;
+// net/http applies the same trick internally.
+const maxPooledBodyBufSize = 1 << 20 // 1 MiB
+
+// bodyReadBufPool reuses the read-into buffer in
+// rewriteResponseBody. The buffer is only used to slurp the
+// upstream body so the rewriter can scan it; the rewriter
+// produces an independent []byte that escapes to the response, so
+// returning the buffer to the pool after rewriting is safe and
+// doesn't risk data races with the bytes.Reader wrapper that
+// ships to the client.
+var bodyReadBufPool = sync.Pool{
+	New: func() any { return new(bytes.Buffer) },
+}
+
 // rewriteResponseBody reads, decompresses (if gzipped), rewrites, and replaces the
 // response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
 // Binary content types and responses exceeding maxRewriteSize are streamed through
@@ -1369,18 +1406,40 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	// us distinguish "exactly at the limit" from "definitely over".
 	limited := io.LimitReader(reader, maxRewriteSize+1)
 
-	body, err := io.ReadAll(limited)
-	if err != nil {
+	// Read upstream body into a pooled buffer. The rewriter produces
+	// an independent []byte (every rewrite path allocates fresh), so
+	// once we've finished rewriting we can release the buffer back
+	// to the pool without aliasing risk.
+	buf := bodyReadBufPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	if _, err := buf.ReadFrom(limited); err != nil {
+		bodyReadBufPool.Put(buf)
 		return fmt.Errorf("proxy: read body: %w", err)
 	}
 	resp.Body.Close()
+	body := buf.Bytes()
+
+	// releaseBuf returns the read buffer to the pool when safe.
+	// "Safe" means after any retained body slices have been copied
+	// out. Capped to maxPooledBodyBufSize so a single oversized
+	// response doesn't park megabytes in the pool indefinitely.
+	releaseBuf := func() {
+		if buf.Cap() <= maxPooledBodyBufSize {
+			bodyReadBufPool.Put(buf)
+		}
+	}
 
 	// Safety net for chunked responses without Content-Length: if the body
 	// exceeds the rewrite limit, return it unmodified rather than rewriting.
 	if int64(len(body)) > maxRewriteSize {
-		resp.Body = io.NopCloser(bytes.NewReader(body))
-		resp.ContentLength = int64(len(body))
-		resp.Header.Set("Content-Length", strconv.Itoa(len(body)))
+		// body aliases the pooled buffer; copy out before releasing
+		// so the response keeps a stable backing array.
+		bodyCopy := make([]byte, len(body))
+		copy(bodyCopy, body)
+		releaseBuf()
+		resp.Body = io.NopCloser(bytes.NewReader(bodyCopy))
+		resp.ContentLength = int64(len(bodyCopy))
+		resp.Header.Set("Content-Length", strconv.Itoa(len(bodyCopy)))
 		resp.Header.Del(headerContentEncoding)
 		return nil
 	}
@@ -1405,6 +1464,10 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	if isHTML {
 		rewritten = rewriter.injectInterceptor(rewritten)
 	}
+
+	// Rewriter allocates fresh slices, so `rewritten` doesn't alias
+	// the pooled buffer - safe to release now.
+	releaseBuf()
 
 	resp.Body = io.NopCloser(bytes.NewReader(rewritten))
 	resp.ContentLength = int64(len(rewritten))

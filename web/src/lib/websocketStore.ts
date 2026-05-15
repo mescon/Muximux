@@ -140,11 +140,18 @@ function handleEvent(event: WebSocketEvent): void {
       break;
 
     case 'app_health_changed': {
-      // Update single app health
+      // Update single app health. Build a new Map rather than
+      // mutating the existing one and returning the same reference -
+      // returning the same Map silently breaks any downstream
+      // consumer that memoises by reference equality (e.g. $derived
+      // chains that compare the previous value). The bulk
+      // health_changed handler above already does this; the two
+      // should agree on the contract.
       const { app, health } = event.payload as { app: string; health: AppHealth };
       healthData.update((data) => {
-        data.set(app, health);
-        return data;
+        const next = new Map(data);
+        next.set(app, health);
+        return next;
       });
       break;
     }
