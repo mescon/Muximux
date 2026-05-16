@@ -97,7 +97,15 @@
     oncomplete,
     needsSetup = false
   }: {
-    oncomplete?: (detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: SetupRequest; setupToken?: string }) => void;
+    oncomplete?: (detail: {
+      apps: App[];
+      navigation: NavigationConfig;
+      groups: Group[];
+      theme: ThemeConfig;
+      setup?: SetupRequest;
+      setupToken?: string;
+      docker?: { enabled: boolean; endpoint: string; network_strategy: 'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal' };
+    }) => void;
     needsSetup?: boolean;
   } = $props();
 
@@ -106,6 +114,15 @@
 
   // Custom app form (minimal: just name + URL, rest configured in right column)
   let customApp = $state({ name: '', url: '' });
+
+  // Docker discovery (3.1.0+). Off by default - opting in records
+  // the daemon endpoint + network strategy in config.yaml so the
+  // post-onboarding Settings -> Discovery page can scan and import
+  // without a second config trip. The wizard does not run the scan
+  // itself; that's still an explicit "Discover apps" action.
+  let dockerEnabled = $state(false);
+  let dockerEndpoint = $state('unix:///var/run/docker.sock');
+  let dockerStrategy = $state<'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal'>('container_ip');
 
   // Per-app customization overrides
   interface AppOverride {
@@ -612,6 +629,7 @@
       groups,
       theme,
       ...(needsSetup && authMethod ? { setup: buildSetupRequest(), setupToken: setupToken.trim() } : {}),
+      ...(dockerEnabled ? { docker: { enabled: true, endpoint: dockerEndpoint.trim(), network_strategy: dockerStrategy } } : {}),
     });
   }
 
@@ -1536,6 +1554,60 @@
           <div class="apps-two-col gap-6">
             <!-- LEFT COLUMN: Custom app + template apps (scrollable) -->
             <div class="apps-left-col space-y-6">
+              <!-- Docker discovery opt-in (3.1.0+). Shown at the top
+                   of the apps step so operators see this first; the
+                   actual scan happens post-onboarding in Settings -> Discovery. -->
+              <div class="p-3 rounded-lg border border-border bg-bg-surface">
+                <label class="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    bind:checked={dockerEnabled}
+                    class="mt-0.5 w-4 h-4 rounded border-border-default text-brand-500 focus:ring-brand-500"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"></path>
+                      </svg>
+                      <span class="text-sm font-semibold text-text-secondary">{m.onboarding_dockerTitle()}</span>
+                    </div>
+                    <p class="text-xs text-text-disabled mt-0.5">{m.onboarding_dockerHint()}</p>
+                  </div>
+                </label>
+                {#if dockerEnabled}
+                  <div class="mt-3 ps-7 space-y-2" in:fly={{ y: -4, duration: 150 }}>
+                    <div>
+                      <label for="docker-endpoint" class="block text-xs text-text-muted mb-1">{m.onboarding_dockerEndpoint()}</label>
+                      <input
+                        id="docker-endpoint"
+                        type="text"
+                        bind:value={dockerEndpoint}
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        placeholder="unix:///var/run/docker.sock"
+                      />
+                      <p class="text-xs text-text-disabled mt-1">{m.onboarding_dockerEndpointHint()}</p>
+                    </div>
+                    <div>
+                      <label for="docker-strategy" class="block text-xs text-text-muted mb-1">{m.onboarding_dockerStrategy()}</label>
+                      <select
+                        id="docker-strategy"
+                        bind:value={dockerStrategy}
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      >
+                        <option value="container_ip">container_ip ({m.onboarding_dockerStrategyContainerIPHint()})</option>
+                        <option value="container_dns">container_dns ({m.onboarding_dockerStrategyContainerDNSHint()})</option>
+                        <option value="host_port">host_port ({m.onboarding_dockerStrategyHostPortHint()})</option>
+                        <option value="host_docker_internal">host_docker_internal ({m.onboarding_dockerStrategyHostDockerInternalHint()})</option>
+                      </select>
+                    </div>
+                    <p class="text-xs text-text-disabled italic">{m.onboarding_dockerPostSetupHint()}</p>
+                  </div>
+                {/if}
+              </div>
+
               <div class="flex items-center gap-2 pb-2 border-b border-border">
                 <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />

@@ -500,8 +500,16 @@
     showSettings = false;
   }
 
-  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: import('./lib/types').SetupRequest; setupToken?: string }) {
-    const { apps: newApps, navigation, groups, theme, setup, setupToken } = detail;
+  async function handleOnboardingComplete(detail: {
+    apps: App[];
+    navigation: NavigationConfig;
+    groups: Group[];
+    theme: ThemeConfig;
+    setup?: import('./lib/types').SetupRequest;
+    setupToken?: string;
+    docker?: { enabled: boolean; endpoint: string; network_strategy: 'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal' };
+  }) {
+    const { apps: newApps, navigation, groups, theme, setup, setupToken, docker } = detail;
 
     try {
       // Submit security setup first (if this was initial setup)
@@ -536,6 +544,26 @@
       const saved = await saveConfig(newConfig);
       config = saved;
       apps = saved.apps;
+
+      // Persist Docker discovery config if the operator opted in
+      // during the wizard. Best-effort: a failure here doesn't roll
+      // back the rest of onboarding, since the operator can always
+      // re-enable from Settings -> Discovery later.
+      if (docker?.enabled) {
+        try {
+          const { updateDiscoveryDockerConfig } = await import('./lib/api');
+          await updateDiscoveryDockerConfig({
+            enabled: true,
+            endpoint: docker.endpoint,
+            tls: { enabled: false },
+            network_strategy: docker.network_strategy,
+            refresh_interval: '60s',
+          });
+        } catch (e) {
+          console.error('Failed to enable Docker discovery during onboarding:', e);
+          toasts.warning(m.toast_dockerDiscoverySetupFailed());
+        }
+      }
 
       // After onboarding, always show the overview (splash) page
       showSplash = true;

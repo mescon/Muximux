@@ -898,6 +898,28 @@ describe('OnboardingWizard', () => {
       expect(screen.getByText('Select apps from the left to get started')).toBeInTheDocument();
     });
 
+    // Docker discovery opt-in (3.1.0+). The toggle lives at the top
+    // of the apps step; checked state reveals endpoint + strategy
+    // inputs and the choices flow through to oncomplete so App.svelte
+    // can call updateDiscoveryDockerConfig after onboarding finishes.
+    it('shows Have Docker? toggle on apps step', () => {
+      renderWizard();
+      expect(screen.getByText('Have Docker?')).toBeInTheDocument();
+    });
+
+    it('Docker endpoint + strategy inputs hidden by default', () => {
+      renderWizard();
+      expect(screen.queryByPlaceholderText('unix:///var/run/docker.sock')).not.toBeInTheDocument();
+    });
+
+    it('reveals Docker endpoint + strategy inputs when toggled on', async () => {
+      renderWizard();
+      const checkbox = screen.getByRole('checkbox', { name: /Have Docker/i });
+      await fireEvent.click(checkbox);
+      expect(screen.getByPlaceholderText('unix:///var/run/docker.sock')).toBeInTheDocument();
+      expect(screen.getByLabelText('Network strategy')).toBeInTheDocument();
+    });
+
     it('shows status text with 0 apps selected', () => {
       renderWizard();
       expect(screen.getByText('0 apps selected')).toBeInTheDocument();
