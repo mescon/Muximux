@@ -36,7 +36,9 @@ This step only appears during initial setup. After setup is complete, authentica
 
 This step uses a two-column layout (single column on mobile):
 
-**Left column** -- Browse popular self-hosted application templates organized by category:
+**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. Tick the box, confirm the Docker endpoint (default is the standard unix socket) and pick a network strategy; when onboarding completes Muximux saves the discovery config so **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan — that happens post-onboarding so you can review what gets imported.
+
+Below the Docker card, browse popular self-hosted application templates organized by category:
 
 - **Media** -- Plex, Jellyfin, Emby, Tautulli, Overseerr, Navidrome
 - **Downloads** -- Sonarr, Radarr, Lidarr, Prowlarr, qBittorrent, SABnzbd, NZBGet, Transmission, Deluge

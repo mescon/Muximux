@@ -204,12 +204,12 @@ The built-in reverse proxy and the Caddy-based gateway are completely separate s
 | | Built-in Reverse Proxy | Caddy Gateway |
 |---|---|---|
 | **Purpose** | Embed apps in iframes | Serve Muximux with TLS, or host additional sites alongside it |
-| **Configured by** | `proxy: true` on individual apps | `server.gateway` Caddyfile in config |
+| **Configured by** | `proxy: true` on individual apps | `server.gateway_sites:` declarative YAML (or Settings -> Gateway) |
 | **Runs inside** | The Go server process | Embedded Caddy instance |
 | **Works without TLS** | Yes | The gateway is only active when TLS/Caddy is enabled |
 | **Rewrites content** | Yes (headers, HTML, CSS, JS, runtime) | No (standard reverse proxy behavior) |
 
-The per-app `proxy: true` setting is for iframe embedding. The `server.gateway` Caddyfile is for serving additional sites alongside Muximux or handling TLS termination. They can be used independently or together.
+The per-app `proxy: true` setting is for iframe embedding. The `gateway_sites:` entries serve additional sites alongside Muximux on their own subdomains or handle TLS termination. They can be used independently or together.
 
 ---
 

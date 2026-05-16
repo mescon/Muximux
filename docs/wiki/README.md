@@ -17,7 +17,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 
 **Dashboard + built-in reverse proxy** -- Same as above, but enable `proxy: true` on apps that don't work in iframes. Muximux proxies those apps through `/proxy/{slug}/`, stripping iframe-blocking headers and rewriting paths. This works in all deployment modes -- no extra configuration needed.
 
-**Full reverse proxy appliance** -- Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS and a `gateway` Caddyfile to serve your other services on their own domains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing -- all from one binary. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough.
+**Full reverse proxy appliance** -- Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS and declare your other services under `gateway_sites:` (or set them up in **Settings -> Gateway**) to serve them on their own subdomains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing -- all from one binary. Optionally gate each subdomain behind the Muximux login (`require_auth: true`) so one sign-in covers your whole homelab. See [TLS & HTTPS](tls-and-gateway.md) and [Gateway Auth Gate](gateway-auth.md) for full walkthroughs.
 
 ## Table of Contents
 
@@ -26,6 +26,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Configuration Reference](configuration.md) -- Full config.yaml format and all available options
 - [Apps](apps.md) -- Adding, configuring, and managing applications
 - [Built-in Reverse Proxy](reverse-proxy.md) -- Proxying app traffic through Muximux
+- [Docker Discovery](docker-discovery.md) -- Auto-import containers as apps with a background refresh poller
 - [Security Overview](security.md) -- Security measures, OWASP ASVS compliance, and hardening details
 - [Authentication](authentication.md) -- Built-in auth, forward auth, and OIDC
   - [Microsoft Entra ID](oidc-microsoft-entra-id.md) -- step-by-step OIDC setup, including readable group names
@@ -38,6 +39,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
   - [Cloudflare Access](forward-auth-cloudflare-access.md) -- forward auth via Cloudflare Zero Trust
 - [TLS & HTTPS](tls-and-gateway.md) -- Automatic certificates, custom certificates, and gateway mode
 - [Gateway Examples](gateway-examples.md) -- Recipes for proxying common homelab services
+- [Gateway Auth Gate](gateway-auth.md) -- Single sign-on across gateway subdomains
 - [Navigation & Layout](navigation.md) -- Sidebar positions, auto-hide, labels, and display options
 - [Split View](split-view.md) -- Side-by-side or stacked app panels with draggable divider
 - [Themes](themes.md) -- Built-in themes, custom themes, and CSS custom properties

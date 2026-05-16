@@ -32,10 +32,11 @@ services:
       # - "8443:8443"
     volumes:
       - ./data:/app/data
-      # Uncomment to mount a custom gateway Caddyfile (legacy
-      # operator-written sites file; the declarative
-      # server.gateway_sites: YAML in config.yaml is the preferred
-      # path from 3.1.0+):
+      # If you have a legacy gateway Caddyfile from 3.0.x, mount it
+      # here once; the first boot under 3.1.0 auto-migrates it to
+      # server.gateway_sites: YAML and backs the original up with a
+      # .pre-3.1.0.bak suffix, then config.yaml is rewritten and the
+      # Caddyfile mount is no longer needed:
       # - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
       #
       # Uncomment to expose the Docker socket so Muximux can scan

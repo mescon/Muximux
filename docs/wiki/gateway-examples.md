@@ -1,12 +1,14 @@
 # Gateway Examples
 
-Practical recipes for using Muximux's embedded Caddy as a reverse proxy for your other services. Each example is a snippet for your gateway Caddyfile (`sites.Caddyfile` or whatever you named it). See [TLS & HTTPS](tls-and-gateway.md) for initial setup.
+> **3.1.0 note:** The recipes below are written as gateway Caddyfile blocks for reference. In 3.1.0+ the supported configuration form is `server.gateway_sites:` declarative YAML; a 3.0.x Caddyfile is auto-migrated to the YAML form on first boot. Use the [Configuration Reference](configuration.md#gateway-sites) for the YAML schema, and **Settings -> Gateway** in the dashboard to edit visually. The Caddyfile snippets here still describe what each gateway-site option *does*; map them to the YAML equivalents by hand or feed your existing Caddyfile through `muximux migrate-gateway` to see the conversion side-by-side.
+
+Practical recipes for using Muximux's embedded Caddy as a reverse proxy for your other services. See [TLS & HTTPS](tls-and-gateway.md) for initial setup.
 
 ---
 
 ## Prerequisites
 
-Your `config.yaml` needs two things:
+Your `config.yaml` needs TLS configured plus one or more `gateway_sites:` entries:
 
 ```yaml
 server:
@@ -14,10 +16,15 @@ server:
   tls:
     domain: "muximux.example.com"    # or cert/key for manual TLS
     email: "admin@example.com"
-  gateway: /path/to/sites.Caddyfile  # points to your gateway file
+  gateway_sites:
+    - domain: grafana.example.com
+      backend_url: http://grafana:3000
+      tls: auto                      # auto | none | custom
 ```
 
-Expose ports 80 and 443 (Caddy needs both for ACME and HTTPS). Restart Muximux after changing `config.yaml`, but the gateway Caddyfile itself is read at startup -- any changes to it also require a restart.
+Expose ports 80 and 443 (Caddy needs both for ACME and HTTPS). Adding or removing `gateway_sites:` entries reloads Caddy in place -- no full restart required. Schema changes to existing sites (TLS-mode flip, auth gate toggle) also reload in place.
+
+The recipe sections below show the Caddyfile shape for each scenario; translate each into the corresponding `gateway_sites:` entry fields (see [Configuration Reference](configuration.md#gateway-sites) for the full schema).
 
 ---
 

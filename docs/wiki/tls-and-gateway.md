@@ -1,5 +1,7 @@
 # TLS and Gateway
 
+> **3.1.0 note:** The `server.gateway:` Caddyfile path is no longer the configured way to serve additional sites. Use `server.gateway_sites:` (declarative YAML) instead. 3.0.x configs are auto-migrated on first boot under 3.1.0; the Caddyfile recipes on this page and on [Gateway Examples](gateway-examples.md) remain useful as a reference for what each gateway-site option does. See the [Migration notes in the 3.1.0 CHANGELOG](https://github.com/mescon/Muximux/blob/main/CHANGELOG.md#breaking-changes) for details.
+
 ## Overview
 
 Muximux always serves on one port (configured via `server.listen`). TLS and gateway features are optional -- when enabled, an embedded Caddy server handles the user-facing port and forwards traffic to the Go server internally.

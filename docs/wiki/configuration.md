@@ -31,8 +31,11 @@ server:
     cert: ""                   # Path to TLS certificate PEM
     key: ""                    # Path to TLS private key PEM
 
-  # Optional: Serve additional sites via Caddy
-  gateway: ""                  # Path to Caddyfile
+  # Replaced by `gateway_sites:` below. If you're upgrading from
+  # 3.0.x and still have this set, Muximux converts it to
+  # `gateway_sites:` on first boot and saves backups of both the
+  # original `config.yaml` and your Caddyfile alongside them.
+  gateway: ""                  # legacy
 
   # Optional: Override the bind address for the embedded Caddy that
   # serves gateway sites. Useful when (a) you don't want to grant
@@ -269,7 +272,7 @@ Muximux validates the configuration on startup and will refuse to start if the c
 - If `tls.domain` is set, `tls.email` is required (for Let's Encrypt registration).
 - `tls.cert` and `tls.key` must both be set or both empty. You cannot provide only one.
 - `tls.domain` and `tls.cert` are mutually exclusive. Use either auto-HTTPS or manual certificates, not both.
-- If `gateway` is set, the referenced Caddyfile must exist on disk.
+- Legacy `gateway:` (Caddyfile path) configs from 3.0.x are auto-migrated to `gateway_sites:` on first boot under 3.1.0 (clean conversions only; lossy ones surface a hard error pointing at `muximux migrate-gateway`).
 - If any `gateway_sites[]` entry has `require_auth: true`, `server.session_cookie_domain` is required and every gated site must be a subdomain of it (real host-suffix check: `evilexample.com` is not a subdomain of `example.com`).
 - `gateway_sites[].min_role` must be one of `user`, `power-user`, `admin` when set (empty means "any authenticated user").
 - `server.gateway_listen` must be a valid bind address (e.g., `:8443` or `127.0.0.1:8443`).
@@ -282,9 +285,9 @@ The following settings **require a restart** to take effect:
 - `server.listen` (listen address/port)
 - `server.base_path` (subpath prefix)
 - `server.tls.*` (all TLS settings)
-- `server.gateway` (Caddyfile path)
 - `server.gateway_listen` (overrides the bind port for the embedded Caddy)
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
+- `server.gateway_sites:` schema changes (the auth gate; backend swaps and TLS-mode flips reload Caddy in place)
 
 Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level, log format -- is applied immediately.
 

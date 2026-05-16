@@ -161,12 +161,17 @@ Use when: you want a public subdomain that survives container moves, and a click
 
 ## Edit Lock + Auto-Detach
 
-When an App or GatewaySite has `docker_key` set, the URL field is **read-only** in the editor with an amber lock badge. Two mechanisms protect the tracking:
+When an App or GatewaySite is tracked, the URL field is **read-only** in the editor with an amber lock badge. Muximux protects your edits across all three ways you might change the URL:
 
-1. **Empty-payload preservation** — a SaveConfig payload that omits the `docker_key` field doesn't wipe the existing tracking (a stale frontend or scripted PUT can't silently detach you).
-2. **URL-change auto-detach** — if you explicitly change the URL via SaveConfig or `PUT /api/app/<name>`, Muximux assumes you're taking manual control, clears the three tracking fields, and emits an audit log line.
+1. **In Settings**, the URL field is locked. To change it, click **Detach** first.
+2. **Through the API**, if a SaveConfig request changes the URL of a tracked entry, Muximux treats that as a deliberate takeover, drops the tracking, and writes an audit log entry.
+3. **In `config.yaml` by hand**, the same thing happens at next boot: Muximux notices your URL differs from the one the poller last wrote, drops the tracking, and notes it in the log. Your edit survives the next refresh tick.
 
-The sanctioned forget path is **DELETE /api/discovery/docker/track/<key>** (the Detach button in Settings → Discovery).
+The sanctioned forget path is the **Detach** button in Settings → Discovery (or `DELETE /api/discovery/docker/track/<key>` from a script).
+
+### docker_managed_url (internal)
+
+You'll see a `docker_managed_url` field appear next to `docker_key` for tracked entries. Muximux writes it from the import flow and updates it on every poller tick. You don't need to touch it. If you do hand-author a tracked entry from scratch, just set `docker_managed_url` to the same value as `url` (or `backend_url` for a gateway site) so the file-edit detach mechanism has a baseline to compare against.
 
 ---
 

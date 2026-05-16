@@ -23,8 +23,52 @@ server:
   #   # cert: /path/to/cert.pem
   #   # key: /path/to/key.pem
 
-  # Optional: reverse proxy additional sites through this port (Caddyfile format)
-  # gateway: /path/to/sites.Caddyfile
+  # Optional: gateway sites served by the embedded Caddy. Each entry
+  # gets its own subdomain with optional auto-HTTPS via Let's Encrypt,
+  # iframe-blocker stripping, custom headers, and (3.1.0+) an optional
+  # Muximux-login gate. Edit visually in Settings -> Gateway, or by
+  # hand here. See the Gateway Examples and Gateway Auth Gate wiki
+  # pages for the full reference.
+  # gateway_sites:
+  #   - domain: sonarr.example.com
+  #     backend_url: http://10.0.0.5:8989
+  #     tls: auto                          # auto (Let's Encrypt) | none | custom
+  #     # tls_cert: /path/to/cert.pem      # required when tls: custom
+  #     # tls_key: /path/to/key.pem        # required when tls: custom
+  #     streaming: false                   # set true for live-streaming backends
+  #     strip_frame_blockers: true         # strip X-Frame-Options for embedding
+  #     forwarded_headers: true            # forward X-Forwarded-Proto/Host/Real-IP
+  #     # proxy_headers: {}                # extra headers injected on upstream requests
+  #     # require_auth: true               # gate this subdomain behind Muximux login
+  #     # min_role: user                   # "user" / "power-user" / "admin"
+  #     # allowed_groups: [family, admins] # case-insensitive; admins bypass
+
+  # Optional: bind the embedded Caddy on an unprivileged port instead
+  # of :80/:443. Useful when fronting Muximux with another reverse
+  # proxy (Cloudflare Tunnel, an upstream Traefik) that terminates TLS,
+  # or when you cannot grant CAP_NET_BIND_SERVICE / run as root.
+  # Empty = legacy behaviour (:80 + :443 + auto-HTTPS).
+  # gateway_listen: ":8443"
+
+  # Optional: cookie scope for cross-subdomain session sharing.
+  # Required when any gateway_sites[] entry has require_auth=true,
+  # otherwise the session cookie won't reach the gated subdomain.
+  # Leading dot is optional (browsers normalise).
+  # session_cookie_domain: ".example.com"
+
+# ─── Docker Discovery (3.1.0+) ──────────────────
+# Off by default. When enabled, Muximux scans the Docker daemon and
+# the Discover modal (Settings -> Discovery) offers to import running
+# containers as apps with auto-filled name, icon, port, and URL.
+# A background refresh poller keeps imported URLs current as
+# container IPs shift across restarts.
+# discovery:
+#   docker:
+#     enabled: true
+#     endpoint: unix:///var/run/docker.sock   # or tcp://host:2376 for a remote daemon
+#     network_strategy: container_ip          # container_ip | container_dns | host_port | host_docker_internal
+#     refresh_interval: 60s                   # how often the poller re-checks tracked apps
+#     # network_filter: [bridge, my-stack]    # only scan containers attached to these networks (empty = all)
 
 # ─── Health Monitoring ──────────────────────────
 health:
@@ -176,6 +220,11 @@ apps:
     # access:                  # Fine-grained access control
     #   roles: []              # Roles that can see this app
     #   users: []              # Usernames that can see this app
+    # Docker auto-management (set by Discovery on import; editing url
+    # by hand auto-detaches). Set these to track an app yourself:
+    # docker_key: "label:sonarr"          # stable identifier for the container
+    # docker_endpoint: unix:///var/run/docker.sock
+    # docker_strategy: container_ip       # container_ip | container_dns | host_port | host_docker_internal
 
   - name: Sonarr
     url: http://localhost:8989

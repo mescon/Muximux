@@ -66,7 +66,7 @@ Muximux is built for a specific kind of user: someone who spends the day working
 
 Making apps embed reliably is where it gets interesting. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in reverse proxy that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime so even heavy single-page apps work the way they do when opened directly. Most dashboards point at your apps. Muximux makes them actually embed.
 
-There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a drag-and-drop visual editor (Homarr excels there). It doesn't have Dashy's breadth of built-in monitoring widgets. It's focused on one thing: making apps work side by side inside a single tab, polished enough to live in.
+There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a freeform grid editor where you arrange resizable widgets on a canvas (Homarr is built around that). It doesn't have Dashy's breadth of built-in monitoring widgets. It's focused on one thing: making apps work side by side inside a single tab, polished enough to live in.
 
 Everything is configured in one YAML file, no database, no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
 
@@ -83,7 +83,7 @@ The dashboards in this space approach things differently. This table is a quick 
 | Notification bridge for embedded apps | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Split view (two apps side by side) | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Live service widgets (torrent counts, episode lists, etc.) | ❌ | ✅ (100+) | ✅ | Partial | ✅ (50+) |
-| Drag-and-drop visual editor | ❌ | ❌ | ✅ | Partial | ✅ |
+| Drag-and-drop visual editor | ✅ apps + groups | ❌ | ✅ | Partial | ✅ |
 | Real-time health checks | ✅ (WebSocket) | ✅ | ✅ | ✅ | ✅ |
 | Built-in users and roles | ✅ | ❌ (external auth) | ✅ | ✅ | Simple |
 | Forward-auth / OIDC / SSO | ✅ | Via external proxy | ✅ (OIDC + LDAP) | ✅ (Plex / Emby / LDAP) | ✅ (Keycloak) |
@@ -126,7 +126,7 @@ Same as above, but some of your apps refuse to load in iframes. Set `proxy: true
 
 ### Full reverse proxy appliance
 
-No existing proxy? Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS via Let's Encrypt and a `gateway` Caddyfile to serve your other services on their own domains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing - all from the same single binary.
+No existing proxy? Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS via Let's Encrypt and declare your other services under `gateway_sites:` in `config.yaml` (or set them up in **Settings -> Gateway**) to serve them on their own subdomains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing - all from the same single binary.
 
 See the [Deployment Guide](docs/wiki/deployment.md) for Docker Compose examples for each setup.
 
@@ -180,9 +180,11 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 - [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
 - [Apps](docs/wiki/apps.md) - Adding and configuring applications
 - [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
+- [Docker Discovery](docs/wiki/docker-discovery.md) - Auto-import containers as apps
 - [Security](docs/wiki/security.md) - Security measures and OWASP ASVS compliance
 - [Authentication](docs/wiki/authentication.md) - Auth methods and setup
 - [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
+- [Gateway Auth Gate](docs/wiki/gateway-auth.md) - Single sign-on for gateway subdomains
 - [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
 - [Split View](docs/wiki/split-view.md) - Side-by-side or stacked app panels
 - [Themes](docs/wiki/themes.md) - Customizing the look
@@ -237,7 +239,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Real-Time Log Viewer** | In-app log viewer with level/source filtering, search, auto-scroll, pause/resume, and download. Debug level exposes detailed request tracing |
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
-| **Gateway** | Reverse proxy other sites and services on your network on their own subdomains -- as declarative YAML `gateway_sites` (with automatic Let's Encrypt) or a hand-written Caddyfile. Optionally gate each subdomain behind the Muximux login (`require_auth`) so one sign-in covers your whole homelab |
+| **Gateway** | Reverse proxy other sites and services on your network on their own subdomains -- declarative YAML `gateway_sites` with per-site TLS modes (automatic Let's Encrypt, none, or custom certs), header forwarding, iframe-blocker stripping, and streaming-safe backends. Edit visually in Settings -> Gateway or by hand. Optionally gate each subdomain behind the Muximux login (`require_auth`) so one sign-in covers your whole homelab |
 | **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Opt-in; off by default |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), draggable FAB, auto-hide, customizable width |

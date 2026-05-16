@@ -121,6 +121,16 @@ There is intentionally no per-site logout: the gate is a centralised SSO layer, 
 
 ---
 
+## Hardening at the gate endpoint
+
+A couple of defence-in-depth measures sit on the gate endpoint:
+
+- **Only reachable from inside Muximux.** `/api/auth/forward` is the receive side of Caddy's forward_auth call, so it only ever gets reached over the loopback interface during normal operation. The endpoint refuses non-loopback callers, which means a public visitor can't probe session validity or gateway-site configuration by hitting it directly.
+- **Login-redirect target is locked to your configured sites.** When the gate sends an anonymous visitor to `/login`, the post-login bounce-back URL is built from the configured `gateway_sites` domain rather than a header value the caller controls. Off-site redirect attacks via header injection are prevented by construction.
+- **Audit log on every decision.** Allows, denials, and permission-denied responses each leave an audit-log line with the host and the session's user/role.
+
+---
+
 ## How it interacts with the other auth modes
 
 | Muximux auth method | Gate behaviour |

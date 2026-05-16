@@ -2,7 +2,7 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [3.1.0] - 2026-05-16
+## [3.1.0] - 2026-05-17
 
 The big one. Two new features that probably matter more than any single 3.0.x point release: Muximux can now **discover Docker containers** and import them as apps with one click, and it can act as a **single-sign-on gate** in front of gateway-hosted subdomains. Plus a healthy round of catalog updates, hardening, and dependency bumps.
 
@@ -88,9 +88,13 @@ If you try to bind 80/443 without either being in place, Muximux exits at startu
 - **Readarr** -- now annotated as EOL. The upstream project was archived; the catalog entry points users at active alternatives (Calibre-Web, Kavita) so new imports don't land on a dead app. Existing apps keep working; the annotation is informational. Resolves part of #333.
 - **Seerr** -- `sct/overseerr-telegram-bot`, `sct/overseerr`, `linuxserver/overseerr`, and `fallenbagel/jellyseerr` are now merged under a single **Seerr** catalog entry, reflecting the upstream project merger. One icon, one name, one set of defaults regardless of which image you're running. Resolves the rest of #333.
 
+### Breaking changes
+
+- **`server.gateway:` (the Caddyfile path) is no longer supported.** On first boot under 3.1.0 Muximux converts your existing Caddyfile to the new `server.gateway_sites:` YAML automatically and saves backups of both files with a `.pre-3.1.0.bak` suffix. Subsequent boots are clean. If your Caddyfile uses something the structured form can't represent (custom matchers, third-party plugins), Muximux won't silently rewrite it - run `muximux migrate-gateway /path/to/sites.Caddyfile > sites.yaml` to see what's blocking the auto path and finish the migration by hand. You can also rebuild your sites visually in **Settings → Gateway**.
+
 ### Migration notes
 
-Drop-in upgrade from 3.0.x. No config migration required; both new features are strictly opt-in.
+Drop-in upgrade from 3.0.x. The legacy `server.gateway:` Caddyfile is auto-converted on first boot (see Breaking changes); both new big features (Docker discovery, auth gate) are strictly opt-in.
 
 - **Docker discovery** stays dormant unless you set `discovery.docker.enabled: true` and reachable `endpoint:` in `config.yaml`. Existing apps are untouched and never get a "managed by discovery" badge until you import them through the modal.
 - **Gateway auth gate** only activates on sites that set `require_auth: true`. Existing `gateway_sites:` entries keep their pure reverse-proxy behaviour. The new top-level `server.session_cookie_domain:` field is optional; setting it has no effect on non-gated sites or on the dashboard itself.
@@ -99,7 +103,8 @@ Drop-in upgrade from 3.0.x. No config migration required; both new features are 
 - **Config validation** is now run on every `PUT /api/config` (Settings save), not just at startup. A bad `session_cookie_domain` / gated-site pairing is now rejected with HTTP 400 instead of being persisted and failing the next boot. This is strictly more defensive; configurations that loaded successfully before will continue to save successfully.
 
 ### Added
-- **Gateway sites are now declarative YAML.** Define them under `server.gateway_sites:` in `config.yaml` with per-site TLS mode, proxy headers, streaming flag, iframe-blocker stripping, and (new in 3.1.0) the auth-gate fields described above. Edit them from **Settings -> Gateway** without dropping into a Caddyfile. The old `server.gateway:` Caddyfile path is still there for the unusual case where you need raw Caddy directives we don't expose in the UI.
+- **Gateway sites are now declarative YAML.** Define them under `server.gateway_sites:` in `config.yaml` with per-site TLS mode, proxy headers, streaming flag, iframe-blocker stripping, and (new in 3.1.0) the auth-gate fields. Edit them from **Settings -> Gateway** without dropping into a Caddyfile. The legacy `server.gateway:` Caddyfile path is gone in this release; clean Caddyfiles are auto-migrated on boot (with `.pre-3.1.0.bak` backups), and `muximux migrate-gateway <caddyfile>` is available for the lossy cases the auto path refuses to silently rewrite.
+- **Onboarding wizard now configures Docker discovery.** The apps step gained a "Have Docker?" opt-in card with endpoint and network-strategy fields. Ticking the box and finishing onboarding writes the discovery config so **Settings -> Discovery** lands ready to scan; the actual import still happens there.
 - **`govulncheck` and `golangci-lint`** now run as part of the local pre-push hook. Skipped cleanly if you don't have them installed; block the push if either reports something when you do.
 
 ### Changed
