@@ -309,10 +309,16 @@
     el.scrollLeft += e.deltaY || e.deltaX;
   }
 
-  // Group apps by their group, sorted by order
+  // Group apps by their group, sorted by order. The server now sends
+  // disabled apps to admins (so the Settings UI can edit them and
+  // round-trip saves don't silently destroy them), but disabled apps
+  // must not show up in the nav for anyone - admin or otherwise.
+  // Filter here so the nav stays clean even when the data source has
+  // disabled entries.
   let groupedApps = $derived.by(() => {
     const acc = {} as Record<string, App[]>;
     for (const app of apps) {
+      if (!app.enabled) continue;
       const group = app.group || 'Ungrouped';
       if (!acc[group]) acc[group] = [];
       acc[group].push(app);

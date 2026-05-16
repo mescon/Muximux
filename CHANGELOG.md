@@ -2,7 +2,7 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [3.1.0] - 2026-05-15
+## [3.1.0] - 2026-05-16
 
 The big one. Two new features that probably matter more than any single 3.0.x point release: Muximux can now **discover Docker containers** and import them as apps with one click, and it can act as a **single-sign-on gate** in front of gateway-hosted subdomains. Plus a healthy round of catalog updates, hardening, and dependency bumps.
 
@@ -88,6 +88,16 @@ If you try to bind 80/443 without either being in place, Muximux exits at startu
 - **Readarr** -- now annotated as EOL. The upstream project was archived; the catalog entry points users at active alternatives (Calibre-Web, Kavita) so new imports don't land on a dead app. Existing apps keep working; the annotation is informational. Resolves part of #333.
 - **Seerr** -- `sct/overseerr-telegram-bot`, `sct/overseerr`, `linuxserver/overseerr`, and `fallenbagel/jellyseerr` are now merged under a single **Seerr** catalog entry, reflecting the upstream project merger. One icon, one name, one set of defaults regardless of which image you're running. Resolves the rest of #333.
 
+### Migration notes
+
+Drop-in upgrade from 3.0.x. No config migration required; both new features are strictly opt-in.
+
+- **Docker discovery** stays dormant unless you set `discovery.docker.enabled: true` and reachable `endpoint:` in `config.yaml`. Existing apps are untouched and never get a "managed by discovery" badge until you import them through the modal.
+- **Gateway auth gate** only activates on sites that set `require_auth: true`. Existing `gateway_sites:` entries keep their pure reverse-proxy behaviour. The new top-level `server.session_cookie_domain:` field is optional; setting it has no effect on non-gated sites or on the dashboard itself.
+- **`server.gateway_listen:`** is optional. Leave it unset to keep the previous behaviour (gateway sites bind to `:443` / `:80` and need either root or `CAP_NET_BIND_SERVICE`).
+- **Readarr / Seerr catalog renames** only affect *new* discovery imports. Existing apps named "Overseerr", "Jellyseerr", or "Readarr" keep their names, icons, and URLs; the catalog rename is metadata-only.
+- **Config validation** is now run on every `PUT /api/config` (Settings save), not just at startup. A bad `session_cookie_domain` / gated-site pairing is now rejected with HTTP 400 instead of being persisted and failing the next boot. This is strictly more defensive; configurations that loaded successfully before will continue to save successfully.
+
 ### Added
 - **Gateway sites are now declarative YAML.** Define them under `server.gateway_sites:` in `config.yaml` with per-site TLS mode, proxy headers, streaming flag, iframe-blocker stripping, and (new in 3.1.0) the auth-gate fields described above. Edit them from **Settings -> Gateway** without dropping into a Caddyfile. The old `server.gateway:` Caddyfile path is still there for the unusual case where you need raw Caddy directives we don't expose in the UI.
 - **`govulncheck` and `golangci-lint`** now run as part of the local pre-push hook. Skipped cleanly if you don't have them installed; block the push if either reports something when you do.
@@ -97,6 +107,9 @@ If you try to bind 80/443 without either being in place, Muximux exits at startu
 
 ### Security
 - **Caddy 2.11.3 ships upstream security patches.** A fastcgi-execution bypass (PHP / FrankenPHP issue), a more thorough fix for the [vars module advisory](https://github.com/advisories/GHSA-m2w3-8f23-hxxf), and two admin-socket auth-bypass fixes all land in this release because we follow Caddy's stable line.
+- **Forward-auth endpoint is now loopback-only.** `/api/auth/forward` (the receive side of Caddy's `forward_auth` directive) checks the caller's `RemoteAddr` and rejects anything that isn't a loopback address. This prevents a public visitor from probing session validity or gateway-site configuration by hitting the endpoint directly. Caddy's in-process forward_auth call always arrives over `127.0.0.1` so the change is transparent for normal use.
+- **Hardened login-redirect URL construction.** The `next=` parameter on the auth-gate's login redirect is now rebuilt from the config-validated `gateway_sites[].domain` rather than the raw `X-Forwarded-Host` header. Only the port suffix (legitimate when `gateway_listen` is set) is inherited from the request. Defence in depth against any future regression that might widen the upstream host-validation check.
+- **Config-API validation** is now strict-equivalent to startup: a malformed `session_cookie_domain` or gated-site pairing PUT through the Settings API is rejected with HTTP 400 and rolled back in memory before it can be persisted.
 
 ## [3.0.32] - 2026-04-30
 

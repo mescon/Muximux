@@ -338,8 +338,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	mergeConfigUpdate(h.config, &update)
 
-	// Save to file
-	if err := h.config.Save(h.configPath); err != nil {
+	rollback := func() {
 		h.config.Server.Title = priorTitle
 		h.config.Server.Language = priorLanguage
 		h.config.Server.LogLevel = priorLogLevel
@@ -351,6 +350,24 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		h.config.Keybindings = priorKeybindings
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
+	}
+
+	// Re-run the same invariant checks Load uses at startup, so a bad
+	// runtime mutation (e.g. a session_cookie_domain that doesn't cover
+	// a configured gateway site) is rejected with a 400 before it can
+	// be persisted and break the next boot.
+	if err := h.config.Validate(); err != nil {
+		rollback()
+		logging.From(r.Context()).Warn("SaveConfig rejected by validation",
+			"source", "audit",
+			"error", err)
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config", "error", err)
+		return
+	}
+
+	// Save to file
+	if err := h.config.Save(h.configPath); err != nil {
+		rollback()
 		logging.Error("SaveConfig failed; in-memory state rolled back",
 			"source", "audit",
 			"error", err)
@@ -1012,7 +1029,13 @@ func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string,
 	domains := gatewayDomainsByAppName(gatewaySites)
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
-		if !apps[i].Enabled {
+		// Admins see all apps including disabled ones - they need to
+		// manage them in the Settings UI, and any save path that
+		// round-trips a sanitised /api/config response would otherwise
+		// silently delete every disabled app the operator configured.
+		// Non-admins only see enabled apps (disabled = hidden from
+		// their menu, matching the nav-bar's own filtering).
+		if !isAdmin && !apps[i].Enabled {
 			continue
 		}
 		// Filter by minimum role if a user role is provided.

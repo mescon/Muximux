@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -62,6 +63,16 @@ func NewGatewayAuthHandler(sessionStore *auth.SessionStore, cfg *config.Config, 
 // in but not allowed" page (logging in again won't help, but
 // signing out + back in as someone else might).
 func (h *GatewayAuthHandler) Forward(w http.ResponseWriter, r *http.Request) {
+	// Defence in depth: Caddy's in-process forward_auth always
+	// reaches us via 127.0.0.1, so anything else is either a direct
+	// browser hit probing for session validity or a misregistered
+	// route. Reject without leaking any session state.
+	if !isLoopbackRemote(r) {
+		logging.Warn("forward-auth rejected non-loopback caller",
+			"source", "audit", "remote", r.RemoteAddr)
+		respondError(w, r, http.StatusForbidden, "forward-auth is only callable over loopback")
+		return
+	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		// Caddy issues a GET; reject anything else so a hostile
 		// internal caller can't probe alternate semantics.
@@ -116,8 +127,12 @@ func (h *GatewayAuthHandler) Forward(w http.ResponseWriter, r *http.Request) {
 	session := h.sessionStore.GetFromRequest(r)
 	if session == nil || session.IsExpired() {
 		// No session: redirect to login with a validated next= param
-		// pointing back at the original gated URL.
-		h.redirectToLogin(w, r, host, requestURI)
+		// pointing back at the original gated URL. Pass the matched
+		// site (not the raw header) so the rebuilt URL uses the
+		// config-validated hostname; only the port suffix is
+		// inherited from the request, since that's the part
+		// gateway_listen can legitimately change at runtime.
+		h.redirectToLogin(w, r, site, host, requestURI)
 		logging.Audit("forward-auth denied",
 			"host", hostOnly, "user", "", "result", "no_session")
 		return
@@ -203,12 +218,19 @@ func sessionInAllowedGroups(session *auth.Session, allowed []string) bool {
 // redirectToLogin issues a 302 to the dashboard's /login endpoint
 // with a validated next= parameter so the user lands back on the
 // originally-requested gated URL after signing in.
-func (h *GatewayAuthHandler) redirectToLogin(w http.ResponseWriter, r *http.Request, host, requestURI string) {
+//
+// The next= host is rebuilt from site.Domain (config-validated)
+// rather than the raw X-Forwarded-Host header, so even if a future
+// change loses the upstream findGatewaySite check this can never
+// emit an off-site redirect target. The port suffix from rawHost
+// is inherited because gateway_listen can legitimately serve gated
+// sites on a non-default port.
+func (h *GatewayAuthHandler) redirectToLogin(w http.ResponseWriter, r *http.Request, site *config.GatewaySite, rawHost, requestURI string) {
 	scheme := "https"
 	if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
 		scheme = proto
 	}
-	originalURL := scheme + "://" + host + requestURI
+	originalURL := scheme + "://" + site.Domain + portSuffix(rawHost) + requestURI
 
 	loginURL := h.dashboardURL + "/login"
 	if h.dashboardURL == "" {
@@ -281,4 +303,35 @@ var htmlEscaper = strings.NewReplacer(
 // host from config), but defence in depth is cheap here.
 func htmlEscape(s string) string {
 	return htmlEscaper.Replace(s)
+}
+
+// isLoopbackRemote returns true when r.RemoteAddr is a loopback
+// address. Empty RemoteAddr returns false (fail closed); a host:port
+// that can't be split returns false for the same reason.
+func isLoopbackRemote(r *http.Request) bool {
+	if r.RemoteAddr == "" {
+		return false
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		// RemoteAddr might be a bare IP (unusual, but possible for
+		// some servers). Try parsing it directly.
+		host = r.RemoteAddr
+	}
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return false
+	}
+	return ip.IsLoopback()
+}
+
+// portSuffix returns the ":NNNN" portion of host, or "" if host has
+// no port. Used to inherit a non-default gateway port (e.g. when
+// gateway_listen sets :8443) onto a redirect URL whose hostname
+// we're rebuilding from validated config.
+func portSuffix(host string) string {
+	if i := strings.IndexByte(host, ':'); i >= 0 {
+		return host[i:]
+	}
+	return ""
 }

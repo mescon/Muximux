@@ -36,8 +36,12 @@
     localStorage.setItem('muximux_splash_groups', JSON.stringify(collapsedGroups));
   }
 
-  // Group apps by their group
+  // Group apps by their group. Disabled apps are skipped here so
+  // the splash tile grid stays in sync with the nav even when the
+  // upstream data includes disabled entries (admins receive them
+  // for editing in Settings; they shouldn't show up here).
   let groupedApps = $derived(apps.reduce((acc, app) => {
+    if (!app.enabled) return acc;
     const group = app.group || 'Ungrouped';
     if (!acc[group]) acc[group] = [];
     acc[group].push(app);

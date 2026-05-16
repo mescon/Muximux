@@ -570,6 +570,14 @@ func expandBracedEnv(s string) (string, []string) {
 	return expanded, out
 }
 
+// Validate is the public entry point for the same invariant
+// checks Load runs at startup. SaveConfig calls it so a bad
+// runtime mutation is rejected with a 400 before being persisted
+// rather than silently breaking the next boot.
+func (c *Config) Validate() error {
+	return c.validate()
+}
+
 // validate checks the configuration for contradictory or incomplete settings.
 func (c *Config) validate() error {
 	tls := c.Server.TLS

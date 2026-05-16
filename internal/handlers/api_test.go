@@ -13,6 +13,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
@@ -111,9 +112,11 @@ func TestGetConfig(t *testing.T) {
 		t.Errorf("expected 2 groups, got %d", len(response.Groups))
 	}
 
-	// Should only return enabled apps
-	if len(response.Apps) != 2 {
-		t.Errorf("expected 2 enabled apps, got %d", len(response.Apps))
+	// Admin GET /api/config returns every configured app, including
+	// disabled, so the Settings UI can edit them and a save round-trip
+	// preserves them. The nav bar filters disabled apps client-side.
+	if len(response.Apps) != 3 {
+		t.Errorf("expected 3 apps for admin (incl. disabled), got %d", len(response.Apps))
 	}
 
 	// Proxied app should have proxyUrl field set
@@ -144,9 +147,11 @@ func TestGetApps(t *testing.T) {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	// Should only include enabled apps
-	if len(apps) != 2 {
-		t.Errorf("expected 2 apps, got %d", len(apps))
+	// Admin (no session = admin in tests) sees every app, including
+	// disabled, so the Settings UI can manage them. Filtering happens
+	// client-side in the nav bar.
+	if len(apps) != 3 {
+		t.Errorf("expected 3 apps for admin (incl. disabled), got %d", len(apps))
 	}
 }
 
@@ -997,9 +1002,11 @@ func TestBuildClientConfigResponse(t *testing.T) {
 	if len(resp.Groups) != 2 {
 		t.Errorf("expected 2 groups, got %d", len(resp.Groups))
 	}
-	// Only enabled apps should be in the response
-	if len(resp.Apps) != 2 {
-		t.Errorf("expected 2 enabled apps, got %d", len(resp.Apps))
+	// Admin response carries every configured app, including
+	// disabled, so the Settings UI can edit them and a save
+	// round-trip preserves them.
+	if len(resp.Apps) != 3 {
+		t.Errorf("expected 3 apps for admin (incl. disabled), got %d", len(resp.Apps))
 	}
 	// Keybindings should be nil when empty
 	if resp.Keybindings != nil {
@@ -1037,6 +1044,180 @@ func TestBuildClientConfigResponse_SessionCookieDomain(t *testing.T) {
 	resp = buildClientConfigResponse(cfg, "admin", nil)
 	if resp.SessionCookieDomain != ".example.com" {
 		t.Errorf("expected SessionCookieDomain '.example.com', got %q", resp.SessionCookieDomain)
+	}
+}
+
+// TestSaveConfig_RoundTripPreservesDisabledAppsForAdmin pins the
+// contract that GET-edit-PUT round-trips through /api/config (the
+// pattern used by the GatewayTab cookie-scope editor, the
+// onboarding wizard, and any future "load config, edit one field,
+// save the whole thing" frontend code) don't silently destroy
+// apps that were disabled.
+//
+// Background: sanitizeApps used to filter ALL disabled apps from
+// the response regardless of caller. An admin loading the config,
+// editing an unrelated field, and saving back would persist the
+// filtered (smaller) apps slice - effectively deleting every
+// disabled app on disk. The fix: admins receive disabled apps in
+// the response so they round-trip cleanly; non-admins still see
+// only enabled apps in their responses.
+func TestSaveConfig_RoundTripPreservesDisabledAppsForAdmin(t *testing.T) {
+	cfg := createTestConfig()
+	// Find an already-disabled app in the fixture; if none exist,
+	// disable one explicitly so the test exercises the path.
+	var hadDisabled bool
+	for i := range cfg.Apps {
+		if !cfg.Apps[i].Enabled {
+			hadDisabled = true
+			break
+		}
+	}
+	if !hadDisabled {
+		cfg.Apps[0].Enabled = false
+		hadDisabled = true
+	}
+	disabledNames := make(map[string]bool)
+	for i := range cfg.Apps {
+		if !cfg.Apps[i].Enabled {
+			disabledNames[cfg.Apps[i].Name] = true
+		}
+	}
+	if len(disabledNames) == 0 {
+		t.Fatal("test setup error: expected at least one disabled app")
+	}
+
+	// Admin response must include disabled apps so the round-trip
+	// can preserve them.
+	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil)
+	gotDisabled := 0
+	for _, a := range resp.Apps {
+		if disabledNames[a.Name] {
+			gotDisabled++
+		}
+	}
+	if gotDisabled != len(disabledNames) {
+		t.Fatalf("admin GET /api/config returned %d/%d disabled apps - round-trip would destroy the missing %d",
+			gotDisabled, len(disabledNames), len(disabledNames)-gotDisabled)
+	}
+
+	// Symmetry check: non-admin responses still filter disabled
+	// apps. The "disabled = hidden from nav" semantic for non-admins
+	// is preserved.
+	respUser := buildClientConfigResponse(cfg, auth.RoleUser, nil)
+	for _, a := range respUser.Apps {
+		if disabledNames[a.Name] {
+			t.Errorf("non-admin response leaked disabled app %q", a.Name)
+		}
+	}
+}
+
+// TestSaveConfig_PreservesSessionCookieDomainThroughRoundTrip pins
+// the contract that the standard "load config, edit a field, save
+// the whole thing" frontend path doesn't accidentally clobber
+// session_cookie_domain. The whole 3.1.0 auth-gate UX depends on
+// this: an operator sets `.example.com` via the inline editor on
+// the Gateway tab, later edits something unrelated (a theme, an
+// app), and the cookie scope must survive that save.
+//
+// The risk model: mergeConfigUpdate writes the field
+// unconditionally. If a frontend somehow sends a PUT body without
+// the field, JSON unmarshal leaves it as "" (Go zero value) and we
+// overwrite the configured value. So the practical guarantee is
+// "any PUT that round-trips a buildClientConfigResponse must
+// preserve the field." This test pins exactly that round-trip.
+func TestSaveConfig_PreservesSessionCookieDomainThroughRoundTrip(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.SessionCookieDomain = ".example.com"
+
+	// 1. Build the response shape the frontend GETs.
+	resp := buildClientConfigResponse(cfg, "admin", nil)
+
+	// 2. Marshal to JSON, then unmarshal into ClientConfigUpdate.
+	// This is what happens on the wire: server emits JSON, frontend
+	// edits the object, frontend PUTs the JSON back.
+	wire, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal client config: %v", err)
+	}
+	var update ClientConfigUpdate
+	if err := json.Unmarshal(wire, &update); err != nil {
+		t.Fatalf("unmarshal client config update: %v", err)
+	}
+	if update.SessionCookieDomain != ".example.com" {
+		t.Errorf("after JSON round-trip, update.SessionCookieDomain = %q, want %q",
+			update.SessionCookieDomain, ".example.com")
+	}
+
+	// 3. Apply the update via the merge function the SaveConfig
+	// handler uses. The original cfg's value must survive.
+	mergeConfigUpdate(cfg, &update)
+	if cfg.Server.SessionCookieDomain != ".example.com" {
+		t.Errorf("after mergeConfigUpdate, cfg.Server.SessionCookieDomain = %q, want %q",
+			cfg.Server.SessionCookieDomain, ".example.com")
+	}
+}
+
+// TestSaveConfig_RejectsInvalidSessionCookieDomain pins the contract
+// that SaveConfig refuses to persist a config the next Load would
+// reject. The risk model: a frontend (or a hand-crafted PUT) sets
+// session_cookie_domain to a value that doesn't cover a configured
+// gated gateway site. Without the API-side Validate call, the file
+// would persist and the next process start would fail to load,
+// leaving the operator with a half-running deployment that needs
+// hand-editing of config.yaml to recover. With validation in place
+// the request returns 400 and the in-memory state is rolled back.
+func TestSaveConfig_RejectsInvalidSessionCookieDomain(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.SessionCookieDomain = ".example.com"
+	cfg.Server.GatewaySites = []config.GatewaySite{
+		{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", RequireAuth: true},
+	}
+	tmpFile, err := os.CreateTemp("", "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+
+	// Build a valid-looking response, then mutate the cookie domain
+	// to something that no longer covers the gated site.
+	resp := buildClientConfigResponse(cfg, "admin", nil)
+	wire, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var update ClientConfigUpdate
+	if err := json.Unmarshal(wire, &update); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	update.SessionCookieDomain = ".other-tld.com"
+	update.Title = "Should-Not-Persist"
+	body, _ := json.Marshal(update)
+
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 from validation, got %d: %s", w.Code, w.Body.String())
+	}
+
+	// In-memory state must be rolled back: title untouched and the
+	// session_cookie_domain still the pre-request value.
+	if cfg.Server.Title != "Test Dashboard" {
+		t.Errorf("title not rolled back: got %q", cfg.Server.Title)
+	}
+	if cfg.Server.SessionCookieDomain != ".example.com" {
+		t.Errorf("session_cookie_domain not rolled back: got %q", cfg.Server.SessionCookieDomain)
+	}
+
+	// The temp file must remain empty (no write happened).
+	info, err := os.Stat(tmpFile.Name())
+	if err != nil {
+		t.Fatalf("stat: %v", err)
+	}
+	if info.Size() != 0 {
+		t.Errorf("config file written despite validation failure (size=%d)", info.Size())
 	}
 }
 
@@ -1720,18 +1901,40 @@ func TestSanitizeApps(t *testing.T) {
 		{Name: "Enabled2", URL: "http://c:8080", Enabled: true, Proxy: true},
 	}
 
-	result := sanitizeApps(apps, "admin", nil, nil)
-
-	if len(result) != 2 {
-		t.Errorf("expected 2 enabled apps, got %d", len(result))
-	}
-
-	// Verify disabled apps are excluded
-	for _, app := range result {
-		if app.Name == "Disabled" {
-			t.Error("disabled app should not be in sanitized list")
+	// Admin sees every configured app, including disabled, so the
+	// Settings UI can manage them and a save round-trip preserves
+	// them. The nav-bar itself filters disabled apps on the client.
+	t.Run("admin sees disabled apps", func(t *testing.T) {
+		result := sanitizeApps(apps, "admin", nil, nil)
+		if len(result) != 3 {
+			t.Fatalf("expected 3 apps for admin (incl. disabled), got %d", len(result))
 		}
-	}
+		found := false
+		for _, app := range result {
+			if app.Name == "Disabled" {
+				found = true
+				if app.Enabled {
+					t.Error("disabled app should retain enabled=false")
+				}
+			}
+		}
+		if !found {
+			t.Error("admin response missing disabled app - round-trip save would destroy it")
+		}
+	})
+
+	// Non-admin roles still get the "disabled = hidden" semantic.
+	t.Run("non-admin filters disabled apps", func(t *testing.T) {
+		result := sanitizeApps(apps, "user", nil, nil)
+		if len(result) != 2 {
+			t.Errorf("expected 2 enabled apps for user, got %d", len(result))
+		}
+		for _, app := range result {
+			if app.Name == "Disabled" {
+				t.Error("non-admin response leaked disabled app")
+			}
+		}
+	})
 }
 
 func TestSanitizeAppsRoleFiltering(t *testing.T) {
