@@ -467,6 +467,7 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		DockerKey:           c.DockerKey,
 		DockerEndpoint:      c.DockerEndpoint,
 		DockerStrategy:      c.DockerStrategy,
+		DockerManagedURL:    c.DockerManagedURL,
 	}
 }
 
@@ -517,6 +518,7 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerKey = existing.DockerKey
 		updated.DockerEndpoint = existing.DockerEndpoint
 		updated.DockerStrategy = existing.DockerStrategy
+		updated.DockerManagedURL = existing.DockerManagedURL
 		return ""
 	}
 	if existing.DockerKey != "" && existing.URL != "" && updated.URL != existing.URL {
@@ -524,8 +526,13 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerKey = ""
 		updated.DockerEndpoint = ""
 		updated.DockerStrategy = ""
+		updated.DockerManagedURL = ""
 		return reason
 	}
+	// Tracking stays; keep DockerManagedURL in sync with the
+	// stored URL so a re-link or no-op save doesn't accidentally
+	// stale the baseline Load() compares against.
+	updated.DockerManagedURL = updated.URL
 	return ""
 }
 
@@ -943,6 +950,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		out.DockerKey = app.DockerKey
 		out.DockerEndpoint = app.DockerEndpoint
 		out.DockerStrategy = app.DockerStrategy
+		out.DockerManagedURL = app.DockerManagedURL
 	}
 	return out
 }
@@ -1012,6 +1020,11 @@ type ClientAppConfig struct {
 	DockerKey      string `json:"docker_key,omitempty"`
 	DockerEndpoint string `json:"docker_endpoint,omitempty"`
 	DockerStrategy string `json:"docker_strategy,omitempty"`
+	// DockerManagedURL is round-tripped through the API so the
+	// applyDockerTrackingPreservation logic can keep the field in
+	// sync with URL after a successful tracking-preserving save.
+	// Frontends do not need to read or display it.
+	DockerManagedURL string `json:"docker_managed_url,omitempty"`
 }
 
 // sanitizeApps removes sensitive fields and filters by role and group

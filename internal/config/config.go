@@ -218,6 +218,13 @@ type GatewaySite struct {
 	DockerKey      string `yaml:"docker_key,omitempty" json:"docker_key,omitempty"`
 	DockerEndpoint string `yaml:"docker_endpoint,omitempty" json:"docker_endpoint,omitempty"`
 	DockerStrategy string `yaml:"docker_strategy,omitempty" json:"docker_strategy,omitempty"`
+	// DockerManagedURL is the URL the poller last wrote. Load()
+	// compares it against BackendURL; a mismatch means the operator
+	// hand-edited the URL in config.yaml, and Load() auto-detaches
+	// the tracking so the operator's edit survives the next poller
+	// tick. Internal field; the API path uses the same mechanism
+	// via applyDockerTrackingPreservation.
+	DockerManagedURL string `yaml:"docker_managed_url,omitempty" json:"docker_managed_url,omitempty"`
 
 	// Gateway auth gate. When RequireAuth is true, Caddy's
 	// forward_auth directive routes every request to this site
@@ -441,6 +448,11 @@ type AppConfig struct {
 	DockerKey      string `yaml:"docker_key,omitempty" json:"docker_key,omitempty"`
 	DockerEndpoint string `yaml:"docker_endpoint,omitempty" json:"docker_endpoint,omitempty"`
 	DockerStrategy string `yaml:"docker_strategy,omitempty" json:"docker_strategy,omitempty"`
+	// DockerManagedURL is the URL the poller last wrote. Load()
+	// compares it against URL; a mismatch means the operator
+	// hand-edited config.yaml, and Load() auto-detaches tracking
+	// so the operator's edit survives the next poller tick.
+	DockerManagedURL string `yaml:"docker_managed_url,omitempty" json:"docker_managed_url,omitempty"`
 }
 
 // AppIconConfig holds app icon settings
@@ -556,6 +568,64 @@ func Load(path string) (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+// autoDetachEditedDockerEntries clears DockerKey/DockerEndpoint/
+// DockerStrategy on apps and gateway sites whose stored URL no
+// longer matches the value the poller last wrote (DockerManagedURL).
+// A mismatch is the file-edit equivalent of clicking Detach in
+// Settings: the operator's chosen URL stays, and the next poller
+// tick stops overwriting it.
+//
+// Empty DockerManagedURL is treated as "field not yet recorded"
+// and grandfathered through (no detach) so configs from earlier
+// 3.1.0 builds keep their tracking until the poller next writes
+// the field. Once recorded, comparisons start.
+func autoDetachEditedDockerEntries(cfg *Config) {
+	for i := range cfg.Apps {
+		app := &cfg.Apps[i]
+		if app.DockerKey == "" {
+			continue
+		}
+		if app.DockerManagedURL == "" {
+			continue // grandfather; poller hasn't recorded a baseline yet
+		}
+		if app.URL == app.DockerManagedURL {
+			continue
+		}
+		logging.Info("Auto-detached app from Docker tracking due to operator URL edit in config.yaml",
+			"source", "config",
+			"app", app.Name,
+			"managed_url", app.DockerManagedURL,
+			"current_url", app.URL,
+			"previous_docker_key", app.DockerKey)
+		app.DockerKey = ""
+		app.DockerEndpoint = ""
+		app.DockerStrategy = ""
+		app.DockerManagedURL = ""
+	}
+	for i := range cfg.Server.GatewaySites {
+		site := &cfg.Server.GatewaySites[i]
+		if site.DockerKey == "" {
+			continue
+		}
+		if site.DockerManagedURL == "" {
+			continue // grandfather
+		}
+		if site.BackendURL == site.DockerManagedURL {
+			continue
+		}
+		logging.Info("Auto-detached gateway site from Docker tracking due to operator URL edit in config.yaml",
+			"source", "config",
+			"site", site.Domain,
+			"managed_url", site.DockerManagedURL,
+			"current_url", site.BackendURL,
+			"previous_docker_key", site.DockerKey)
+		site.DockerKey = ""
+		site.DockerEndpoint = ""
+		site.DockerStrategy = ""
+		site.DockerManagedURL = ""
+	}
 }
 
 // expandBracedEnv replaces ${VAR} references with environment variable values.

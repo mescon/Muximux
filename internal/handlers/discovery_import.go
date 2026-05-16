@@ -308,6 +308,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 					newApp.DockerKey = item.Key
 					newApp.DockerEndpoint = currentEndpoint
 					newApp.DockerStrategy = item.Strategy
+					newApp.DockerManagedURL = newApp.URL
 				case RoutingGateway:
 					// Replace App.URL with the gateway domain so the
 					// menu loads via the public hostname. https:// is
@@ -327,11 +328,13 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 					newApp.DockerKey = ""
 					newApp.DockerEndpoint = ""
 					newApp.DockerStrategy = ""
+					newApp.DockerManagedURL = ""
 				default: // RoutingDirect (covers normalized default)
 					newApp.Proxy = false
 					newApp.DockerKey = item.Key
 					newApp.DockerEndpoint = currentEndpoint
 					newApp.DockerStrategy = item.Strategy
+					newApp.DockerManagedURL = newApp.URL
 				}
 				apps = append(apps, newApp)
 				addedApp = &apps[len(apps)-1]
@@ -377,6 +380,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 				newSite.DockerKey = item.Key
 				newSite.DockerEndpoint = currentEndpoint
 				newSite.DockerStrategy = item.Strategy
+				newSite.DockerManagedURL = newSite.BackendURL
 				if newSite.AppName == "" && addedApp != nil {
 					newSite.AppName = addedApp.Name
 				}

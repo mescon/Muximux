@@ -172,6 +172,7 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 			a.DockerKey = ""
 			a.DockerEndpoint = ""
 			a.DockerStrategy = ""
+			a.DockerManagedURL = ""
 			affectedApps = append(affectedApps, a.Name)
 		}
 	}
@@ -181,6 +182,7 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 			s.DockerKey = ""
 			s.DockerEndpoint = ""
 			s.DockerStrategy = ""
+			s.DockerManagedURL = ""
 			affectedSites = append(affectedSites, s.Domain)
 		}
 	}

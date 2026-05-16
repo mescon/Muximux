@@ -395,17 +395,30 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	priorApps := append([]config.AppConfig(nil), p.deps.Config.Apps...)
 	priorSites := append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
 
-	// Apply changes in memory.
+	// Apply changes in memory. Mirror each URL write into
+	// DockerManagedURL so Load() can detect operator hand-edits
+	// at next startup: the invariant "URL == DockerManagedURL"
+	// holds whenever this tracking entry is poller-managed.
 	for i := range p.deps.Config.Apps {
 		a := &p.deps.Config.Apps[i]
 		if newURL, ok := batch.appURLChanges[a.Name]; ok {
 			a.URL = newURL
+			a.DockerManagedURL = newURL
+		} else if a.DockerKey != "" && a.DockerManagedURL == "" {
+			// Grandfather: tracked entry from a pre-3.1.0 build
+			// has no managed-URL baseline yet. Record the current
+			// URL as the baseline so the next operator edit is
+			// detectable.
+			a.DockerManagedURL = a.URL
 		}
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
 		s := &p.deps.Config.Server.GatewaySites[i]
 		if newURL, ok := batch.siteURLChanges[s.Domain]; ok {
 			s.BackendURL = newURL
+			s.DockerManagedURL = newURL
+		} else if s.DockerKey != "" && s.DockerManagedURL == "" {
+			s.DockerManagedURL = s.BackendURL
 		}
 	}
 

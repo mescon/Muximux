@@ -1074,7 +1074,6 @@ func TestSaveConfig_RoundTripPreservesDisabledAppsForAdmin(t *testing.T) {
 	}
 	if !hadDisabled {
 		cfg.Apps[0].Enabled = false
-		hadDisabled = true
 	}
 	disabledNames := make(map[string]bool)
 	for i := range cfg.Apps {
