@@ -290,6 +290,20 @@ func TestValidation(t *testing.T) {
 	if err := os.WriteFile(gatewayPath, []byte("# test"), 0600); err != nil {
 		t.Fatal(err)
 	}
+	_ = gatewayPath // kept for documentation; the legacy-gateway test now points at lossy.Caddyfile below
+	// A Caddyfile with a directive the structured form can't
+	// represent. Triggers the auto-migration's lossy-refuse path so
+	// the legacy-server.gateway-with-lossy-directives test case
+	// expects the "run migrate-gateway" error rather than silent
+	// rewrite.
+	lossyCaddyfile := filepath.Join(tmpDir, "lossy.Caddyfile")
+	if err := os.WriteFile(lossyCaddyfile, []byte(`example.com {
+    reverse_proxy http://app:8000
+    php_fastcgi unix//run/php/php-fpm.sock
+}
+`), 0600); err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		name    string
@@ -350,17 +364,20 @@ server:
 			wantErr: "use tls.domain or tls.cert/tls.key, not both",
 		},
 		{
-			// v3.1.0 removes server.gateway entirely. Any non-empty
-			// value triggers a hard rejection at Load time with a
-			// migration message pointing at the new gateway_sites
-			// field and the migrate-gateway CLI helper.
-			name: "legacy server.gateway field is rejected",
+			// v3.1.0 auto-migrates `server.gateway:` Caddyfiles to
+			// the new `server.gateway_sites:` form when the
+			// conversion is clean. When the Caddyfile contains
+			// directives the structured form can't represent the
+			// hook refuses to silently rewrite the operator's
+			// config and surfaces a clear "run migrate-gateway"
+			// message instead. Pin the lossy-rejection path here.
+			name: "legacy server.gateway with lossy directives is rejected",
 			yaml: `
 server:
   listen: ":8080"
-  gateway: ` + gatewayPath + `
+  gateway: ` + filepath.Join(tmpDir, "lossy.Caddyfile") + `
 `,
-			wantErr: "server.gateway is no longer supported",
+			wantErr: "migrate-gateway",
 		},
 		{
 			name: "valid domain config",

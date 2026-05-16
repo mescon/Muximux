@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // ThemeConfig holds theme selection
@@ -527,6 +529,28 @@ func Load(path string) (*Config, error) {
 		}
 	}
 
+	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
+	// declarative server.gateway_sites: form. Runs once before
+	// validate() so the migrated sites participate in the same
+	// invariant checks as a hand-written gateway_sites: block. On
+	// success the original config.yaml + Caddyfile are backed up to
+	// .pre-3.1.0.bak alongside the originals; on lossy conversion
+	// the hook returns an error pointing the operator at the
+	// migrate-gateway CLI for manual handling.
+	if cfg.Server.Gateway != "" {
+		if err := autoMigrateGateway(cfg, path); err != nil {
+			return nil, err
+		}
+	}
+
+	// Auto-detach Docker tracking for entries whose url was
+	// hand-edited in config.yaml since the poller last wrote it.
+	// Mirrors what applyDockerTrackingPreservation does on the API
+	// SaveConfig path so the three edit channels (UI, API, file)
+	// all have consistent semantics: operator's URL edit wins,
+	// tracking is dropped.
+	autoDetachEditedDockerEntries(cfg)
+
 	if err := cfg.validate(); err != nil {
 		return nil, err
 	}
@@ -600,13 +624,16 @@ func (c *Config) validate() error {
 	}
 	if c.Server.Gateway != "" {
 		// Removed in v3.1.0: the file-based gateway is no longer
-		// supported. Surface a migration message rather than letting
-		// the operator's instance start with a partial configuration.
+		// supported. Load() auto-migrates on boot (see
+		// autoMigrateGateway), so reaching this branch means a
+		// caller is constructing a Config directly or pushing one
+		// in through SaveConfig. Refuse to persist either way.
 		return fmt.Errorf("server.gateway is no longer supported (removed in v3.1.0).\n\n"+
-			"Migrate your existing Caddyfile to gateway_sites:\n\n"+
+			"Boot-time auto-migration would have converted this; if you see this\n"+
+			"error you are likely setting server.gateway via the API. Use\n"+
+			"server.gateway_sites: directly, or run\n\n"+
 			"  muximux migrate-gateway %s\n\n"+
-			"Then paste the printed YAML under server.gateway_sites: in your\n"+
-			"config.yaml and remove the legacy server.gateway: line.\n\n"+
+			"to convert an existing Caddyfile by hand.\n\n"+
 			"See https://github.com/mescon/Muximux/wiki/tls-and-gateway#migration",
 			c.Server.Gateway)
 	}
