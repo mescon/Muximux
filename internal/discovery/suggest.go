@@ -237,7 +237,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	// was set too. Parse and attach.
 	if s.SuggestedDomain != "" {
 		gw := ParseGatewayLabels(c.Labels)
-		if gatewayLabelsNonEmpty(gw) {
+		if gatewayLabelsNonEmpty(&gw) {
 			s.SuggestedGateway = &SuggestedGatewayConfig{
 				TLS:                gw.TLS,
 				Streaming:          gw.Streaming,
@@ -261,8 +261,10 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 // gatewayLabelsNonEmpty reports whether any gateway-namespace label
 // was actually set. Used so we don't attach an all-zero
 // SuggestedGateway payload that would clutter the JSON output for
-// containers that only set the app.gateway.domain label.
-func gatewayLabelsNonEmpty(g GatewayLabels) bool {
+// containers that only set the app.gateway.domain label. Takes a
+// pointer so the 88-byte struct doesn't cross the function boundary
+// by value (gocritic hugeParam).
+func gatewayLabelsNonEmpty(g *GatewayLabels) bool {
 	return g.TLS != "" || g.Streaming != nil || g.StripFrameBlockers != nil ||
 		g.ForwardedHeaders != nil || g.RequireAuth != nil ||
 		g.MinRole != "" || len(g.AllowedGroups) > 0

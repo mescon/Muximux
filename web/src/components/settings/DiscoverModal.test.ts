@@ -120,6 +120,83 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     expect(payload.items[0].routing).toBe('proxy');
   });
 
+  // GitOps label flow: when the scan returns a suggestion populated
+  // by muximux.app.* and muximux.gateway.* labels, every label
+  // pre-filled field has to land in the import payload so the
+  // backend can write a fully-configured app + gateway-site with
+  // no operator post-edit. Exercises the branch coverage for each
+  // conditional copy in the DiscoverModal's import builder.
+  it('passes label-derived fields through to the import payload (app + gateway)', async () => {
+    const labelledSuggestion = makeSuggestion({
+      confidence: 'high',
+      color: '#3498db',
+      order: 7,
+      open_mode: 'new_tab',
+      proxy: true,
+      proxy_skip_tls_verify: true,
+      min_role: 'user',
+      allowed_groups: ['family', 'admins'],
+      permissions: ['camera', 'microphone'],
+      allow_notifications: true,
+      default: true,
+      shortcut: 3,
+      suggested_domain: 'sonarr.example.com',
+      suggested_gateway: {
+        tls: 'auto',
+        streaming: false,
+        strip_frame_blockers: true,
+        forwarded_headers: true,
+        require_auth: true,
+        min_role: 'user',
+        allowed_groups: ['family'],
+      },
+    });
+    mockApi.scanDockerContainers.mockResolvedValue({ suggestions: [labelledSuggestion] });
+    mockApi.importDockerSuggestions.mockResolvedValue({
+      success: true,
+      items: [{ key: 'name:c1', status: 'created', app_name: 'C1' }],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+
+    await waitFor(() => expect(screen.getByDisplayValue('C1')).toBeInTheDocument());
+
+    const rowCheckbox = screen.getAllByRole('checkbox')[1] as HTMLInputElement;
+    await fireEvent.click(rowCheckbox);
+    // The suggested_domain auto-fills the gateway-domain input and the
+    // gateway-routing checkbox; tick it so the gateway payload is built.
+    const gatewayCheckbox = screen.getByLabelText(/Add gateway site/i) as HTMLInputElement;
+    if (!gatewayCheckbox.checked) await fireEvent.click(gatewayCheckbox);
+
+    const importBtn = screen.getByText(/Import 1 selected/i);
+    await fireEvent.click(importBtn);
+
+    await waitFor(() => expect(mockApi.importDockerSuggestions).toHaveBeenCalled());
+    const payload = mockApi.importDockerSuggestions.mock.calls[0][0];
+    const app = payload.items[0].app;
+    const gw = payload.items[0].gateway;
+    // App-level label pass-through.
+    expect(app.color).toBe('#3498db');
+    expect(app.order).toBe(7);
+    expect(app.open_mode).toBe('new_tab');
+    expect(app.proxy).toBe(true);
+    expect(app.proxy_skip_tls_verify).toBe(true);
+    expect(app.min_role).toBe('user');
+    expect(app.allowed_groups).toEqual(['family', 'admins']);
+    expect(app.permissions).toEqual(['camera', 'microphone']);
+    expect(app.allow_notifications).toBe(true);
+    expect(app.default).toBe(true);
+    expect(app.shortcut).toBe(3);
+    // Gateway-level label pass-through.
+    expect(gw).toBeTruthy();
+    expect(gw.tls).toBe('auto');
+    expect(gw.streaming).toBe(false);
+    expect(gw.strip_frame_blockers).toBe(true);
+    expect(gw.forwarded_headers).toBe(true);
+    expect(gw.require_auth).toBe(true);
+    expect(gw.min_role).toBe('user');
+    expect(gw.allowed_groups).toEqual(['family']);
+  });
+
   it('imports the catalog-suggested icon when the operator does not override it', async () => {
     mockApi.scanDockerContainers.mockResolvedValue({
       // confidence='medium' means the catalog gave us an icon name.

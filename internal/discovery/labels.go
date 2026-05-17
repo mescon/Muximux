@@ -22,11 +22,11 @@ const (
 	LabelAppScheme             = "muximux.app.scheme" // http | https
 	LabelAppPath               = "muximux.app.path"
 	LabelAppHealth             = "muximux.app.health"
-	LabelAppColor              = "muximux.app.color"               // accent color, "#rrggbb"
-	LabelAppOrder              = "muximux.app.order"               // sort order within group
-	LabelAppDefault            = "muximux.app.default"             // "true" to load on dashboard startup
-	LabelAppOpenMode           = "muximux.app.open_mode"           // iframe | new_tab | new_window | redirect
-	LabelAppProxy              = "muximux.app.proxy"               // "true" to route through Muximux's built-in reverse proxy
+	LabelAppColor              = "muximux.app.color"     // accent color, "#rrggbb"
+	LabelAppOrder              = "muximux.app.order"     // sort order within group
+	LabelAppDefault            = "muximux.app.default"   // "true" to load on dashboard startup
+	LabelAppOpenMode           = "muximux.app.open_mode" // iframe | new_tab | new_window | redirect
+	LabelAppProxy              = "muximux.app.proxy"     // "true" to route through Muximux's built-in reverse proxy
 	LabelAppProxySkipTLSVerify = "muximux.app.proxy_skip_tls_verify"
 	LabelAppMinRole            = "muximux.app.min_role"            // user | power-user | admin
 	LabelAppAllowedGroups      = "muximux.app.allowed_groups"      // comma-separated
@@ -52,26 +52,26 @@ const (
 // Empty-when-missing fields are zero values; callers default to
 // catalog or container facts when a field is unset.
 type AppLabels struct {
-	Enabled             *bool // pointer so we can distinguish "absent" from "false"
-	Name                string
-	Icon                string
-	Group               string
-	Port                int    // 0 = unset
-	Scheme              string // "" = unset
-	Path                string
-	Health              string
-	Color               string
-	Order               int   // 0 = unset
-	Default             *bool // pointer to distinguish absent from false
-	OpenMode            string
-	Proxy               *bool
-	ProxySkipTLSVerify  *bool
-	MinRole             string
-	AllowedGroups       []string
-	Permissions         []string
-	AllowNotifications  *bool
-	Shortcut            int // 0 = unset
-	GatewayDomain       string
+	Enabled            *bool // pointer so we can distinguish "absent" from "false"
+	Name               string
+	Icon               string
+	Group              string
+	Port               int    // 0 = unset
+	Scheme             string // "" = unset
+	Path               string
+	Health             string
+	Color              string
+	Order              int   // 0 = unset
+	Default            *bool // pointer to distinguish absent from false
+	OpenMode           string
+	Proxy              *bool
+	ProxySkipTLSVerify *bool
+	MinRole            string
+	AllowedGroups      []string
+	Permissions        []string
+	AllowNotifications *bool
+	Shortcut           int // 0 = unset
+	GatewayDomain      string
 
 	// Unknown collects label keys in the muximux.* namespace we don't
 	// recognise. The scan path logs them at Debug so a typo surfaces
