@@ -108,7 +108,7 @@ Drop-in upgrade from 3.0.x. The legacy `server.gateway:` Caddyfile is auto-conve
 - **`govulncheck` and `golangci-lint`** now run as part of the local pre-push hook. Skipped cleanly if you don't have them installed; block the push if either reports something when you do.
 
 ### Changed
-- **All dependencies refreshed.** Caddy 2.11.3, latest `golang.org/x/crypto` and `x/term`, the npm group (Vite, vitest, tailwindcss, svelte-sonner and others), and the GitHub CodeQL action all bumped to current latest. Six Dependabot PRs absorbed locally before the tag so the post-release inbox stays quiet.
+- **All dependencies refreshed.** Caddy 2.11.3, latest `golang.org/x/crypto` and `x/term`, the npm group (Vite, vitest, tailwindcss, svelte-sonner, eslint, kysely and others), and the GitHub CodeQL action all bumped to current latest. Seven Dependabot PRs absorbed locally before the tag so the post-release inbox stays quiet.
 
 ### Security
 - **Caddy 2.11.3 ships upstream security patches.** A fastcgi-execution bypass (PHP / FrankenPHP issue), a more thorough fix for the [vars module advisory](https://github.com/advisories/GHSA-m2w3-8f23-hxxf), and two admin-socket auth-bypass fixes all land in this release because we follow Caddy's stable line.
