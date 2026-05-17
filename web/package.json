@@ -4,13 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "precheck": "npm run paraglide",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+    "prelint": "npm run paraglide",
     "lint": "eslint .",
+    "pretest": "npm run paraglide",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretest:coverage": "npm run paraglide",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {

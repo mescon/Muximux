@@ -1,17 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 
-// Standalone ApiError class so we can throw it from mocks. Mirrors
-// the shape of $lib/api's real ApiError (Error + numeric status).
-class ApiError extends Error {
-  status: number;
-  constructor(msg: string, status: number) {
-    super(msg);
-    this.status = status;
-    this.name = 'ApiError';
-  }
-}
-
 const mockApi = vi.hoisted(() => ({
   listDockerTracked: vi.fn(),
   detachDockerTracked: vi.fn(),
