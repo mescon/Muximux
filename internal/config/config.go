@@ -980,7 +980,11 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 	}
 
 	switch s.TLS {
-	case TLSModeDefault, TLSModeAuto:
+	case TLSModeDefault, TLSModeAuto, TLSModeNone:
+		// All three modes share the same rule: tls_cert and
+		// tls_key only make sense when tls=custom. Merged into one
+		// branch so a future TLS mode addition can't accidentally
+		// drift from the others (SonarCloud S1871).
 		if s.TLSCert != "" || s.TLSKey != "" {
 			return fmt.Errorf("tls_cert / tls_key are only valid when tls is %q", TLSModeCustom)
 		}
@@ -993,10 +997,6 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 		}
 		if _, err := os.Stat(s.TLSKey); err != nil {
 			return fmt.Errorf("tls_key %q not readable: %w", s.TLSKey, err)
-		}
-	case TLSModeNone:
-		if s.TLSCert != "" || s.TLSKey != "" {
-			return fmt.Errorf("tls_cert / tls_key are only valid when tls is %q", TLSModeCustom)
 		}
 	default:
 		return fmt.Errorf("tls=%q is invalid; expected %q, %q, or %q", s.TLS, TLSModeAuto, TLSModeCustom, TLSModeNone)

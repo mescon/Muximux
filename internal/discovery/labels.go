@@ -93,6 +93,79 @@ type GatewayLabels struct {
 	AllowedGroups      []string
 }
 
+// appLabelHandlers maps each recognised muximux.app.* label name to
+// the small mutator that applies its parsed value onto AppLabels.
+// Splitting the dispatch into a table keeps ParseAppLabels itself
+// low-complexity (one map lookup per label, no giant switch) and
+// makes adding a new label a single-line entry.
+var appLabelHandlers = map[string]func(out *AppLabels, v string){
+	LabelAppEnabled: func(out *AppLabels, v string) { b := boolish(v); out.Enabled = &b },
+	LabelAppName:    func(out *AppLabels, v string) { out.Name = v },
+	LabelAppIcon:    func(out *AppLabels, v string) { out.Icon = v },
+	LabelAppGroup:   func(out *AppLabels, v string) { out.Group = v },
+	LabelAppPort: func(out *AppLabels, v string) {
+		if p, err := strconv.Atoi(v); err == nil && p >= 1 && p <= 65535 {
+			out.Port = p
+		}
+	},
+	LabelAppScheme: func(out *AppLabels, v string) {
+		lv := strings.ToLower(v)
+		if lv == "http" || lv == "https" {
+			out.Scheme = lv
+		}
+	},
+	LabelAppPath:   func(out *AppLabels, v string) { out.Path = v },
+	LabelAppHealth: func(out *AppLabels, v string) { out.Health = v },
+	LabelAppColor: func(out *AppLabels, v string) {
+		if isHexColor(v) {
+			out.Color = v
+		}
+	},
+	LabelAppOrder: func(out *AppLabels, v string) {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 && n <= 9999 {
+			out.Order = n
+		}
+	},
+	LabelAppDefault: func(out *AppLabels, v string) { b := boolish(v); out.Default = &b },
+	LabelAppOpenMode: func(out *AppLabels, v string) {
+		lv := strings.ToLower(strings.TrimSpace(v))
+		if lv == "iframe" || lv == "new_tab" || lv == "new_window" || lv == "redirect" {
+			out.OpenMode = lv
+		}
+	},
+	LabelAppProxy:              func(out *AppLabels, v string) { b := boolish(v); out.Proxy = &b },
+	LabelAppProxySkipTLSVerify: func(out *AppLabels, v string) { b := boolish(v); out.ProxySkipTLSVerify = &b },
+	LabelAppMinRole: func(out *AppLabels, v string) {
+		lv := strings.ToLower(strings.TrimSpace(v))
+		if lv == "user" || lv == "power-user" || lv == "admin" {
+			out.MinRole = lv
+		}
+	},
+	LabelAppAllowedGroups:      func(out *AppLabels, v string) { out.AllowedGroups = splitCSV(v) },
+	LabelAppPermissions:        func(out *AppLabels, v string) { out.Permissions = splitCSV(v) },
+	LabelAppAllowNotifications: func(out *AppLabels, v string) { b := boolish(v); out.AllowNotifications = &b },
+	LabelAppShortcut: func(out *AppLabels, v string) {
+		if n, err := strconv.Atoi(v); err == nil && n >= 1 && n <= 9 {
+			out.Shortcut = n
+		}
+	},
+	LabelAppGatewayDomain: func(out *AppLabels, v string) { out.GatewayDomain = v },
+}
+
+// knownNonAppLabels are recognised muximux.* names that ParseAppLabels
+// intentionally ignores (they're consumed by other parsers). Listed
+// here so they don't end up flagged as Unknown.
+var knownNonAppLabels = map[string]struct{}{
+	LabelDiscoveryID:               {},
+	LabelGatewayTLS:                {},
+	LabelGatewayStreaming:          {},
+	LabelGatewayStripFrameBlockers: {},
+	LabelGatewayForwardedHeaders:   {},
+	LabelGatewayRequireAuth:        {},
+	LabelGatewayMinRole:            {},
+	LabelGatewayAllowedGroups:      {},
+}
+
 // ParseAppLabels extracts known muximux.app.* and muximux.discovery.*
 // labels from a container's label map. Validates ranges
 // (port 1..65535, scheme http|https, open_mode shape, etc.) and
@@ -109,81 +182,14 @@ func ParseAppLabels(labels map[string]string) AppLabels {
 		if !strings.HasPrefix(k, "muximux.") {
 			continue
 		}
-		switch k {
-		case LabelAppEnabled:
-			b := boolish(v)
-			out.Enabled = &b
-		case LabelAppName:
-			out.Name = v
-		case LabelAppIcon:
-			out.Icon = v
-		case LabelAppGroup:
-			out.Group = v
-		case LabelAppPort:
-			if p, err := strconv.Atoi(v); err == nil && p >= 1 && p <= 65535 {
-				out.Port = p
-			}
-		case LabelAppScheme:
-			lv := strings.ToLower(v)
-			if lv == "http" || lv == "https" {
-				out.Scheme = lv
-			}
-		case LabelAppPath:
-			out.Path = v
-		case LabelAppHealth:
-			out.Health = v
-		case LabelAppColor:
-			if isHexColor(v) {
-				out.Color = v
-			}
-		case LabelAppOrder:
-			if n, err := strconv.Atoi(v); err == nil && n >= 0 && n <= 9999 {
-				out.Order = n
-			}
-		case LabelAppDefault:
-			b := boolish(v)
-			out.Default = &b
-		case LabelAppOpenMode:
-			lv := strings.ToLower(strings.TrimSpace(v))
-			switch lv {
-			case "iframe", "new_tab", "new_window", "redirect":
-				out.OpenMode = lv
-			}
-		case LabelAppProxy:
-			b := boolish(v)
-			out.Proxy = &b
-		case LabelAppProxySkipTLSVerify:
-			b := boolish(v)
-			out.ProxySkipTLSVerify = &b
-		case LabelAppMinRole:
-			lv := strings.ToLower(strings.TrimSpace(v))
-			switch lv {
-			case "user", "power-user", "admin":
-				out.MinRole = lv
-			}
-		case LabelAppAllowedGroups:
-			out.AllowedGroups = splitCSV(v)
-		case LabelAppPermissions:
-			out.Permissions = splitCSV(v)
-		case LabelAppAllowNotifications:
-			b := boolish(v)
-			out.AllowNotifications = &b
-		case LabelAppShortcut:
-			if n, err := strconv.Atoi(v); err == nil && n >= 1 && n <= 9 {
-				out.Shortcut = n
-			}
-		case LabelAppGatewayDomain:
-			out.GatewayDomain = v
-		case LabelDiscoveryID:
-			// Handled by KeyForContainer, not this struct.
-		case LabelGatewayTLS, LabelGatewayStreaming, LabelGatewayStripFrameBlockers,
-			LabelGatewayForwardedHeaders, LabelGatewayRequireAuth,
-			LabelGatewayMinRole, LabelGatewayAllowedGroups:
-			// Parsed by ParseGatewayLabels - listed here so they don't
-			// show up in Unknown.
-		default:
-			out.Unknown = append(out.Unknown, k)
+		if h, ok := appLabelHandlers[k]; ok {
+			h(&out, v)
+			continue
 		}
+		if _, known := knownNonAppLabels[k]; known {
+			continue
+		}
+		out.Unknown = append(out.Unknown, k)
 	}
 	return out
 }
@@ -191,39 +197,37 @@ func ParseAppLabels(labels map[string]string) AppLabels {
 // ParseGatewayLabels extracts the muximux.gateway.* namespace from a
 // container's label map. Returned as a separate struct so callers
 // only consult it when AppLabels.GatewayDomain is set.
+// gatewayLabelHandlers mirrors appLabelHandlers but for the
+// muximux.gateway.* namespace. Same dispatch-table shape keeps
+// ParseGatewayLabels free of nested switch + low-complexity.
+var gatewayLabelHandlers = map[string]func(out *GatewayLabels, v string){
+	LabelGatewayTLS: func(out *GatewayLabels, v string) {
+		lv := strings.ToLower(strings.TrimSpace(v))
+		if lv == "auto" || lv == "none" || lv == "custom" {
+			out.TLS = lv
+		}
+	},
+	LabelGatewayStreaming:          func(out *GatewayLabels, v string) { b := boolish(v); out.Streaming = &b },
+	LabelGatewayStripFrameBlockers: func(out *GatewayLabels, v string) { b := boolish(v); out.StripFrameBlockers = &b },
+	LabelGatewayForwardedHeaders:   func(out *GatewayLabels, v string) { b := boolish(v); out.ForwardedHeaders = &b },
+	LabelGatewayRequireAuth:        func(out *GatewayLabels, v string) { b := boolish(v); out.RequireAuth = &b },
+	LabelGatewayMinRole: func(out *GatewayLabels, v string) {
+		lv := strings.ToLower(strings.TrimSpace(v))
+		if lv == "user" || lv == "power-user" || lv == "admin" {
+			out.MinRole = lv
+		}
+	},
+	LabelGatewayAllowedGroups: func(out *GatewayLabels, v string) { out.AllowedGroups = splitCSV(v) },
+}
+
 func ParseGatewayLabels(labels map[string]string) GatewayLabels {
 	out := GatewayLabels{}
 	if len(labels) == 0 {
 		return out
 	}
 	for k, v := range labels {
-		switch k {
-		case LabelGatewayTLS:
-			lv := strings.ToLower(strings.TrimSpace(v))
-			switch lv {
-			case "auto", "none", "custom":
-				out.TLS = lv
-			}
-		case LabelGatewayStreaming:
-			b := boolish(v)
-			out.Streaming = &b
-		case LabelGatewayStripFrameBlockers:
-			b := boolish(v)
-			out.StripFrameBlockers = &b
-		case LabelGatewayForwardedHeaders:
-			b := boolish(v)
-			out.ForwardedHeaders = &b
-		case LabelGatewayRequireAuth:
-			b := boolish(v)
-			out.RequireAuth = &b
-		case LabelGatewayMinRole:
-			lv := strings.ToLower(strings.TrimSpace(v))
-			switch lv {
-			case "user", "power-user", "admin":
-				out.MinRole = lv
-			}
-		case LabelGatewayAllowedGroups:
-			out.AllowedGroups = splitCSV(v)
+		if h, ok := gatewayLabelHandlers[k]; ok {
+			h(&out, v)
 		}
 	}
 	return out

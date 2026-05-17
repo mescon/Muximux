@@ -7,6 +7,12 @@ import (
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
+// urlFormat is the shared format string for building `<scheme>://<host>:<port>`
+// URLs across all the network strategies. Centralised so a future
+// IPv6-aware change (e.g. wrapping the host in brackets) only has
+// to update one spot.
+const urlFormat = "%s://%s:%d"
+
 // buildURLForSuggestion constructs the App URL / Gateway BackendURL
 // from container facts using the strategy on the suggestion. Strategy
 // rules per dev/docker-discovery-plan.md "Network strategies":
@@ -28,14 +34,14 @@ func buildURLForSuggestion(strategy string, c *ContainerSummary, port int, schem
 		if ip == "" {
 			return "", fmt.Errorf("container has no network IP for container_ip strategy")
 		}
-		return fmt.Sprintf("%s://%s:%d", scheme, ip, port), nil
+		return fmt.Sprintf(urlFormat, scheme, ip, port), nil
 
 	case config.StrategyContainerDNS:
 		name := c.PrimaryName()
 		if name == "" {
 			return "", fmt.Errorf("container has no name for container_dns strategy")
 		}
-		return fmt.Sprintf("%s://%s:%d", scheme, name, port), nil
+		return fmt.Sprintf(urlFormat, scheme, name, port), nil
 
 	case config.StrategyHostPort:
 		hostPort := hostBindingForPort(c, port)
@@ -46,7 +52,7 @@ func buildURLForSuggestion(strategy string, c *ContainerSummary, port int, schem
 		if host == "" {
 			host = "127.0.0.1"
 		}
-		return fmt.Sprintf("%s://%s:%d", scheme, host, hostPort), nil
+		return fmt.Sprintf(urlFormat, scheme, host, hostPort), nil
 
 	case config.StrategyHostDockerInternal:
 		hostPort := hostBindingForPort(c, port)

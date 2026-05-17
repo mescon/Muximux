@@ -134,8 +134,11 @@ describe('favicon module', () => {
 
       const { updateFavicons } = await freshImport();
 
-      // Should not throw
+      // Without a document the function must return early instead
+      // of crashing. Verify the safe path by asserting that no DOM
+      // side effect (createObjectURL on the favicon blob) occurred.
       await updateFavicons('#ff0000');
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
 
       Object.defineProperty(globalThis, 'document', {
         value: origDoc,

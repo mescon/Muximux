@@ -841,8 +841,10 @@ describe('CommandPalette', () => {
       });
 
       const button = screen.getByText('Grafana').closest('button');
-      // Should not throw
+      // The click should be a no-op without a registered onselect; the
+      // palette stays on screen because nothing closes it.
       await fireEvent.click(button!);
+      expect(screen.getByText('Grafana')).toBeInTheDocument();
     });
 
     it('handles action click gracefully when onaction is undefined', async () => {
@@ -851,8 +853,10 @@ describe('CommandPalette', () => {
       });
 
       const button = screen.getByText('Toggle Fullscreen').closest('button');
-      // Should not throw
+      // Without onaction, the click is silently absorbed; the action
+      // remains in the palette so it can be re-tried.
       await fireEvent.click(button!);
+      expect(screen.getByText('Toggle Fullscreen')).toBeInTheDocument();
     });
 
     it('handles Escape gracefully when onclose is undefined', async () => {
@@ -860,8 +864,11 @@ describe('CommandPalette', () => {
         props: { apps: sampleApps },
       });
 
-      // Should not throw
+      // Without onclose, Escape can't close the palette; it stays
+      // rendered and the test would have crashed if the handler
+      // threw on the missing callback.
       await fireEvent.keyDown(window, { key: 'Escape' });
+      expect(screen.getByText('Grafana')).toBeInTheDocument();
     });
   });
 

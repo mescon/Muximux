@@ -1452,8 +1452,10 @@ describe('OnboardingWizard', () => {
 
     it('renders without oncomplete callback without crashing', async () => {
       renderWizard();
-      // Should not throw when clicking Launch Dashboard without callback
+      // Without oncomplete the click is absorbed silently; the
+      // wizard stays rendered because no callback closed it.
       await fireEvent.click(screen.getByText('Launch Dashboard'));
+      expect(screen.getByText('Launch Dashboard')).toBeInTheDocument();
     });
   });
 

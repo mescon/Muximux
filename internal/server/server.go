@@ -1818,7 +1818,7 @@ func spaHandlerDev(fileServer http.Handler, distDir, basePath string) (http.Hand
 				return
 			}
 			content = bytes.Replace(content, []byte("</head>"), injection, 1)
-			w.Header().Set(headerContentType, "text/html; charset=utf-8")
+			w.Header().Set(headerContentType, contentTypeHTML)
 			w.Header().Set("Cache-Control", "no-cache")
 			w.Write(content)
 			return
@@ -1826,7 +1826,7 @@ func spaHandlerDev(fileServer http.Handler, distDir, basePath string) (http.Hand
 		// See spaHandlerEmbed for the rationale on /assets vs the
 		// rest. Content-hashed Vite assets are safe to ship as
 		// immutable; everything else must revalidate.
-		if strings.HasPrefix(r.URL.Path, "/assets/") {
+		if strings.HasPrefix(r.URL.Path, assetsPathPrefix) {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		} else {
 			w.Header().Set("Cache-Control", "no-cache")
@@ -1870,12 +1870,12 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 	// Also pre-compress the post-base-path-injection index since it
 	// served separately from the file-system walk above (the bytes
 	// don't match what's in fsys after injection).
-	indexAsset := buildSingleAsset(indexContent, "text/html; charset=utf-8")
+	indexAsset := buildSingleAsset(indexContent, contentTypeHTML)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isSPARoute(r.URL.Path) {
 			h := w.Header()
-			h.Set(headerContentType, "text/html; charset=utf-8")
+			h.Set(headerContentType, contentTypeHTML)
 			h.Set("ETag", indexETag)
 			h.Set("Cache-Control", "no-cache")
 			if r.Header.Get("If-None-Match") == indexETag {
@@ -1884,10 +1884,10 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 			}
 			// Vary so a downstream cache doesn't poison the
 			// uncompressed body for clients that asked for br/gz.
-			h.Set("Vary", "Accept-Encoding")
-			body := selectVariant(indexAsset, r.Header.Get("Accept-Encoding"), h)
+			h.Set("Vary", headerAcceptEnc)
+			body := selectVariant(indexAsset, r.Header.Get(headerAcceptEnc), h)
 			if body == nil {
-				h.Set("Content-Length", indexLen)
+				h.Set(headerContentLength, indexLen)
 				w.Write(indexContent)
 			} else {
 				w.Write(body)
@@ -1903,7 +1903,7 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 		// Root-level static files (icons, manifest, browserconfig)
 		// are NOT content-hashed and must revalidate so PWA icon
 		// updates are picked up promptly.
-		if strings.HasPrefix(r.URL.Path, "/assets/") {
+		if strings.HasPrefix(r.URL.Path, assetsPathPrefix) {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		} else {
 			w.Header().Set("Cache-Control", "no-cache")
@@ -1916,8 +1916,8 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 		// file server.
 		if asset := compressed.byPath[r.URL.Path]; asset != nil {
 			h := w.Header()
-			h.Set("Vary", "Accept-Encoding")
-			body := selectVariant(asset, r.Header.Get("Accept-Encoding"), h)
+			h.Set("Vary", headerAcceptEnc)
+			body := selectVariant(asset, r.Header.Get(headerAcceptEnc), h)
 			if body != nil {
 				w.Write(body)
 				return
@@ -1942,14 +1942,14 @@ func selectVariant(a *precompressedAsset, acceptEncoding string, h http.Header) 
 	switch pickEncoding(acceptEncoding) {
 	case "br":
 		h.Set("Content-Encoding", "br")
-		h.Set("Content-Length", strconv.Itoa(len(a.brotli)))
+		h.Set(headerContentLength, strconv.Itoa(len(a.brotli)))
 		return a.brotli
 	case "gzip":
 		h.Set("Content-Encoding", "gzip")
-		h.Set("Content-Length", strconv.Itoa(len(a.gzip)))
+		h.Set(headerContentLength, strconv.Itoa(len(a.gzip)))
 		return a.gzip
 	}
-	h.Set("Content-Length", strconv.Itoa(len(a.original)))
+	h.Set(headerContentLength, strconv.Itoa(len(a.original)))
 	return a.original
 }
 
@@ -2147,7 +2147,7 @@ func (sr *statusRecorder) Unwrap() http.ResponseWriter {
 
 // isStaticAsset returns true for paths that serve static files.
 func isStaticAsset(path string) bool {
-	if strings.HasPrefix(path, "/assets/") {
+	if strings.HasPrefix(path, assetsPathPrefix) {
 		return true
 	}
 	for _, ext := range []string{".js", ".css", ".png", ".jpg", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".map"} {

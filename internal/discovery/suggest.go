@@ -113,7 +113,31 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 		Notes:         []string{},
 	}
 
-	// Resolve fields with priority: label > catalog > heuristic.
+	// Resolve each field with the per-helper "label > catalog >
+	// heuristic" priority pattern. The helpers mutate s in place
+	// (notes, RequiresInput, Confidence) so the main flow stays a
+	// linear sequence of calls.
+	resolveSuggestionName(&s, &labels, &catalog, hasCatalog, c)
+	resolveSuggestionIcon(&s, &labels, &catalog, hasCatalog)
+	resolveSuggestionGroup(&s, &labels, &catalog, hasCatalog)
+	port := resolveSuggestionPort(&s, &labels, &catalog, hasCatalog, c)
+	scheme := resolveSuggestionScheme(&labels, &catalog, hasCatalog)
+	strategy := resolveSuggestionStrategy(&s, globalStrategy, &catalog, hasCatalog)
+	s.EffectiveStrategy = strategy
+	buildSuggestionURL(&s, c, port, string(strategy), scheme, hostIP)
+	resolveSuggestionHealthURL(&s, &labels, &catalog, hasCatalog)
+	resolveSuggestionGatewayDomain(&s, &labels, dashboardDomain, c)
+	applyLabelOverrides(&s, &labels)
+	attachGatewayLabels(&s, c.Labels)
+	surfaceUnknownLabels(&s, &labels)
+
+	return s
+}
+
+// resolveSuggestionName fills s.Name and bumps Confidence depending
+// on whether the name came from a label (high), the catalog
+// (medium), or fell through to a titleized container name (low).
+func resolveSuggestionName(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool, c *ContainerSummary) {
 	switch {
 	case labels.Name != "":
 		s.Name = labels.Name
@@ -126,23 +150,31 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	default:
 		s.Name = titleizeName(c.PrimaryName())
 	}
+}
 
+func resolveSuggestionIcon(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) {
 	switch {
 	case labels.Icon != "":
 		s.Icon = labels.Icon
 	case hasCatalog && catalog.Icon != "":
 		s.Icon = catalog.Icon
 	}
+}
 
+func resolveSuggestionGroup(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) {
 	switch {
 	case labels.Group != "":
 		s.Group = labels.Group
 	case hasCatalog && catalog.Group != "":
 		s.Group = catalog.Group
 	}
+}
 
-	// Pick port: label > catalog > first exposed.
-	port := 0
+// resolveSuggestionPort picks the best port from label, catalog, or
+// heuristic exposed-ports list. Returns 0 + sets RequiresInput when
+// nothing usable was found.
+func resolveSuggestionPort(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool, c *ContainerSummary) int {
+	var port int
 	switch {
 	case labels.Port != 0:
 		port = labels.Port
@@ -155,67 +187,74 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 			s.Notes = append(s.Notes, fmt.Sprintf("Port %d picked from container's exposed ports (no catalog/label hint)", port))
 		}
 	}
-
 	if port == 0 {
 		s.RequiresInput = true
 		s.Notes = append(s.Notes, "No port exposed and no muximux.app.port label set")
 	}
+	return port
+}
 
-	// Scheme: label > catalog > http
-	scheme := "http"
+func resolveSuggestionScheme(labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) string {
 	if labels.Scheme != "" {
-		scheme = labels.Scheme
-	} else if hasCatalog && catalog.Scheme != "" {
-		scheme = catalog.Scheme
+		return labels.Scheme
 	}
+	if hasCatalog && catalog.Scheme != "" {
+		return catalog.Scheme
+	}
+	return "http"
+}
 
-	// Strategy: per-container catalog override > global config.
-	strategy := globalStrategy
+func resolveSuggestionStrategy(s *Suggestion, globalStrategy config.NetworkStrategy, catalog *CatalogEntry, hasCatalog bool) config.NetworkStrategy {
 	if hasCatalog && catalog.PrefersStrategy != "" {
-		strategy = catalog.PrefersStrategy
-		s.Notes = append(s.Notes, fmt.Sprintf("Strategy %q suggested by catalog (this image typically binds host ports)", strategy))
+		s.Notes = append(s.Notes, fmt.Sprintf("Strategy %q suggested by catalog (this image typically binds host ports)", catalog.PrefersStrategy))
+		return catalog.PrefersStrategy
 	}
-	s.EffectiveStrategy = strategy
+	return globalStrategy
+}
 
-	// URL.
-	if port != 0 {
-		urlStr, err := buildURLForSuggestion(string(strategy), c, port, scheme, hostIP)
-		if err != nil {
-			s.RequiresInput = true
-			s.Notes = append(s.Notes, fmt.Sprintf("Cannot build URL: %s", err.Error()))
-		} else {
-			s.URL = urlStr
-		}
+// buildSuggestionURL writes s.URL when a usable URL can be built and
+// records a diagnostic note in the failure case. No-op when port is 0
+// (the port resolver already wrote RequiresInput in that case).
+func buildSuggestionURL(s *Suggestion, c *ContainerSummary, port int, strategy, scheme, hostIP string) {
+	if port == 0 {
+		return
 	}
+	urlStr, err := buildURLForSuggestion(strategy, c, port, scheme, hostIP)
+	if err != nil {
+		s.RequiresInput = true
+		s.Notes = append(s.Notes, fmt.Sprintf("Cannot build URL: %s", err.Error()))
+		return
+	}
+	s.URL = urlStr
+}
 
-	// Path applied to URL only if non-trivial - we keep the App.URL
-	// pointing at the host:port, paths are an App-config field today.
-	// (Future: surface a Path field on the suggestion for apps that
-	// live behind a sub-path.)
-	_ = labels.Path
-	_ = catalog.Path
-
-	// Health URL.
+func resolveSuggestionHealthURL(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) {
 	switch {
 	case labels.Health != "":
 		s.HealthURL = labels.Health
 	case hasCatalog && catalog.HealthURL != "":
 		s.HealthURL = catalog.HealthURL
 	}
+}
 
-	// Suggested gateway-site domain. Priority: label > derived from
-	// containername.dashboardDomain > empty.
+// resolveSuggestionGatewayDomain picks the gateway subdomain to seed
+// the modal's "Add gateway site" input. Priority: explicit
+// muximux.app.gateway.domain label > <container>.<dashboardDomain>
+// derived default > empty.
+func resolveSuggestionGatewayDomain(s *Suggestion, labels *AppLabels, dashboardDomain string, c *ContainerSummary) {
 	switch {
 	case labels.GatewayDomain != "":
 		s.SuggestedDomain = labels.GatewayDomain
 	case dashboardDomain != "" && c.PrimaryName() != "":
 		s.SuggestedDomain = sanitiseSubdomain(c.PrimaryName()) + "." + dashboardDomain
 	}
+}
 
-	// Carry every other muximux.app.* label through to the
-	// Suggestion so the frontend can pre-fill the App form (and the
-	// import endpoint can write them straight into AppConfig)
-	// without operator post-edit.
+// applyLabelOverrides copies every label-derived AppLabels field
+// into the Suggestion. Frontend will pass these through to the
+// import endpoint so a labelled container needs no post-edit. Also
+// bumps Confidence to High when the label set looks substantive.
+func applyLabelOverrides(s *Suggestion, labels *AppLabels) {
 	s.Color = labels.Color
 	s.Order = labels.Order
 	s.OpenMode = labels.OpenMode
@@ -227,35 +266,46 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	s.AllowNotifications = labels.AllowNotifications
 	s.Default = labels.Default
 	s.Shortcut = labels.Shortcut
-	// Bump confidence to High when label-set is rich enough to
-	// drive the import without operator review.
-	if (labels.Proxy != nil || labels.OpenMode != "" || labels.Color != "" || labels.MinRole != "") && s.Confidence == ConfidenceMedium {
+	if s.Confidence == ConfidenceMedium && hasSubstantiveLabelSet(labels) {
 		s.Confidence = ConfidenceHigh
 	}
+}
 
-	// muximux.gateway.* labels only matter when a gateway domain
-	// was set too. Parse and attach.
-	if s.SuggestedDomain != "" {
-		gw := ParseGatewayLabels(c.Labels)
-		if gatewayLabelsNonEmpty(&gw) {
-			s.SuggestedGateway = &SuggestedGatewayConfig{
-				TLS:                gw.TLS,
-				Streaming:          gw.Streaming,
-				StripFrameBlockers: gw.StripFrameBlockers,
-				ForwardedHeaders:   gw.ForwardedHeaders,
-				RequireAuth:        gw.RequireAuth,
-				MinRole:            gw.MinRole,
-				AllowedGroups:      gw.AllowedGroups,
-			}
-		}
+// hasSubstantiveLabelSet reports whether the operator-set labels go
+// beyond catalog-equivalents (name/icon/group/port/etc.) into the
+// behavioural namespace. Pulled out so the boolean isn't a long
+// inline expression on the if statement.
+func hasSubstantiveLabelSet(labels *AppLabels) bool {
+	return labels.Proxy != nil || labels.OpenMode != "" || labels.Color != "" || labels.MinRole != ""
+}
+
+// attachGatewayLabels reads the muximux.gateway.* namespace and
+// attaches a SuggestedGateway to the suggestion when at least one
+// field was set. Only consulted when SuggestedDomain is non-empty
+// (otherwise there's no gateway entry to configure).
+func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
+	if s.SuggestedDomain == "" {
+		return
 	}
+	gw := ParseGatewayLabels(containerLabels)
+	if !gatewayLabelsNonEmpty(&gw) {
+		return
+	}
+	s.SuggestedGateway = &SuggestedGatewayConfig{
+		TLS:                gw.TLS,
+		Streaming:          gw.Streaming,
+		StripFrameBlockers: gw.StripFrameBlockers,
+		ForwardedHeaders:   gw.ForwardedHeaders,
+		RequireAuth:        gw.RequireAuth,
+		MinRole:            gw.MinRole,
+		AllowedGroups:      gw.AllowedGroups,
+	}
+}
 
-	// Surface unknown muximux.* labels so a typo gets noticed.
+func surfaceUnknownLabels(s *Suggestion, labels *AppLabels) {
 	for _, u := range labels.Unknown {
 		s.Notes = append(s.Notes, fmt.Sprintf("Unknown label ignored: %s", u))
 	}
-
-	return s
 }
 
 // gatewayLabelsNonEmpty reports whether any gateway-namespace label

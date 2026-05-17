@@ -11,7 +11,11 @@ const (
 	errMethodNotAllowed = "Method not allowed"
 	proxyPathPrefix     = "/proxy/"
 	headerContentType   = "Content-Type"
+	headerContentLength = "Content-Length"
+	headerAcceptEnc     = "Accept-Encoding"
 	contentTypeJSON     = "application/json"
+	contentTypeHTML     = "text/html; charset=utf-8"
+	assetsPathPrefix    = "/assets/"
 	apiThemesPath       = "/api/themes"
 	errInvalidBody      = "Invalid request body"
 	// sessionCookieName is the cookie that stores the Muximux session ID.

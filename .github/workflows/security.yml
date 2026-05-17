@@ -89,7 +89,11 @@ jobs:
           go-version-file: go.mod
 
       - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+        # Pinned to a specific version so builds stay reproducible
+        # and the SonarCloud vulnerability check (S6386: avoid
+        # @latest in workflows) is satisfied. Bump deliberately
+        # via Dependabot or a manual workflow PR.
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
       - name: Run govulncheck
         # continue-on-error until GO-2026-4923 (disputed bbolt CVE) is
