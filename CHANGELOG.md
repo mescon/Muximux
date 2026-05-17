@@ -83,8 +83,18 @@ If you try to bind 80/443 without either being in place, Muximux exits at startu
 
 ### Catalog updates
 
-- **Readarr** -- now annotated as EOL. The upstream project was archived; the catalog entry points users at active alternatives (Calibre-Web, Kavita) so new imports don't land on a dead app. Existing apps keep working; the annotation is informational. Resolves part of #333.
-- **Seerr** -- `sct/overseerr-telegram-bot`, `sct/overseerr`, `linuxserver/overseerr`, and `fallenbagel/jellyseerr` are now merged under a single **Seerr** catalog entry, reflecting the upstream project merger. One icon, one name, one set of defaults regardless of which image you're running. Resolves the rest of #333.
+- **Readarr** -- now annotated as EOL. The upstream project was archived; the catalog entry points users at active alternatives (Calibre-Web, Kavita) so new imports don't land on a dead app. Existing apps keep working; the annotation is informational.
+- **Seerr** -- `sct/overseerr-telegram-bot`, `sct/overseerr`, `linuxserver/overseerr`, and `fallenbagel/jellyseerr` are now merged under a single **Seerr** catalog entry, reflecting the upstream project merger. One icon, one name, one set of defaults regardless of which image you're running.
+- **Huntarr** -- removed from the onboarding catalog after an upstream supply-chain compromise (see the security advisories referenced in #333). Existing apps named "Huntarr" in your `config.yaml` keep working as a generic custom app, but the catalog will no longer suggest it as a one-click add. If you currently run Huntarr, the upstream guidance is to remove the container.
+- **Tracearr** added to the **Media** group: real-time stream monitoring for Plex / Jellyfin / Emby with import from Tautulli or Jellystat.
+- **Catalog breadth expansion.** 25 new entries across the onboarding picker reflecting commonly-deployed homelab apps:
+  - *Media:* Jackett, Maintainerr, Wizarr.
+  - *Downloads:* Notifiarr.
+  - *System:* Dockge, Loki, InfluxDB, Gatus, Cloudflared, Headscale, Zigbee2MQTT, Mosquitto, Node-RED, OctoPrint.
+  - *Utilities:* Forgejo, Firefly III, Actual, Linkwarden, Memos, Karakeep, Tandoor, Filebrowser, SearXNG, LLDAP, Pocket ID, CyberChef.
+  - *AI:* AnythingLLM, LibreChat.
+
+Resolves #333.
 
 ### Breaking changes
 

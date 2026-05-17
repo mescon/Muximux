@@ -53,6 +53,15 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       get description() { return m.popularApps_tautulliDesc(); }
     },
     {
+      name: 'Tracearr',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'tracearr',
+      color: '#4F46E5',
+      iconBackground: '#1E1B4B',
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_tracearrDesc(); }
+    },
+    {
       name: 'Stash',
       defaultUrl: 'http://localhost:9999',
       icon: 'stash',
@@ -123,6 +132,33 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#0D2E1A',
       get group() { return m.popularApps_groupMedia(); },
       get description() { return m.popularApps_calibreWebDesc(); }
+    },
+    {
+      name: 'Jackett',
+      defaultUrl: 'http://localhost:9117',
+      icon: 'jackett',
+      color: '#7B1FA2',
+      iconBackground: '#1E0A28',
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_jackettDesc(); }
+    },
+    {
+      name: 'Maintainerr',
+      defaultUrl: 'http://localhost:6246',
+      icon: 'maintainerr',
+      color: '#F97316',
+      iconBackground: '#2B1407',
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_maintainerrDesc(); }
+    },
+    {
+      name: 'Wizarr',
+      defaultUrl: 'http://localhost:5690',
+      icon: 'wizarr',
+      color: '#3B82F6',
+      iconBackground: '#0F1E3F',
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_wizarrDesc(); }
     }
   ],
 
@@ -236,15 +272,6 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       get description() { return m.popularApps_rdtclientDesc(); }
     },
     {
-      name: 'Huntarr',
-      defaultUrl: 'http://localhost:9705',
-      icon: 'huntarr',
-      color: '#FF6B35',
-      iconBackground: '#2D1800',
-      get group() { return m.popularApps_groupDownloads(); },
-      get description() { return m.popularApps_huntarrDesc(); }
-    },
-    {
       name: 'Readarr',
       defaultUrl: 'http://localhost:8787',
       icon: 'readarr',
@@ -252,6 +279,15 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#2D0C07',
       get group() { return m.popularApps_groupDownloads(); },
       get description() { return m.popularApps_readarrDesc(); }
+    },
+    {
+      name: 'Notifiarr',
+      defaultUrl: 'http://localhost:5454',
+      icon: 'notifiarr',
+      color: '#F59E0B',
+      iconBackground: '#2A1A02',
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_notifiarrDesc(); }
     }
   ],
 
@@ -526,6 +562,96 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#0D2E1A',
       get group() { return m.popularApps_groupSystem(); },
       get description() { return m.popularApps_netdataDesc(); }
+    },
+    {
+      name: 'Dockge',
+      defaultUrl: 'http://localhost:5001',
+      icon: 'dockge',
+      color: '#3B82F6',
+      iconBackground: '#0F1E3F',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_dockgeDesc(); }
+    },
+    {
+      name: 'Loki',
+      defaultUrl: 'http://localhost:3100',
+      icon: 'grafana-loki',
+      color: '#F46800',
+      iconBackground: '#2B1300',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_lokiDesc(); }
+    },
+    {
+      name: 'InfluxDB',
+      defaultUrl: 'http://localhost:8086',
+      icon: 'influxdb',
+      color: '#22ADF6',
+      iconBackground: '#0A2032',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_influxdbDesc(); }
+    },
+    {
+      name: 'Gatus',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'gatus',
+      color: '#1A5DD8',
+      iconBackground: '#0A1A33',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_gatusDesc(); }
+    },
+    {
+      name: 'Cloudflared',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'cloudflare',
+      color: '#F38020',
+      iconBackground: '#2A1605',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_cloudflaredDesc(); }
+    },
+    {
+      name: 'Headscale',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'headscale',
+      color: '#1F2937',
+      iconBackground: '#0B1018',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_headscaleDesc(); }
+    },
+    {
+      name: 'Zigbee2MQTT',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'zigbee2mqtt',
+      color: '#0EA5E9',
+      iconBackground: '#072433',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_zigbee2mqttDesc(); }
+    },
+    {
+      name: 'Mosquitto',
+      defaultUrl: 'http://localhost:1883',
+      icon: 'mosquitto',
+      color: '#3C5280',
+      iconBackground: '#0A1224',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_mosquittoDesc(); }
+    },
+    {
+      name: 'Node-RED',
+      defaultUrl: 'http://localhost:1880',
+      icon: 'node-red',
+      color: '#8F0000',
+      iconBackground: '#1F0202',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_nodeRedDesc(); }
+    },
+    {
+      name: 'OctoPrint',
+      defaultUrl: 'http://localhost:5000',
+      icon: 'octoprint',
+      color: '#13C100',
+      iconBackground: '#072B02',
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_octoprintDesc(); }
     }
   ],
 
@@ -682,6 +808,114 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#150D2E',
       get group() { return m.popularApps_groupUtilities(); },
       get description() { return m.popularApps_linkdingDesc(); }
+    },
+    {
+      name: 'Forgejo',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'forgejo',
+      color: '#FB923C',
+      iconBackground: '#2B1407',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_forgejoDesc(); }
+    },
+    {
+      name: 'Firefly III',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'firefly-iii',
+      color: '#DC2626',
+      iconBackground: '#2B0707',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_fireflyIiiDesc(); }
+    },
+    {
+      name: 'Actual',
+      defaultUrl: 'http://localhost:5006',
+      icon: 'actual-budget',
+      color: '#7C3AED',
+      iconBackground: '#180B2E',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_actualDesc(); }
+    },
+    {
+      name: 'Linkwarden',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'linkwarden',
+      color: '#0F172A',
+      iconBackground: '#020409',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_linkwardenDesc(); }
+    },
+    {
+      name: 'Memos',
+      defaultUrl: 'http://localhost:5230',
+      icon: 'memos',
+      color: '#10B981',
+      iconBackground: '#062520',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_memosDesc(); }
+    },
+    {
+      name: 'Karakeep',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'karakeep',
+      color: '#FB923C',
+      iconBackground: '#2B1407',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_karakeepDesc(); }
+    },
+    {
+      name: 'Tandoor',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'tandoor',
+      color: '#F59E0B',
+      iconBackground: '#2A1A02',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_tandoorDesc(); }
+    },
+    {
+      name: 'Filebrowser',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'filebrowser',
+      color: '#3B82F6',
+      iconBackground: '#0F1E3F',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_filebrowserDesc(); }
+    },
+    {
+      name: 'SearXNG',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'searxng',
+      color: '#3C2A6D',
+      iconBackground: '#100A1F',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_searxngDesc(); }
+    },
+    {
+      name: 'LLDAP',
+      defaultUrl: 'http://localhost:17170',
+      icon: 'lldap',
+      color: '#2563EB',
+      iconBackground: '#0A1A33',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_lldapDesc(); }
+    },
+    {
+      name: 'Pocket ID',
+      defaultUrl: 'http://localhost:1411',
+      icon: 'pocket-id',
+      color: '#22D3EE',
+      iconBackground: '#072833',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_pocketIdDesc(); }
+    },
+    {
+      name: 'CyberChef',
+      defaultUrl: 'http://localhost:8000',
+      icon: 'cyberchef',
+      color: '#0EA5E9',
+      iconBackground: '#072433',
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_cyberchefDesc(); }
     }
   ],
 
@@ -703,6 +937,24 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#1A1A1A',
       get group() { return m.popularApps_groupAI(); },
       get description() { return m.popularApps_openWebuiDesc(); }
+    },
+    {
+      name: 'AnythingLLM',
+      defaultUrl: 'http://localhost:3001',
+      icon: 'anythingllm',
+      color: '#7C3AED',
+      iconBackground: '#180B2E',
+      get group() { return m.popularApps_groupAI(); },
+      get description() { return m.popularApps_anythingllmDesc(); }
+    },
+    {
+      name: 'LibreChat',
+      defaultUrl: 'http://localhost:3080',
+      icon: 'librechat',
+      color: '#10B981',
+      iconBackground: '#062520',
+      get group() { return m.popularApps_groupAI(); },
+      get description() { return m.popularApps_librechatDesc(); }
     }
   ]
 };
