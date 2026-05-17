@@ -36,8 +36,6 @@ Apps that ship a `muximux.app.*` label on the container (`muximux.app.name`, `mu
 
 Discovered entries show up with a "managed by discovery" badge on the App / Gateway-site edit forms. The source-of-truth fields (URL, container ID, image) are read-only by default -- click **Detach** to take ownership manually. The next scan offers a one-click re-link if you change your mind.
 
-Resolves #316 (Docker auto-discovery).
-
 ### Single sign-on across all your gateway subdomains
 
 Until now, gateway sites in Muximux were a pure reverse proxy: open `sonarr.example.com` and you hit Sonarr directly. v3.1.0 lets you optionally put **Muximux's login** in front of any gateway site, turning Muximux into a forward-auth gate.
