@@ -78,7 +78,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
 
-The trailing `:ro` is intentional. Muximux only **reads** container metadata - it never starts, stops, or builds anything. Marking the mount read-only means a compromised Muximux can't be used to pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+That's the whole prerequisite. The entrypoint auto-detects the socket's group ownership on startup and adds the runtime user to a matching group inside the container, so the non-root muximux process can actually read the socket. You don't need to find your host docker GID or set any environment variable — just mount the socket and go.
+
+The trailing `:ro` on the mount is intentional. Muximux only **reads** container metadata - it never starts, stops, or builds anything. Marking the mount read-only means a compromised Muximux can't be used to pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+
+**Unusual setups.** For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, the auto-detection may not fire (because the path Muximux looks at isn't `/var/run/docker.sock`). Two overrides:
+
+- `DOCKER_SOCKET` — change the path Muximux stats for group ownership (defaults to `/var/run/docker.sock`).
+- `DOCKER_GID` — bypass detection entirely and force a specific group GID inside the container.
+
+Almost no one needs these. Try the default first.
 
 For a **remote daemon over TCP**, you don't need a socket mount at all - point `endpoint:` at `tcp://your-daemon:2376` and ship the mTLS cert paths through the `tls:` block. The remote daemon must expose its API with TLS (Docker's `dockerd --tlsverify`), and your client cert/key paths must be readable by the Muximux process.
 
@@ -206,7 +215,8 @@ See [TLS and Gateway → Running Behind Another Reverse Proxy](tls-and-gateway.m
 | Symptom | Diagnosis |
 |---|---|
 | Banner: "Connected to Docker but strategy `container_ip` cannot identify Muximux's container" | Muximux runs natively (not in a container). Set `network_filter` to scope the scan to a known docker network, or switch to `host_port`. |
-| Banner: "Daemon unreachable: dial unix … no such file or directory" | The `endpoint` path is wrong, or the user running Muximux doesn't have permission on the socket. |
+| Banner: "Daemon unreachable: dial unix … no such file or directory" | The `endpoint` path is wrong, or the socket isn't bind-mounted into Muximux's container. |
+| Banner: "Daemon unreachable: connect: permission denied" | The socket is mounted but the entrypoint's auto-detection didn't fire (e.g. unusual mount path, docker-socket-proxy sidecar). Override with `DOCKER_GID` set to the docker group GID the socket is owned by, or `DOCKER_SOCKET` to point the detection at a non-default path. See [Make the daemon socket reachable](#make-the-daemon-socket-reachable-from-muximux). |
 | Discover modal shows containers but no auto-fill | The image isn't in Muximux's catalog. Add `muximux.app.*` labels to the container, or fill the fields manually before importing. |
 | Imported app's URL doesn't update when container restarts | Check `refresh_interval` isn't set to 1h. Check the audit log for `Docker app URL refreshed`. Check the container hasn't been renamed (breaks `name:` tracking keys). |
 | Gateway site doesn't serve after import | If you set `server.gateway_listen`, your upstream proxy needs to forward the host header to that port. Try `curl -H 'Host: site.example.com' http://muximux-host:8443/` to bypass the upstream. |

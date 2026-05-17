@@ -32,6 +32,8 @@ discovery:
     refresh_interval: 60s
 ```
 
+Socket permissions are handled automatically. The container entrypoint stats the bind-mounted socket at boot, picks up its group ownership from the host, and adds the runtime user to a matching group inside the container before dropping privileges - so the non-root muximux process can actually read the socket. No `DOCKER_GID` env var, no `group_add`, no hunting for the right number. Just mount the socket and the discovery panel works. (Rootless Docker / socket-proxy setups: `DOCKER_SOCKET` and `DOCKER_GID` overrides are available, see the wiki.)
+
 Apps that ship a `muximux.app.*` label on the container (`muximux.app.name`, `muximux.app.icon`, `muximux.app.port`, `muximux.app.scheme`, `muximux.app.group`, `muximux.app.path`, `muximux.app.health`, `muximux.app.gateway.domain`, `muximux.discovery.id`) get a green "high confidence" badge -- the operator gets the final say but the row needs no editing. Set `muximux.discovery.id=<stable-key>` on swarm tasks and `--force-recreate` flows to keep tracking stable across restarts.
 
 Discovered entries show up with a "managed by discovery" badge on the App / Gateway-site edit forms. The source-of-truth fields (URL, container ID, image) are read-only by default -- click **Detach** to take ownership manually. The next scan offers a one-click re-link if you change your mind.
