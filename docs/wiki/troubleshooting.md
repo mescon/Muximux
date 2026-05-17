@@ -89,7 +89,7 @@ The proxy mitigates this by rewriting base path configuration variables (e.g., `
 
 **What happens:** The proxy buffers text-based responses (HTML, CSS, JavaScript, JSON, XML) in memory so it can rewrite URLs in the content. For unusually large text responses this can cause memory pressure.
 
-Binary content (images, videos, archives, file downloads) is **not** buffered — it streams directly from the backend to your browser without being read into memory. Only text content types are buffered for rewriting.
+Binary content (images, videos, archives, file downloads) is **not** buffered - it streams directly from the backend to your browser without being read into memory. Only text content types are buffered for rewriting.
 
 ### Cookie Domain Attribute
 

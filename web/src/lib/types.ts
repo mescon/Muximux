@@ -370,6 +370,36 @@ export interface DiscoverySuggestion {
   requires_input?: boolean;
   notes?: string[];
   suggested_domain?: string;
+
+  // Label-derived overrides. Carried through to the import endpoint
+  // so an operator can fully configure an app from container labels
+  // without editing in the modal. All optional - absent means
+  // "use catalog or UI default".
+  color?: string;
+  order?: number;
+  open_mode?: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
+  proxy?: boolean;
+  proxy_skip_tls_verify?: boolean;
+  min_role?: 'user' | 'power-user' | 'admin';
+  allowed_groups?: string[];
+  permissions?: string[];
+  allow_notifications?: boolean;
+  default?: boolean;
+  shortcut?: number;
+  suggested_gateway?: SuggestedGatewayConfig;
+}
+
+// SuggestedGatewayConfig mirrors discovery.SuggestedGatewayConfig.
+// Populated when muximux.gateway.* labels are set alongside
+// muximux.app.gateway.domain.
+export interface SuggestedGatewayConfig {
+  tls?: 'auto' | 'none' | 'custom';
+  streaming?: boolean;
+  strip_frame_blockers?: boolean;
+  forwarded_headers?: boolean;
+  require_auth?: boolean;
+  min_role?: 'user' | 'power-user' | 'admin';
+  allowed_groups?: string[];
 }
 
 export interface DiscoveryScanResult {

@@ -91,6 +91,17 @@ func NewClient(cfg *config.DiscoveryDockerConfig) (*Client, error) {
 			return d.DialContext(ctx, "unix", socket)
 		}
 		baseURL = "http://docker"
+	case "npipe":
+		// Windows named pipe transport. dialNpipe has a Windows-only
+		// implementation that uses go-winio; on other platforms it
+		// returns an explanatory error so the UI surfaces a clear
+		// "this scheme is Windows-only" message rather than a
+		// confusing connect failure.
+		pipe := addr
+		transport.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+			return dialNpipe(ctx, pipe)
+		}
+		baseURL = "http://docker"
 	case "tcp":
 		if cfg.TLS.Enabled {
 			tlsConf, err := buildTLSConfig(&cfg.TLS)
@@ -103,7 +114,7 @@ func NewClient(cfg *config.DiscoveryDockerConfig) (*Client, error) {
 			baseURL = "http://" + addr
 		}
 	default:
-		return nil, fmt.Errorf("docker endpoint scheme %q not supported (want unix:// or tcp://)", scheme)
+		return nil, fmt.Errorf("docker endpoint scheme %q not supported (want unix://, npipe://, or tcp://)", scheme)
 	}
 
 	return &Client{
@@ -116,8 +127,13 @@ func NewClient(cfg *config.DiscoveryDockerConfig) (*Client, error) {
 }
 
 // parseEndpoint splits a Docker endpoint URI into scheme and address.
-// Supports unix:///var/run/docker.sock and tcp://host:port.
+// Supports unix:///var/run/docker.sock (Linux/macOS),
+// npipe:////./pipe/docker_engine (Windows), and tcp://host:port.
 func parseEndpoint(endpoint string) (scheme, addr string, err error) {
+	// npipe URIs like `npipe:////./pipe/docker_engine` look like four
+	// leading slashes; url.Parse handles them as scheme + path, but the
+	// canonical form on Windows is `\\.\pipe\docker_engine` which we
+	// reconstruct from the trimmed path.
 	u, err := url.Parse(endpoint)
 	if err != nil {
 		return "", "", fmt.Errorf("parse endpoint %q: %w", endpoint, err)
@@ -129,6 +145,17 @@ func parseEndpoint(endpoint string) (scheme, addr string, err error) {
 			return "", "", fmt.Errorf("unix endpoint missing socket path: %q", endpoint)
 		}
 		return "unix", u.Path, nil
+	case "npipe":
+		// Path-only after the scheme: `npipe:////./pipe/docker_engine`
+		// → u.Path == "//./pipe/docker_engine". Trim the leading
+		// double slash and convert to Windows form `\\.\pipe\...`.
+		raw := u.Path
+		if raw == "" {
+			return "", "", fmt.Errorf("npipe endpoint missing pipe path: %q", endpoint)
+		}
+		raw = strings.TrimPrefix(raw, "//")
+		pipe := `\\` + strings.ReplaceAll(raw, "/", `\`)
+		return "npipe", pipe, nil
 	case "tcp":
 		if u.Host == "" {
 			return "", "", fmt.Errorf("tcp endpoint missing host:port: %q", endpoint)

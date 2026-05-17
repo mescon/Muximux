@@ -36,9 +36,9 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
    - Stability warning when the key is likely to break on a `docker-compose --force-recreate` or swarm task reschedule
 
 3. **Pick routing per row** and click **Import**:
-   - **Direct** — menu links to `http://<container-ip>:<port>` directly
-   - **Proxy** — menu links via Muximux's `/proxy/<slug>` path-prefix reverse proxy
-   - **Gateway domain** — menu links to `https://<your-subdomain>`; requires also creating the gateway site in the same row
+   - **Direct** - menu links to `http://<container-ip>:<port>` directly
+   - **Proxy** - menu links via Muximux's `/proxy/<slug>` path-prefix reverse proxy
+   - **Gateway domain** - menu links to `https://<your-subdomain>`; requires also creating the gateway site in the same row
 
 4. **Settings → Discovery → Currently tracked**: every imported app or gateway site appears here. Per-row **Detach** stops auto-management; **Re-link** appears when the saved `DockerEndpoint` no longer matches the configured endpoint (typical after a daemon migration).
 
@@ -64,9 +64,9 @@ discovery:
 
 ### Make the daemon socket reachable from Muximux
 
-Setting `endpoint: unix:///var/run/docker.sock` in `config.yaml` is only half the story. When Muximux itself runs in a container, the socket also has to be mounted into that container - otherwise the path resolves to nothing and the Discovery tab shows "daemon unreachable" with `connect: no such file or directory`.
+How you grant Muximux access to the Docker daemon depends on how you run Muximux. The `endpoint:` field in `config.yaml` is auto-populated to the platform default if you leave it blank, so most operators only need the OS-level access step below.
 
-Add this to your `docker-compose.yml` (or a `-v` flag if you run `docker run` directly):
+#### Linux, running Muximux in a container (most common)
 
 ```yaml
 services:
@@ -78,18 +78,77 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
 
-That's the whole prerequisite. The entrypoint auto-detects the socket's group ownership on startup and adds the runtime user to a matching group inside the container, so the non-root muximux process can actually read the socket. You don't need to find your host docker GID or set any environment variable — just mount the socket and go.
+That's the whole prerequisite. The entrypoint stats the bind-mounted socket at startup, reads its group ownership from the host, and adds the runtime user to a matching group inside the container - so the non-root muximux process can actually read the socket. No `DOCKER_GID` env var, no `group_add`, no hunting for the right number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
 
-The trailing `:ro` on the mount is intentional. Muximux only **reads** container metadata - it never starts, stops, or builds anything. Marking the mount read-only means a compromised Muximux can't be used to pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+The trailing `:ro` is intentional. Muximux only **reads** container metadata - it never starts, stops, or builds anything. Marking the mount read-only means a compromised Muximux can't pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
 
-**Unusual setups.** For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, the auto-detection may not fire (because the path Muximux looks at isn't `/var/run/docker.sock`). Two overrides:
+For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, two override env vars are available: `DOCKER_SOCKET` (the path the entrypoint stats) and `DOCKER_GID` (bypass auto-detect and force a specific GID). Almost no one needs these.
 
-- `DOCKER_SOCKET` — change the path Muximux stats for group ownership (defaults to `/var/run/docker.sock`).
-- `DOCKER_GID` — bypass detection entirely and force a specific group GID inside the container.
+#### Linux, running Muximux as a native binary
 
-Almost no one needs these. Try the default first.
+There's no container in this path, so no entrypoint script. Linux's normal socket permissions apply: the OS user the binary runs as must be a member of the host's `docker` group.
 
-For a **remote daemon over TCP**, you don't need a socket mount at all - point `endpoint:` at `tcp://your-daemon:2376` and ship the mTLS cert paths through the `tls:` block. The remote daemon must expose its API with TLS (Docker's `dockerd --tlsverify`), and your client cert/key paths must be readable by the Muximux process.
+```bash
+# Add the user that runs Muximux to the docker group:
+sudo usermod -aG docker $(whoami)
+
+# Then re-login (or restart the muximux service) so the new
+# group membership takes effect.
+```
+
+For systemd unit installs, you can also encode it directly in the unit:
+
+```ini
+[Service]
+User=muximux
+SupplementaryGroups=docker
+ExecStart=/usr/local/bin/muximux --data /var/lib/muximux
+```
+
+The default `endpoint: unix:///var/run/docker.sock` works as is.
+
+#### macOS, running Muximux as a native binary
+
+Docker Desktop on macOS creates a host-side socket symlink at `/var/run/docker.sock`, so the default `endpoint: unix:///var/run/docker.sock` works out of the box for most setups.
+
+If you've disabled **Docker Desktop → Settings → Advanced → "Allow the default Docker socket to be used"**, the symlink isn't created. Either re-enable that toggle, or point `endpoint:` at the per-user socket Docker Desktop still maintains:
+
+```yaml
+discovery:
+  docker:
+    endpoint: unix:///Users/<your-user>/.docker/run/docker.sock
+```
+
+#### Windows, running Muximux as a native binary
+
+Docker on Windows exposes a **named pipe** rather than a unix socket. Muximux 3.1.0+ supports the `npipe://` scheme natively and uses it by default when running on Windows - no extra config needed:
+
+```yaml
+discovery:
+  docker:
+    enabled: true
+    # endpoint is auto-filled to npipe:////./pipe/docker_engine on Windows
+```
+
+If the Windows account that runs Muximux is a member of the `docker-users` group, that's sufficient.
+
+#### Remote daemon over TCP (any platform)
+
+For a Docker daemon on a different host:
+
+```yaml
+discovery:
+  docker:
+    enabled: true
+    endpoint: tcp://docker-host.lan:2376
+    tls:
+      enabled: true
+      ca_cert: /etc/muximux/docker-ca.pem
+      client_cert: /etc/muximux/docker-cert.pem
+      client_key: /etc/muximux/docker-key.pem
+```
+
+The remote daemon must expose its API with TLS (`dockerd --tlsverify`), and the cert/key paths must be readable by the Muximux process.
 
 ### Network strategies
 
@@ -104,23 +163,94 @@ Strategy gating: when Muximux runs natively (not in a container), `container_ip`
 
 ### Labels on your containers
 
-Add these labels to any container to override Muximux's defaults:
+Label any container with `muximux.*` keys and the Discover modal picks them up as high-confidence pre-fills. A fully-labelled container goes from `docker compose up` to a fully-configured Muximux entry in one click, no post-import editing. This is the "GitOps your apps" pattern: declare your dashboard intent in `docker-compose.yml` alongside the service it describes.
+
+Full example, showing one of each kind:
 
 ```yaml
-labels:
-  - muximux.discovery.id=sonarr-stable      # stable tracking key across recreates
-  - muximux.app.enabled=true                # opt-out via "false" even if catalog matches
-  - muximux.app.name=Sonarr
-  - muximux.app.port=8989
-  - muximux.app.scheme=https                # default: http
-  - muximux.app.icon=sonarr                 # any dashboard-icons name
-  - muximux.app.group=Media
-  - muximux.app.path=/                      # appended to URL on import; useful for backends behind a sub-path
-  - muximux.app.health=/api/v3/health       # backend health endpoint (overrides catalog default)
-  - muximux.app.gateway.domain=sonarr.example.com  # seed the Discover modal's gateway-domain input
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    labels:
+      # ── Tracking ─────────────────────────────────────────────
+      - muximux.discovery.id=sonarr-stable
+      # ── App fields (menu entry) ──────────────────────────────
+      - muximux.app.enabled=true
+      - muximux.app.name=Sonarr
+      - muximux.app.icon=sonarr
+      - muximux.app.group=Media
+      - muximux.app.port=8989
+      - muximux.app.scheme=https
+      - muximux.app.path=/
+      - muximux.app.health=/api/v3/health
+      - muximux.app.color=#3498db
+      - muximux.app.order=10
+      - muximux.app.default=false
+      - muximux.app.open_mode=iframe
+      - muximux.app.proxy=true
+      - muximux.app.proxy_skip_tls_verify=true
+      - muximux.app.min_role=user
+      - muximux.app.allowed_groups=family,admins
+      - muximux.app.permissions=clipboard-read,clipboard-write
+      - muximux.app.allow_notifications=true
+      - muximux.app.shortcut=1
+      # ── Gateway routing (subdomain + auth gate) ──────────────
+      - muximux.app.gateway.domain=sonarr.example.com
+      - muximux.gateway.tls=auto
+      - muximux.gateway.streaming=false
+      - muximux.gateway.strip_frame_blockers=true
+      - muximux.gateway.forwarded_headers=true
+      - muximux.gateway.require_auth=true
+      - muximux.gateway.min_role=user
+      - muximux.gateway.allowed_groups=family,admins
 ```
 
-`muximux.discovery.id` is the most important — without it, Muximux falls back to the container *name* as the tracking key, which breaks on `docker-compose --force-recreate` (Compose appends a numeric suffix that bumps every recreate).
+#### Full label reference
+
+##### Tracking
+
+| Label | Type | Default | What it does |
+|---|---|---|---|
+| `muximux.discovery.id` | string | (container name) | Stable tracking key that survives `docker-compose --force-recreate` and swarm reschedules. **Most important label** - without it, Muximux falls back to the container name, which Compose appends a `_1`/`-1` suffix to that changes on recreate. |
+
+##### App fields (the menu entry)
+
+| Label | Type | Default | What it does |
+|---|---|---|---|
+| `muximux.app.enabled` | bool | `true` if image matches catalog | Opt-out via `false`; opt-in for containers not in the catalog. |
+| `muximux.app.name` | string | catalog name or container name | Display name in the menu. |
+| `muximux.app.icon` | string | catalog icon or `""` | Any `dashboard-icons` slug (e.g. `sonarr`, `plex`, `qbittorrent`). |
+| `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist. |
+| `muximux.app.port` | int 1-65535 | catalog port or first exposed | Which container port the app listens on. |
+| `muximux.app.scheme` | `http` \| `https` | `http` | Scheme for the constructed URL. |
+| `muximux.app.path` | string | `/` | Sub-path appended to the URL (useful for apps behind a path prefix). |
+| `muximux.app.health` | string | catalog default | Backend health-check endpoint. |
+| `muximux.app.color` | `#rrggbb` | unset | Accent color in the dashboard. |
+| `muximux.app.order` | int 0-9999 | unset | Sort order within the group. |
+| `muximux.app.default` | bool | `false` | Load this app automatically when the dashboard opens. |
+| `muximux.app.open_mode` | `iframe` \| `new_tab` \| `new_window` \| `redirect` | `iframe` | How clicking the menu entry opens the app. |
+| `muximux.app.proxy` | bool | `false` | Route through Muximux's built-in reverse proxy (strips iframe-blocking headers, rewrites paths). Required for many apps that refuse to embed. |
+| `muximux.app.proxy_skip_tls_verify` | bool | `true` | When `proxy=true`, skip backend TLS cert verification (useful for self-signed homelab apps). |
+| `muximux.app.min_role` | `user` \| `power-user` \| `admin` | unset | Minimum role required to see this app. Admins always bypass. |
+| `muximux.app.allowed_groups` | csv | unset | Comma-separated group allow-list; user must belong to at least one. Case-insensitive. Stacks with `min_role`. |
+| `muximux.app.permissions` | csv | unset | Iframe feature delegations (`camera`, `microphone`, `geolocation`, `clipboard-read`, `clipboard-write`, `fullscreen`, ...). |
+| `muximux.app.allow_notifications` | bool | `false` | Enable the cross-iframe Notifications API bridge for this app. |
+| `muximux.app.shortcut` | int 1-9 | unset | Keyboard shortcut slot. |
+| `muximux.app.gateway.domain` | string | unset | When set, the import modal also offers a gateway-site entry for this subdomain. Pairs with the `muximux.gateway.*` labels below. |
+
+##### Gateway-site fields (only consulted when `muximux.app.gateway.domain` is set)
+
+| Label | Type | Default | What it does |
+|---|---|---|---|
+| `muximux.gateway.tls` | `auto` \| `none` \| `custom` | `auto` | TLS handling for the subdomain. `auto` runs Let's Encrypt; `none` is plain HTTP; `custom` expects `tls_cert` and `tls_key` paths (set those manually in the import modal). |
+| `muximux.gateway.streaming` | bool | `false` | Disable Caddy response buffering for live-streaming backends. |
+| `muximux.gateway.strip_frame_blockers` | bool | `true` | Drop `X-Frame-Options` / `Content-Security-Policy: frame-ancestors` on responses so the site can be iframed elsewhere. |
+| `muximux.gateway.forwarded_headers` | bool | `true` | Forward `X-Forwarded-Proto` / `X-Forwarded-Host` / `X-Real-IP`. Turn off only when your backend has its own handling. |
+| `muximux.gateway.require_auth` | bool | `false` | Gate the subdomain behind Muximux's login. Visitors land on `/login` first; admins bypass per-site role / group rules. Requires `server.session_cookie_domain` to be set. |
+| `muximux.gateway.min_role` | `user` \| `power-user` \| `admin` | unset | When `require_auth=true`, minimum role to access the site. |
+| `muximux.gateway.allowed_groups` | csv | unset | When `require_auth=true`, allow-list groups (comma-separated, case-insensitive). |
+
+Unknown `muximux.*` labels are surfaced in the Discover modal's per-row notes so a typo is visible, not silently ignored.
 
 ---
 
@@ -148,7 +278,7 @@ Browser → /proxy/sonarr → Muximux Go server → http://10.0.0.4:8989
 
 - **App.url** = the container URL (kept as the upstream)
 - **App.proxy** = true
-- Muximux's built-in path-prefix reverse proxy strips iframe-blockers, rewrites HTML/CSS/JS paths, isolates `window.parent`, etc. — makes apps work in iframes that refuse them.
+- Muximux's built-in path-prefix reverse proxy strips iframe-blockers, rewrites HTML/CSS/JS paths, isolates `window.parent`, etc. - makes apps work in iframes that refuse them.
 - Same tracking semantics as Direct (poller refreshes the upstream URL)
 
 Use when: the app misbehaves in iframes, the dashboard machine cannot reach the container directly, or you want auth/CSP layering through Muximux.
@@ -161,7 +291,7 @@ Browser → https://sonarr.example.com → upstream proxy → muximux:8443 → h
 
 - **App.url** = `https://<gateway-domain>` (static)
 - **App.proxy** = false
-- **App is NOT auto-managed** — the gateway site becomes the docker-managed entry instead
+- **App is NOT auto-managed** - the gateway site becomes the docker-managed entry instead
 - The poller refreshes the gateway site's `backend_url` (not the App's URL, which doesn't depend on the container)
 
 Use when: you want a public subdomain that survives container moves, and a clickable dashboard link that uses that domain.
@@ -192,7 +322,7 @@ Caddy's reload is transactional only at the parse step. Post-parse failures (lis
 - Both fail → **divergence counter** increments, sticky red banner appears in Settings → Discovery
 - First clean tick after a divergence → banner transitions to amber "recovered"
 
-The banner gives you a one-glance signal that the running Caddy may not match disk. Recovery happens automatically on the next successful tick; the banner stays amber until you acknowledge it (currently by waiting — a future iteration may add a "clear" button).
+The banner gives you a one-glance signal that the running Caddy may not match disk. Recovery happens automatically on the next successful tick; the banner stays amber until you acknowledge it (currently by waiting - a future iteration may add a "clear" button).
 
 ---
 
@@ -230,12 +360,12 @@ All endpoints are admin-only.
 
 | Method | Path | Body | Description |
 |---|---|---|---|
-| GET | `/api/discovery/docker/status` | — | Capability + cache status |
+| GET | `/api/discovery/docker/status` | - | Capability + cache status |
 | PUT | `/api/discovery/docker/config` | `DiscoveryDockerConfig` | Persist new discovery settings + rebuild service |
 | POST | `/api/discovery/docker/test` | `DiscoveryDockerConfig` | Probe a candidate config without saving |
-| GET | `/api/discovery/docker/scan` | — | Enumerate running containers as `Suggestion` list |
+| GET | `/api/discovery/docker/scan` | - | Enumerate running containers as `Suggestion` list |
 | POST | `/api/discovery/docker/import` | `{items: ImportItem[]}` | Atomic batch import of selected containers |
-| GET | `/api/discovery/docker/tracked` | — | Current tracked apps + sites with last-seen timestamps |
-| DELETE | `/api/discovery/docker/track/{key}` | — | Detach tracking for everything matching `key` on the current endpoint |
+| GET | `/api/discovery/docker/tracked` | - | Current tracked apps + sites with last-seen timestamps |
+| DELETE | `/api/discovery/docker/track/{key}` | - | Detach tracking for everything matching `key` on the current endpoint |
 | POST | `/api/discovery/docker/relink/probe` | `{key}` | "Does this key still resolve on the current daemon?" |
 | POST | `/api/discovery/docker/relink/confirm` | `{old_key, new_key, strategy?}` | Move tracking from old key to new key |

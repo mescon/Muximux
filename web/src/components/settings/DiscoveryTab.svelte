@@ -400,6 +400,20 @@
                     {testVisual.tone === 'green' ? 'border-green-500/40 bg-green-500/10 text-green-300' : ''}
                     {testVisual.tone === 'gray' ? 'border-border bg-bg-elevated text-text-secondary' : ''}">
           <span class="font-medium">Test result:</span> {testVisual.text}
+          {#if testVisual.tone === 'red' && /permission denied/i.test(testResult?.last_error ?? '')}
+            <div class="mt-2 text-xs leading-relaxed opacity-90">
+              <strong>How to fix:</strong>
+              <ul class="list-disc list-inside mt-1 space-y-0.5">
+                <li>If you run Muximux <em>in a container</em>: make sure the Docker socket is bind-mounted (<code>- /var/run/docker.sock:/var/run/docker.sock:ro</code>) and restart the container. The entrypoint auto-detects the socket's group ownership and grants access.</li>
+                <li>If you run Muximux <em>directly on Linux</em>: add the OS user the binary runs as to the <code>docker</code> group, then restart Muximux. For example: <code>sudo usermod -aG docker $(whoami)</code></li>
+                <li>If you run Muximux on <em>macOS</em>: ensure Docker Desktop's <em>"Allow the default Docker socket to be used"</em> setting is enabled (Docker Desktop -&gt; Settings -&gt; Advanced).</li>
+                <li>If you run Muximux on <em>Windows</em>: set the endpoint to <code>npipe:////./pipe/docker_engine</code> (Muximux 3.1.0+ supports named pipes).</li>
+              </ul>
+              <a href="https://github.com/mescon/Muximux/wiki/docker-discovery#make-the-daemon-socket-reachable-from-muximux"
+                 target="_blank" rel="noopener noreferrer"
+                 class="inline-block mt-2 underline opacity-80 hover:opacity-100">Full setup guide →</a>
+            </div>
+          {/if}
         </div>
       {/if}
 

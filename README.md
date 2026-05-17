@@ -25,23 +25,23 @@ One binary. One port. One YAML config file.
 ![Muximux Dashboard](docs/screenshots/09-dashboard-dark.png)
 
 <details>
-<summary><strong>More screenshots</strong> — onboarding wizard, light mode, themes, split view, command palette</summary>
+<summary><strong>More screenshots</strong> - onboarding wizard, light mode, themes, split view, command palette</summary>
 <br>
 <table>
 <tr>
 <td align="center"><a href="docs/screenshots/10-dashboard-light.png"><img src="docs/screenshots/10-dashboard-light.png" width="280" alt="Dashboard (Light)"></a><br><sub>Dashboard (Light)</sub></td>
-<td align="center"><a href="docs/screenshots/01-welcome.png"><img src="docs/screenshots/01-welcome.png" width="280" alt="Onboarding — Welcome"></a><br><sub>Onboarding — Welcome</sub></td>
-<td align="center"><a href="docs/screenshots/02-security.png"><img src="docs/screenshots/02-security.png" width="280" alt="Onboarding — Security"></a><br><sub>Onboarding — Security</sub></td>
+<td align="center"><a href="docs/screenshots/01-welcome.png"><img src="docs/screenshots/01-welcome.png" width="280" alt="Onboarding - Welcome"></a><br><sub>Onboarding - Welcome</sub></td>
+<td align="center"><a href="docs/screenshots/02-security.png"><img src="docs/screenshots/02-security.png" width="280" alt="Onboarding - Security"></a><br><sub>Onboarding - Security</sub></td>
 </tr>
 <tr>
-<td align="center"><a href="docs/screenshots/03-apps-catalog.png"><img src="docs/screenshots/03-apps-catalog.png" width="280" alt="Onboarding — App Catalog"></a><br><sub>Onboarding — App Catalog</sub></td>
-<td align="center"><a href="docs/screenshots/04-apps-selected.png"><img src="docs/screenshots/04-apps-selected.png" width="280" alt="Onboarding — Apps Configured"></a><br><sub>Onboarding — Apps Configured</sub></td>
-<td align="center"><a href="docs/screenshots/05-style.png"><img src="docs/screenshots/05-style.png" width="280" alt="Onboarding — Style"></a><br><sub>Onboarding — Style</sub></td>
+<td align="center"><a href="docs/screenshots/03-apps-catalog.png"><img src="docs/screenshots/03-apps-catalog.png" width="280" alt="Onboarding - App Catalog"></a><br><sub>Onboarding - App Catalog</sub></td>
+<td align="center"><a href="docs/screenshots/04-apps-selected.png"><img src="docs/screenshots/04-apps-selected.png" width="280" alt="Onboarding - Apps Configured"></a><br><sub>Onboarding - Apps Configured</sub></td>
+<td align="center"><a href="docs/screenshots/05-style.png"><img src="docs/screenshots/05-style.png" width="280" alt="Onboarding - Style"></a><br><sub>Onboarding - Style</sub></td>
 </tr>
 <tr>
-<td align="center"><a href="docs/screenshots/06-theme-dark.png"><img src="docs/screenshots/06-theme-dark.png" width="280" alt="Onboarding — Themes (Dark)"></a><br><sub>Onboarding — Themes (Dark)</sub></td>
-<td align="center"><a href="docs/screenshots/07-theme-light.png"><img src="docs/screenshots/07-theme-light.png" width="280" alt="Onboarding — Themes (Light)"></a><br><sub>Onboarding — Themes (Light)</sub></td>
-<td align="center"><a href="docs/screenshots/08-done.png"><img src="docs/screenshots/08-done.png" width="280" alt="Onboarding — Done"></a><br><sub>Onboarding — Done</sub></td>
+<td align="center"><a href="docs/screenshots/06-theme-dark.png"><img src="docs/screenshots/06-theme-dark.png" width="280" alt="Onboarding - Themes (Dark)"></a><br><sub>Onboarding - Themes (Dark)</sub></td>
+<td align="center"><a href="docs/screenshots/07-theme-light.png"><img src="docs/screenshots/07-theme-light.png" width="280" alt="Onboarding - Themes (Light)"></a><br><sub>Onboarding - Themes (Light)</sub></td>
+<td align="center"><a href="docs/screenshots/08-done.png"><img src="docs/screenshots/08-done.png" width="280" alt="Onboarding - Done"></a><br><sub>Onboarding - Done</sub></td>
 </tr>
 <tr>
 <td align="center"><a href="docs/screenshots/13-logs.png"><img src="docs/screenshots/13-logs.png" width="280" alt="Real-Time Log Viewer"></a><br><sub>Real-Time Log Viewer</sub></td>
@@ -49,8 +49,8 @@ One binary. One port. One YAML config file.
 <td align="center"><a href="docs/screenshots/12-theme-customizer.png"><img src="docs/screenshots/12-theme-customizer.png" width="280" alt="Theme Customizer"></a><br><sub>Theme Customizer</sub></td>
 </tr>
 <tr>
-<td align="center"><a href="docs/screenshots/14-split-horizontal.png"><img src="docs/screenshots/14-split-horizontal.png" width="280" alt="Split View — Horizontal"></a><br><sub>Split View — Horizontal</sub></td>
-<td align="center"><a href="docs/screenshots/15-split-vertical.png"><img src="docs/screenshots/15-split-vertical.png" width="280" alt="Split View — Vertical"></a><br><sub>Split View — Vertical</sub></td>
+<td align="center"><a href="docs/screenshots/14-split-horizontal.png"><img src="docs/screenshots/14-split-horizontal.png" width="280" alt="Split View - Horizontal"></a><br><sub>Split View - Horizontal</sub></td>
+<td align="center"><a href="docs/screenshots/15-split-vertical.png"><img src="docs/screenshots/15-split-vertical.png" width="280" alt="Split View - Vertical"></a><br><sub>Split View - Vertical</sub></td>
 <td align="center"><a href="docs/screenshots/16-command-palette.png"><img src="docs/screenshots/16-command-palette.png" width="280" alt="Command Palette"></a><br><sub>Command Palette</sub></td>
 </tr>
 </table>

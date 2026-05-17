@@ -30,7 +30,7 @@ Horizontal bar across the bottom of the screen. Same layout as the top bar, just
 
 ### Floating
 
-A floating action button (FAB) that opens a popover panel with your apps organized by group. This option maximizes the screen space available to your apps since nothing is visible until you tap the button. The FAB can be dragged to any position on the screen — its location is saved per browser in localStorage. The `floating_position` config option (bottom-right, bottom-left, top-right, top-left) sets the default corner for first-time visitors. Double-click the FAB to snap it back to its configured corner.
+A floating action button (FAB) that opens a popover panel with your apps organized by group. This option maximizes the screen space available to your apps since nothing is visible until you tap the button. The FAB can be dragged to any position on the screen - its location is saved per browser in localStorage. The `floating_position` config option (bottom-right, bottom-left, top-right, top-left) sets the default corner for first-time visitors. Double-click the FAB to snap it back to its configured corner.
 
 ## Bar Style (Top/Bottom Only)
 
@@ -87,13 +87,13 @@ This ensures all controls remain accessible regardless of whether labels are vis
 
 ## Split View Controls
 
-The navigation bar includes inline split view controls on all five positions. When split view is off, a single icon enables it. When split view is active, the controls expand to show orientation toggle, panel selector arrows, and a close button — all within the existing button row.
+The navigation bar includes inline split view controls on all five positions. When split view is off, a single icon enables it. When split view is active, the controls expand to show orientation toggle, panel selector arrows, and a close button - all within the existing button row.
 
 See the [Split View](split-view.md) page for full documentation.
 
 ## Toggle Buttons
 
-The **Overview** and **Logs** buttons in the navigation bar act as toggles. Clicking the logs button while viewing an app opens the log viewer. Clicking it again returns to the app you were viewing. The overview button works the same way — click to see the overview, click again to return to your app.
+The **Overview** and **Logs** buttons in the navigation bar act as toggles. Clicking the logs button while viewing an app opens the log viewer. Clicking it again returns to the app you were viewing. The overview button works the same way - click to see the overview, click again to return to your app.
 
 ## Auto-Hide Behavior
 

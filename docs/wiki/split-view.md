@@ -25,7 +25,7 @@ When split view is active, the navigation bar shows:
 
 ### Selecting a Panel
 
-The panel arrows in the navigation bar control which panel is the **target** — when you click an app in the navigation, it loads into the target panel. The arrows adapt to the current orientation:
+The panel arrows in the navigation bar control which panel is the **target** - when you click an app in the navigation, it loads into the target panel. The arrows adapt to the current orientation:
 
 - **Horizontal split:** Left (◀) and right (▶) arrows
 - **Vertical split:** Up (▲) and down (▼) arrows
@@ -53,7 +53,7 @@ This means you can bookmark a split view configuration or share it as a link. Wh
 
 ## Switching Orientation
 
-Click the horizontal or vertical icon to switch orientation while split view is active. Both panels and their loaded apps are preserved — only the layout direction changes.
+Click the horizontal or vertical icon to switch orientation while split view is active. Both panels and their loaded apps are preserved - only the layout direction changes.
 
 ## Closing Split View
 

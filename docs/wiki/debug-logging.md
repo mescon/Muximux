@@ -30,7 +30,7 @@ Or manually remove the flag:
 localStorage.removeItem('muximux_debug');
 ```
 
-> **Important:** Simply removing `?debug=true` from the URL does **not** turn off debug logging — it persists in localStorage until you explicitly disable it with `?debug=false`.
+> **Important:** Simply removing `?debug=true` from the URL does **not** turn off debug logging - it persists in localStorage until you explicitly disable it with `?debug=false`.
 
 ### What Gets Logged
 
@@ -119,7 +119,7 @@ Filter logs by request ID in the log viewer to see the full lifecycle of a singl
 
 ### Understanding Auth Bypass Messages
 
-When debug logging is enabled, you'll see `Auth bypassed` messages for certain paths. This is **expected behavior** — these are static assets and endpoints that must be accessible without authentication:
+When debug logging is enabled, you'll see `Auth bypassed` messages for certain paths. This is **expected behavior** - these are static assets and endpoints that must be accessible without authentication:
 
 | Path Pattern | Why It's Bypassed |
 |---|---|
@@ -176,5 +176,5 @@ On restart, the most recent log entries are reloaded into the in-memory buffer s
 ## Privacy
 
 - Frontend debug logs are written only to your browser's console. They are not sent to any server.
-- The `localStorage` flag (`muximux_debug`) contains only the value `"1"` — no personal data.
+- The `localStorage` flag (`muximux_debug`) contains only the value `"1"` - no personal data.
 - Backend debug logs may include usernames and request paths. Be mindful of this when sharing logs publicly.

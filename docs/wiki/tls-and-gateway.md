@@ -21,7 +21,7 @@ Caddy starts automatically when **either** `tls` or `gateway` is configured. If 
 
 The internal port is computed automatically: listen port + 10000 (e.g., `:8080` becomes `127.0.0.1:18080`). It is never user-configured.
 
-For deployments behind another reverse proxy, set `server.gateway_listen` to bind gateway sites on a non-privileged port — see [Running Behind Another Reverse Proxy](#running-behind-another-reverse-proxy-gateway_listen) below.
+For deployments behind another reverse proxy, set `server.gateway_listen` to bind gateway sites on a non-privileged port - see [Running Behind Another Reverse Proxy](#running-behind-another-reverse-proxy-gateway_listen) below.
 
 ---
 
@@ -124,7 +124,7 @@ muximux.example.com          -> https terminated upstream -> http://muximux-host
 
 The dashboard (`server.listen`) is independent: it always binds whatever port you set there, with whatever TLS shape `server.tls.*` describes.
 
-**Format**: `gateway_listen` accepts anything `net.Listen` does — `":8443"` (all interfaces), `"127.0.0.1:8443"` (loopback only), `"[::]:8443"` (IPv6 all). Empty (the default) restores the auto-binding behaviour.
+**Format**: `gateway_listen` accepts anything `net.Listen` does - `":8443"` (all interfaces), `"127.0.0.1:8443"` (loopback only), `"[::]:8443"` (IPv6 all). Empty (the default) restores the auto-binding behaviour.
 
 If Caddy can't bind the port you choose, Muximux exits at startup with a one-line remediation hint listing the three concrete fixes (run as root, `setcap`, or `gateway_listen`).
 

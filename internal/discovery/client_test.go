@@ -35,9 +35,12 @@ func TestParseEndpoint(t *testing.T) {
 		{"unix:///tmp/d.sock", "unix", "/tmp/d.sock", false},
 		{"tcp://10.0.0.5:2376", "tcp", "10.0.0.5:2376", false},
 		{"tcp://docker.local:2375", "tcp", "docker.local:2375", false},
+		// Windows named pipe URI form. parseEndpoint converts the
+		// `//./pipe/foo` URL path into Windows form `\\.\pipe\foo`.
+		{"npipe:////./pipe/docker_engine", "npipe", `\\.\pipe\docker_engine`, false},
 		{"unix://", "", "", true},
 		{"tcp://", "", "", true},
-		{"npipe:///pipe/docker_engine", "", "", true},
+		{"npipe://", "", "", true},
 		{"http://localhost", "", "", true},
 		{"", "", "", true},
 	}

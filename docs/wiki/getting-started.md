@@ -20,7 +20,7 @@ The wizard has six steps on a first launch, including a **Security** step where 
 
 A brief introduction to Muximux and its core features: embedded app views via iframes, health monitoring, and keyboard-driven navigation. Click **Let's Get Started** to begin.
 
-[![Onboarding — Welcome](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)
+[![Onboarding - Welcome](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)
 
 ### Step 2: Security (fresh install only)
 
@@ -36,7 +36,7 @@ This step only appears during initial setup. After setup is complete, authentica
 
 This step uses a two-column layout (single column on mobile):
 
-**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. Tick the box, confirm the Docker endpoint (default is the standard unix socket) and pick a network strategy; when onboarding completes Muximux saves the discovery config so **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan — that happens post-onboarding so you can review what gets imported.
+**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. Tick the box, confirm the Docker endpoint (default is the standard unix socket) and pick a network strategy; when onboarding completes Muximux saves the discovery config so **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan - that happens post-onboarding so you can review what gets imported.
 
 Below the Docker card, browse popular self-hosted application templates organized by category:
 
@@ -59,7 +59,7 @@ At the top of the left column is the **Add Custom App** card. Click it to expand
   - **Delete** -- Remove a group with the X button.
   - **Add Group** -- Click "+ Add Group" to create a new group from scratch.
 
-[![Onboarding — Apps configured with URLs and groups](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)
+[![Onboarding - Apps configured with URLs and groups](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)
 
 ### Step 4: Navigation Style
 
@@ -101,7 +101,7 @@ Custom themes can be created later in Settings. The selected theme is saved to `
 
 A summary of your choices is displayed: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
 
-[![Onboarding — Complete](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)
+[![Onboarding - Complete](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)
 
 ---
 

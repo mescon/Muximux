@@ -62,6 +62,137 @@ func TestParseAppLabels_UnknownLabelsCollected(t *testing.T) {
 	}
 }
 
+// TestParseAppLabels_ExtendedFields covers every label added for the
+// 3.1.0 GitOps expansion. Each field's parser has its own validation
+// (hex colour, role enum, comma-split list, etc.) and this test
+// pins the contract that valid values land and invalid ones fall
+// through to zero.
+func TestParseAppLabels_ExtendedFields(t *testing.T) {
+	t.Run("all extended fields parse", func(t *testing.T) {
+		labels := map[string]string{
+			"muximux.app.color":                 "#3b82f6",
+			"muximux.app.order":                 "7",
+			"muximux.app.default":               "true",
+			"muximux.app.open_mode":             "new_tab",
+			"muximux.app.proxy":                 "true",
+			"muximux.app.proxy_skip_tls_verify": "yes",
+			"muximux.app.min_role":              "power-user",
+			"muximux.app.allowed_groups":        "family, admins , staff",
+			"muximux.app.permissions":           "camera,microphone,geolocation",
+			"muximux.app.allow_notifications":   "1",
+			"muximux.app.shortcut":              "3",
+		}
+		got := ParseAppLabels(labels)
+		if got.Color != "#3b82f6" {
+			t.Errorf("Color = %q", got.Color)
+		}
+		if got.Order != 7 {
+			t.Errorf("Order = %d", got.Order)
+		}
+		if got.Default == nil || !*got.Default {
+			t.Errorf("Default = %v, want pointer-to-true", got.Default)
+		}
+		if got.OpenMode != "new_tab" {
+			t.Errorf("OpenMode = %q", got.OpenMode)
+		}
+		if got.Proxy == nil || !*got.Proxy {
+			t.Errorf("Proxy = %v, want pointer-to-true", got.Proxy)
+		}
+		if got.ProxySkipTLSVerify == nil || !*got.ProxySkipTLSVerify {
+			t.Errorf("ProxySkipTLSVerify = %v, want pointer-to-true", got.ProxySkipTLSVerify)
+		}
+		if got.MinRole != "power-user" {
+			t.Errorf("MinRole = %q", got.MinRole)
+		}
+		if want := []string{"family", "admins", "staff"}; !equalStrings(got.AllowedGroups, want) {
+			t.Errorf("AllowedGroups = %v, want %v", got.AllowedGroups, want)
+		}
+		if want := []string{"camera", "microphone", "geolocation"}; !equalStrings(got.Permissions, want) {
+			t.Errorf("Permissions = %v, want %v", got.Permissions, want)
+		}
+		if got.AllowNotifications == nil || !*got.AllowNotifications {
+			t.Errorf("AllowNotifications = %v, want pointer-to-true", got.AllowNotifications)
+		}
+		if got.Shortcut != 3 {
+			t.Errorf("Shortcut = %d", got.Shortcut)
+		}
+	})
+
+	t.Run("rejects invalid extended values", func(t *testing.T) {
+		labels := map[string]string{
+			"muximux.app.color":     "blue", // not hex
+			"muximux.app.order":     "abc",
+			"muximux.app.open_mode": "modal", // not one of the supported set
+			"muximux.app.min_role":  "owner", // not in enum
+			"muximux.app.shortcut":  "12",    // out of range
+		}
+		got := ParseAppLabels(labels)
+		if got.Color != "" || got.Order != 0 || got.OpenMode != "" || got.MinRole != "" || got.Shortcut != 0 {
+			t.Errorf("invalid values should fall through to zero; got %+v", got)
+		}
+	})
+}
+
+// TestParseGatewayLabels covers the separate gateway-namespace parser
+// that drives auto-creation of `gateway_sites:` entries from labels.
+func TestParseGatewayLabels(t *testing.T) {
+	t.Run("happy path", func(t *testing.T) {
+		labels := map[string]string{
+			"muximux.gateway.tls":                  "auto",
+			"muximux.gateway.streaming":            "true",
+			"muximux.gateway.strip_frame_blockers": "true",
+			"muximux.gateway.forwarded_headers":    "false",
+			"muximux.gateway.require_auth":         "true",
+			"muximux.gateway.min_role":             "admin",
+			"muximux.gateway.allowed_groups":       "admins",
+		}
+		got := ParseGatewayLabels(labels)
+		if got.TLS != "auto" {
+			t.Errorf("TLS = %q", got.TLS)
+		}
+		if got.Streaming == nil || !*got.Streaming {
+			t.Errorf("Streaming = %v", got.Streaming)
+		}
+		if got.StripFrameBlockers == nil || !*got.StripFrameBlockers {
+			t.Errorf("StripFrameBlockers = %v", got.StripFrameBlockers)
+		}
+		if got.ForwardedHeaders == nil || *got.ForwardedHeaders {
+			t.Errorf("ForwardedHeaders should be pointer-to-false, got %v", got.ForwardedHeaders)
+		}
+		if got.RequireAuth == nil || !*got.RequireAuth {
+			t.Errorf("RequireAuth = %v", got.RequireAuth)
+		}
+		if got.MinRole != "admin" {
+			t.Errorf("MinRole = %q", got.MinRole)
+		}
+		if len(got.AllowedGroups) != 1 || got.AllowedGroups[0] != "admins" {
+			t.Errorf("AllowedGroups = %v", got.AllowedGroups)
+		}
+	})
+
+	t.Run("rejects invalid tls / role", func(t *testing.T) {
+		got := ParseGatewayLabels(map[string]string{
+			"muximux.gateway.tls":      "wildcard",
+			"muximux.gateway.min_role": "moderator",
+		})
+		if got.TLS != "" || got.MinRole != "" {
+			t.Errorf("invalid values should be dropped; got %+v", got)
+		}
+	})
+}
+
+func equalStrings(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func TestKeyForContainer_LabelWins(t *testing.T) {
 	c := &ContainerSummary{
 		ID:    "abc123def456abc123def456abc123def456abc123def456abc123def456abc1",

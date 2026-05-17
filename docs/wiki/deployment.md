@@ -249,7 +249,7 @@ services:
       - ./data:/app/data
 ```
 
-> **Note:** Muximux handles its own path stripping internally. Do **not** use Traefik's `StripPrefix` middleware — Muximux expects the full path including the base prefix and strips it itself.
+> **Note:** Muximux handles its own path stripping internally. Do **not** use Traefik's `StripPrefix` middleware - Muximux expects the full path including the base prefix and strips it itself.
 
 ### Docker Compose (subpath)
 

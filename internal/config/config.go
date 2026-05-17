@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -527,11 +528,12 @@ func Load(path string) (*Config, error) {
 
 	// Discovery defaults: when the operator enables Docker discovery
 	// without spelling out an endpoint or a network strategy we pick
-	// the most common safe values (unix socket, container_ip). When
-	// disabled, the zero values are fine and we don't touch them.
+	// the most common safe values (platform-aware unix-or-npipe
+	// socket, container_ip). When disabled, the zero values are
+	// fine and we don't touch them.
 	if cfg.Discovery.Docker.Enabled {
 		if cfg.Discovery.Docker.Endpoint == "" {
-			cfg.Discovery.Docker.Endpoint = "unix:///var/run/docker.sock"
+			cfg.Discovery.Docker.Endpoint = defaultDockerEndpoint()
 		}
 		if cfg.Discovery.Docker.NetworkStrategy == "" {
 			cfg.Discovery.Docker.NetworkStrategy = StrategyContainerIP
@@ -1268,4 +1270,19 @@ func defaultConfig() *Config {
 		Groups: []GroupConfig{},
 		Apps:   []AppConfig{},
 	}
+}
+
+// defaultDockerEndpoint returns the platform-conventional Docker
+// daemon endpoint for the current OS. Linux + macOS both use the
+// unix socket (macOS via Docker Desktop's host-side symlink at
+// /var/run/docker.sock); Windows uses a named pipe.
+//
+// Operators who run a remote daemon or a non-default socket can
+// always set discovery.docker.endpoint explicitly; this helper is
+// only consulted when the field is empty.
+func defaultDockerEndpoint() string {
+	if runtime.GOOS == "windows" {
+		return `npipe:////./pipe/docker_engine`
+	}
+	return "unix:///var/run/docker.sock"
 }

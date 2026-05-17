@@ -54,9 +54,41 @@ type Suggestion struct {
 	RequiresInput bool       `json:"requires_input,omitempty"` // true when scan can't pick a port etc.
 	Notes         []string   `json:"notes,omitempty"`
 
+	// Label-derived App fields. Populated when the container has the
+	// matching muximux.app.* labels set. Frontend copies these through
+	// to the ClientAppConfig on import so operators get a fully
+	// configured app from labels alone.
+	Color              string   `json:"color,omitempty"`
+	Order              int      `json:"order,omitempty"`
+	OpenMode           string   `json:"open_mode,omitempty"`
+	Proxy              *bool    `json:"proxy,omitempty"`
+	ProxySkipTLSVerify *bool    `json:"proxy_skip_tls_verify,omitempty"`
+	MinRole            string   `json:"min_role,omitempty"`
+	AllowedGroups      []string `json:"allowed_groups,omitempty"`
+	Permissions        []string `json:"permissions,omitempty"`
+	AllowNotifications *bool    `json:"allow_notifications,omitempty"`
+	Default            *bool    `json:"default,omitempty"`
+	Shortcut           int      `json:"shortcut,omitempty"`
+
 	// Suggested gateway-site fields, used when the modal's
-	// "Add gateway site" toggle is on.
-	SuggestedDomain string `json:"suggested_domain,omitempty"`
+	// "Add gateway site" toggle is on. SuggestedDomain comes from
+	// muximux.app.gateway.domain; the rest come from the
+	// muximux.gateway.* namespace.
+	SuggestedDomain  string                  `json:"suggested_domain,omitempty"`
+	SuggestedGateway *SuggestedGatewayConfig `json:"suggested_gateway,omitempty"`
+}
+
+// SuggestedGatewayConfig carries muximux.gateway.* label values
+// through the scan/import flow. Present only when at least one
+// gateway-namespace label is set on the container.
+type SuggestedGatewayConfig struct {
+	TLS                string   `json:"tls,omitempty"` // auto | none | custom
+	Streaming          *bool    `json:"streaming,omitempty"`
+	StripFrameBlockers *bool    `json:"strip_frame_blockers,omitempty"`
+	ForwardedHeaders   *bool    `json:"forwarded_headers,omitempty"`
+	RequireAuth        *bool    `json:"require_auth,omitempty"`
+	MinRole            string   `json:"min_role,omitempty"`
+	AllowedGroups      []string `json:"allowed_groups,omitempty"`
 }
 
 // suggestForContainer builds a Suggestion for one container by
@@ -180,12 +212,60 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 		s.SuggestedDomain = sanitiseSubdomain(c.PrimaryName()) + "." + dashboardDomain
 	}
 
+	// Carry every other muximux.app.* label through to the
+	// Suggestion so the frontend can pre-fill the App form (and the
+	// import endpoint can write them straight into AppConfig)
+	// without operator post-edit.
+	s.Color = labels.Color
+	s.Order = labels.Order
+	s.OpenMode = labels.OpenMode
+	s.Proxy = labels.Proxy
+	s.ProxySkipTLSVerify = labels.ProxySkipTLSVerify
+	s.MinRole = labels.MinRole
+	s.AllowedGroups = labels.AllowedGroups
+	s.Permissions = labels.Permissions
+	s.AllowNotifications = labels.AllowNotifications
+	s.Default = labels.Default
+	s.Shortcut = labels.Shortcut
+	// Bump confidence to High when label-set is rich enough to
+	// drive the import without operator review.
+	if (labels.Proxy != nil || labels.OpenMode != "" || labels.Color != "" || labels.MinRole != "") && s.Confidence == ConfidenceMedium {
+		s.Confidence = ConfidenceHigh
+	}
+
+	// muximux.gateway.* labels only matter when a gateway domain
+	// was set too. Parse and attach.
+	if s.SuggestedDomain != "" {
+		gw := ParseGatewayLabels(c.Labels)
+		if gatewayLabelsNonEmpty(gw) {
+			s.SuggestedGateway = &SuggestedGatewayConfig{
+				TLS:                gw.TLS,
+				Streaming:          gw.Streaming,
+				StripFrameBlockers: gw.StripFrameBlockers,
+				ForwardedHeaders:   gw.ForwardedHeaders,
+				RequireAuth:        gw.RequireAuth,
+				MinRole:            gw.MinRole,
+				AllowedGroups:      gw.AllowedGroups,
+			}
+		}
+	}
+
 	// Surface unknown muximux.* labels so a typo gets noticed.
 	for _, u := range labels.Unknown {
 		s.Notes = append(s.Notes, fmt.Sprintf("Unknown label ignored: %s", u))
 	}
 
 	return s
+}
+
+// gatewayLabelsNonEmpty reports whether any gateway-namespace label
+// was actually set. Used so we don't attach an all-zero
+// SuggestedGateway payload that would clutter the JSON output for
+// containers that only set the app.gateway.domain label.
+func gatewayLabelsNonEmpty(g GatewayLabels) bool {
+	return g.TLS != "" || g.Streaming != nil || g.StripFrameBlockers != nil ||
+		g.ForwardedHeaders != nil || g.RequireAuth != nil ||
+		g.MinRole != "" || len(g.AllowedGroups) > 0
 }
 
 // pickFirstExposedPort returns the lowest privileged-looking port if

@@ -43,7 +43,7 @@ services:
       # the daemon for running containers (Settings → Discovery in
       # 3.1.0+). Read-only is enough; Muximux only reads container
       # metadata, it never starts/stops/builds anything. Mount this
-      # only if you trust the dashboard's auth posture — the socket
+      # only if you trust the dashboard's auth posture - the socket
       # grants effective root on the host.
       # The entrypoint auto-detects the socket's group ownership and
       # grants the runtime user access; no extra env var needed.
@@ -107,6 +107,37 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+# ─── Discovery via Docker labels (3.1.0+) ──────────────────────
+#
+# Any service you label with muximux.* keys appears in Muximux's
+# Discover modal (Settings > Discovery) pre-filled for one-click
+# import. The example below shows the full label set; you can
+# omit the ones you don't need. See the docker-discovery wiki
+# page for the full reference and per-platform setup.
+#
+# Sketch:
+#
+# services:
+#   sonarr:
+#     image: linuxserver/sonarr
+#     labels:
+#       # Tracking
+#       - muximux.discovery.id=sonarr-stable
+#       # App fields
+#       - muximux.app.name=Sonarr
+#       - muximux.app.icon=sonarr
+#       - muximux.app.group=Media
+#       - muximux.app.port=8989
+#       - muximux.app.scheme=http
+#       - muximux.app.proxy=true
+#       - muximux.app.color=#3498db
+#       - muximux.app.min_role=user
+#       - muximux.app.allowed_groups=family,admins
+#       # Gateway (subdomain + auth gate)
+#       - muximux.app.gateway.domain=sonarr.example.com
+#       - muximux.gateway.tls=auto
+#       - muximux.gateway.require_auth=true
 
 # Optional: Build from source instead of using pre-built image
 # services:

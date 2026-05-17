@@ -3,7 +3,7 @@
 #
 # Environment variable expansion:
 #   Use ${VAR_NAME} in any string value to reference environment variables.
-#   This keeps secrets out of config files — set them in your environment,
+#   This keeps secrets out of config files - set them in your environment,
 #   Docker Compose, or systemd unit instead.
 #   Example: client_secret: ${OIDC_CLIENT_SECRET}
 
@@ -103,7 +103,7 @@ auth:
   #   email: Remote-Email
   #   groups: Remote-Groups
   #   name: Remote-Name          # Note: key is "name" not "display_name"
-  # logout_url: ""               # Auth provider logout URL — redirected to on sign-out
+  # logout_url: ""               # Auth provider logout URL - redirected to on sign-out
   #                              # Authelia: https://auth.example.com/logout
   #                              # Authentik: https://app.example.com/outpost.goauthentik.io/sign_out
 
@@ -148,7 +148,7 @@ navigation:
   max_open_tabs: 0             # Max app tabs kept alive in memory (0 = unlimited)
 
 # ─── Keyboard Shortcuts ────────────────────────
-# Only overrides — defaults are managed client-side.
+# Only overrides - defaults are managed client-side.
 # keybindings:
 #   bindings:
 #     search:
@@ -199,7 +199,7 @@ apps:
     icon:
       type: dashboard          # Icon types: dashboard, lucide, custom, url
       name: plex               # Dashboard Icons slug or Lucide icon name
-      # variant: light         # Icon variant (e.g. light, dark — Dashboard Icons only)
+      # variant: light         # Icon variant (e.g. light, dark - Dashboard Icons only)
       # file: healarr          # Filename in data/icons/ (type: custom only)
       # url: https://example.com/icon.png  # Remote image URL (type: url only)
       # color: "#ff0000"       # Tint color (Lucide icons only)
@@ -237,7 +237,7 @@ apps:
     order: 1
     enabled: true
     open_mode: iframe
-    proxy: true                # Proxy through /proxy/sonarr/ — strips iframe-blocking headers
+    proxy: true                # Proxy through /proxy/sonarr/ - strips iframe-blocking headers
     proxy_skip_tls_verify: true      # Skip backend TLS cert verification (default: true)
     # proxy_headers:                 # Custom headers sent to the backend
     #   X-Api-Key: "your-api-key"

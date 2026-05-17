@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, AppIcon as AppIconType } from '$lib/types';
+  import type { App, DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, GatewaySite, AppIcon as AppIconType } from '$lib/types';
   import { scanDockerContainers, importDockerSuggestions } from '$lib/api';
   import AppIcon from '../AppIcon.svelte';
   import IconBrowser from '../IconBrowser.svelte';
@@ -155,7 +155,14 @@
             strategy: r.s.effective_strategy,
           };
           if (r.createApp) {
-            item.app = {
+            // Build the app from the operator's row edits plus
+            // every label-derived field on the suggestion. The
+            // backend's ClientAppConfig accepts any subset of App
+            // fields, so passing through `r.s.color`, `r.s.proxy`,
+            // etc. lets a fully-labelled container materialise
+            // into a fully-configured app with no post-import
+            // edit needed (the "GitOps your apps" path).
+            const app: Partial<App> = {
               name: r.nameOverride.trim() || r.s.name,
               url: r.s.url,
               icon: r.iconOverride ?? { type: 'dashboard', name: r.s.icon ?? '' },
@@ -163,17 +170,41 @@
               health_url: r.s.health_url,
               enabled: true,
             };
+            if (r.s.color) app.color = r.s.color;
+            if (typeof r.s.order === 'number') app.order = r.s.order;
+            if (r.s.open_mode) app.open_mode = r.s.open_mode;
+            if (typeof r.s.proxy === 'boolean') app.proxy = r.s.proxy;
+            if (typeof r.s.proxy_skip_tls_verify === 'boolean') app.proxy_skip_tls_verify = r.s.proxy_skip_tls_verify;
+            if (r.s.min_role) app.min_role = r.s.min_role;
+            if (r.s.allowed_groups && r.s.allowed_groups.length > 0) app.allowed_groups = r.s.allowed_groups;
+            if (r.s.permissions && r.s.permissions.length > 0) app.permissions = r.s.permissions;
+            if (typeof r.s.allow_notifications === 'boolean') app.allow_notifications = r.s.allow_notifications;
+            if (typeof r.s.default === 'boolean') app.default = r.s.default;
+            if (typeof r.s.shortcut === 'number') app.shortcut = r.s.shortcut;
+            item.app = app;
             // Routing only matters when an app is being created;
             // omit when the row is gateway-only to keep the wire
             // payload tight.
             item.routing = r.routing;
           }
           if (r.createGateway) {
-            item.gateway = {
+            // Build the gateway-site from suggestion defaults plus
+            // any muximux.gateway.* labels the operator set.
+            const gw: GatewaySite = {
               domain: r.gatewayDomain.trim(),
               backend_url: r.s.url,
-              tls: 'auto',
+              tls: r.s.suggested_gateway?.tls ?? 'auto',
             };
+            const sg = r.s.suggested_gateway;
+            if (sg) {
+              if (typeof sg.streaming === 'boolean') gw.streaming = sg.streaming;
+              if (typeof sg.strip_frame_blockers === 'boolean') gw.strip_frame_blockers = sg.strip_frame_blockers;
+              if (typeof sg.forwarded_headers === 'boolean') gw.forwarded_headers = sg.forwarded_headers;
+              if (typeof sg.require_auth === 'boolean') gw.require_auth = sg.require_auth;
+              if (sg.min_role) gw.min_role = sg.min_role;
+              if (sg.allowed_groups && sg.allowed_groups.length > 0) gw.allowed_groups = sg.allowed_groups;
+            }
+            item.gateway = gw;
           }
           return item;
         });

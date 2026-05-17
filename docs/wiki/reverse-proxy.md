@@ -59,27 +59,27 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 - Strips SRI integrity checks (which break when content is modified)
 - Rewrites absolute URLs pointing to the backend server
 - Rewrites base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/sonarr"`)
-- Root-relative paths in JS/JSON/XML are **not** statically rewritten — the runtime interceptor (see below) handles these to avoid corrupting URLs meant for third-party servers
+- Root-relative paths in JS/JSON/XML are **not** statically rewritten - the runtime interceptor (see below) handles these to avoid corrupting URLs meant for third-party servers
 
 ### Runtime URL Interceptor
 
 For single-page applications (SPAs) that build URLs dynamically in JavaScript, static text rewriting is not enough. The proxy injects a small script into every HTML response that intercepts URL usage at runtime:
 
-- **`fetch()`, `XMLHttpRequest`, `sendBeacon()`** — API calls are rewritten before they leave the browser
-- **`WebSocket`, `EventSource`** — Real-time connections are routed through the proxy
-- **DOM property setters** — `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` — the browser's internal setter only ever sees the rewritten URL
-- **`img.srcset`** — Custom setter parses comma-separated `url descriptor` pairs and rewrites each URL
-- **`setAttribute()`** — Wrapped so libraries using `el.setAttribute('src', url)` get synchronous URL rewriting
-- **`CSSStyleSheet.insertRule()`** — Rewrites `url()` references in CSS-in-JS rules (styled-components, emotion)
-- **`insertAdjacentHTML()`** — Synchronously fixes URLs in newly inserted HTML fragments
-- **`history.pushState/replaceState`** — Adds proxy prefix so frame reload hits the correct URL
-- **`location.pathname/href`** — Getters transparently strip the proxy prefix so SPA routers see clean paths
-- **`location.assign/replace`, `window.open`** — Wrapped to route through the proxy
-- **`Worker`, `SharedWorker`, `Audio` constructors** — Script/source URLs routed through the proxy
-- **`MutationObserver` fallback** — Catches elements created via `innerHTML` or HTML parsing where property setters don't fire
-- **`window.parent` and `window.top` isolation** — Overridden to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. Smart detection keeps `window.parent` intact for sub-iframes within the same proxied app (e.g., qBittorrent's MochaUI dialogs).
-- **`localStorage` / `sessionStorage` isolation** — Namespaced per proxied app so multiple apps sharing the Muximux origin don't collide on storage keys
-- **Service worker blocking** — `register()` is no-op'd to prevent proxied apps from registering service workers under the Muximux origin; existing proxy-scoped registrations are unregistered
+- **`fetch()`, `XMLHttpRequest`, `sendBeacon()`** - API calls are rewritten before they leave the browser
+- **`WebSocket`, `EventSource`** - Real-time connections are routed through the proxy
+- **DOM property setters** - `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` - the browser's internal setter only ever sees the rewritten URL
+- **`img.srcset`** - Custom setter parses comma-separated `url descriptor` pairs and rewrites each URL
+- **`setAttribute()`** - Wrapped so libraries using `el.setAttribute('src', url)` get synchronous URL rewriting
+- **`CSSStyleSheet.insertRule()`** - Rewrites `url()` references in CSS-in-JS rules (styled-components, emotion)
+- **`insertAdjacentHTML()`** - Synchronously fixes URLs in newly inserted HTML fragments
+- **`history.pushState/replaceState`** - Adds proxy prefix so frame reload hits the correct URL
+- **`location.pathname/href`** - Getters transparently strip the proxy prefix so SPA routers see clean paths
+- **`location.assign/replace`, `window.open`** - Wrapped to route through the proxy
+- **`Worker`, `SharedWorker`, `Audio` constructors** - Script/source URLs routed through the proxy
+- **`MutationObserver` fallback** - Catches elements created via `innerHTML` or HTML parsing where property setters don't fire
+- **`window.parent` and `window.top` isolation** - Overridden to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. Smart detection keeps `window.parent` intact for sub-iframes within the same proxied app (e.g., qBittorrent's MochaUI dialogs).
+- **`localStorage` / `sessionStorage` isolation** - Namespaced per proxied app so multiple apps sharing the Muximux origin don't collide on storage keys
+- **Service worker blocking** - `register()` is no-op'd to prevent proxied apps from registering service workers under the Muximux origin; existing proxy-scoped registrations are unregistered
 
 This means apps like **Plex**, which construct all their image and API URLs in JavaScript at runtime, work through the proxy without needing any configuration in the app itself.
 
@@ -233,9 +233,9 @@ When a response passes through the proxy, the Go server rewrites URLs in the res
 
 | Content Type | Rewriting Strategy |
 |---|---|
-| HTML | Full rewriting — attribute paths (`href`, `src`, etc.), base tags, SRI stripping, CSP meta tag stripping, and interceptor script injection |
-| CSS | Full rewriting — `url()` references |
-| JS, JSON, XML | Safe-only — SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
+| HTML | Full rewriting - attribute paths (`href`, `src`, etc.), base tags, SRI stripping, CSP meta tag stripping, and interceptor script injection |
+| CSS | Full rewriting - `url()` references |
+| JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
 
 The distinction matters: API responses (JSON, XML) contain data that the SPA reads programmatically. If the proxy rewrites paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`), the SPA may embed those already-rewritten paths in new URLs, causing double-prefixing.
 
@@ -258,7 +258,7 @@ A small `<script>` tag injected into every HTML response patches browser APIs be
 | Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |
 | Blocked | `navigator.serviceWorker.register()` | Returns resolved promise (no-op) |
 
-Property setter overrides are **synchronous** — when the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. This preserves the app's normal event chain (load events, animations, etc.) because the image loads from the correct URL on the first try.
+Property setter overrides are **synchronous** - when the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. This preserves the app's normal event chain (load events, animations, etc.) because the image loads from the correct URL on the first try.
 
 **Layer 3: MutationObserver (Client-Side, Fallback)**
 
