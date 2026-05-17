@@ -64,8 +64,18 @@ async function request<R>(method: string, path: string, data?: unknown): Promise
 // 401/403 bodies. Keeping the request_id out of toasts makes them
 // readable; users who need the ID can still read X-Request-ID off
 // the response (devtools) or copy it from the Logs tab.
+//
+// Implemented with simple substring search instead of a regex
+// because SonarCloud S5852 flags any regex with quantifiers as
+// potential ReDoS, even when the actual pattern is anchored and
+// linear. Direct indexOf/lastIndexOf gives the same result with
+// no ambiguity.
 function stripRequestIDSuffix(s: string): string {
-  return s.replace(/\s*\(request_id:\s*[A-Za-z0-9_-]+\)\s*$/, '').trim();
+  const trimmed = s.trim();
+  if (!trimmed.endsWith(')')) return trimmed;
+  const markerIdx = trimmed.lastIndexOf('(request_id:');
+  if (markerIdx === -1) return trimmed;
+  return trimmed.slice(0, markerIdx).trim();
 }
 
 function extractFriendlyErrorMessage(body: string): string {

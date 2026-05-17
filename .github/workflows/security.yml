@@ -89,11 +89,12 @@ jobs:
           go-version-file: go.mod
 
       - name: Install govulncheck
-        # Pinned to a specific version so builds stay reproducible
-        # and the SonarCloud vulnerability check (S6386: avoid
-        # @latest in workflows) is satisfied. Bump deliberately
+        # SHA-pinned to v1.1.4 (commit d1f3801) so the install is
+        # cryptographically reproducible. SonarCloud workflows rule
+        # (S6386 / "Dependency versions are not predictable") only
+        # accepts commit SHAs, not version tags. Bump deliberately
         # via Dependabot or a manual workflow PR.
-        run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+        run: go install golang.org/x/vuln/cmd/govulncheck@d1f380186385b4f64e00313f31743df8e4b89a77 # v1.1.4
 
       - name: Run govulncheck
         # continue-on-error until GO-2026-4923 (disputed bbolt CVE) is

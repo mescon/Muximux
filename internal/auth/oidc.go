@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	mathrand "math/rand"
+	"math/big"
 	"net/http"
 	"net/url"
 	"strings"
@@ -218,10 +218,15 @@ func (p *OIDCProvider) GetAuthorizationURL(ctx context.Context, redirectAfterLog
 		}
 		victims := pickOldestN(p.states, k)
 		if len(victims) > 0 {
-			//nolint:gosec // not security-sensitive: this picks a random
-			// eviction candidate, the bias toward old is the security
-			// property; rand.Intn here is a tiebreaker only.
-			delete(p.states, victims[mathrand.Intn(len(victims))])
+			// The bias toward old (via pickOldestN) is the actual
+			// security property; this final index is a tiebreaker
+			// between equally-old candidates. crypto/rand is used
+			// instead of math/rand so SonarCloud S2245 stays clean -
+			// the call is cheap (single big.Int per evict), and
+			// using the same package the surrounding code already
+			// uses for state generation keeps imports minimal.
+			idx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(victims))))
+			delete(p.states, victims[idx.Int64()])
 		}
 	}
 	p.states[state] = stateEntry{
