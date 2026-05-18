@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -415,6 +416,14 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 
 	out := ScanResult{Suggestions: make([]Suggestion, 0, len(containers))}
 	for i := range containers {
+		// Skip Muximux's own container - importing it would create
+		// an iframe loop. Detected by image-name substring AND
+		// container-name substring so the filter survives operator
+		// prefix conventions ("homelab-muximux", "homelab_muximux",
+		// custom image registries, etc.).
+		if isLikelySelf(&containers[i]) {
+			continue
+		}
 		out.Suggestions = append(out.Suggestions, suggestForContainer(
 			&containers[i],
 			s.cfg.NetworkStrategy,
@@ -423,6 +432,21 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		))
 	}
 	return out
+}
+
+// isLikelySelf reports whether the container is plausibly a Muximux
+// instance and should be excluded from the Discover suggestions list.
+// We check both image and container name (case-insensitive) so the
+// filter doesn't depend on whether the operator pulled the canonical
+// ghcr.io/mescon/muximux image or built their own with a custom tag.
+func isLikelySelf(c *ContainerSummary) bool {
+	if strings.Contains(strings.ToLower(c.Image), "muximux") {
+		return true
+	}
+	if strings.Contains(strings.ToLower(c.PrimaryName()), "muximux") {
+		return true
+	}
+	return false
 }
 
 // tlsHygieneWarning reads file modes for the configured client_key

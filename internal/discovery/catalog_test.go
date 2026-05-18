@@ -41,6 +41,53 @@ func TestMatchImage_LastSegmentFallback(t *testing.T) {
 	}
 }
 
+func TestMatchByContainerName(t *testing.T) {
+	cases := []struct {
+		name     string
+		wantName string
+		wantHit  bool
+	}{
+		// Plain container name (no prefix).
+		{"sonarr", "Sonarr", true},
+		{"radarr", "Radarr", true},
+		// Operator-prefixed names. The whole "GitOps your apps"
+		// path depends on the catalog still firing here.
+		{"homelab-sonarr", "Sonarr", true},
+		{"homelab-radarr-arm64", "Radarr", true},
+		{"homelab_radarr", "Radarr", true},
+		{"homelab.plex", "Plex", true},
+		{"prod-sonarr-stable", "Sonarr", true},
+		// Compose adds a numeric suffix on recreate; the
+		// tokeniser drops digit-only fragments so we still match.
+		{"myproject_sonarr_1", "Sonarr", true},
+		// Multi-word catalog images: home-assistant splits into
+		// two tokens, but the adjacent-pair pass catches it.
+		{"homelab-home-assistant", "Home Assistant", true},
+		// Leading `/` (Docker engine name shape).
+		{"/homelab-sonarr", "Sonarr", true},
+		// Hostile false-positives: longer tokens that simply
+		// contain a catalog name as a SUBSTRING must NOT match,
+		// because we use exact-token comparison.
+		{"transmissionic", "", false},
+		{"sonarrr", "", false},
+		// Truly unknown apps fall through.
+		{"my-custom-app", "", false},
+		// Empty name returns nothing.
+		{"", "", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, ok := MatchByContainerName(c.name)
+			if ok != c.wantHit {
+				t.Fatalf("MatchByContainerName(%q) ok = %v, want %v", c.name, ok, c.wantHit)
+			}
+			if ok && got.Name != c.wantName {
+				t.Errorf("Name = %q, want %q", got.Name, c.wantName)
+			}
+		})
+	}
+}
+
 func TestStripImageTag(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"foo", "foo"},

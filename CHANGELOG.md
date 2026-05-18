@@ -2,6 +2,12 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Changed
+- **Docker discovery is lenient about container-name prefixes.** A container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` now picks up the matching catalog entry just like a bare `sonarr` / `radarr` / `plex` container would. The matcher tokenises the container name on `-`, `_`, `.` and looks for any token that exactly matches a known app key (with an adjacent-pair fallback for multi-word images like `home-assistant`). Exact-token comparison prevents false-positives like `transmissionic` reading as `transmission`.
+- **Muximux's own container is filtered out of the Discover suggestions.** Any container whose image or name contains `muximux` is skipped at scan time, so importing-yourself-as-an-app (and the resulting iframe loop) is no longer something an operator can accidentally do.
+
 ## [3.1.0] - 2026-05-17
 
 The big one. Two new features that probably matter more than any single 3.0.x point release: Muximux can now **discover Docker containers** and import them as apps with one click, and it can act as a **single-sign-on gate** in front of gateway-hosted subdomains. Plus a healthy round of catalog updates, hardening, and dependency bumps.

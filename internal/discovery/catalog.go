@@ -139,6 +139,86 @@ func MatchImage(image string) (CatalogEntry, bool) {
 	return CatalogEntry{}, false
 }
 
+// MatchByContainerName is the lenient fallback used when MatchImage
+// returned no hit. It tokenises the container name on common
+// separators ('-', '_', '.') and looks for any token that exactly
+// matches a catalog entry's canonical key (the last segment of its
+// image). Helps with prefix conventions like "homelab-sonarr",
+// "homelab_radarr", "prod.plex" - operators routinely brand their
+// stack with a personal prefix and shouldn't lose catalog matching
+// because of it.
+//
+// Exact-token matching (not substring) prevents "transmissionic"
+// from being read as "transmission" or "sonarrr-extras" as
+// "sonarr". Multi-word app names ("home-assistant") are also
+// detected because the tokeniser walks the name and we re-join
+// adjacent tokens to compare.
+func MatchByContainerName(name string) (CatalogEntry, bool) {
+	if name == "" {
+		return CatalogEntry{}, false
+	}
+	tokens := tokeniseContainerName(name)
+	if len(tokens) == 0 {
+		return CatalogEntry{}, false
+	}
+	// First pass: exact token match. Walk the tokens once, look
+	// each up against the catalog's lowercased canonical-key set.
+	// Single-pass so a short prefix can't accidentally win when a
+	// later token would have been a better match.
+	for _, tok := range tokens {
+		for i := range builtinCatalog {
+			if lastSegment(stripImageTag(builtinCatalog[i].Image)) == tok {
+				return builtinCatalog[i], true
+			}
+		}
+	}
+	// Second pass: adjacent-token concatenation for multi-word
+	// catalog images (e.g. "home-assistant" splits into two
+	// tokens). Try every pair of adjacent tokens joined with "-"
+	// against the catalog. Cheap because the token list is short.
+	for i := 0; i+1 < len(tokens); i++ {
+		joined := tokens[i] + "-" + tokens[i+1]
+		for j := range builtinCatalog {
+			if lastSegment(stripImageTag(builtinCatalog[j].Image)) == joined {
+				return builtinCatalog[j], true
+			}
+		}
+	}
+	return CatalogEntry{}, false
+}
+
+// tokeniseContainerName splits a container name on '-', '_', '.'
+// and trims out empty / numeric-only fragments. Returned tokens
+// are lowercased so the catalog comparison is case-insensitive.
+// Compose-style trailing indices like "myproject-sonarr-1" yield
+// ["myproject", "sonarr"] because the numeric tail is dropped.
+func tokeniseContainerName(name string) []string {
+	lower := strings.ToLower(strings.TrimPrefix(name, "/"))
+	raw := strings.FieldsFunc(lower, func(r rune) bool {
+		return r == '-' || r == '_' || r == '.'
+	})
+	out := raw[:0]
+	for _, tok := range raw {
+		if tok == "" {
+			continue
+		}
+		if isAllDigits(tok) {
+			continue
+		}
+		out = append(out, tok)
+	}
+	return out
+}
+
+func isAllDigits(s string) bool {
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return s != ""
+}
+
 func stripImageTag(s string) string {
 	if i := strings.IndexByte(s, '@'); i >= 0 {
 		s = s[:i]

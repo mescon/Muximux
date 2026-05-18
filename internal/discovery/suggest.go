@@ -101,6 +101,13 @@ type SuggestedGatewayConfig struct {
 func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrategy, hostIP, dashboardDomain string) Suggestion {
 	labels := ParseAppLabels(c.Labels)
 	catalog, hasCatalog := MatchImage(c.Image)
+	if !hasCatalog {
+		// Lenient fallback: try matching by container name when
+		// the image didn't map to anything. Operators routinely
+		// prefix their containers (homelab-sonarr, homelab_radarr)
+		// and shouldn't lose the catalog hint as a result.
+		catalog, hasCatalog = MatchByContainerName(c.PrimaryName())
+	}
 	key, stability := KeyForContainer(c)
 
 	s := Suggestion{

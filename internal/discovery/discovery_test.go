@@ -202,3 +202,50 @@ func TestTLSHygieneWarning_DisabledSilent(t *testing.T) {
 		t.Errorf("expected no warning when TLS disabled, got %q", w)
 	}
 }
+
+func TestIsLikelySelf(t *testing.T) {
+	cases := []struct {
+		name      string
+		container ContainerSummary
+		want      bool
+	}{
+		{
+			name:      "canonical image",
+			container: ContainerSummary{Image: "ghcr.io/mescon/muximux:latest", Names: []string{"/muximux"}},
+			want:      true,
+		},
+		{
+			name:      "custom built image, name still contains muximux",
+			container: ContainerSummary{Image: "private.registry/me/dashboard:v3", Names: []string{"/homelab-muximux"}},
+			want:      true,
+		},
+		{
+			name:      "prefix convention on name only",
+			container: ContainerSummary{Image: "someimage", Names: []string{"/homelab_muximux_1"}},
+			want:      true,
+		},
+		{
+			name:      "uppercase preserved in image",
+			container: ContainerSummary{Image: "Muximux", Names: []string{"/dashboard"}},
+			want:      true,
+		},
+		{
+			name:      "totally unrelated app",
+			container: ContainerSummary{Image: "linuxserver/sonarr", Names: []string{"/homelab-sonarr"}},
+			want:      false,
+		},
+		{
+			name:      "no names at all",
+			container: ContainerSummary{Image: "linuxserver/radarr"},
+			want:      false,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := isLikelySelf(&c.container)
+			if got != c.want {
+				t.Errorf("isLikelySelf = %v, want %v", got, c.want)
+			}
+		})
+	}
+}

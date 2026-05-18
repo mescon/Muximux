@@ -29,11 +29,13 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
 
 1. **Settings → Discovery**: tick **Enable Docker discovery**, pick a **Network strategy**, click **Test connection**. The banner turns green when Muximux can reach the daemon and identify enough about itself to use the chosen strategy.
 
-2. **Apps tab** (or Gateway tab) → **Discover from Docker**: the modal lists every running container the daemon returned. Each row shows:
+2. **Apps tab** (or Gateway tab) → **Discover from Docker**: the modal lists every running container the daemon returned (Muximux's own container is excluded so you can't accidentally import yourself as an app). Each row shows:
    - Suggested name, icon, group (catalog-recognised images get these auto-filled at "medium" confidence)
    - Stable tracking key (operator label > container name > container ID)
    - Resolved URL preview
    - Stability warning when the key is likely to break on a `docker-compose --force-recreate` or swarm task reschedule
+
+   The catalog matcher is lenient about operator prefix conventions: a container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` still picks up the matching catalog entry just like a bare `sonarr` / `radarr` / `plex` would. Tokens are split on `-`, `_`, and `.`; comparison is exact-token (so `transmissionic` doesn't masquerade as `transmission`). Multi-word app names like `home-assistant` work via an adjacent-pair fallback.
 
 3. **Pick routing per row** and click **Import**:
    - **Direct** - menu links to `http://<container-ip>:<port>` directly
