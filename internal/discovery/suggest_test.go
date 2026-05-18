@@ -195,3 +195,102 @@ func TestSuggest_UnknownLabelSurfacedAsNote(t *testing.T) {
 		t.Errorf("expected unknown-label note, got %v", s.Notes)
 	}
 }
+
+// Container-name catalog fallback (the "GitOps your apps" lenient
+// match shipped after 3.1.0). When MatchImage misses because the
+// image path is unrecognised, MatchByContainerName is consulted
+// using the container's tokenised name. These tests pin the
+// end-to-end suggestForContainer behaviour, not just the unit-
+// level matcher.
+
+func TestSuggest_ContainerNameFallback_HitsPrefixedName(t *testing.T) {
+	// Image is a custom rebuild that won't match the catalog; the
+	// container name however carries an explicit "sonarr" token.
+	// The fallback should pick the Sonarr catalog entry and
+	// auto-fill name + icon + group at medium confidence.
+	c := ContainerSummary{
+		ID:    strings.Repeat("a", 64),
+		Names: []string{"/homelab-sonarr"},
+		Image: "private.registry/me/arr-stack:custom",
+		Ports: []ContainerPort{{PrivatePort: 8989, Type: "tcp"}},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.7"}},
+		},
+	}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.Name != "Sonarr" {
+		t.Errorf("Name = %q, want Sonarr from name-fallback catalog", s.Name)
+	}
+	if s.Icon != "sonarr" {
+		t.Errorf("Icon = %q, want sonarr", s.Icon)
+	}
+	if s.Group != "Media" {
+		t.Errorf("Group = %q, want Media", s.Group)
+	}
+	if s.Confidence != "medium" {
+		t.Errorf("Confidence = %q, want medium (catalog matched via name fallback)", s.Confidence)
+	}
+}
+
+func TestSuggest_ContainerNameFallback_MultiWordImage(t *testing.T) {
+	// `home-assistant` splits into two tokens during tokenisation;
+	// the adjacent-pair second pass must re-join them to match the
+	// catalog entry. The image is unrecognised so the fallback is
+	// the only path that can hit Home Assistant.
+	c := ContainerSummary{
+		ID:    strings.Repeat("b", 64),
+		Names: []string{"/homelab-home-assistant"},
+		Image: "private.registry/me/smart-home:custom",
+		Ports: []ContainerPort{{PrivatePort: 8123, Type: "tcp"}},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"iot": {IPAddress: "10.0.0.9"}},
+		},
+	}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.Name != "Home Assistant" {
+		t.Errorf("Name = %q, want 'Home Assistant' from adjacent-token catalog match", s.Name)
+	}
+	if s.Confidence != "medium" {
+		t.Errorf("Confidence = %q, want medium", s.Confidence)
+	}
+}
+
+func TestSuggest_ContainerNameFallback_NoMatchStaysLow(t *testing.T) {
+	// Neither the image nor any container-name token corresponds
+	// to a catalog entry. The fallback must not invent a false
+	// positive; confidence stays low and the titleized name takes
+	// over.
+	c := ContainerSummary{
+		ID:    strings.Repeat("c", 64),
+		Names: []string{"/my-bespoke-service"},
+		Image: "private.io/bespoke:1.0",
+		Ports: []ContainerPort{{PrivatePort: 8080, Type: "tcp"}},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"bridge": {IPAddress: "172.18.0.5"}},
+		},
+	}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.Confidence != "low" {
+		t.Errorf("Confidence = %q, want low (no catalog hit anywhere)", s.Confidence)
+	}
+	if s.Name != "My-bespoke-service" {
+		t.Errorf("Name = %q, want titleized container name", s.Name)
+	}
+	if s.Group != "" {
+		t.Errorf("Group = %q, want empty (no catalog match)", s.Group)
+	}
+}
+
+func TestSuggest_ContainerNameFallback_DoesNotOverrideImageMatch(t *testing.T) {
+	// When MatchImage already hit (canonical linuxserver/sonarr
+	// image), the container-name fallback must not run a second
+	// match. Renaming the container to suggest a different app
+	// shouldn't switch the suggestion - the image is the
+	// authoritative signal when present.
+	c := sonarrContainer()
+	c.Names = []string{"/this-is-actually-radarr"} // misleading rename
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.Name != "Sonarr" {
+		t.Errorf("Name = %q, want Sonarr (image wins over name)", s.Name)
+	}
+}
