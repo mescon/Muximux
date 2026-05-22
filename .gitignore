@@ -78,3 +78,6 @@ docs/plans/
 
 # Local-only analysis scratch, not part of the product
 findings.md
+
+# Brainstorming companion (mockups + session state)
+.superpowers/
