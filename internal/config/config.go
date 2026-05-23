@@ -418,7 +418,17 @@ type AppConfig struct {
 	Order               int               `yaml:"order"`
 	Enabled             bool              `yaml:"enabled"`
 	Default             bool              `yaml:"default"`
-	OpenMode            string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
+	OpenMode            string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect, http_action
+	// HTTP action fields. Only consulted when OpenMode == "http_action".
+	// Clicking such an app fires an HTTP request via the server-side relay
+	// rather than navigating; see internal/handlers/http_action.go.
+	HTTPActionMethod    string            `yaml:"http_action_method,omitempty"`             // GET | POST (default) | PUT | DELETE | PATCH
+	HTTPActionHeaders   map[string]string `yaml:"http_action_headers,omitempty"`            // sent verbatim on the outgoing request
+	HTTPActionConfirm   bool              `yaml:"http_action_confirm,omitempty"`            // true: show confirmation modal before firing
+	// HTTPActionShowToast: nil = default true; pointer distinguishes "unset"
+	// from "explicit false" so operators can silence the result toast for
+	// fire-and-forget actions (audit log still records every fire).
+	HTTPActionShowToast *bool             `yaml:"http_action_show_toast,omitempty"`
 	HealthCheck         *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // opt-in: nil/false = disabled, true = enabled
 	Proxy               bool              `yaml:"proxy"`
 	ProxySkipTLSVerify  *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
