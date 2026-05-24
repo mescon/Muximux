@@ -401,6 +401,8 @@
   "app_http_action_header_name": "Header name",
   "app_http_action_header_value": "Header value",
   "app_http_action_remove_header": "Remove header",
+  "http_action_confirm_title": "Confirm action",
+  "http_action_confirm_body": "This will send an HTTP request to the URL below. Continue?",
   "appForm_sectionAdvanced": "Advanced",
   "appForm_healthCheck": "Health check",
   "appForm_helpHealthCheck": "Periodically pings the app URL (or health URL if set) and shows a status indicator in the navigation.",
