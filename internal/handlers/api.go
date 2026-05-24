@@ -24,14 +24,21 @@ type APIHandler struct {
 	configPath   string
 	mu           *sync.RWMutex
 	onConfigSave func() // called after config is saved to trigger route rebuilds etc.
+	// actionClient relays http_action fires from the dashboard to the
+	// configured target URL. Reused across requests so the connection
+	// pool amortises across fires. 10s timeout is the lock-in from the
+	// spec (Q8): long enough for slow webhooks, short enough that a
+	// hung target can't pile up dashboard requests.
+	actionClient *http.Client
 }
 
 // NewAPIHandler creates a new API handler
 func NewAPIHandler(cfg *config.Config, configPath string, mu *sync.RWMutex) *APIHandler {
 	return &APIHandler{
-		config:     cfg,
-		configPath: configPath,
-		mu:         mu,
+		config:       cfg,
+		configPath:   configPath,
+		mu:           mu,
+		actionClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
