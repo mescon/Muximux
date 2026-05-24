@@ -35,6 +35,11 @@ const (
 	LabelAppShortcut           = "muximux.app.shortcut"            // keyboard digit 1..9
 	LabelAppGatewayDomain      = "muximux.app.gateway.domain"      // suggest as gateway site
 
+	LabelAppHTTPActionMethod    = "muximux.app.http_action_method"     // GET | POST | PUT | DELETE | PATCH
+	LabelAppHTTPActionHeaders   = "muximux.app.http_action_headers"    // Key=Value,Key2=Value2 (CSV)
+	LabelAppHTTPActionConfirm   = "muximux.app.http_action_confirm"    // boolish
+	LabelAppHTTPActionShowToast = "muximux.app.http_action_show_toast" // boolish; default true
+
 	// muximux.gateway.* namespace - per-gateway-site fields. Only
 	// consulted when the same container also has app.gateway.domain
 	// set. Lets operators pin the full Settings -> Gateway form
@@ -72,6 +77,11 @@ type AppLabels struct {
 	AllowNotifications *bool
 	Shortcut           int // 0 = unset
 	GatewayDomain      string
+
+	HTTPActionMethod    string
+	HTTPActionHeaders   map[string]string
+	HTTPActionConfirm   *bool
+	HTTPActionShowToast *bool
 
 	// Unknown collects label keys in the muximux.* namespace we don't
 	// recognise. The scan path logs them at Debug so a typo surfaces
@@ -129,7 +139,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppDefault: func(out *AppLabels, v string) { b := boolish(v); out.Default = &b },
 	LabelAppOpenMode: func(out *AppLabels, v string) {
 		lv := strings.ToLower(strings.TrimSpace(v))
-		if lv == "iframe" || lv == "new_tab" || lv == "new_window" || lv == "redirect" {
+		if lv == "iframe" || lv == "new_tab" || lv == "new_window" || lv == "redirect" || lv == "http_action" {
 			out.OpenMode = lv
 		}
 	},
@@ -150,6 +160,24 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 		}
 	},
 	LabelAppGatewayDomain: func(out *AppLabels, v string) { out.GatewayDomain = v },
+	LabelAppHTTPActionMethod: func(out *AppLabels, v string) {
+		uv := strings.ToUpper(strings.TrimSpace(v))
+		switch uv {
+		case "GET", "POST", "PUT", "DELETE", "PATCH":
+			out.HTTPActionMethod = uv
+		}
+	},
+	LabelAppHTTPActionHeaders: func(out *AppLabels, v string) {
+		out.HTTPActionHeaders = parseHTTPActionHeadersCSV(v)
+	},
+	LabelAppHTTPActionConfirm: func(out *AppLabels, v string) {
+		b := boolish(v)
+		out.HTTPActionConfirm = &b
+	},
+	LabelAppHTTPActionShowToast: func(out *AppLabels, v string) {
+		b := boolish(v)
+		out.HTTPActionShowToast = &b
+	},
 }
 
 // knownNonAppLabels are recognised muximux.* names that ParseAppLabels
@@ -269,6 +297,31 @@ func splitCSV(v string) []string {
 		if p != "" {
 			out = append(out, p)
 		}
+	}
+	return out
+}
+
+// parseHTTPActionHeadersCSV parses a `Key=Value,Key2=Value2` string
+// into a map. Each pair is split on the first `=` so values may
+// themselves contain `=`. Pairs with empty keys or missing `=` are
+// dropped. Returns nil when no valid pairs are found so the caller
+// can distinguish "no header label" from "label set to empty".
+func parseHTTPActionHeadersCSV(v string) map[string]string {
+	out := map[string]string{}
+	for _, pair := range strings.Split(v, ",") {
+		eq := strings.IndexByte(pair, '=')
+		if eq < 0 {
+			continue
+		}
+		k := strings.TrimSpace(pair[:eq])
+		val := strings.TrimSpace(pair[eq+1:])
+		if k == "" {
+			continue
+		}
+		out[k] = val
+	}
+	if len(out) == 0 {
+		return nil
 	}
 	return out
 }

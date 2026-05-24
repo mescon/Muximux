@@ -70,6 +70,11 @@ type Suggestion struct {
 	Default            *bool    `json:"default,omitempty"`
 	Shortcut           int      `json:"shortcut,omitempty"`
 
+	HTTPActionMethod    string            `json:"http_action_method,omitempty"`
+	HTTPActionHeaders   map[string]string `json:"http_action_headers,omitempty"`
+	HTTPActionConfirm   *bool             `json:"http_action_confirm,omitempty"`
+	HTTPActionShowToast *bool             `json:"http_action_show_toast,omitempty"`
+
 	// Suggested gateway-site fields, used when the modal's
 	// "Add gateway site" toggle is on. SuggestedDomain comes from
 	// muximux.app.gateway.domain; the rest come from the
@@ -273,6 +278,10 @@ func applyLabelOverrides(s *Suggestion, labels *AppLabels) {
 	s.AllowNotifications = labels.AllowNotifications
 	s.Default = labels.Default
 	s.Shortcut = labels.Shortcut
+	s.HTTPActionMethod = labels.HTTPActionMethod
+	s.HTTPActionHeaders = labels.HTTPActionHeaders
+	s.HTTPActionConfirm = labels.HTTPActionConfirm
+	s.HTTPActionShowToast = labels.HTTPActionShowToast
 	if s.Confidence == ConfidenceMedium && hasSubstantiveLabelSet(labels) {
 		s.Confidence = ConfidenceHigh
 	}
@@ -283,7 +292,14 @@ func applyLabelOverrides(s *Suggestion, labels *AppLabels) {
 // behavioural namespace. Pulled out so the boolean isn't a long
 // inline expression on the if statement.
 func hasSubstantiveLabelSet(labels *AppLabels) bool {
-	return labels.Proxy != nil || labels.OpenMode != "" || labels.Color != "" || labels.MinRole != ""
+	return labels.Proxy != nil ||
+		labels.OpenMode != "" ||
+		labels.Color != "" ||
+		labels.MinRole != "" ||
+		labels.HTTPActionMethod != "" ||
+		len(labels.HTTPActionHeaders) > 0 ||
+		labels.HTTPActionConfirm != nil ||
+		labels.HTTPActionShowToast != nil
 }
 
 // attachGatewayLabels reads the muximux.gateway.* namespace and

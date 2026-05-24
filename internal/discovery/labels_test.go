@@ -193,6 +193,81 @@ func equalStrings(a, b []string) bool {
 	return true
 }
 
+func TestParseAppLabels_HTTPActionFields(t *testing.T) {
+	labels := map[string]string{
+		"muximux.app.open_mode":              "http_action",
+		"muximux.app.http_action_method":     "POST",
+		"muximux.app.http_action_headers":    "Authorization=Bearer abc123,X-Source=muximux",
+		"muximux.app.http_action_confirm":    "true",
+		"muximux.app.http_action_show_toast": "false",
+	}
+	got := ParseAppLabels(labels)
+	if got.OpenMode != "http_action" {
+		t.Errorf("OpenMode = %q, want http_action", got.OpenMode)
+	}
+	if got.HTTPActionMethod != "POST" {
+		t.Errorf("HTTPActionMethod = %q, want POST", got.HTTPActionMethod)
+	}
+	if len(got.HTTPActionHeaders) != 2 {
+		t.Fatalf("HTTPActionHeaders len = %d, want 2 (got %v)", len(got.HTTPActionHeaders), got.HTTPActionHeaders)
+	}
+	if got.HTTPActionHeaders["Authorization"] != "Bearer abc123" {
+		t.Errorf("Authorization header = %q, want %q", got.HTTPActionHeaders["Authorization"], "Bearer abc123")
+	}
+	if got.HTTPActionHeaders["X-Source"] != "muximux" {
+		t.Errorf("X-Source header = %q, want %q", got.HTTPActionHeaders["X-Source"], "muximux")
+	}
+	if got.HTTPActionConfirm == nil || *got.HTTPActionConfirm != true {
+		t.Errorf("HTTPActionConfirm = %v, want pointer-to-true", got.HTTPActionConfirm)
+	}
+	if got.HTTPActionShowToast == nil || *got.HTTPActionShowToast != false {
+		t.Errorf("HTTPActionShowToast = %v, want pointer-to-false", got.HTTPActionShowToast)
+	}
+}
+
+func TestParseAppLabels_OpenModeHTTPAction(t *testing.T) {
+	labels := map[string]string{"muximux.app.open_mode": "http_action"}
+	got := ParseAppLabels(labels)
+	if got.OpenMode != "http_action" {
+		t.Errorf("OpenMode = %q, want http_action (must be accepted as a valid value)", got.OpenMode)
+	}
+}
+
+func TestParseAppLabels_HTTPActionHeaders_EmptyOrMalformed(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		want map[string]string
+	}{
+		{"empty", "", nil},
+		{"single", "X-Key=value", map[string]string{"X-Key": "value"}},
+		{"trailing comma", "X-Key=value,", map[string]string{"X-Key": "value"}},
+		{"missing equals dropped", "X-Bad,X-Good=ok", map[string]string{"X-Good": "ok"}},
+		{"value contains equals", "X-Token=a=b=c", map[string]string{"X-Token": "a=b=c"}},
+		{"trimmed whitespace", " X-Key = value ", map[string]string{"X-Key": "value"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			labels := map[string]string{"muximux.app.http_action_headers": tc.in}
+			got := ParseAppLabels(labels).HTTPActionHeaders
+			if tc.want == nil {
+				if len(got) != 0 {
+					t.Errorf("expected empty/nil, got %v", got)
+				}
+				return
+			}
+			if len(got) != len(tc.want) {
+				t.Fatalf("len = %d, want %d (got %v)", len(got), len(tc.want), got)
+			}
+			for k, v := range tc.want {
+				if got[k] != v {
+					t.Errorf("got[%q] = %q, want %q", k, got[k], v)
+				}
+			}
+		})
+	}
+}
+
 func TestKeyForContainer_LabelWins(t *testing.T) {
 	c := &ContainerSummary{
 		ID:    "abc123def456abc123def456abc123def456abc123def456abc123def456abc1",
