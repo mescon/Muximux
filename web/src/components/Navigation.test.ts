@@ -1289,11 +1289,35 @@ describe('Navigation', () => {
           config: makeConfig({ navigation: { position: 'top', auto_hide: true } }),
         },
       });
-      const panel = container.querySelector('.top-nav-panel');
-      // isHidden starts as false, but isCollapsedTop = isHidden && auto_hide
-      // After mount, isHidden defaults to false, so panel height should be 56px
-      // (the nav height is 6px as placeholder but the panel overlays at 56px initially)
+      const panel = container.querySelector('.top-nav-panel') as HTMLElement;
+      // isHidden initialises to true when auto_hide=true, so the panel renders
+      // in its collapsed state on mount (height matches collapsedBarHeight).
       expect(panel).toBeTruthy();
+      expect(panel.style.height).toBe('6px');
+    });
+
+    it('top nav inner panel starts at full height when auto_hide=false', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'top', auto_hide: false } }),
+        },
+      });
+      const panel = container.querySelector('.top-nav-panel') as HTMLElement;
+      expect(panel.style.height).toBe('56px');
+    });
+
+    it('bottom nav inner panel starts at collapsed height when auto_hide=true', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'bottom', auto_hide: true } }),
+        },
+      });
+      const panel = container.querySelector('.bottom-nav-panel') as HTMLElement;
+      expect(panel.style.height).toBe('6px');
     });
 
     it('bottom nav sets collapsed bar height when auto_hide=true', () => {
