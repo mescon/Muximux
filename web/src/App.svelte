@@ -8,7 +8,7 @@
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
-  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, slugify } from './lib/api';
+  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, slugify, fireAppAction } from './lib/api';
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, connectionState } from './lib/websocketStore';
@@ -66,6 +66,12 @@
   }
   let loading = $state(true);
   let error = $state<string | null>(null);
+
+  // http_action dispatch state. firingApps tracks in-flight fires so a
+  // triple-click can't trigger three webhooks. pendingConfirm is the
+  // app awaiting confirmation through ConfirmActionModal.
+  const firingApps = new SvelteSet<string>();
+  let pendingConfirm = $state<App | null>(null);
 
   // WebSocket connection toast tracking
   let unsubWs: (() => void) | null = null;
@@ -580,12 +586,58 @@
     }
   }
 
+  function safeHostOf(rawUrl: string): string {
+    try {
+      return new URL(rawUrl).host;
+    } catch {
+      return rawUrl;
+    }
+  }
+
+  async function fireAction(app: App) {
+    if (firingApps.has(app.name)) return;
+    firingApps.add(app.name);
+    const showToast = app.http_action_show_toast ?? true;
+    try {
+      const r = await fireAppAction(app.name);
+      if (!showToast) return;
+      const method = r.method ?? app.http_action_method ?? 'POST';
+      const host = r.url_host ?? safeHostOf(app.url);
+      if (r.error) {
+        toasts.error(`${method} ${host} -> ${r.error}`);
+      } else if (r.status !== undefined && r.status >= 200 && r.status < 300) {
+        toasts.success(`${method} ${host} -> ${r.status} (${r.latency_ms}ms)`);
+      } else {
+        toasts.error(`${method} ${host} -> ${r.status} (${r.latency_ms}ms)`);
+      }
+    } catch (e) {
+      if (showToast) {
+        const msg = e instanceof Error ? e.message : String(e);
+        toasts.error(`${app.name}: ${msg}`);
+      }
+    } finally {
+      firingApps.delete(app.name);
+    }
+  }
+
   function selectApp(app: App) {
     const url = getEffectiveUrl(app);
     if (app.open_mode === 'new_tab') {
       window.open(url, '_blank');
     } else if (app.open_mode === 'new_window') {
       window.open(url, app.name);
+    } else if (app.open_mode === 'redirect') {
+      // Bug fix: previously fell through to iframe behaviour because
+      // there was no explicit branch for `redirect`. The badge said
+      // redirect but the panel rendered an iframe.
+      window.location.href = url;
+    } else if (app.open_mode === 'http_action') {
+      if (firingApps.has(app.name)) return;
+      if (app.http_action_confirm) {
+        pendingConfirm = app;
+        return;
+      }
+      void fireAction(app);
     } else {
       trackVisit(app.name);
       setPanelApp(app);
@@ -1109,6 +1161,20 @@
       onclose={() => showCommandPalette = false}
     />
   {/if}
+{/if}
+
+{#if pendingConfirm}
+  {#await import('./components/ConfirmActionModal.svelte') then ConfirmActionModalModule}
+    <ConfirmActionModalModule.default
+      app={pendingConfirm}
+      onConfirm={() => {
+        const a = pendingConfirm!;
+        pendingConfirm = null;
+        void fireAction(a);
+      }}
+      onCancel={() => { pendingConfirm = null; }}
+    />
+  {/await}
 {/if}
 
 <!-- Toast notifications (always rendered, position adapts to nav) -->
