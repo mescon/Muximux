@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -240,6 +240,35 @@ export async function deleteApp(name: string): Promise<void> {
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
   }
+}
+
+/**
+ * fireAppAction fires the configured http_action against an app's URL via
+ * the server-side relay. Returns the result on 2xx and on 502 (the server
+ * encodes a network/timeout error in the body so the caller can render
+ * a useful toast). Throws ApiError on auth/permission/not-found failures
+ * so callers can branch on those cleanly.
+ *
+ * Path: POST /api/app-action/{name}
+ */
+export async function fireAppAction(name: string): Promise<FireActionResult> {
+  const response = await fetch(`${API_BASE}/app-action/${encodeURIComponent(name)}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  if (response.status === 502) {
+    return response.json();
+  }
+  if (!response.ok) {
+    const text = await response.text();
+    const friendly = extractFriendlyErrorMessage(text);
+    const message = friendly
+      ? `API error: ${response.status} ${friendly}`
+      : `API error: ${response.status}`;
+    throw new ApiError(response.status, message);
+  }
+  return response.json();
 }
 
 // Individual group CRUD
