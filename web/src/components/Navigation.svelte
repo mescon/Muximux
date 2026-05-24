@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { App, Config, Group } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
@@ -245,7 +245,10 @@
   let maxWidth = 400;
 
   // Auto-hide state
-  let isHidden = $state(false);
+  // Start collapsed when auto_hide is enabled so the nav doesn't sit open on
+  // first paint until the user happens to mouse over and then leave it.
+  // untrack: this is an initial-value snapshot, not a reactive subscription.
+  let isHidden = $state(untrack(() => config.navigation.auto_hide === true));
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
   // Delay overflow:visible on top/bottom bars until height transition (300ms) completes
   let barOverflowVisible = $state(false);
@@ -412,6 +415,16 @@
     if (leftScrollEl) scrollObserver.observe(leftScrollEl);
     if (rightScrollEl) scrollObserver.observe(rightScrollEl);
     if (floatScrollEl) scrollObserver.observe(floatScrollEl);
+
+    // If the cursor is already over the nav at mount time, mouseenter won't
+    // fire — reveal the nav so the user isn't stuck staring at a collapsed
+    // bar they're already hovering. Sidebars use <aside>, top/bottom bars
+    // use <nav>, and the floating layout uses a <nav> too.
+    if (config.navigation.auto_hide) {
+      requestAnimationFrame(() => {
+        if (document.querySelector('nav:hover, aside:hover')) handleNavEnter();
+      });
+    }
 
     return () => {
       window.removeEventListener('resize', debouncedResize);
