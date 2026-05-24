@@ -57,12 +57,14 @@ async function fireAction(app: App) {
   try {
     const r = await fireAppActionMock(app.name);
     if (!showToast) return;
+    const method = r.method ?? app.http_action_method ?? 'POST';
+    const host = r.url_host ?? safeHost(app.url);
     if (r.error) {
-      toastErrorMock(`${r.method ?? app.http_action_method ?? 'POST'} ${safeHost(app.url)} -> ${r.error}`);
+      toastErrorMock(`${method} ${host} -> ${r.error}`);
     } else if (r.status !== undefined && r.status >= 200 && r.status < 300) {
-      toastSuccessMock(`${r.method} ${r.url_host} -> ${r.status} (${r.latency_ms}ms)`);
+      toastSuccessMock(`${method} ${host} -> ${r.status} (${r.latency_ms}ms)`);
     } else {
-      toastErrorMock(`${r.method} ${r.url_host} -> ${r.status} (${r.latency_ms}ms)`);
+      toastErrorMock(`${method} ${host} -> ${r.status} (${r.latency_ms}ms)`);
     }
   } finally {
     firingApps.delete(app.name);
