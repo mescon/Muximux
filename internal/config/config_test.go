@@ -1316,3 +1316,87 @@ func TestValidateGatewaySite_MinRoleIgnoredWhenRequireAuthFalse(t *testing.T) {
 		t.Errorf("MinRole should be ignored when RequireAuth=false; got err=%v", err)
 	}
 }
+
+func TestValidate_HTTPAction(t *testing.T) {
+	base := func() *Config {
+		return &Config{
+			Apps: []AppConfig{{
+				Name:             "Webhook",
+				URL:              "https://example.com/hook",
+				Enabled:          true,
+				OpenMode:         "http_action",
+				HTTPActionMethod: "POST",
+			}},
+		}
+	}
+	cases := []struct {
+		name    string
+		mutate  func(*Config)
+		wantErr string // substring; "" = expect success
+	}{
+		{"ok defaults", func(c *Config) {}, ""},
+		{"ok all verbs GET", func(c *Config) { c.Apps[0].HTTPActionMethod = "GET" }, ""},
+		{"ok all verbs PUT", func(c *Config) { c.Apps[0].HTTPActionMethod = "PUT" }, ""},
+		{"ok all verbs DELETE", func(c *Config) { c.Apps[0].HTTPActionMethod = "DELETE" }, ""},
+		{"ok all verbs PATCH", func(c *Config) { c.Apps[0].HTTPActionMethod = "PATCH" }, ""},
+		{"ok empty method defaults to POST", func(c *Config) { c.Apps[0].HTTPActionMethod = "" }, ""},
+		{"reject method", func(c *Config) { c.Apps[0].HTTPActionMethod = "TRACE" }, "http_action_method"},
+		{"reject empty url", func(c *Config) { c.Apps[0].URL = "" }, "url"},
+		{"reject file scheme", func(c *Config) { c.Apps[0].URL = "file:///etc/passwd" }, "http or https"},
+		{"reject gopher scheme", func(c *Config) { c.Apps[0].URL = "gopher://example.com/" }, "http or https"},
+		{"reject bare path", func(c *Config) { c.Apps[0].URL = "http:///path" }, "hostname"},
+		{"ok valid header", func(c *Config) {
+			c.Apps[0].HTTPActionHeaders = map[string]string{"Authorization": "Bearer abc"}
+		}, ""},
+		{"reject header with space in key", func(c *Config) {
+			c.Apps[0].HTTPActionHeaders = map[string]string{"X Bad": "value"}
+		}, "header key"},
+		{"reject header with colon in key", func(c *Config) {
+			c.Apps[0].HTTPActionHeaders = map[string]string{"X:Bad": "value"}
+		}, "header key"},
+		{"reject CR in header value", func(c *Config) {
+			c.Apps[0].HTTPActionHeaders = map[string]string{"X-Header": "v\rx"}
+		}, "header value"},
+		{"reject LF in header value", func(c *Config) {
+			c.Apps[0].HTTPActionHeaders = map[string]string{"X-Header": "v\nx"}
+		}, "header value"},
+		{"reject NUL in header value", func(c *Config) {
+			c.Apps[0].HTTPActionHeaders = map[string]string{"X-Header": "v\x00x"}
+		}, "header value"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := base()
+			tc.mutate(cfg)
+			err := cfg.Validate()
+			if tc.wantErr == "" {
+				if err != nil {
+					t.Fatalf("expected success, got %v", err)
+				}
+				return
+			}
+			if err == nil {
+				t.Fatalf("expected error containing %q, got nil", tc.wantErr)
+			}
+			if !strings.Contains(err.Error(), tc.wantErr) {
+				t.Fatalf("expected error containing %q, got %v", tc.wantErr, err)
+			}
+		})
+	}
+}
+
+func TestValidate_HTTPActionFieldsIgnoredForOtherModes(t *testing.T) {
+	cfg := &Config{
+		Apps: []AppConfig{{
+			Name:             "App",
+			URL:              "http://example.com",
+			Enabled:          true,
+			OpenMode:         "iframe",
+			HTTPActionMethod: "POST",
+			HTTPActionHeaders: map[string]string{"X-Token": "abc"},
+		}},
+	}
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("non-http_action mode should accept http_action fields, got %v", err)
+	}
+}

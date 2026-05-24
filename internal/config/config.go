@@ -732,6 +732,10 @@ func (c *Config) validate() error {
 		return err
 	}
 
+	if err := validateApps(c.Apps); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -1078,6 +1082,75 @@ func isValidHeaderValue(s string) bool {
 		}
 	}
 	return true
+}
+
+// httpActionAllowedMethods is the closed set of HTTP verbs accepted in
+// the http_action open_mode. The set is intentionally short: anything
+// outside it is either non-idempotent in surprising ways (TRACE) or
+// has body semantics we deliberately do not support yet (CONNECT,
+// OPTIONS). Spec lock: only these five.
+var httpActionAllowedMethods = map[string]struct{}{
+	"GET": {}, "POST": {}, "PUT": {}, "DELETE": {}, "PATCH": {},
+}
+
+// httpActionHeaderKeyPattern is the practical RFC 7230 token subset
+// we accept for http_action header names: alphanumerics, hyphen,
+// underscore. Covers every real-world header name without admitting
+// the bytes that would let an injected newline or colon break out of
+// the header line on the wire.
+var httpActionHeaderKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+// validateApps runs the per-app invariants. Today only http_action
+// mode has validation rules; non-http_action apps pass through
+// unconditionally, but http_action fields on those apps are logged as
+// a warning so a config-load misconfiguration is visible.
+func validateApps(apps []AppConfig) error {
+	for i := range apps {
+		a := &apps[i]
+		if a.OpenMode != "http_action" {
+			if a.HTTPActionMethod != "" || len(a.HTTPActionHeaders) > 0 || a.HTTPActionConfirm || a.HTTPActionShowToast != nil {
+				logging.Warn("http_action fields set on non-http_action app, ignored",
+					"source", "config", "app", a.Name, "open_mode", a.OpenMode)
+			}
+			continue
+		}
+		if err := validateAppHTTPAction(a); err != nil {
+			return fmt.Errorf("app %q: %w", a.Name, err)
+		}
+	}
+	return nil
+}
+
+func validateAppHTTPAction(a *AppConfig) error {
+	if strings.TrimSpace(a.URL) == "" {
+		return fmt.Errorf("http_action requires a url")
+	}
+	u, err := url.Parse(a.URL)
+	if err != nil {
+		return fmt.Errorf("http_action url %q is not parseable: %w", a.URL, err)
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("http_action url %q must use http or https", a.URL)
+	}
+	if u.Hostname() == "" {
+		return fmt.Errorf("http_action url %q must have a hostname", a.URL)
+	}
+	if a.HTTPActionMethod != "" {
+		if _, ok := httpActionAllowedMethods[a.HTTPActionMethod]; !ok {
+			return fmt.Errorf("http_action_method %q is invalid; expected one of GET, POST, PUT, DELETE, PATCH", a.HTTPActionMethod)
+		}
+	}
+	for k, v := range a.HTTPActionHeaders {
+		if !httpActionHeaderKeyPattern.MatchString(k) {
+			return fmt.Errorf("http_action_headers header key %q must match [A-Za-z0-9_-]+", k)
+		}
+		for _, r := range v {
+			if r == '\r' || r == '\n' || r == 0 {
+				return fmt.Errorf("http_action_headers header value for %q contains a forbidden control character", k)
+			}
+		}
+	}
+	return nil
 }
 
 // isValidGatewayDomain accepts RFC-1123-ish hostnames: labels of
