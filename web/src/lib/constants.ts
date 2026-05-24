@@ -6,6 +6,7 @@ export const openModes: readonly { value: App['open_mode']; get label(): string;
   { value: 'new_tab', get label() { return m.appForm_newTab(); }, get description() { return m.appForm_newTabDesc(); } },
   { value: 'new_window', get label() { return m.appForm_newWindow(); }, get description() { return m.appForm_newWindowDesc(); } },
   { value: 'redirect', get label() { return m.appForm_redirect(); }, get description() { return m.appForm_redirectDesc(); } },
+  { value: 'http_action', get label() { return m.appForm_httpAction(); }, get description() { return m.appForm_httpActionDesc(); } },
 ] as const;
 
 /**
