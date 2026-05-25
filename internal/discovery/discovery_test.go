@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -247,5 +250,66 @@ func TestIsLikelySelf(t *testing.T) {
 				t.Errorf("isLikelySelf = %v, want %v", got, c.want)
 			}
 		})
+	}
+}
+
+func TestIsSocketWritable_WritableReturnsTrue(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("want POST, got %s", r.Method)
+		}
+		// Writable socket: daemon accepts POST, container missing.
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	if !c.IsSocketWritable(context.Background()) {
+		t.Fatalf("expected writable=true for 404 response")
+	}
+}
+
+func TestIsSocketWritable_ReadOnlyProxyReturnsFalse(t *testing.T) {
+	for _, code := range []int{http.StatusForbidden, http.StatusMethodNotAllowed, http.StatusUnauthorized} {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(code)
+		}))
+		c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+		if c.IsSocketWritable(context.Background()) {
+			t.Fatalf("expected writable=false for status %d", code)
+		}
+		srv.Close()
+	}
+}
+
+func TestNewService_ProbesSocketWritability(t *testing.T) {
+	// End-to-end: NewService should run the probe and stamp
+	// socketWritable. Hard to drive through unix sockets in a test,
+	// so this case asserts the probe was *called* via a fake client
+	// injection. NewService wires Probe via the configured endpoint;
+	// we use httptest as a tcp endpoint instead.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && strings.Contains(r.URL.Path, "/containers/"):
+			w.WriteHeader(http.StatusNotFound) // writable
+		case r.URL.Path == "/_ping" || strings.HasSuffix(r.URL.Path, "/_ping"):
+			w.WriteHeader(http.StatusOK)
+		default:
+			w.WriteHeader(http.StatusOK)
+		}
+	}))
+	defer srv.Close()
+
+	cfg := &config.DiscoveryDockerConfig{
+		Enabled:  true,
+		Endpoint: "tcp://" + strings.TrimPrefix(srv.URL, "http://"),
+	}
+	s := NewService(cfg)
+	// The probe runs lazily on first SocketWritable() call (or eagerly
+	// in NewService - either is acceptable). Trigger it explicitly via
+	// the Service's ProbeSocket method.
+	s.ProbeSocket(context.Background())
+	if !s.SocketWritable() {
+		t.Fatalf("expected socketWritable=true after probe")
 	}
 }

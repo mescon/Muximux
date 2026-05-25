@@ -220,6 +220,34 @@ func (c *Client) Ping(ctx context.Context) error {
 	return nil
 }
 
+// IsSocketWritable returns true when the daemon (or socket proxy)
+// accepts state-changing POST verbs. The probe is a POST to a
+// guaranteed-nonexistent container ID; the daemon answers 404
+// (write accepted, target missing) when the socket is writable, and
+// 403/405/401 when an upstream proxy strips the verb.
+//
+// Returns false on any transport error - we err on the side of
+// "lifecycle disabled" when we cannot determine the answer.
+func (c *Client) IsSocketWritable(ctx context.Context) bool {
+	// Use a synthetic ID that cannot exist (the docker engine rejects
+	// IDs shorter than 12 hex chars for inspect / start). 64 hex chars
+	// is the canonical full-id length; "z..." guarantees no match.
+	const fakeID = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+	path := "/" + dockerAPIVersion + "/containers/" + fakeID + "/start"
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, nil)
+	if err != nil {
+		return false
+	}
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	// 404 means the daemon accepted the verb and the container was
+	// not found - the only signal we care about.
+	return resp.StatusCode == http.StatusNotFound
+}
+
 // Version returns daemon version info. Used by the Settings tab to
 // display "connected to Docker 24.0.7 (API 1.43)".
 func (c *Client) Version(ctx context.Context) (*VersionInfo, error) {

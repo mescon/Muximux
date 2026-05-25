@@ -129,6 +129,17 @@ func NewService(cfg *config.DiscoveryDockerConfig) *Service {
 			s.statusCachedAt = time.Now()
 		}
 	}
+	if s.client != nil {
+		// Best-effort probe with a short timeout so a slow socket
+		// doesn't block boot. The lifecycle flag stays false until
+		// the probe completes successfully. Running it synchronously
+		// here - before the Service is handed to any poller or
+		// handler - means socketWritable is stamped before any
+		// concurrent reader exists.
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		s.ProbeSocket(ctx)
+		cancel()
+	}
 	return s
 }
 
@@ -532,8 +543,31 @@ func (s *Service) DockerStateSnapshot() map[string]DockerState {
 
 // SocketWritable reports whether the daemon socket accepts writes.
 // Set once at Service startup; static across the Service's lifetime.
+// Read under dockerStateMu so it pairs with ProbeSocket's locked
+// write - the probe is also exposed publicly, so a concurrent reader
+// and a re-probe must not race.
 func (s *Service) SocketWritable() bool {
+	s.dockerStateMu.RLock()
+	defer s.dockerStateMu.RUnlock()
 	return s.socketWritable
+}
+
+// ProbeSocket runs the writability probe and stores the result. Safe
+// to call multiple times; the last call wins. The poller does NOT
+// re-probe between ticks because the answer is static across the
+// Service's lifetime; a config edit that changes the endpoint
+// rebuilds the Service entirely.
+func (s *Service) ProbeSocket(ctx context.Context) {
+	s.mu.RLock()
+	c := s.client
+	s.mu.RUnlock()
+	if c == nil {
+		return
+	}
+	writable := c.IsSocketWritable(ctx)
+	s.dockerStateMu.Lock()
+	s.socketWritable = writable
+	s.dockerStateMu.Unlock()
 }
 
 // ResolveContainerID looks up the live container ID for a tracking
