@@ -1400,3 +1400,281 @@ func TestValidate_HTTPActionFieldsIgnoredForOtherModes(t *testing.T) {
 		t.Fatalf("non-http_action mode should accept http_action fields, got %v", err)
 	}
 }
+
+func TestIsBracedEnvRef(t *testing.T) {
+	cases := []struct {
+		in   string
+		want bool
+	}{
+		{"${HOME}", true},
+		{"prefix ${VAR} suffix", true},
+		{"${A}${B}", true},
+		{"$HOME", false},
+		{"plain string", false},
+		{"", false},
+		{"$2a$10$abcdef", false}, // bcrypt-shaped strings must not match
+		{"${}", false},           // empty braces are not a valid var ref
+	}
+	for _, c := range cases {
+		t.Run(c.in, func(t *testing.T) {
+			if got := IsBracedEnvRef(c.in); got != c.want {
+				t.Errorf("IsBracedEnvRef(%q) = %v, want %v", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+func TestValidateGatewaySites_PublicWrapper(t *testing.T) {
+	// The exported wrapper should accept nil cfg and an empty slice.
+	if err := ValidateGatewaySites(nil, nil); err != nil {
+		t.Errorf("empty + nil cfg should validate, got %v", err)
+	}
+	if err := ValidateGatewaySites([]GatewaySite{}, nil); err != nil {
+		t.Errorf("empty slice + nil cfg should validate, got %v", err)
+	}
+	// A clearly invalid site should produce an error through the wrapper too.
+	if err := ValidateGatewaySites([]GatewaySite{{Domain: ""}}, nil); err == nil {
+		t.Error("empty domain should fail validation")
+	}
+}
+
+func TestDefaultDockerEndpoint(t *testing.T) {
+	// Helper is OS-specific. Just confirm we get a non-empty endpoint
+	// in either branch and that it uses an expected scheme.
+	got := defaultDockerEndpoint()
+	if got == "" {
+		t.Fatal("defaultDockerEndpoint returned empty")
+	}
+	if !strings.HasPrefix(got, "unix://") && !strings.HasPrefix(got, "npipe://") {
+		t.Errorf("expected unix:// or npipe:// prefix, got %q", got)
+	}
+}
+
+func TestHostIsUnderParent(t *testing.T) {
+	cases := []struct {
+		host, parent string
+		want         bool
+	}{
+		{"example.com", "example.com", true},
+		{"sub.example.com", "example.com", true},
+		{"deep.sub.example.com", "example.com", true},
+		{"EXAMPLE.COM", "example.com", true},
+		{"example.com", "EXAMPLE.COM", true},
+		{"otherexample.com", "example.com", false},
+		{"example.com", "sub.example.com", false},
+		{"", "example.com", false},
+		{"example.com", "", false},
+	}
+	for _, c := range cases {
+		t.Run(c.host+"_under_"+c.parent, func(t *testing.T) {
+			if got := hostIsUnderParent(c.host, c.parent); got != c.want {
+				t.Errorf("hostIsUnderParent(%q, %q) = %v, want %v", c.host, c.parent, got, c.want)
+			}
+		})
+	}
+}
+
+func TestSaveLoadRoundTrip(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "subdir", "config.yaml")
+	method := "POST"
+	confirm := true
+	showToast := false
+	original := &Config{
+		Apps: []AppConfig{{
+			Name: "Webhook", URL: "https://example.com/hook", Enabled: true,
+			OpenMode: "http_action", HTTPActionMethod: method,
+			HTTPActionHeaders:   map[string]string{"Authorization": "Bearer t"},
+			HTTPActionConfirm:   confirm,
+			HTTPActionShowToast: &showToast,
+		}, {
+			Name: "Plain", URL: "https://plain.example", Enabled: true, OpenMode: "iframe",
+		}},
+	}
+	if err := original.Save(path); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	loaded, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if len(loaded.Apps) != 2 {
+		t.Fatalf("len(Apps) = %d, want 2", len(loaded.Apps))
+	}
+	if loaded.Apps[0].OpenMode != "http_action" {
+		t.Errorf("OpenMode lost: %q", loaded.Apps[0].OpenMode)
+	}
+	if loaded.Apps[0].HTTPActionMethod != "POST" {
+		t.Errorf("HTTPActionMethod lost: %q", loaded.Apps[0].HTTPActionMethod)
+	}
+	if loaded.Apps[0].HTTPActionHeaders["Authorization"] != "Bearer t" {
+		t.Errorf("Authorization header lost: %q", loaded.Apps[0].HTTPActionHeaders["Authorization"])
+	}
+	if !loaded.Apps[0].HTTPActionConfirm {
+		t.Error("HTTPActionConfirm lost")
+	}
+	if loaded.Apps[0].HTTPActionShowToast == nil || *loaded.Apps[0].HTTPActionShowToast != false {
+		t.Errorf("HTTPActionShowToast lost: %v", loaded.Apps[0].HTTPActionShowToast)
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode().Perm() != 0o600 {
+		t.Errorf("config file perms = %o, want 0600", info.Mode().Perm())
+	}
+}
+
+func TestValidateGatewayListen_BadAddresses(t *testing.T) {
+	cases := []struct {
+		name    string
+		addr    string
+		wantErr string
+	}{
+		{"empty ok", "", ""},
+		{"port only", ":8443", ""},
+		{"host:port", "0.0.0.0:8443", ""},
+		{"missing port", "0.0.0.0", "not a valid bind address"},
+		{"bad port chars", ":notaport", "invalid port"},
+		{"port out of range", ":99999", "invalid port"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			err := validateGatewayListen(c.addr)
+			if c.wantErr == "" {
+				if err != nil {
+					t.Errorf("expected ok, got %v", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), c.wantErr) {
+				t.Errorf("expected error containing %q, got %v", c.wantErr, err)
+			}
+		})
+	}
+}
+
+func TestIsValidHeaderName_FullCoverage(t *testing.T) {
+	cases := []struct {
+		in   string
+		want bool
+	}{
+		{"", false},
+		{"Authorization", true},
+		{"X-Tok_123", true},
+		{"X.Y", true},
+		{"!#$%&'*+-.^_`|~", true},
+		{"AaZz09", true},
+		{"X Bad", false},   // space
+		{"X:Bad", false},   // colon
+		{"X@Bad", false},   // @ not allowed
+		{"XéBad", false}, // accented char
+	}
+	for _, c := range cases {
+		t.Run(c.in, func(t *testing.T) {
+			if got := isValidHeaderName(c.in); got != c.want {
+				t.Errorf("isValidHeaderName(%q) = %v, want %v", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+func TestSave_MkdirFailure(t *testing.T) {
+	// Create a regular file, then try to Save to a path that requires
+	// creating a subdirectory under that file. MkdirAll should fail.
+	tmpDir := t.TempDir()
+	blocker := filepath.Join(tmpDir, "blocker")
+	if err := os.WriteFile(blocker, []byte("regular file"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg := defaultConfig()
+	err := cfg.Save(filepath.Join(blocker, "sub", "config.yaml"))
+	if err == nil {
+		t.Error("expected error when MkdirAll cannot create dir under a regular file")
+	}
+}
+
+func TestSave_DotDirNoSubdirCreated(t *testing.T) {
+	// When path's directory is ".", Save should skip MkdirAll. We test
+	// from a temp dir so the cwd doesn't leak.
+	tmpDir := t.TempDir()
+	orig, _ := os.Getwd()
+	defer func() { _ = os.Chdir(orig) }()
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatal(err)
+	}
+	cfg := defaultConfig()
+	if err := cfg.Save("local-config.yaml"); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(tmpDir, "local-config.yaml")); err != nil {
+		t.Errorf("config was not saved: %v", err)
+	}
+}
+
+func TestValidate_TLSCombinations(t *testing.T) {
+	cases := []struct {
+		name    string
+		tls     TLSConfig
+		wantErr string
+	}{
+		{"empty", TLSConfig{}, ""},
+		{"domain without email", TLSConfig{Domain: "example.com"}, "tls.email is required"},
+		{"email without domain", TLSConfig{Email: "a@b.com"}, "tls.email is set but tls.domain is empty"},
+		{"cert without key", TLSConfig{Cert: "/a.pem"}, "must both be set"},
+		{"key without cert", TLSConfig{Key: "/a.key"}, "must both be set"},
+		{"domain plus cert", TLSConfig{Domain: "example.com", Email: "a@b.com", Cert: "/a.pem", Key: "/a.key"}, "not both"},
+		{"acme ok", TLSConfig{Domain: "example.com", Email: "a@b.com"}, ""},
+		{"custom-cert ok", TLSConfig{Cert: "/a.pem", Key: "/a.key"}, ""},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cfg := &Config{Server: ServerConfig{Listen: ":8080", TLS: c.tls}}
+			err := cfg.Validate()
+			if c.wantErr == "" {
+				if err != nil {
+					t.Errorf("expected ok, got %v", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), c.wantErr) {
+				t.Errorf("want error containing %q, got %v", c.wantErr, err)
+			}
+		})
+	}
+}
+
+func TestValidate_LegacyGatewayRejected(t *testing.T) {
+	cfg := &Config{Server: ServerConfig{Listen: ":8080", Gateway: "/etc/caddy/Caddyfile"}}
+	err := cfg.Validate()
+	if err == nil || !strings.Contains(err.Error(), "no longer supported") {
+		t.Errorf("expected rejection of legacy gateway, got %v", err)
+	}
+}
+
+func TestIsSelfLoop(t *testing.T) {
+	cases := []struct {
+		name, backendHost, backendPort, listen string
+		want                                   bool
+	}{
+		{"empty listen", "127.0.0.1", "8080", "", false},
+		{"malformed listen", "127.0.0.1", "8080", "bad-no-port", false},
+		{"port mismatch", "127.0.0.1", "8080", ":9090", false},
+		{"wildcard listen, loopback backend", "127.0.0.1", "8080", "0.0.0.0:8080", true},
+		{"wildcard listen, localhost backend", "localhost", "8080", "0.0.0.0:8080", true},
+		{"wildcard listen empty-host, loopback", "127.0.0.1", "8080", ":8080", true},
+		{"loopback listen, loopback backend", "127.0.0.1", "8080", "127.0.0.1:8080", true},
+		{"localhost listen, loopback backend", "localhost", "8080", "localhost:8080", true},
+		{"same host both", "192.168.1.5", "8080", "192.168.1.5:8080", true},
+		{"different hosts", "10.0.0.5", "8080", "192.168.1.1:8080", false},
+		{"wildcard listen, non-loopback backend", "10.0.0.5", "8080", "0.0.0.0:8080", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := isSelfLoop(c.backendHost, c.backendPort, c.listen); got != c.want {
+				t.Errorf("isSelfLoop(%q,%q,%q) = %v, want %v", c.backendHost, c.backendPort, c.listen, got, c.want)
+			}
+		})
+	}
+}
