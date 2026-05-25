@@ -610,3 +610,61 @@ func TestClient_StartContainer_DaemonError_BubblesUp(t *testing.T) {
 		t.Fatalf("want bubbled error containing daemon message, got %v", err)
 	}
 }
+
+func TestClient_StopContainer_PassesTimeoutQueryParam(t *testing.T) {
+	var seenQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenQuery = r.URL.RawQuery
+		if !strings.Contains(r.URL.Path, "/containers/abc/stop") {
+			t.Fatalf("wrong path: %s", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	if err := c.StopContainer(context.Background(), "abc", 7); err != nil {
+		t.Fatalf("StopContainer: %v", err)
+	}
+	if seenQuery != "t=7" {
+		t.Fatalf("want query t=7, got %q", seenQuery)
+	}
+}
+
+func TestClient_StopContainer_DefaultTimeoutWhenZero(t *testing.T) {
+	var seenQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenQuery = r.URL.RawQuery
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	if err := c.StopContainer(context.Background(), "abc", 0); err != nil {
+		t.Fatalf("StopContainer: %v", err)
+	}
+	if seenQuery != "t=10" {
+		t.Fatalf("want default query t=10, got %q", seenQuery)
+	}
+}
+
+func TestClient_RestartContainer_PassesTimeoutQueryParam(t *testing.T) {
+	var seenPath, seenQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		seenQuery = r.URL.RawQuery
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	if err := c.RestartContainer(context.Background(), "xyz", 15); err != nil {
+		t.Fatalf("RestartContainer: %v", err)
+	}
+	if !strings.Contains(seenPath, "/containers/xyz/restart") {
+		t.Fatalf("wrong path %q", seenPath)
+	}
+	if seenQuery != "t=15" {
+		t.Fatalf("want t=15, got %q", seenQuery)
+	}
+}

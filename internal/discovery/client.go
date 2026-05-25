@@ -393,6 +393,30 @@ func (c *Client) StartContainer(ctx context.Context, id string) error {
 	return c.postContainerAction(ctx, id, "start", nil)
 }
 
+// StopContainer requests a graceful stop. timeoutSec is the SIGTERM->SIGKILL
+// grace window; 0 or negative falls back to Docker's default of 10s
+// (we pass it explicitly so the daemon's compiled-in default change
+// across versions cannot move the goalposts under us).
+func (c *Client) StopContainer(ctx context.Context, id string, timeoutSec int) error {
+	if timeoutSec <= 0 {
+		timeoutSec = 10
+	}
+	q := url.Values{}
+	q.Set("t", fmt.Sprintf("%d", timeoutSec))
+	return c.postContainerAction(ctx, id, "stop", q)
+}
+
+// RestartContainer is equivalent to Stop + Start but is a single daemon
+// call. timeoutSec semantics match StopContainer.
+func (c *Client) RestartContainer(ctx context.Context, id string, timeoutSec int) error {
+	if timeoutSec <= 0 {
+		timeoutSec = 10
+	}
+	q := url.Values{}
+	q.Set("t", fmt.Sprintf("%d", timeoutSec))
+	return c.postContainerAction(ctx, id, "restart", q)
+}
+
 // networkSummary is the shape we extract from Docker's GET /networks
 // response. The endpoint returns a lot more (driver, IPAM config,
 // labels, etc.) but the Settings UI only needs the name. Worth
