@@ -55,6 +55,20 @@ type Service struct {
 	// matching entry to keep the map bounded as operators track
 	// and detach over time.
 	lastSeenAt sync.Map // map[string]time.Time
+
+	// dockerState is the poller-managed snapshot of every tracked
+	// app's container state. Replaced wholesale by the poller each
+	// tick; individual entries are updated by the lifecycle handlers
+	// after a successful Start/Stop/Restart. Reads are RLocked behind
+	// dockerStateMu.
+	dockerStateMu sync.RWMutex
+	dockerState   dockerStateCache
+
+	// socketWritable is set once at Service construction by the
+	// capability probe. The lifecycle handlers return 503 when this
+	// is false; the Settings tab surfaces "socket is read-only" as a
+	// status line.
+	socketWritable bool
 }
 
 const statusCacheTTL = 30 * time.Second
@@ -469,4 +483,82 @@ func tlsHygieneWarning(t *config.DiscoveryTLSConfig) string {
 		return "client_key permissions are world- or group-readable (mode " + mode.String() + "); chmod 600 recommended"
 	}
 	return ""
+}
+
+// DockerStateForApp returns the cached state for the given app name.
+// ok is false when the app is not tracked or the poller has not yet
+// inspected it.
+func (s *Service) DockerStateForApp(name string) (DockerState, bool) {
+	s.dockerStateMu.RLock()
+	defer s.dockerStateMu.RUnlock()
+	st, ok := s.dockerState[name]
+	return st, ok
+}
+
+// SetDockerStateForApp inserts or replaces a single entry. The
+// lifecycle handlers call this after a successful action so the
+// /api/discovery/docker-state endpoint serves fresh data before the
+// next poll tick.
+func (s *Service) SetDockerStateForApp(name string, st *DockerState) {
+	s.dockerStateMu.Lock()
+	defer s.dockerStateMu.Unlock()
+	if s.dockerState == nil {
+		s.dockerState = make(dockerStateCache)
+	}
+	s.dockerState[name] = *st
+}
+
+// SetDockerStateCache replaces the entire cache atomically. The poller
+// calls this at the end of each tick with the freshly-built map so
+// apps that disappeared from the tracked set are pruned in one step.
+func (s *Service) SetDockerStateCache(next dockerStateCache) {
+	s.dockerStateMu.Lock()
+	defer s.dockerStateMu.Unlock()
+	s.dockerState = next
+}
+
+// DockerStateSnapshot returns a defensive copy of the current cache
+// for callers (handlers, tests) that want to range over the map
+// without holding the lock.
+func (s *Service) DockerStateSnapshot() map[string]DockerState {
+	s.dockerStateMu.RLock()
+	defer s.dockerStateMu.RUnlock()
+	out := make(map[string]DockerState, len(s.dockerState))
+	for k, v := range s.dockerState {
+		out[k] = v
+	}
+	return out
+}
+
+// SocketWritable reports whether the daemon socket accepts writes.
+// Set once at Service startup; static across the Service's lifetime.
+func (s *Service) SocketWritable() bool {
+	return s.socketWritable
+}
+
+// ResolveContainerID looks up the live container ID for a tracking
+// key like "label:sonarr-prod" or "name:/sonarr". Returns ok=false
+// when the tracker key is malformed or no running container matches.
+// Used by the lifecycle handlers to translate App.DockerKey into the
+// id the Docker engine API needs.
+func (s *Service) ResolveContainerID(ctx context.Context, key string) (string, bool) {
+	s.mu.RLock()
+	c := s.client
+	s.mu.RUnlock()
+	if c == nil {
+		return "", false
+	}
+	tk, err := ParseTrackingKey(key)
+	if err != nil {
+		return "", false
+	}
+	containers, err := c.ListContainers(ctx, ListContainersOpts{All: true})
+	if err != nil {
+		return "", false
+	}
+	matched := tk.FindContainer(containers)
+	if matched == nil {
+		return "", false
+	}
+	return matched.ID, true
 }
