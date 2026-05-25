@@ -344,6 +344,79 @@ func (c *Client) InspectContainer(ctx context.Context, id string) (json.RawMessa
 	return io.ReadAll(io.LimitReader(resp.Body, 1<<20)) // 1 MiB cap on inspect payload
 }
 
+// inspectStateEnvelope is the narrow shape we decode out of the full
+// /containers/{id}/json payload. The full payload is large (~50 KiB
+// for a healthy container) and most of it changes across Docker
+// versions; sticking to this subset keeps the wire contract stable.
+type inspectStateEnvelope struct {
+	State struct {
+		Status     string `json:"Status"`
+		StartedAt  string `json:"StartedAt"`
+		FinishedAt string `json:"FinishedAt"`
+		ExitCode   int    `json:"ExitCode"`
+		Health     *struct {
+			Status string `json:"Status"`
+		} `json:"Health,omitempty"`
+	} `json:"State"`
+	RestartCount int `json:"RestartCount"`
+	Config       struct {
+		Image string `json:"Image"`
+	} `json:"Config"`
+}
+
+// InspectContainerState fetches and parses just the runtime state
+// of a container. Returns ErrContainerNotFound when the daemon
+// returns 404; other non-200 statuses surface as wrapped errors.
+//
+// Health is normalised to "none" when the image has no HEALTHCHECK,
+// rather than being left empty, so frontend consumers can switch on
+// a finite set of values.
+func (c *Client) InspectContainerState(ctx context.Context, id string) (DockerState, error) {
+	path := "/" + dockerAPIVersion + "/containers/" + url.PathEscape(id) + "/json"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+path, nil)
+	if err != nil {
+		return DockerState{}, err
+	}
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return DockerState{}, fmt.Errorf("docker inspect state %s: %w", id, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return DockerState{}, ErrContainerNotFound
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return DockerState{}, fmt.Errorf("docker inspect state %s returned %d: %s", id, resp.StatusCode, sanitizeBody(body))
+	}
+	var env inspectStateEnvelope
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&env); err != nil {
+		return DockerState{}, fmt.Errorf("docker inspect state %s decode: %w", id, err)
+	}
+	st := DockerState{
+		Status:       env.State.Status,
+		ExitCode:     env.State.ExitCode,
+		RestartCount: env.RestartCount,
+		Image:        env.Config.Image,
+	}
+	if env.State.Health != nil {
+		st.Health = env.State.Health.Status
+	} else {
+		st.Health = "none"
+	}
+	if env.State.StartedAt != "" {
+		if t, perr := time.Parse(time.RFC3339Nano, env.State.StartedAt); perr == nil {
+			st.StartedAt = t
+		}
+	}
+	if env.State.FinishedAt != "" {
+		if t, perr := time.Parse(time.RFC3339Nano, env.State.FinishedAt); perr == nil {
+			st.FinishedAt = t
+		}
+	}
+	return st, nil
+}
+
 // postContainerAction is the shared shape behind Start / Stop /
 // Restart. The Docker engine API uses POST verbs with empty bodies
 // and HTTP 204 on success; 304 means the container was already in

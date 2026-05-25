@@ -10,6 +10,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"math/big"
 	"net"
 	"net/http"
@@ -666,5 +667,97 @@ func TestClient_RestartContainer_PassesTimeoutQueryParam(t *testing.T) {
 	}
 	if seenQuery != "t=15" {
 		t.Fatalf("want t=15, got %q", seenQuery)
+	}
+}
+func TestClient_InspectContainerState_ParsesAllFields(t *testing.T) {
+	payload := `{
+        "State": {
+            "Status": "running",
+            "StartedAt": "2025-05-22T12:00:00Z",
+            "FinishedAt": "0001-01-01T00:00:00Z",
+            "ExitCode": 0,
+            "Health": {"Status": "healthy"}
+        },
+        "RestartCount": 3,
+        "Config": {"Image": "linuxserver/sonarr:latest"}
+    }`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.Contains(r.URL.Path, "/containers/abc/json") {
+			t.Fatalf("wrong path: %s", r.URL.Path)
+		}
+		_, _ = w.Write([]byte(payload))
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	st, err := c.InspectContainerState(context.Background(), "abc")
+	if err != nil {
+		t.Fatalf("InspectContainerState: %v", err)
+	}
+	if st.Status != "running" {
+		t.Fatalf("want running, got %q", st.Status)
+	}
+	if st.Health != "healthy" {
+		t.Fatalf("want healthy, got %q", st.Health)
+	}
+	if st.RestartCount != 3 {
+		t.Fatalf("want 3 restarts, got %d", st.RestartCount)
+	}
+	if st.Image != "linuxserver/sonarr:latest" {
+		t.Fatalf("want image, got %q", st.Image)
+	}
+	if st.StartedAt.IsZero() {
+		t.Fatalf("StartedAt should be parsed")
+	}
+}
+
+func TestClient_InspectContainerState_NoHealthcheck(t *testing.T) {
+	payload := `{
+        "State": {"Status": "running", "StartedAt": "2025-05-22T12:00:00Z"},
+        "Config": {"Image": "alpine"}
+    }`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(payload))
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	st, err := c.InspectContainerState(context.Background(), "x")
+	if err != nil {
+		t.Fatalf("InspectContainerState: %v", err)
+	}
+	if st.Health != "none" {
+		t.Fatalf("want none, got %q", st.Health)
+	}
+}
+
+func TestClient_InspectContainerState_PartialPayload(t *testing.T) {
+	// Only Status set; everything else missing. Should not error.
+	payload := `{"State": {"Status": "exited", "ExitCode": 137}}`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(payload))
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	st, err := c.InspectContainerState(context.Background(), "y")
+	if err != nil {
+		t.Fatalf("InspectContainerState: %v", err)
+	}
+	if st.Status != "exited" || st.ExitCode != 137 || st.Health != "none" {
+		t.Fatalf("partial parse mismatch: %+v", st)
+	}
+}
+
+func TestClient_InspectContainerState_NotFound(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	_, err := c.InspectContainerState(context.Background(), "z")
+	if !errors.Is(err, ErrContainerNotFound) {
+		t.Fatalf("want ErrContainerNotFound, got %v", err)
 	}
 }
