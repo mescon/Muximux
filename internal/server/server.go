@@ -623,6 +623,25 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 		}
 	})
 
+	// /api/app-action/{name}: fire the configured http_action against the
+	// app's URL via the server-side relay. POST-only. The shorter URL shape
+	// (/api/app-action/ rather than /api/apps/{name}/fire-action) avoids a
+	// prefix clash with the existing /api/apps/ health-routes block.
+	// Authentication runs at the global middleware layer; per-app
+	// MinRole/AllowedGroups are checked inside the handler.
+	mux.HandleFunc("/api/app-action/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			return
+		}
+		name := strings.TrimPrefix(r.URL.Path, "/api/app-action/")
+		if name == "" {
+			http.Error(w, "App name required", http.StatusBadRequest)
+			return
+		}
+		api.FireAppAction(w, r, name)
+	})
+
 	// Individual group endpoint
 	mux.HandleFunc("/api/group/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/group/")

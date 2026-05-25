@@ -24,14 +24,21 @@ type APIHandler struct {
 	configPath   string
 	mu           *sync.RWMutex
 	onConfigSave func() // called after config is saved to trigger route rebuilds etc.
+	// actionClient relays http_action fires from the dashboard to the
+	// configured target URL. Reused across requests so the connection
+	// pool amortises across fires. 10s timeout is the lock-in from the
+	// spec (Q8): long enough for slow webhooks, short enough that a
+	// hung target can't pile up dashboard requests.
+	actionClient *http.Client
 }
 
 // NewAPIHandler creates a new API handler
 func NewAPIHandler(cfg *config.Config, configPath string, mu *sync.RWMutex) *APIHandler {
 	return &APIHandler{
-		config:     cfg,
-		configPath: configPath,
-		mu:         mu,
+		config:       cfg,
+		configPath:   configPath,
+		mu:           mu,
+		actionClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
@@ -453,6 +460,10 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		Enabled:             c.Enabled,
 		Default:             c.Default,
 		OpenMode:            c.OpenMode,
+		HTTPActionMethod:    c.HTTPActionMethod,
+		HTTPActionHeaders:   c.HTTPActionHeaders,
+		HTTPActionConfirm:   c.HTTPActionConfirm,
+		HTTPActionShowToast: c.HTTPActionShowToast,
 		Proxy:               c.Proxy,
 		HealthCheck:         c.HealthCheck,
 		ProxySkipTLSVerify:  c.ProxySkipTLSVerify,
@@ -930,6 +941,9 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		Enabled:             app.Enabled,
 		Default:             app.Default,
 		OpenMode:            app.OpenMode,
+		HTTPActionMethod:    app.HTTPActionMethod,
+		HTTPActionConfirm:   app.HTTPActionConfirm,
+		HTTPActionShowToast: app.HTTPActionShowToast,
 		Proxy:               app.Proxy,
 		HealthCheck:         app.HealthCheck,
 		ProxySkipTLSVerify:  app.ProxySkipTLSVerify,
@@ -951,6 +965,9 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		out.DockerEndpoint = app.DockerEndpoint
 		out.DockerStrategy = app.DockerStrategy
 		out.DockerManagedURL = app.DockerManagedURL
+		// http_action headers can carry secrets (bearer tokens), so they
+		// go to admins only, mirroring ProxyHeaders above.
+		out.HTTPActionHeaders = app.HTTPActionHeaders
 	}
 	return out
 }
@@ -981,28 +998,38 @@ func stripURLCredentialsIf(strip bool, raw string) string {
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name                string               `json:"name"`
-	URL                 string               `json:"url"` // Original target URL (for editing/config)
-	HealthURL           string               `json:"health_url,omitempty"`
-	ProxyURL            string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
-	Icon                config.AppIconConfig `json:"icon"`
-	Color               string               `json:"color"`
-	Group               string               `json:"group"`
-	Order               int                  `json:"order"`
-	Enabled             bool                 `json:"enabled"`
-	Default             bool                 `json:"default"`
-	OpenMode            string               `json:"open_mode"`
-	Proxy               bool                 `json:"proxy"`
-	HealthCheck         *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
-	ProxySkipTLSVerify  *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
-	ProxyHeaders        map[string]string    `json:"proxy_headers,omitempty"`
-	Scale               float64              `json:"scale"`
-	Shortcut            *int                 `json:"shortcut,omitempty"`
-	MinRole             string               `json:"min_role,omitempty"`
-	AllowedGroups       []string             `json:"allowed_groups,omitempty"`
-	ForceIconBackground bool                 `json:"force_icon_background,omitempty"`
-	Permissions         []string             `json:"permissions,omitempty"`
-	AllowNotifications  bool                 `json:"allow_notifications,omitempty"`
+	Name      string               `json:"name"`
+	URL       string               `json:"url"` // Original target URL (for editing/config)
+	HealthURL string               `json:"health_url,omitempty"`
+	ProxyURL  string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
+	Icon      config.AppIconConfig `json:"icon"`
+	Color     string               `json:"color"`
+	Group     string               `json:"group"`
+	Order     int                  `json:"order"`
+	Enabled   bool                 `json:"enabled"`
+	Default   bool                 `json:"default"`
+	OpenMode  string               `json:"open_mode"`
+	// HTTP action fields. Only meaningful when OpenMode == "http_action".
+	// Method/Confirm/ShowToast are non-sensitive and surface to every
+	// role (the frontend needs them to decide whether to show the
+	// confirmation modal and the result toast). Headers can carry
+	// secrets (Authorization bearer tokens) so, like ProxyHeaders, they
+	// are populated for admins only in sanitizeAppForRole.
+	HTTPActionMethod    string            `json:"http_action_method,omitempty"`
+	HTTPActionHeaders   map[string]string `json:"http_action_headers,omitempty"`
+	HTTPActionConfirm   bool              `json:"http_action_confirm,omitempty"`
+	HTTPActionShowToast *bool             `json:"http_action_show_toast,omitempty"`
+	Proxy               bool              `json:"proxy"`
+	HealthCheck         *bool             `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
+	ProxySkipTLSVerify  *bool             `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
+	ProxyHeaders        map[string]string `json:"proxy_headers,omitempty"`
+	Scale               float64           `json:"scale"`
+	Shortcut            *int              `json:"shortcut,omitempty"`
+	MinRole             string            `json:"min_role,omitempty"`
+	AllowedGroups       []string          `json:"allowed_groups,omitempty"`
+	ForceIconBackground bool              `json:"force_icon_background,omitempty"`
+	Permissions         []string          `json:"permissions,omitempty"`
+	AllowNotifications  bool              `json:"allow_notifications,omitempty"`
 	// GatewayDomain is set when a gateway site references this app via
 	// `app_name`. The frontend uses this to surface a "Hosted by Muximux
 	// gateway at <domain>" badge on the App form so the operator knows

@@ -9,11 +9,15 @@ export interface App {
   order: number;
   enabled: boolean;
   default: boolean;
-  open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
+  open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect' | 'http_action';
   proxy: boolean;
   health_check?: boolean;  // true = enabled, undefined/false = disabled (opt-in)
   proxy_skip_tls_verify?: boolean;
   proxy_headers?: Record<string, string>;
+  http_action_method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  http_action_headers?: Record<string, string>;
+  http_action_confirm?: boolean;
+  http_action_show_toast?: boolean;  // default true; set false for silent fire-and-forget
   scale: number;
   shortcut?: number;  // 1-9 keyboard shortcut slot
   min_role?: string;  // minimum role to see this app
@@ -377,7 +381,7 @@ export interface DiscoverySuggestion {
   // "use catalog or UI default".
   color?: string;
   order?: number;
-  open_mode?: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
+  open_mode?: 'iframe' | 'new_tab' | 'new_window' | 'redirect' | 'http_action';
   proxy?: boolean;
   proxy_skip_tls_verify?: boolean;
   min_role?: 'user' | 'power-user' | 'admin';
@@ -386,6 +390,10 @@ export interface DiscoverySuggestion {
   allow_notifications?: boolean;
   default?: boolean;
   shortcut?: number;
+  http_action_method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  http_action_headers?: Record<string, string>;
+  http_action_confirm?: boolean;
+  http_action_show_toast?: boolean;
   suggested_gateway?: SuggestedGatewayConfig;
 }
 
@@ -486,4 +494,16 @@ export interface DiscoveryRelinkConfirmRequest {
 export interface DiscoveryRelinkConfirmResult {
   updated_apps: string[];
   updated_sites: string[];
+}
+
+/**
+ * FireActionResult is the JSON payload returned by POST /api/app-action/{name}.
+ * Either status or error is populated, never both. latency_ms is always set.
+ */
+export interface FireActionResult {
+  status?: number;
+  error?: string;
+  latency_ms: number;
+  url_host?: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | string;
 }

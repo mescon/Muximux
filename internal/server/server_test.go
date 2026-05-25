@@ -1176,6 +1176,41 @@ func TestRegisterAPIRoutes(t *testing.T) {
 		}
 	})
 
+	// /api/app-action/{name} must be registered by registerAPIRoutes.
+	// An unregistered path returns Go's default 404, so a 405 on GET
+	// (the route's method guard) is the unambiguous proof that the
+	// route exists. A bare 404 here would mean the registration was
+	// dropped, which is exactly the regression this guards against.
+	t.Run("GET /api/app-action/App1 returns 405 (route is wired)", func(t *testing.T) {
+		resp, err := http.Get(ts.URL + "/api/app-action/App1")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusMethodNotAllowed {
+			t.Errorf("expected 405 (route wired, GET rejected), got %d -- route likely not registered", resp.StatusCode)
+		}
+	})
+
+	t.Run("POST /api/app-action/App1 reaches handler (not a routing 404)", func(t *testing.T) {
+		// This harness wires registerAPIRoutes without the auth
+		// middleware, so FireAppAction's defensive nil-user guard
+		// returns 401. The point of the assertion is that the request
+		// reaches the handler at all: anything other than a routing
+		// 404 proves the route is registered. (With real auth in front,
+		// an iframe-mode app would get 400; unauthenticated here it's
+		// 401. Both are "handler reached".)
+		req, _ := http.NewRequest(http.MethodPost, ts.URL+"/api/app-action/App1", nil)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusNotFound {
+			t.Errorf("got routing 404 -- /api/app-action/ is not registered")
+		}
+	})
+
 	t.Run("DELETE /api/groups returns 405", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/api/groups", nil)
 		resp, err := http.DefaultClient.Do(req)

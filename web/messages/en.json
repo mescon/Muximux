@@ -24,7 +24,6 @@
   "common_selectApp": "Select an app from the navigation",
   "common_continue": "Continue",
   "common_finish": "Finish",
-
   "toast_connectionRestored": "Connection restored",
   "toast_connectionLost": "Connection lost - reconnecting...",
   "toast_settingsSaved": "Settings saved successfully",
@@ -36,7 +35,6 @@
   "toast_switchedToDark": "Switched to dark theme",
   "toast_switchedToLight": "Switched to light theme",
   "toast_usingSystemTheme": "Using system theme",
-
   "toast_failedSaveConfig": "Failed to save configuration",
   "toast_failedSaveTheme": "Failed to save theme",
   "toast_failedDeleteTheme": "Failed to delete theme",
@@ -45,7 +43,6 @@
   "toast_failedDeleteIcon": "Delete failed",
   "toast_securitySetupFailed": "Security setup failed",
   "toast_iconSourcesPartialFail": "Some icon sources failed to load: {sources}",
-
   "error_somethingWentWrong": "Something went wrong",
   "error_failedLoadDashboard": "Failed to load dashboard",
   "error_failedLoadConfig": "Failed to load configuration",
@@ -65,9 +62,7 @@
   "error_failedConnectWsRetry": "Failed to connect after multiple attempts",
   "error_failedFetchHealth": "Failed to fetch health data",
   "error_deleteFailed": "Delete failed",
-
   "nav_exitFullscreen": "Exit fullscreen (F)",
-
   "settings_title": "Settings",
   "settings_general": "General",
   "settings_theme": "Theme",
@@ -115,7 +110,6 @@
   "settings_icon": "Icon",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "App",
-
   "general_language": "Language",
   "general_languageAfterSave": "Select the display language for the interface. Changes take effect after saving.",
   "general_dashboardTitle": "Dashboard Title",
@@ -186,7 +180,6 @@
   "general_exportConfig": "Export Config",
   "general_importConfig": "Import Config",
   "general_configHint": "Export your current configuration or import a previously saved one.",
-
   "login_subtitle": "Sign in to your dashboard",
   "login_externalAuth": "External Authentication",
   "login_externalAuthDesc": "This instance is protected by an external authentication provider. Access it through the URL configured in your reverse proxy to sign in.",
@@ -202,7 +195,6 @@
   "login_rememberMe": "Remember me",
   "login_signingIn": "Signing in...",
   "login_signIn": "Sign in",
-
   "common_current": "Current",
   "common_username": "Username",
   "common_password": "Password",
@@ -214,15 +206,12 @@
   "common_default": "Default",
   "common_disabled": "Disabled",
   "common_forwardAuthEnabled": "Forward auth enabled. Please access this app through your reverse proxy URL to continue.",
-
   "error_usernameRequired": "Username is required",
   "error_passwordTooShort": "Password must be at least 8 characters",
   "error_passwordTooShortCount": "Password must be at least 8 characters ({count}/8)",
   "error_passwordsMismatch": "Passwords do not match",
-
   "toast_passwordChanged": "Password changed successfully",
   "toast_authMethodChanged": "Authentication method changed to {method}",
-
   "security_authMethod": "Authentication Method",
   "security_authMethodDesc": "Choose how users authenticate with Muximux",
   "security_passwordAuth": "Password authentication",
@@ -261,7 +250,6 @@
   "security_deleteUser": "Delete user",
   "security_cantDeleteSelf": "Can't delete yourself",
   "security_minEightCharsShort": "Min 8 characters",
-
   "theme_appearance": "Appearance",
   "theme_appearanceDesc": "Choose dark, light, or follow your system",
   "theme_dark": "Dark",
@@ -295,7 +283,6 @@
   "theme_statusWarning": "Warning",
   "theme_statusError": "Error",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Apps & Groups",
   "apps_addGroup": "Add Group",
   "apps_addApp": "Add App",
@@ -314,7 +301,6 @@
   "apps_editGroup": "Edit group",
   "apps_deleteGroup": "Delete group",
   "apps_noAppsConfigured": "No applications or groups configured. Click \"Add App\" to get started.",
-
   "about_loadingSystemInfo": "Loading system info...",
   "about_updateAvailable": "Update Available",
   "about_upToDate": "You're up to date",
@@ -347,9 +333,7 @@
   "about_issues": "Issues",
   "about_releases": "Releases",
   "about_wiki": "Wiki",
-
   "common_or": "or",
-
   "appForm_name": "Name",
   "appForm_helpName": "Displayed in the navigation bar and page title. Also used as a unique identifier — renaming an app creates a new proxy route.",
   "appForm_placeholderName": "My App",
@@ -397,6 +381,18 @@
   "appForm_headerValue": "Value",
   "appForm_removeHeader": "Remove header",
   "appForm_addHeader": "+ Add header",
+  "app_http_action_add_header": "+ Add header",
+  "app_http_action_header_name": "Header name",
+  "app_http_action_header_value": "Header value",
+  "app_http_action_remove_header": "Remove header",
+  "app_http_action_method": "Method",
+  "app_http_action_method_help": "HTTP method to use for the action",
+  "app_http_action_headers": "Headers",
+  "app_http_action_headers_help": "Headers sent with the action request",
+  "app_http_action_confirm_label": "Show confirmation prompt before firing",
+  "app_http_action_show_toast_label": "Show toast on completion (uncheck for silent fire-and-forget)",
+  "http_action_confirm_title": "Fire HTTP action?",
+  "http_action_confirm_body": "Click confirm to fire the request below.",
   "appForm_sectionAdvanced": "Advanced",
   "appForm_healthCheck": "Health check",
   "appForm_helpHealthCheck": "Periodically pings the app URL (or health URL if set) and shows a status indicator in the navigation.",
@@ -435,7 +431,8 @@
   "appForm_newWindowDesc": "Open in a popup window",
   "appForm_redirect": "Redirect",
   "appForm_redirectDesc": "Navigate away to the app URL",
-
+  "appForm_httpAction": "HTTP action",
+  "appForm_httpActionDesc": "Fire a configurable HTTP request against the app's URL instead of opening a page",
   "command_searchPlaceholder": "Search apps and commands...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigate",
@@ -460,7 +457,6 @@
   "command_useSystemTheme": "Use System Theme",
   "command_switchToApp": "Switch to app",
   "command_commandPalette": "Command palette",
-
   "nav_closeNavMenu": "Close navigation menu",
   "nav_openNavMenu": "Open navigation menu",
   "nav_closeMenu": "Close menu",
@@ -491,7 +487,6 @@
   "nav_resizeSidebar": "Resize sidebar",
   "nav_closeNavigation": "Close navigation",
   "nav_openNavigation": "Open navigation",
-
   "keybindings_searchLabel": "Command Palette",
   "keybindings_searchDesc": "Open the command palette",
   "keybindings_settingsLabel": "Open Settings",
@@ -512,7 +507,6 @@
   "keybindings_prevAppDesc": "Switch to the previous app in the list",
   "keybindings_appLabel": "App {number}",
   "keybindings_appDesc": "Switch to app #{number}",
-
   "keybindings_hint": "Click a keybinding to change it. Press Escape to cancel.",
   "keybindings_resetAllConfirm": "Reset all keybindings?",
   "keybindings_yesReset": "Yes, Reset",
@@ -529,7 +523,6 @@
   "keybindings_conflictDetected": "Conflict detected",
   "keybindings_conflictDesc": "This shortcut is already used by:",
   "keybindings_useAnyway": "Use Anyway",
-
   "shortcuts_title": "Keyboard Shortcuts",
   "shortcuts_closeAriaLabel": "Close",
   "shortcuts_categoryNavigation": "Navigation",
@@ -549,7 +542,6 @@
   "shortcuts_settingsKeybindings": "Settings → Keybindings",
   "shortcuts_footerPress": "Press",
   "shortcuts_footerToClose": "to close",
-
   "onboarding_stepWelcome": "Welcome",
   "onboarding_stepSecurity": "Security",
   "onboarding_stepApps": "Apps",
@@ -623,7 +615,6 @@
   "onboarding_proxyTooltip": "Routes traffic through Muximux so the app doesn't need to be directly reachable from your browser. Enable this if the app is on an internal network or a different host that your browser can't access directly.",
   "onboarding_addAnotherInstance": "Add another {appName}",
   "onboarding_selectLanguage": "Select your language",
-
   "splash_selectApp": "Select an application to get started",
   "splash_quickAccess": "Quick access",
   "splash_allShortcuts": "All shortcuts",
@@ -635,7 +626,6 @@
   "splash_noAppsTitle": "No applications yet",
   "splash_noAppsDesc": "Add your first application to get started with your dashboard.",
   "splash_addApplication": "Add Application",
-
   "logs_title": "Logs",
   "logs_backToDashboard": "Back to dashboard",
   "logs_resume": "Resume",
@@ -657,11 +647,9 @@
   "logs_showingFiltered": "showing {count} filtered",
   "logs_paused": "PAUSED",
   "logs_scrollToBottom": "Scroll to bottom",
-
   "appFrame_refreshing": "Refreshing...",
   "appFrame_releaseToRefresh": "Release to refresh",
   "appFrame_pullToRefresh": "Pull to refresh",
-
   "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Custom",
@@ -680,7 +668,6 @@
   "iconBrowser_iconCount": "{count} icons",
   "iconBrowser_iconCountFiltered": "{filtered} of {total} icons",
   "iconBrowser_selectIcon": "Select Icon",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Downloads",
   "popularApps_groupSystem": "System",
@@ -788,5 +775,9 @@
   "popularApps_freshrssDesc": "RSS feed aggregator",
   "popularApps_linkdingDesc": "Bookmark manager",
   "popularApps_ollamaDesc": "Local LLM inference server",
-  "popularApps_openWebuiDesc": "Chat interface for local LLMs"
+  "popularApps_openWebuiDesc": "Chat interface for local LLMs",
+  "error_url_required": "URL is required",
+  "error_invalid_action_url": "URL must be http:// or https://",
+  "toast_action_fired": "{method} {host} -> {status} ({latency}ms)",
+  "toast_action_failed": "{method} {host} -> {error}"
 }

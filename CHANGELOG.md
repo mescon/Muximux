@@ -4,9 +4,22 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- New `open_mode: http_action` for app entries -- click fires a configurable
+  HTTP request (method + headers) against the app's URL instead of opening
+  a page. Server-side relay, audit-logged, per-app confirmation flag,
+  per-app silent fire-and-forget flag.
+- Four GitOps labels for http_action apps: `muximux.app.http_action_method`,
+  `muximux.app.http_action_headers`, `muximux.app.http_action_confirm`,
+  `muximux.app.http_action_show_toast`.
+
 ### Changed
 - **Docker discovery is lenient about container-name prefixes.** A container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` now picks up the matching catalog entry just like a bare `sonarr` / `radarr` / `plex` container would. The matcher tokenises the container name on `-`, `_`, `.` and looks for any token that exactly matches a known app key (with an adjacent-pair fallback for multi-word images like `home-assistant`). Exact-token comparison prevents false-positives like `transmissionic` reading as `transmission`.
 - **Muximux's own container is filtered out of the Discover suggestions.** Any container whose image or name contains `muximux` is skipped at scan time, so importing-yourself-as-an-app (and the resulting iframe loop) is no longer something an operator can accidentally do.
+- `open_mode: redirect` now actually navigates the window to the app URL.
+  Previously it was an unintentional alias for `iframe` -- the badge said
+  redirect but the behavior was identical. Operators using `redirect` and
+  expecting iframe behavior should change to `iframe`.
 
 ## [3.1.0] - 2026-05-17
 

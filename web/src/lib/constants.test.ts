@@ -33,8 +33,8 @@ describe('constants', () => {
   });
 
   describe('openModes', () => {
-    it('should have exactly 4 entries', () => {
-      expect(openModes).toHaveLength(4);
+    it('should have exactly 5 entries', () => {
+      expect(openModes).toHaveLength(5);
     });
 
     it('should have value, label, and description on each entry', () => {

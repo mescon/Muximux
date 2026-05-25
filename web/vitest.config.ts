@@ -14,7 +14,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     pool: 'forks',
-    include: ['src/**/*.{test,spec}.{js,ts}'],
+    include: ['src/**/*.{test,spec}.{js,ts}', 'src/**/*.{test,spec}.svelte.{js,ts}'],
     setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',

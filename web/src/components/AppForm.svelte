@@ -2,6 +2,7 @@
   import type { App, Group } from '$lib/types';
   import { openModes, IFRAME_PERMISSIONS } from '$lib/constants';
   import AppIcon from './AppIcon.svelte';
+  import HeadersEditor from './HeadersEditor.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
   let {
@@ -294,23 +295,25 @@
           <p class="text-xs text-text-muted">{m.appForm_enabledDesc()}</p>
         </div>
       </label>
-      <label class="flex items-center gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={app.default}
-          onchange={(e) => {
-            app.default = (e.currentTarget as HTMLInputElement).checked;
-            ondefaultchange?.(app.default);
-          }}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
-        />
-        <div>
-          <span class="text-sm text-text-primary">{m.appForm_defaultApp()}
-            {@render helpTip(m.appForm_helpDefaultApp())}
-          </span>
-          <p class="text-xs text-text-muted">{m.appForm_defaultAppDesc()}</p>
-        </div>
-      </label>
+      {#if app.open_mode !== 'http_action'}
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={app.default}
+            onchange={(e) => {
+              app.default = (e.currentTarget as HTMLInputElement).checked;
+              ondefaultchange?.(app.default);
+            }}
+            class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          />
+          <div>
+            <span class="text-sm text-text-primary">{m.appForm_defaultApp()}
+              {@render helpTip(m.appForm_helpDefaultApp())}
+            </span>
+            <p class="text-xs text-text-muted">{m.appForm_defaultAppDesc()}</p>
+          </div>
+        </label>
+      {/if}
       <div>
         <label for="{prefix}-app-mode" class="block text-sm font-medium text-text-secondary mb-1">
           {m.appForm_openMode()}
@@ -326,25 +329,81 @@
           {/each}
         </select>
       </div>
-      <div>
-        <label for="{prefix}-app-scale" class="block text-sm font-medium text-text-secondary mb-1">
-          {m.appForm_scale({ percent: Math.round(app.scale * 100).toString() })}
-          {@render helpTip(m.appForm_helpScale())}
-        </label>
-        <input
-          id="{prefix}-app-scale"
-          type="range"
-          min="0.5"
-          max="2"
-          step="0.05"
-          bind:value={app.scale}
-          class="w-full"
-        />
-      </div>
+      {#if app.open_mode === 'http_action'}
+        <div class="ms-0 mt-2 space-y-3 border-s-2 border-border ps-4">
+          <div>
+            <label for="{prefix}-app-action-method" class="block text-sm font-medium text-text-secondary mb-1">
+              {m.app_http_action_method()}
+              {@render helpTip(m.app_http_action_method_help())}
+            </label>
+            <select
+              id="{prefix}-app-action-method"
+              bind:value={app.http_action_method}
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+            </select>
+          </div>
+          <div>
+            <span class="block text-sm font-medium text-text-secondary mb-1">
+              {m.app_http_action_headers()}
+              {@render helpTip(m.app_http_action_headers_help())}
+            </span>
+            <HeadersEditor
+              value={app.http_action_headers ?? {}}
+              onChange={(next) => {
+                app.http_action_headers = Object.keys(next).length > 0 ? next : undefined;
+              }}
+            />
+          </div>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              bind:checked={app.http_action_confirm}
+              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+            />
+            <span class="text-sm text-text-primary">{m.app_http_action_confirm_label()}</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={app.http_action_show_toast !== false}
+              onchange={(e) => {
+                const checked = (e.currentTarget as HTMLInputElement).checked;
+                app.http_action_show_toast = checked ? undefined : false;
+              }}
+              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+            />
+            <span class="text-sm text-text-primary">{m.app_http_action_show_toast_label()}</span>
+          </label>
+        </div>
+      {/if}
+      {#if app.open_mode !== 'http_action'}
+        <div>
+          <label for="{prefix}-app-scale" class="block text-sm font-medium text-text-secondary mb-1">
+            {m.appForm_scale({ percent: Math.round(app.scale * 100).toString() })}
+            {@render helpTip(m.appForm_helpScale())}
+          </label>
+          <input
+            id="{prefix}-app-scale"
+            type="range"
+            min="0.5"
+            max="2"
+            step="0.05"
+            bind:value={app.scale}
+            class="w-full"
+          />
+        </div>
+      {/if}
     </div>
   </div>
 
   <!-- Proxy -->
+  {#if app.open_mode !== 'http_action'}
   <div class="border-t border-border pt-3">
     <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionProxy()}</h4>
     <div class="space-y-3">
@@ -424,6 +483,7 @@
       {/if}
     </div>
   </div>
+  {/if}
 
   <!-- Advanced -->
   <div class="border-t border-border pt-3">
@@ -546,6 +606,7 @@
   </div>
 
   <!-- Browser Permissions -->
+  {#if app.open_mode !== 'http_action'}
   <div class="border-t border-border pt-3">
     <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-1">{m.appForm_sectionPermissions()}</h4>
     <p class="text-xs text-text-muted mb-3">{m.appForm_permissionsDesc()}</p>
@@ -589,6 +650,7 @@
       </div>
     </label>
   </div>
+  {/if}
 </div>
 
 <style>

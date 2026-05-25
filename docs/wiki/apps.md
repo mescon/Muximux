@@ -70,6 +70,8 @@ The `open_mode` field controls how an app is opened when you click it in the nav
 
 - **redirect** -- Navigates the current browser tab to the app URL. This leaves Muximux entirely. Use the browser's back button to return.
 
+- **http_action** -- Click fires an HTTP request via the server-side relay instead of opening a page. Use this for webhook triggers (n8n, Home Assistant, Sonarr commands, etc.). See [HTTP Actions](http-actions.md) for the full setup.
+
 > **Security warning:** Muximux authentication only protects the Muximux dashboard itself. When an app is embedded in an iframe **without** `proxy: true`, the browser loads it directly from the app's own URL -- Muximux is not in the request path and cannot enforce authentication on those requests. This means anyone who knows (or guesses) the app's URL can access it directly, bypassing Muximux entirely.
 >
 > If you need Muximux to control access to an app, enable the reverse proxy (`proxy: true`). This routes all requests through Muximux, where authentication is enforced. Without the proxy, you must rely on the app's own authentication or a separate reverse proxy/VPN to secure it.
