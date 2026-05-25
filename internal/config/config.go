@@ -95,8 +95,6 @@ type DiscoveryDockerConfig struct {
 	LifecycleMinRole       string   `yaml:"lifecycle_min_role,omitempty" json:"lifecycle_min_role,omitempty"`
 	LifecycleAllowedGroups []string `yaml:"lifecycle_allowed_groups,omitempty" json:"lifecycle_allowed_groups,omitempty"`
 	HealthBadgePlacement   string   `yaml:"health_badge_placement,omitempty" json:"health_badge_placement,omitempty"`
-	LogCollectionEnabled   bool     `yaml:"log_collection_enabled,omitempty" json:"log_collection_enabled,omitempty"`
-	LogBufferSize          int      `yaml:"log_buffer_size,omitempty" json:"log_buffer_size,omitempty"`
 }
 
 // NetworkStrategy picks how a container's URL is constructed when
@@ -662,13 +660,6 @@ func applyDiscoveryDefaults(cfg *Config) {
 	}
 	if d.HealthBadgePlacement == "" {
 		d.HealthBadgePlacement = "overview"
-	}
-	if d.LogBufferSize == 0 {
-		if d.LogCollectionEnabled {
-			d.LogBufferSize = 5000
-		} else {
-			d.LogBufferSize = 1000
-		}
 	}
 }
 

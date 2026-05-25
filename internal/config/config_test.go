@@ -1744,18 +1744,4 @@ func TestDefaults_LifecycleMinRole_DefaultsToAdminWhenLifecycleEnabled(t *testin
 	if c.Discovery.Docker.HealthBadgePlacement != "overview" {
 		t.Fatalf("want overview, got %q", c.Discovery.Docker.HealthBadgePlacement)
 	}
-	if c.Discovery.Docker.LogBufferSize != 1000 {
-		t.Fatalf("want 1000 default when log_collection off, got %d", c.Discovery.Docker.LogBufferSize)
-	}
-}
-
-func TestDefaults_LogBufferSize_5000WhenLogCollectionEnabled(t *testing.T) {
-	c := &Config{}
-	c.Discovery.Docker.Enabled = true
-	c.Discovery.Docker.LifecycleEnabled = true
-	c.Discovery.Docker.LogCollectionEnabled = true
-	applyDiscoveryDefaults(c)
-	if c.Discovery.Docker.LogBufferSize != 5000 {
-		t.Fatalf("want 5000 default when log_collection on, got %d", c.Discovery.Docker.LogBufferSize)
-	}
 }
