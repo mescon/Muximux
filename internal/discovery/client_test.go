@@ -559,3 +559,54 @@ func makeLeaf(t *testing.T, commonName string, caCertPEM []byte, caKey *ecdsa.Pr
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: keyDER})
 	return certPEM, keyPEM
 }
+
+func TestClient_StartContainer_PostsCorrectURL(t *testing.T) {
+	var seenMethod, seenPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenMethod = r.Method
+		seenPath = r.URL.Path
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer srv.Close()
+
+	c := &Client{
+		httpClient: &http.Client{Timeout: 5 * time.Second},
+		baseURL:    srv.URL,
+	}
+	if err := c.StartContainer(context.Background(), "abc123"); err != nil {
+		t.Fatalf("StartContainer: %v", err)
+	}
+	if seenMethod != http.MethodPost {
+		t.Fatalf("want POST, got %s", seenMethod)
+	}
+	if !strings.Contains(seenPath, "/containers/abc123/start") {
+		t.Fatalf("path %q does not match /containers/abc123/start", seenPath)
+	}
+}
+
+func TestClient_StartContainer_AlreadyStartedIsNotAnError(t *testing.T) {
+	// Docker returns 304 Not Modified when the container is already
+	// running. Treat as success - the operator's intent is satisfied.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotModified)
+	}))
+	defer srv.Close()
+
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	if err := c.StartContainer(context.Background(), "abc"); err != nil {
+		t.Fatalf("304 should not be an error: %v", err)
+	}
+}
+
+func TestClient_StartContainer_DaemonError_BubblesUp(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"message":"port is already allocated"}`))
+	}))
+	defer srv.Close()
+	c := &Client{httpClient: &http.Client{Timeout: 5 * time.Second}, baseURL: srv.URL}
+	err := c.StartContainer(context.Background(), "abc")
+	if err == nil || !strings.Contains(err.Error(), "port is already allocated") {
+		t.Fatalf("want bubbled error containing daemon message, got %v", err)
+	}
+}

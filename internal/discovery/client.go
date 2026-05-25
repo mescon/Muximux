@@ -344,6 +344,55 @@ func (c *Client) InspectContainer(ctx context.Context, id string) (json.RawMessa
 	return io.ReadAll(io.LimitReader(resp.Body, 1<<20)) // 1 MiB cap on inspect payload
 }
 
+// postContainerAction is the shared shape behind Start / Stop /
+// Restart. The Docker engine API uses POST verbs with empty bodies
+// and HTTP 204 on success; 304 means the container was already in
+// the requested state, which we collapse into success because the
+// operator's intent is satisfied either way.
+//
+// The 35s timeout (vs the 15s default on the package's main client)
+// is set per-call: graceful stop can take up to the configured
+// stop_grace_period (default 10s) plus daemon overhead, and a
+// container that is *just barely* shutting down still needs to
+// resolve before we surface a timeout error.
+func (c *Client) postContainerAction(ctx context.Context, id, action string, query url.Values) error {
+	path := "/" + dockerAPIVersion + "/containers/" + url.PathEscape(id) + "/" + action
+	if len(query) > 0 {
+		path += "?" + query.Encode()
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, nil)
+	if err != nil {
+		return err
+	}
+	cl := c.httpClient
+	if cl.Timeout < 35*time.Second {
+		// Shadow the client with a longer timeout for this single
+		// call without mutating the package-level client used by
+		// discovery.
+		cl = &http.Client{Transport: cl.Transport, Timeout: 35 * time.Second}
+	}
+	resp, err := cl.Do(req)
+	if err != nil {
+		return fmt.Errorf("docker %s %s: %w", action, id, err)
+	}
+	defer resp.Body.Close()
+	switch resp.StatusCode {
+	case http.StatusNoContent, http.StatusNotModified:
+		return nil
+	case http.StatusNotFound:
+		return ErrContainerNotFound
+	default:
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return fmt.Errorf("docker %s %s returned %d: %s", action, id, resp.StatusCode, sanitizeBody(body))
+	}
+}
+
+// StartContainer asks the daemon to start the given container. A 304
+// (already running) is treated as success.
+func (c *Client) StartContainer(ctx context.Context, id string) error {
+	return c.postContainerAction(ctx, id, "start", nil)
+}
+
 // networkSummary is the shape we extract from Docker's GET /networks
 // response. The endpoint returns a lot more (driver, IPAM config,
 // labels, etc.) but the Settings UI only needs the name. Worth
