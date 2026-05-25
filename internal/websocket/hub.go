@@ -3,6 +3,7 @@ package websocket
 import (
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/logging"
 )
@@ -11,10 +12,11 @@ import (
 type EventType string
 
 const (
-	EventConfigUpdated    EventType = "config_updated"
-	EventHealthChanged    EventType = "health_changed"
-	EventAppHealthChanged EventType = "app_health_changed"
-	EventLogEntry         EventType = "log_entry"
+	EventConfigUpdated      EventType = "config_updated"
+	EventHealthChanged      EventType = "health_changed"
+	EventAppHealthChanged   EventType = "app_health_changed"
+	EventLogEntry           EventType = "log_entry"
+	EventDockerStateChanged EventType = "docker_state_changed"
 )
 
 // Event represents a WebSocket event
@@ -209,6 +211,42 @@ func (h *Hub) BroadcastLogEntry(entry interface{}) {
 		Type:      EventLogEntry,
 		Payload:   entry,
 		adminOnly: true,
+	})
+}
+
+// DockerStatePayload mirrors discovery.DockerState on the wire. Kept
+// in this package (not discovery) so the websocket package stays
+// independent of the docker discovery types - a cyclic import would
+// otherwise pull discovery into websocket.
+type DockerStatePayload struct {
+	Status       string    `json:"status"`
+	Health       string    `json:"health"`
+	StartedAt    time.Time `json:"started_at,omitempty"`
+	FinishedAt   time.Time `json:"finished_at,omitempty"`
+	ExitCode     int       `json:"exit_code,omitempty"`
+	RestartCount int       `json:"restart_count"`
+	Image        string    `json:"image"`
+}
+
+// DockerStateChangedEvent is the payload of EventDockerStateChanged.
+type DockerStateChangedEvent struct {
+	AppName string             `json:"app_name"`
+	State   DockerStatePayload `json:"state"`
+}
+
+// BroadcastDockerStateChanged fans a per-app state update out to every
+// connected client. Not adminOnly: state visibility is for everyone
+// authenticated, mirroring the existing HealthIndicator behaviour.
+// Mutations are gated by the handler-side role/group check, not by
+// event filtering. state is taken by pointer to avoid copying the
+// (relatively heavy) payload on every call.
+func (h *Hub) BroadcastDockerStateChanged(appName string, state *DockerStatePayload) {
+	h.Broadcast(Event{
+		Type: EventDockerStateChanged,
+		Payload: DockerStateChangedEvent{
+			AppName: appName,
+			State:   *state,
+		},
 	})
 }
 

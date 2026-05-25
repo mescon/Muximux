@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 )
@@ -386,6 +387,47 @@ func TestHub_BroadcastAfterClose_DoesNotBlock(t *testing.T) {
 	case <-done:
 	case <-time.After(2 * time.Second):
 		t.Fatal("Broadcast/Register/Unregister blocked after Close")
+	}
+}
+
+func TestHub_BroadcastDockerStateChanged_DeliversToAllClients(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+	defer hub.Close()
+
+	userSend := make(chan []byte, 16)
+	user := &Client{send: userSend, isAdmin: false}
+	hub.Register(user)
+
+	adminSend := make(chan []byte, 16)
+	admin := &Client{send: adminSend, isAdmin: true}
+	hub.Register(admin)
+
+	// Give Run a tick to register both clients.
+	time.Sleep(20 * time.Millisecond)
+
+	hub.BroadcastDockerStateChanged("sonarr", &DockerStatePayload{
+		Status: "exited",
+		Health: "none",
+		Image:  "linuxserver/sonarr:latest",
+	})
+
+	select {
+	case msg := <-userSend:
+		s := string(msg)
+		if !strings.Contains(s, `"type":"docker_state_changed"`) || !strings.Contains(s, `"app_name":"sonarr"`) {
+			t.Fatalf("non-admin payload mismatch: %s", s)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatalf("non-admin client never received event")
+	}
+	select {
+	case msg := <-adminSend:
+		if !strings.Contains(string(msg), `"app_name":"sonarr"`) {
+			t.Fatalf("admin payload mismatch: %s", msg)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatalf("admin client never received event")
 	}
 }
 
