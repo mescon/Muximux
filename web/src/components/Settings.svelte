@@ -248,11 +248,37 @@
     addAppStep = 'configure';
   }
 
+  // Validates http_action-specific fields (URL scheme, method default). Returns
+  // an error message if invalid, or empty string when valid. Mutates app to set
+  // a sensible method default. Backend validates again on save (Task 2), this
+  // is purely a UX nicety so the form catches scheme typos before round-tripping.
+  function validateHttpAction(app: App): string {
+    if (!app.url) {
+      return 'URL is required';
+    }
+    let parsed: URL | null = null;
+    try { parsed = new URL(app.url); } catch { /* fall through */ }
+    if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
+      return 'URL must use http:// or https://';
+    }
+    if (!app.http_action_method) {
+      app.http_action_method = 'POST';
+    }
+    return '';
+  }
+
   function addApp() {
     const result = appSchema.safeParse(newApp);
     if (!result.success) {
       appErrors = extractErrors(result);
       return;
+    }
+    if (newApp.open_mode === 'http_action') {
+      const httpActionErr = validateHttpAction(newApp);
+      if (httpActionErr) {
+        appErrors = { url: httpActionErr };
+        return;
+      }
     }
     appErrors = {};
     newApp.order = localApps.length;
@@ -308,6 +334,13 @@
       if (!result.success) {
         editAppErrors = extractErrors(result);
         return;
+      }
+      if (editingApp.open_mode === 'http_action') {
+        const httpActionErr = validateHttpAction(editingApp);
+        if (httpActionErr) {
+          editAppErrors = { url: httpActionErr };
+          return;
+        }
       }
       editAppErrors = {};
       stampAppId(editingApp);
