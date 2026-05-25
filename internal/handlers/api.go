@@ -998,38 +998,38 @@ func stripURLCredentialsIf(strip bool, raw string) string {
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name                string               `json:"name"`
-	URL                 string               `json:"url"` // Original target URL (for editing/config)
-	HealthURL           string               `json:"health_url,omitempty"`
-	ProxyURL            string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
-	Icon                config.AppIconConfig `json:"icon"`
-	Color               string               `json:"color"`
-	Group               string               `json:"group"`
-	Order               int                  `json:"order"`
-	Enabled             bool                 `json:"enabled"`
-	Default             bool                 `json:"default"`
-	OpenMode            string               `json:"open_mode"`
+	Name      string               `json:"name"`
+	URL       string               `json:"url"` // Original target URL (for editing/config)
+	HealthURL string               `json:"health_url,omitempty"`
+	ProxyURL  string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
+	Icon      config.AppIconConfig `json:"icon"`
+	Color     string               `json:"color"`
+	Group     string               `json:"group"`
+	Order     int                  `json:"order"`
+	Enabled   bool                 `json:"enabled"`
+	Default   bool                 `json:"default"`
+	OpenMode  string               `json:"open_mode"`
 	// HTTP action fields. Only meaningful when OpenMode == "http_action".
 	// Method/Confirm/ShowToast are non-sensitive and surface to every
 	// role (the frontend needs them to decide whether to show the
 	// confirmation modal and the result toast). Headers can carry
 	// secrets (Authorization bearer tokens) so, like ProxyHeaders, they
 	// are populated for admins only in sanitizeAppForRole.
-	HTTPActionMethod    string               `json:"http_action_method,omitempty"`
-	HTTPActionHeaders   map[string]string    `json:"http_action_headers,omitempty"`
-	HTTPActionConfirm   bool                 `json:"http_action_confirm,omitempty"`
-	HTTPActionShowToast *bool                `json:"http_action_show_toast,omitempty"`
-	Proxy               bool                 `json:"proxy"`
-	HealthCheck         *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
-	ProxySkipTLSVerify  *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
-	ProxyHeaders        map[string]string    `json:"proxy_headers,omitempty"`
-	Scale               float64              `json:"scale"`
-	Shortcut            *int                 `json:"shortcut,omitempty"`
-	MinRole             string               `json:"min_role,omitempty"`
-	AllowedGroups       []string             `json:"allowed_groups,omitempty"`
-	ForceIconBackground bool                 `json:"force_icon_background,omitempty"`
-	Permissions         []string             `json:"permissions,omitempty"`
-	AllowNotifications  bool                 `json:"allow_notifications,omitempty"`
+	HTTPActionMethod    string            `json:"http_action_method,omitempty"`
+	HTTPActionHeaders   map[string]string `json:"http_action_headers,omitempty"`
+	HTTPActionConfirm   bool              `json:"http_action_confirm,omitempty"`
+	HTTPActionShowToast *bool             `json:"http_action_show_toast,omitempty"`
+	Proxy               bool              `json:"proxy"`
+	HealthCheck         *bool             `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
+	ProxySkipTLSVerify  *bool             `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
+	ProxyHeaders        map[string]string `json:"proxy_headers,omitempty"`
+	Scale               float64           `json:"scale"`
+	Shortcut            *int              `json:"shortcut,omitempty"`
+	MinRole             string            `json:"min_role,omitempty"`
+	AllowedGroups       []string          `json:"allowed_groups,omitempty"`
+	ForceIconBackground bool              `json:"force_icon_background,omitempty"`
+	Permissions         []string          `json:"permissions,omitempty"`
+	AllowNotifications  bool              `json:"allow_notifications,omitempty"`
 	// GatewayDomain is set when a gateway site references this app via
 	// `app_name`. The frontend uses this to surface a "Hosted by Muximux
 	// gateway at <domain>" badge on the App form so the operator knows

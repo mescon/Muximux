@@ -17,7 +17,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
-func newFireActionTest(t *testing.T, app config.AppConfig, upstream http.HandlerFunc) (*APIHandler, *httptest.Server) {
+func newFireActionTest(t *testing.T, app *config.AppConfig, upstream http.HandlerFunc) *APIHandler {
 	t.Helper()
 	server := httptest.NewServer(upstream)
 	t.Cleanup(server.Close)
@@ -28,10 +28,10 @@ func newFireActionTest(t *testing.T, app config.AppConfig, upstream http.Handler
 		app.URL = server.URL + app.URL
 	}
 
-	cfg := &config.Config{Apps: []config.AppConfig{app}}
+	cfg := &config.Config{Apps: []config.AppConfig{*app}}
 	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
 	h.actionClient = &http.Client{Timeout: 200 * time.Millisecond}
-	return h, server
+	return h
 }
 
 func fireWithUser(h *APIHandler, name string, user *auth.User) *httptest.ResponseRecorder {
@@ -55,7 +55,7 @@ func TestFireAppAction_Success(t *testing.T) {
 		gotAuth = r.Header.Get("Authorization")
 		w.WriteHeader(http.StatusAccepted)
 	}
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name:              "Webhook",
 		URL:               "RESOLVE_UPSTREAM",
 		Enabled:           true,
@@ -94,7 +94,7 @@ func TestFireAppAction_Success(t *testing.T) {
 
 func TestFireAppAction_DefaultMethodIsPOST(t *testing.T) {
 	var gotMethod string
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name:     "Webhook",
 		URL:      "RESOLVE_UPSTREAM",
 		Enabled:  true,
@@ -116,7 +116,7 @@ func TestFireAppAction_AllVerbs(t *testing.T) {
 	for _, m := range []string{"GET", "POST", "PUT", "DELETE", "PATCH"} {
 		t.Run(m, func(t *testing.T) {
 			var gotMethod string
-			h, _ := newFireActionTest(t, config.AppConfig{
+			h := newFireActionTest(t, &config.AppConfig{
 				Name:             "Webhook",
 				URL:              "RESOLVE_UPSTREAM",
 				Enabled:          true,
@@ -138,7 +138,7 @@ func TestFireAppAction_AllVerbs(t *testing.T) {
 }
 
 func TestFireAppAction_Backend4xx(t *testing.T) {
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name: "Webhook", URL: "RESOLVE_UPSTREAM", Enabled: true, OpenMode: "http_action",
 	}, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
@@ -157,7 +157,7 @@ func TestFireAppAction_Backend4xx(t *testing.T) {
 }
 
 func TestFireAppAction_Backend5xx(t *testing.T) {
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name: "Webhook", URL: "RESOLVE_UPSTREAM", Enabled: true, OpenMode: "http_action",
 	}, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadGateway)
@@ -176,7 +176,7 @@ func TestFireAppAction_Backend5xx(t *testing.T) {
 }
 
 func TestFireAppAction_Timeout(t *testing.T) {
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name: "Webhook", URL: "RESOLVE_UPSTREAM", Enabled: true, OpenMode: "http_action",
 	}, func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(500 * time.Millisecond)
@@ -263,7 +263,7 @@ func TestFireAppAction_AdminBypassesGroupGate(t *testing.T) {
 		hit = true
 		w.WriteHeader(http.StatusOK)
 	}
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name: "Restricted", URL: "RESOLVE_UPSTREAM", OpenMode: "http_action", AllowedGroups: []string{"ops"},
 	}, upstream)
 	admin := &auth.User{ID: "u", Username: "root", Role: auth.RoleAdmin}
@@ -277,7 +277,7 @@ func TestFireAppAction_AdminBypassesGroupGate(t *testing.T) {
 }
 
 func TestFireAppAction_QueryStringNotInAuditLog(t *testing.T) {
-	h, _ := newFireActionTest(t, config.AppConfig{
+	h := newFireActionTest(t, &config.AppConfig{
 		Name: "Webhook", URL: "RESOLVE_UPSTREAM_WITH_QUERY", OpenMode: "http_action",
 	}, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

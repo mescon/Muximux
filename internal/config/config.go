@@ -409,22 +409,22 @@ type GroupConfig struct {
 
 // AppConfig holds individual app settings
 type AppConfig struct {
-	Name                string            `yaml:"name"`
-	URL                 string            `yaml:"url"`
-	HealthURL           string            `yaml:"health_url,omitempty"` // Optional custom health check URL
-	Icon                AppIconConfig     `yaml:"icon"`
-	Color               string            `yaml:"color"`
-	Group               string            `yaml:"group"`
-	Order               int               `yaml:"order"`
-	Enabled             bool              `yaml:"enabled"`
-	Default             bool              `yaml:"default"`
-	OpenMode            string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect, http_action
+	Name      string        `yaml:"name"`
+	URL       string        `yaml:"url"`
+	HealthURL string        `yaml:"health_url,omitempty"` // Optional custom health check URL
+	Icon      AppIconConfig `yaml:"icon"`
+	Color     string        `yaml:"color"`
+	Group     string        `yaml:"group"`
+	Order     int           `yaml:"order"`
+	Enabled   bool          `yaml:"enabled"`
+	Default   bool          `yaml:"default"`
+	OpenMode  string        `yaml:"open_mode"` // iframe, new_tab, new_window, redirect, http_action
 	// HTTP action fields. Only consulted when OpenMode == "http_action".
 	// Clicking such an app fires an HTTP request via the server-side relay
 	// rather than navigating; see internal/handlers/http_action.go.
-	HTTPActionMethod    string            `yaml:"http_action_method,omitempty"`             // GET | POST (default) | PUT | DELETE | PATCH
-	HTTPActionHeaders   map[string]string `yaml:"http_action_headers,omitempty"`            // sent verbatim on the outgoing request
-	HTTPActionConfirm   bool              `yaml:"http_action_confirm,omitempty"`            // true: show confirmation modal before firing
+	HTTPActionMethod  string            `yaml:"http_action_method,omitempty"`  // GET | POST (default) | PUT | DELETE | PATCH
+	HTTPActionHeaders map[string]string `yaml:"http_action_headers,omitempty"` // sent verbatim on the outgoing request
+	HTTPActionConfirm bool              `yaml:"http_action_confirm,omitempty"` // true: show confirmation modal before firing
 	// HTTPActionShowToast: nil = default true; pointer distinguishes "unset"
 	// from "explicit false" so operators can silence the result toast for
 	// fire-and-forget actions (audit log still records every fire).

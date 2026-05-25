@@ -45,7 +45,7 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 		return
 	}
 
-	if !appAccessible(user, app) {
+	if !appAccessible(user, &app) {
 		logging.Audit("HTTP action denied",
 			"app", app.Name,
 			"caller", user.Username,
@@ -113,7 +113,7 @@ func findAppByName(apps []config.AppConfig, name string) (config.AppConfig, bool
 	return config.AppConfig{}, false
 }
 
-func appAccessible(user *auth.User, app config.AppConfig) bool {
+func appAccessible(user *auth.User, app *config.AppConfig) bool {
 	if user.Role == auth.RoleAdmin {
 		return true
 	}

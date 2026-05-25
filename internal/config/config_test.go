@@ -1388,11 +1388,11 @@ func TestValidate_HTTPAction(t *testing.T) {
 func TestValidate_HTTPActionFieldsIgnoredForOtherModes(t *testing.T) {
 	cfg := &Config{
 		Apps: []AppConfig{{
-			Name:             "App",
-			URL:              "http://example.com",
-			Enabled:          true,
-			OpenMode:         "iframe",
-			HTTPActionMethod: "POST",
+			Name:              "App",
+			URL:               "http://example.com",
+			Enabled:           true,
+			OpenMode:          "iframe",
+			HTTPActionMethod:  "POST",
 			HTTPActionHeaders: map[string]string{"X-Token": "abc"},
 		}},
 	}
@@ -1566,9 +1566,9 @@ func TestIsValidHeaderName_FullCoverage(t *testing.T) {
 		{"X.Y", true},
 		{"!#$%&'*+-.^_`|~", true},
 		{"AaZz09", true},
-		{"X Bad", false},   // space
-		{"X:Bad", false},   // colon
-		{"X@Bad", false},   // @ not allowed
+		{"X Bad", false}, // space
+		{"X:Bad", false}, // colon
+		{"X@Bad", false}, // @ not allowed
 		{"XéBad", false}, // accented char
 	}
 	for _, c := range cases {
