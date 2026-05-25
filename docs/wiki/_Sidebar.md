@@ -9,6 +9,7 @@
 
 **Features**
 - [Apps](apps)
+- [HTTP Actions](http-actions)
 - [Reverse Proxy](reverse-proxy)
 - [Docker Discovery](docker-discovery)
 - [Navigation](navigation)
