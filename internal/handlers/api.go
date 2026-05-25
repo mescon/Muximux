@@ -460,6 +460,10 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		Enabled:             c.Enabled,
 		Default:             c.Default,
 		OpenMode:            c.OpenMode,
+		HTTPActionMethod:    c.HTTPActionMethod,
+		HTTPActionHeaders:   c.HTTPActionHeaders,
+		HTTPActionConfirm:   c.HTTPActionConfirm,
+		HTTPActionShowToast: c.HTTPActionShowToast,
 		Proxy:               c.Proxy,
 		HealthCheck:         c.HealthCheck,
 		ProxySkipTLSVerify:  c.ProxySkipTLSVerify,
@@ -937,6 +941,9 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		Enabled:             app.Enabled,
 		Default:             app.Default,
 		OpenMode:            app.OpenMode,
+		HTTPActionMethod:    app.HTTPActionMethod,
+		HTTPActionConfirm:   app.HTTPActionConfirm,
+		HTTPActionShowToast: app.HTTPActionShowToast,
 		Proxy:               app.Proxy,
 		HealthCheck:         app.HealthCheck,
 		ProxySkipTLSVerify:  app.ProxySkipTLSVerify,
@@ -958,6 +965,9 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		out.DockerEndpoint = app.DockerEndpoint
 		out.DockerStrategy = app.DockerStrategy
 		out.DockerManagedURL = app.DockerManagedURL
+		// http_action headers can carry secrets (bearer tokens), so they
+		// go to admins only, mirroring ProxyHeaders above.
+		out.HTTPActionHeaders = app.HTTPActionHeaders
 	}
 	return out
 }
@@ -999,6 +1009,16 @@ type ClientAppConfig struct {
 	Enabled             bool                 `json:"enabled"`
 	Default             bool                 `json:"default"`
 	OpenMode            string               `json:"open_mode"`
+	// HTTP action fields. Only meaningful when OpenMode == "http_action".
+	// Method/Confirm/ShowToast are non-sensitive and surface to every
+	// role (the frontend needs them to decide whether to show the
+	// confirmation modal and the result toast). Headers can carry
+	// secrets (Authorization bearer tokens) so, like ProxyHeaders, they
+	// are populated for admins only in sanitizeAppForRole.
+	HTTPActionMethod    string               `json:"http_action_method,omitempty"`
+	HTTPActionHeaders   map[string]string    `json:"http_action_headers,omitempty"`
+	HTTPActionConfirm   bool                 `json:"http_action_confirm,omitempty"`
+	HTTPActionShowToast *bool                `json:"http_action_show_toast,omitempty"`
 	Proxy               bool                 `json:"proxy"`
 	HealthCheck         *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
 	ProxySkipTLSVerify  *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)

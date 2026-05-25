@@ -1297,6 +1297,91 @@ func TestSanitizeApp(t *testing.T) {
 			t.Errorf("expected proxyUrl '/proxy/test-app/', got %q", result.ProxyURL)
 		}
 	})
+
+	// Regression: the http_action fields must survive the AppConfig ->
+	// ClientAppConfig projection, or the frontend never learns an app
+	// needs a confirmation prompt / silent fire / non-default method.
+	// (The fields were originally added to AppConfig and the TS type but
+	// not to the DTO bridge, so the whole frontend integration silently
+	// no-op'd while every unit test still passed.)
+	t.Run("http_action fields project to the client DTO", func(t *testing.T) {
+		showToast := false
+		app := config.AppConfig{
+			Name:                "Webhook",
+			URL:                 "https://n8n.local/hook",
+			Enabled:             true,
+			OpenMode:            "http_action",
+			HTTPActionMethod:    "PUT",
+			HTTPActionConfirm:   true,
+			HTTPActionShowToast: &showToast,
+			HTTPActionHeaders:   map[string]string{"Authorization": "Bearer secret"},
+		}
+		// sanitizeApp is the admin projection.
+		result := sanitizeApp(&app)
+		if result.OpenMode != "http_action" {
+			t.Errorf("OpenMode = %q, want http_action", result.OpenMode)
+		}
+		if result.HTTPActionMethod != "PUT" {
+			t.Errorf("HTTPActionMethod = %q, want PUT", result.HTTPActionMethod)
+		}
+		if !result.HTTPActionConfirm {
+			t.Error("HTTPActionConfirm lost in projection")
+		}
+		if result.HTTPActionShowToast == nil || *result.HTTPActionShowToast != false {
+			t.Errorf("HTTPActionShowToast lost: %v", result.HTTPActionShowToast)
+		}
+		if result.HTTPActionHeaders["Authorization"] != "Bearer secret" {
+			t.Error("admin projection should include http_action_headers")
+		}
+	})
+
+	// Security: http_action_headers can carry bearer tokens, so the
+	// non-admin projection must omit them (mirrors proxy_headers). The
+	// non-sensitive method/confirm/show_toast fields still pass through
+	// so a non-admin user gets the correct confirm prompt + toast.
+	t.Run("http_action_headers hidden from non-admins", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:              "Webhook",
+			URL:               "https://n8n.local/hook",
+			Enabled:           true,
+			OpenMode:          "http_action",
+			HTTPActionMethod:  "POST",
+			HTTPActionConfirm: true,
+			HTTPActionHeaders: map[string]string{"Authorization": "Bearer secret"},
+		}
+		result := sanitizeAppForRole(&app, false)
+		if len(result.HTTPActionHeaders) != 0 {
+			t.Errorf("non-admin projection leaked http_action_headers: %v", result.HTTPActionHeaders)
+		}
+		if !result.HTTPActionConfirm {
+			t.Error("non-admin should still see http_action_confirm (drives the prompt)")
+		}
+		if result.HTTPActionMethod != "POST" {
+			t.Errorf("non-admin should still see method, got %q", result.HTTPActionMethod)
+		}
+	})
+
+	// Regression: the write path (client DTO -> AppConfig) must also
+	// carry the fields, or saving an http_action app through the UI
+	// would drop them on the floor.
+	t.Run("http_action fields survive clientAppToConfig", func(t *testing.T) {
+		showToast := false
+		client := &ClientAppConfig{
+			Name:                "Webhook",
+			URL:                 "https://n8n.local/hook",
+			OpenMode:            "http_action",
+			HTTPActionMethod:    "DELETE",
+			HTTPActionConfirm:   true,
+			HTTPActionShowToast: &showToast,
+			HTTPActionHeaders:   map[string]string{"X-Token": "abc"},
+		}
+		out := clientAppToConfig(client)
+		if out.HTTPActionMethod != "DELETE" || !out.HTTPActionConfirm ||
+			out.HTTPActionShowToast == nil || *out.HTTPActionShowToast != false ||
+			out.HTTPActionHeaders["X-Token"] != "abc" {
+			t.Errorf("clientAppToConfig dropped http_action fields: %+v", out)
+		}
+	})
 }
 
 // Tests for save-failure error paths using an invalid configPath.
