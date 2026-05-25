@@ -591,3 +591,39 @@ func TestAuthenticate_RehashesWeakHash(t *testing.T) {
 		t.Errorf("upgraded hash failed to verify password: %v", err)
 	}
 }
+
+func TestInAnyGroup_Membership(t *testing.T) {
+	u := &User{Username: "erik", Groups: []string{"family", "Admins"}}
+	if !InAnyGroup(u, []string{"family"}) {
+		t.Fatalf("expected match on family")
+	}
+	if !InAnyGroup(u, []string{"ADMINS"}) {
+		t.Fatalf("expected case-insensitive match on admins")
+	}
+	if InAnyGroup(u, []string{"ghosts"}) {
+		t.Fatalf("expected no match on ghosts")
+	}
+}
+
+func TestInAnyGroup_EmptyAllowlist(t *testing.T) {
+	u := &User{Groups: []string{"family"}}
+	if !InAnyGroup(u, nil) {
+		t.Fatalf("nil allowlist should be no-restriction")
+	}
+	if !InAnyGroup(u, []string{}) {
+		t.Fatalf("empty allowlist should be no-restriction")
+	}
+}
+
+func TestInAnyGroup_EmptyUserGroups(t *testing.T) {
+	u := &User{Username: "alice", Groups: nil}
+	if InAnyGroup(u, []string{"family"}) {
+		t.Fatalf("user without groups must not pass non-empty allowlist")
+	}
+}
+
+func TestInAnyGroup_NilUser(t *testing.T) {
+	if InAnyGroup(nil, []string{"family"}) {
+		t.Fatalf("nil user must not pass")
+	}
+}

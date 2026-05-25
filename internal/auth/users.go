@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"strings"
 	"sync"
 
 	"golang.org/x/crypto/bcrypt"
@@ -31,6 +32,28 @@ func RoleLevel(role string) int {
 // HasMinRole checks if userRole meets or exceeds minRole in the hierarchy.
 func HasMinRole(userRole, minRole string) bool {
 	return RoleLevel(userRole) >= RoleLevel(minRole)
+}
+
+// InAnyGroup reports whether the user is a member of at least one of
+// the listed groups. Comparison is case-insensitive to match the
+// existing gateway_auth.sessionInAllowedGroups precedent. An empty or
+// nil allowlist is treated as "no group restriction" and returns true
+// so callers can use this without a separate len() guard.
+func InAnyGroup(u *User, allowed []string) bool {
+	if len(allowed) == 0 {
+		return true
+	}
+	if u == nil {
+		return false
+	}
+	for _, want := range allowed {
+		for _, have := range u.Groups {
+			if strings.EqualFold(have, want) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // User represents an authenticated user
