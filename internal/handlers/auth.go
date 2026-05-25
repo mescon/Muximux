@@ -28,6 +28,7 @@ type AuthHandler struct {
 	configMu              *sync.RWMutex
 	bypassRules           []auth.BypassRule
 	changePasswordLimiter *userAttemptLimiter
+	discoveryProbe        DockerLifecycleProbe
 }
 
 // userAttemptLimiter is a minimal per-key attempt counter with a sliding
@@ -107,6 +108,13 @@ func (h *AuthHandler) SetSetupChecker(fn func() bool) {
 	h.setupChecker = fn
 }
 
+// SetDockerLifecycleProbe wires the discovery service so /api/auth/me
+// can compute can_use_docker_lifecycle. Nil probe is treated as
+// "socket not writable".
+func (h *AuthHandler) SetDockerLifecycleProbe(p DockerLifecycleProbe) {
+	h.discoveryProbe = p
+}
+
 // LoginRequest represents a login request
 type LoginRequest struct {
 	Username   string `json:"username"`
@@ -123,11 +131,72 @@ type LoginResponse struct {
 
 // UserResponse represents a user in API responses
 type UserResponse struct {
-	Username    string   `json:"username"`
-	Role        string   `json:"role"`
-	Email       string   `json:"email,omitempty"`
-	DisplayName string   `json:"display_name,omitempty"`
-	Groups      []string `json:"groups,omitempty"`
+	Username              string   `json:"username"`
+	Role                  string   `json:"role"`
+	Email                 string   `json:"email,omitempty"`
+	DisplayName           string   `json:"display_name,omitempty"`
+	Groups                []string `json:"groups,omitempty"`
+	CanUseDockerLifecycle bool     `json:"can_use_docker_lifecycle"`
+}
+
+// DockerLifecycleProbe is the minimal Service surface the AuthHandler
+// needs to compute the can_use_docker_lifecycle flag. Defined as an
+// interface so tests can supply a stub without constructing a full
+// discovery.Service.
+type DockerLifecycleProbe interface {
+	SocketWritable() bool
+}
+
+// ComputeCanUseDockerLifecycle returns the per-user permission flag
+// surfaced to the frontend via /api/auth/me. Centralised here so the
+// UI's gating logic stays single-source-of-truth: the frontend never
+// re-implements the role / group check.
+func ComputeCanUseDockerLifecycle(u *auth.User, d *config.DiscoveryDockerConfig, socketWritable bool) bool {
+	if u == nil || d == nil {
+		return false
+	}
+	if !d.LifecycleEnabled {
+		return false
+	}
+	if !socketWritable {
+		return false
+	}
+	minRole := d.LifecycleMinRole
+	if minRole == "" {
+		minRole = auth.RoleAdmin
+	}
+	if !auth.HasMinRole(u.Role, minRole) {
+		return false
+	}
+	if len(d.LifecycleAllowedGroups) > 0 && !auth.InAnyGroup(u, d.LifecycleAllowedGroups) {
+		return false
+	}
+	return true
+}
+
+// buildUserResponse assembles a UserResponse including the computed
+// lifecycle permission flag. Use this instead of literal struct
+// constructors so the flag stays in sync across login, OIDC, /me,
+// and password-change response paths.
+func (h *AuthHandler) buildUserResponse(u *auth.User) UserResponse {
+	var writable bool
+	if h.discoveryProbe != nil {
+		writable = h.discoveryProbe.SocketWritable()
+	}
+	var dockerCfg config.DiscoveryDockerConfig
+	h.configMu.RLock()
+	if h.config != nil {
+		dockerCfg = h.config.Discovery.Docker
+	}
+	h.configMu.RUnlock()
+	return UserResponse{
+		Username:              u.Username,
+		Role:                  u.Role,
+		Email:                 u.Email,
+		DisplayName:           u.DisplayName,
+		Groups:                u.Groups,
+		CanUseDockerLifecycle: ComputeCanUseDockerLifecycle(u, &dockerCfg, writable),
+	}
 }
 
 // Login handles POST /api/auth/login
@@ -197,14 +266,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	h.sessionStore.SetCookie(w, session)
 	logging.From(r.Context()).Info("User logged in", "source", "audit", "user", user.Username)
 
+	ur := h.buildUserResponse(user)
 	sendJSON(w, http.StatusOK, LoginResponse{
 		Success: true,
-		User: &UserResponse{
-			Username:    user.Username,
-			Role:        user.Role,
-			Email:       user.Email,
-			DisplayName: user.DisplayName,
-		},
+		User:    &ur,
 	})
 }
 
@@ -247,13 +312,7 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"authenticated": true,
-		"user": UserResponse{
-			Username:    user.Username,
-			Role:        user.Role,
-			Email:       user.Email,
-			DisplayName: user.DisplayName,
-			Groups:      user.Groups,
-		},
+		"user":          h.buildUserResponse(user),
 	})
 }
 
@@ -392,12 +451,7 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user != nil {
-		response["user"] = UserResponse{
-			Username:    user.Username,
-			Role:        user.Role,
-			Email:       user.Email,
-			DisplayName: user.DisplayName,
-		}
+		response["user"] = h.buildUserResponse(user)
 	}
 
 	if h.setupChecker != nil {
@@ -529,13 +583,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	logging.From(r.Context()).Info("User created", "source", "audit", "user", user.Username, "role", user.Role)
 	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
-		"user": UserResponse{
-			Username:    user.Username,
-			Role:        user.Role,
-			Email:       user.Email,
-			DisplayName: user.DisplayName,
-			Groups:      user.Groups,
-		},
+		"user":    h.buildUserResponse(user),
 	})
 }
 
@@ -620,15 +668,10 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logging.From(r.Context()).Info("User updated", "source", "audit", "user", username, "role", user.Role)
+	ur := h.buildUserResponse(&user)
 	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
-		"user": UserResponse{
-			Username:    user.Username,
-			Role:        user.Role,
-			Email:       user.Email,
-			DisplayName: user.DisplayName,
-			Groups:      user.Groups,
-		},
+		"user":    ur,
 	})
 }
 

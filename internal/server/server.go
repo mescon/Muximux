@@ -243,6 +243,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Admin-only because the response leaks daemon endpoint, API
 	// version, and the operator's TLS-hygiene state.
 	s.discoveryService = discovery.NewService(&cfg.Discovery.Docker)
+	authHandler.SetDockerLifecycleProbe(s.discoveryService)
 	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu, s.proxyServer)
 	discoveryHandler.SetOnConfigSave(s.rebuildProxyRoutes)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))

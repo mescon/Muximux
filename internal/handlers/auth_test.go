@@ -2032,3 +2032,136 @@ func loadConfigForTest(t *testing.T, path string) *config.Config {
 	}
 	return cfg
 }
+
+func TestComputeCanUseDockerLifecycle_Cases(t *testing.T) {
+	cases := []struct {
+		name      string
+		role      string
+		groups    []string
+		cfg       config.DiscoveryDockerConfig
+		sockWrite bool
+		want      bool
+	}{
+		{
+			name: "lifecycle_disabled",
+			role: auth.RoleAdmin, sockWrite: true,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: false},
+			want: false,
+		},
+		{
+			name: "socket_readonly",
+			role: auth.RoleAdmin, sockWrite: false,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: true},
+			want: false,
+		},
+		{
+			name: "admin_default",
+			role: auth.RoleAdmin, sockWrite: true,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+			want: true,
+		},
+		{
+			name: "user_blocked_by_admin_floor",
+			role: auth.RoleUser, sockWrite: true,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+			want: false,
+		},
+		{
+			name: "user_with_lowered_floor",
+			role: auth.RoleUser, sockWrite: true,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "user"},
+			want: true,
+		},
+		{
+			name: "group_match",
+			role: auth.RolePowerUser, groups: []string{"family"}, sockWrite: true,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "power-user", LifecycleAllowedGroups: []string{"family"}},
+			want: true,
+		},
+		{
+			name: "group_mismatch",
+			role: auth.RolePowerUser, groups: []string{"guests"}, sockWrite: true,
+			cfg:  config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "power-user", LifecycleAllowedGroups: []string{"family"}},
+			want: false,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			u := &auth.User{Username: "x", Role: tc.role, Groups: tc.groups}
+			got := ComputeCanUseDockerLifecycle(u, &tc.cfg, tc.sockWrite)
+			if got != tc.want {
+				t.Fatalf("got %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+// stubLifecycleProbe is a minimal DockerLifecycleProbe so JSON
+// round-trip tests can drive the writable branch without a real
+// discovery.Service.
+type stubLifecycleProbe struct{ writable bool }
+
+func (s stubLifecycleProbe) SocketWritable() bool { return s.writable }
+
+// TestUserResponseJSON_HasLifecycleKey is the serialization guard the
+// previous feature lacked: it marshals UserResponse and asserts the
+// can_use_docker_lifecycle key is actually present in the JSON the
+// frontend receives, with the right boolean value, rather than merely
+// checking that a Go struct field exists.
+func TestUserResponseJSON_HasLifecycleKey(t *testing.T) {
+	ur := UserResponse{Username: "x", Role: "admin", CanUseDockerLifecycle: true}
+	raw, err := json.Marshal(ur)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	v, ok := m["can_use_docker_lifecycle"]
+	if !ok {
+		t.Fatalf("can_use_docker_lifecycle key missing from JSON: %s", raw)
+	}
+	if v != true {
+		t.Fatalf("can_use_docker_lifecycle = %v, want true", v)
+	}
+}
+
+// TestMe_JSONExposesLifecycleFlag drives the actual /api/auth/me
+// response path end-to-end and asserts the computed flag reaches the
+// marshaled JSON. With lifecycle enabled, an admin caller, and a
+// writable socket stub, the flag must be present and true.
+func TestMe_JSONExposesLifecycleFlag(t *testing.T) {
+	handler, _ := setupAuthTest(t)
+	handler.config = &config.Config{}
+	handler.config.Discovery.Docker.LifecycleEnabled = true
+	handler.config.Discovery.Docker.LifecycleMinRole = "admin"
+	handler.SetDockerLifecycleProbe(stubLifecycleProbe{writable: true})
+
+	user := &auth.User{ID: "admin", Username: "admin", Role: auth.RoleAdmin}
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)
+	ctx := context.WithValue(req.Context(), auth.ContextKeyUser, user)
+	req = req.WithContext(ctx)
+	w := httptest.NewRecorder()
+
+	handler.Me(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	userMap, ok := resp["user"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("user object missing: %s", w.Body.String())
+	}
+	v, ok := userMap["can_use_docker_lifecycle"]
+	if !ok {
+		t.Fatalf("can_use_docker_lifecycle key missing from /me JSON: %s", w.Body.String())
+	}
+	if v != true {
+		t.Fatalf("can_use_docker_lifecycle = %v, want true", v)
+	}
+}
