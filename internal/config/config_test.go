@@ -1678,3 +1678,84 @@ func TestIsSelfLoop(t *testing.T) {
 		})
 	}
 }
+
+func TestValidate_LifecycleMinRole_AcceptsKnownRoles(t *testing.T) {
+	for _, role := range []string{"", "admin", "power-user", "user"} {
+		t.Run(role, func(t *testing.T) {
+			c := &Config{}
+			c.Discovery.Docker.LifecycleEnabled = true
+			c.Discovery.Docker.LifecycleMinRole = role
+			if err := c.validate(); err != nil {
+				t.Fatalf("expected nil err for role %q, got %v", role, err)
+			}
+		})
+	}
+}
+
+func TestValidate_LifecycleMinRole_RejectsUnknown(t *testing.T) {
+	c := &Config{}
+	c.Discovery.Docker.LifecycleEnabled = true
+	c.Discovery.Docker.LifecycleMinRole = "superuser"
+	err := c.validate()
+	if err == nil || !strings.Contains(err.Error(), "lifecycle_min_role") {
+		t.Fatalf("expected lifecycle_min_role error, got %v", err)
+	}
+}
+
+func TestValidate_HealthBadgePlacement_AcceptsKnownValues(t *testing.T) {
+	for _, v := range []string{"", "off", "overview", "overview_and_nav"} {
+		c := &Config{}
+		c.Discovery.Docker.HealthBadgePlacement = v
+		if err := c.validate(); err != nil {
+			t.Fatalf("placement %q: %v", v, err)
+		}
+	}
+}
+
+func TestValidate_HealthBadgePlacement_RejectsUnknown(t *testing.T) {
+	c := &Config{}
+	c.Discovery.Docker.HealthBadgePlacement = "popup"
+	err := c.validate()
+	if err == nil || !strings.Contains(err.Error(), "health_badge_placement") {
+		t.Fatalf("expected health_badge_placement error, got %v", err)
+	}
+}
+
+func TestValidate_LifecycleAllowedGroups_RejectsUnknownGroupName(t *testing.T) {
+	c := &Config{
+		Groups: []GroupConfig{{Name: "family"}},
+	}
+	c.Discovery.Docker.LifecycleEnabled = true
+	c.Discovery.Docker.LifecycleAllowedGroups = []string{"family", "ghosts"}
+	err := c.validate()
+	if err == nil || !strings.Contains(err.Error(), "ghosts") {
+		t.Fatalf("expected unknown-group error mentioning ghosts, got %v", err)
+	}
+}
+
+func TestDefaults_LifecycleMinRole_DefaultsToAdminWhenLifecycleEnabled(t *testing.T) {
+	c := &Config{}
+	c.Discovery.Docker.Enabled = true
+	c.Discovery.Docker.LifecycleEnabled = true
+	applyDiscoveryDefaults(c)
+	if c.Discovery.Docker.LifecycleMinRole != "admin" {
+		t.Fatalf("want admin, got %q", c.Discovery.Docker.LifecycleMinRole)
+	}
+	if c.Discovery.Docker.HealthBadgePlacement != "overview" {
+		t.Fatalf("want overview, got %q", c.Discovery.Docker.HealthBadgePlacement)
+	}
+	if c.Discovery.Docker.LogBufferSize != 1000 {
+		t.Fatalf("want 1000 default when log_collection off, got %d", c.Discovery.Docker.LogBufferSize)
+	}
+}
+
+func TestDefaults_LogBufferSize_5000WhenLogCollectionEnabled(t *testing.T) {
+	c := &Config{}
+	c.Discovery.Docker.Enabled = true
+	c.Discovery.Docker.LifecycleEnabled = true
+	c.Discovery.Docker.LogCollectionEnabled = true
+	applyDiscoveryDefaults(c)
+	if c.Discovery.Docker.LogBufferSize != 5000 {
+		t.Fatalf("want 5000 default when log_collection on, got %d", c.Discovery.Docker.LogBufferSize)
+	}
+}

@@ -86,6 +86,17 @@ type DiscoveryDockerConfig struct {
 	HostIP          string             `yaml:"host_ip,omitempty" json:"host_ip,omitempty"`
 	NetworkFilter   string             `yaml:"network_filter,omitempty" json:"network_filter,omitempty"`
 	RefreshInterval string             `yaml:"refresh_interval" json:"refresh_interval"` // e.g. "60s"
+
+	// Container lifecycle controls (Splash actions). Two-layer opt-in:
+	// also requires the Docker socket to be mounted read-write at
+	// runtime; the SocketWritable probe in discovery.Service is the
+	// second gate.
+	LifecycleEnabled       bool     `yaml:"lifecycle_enabled,omitempty" json:"lifecycle_enabled,omitempty"`
+	LifecycleMinRole       string   `yaml:"lifecycle_min_role,omitempty" json:"lifecycle_min_role,omitempty"`
+	LifecycleAllowedGroups []string `yaml:"lifecycle_allowed_groups,omitempty" json:"lifecycle_allowed_groups,omitempty"`
+	HealthBadgePlacement   string   `yaml:"health_badge_placement,omitempty" json:"health_badge_placement,omitempty"`
+	LogCollectionEnabled   bool     `yaml:"log_collection_enabled,omitempty" json:"log_collection_enabled,omitempty"`
+	LogBufferSize          int      `yaml:"log_buffer_size,omitempty" json:"log_buffer_size,omitempty"`
 }
 
 // NetworkStrategy picks how a container's URL is constructed when
@@ -541,17 +552,7 @@ func Load(path string) (*Config, error) {
 	// the most common safe values (platform-aware unix-or-npipe
 	// socket, container_ip). When disabled, the zero values are
 	// fine and we don't touch them.
-	if cfg.Discovery.Docker.Enabled {
-		if cfg.Discovery.Docker.Endpoint == "" {
-			cfg.Discovery.Docker.Endpoint = defaultDockerEndpoint()
-		}
-		if cfg.Discovery.Docker.NetworkStrategy == "" {
-			cfg.Discovery.Docker.NetworkStrategy = StrategyContainerIP
-		}
-		if cfg.Discovery.Docker.RefreshInterval == "" {
-			cfg.Discovery.Docker.RefreshInterval = "60s"
-		}
-	}
+	applyDiscoveryDefaults(cfg)
 
 	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
 	// declarative server.gateway_sites: form. Runs once before
@@ -637,6 +638,37 @@ func autoDetachEditedDockerEntries(cfg *Config) {
 		site.DockerEndpoint = ""
 		site.DockerStrategy = ""
 		site.DockerManagedURL = ""
+	}
+}
+
+// applyDiscoveryDefaults fills in safe defaults for the optional
+// discovery.docker.* fields. Pulled out of Load() so the validation
+// tests can exercise the default rules without touching disk.
+func applyDiscoveryDefaults(cfg *Config) {
+	d := &cfg.Discovery.Docker
+	if d.Enabled {
+		if d.Endpoint == "" {
+			d.Endpoint = defaultDockerEndpoint()
+		}
+		if d.NetworkStrategy == "" {
+			d.NetworkStrategy = StrategyContainerIP
+		}
+		if d.RefreshInterval == "" {
+			d.RefreshInterval = "60s"
+		}
+	}
+	if d.LifecycleEnabled && d.LifecycleMinRole == "" {
+		d.LifecycleMinRole = "admin"
+	}
+	if d.HealthBadgePlacement == "" {
+		d.HealthBadgePlacement = "overview"
+	}
+	if d.LogBufferSize == 0 {
+		if d.LogCollectionEnabled {
+			d.LogBufferSize = 5000
+		} else {
+			d.LogBufferSize = 1000
+		}
 	}
 }
 
@@ -736,6 +768,10 @@ func (c *Config) validate() error {
 		return err
 	}
 
+	if err := validateDiscoveryLifecycle(&c.Discovery.Docker, c.Groups); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -828,6 +864,35 @@ func validateGatewayListen(addr string) error {
 	// obviously broken non-numeric ports above; literal IPv6
 	// addresses are caller's responsibility.
 	_ = host
+	return nil
+}
+
+// validateDiscoveryLifecycle checks the discovery.docker lifecycle
+// fields. Unknown role / placement values are rejected up front so a
+// hand-edited config.yaml typo surfaces at boot instead of at the
+// first action click.
+func validateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) error {
+	switch d.LifecycleMinRole {
+	case "", "admin", "power-user", "user":
+	default:
+		return fmt.Errorf("discovery.docker.lifecycle_min_role %q is not one of admin, power-user, user", d.LifecycleMinRole)
+	}
+	switch d.HealthBadgePlacement {
+	case "", "off", "overview", "overview_and_nav":
+	default:
+		return fmt.Errorf("discovery.docker.health_badge_placement %q is not one of off, overview, overview_and_nav", d.HealthBadgePlacement)
+	}
+	if len(d.LifecycleAllowedGroups) > 0 {
+		known := make(map[string]struct{}, len(groups))
+		for i := range groups {
+			known[groups[i].Name] = struct{}{}
+		}
+		for _, g := range d.LifecycleAllowedGroups {
+			if _, ok := known[g]; !ok {
+				return fmt.Errorf("discovery.docker.lifecycle_allowed_groups references unknown group %q", g)
+			}
+		}
+	}
 	return nil
 }
 
