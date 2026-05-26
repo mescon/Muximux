@@ -29,6 +29,14 @@ type PollerDeps struct {
 	// (no-op when nil) so unit tests can construct PollerDeps
 	// without dragging in the route-table dependency.
 	OnConfigSaved func()
+
+	// BroadcastDockerStateChanged, when non-nil, is called once per
+	// changed app at the end of each tick. Wired by server.go to the
+	// websocket Hub, where the closure converts this DockerState into a
+	// websocket.DockerStatePayload (the two are deliberately distinct
+	// structs to keep the websocket package free of a discovery import).
+	// Optional (no-op when nil) so unit tests don't need a Hub.
+	BroadcastDockerStateChanged func(appName string, state DockerState)
 }
 
 // Poller refreshes URLs on tracked Apps + GatewaySites at a fixed
@@ -243,9 +251,11 @@ func (p *Poller) tick(ctx context.Context) {
 
 	if batch.empty() {
 		svc.RecordRefreshTickSuccess()
-		return
+	} else {
+		p.applyRefreshBatch(batch)
 	}
-	p.applyRefreshBatch(batch)
+
+	p.refreshDockerState(ctx, tracked, containers)
 }
 
 // trackedAppEntry / trackedSiteEntry are the per-entry snapshot the
@@ -532,4 +542,104 @@ func (p *Poller) save() error {
 		return p.deps.OnSave()
 	}
 	return p.deps.Config.Save(p.deps.ConfigPath)
+}
+
+// stateInspector is the narrow surface buildDockerStateCache needs.
+// Pulled out as a func type so tests can inject a stub without
+// constructing a full Client.
+type stateInspector func(ctx context.Context, id string) (DockerState, error)
+
+// dockerStateDiff is one element of the change-list returned by
+// diffDockerStates. The poller broadcasts one EventDockerStateChanged
+// per entry.
+type dockerStateDiff struct {
+	Name  string
+	State DockerState
+}
+
+// buildDockerStateCache walks the tracked-app entries and assembles
+// the next-tick state cache. Apps without a resolved container ID
+// are recorded as Status="missing" (the UI shows them as deleted
+// rather than as the previous "still running" state). Transient
+// inspect errors fall back to the previous tick's state so the UI
+// doesn't flap during a daemon hiccup.
+func buildDockerStateCache(
+	ctx context.Context,
+	tracked []trackedAppEntry,
+	resolved map[string]string,
+	inspect stateInspector,
+	prev map[string]DockerState,
+) map[string]DockerState {
+	next := make(map[string]DockerState, len(tracked))
+	for _, t := range tracked {
+		id, ok := resolved[t.name]
+		if !ok || id == "" {
+			next[t.name] = DockerState{Status: "missing"}
+			continue
+		}
+		st, err := inspect(ctx, id)
+		if err != nil {
+			// Keep previous state on transient inspect failure so the
+			// UI doesn't blink "missing" every time the daemon stalls.
+			if p, hadPrev := prev[t.name]; hadPrev {
+				next[t.name] = p
+				continue
+			}
+			next[t.name] = DockerState{Status: "missing"}
+			continue
+		}
+		next[t.name] = st
+	}
+	return next
+}
+
+// diffDockerStates returns the entries whose Status or Health changed
+// from prev to next. Apps newly added to the tracked set also count as
+// a change.
+func diffDockerStates(prev, next map[string]DockerState) []dockerStateDiff {
+	var out []dockerStateDiff
+	for name, st := range next {
+		old, ok := prev[name]
+		if !ok || old.Status != st.Status || old.Health != st.Health {
+			out = append(out, dockerStateDiff{Name: name, State: st})
+		}
+	}
+	return out
+}
+
+// refreshDockerState inspects each tracked app's container, updates the
+// Service cache, diffs against the previous tick, and broadcasts the
+// changes. Runs at the end of every tick after the URL refresh batch.
+func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet, containers []ContainerSummary) {
+	svc := p.deps.Service
+	if svc == nil || svc.client == nil {
+		return
+	}
+
+	// Resolve each tracked app's docker_key against the container list.
+	resolved := make(map[string]string, len(tracked.apps))
+	for i := range tracked.apps {
+		t := &tracked.apps[i]
+		tk, err := ParseTrackingKey(t.key)
+		if err != nil {
+			continue
+		}
+		if m := tk.FindContainer(containers); m != nil {
+			resolved[t.name] = m.ID
+		}
+	}
+
+	prev := svc.DockerStateSnapshot()
+	inspect := func(ctx context.Context, id string) (DockerState, error) {
+		return svc.client.InspectContainerState(ctx, id)
+	}
+	next := buildDockerStateCache(ctx, tracked.apps, resolved, inspect, prev)
+	svc.SetDockerStateCache(next)
+
+	diffs := diffDockerStates(prev, next)
+	if p.deps.BroadcastDockerStateChanged != nil {
+		for i := range diffs {
+			p.deps.BroadcastDockerStateChanged(diffs[i].Name, diffs[i].State)
+		}
+	}
 }

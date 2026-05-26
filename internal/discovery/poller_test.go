@@ -879,3 +879,94 @@ func TestTick_LogsResolveErrors_NotJustNotFound(t *testing.T) {
 		t.Errorf("RecordSeen wrongly fired for a key that failed to resolve")
 	}
 }
+
+func TestPoller_PopulatesDockerStateCache(t *testing.T) {
+	svc := &Service{}
+	// Two running containers; the poller should inspect each and
+	// populate the dockerState cache.
+	svc.SetDockerStateCache(nil)
+	callCount := 0
+	var seenIDs []string
+	inspector := func(_ context.Context, id string) (DockerState, error) {
+		callCount++
+		seenIDs = append(seenIDs, id)
+		return DockerState{Status: "running", Health: "healthy", Image: "img"}, nil
+	}
+
+	cache := buildDockerStateCache(context.Background(), []trackedAppEntry{
+		{name: "sonarr", key: "name:/sonarr"},
+		{name: "radarr", key: "name:/radarr"},
+	}, map[string]string{"sonarr": "id1", "radarr": "id2"}, inspector, svc.DockerStateSnapshot())
+
+	if callCount != 2 {
+		t.Fatalf("want 2 inspect calls, got %d", callCount)
+	}
+	if len(cache) != 2 {
+		t.Fatalf("cache wrong size: %d", len(cache))
+	}
+	if cache["sonarr"].Status != "running" {
+		t.Fatalf("sonarr state wrong: %+v", cache["sonarr"])
+	}
+}
+
+func TestPoller_DiffEmitsBroadcastOnStateChange(t *testing.T) {
+	prev := map[string]DockerState{"sonarr": {Status: "running", Health: "healthy"}}
+	next := map[string]DockerState{"sonarr": {Status: "exited", Health: "none"}}
+	diffs := diffDockerStates(prev, next)
+	if len(diffs) != 1 {
+		t.Fatalf("want 1 diff, got %d", len(diffs))
+	}
+	if diffs[0].Name != "sonarr" || diffs[0].State.Status != "exited" {
+		t.Fatalf("diff mismatch: %+v", diffs[0])
+	}
+}
+
+func TestPoller_DiffEmitsBroadcastOnHealthChange(t *testing.T) {
+	prev := map[string]DockerState{"sonarr": {Status: "running", Health: "healthy"}}
+	next := map[string]DockerState{"sonarr": {Status: "running", Health: "unhealthy"}}
+	diffs := diffDockerStates(prev, next)
+	if len(diffs) != 1 || diffs[0].State.Health != "unhealthy" {
+		t.Fatalf("diff mismatch: %+v", diffs)
+	}
+}
+
+func TestPoller_DiffNoChange_NoBroadcast(t *testing.T) {
+	prev := map[string]DockerState{"sonarr": {Status: "running", Health: "healthy"}}
+	next := map[string]DockerState{"sonarr": {Status: "running", Health: "healthy"}}
+	if d := diffDockerStates(prev, next); len(d) != 0 {
+		t.Fatalf("want no diff, got %d", len(d))
+	}
+}
+
+func TestPoller_TransientInspectFailure_KeepsPreviousState(t *testing.T) {
+	prev := map[string]DockerState{"sonarr": {Status: "running"}}
+	inspector := func(_ context.Context, _ string) (DockerState, error) {
+		return DockerState{}, errors.New("docker daemon timeout")
+	}
+	cache := buildDockerStateCache(context.Background(),
+		[]trackedAppEntry{{name: "sonarr", key: "name:/sonarr"}},
+		map[string]string{"sonarr": "id1"},
+		inspector,
+		prev,
+	)
+	if cache["sonarr"].Status != "running" {
+		t.Fatalf("expected previous state preserved on transient failure, got %+v", cache["sonarr"])
+	}
+}
+
+func TestPoller_MissingContainer_RecordsMissingStatus(t *testing.T) {
+	inspector := func(_ context.Context, _ string) (DockerState, error) {
+		// Unused; no container_id is resolved for "ghost".
+		return DockerState{}, nil
+	}
+	// Empty resolved map -> ghost has no container ID -> status=missing.
+	cache := buildDockerStateCache(context.Background(),
+		[]trackedAppEntry{{name: "ghost", key: "name:/ghost"}},
+		map[string]string{}, // not resolved
+		inspector,
+		nil,
+	)
+	if cache["ghost"].Status != "missing" {
+		t.Fatalf("expected missing, got %q", cache["ghost"].Status)
+	}
+}
