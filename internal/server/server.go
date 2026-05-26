@@ -244,6 +244,20 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// version, and the operator's TLS-hygiene state.
 	s.discoveryService = discovery.NewService(&cfg.Discovery.Docker)
 	authHandler.SetDockerLifecycleProbe(s.discoveryService)
+	// Wire the lifecycle handler dependencies onto the same APIHandler
+	// instance whose routes were registered above. The route closures
+	// capture api by reference, so setting these deps after registration
+	// is fine: they resolve at request time. Stop/Restart pin the
+	// graceful-shutdown grace window at 10s (spec Q6 / docker-compose
+	// default). A nil daemon client (discovery disabled) makes the ops
+	// return an error, which the handler surfaces as a 502.
+	api.SetDockerLifecycleDeps(
+		s.discoveryService,
+		wsHub,
+		s.discoveryService.StartContainerOp(),
+		s.discoveryService.StopContainerOp(10),
+		s.discoveryService.RestartContainerOp(10),
+	)
 	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu, s.proxyServer)
 	discoveryHandler.SetOnConfigSave(s.rebuildProxyRoutes)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
@@ -641,6 +655,37 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 			return
 		}
 		api.FireAppAction(w, r, name)
+	})
+
+	// Docker lifecycle: dedicated /api/app-docker/{name}/<action> path so
+	// we don't collide with the /api/apps/ prefix catch-all that serves
+	// health endpoints (registered in setupHealthRoutes). Mirrors the
+	// singular-noun precedent /api/app-action/ established by the
+	// http_action feature. POST-only; authentication runs at the global
+	// middleware layer, per-app lifecycle gating runs inside the handler.
+	mux.HandleFunc("/api/app-docker/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			return
+		}
+		// Parse "/api/app-docker/{name}/{action}".
+		rest := strings.TrimPrefix(r.URL.Path, "/api/app-docker/")
+		parts := strings.Split(rest, "/")
+		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+		name := parts[0]
+		switch parts[1] {
+		case "start":
+			api.DockerStart(w, r, name)
+		case "stop":
+			api.DockerStop(w, r, name)
+		case "restart":
+			api.DockerRestart(w, r, name)
+		default:
+			http.Error(w, "Not found", http.StatusNotFound)
+		}
 	})
 
 	// Individual group endpoint
@@ -1662,6 +1707,22 @@ func (s *Server) Start() error {
 			ConfigMu:      &s.configMu,
 			Proxy:         s.proxyServer, // may be nil; poller handles
 			OnConfigSaved: s.rebuildProxyRoutes,
+			// Bridge the two deliberately distinct state structs here:
+			// the poller speaks discovery.DockerState, the websocket hub
+			// speaks websocket.DockerStatePayload (kept separate so the
+			// websocket package doesn't import discovery). Convert
+			// field-by-field and fan out to connected clients.
+			BroadcastDockerStateChanged: func(appName string, state discovery.DockerState) {
+				s.wsHub.BroadcastDockerStateChanged(appName, &websocket.DockerStatePayload{
+					Status:       state.Status,
+					Health:       state.Health,
+					StartedAt:    state.StartedAt,
+					FinishedAt:   state.FinishedAt,
+					ExitCode:     state.ExitCode,
+					RestartCount: state.RestartCount,
+					Image:        state.Image,
+				})
+			},
 		})
 		go s.discoveryPoller.Run(context.Background())
 	}

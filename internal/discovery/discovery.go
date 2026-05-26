@@ -612,3 +612,50 @@ func (s *Service) InspectContainerState(ctx context.Context, id string) (DockerS
 	}
 	return c.InspectContainerState(ctx, id)
 }
+
+// StartContainerOp returns a closure suitable for the lifecycle
+// handler's dockerOp dependency. The closure reads the live client
+// under the Service lock so a Service rebuild (config edit) is picked
+// up, and returns an error when no Docker client is configured
+// (discovery disabled) so the handler surfaces a 502 rather than
+// panicking.
+func (s *Service) StartContainerOp() func(ctx context.Context, id string) error {
+	return func(ctx context.Context, id string) error {
+		s.mu.RLock()
+		c := s.client
+		s.mu.RUnlock()
+		if c == nil {
+			return errClientNotInitialised
+		}
+		return c.StartContainer(ctx, id)
+	}
+}
+
+// StopContainerOp returns a closure that calls StopContainer with the
+// given graceful-shutdown timeout. server.go pins this at 10s when
+// wiring SetDockerLifecycleDeps.
+func (s *Service) StopContainerOp(timeoutSec int) func(ctx context.Context, id string) error {
+	return func(ctx context.Context, id string) error {
+		s.mu.RLock()
+		c := s.client
+		s.mu.RUnlock()
+		if c == nil {
+			return errClientNotInitialised
+		}
+		return c.StopContainer(ctx, id, timeoutSec)
+	}
+}
+
+// RestartContainerOp returns a closure that calls RestartContainer with
+// the given graceful-shutdown timeout.
+func (s *Service) RestartContainerOp(timeoutSec int) func(ctx context.Context, id string) error {
+	return func(ctx context.Context, id string) error {
+		s.mu.RLock()
+		c := s.client
+		s.mu.RUnlock()
+		if c == nil {
+			return errClientNotInitialised
+		}
+		return c.RestartContainer(ctx, id, timeoutSec)
+	}
+}

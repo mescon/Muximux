@@ -1395,6 +1395,68 @@ func TestRegisterAPIRoutes(t *testing.T) {
 	})
 }
 
+// TestRoutes_DockerLifecycle_Registered is the regression guard for the
+// Docker lifecycle POST routes. It exercises the REAL route-setup
+// function (registerAPIRoutes) rather than a duplicated/detached block,
+// so a route that was wired in the wrong place (or dropped) shows up
+// here as a routing 404. The dedicated /api/app-docker/ prefix sidesteps
+// the /api/apps/ catch-all in setupHealthRoutes; this test proves the
+// three actions are reachable and not shadowed.
+func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
+	cfg := &config.Config{
+		Server: config.ServerConfig{Title: "Test"},
+		Apps: []config.AppConfig{
+			{Name: "sonarr", URL: "http://a:8080", Enabled: true},
+		},
+	}
+	api := handlers.NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
+		return next
+	})
+
+	mux := http.NewServeMux()
+	registerAPIRoutes(mux, api, noopAdmin)
+
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	for _, action := range []string{"start", "stop", "restart"} {
+		action := action
+		path := "/api/app-docker/sonarr/" + action
+
+		// GET must hit the route's method guard (405), not Go's default
+		// routing 404. A 404 here would mean the route is unregistered or
+		// shadowed by the /api/apps/ prefix.
+		t.Run("GET "+path+" returns 405 (route is wired)", func(t *testing.T) {
+			resp, err := http.Get(ts.URL + path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusMethodNotAllowed {
+				t.Errorf("expected 405 (route wired, GET rejected), got %d -- route likely not registered or shadowed", resp.StatusCode)
+			}
+		})
+
+		// POST must reach the handler. With deps unwired here the handler
+		// returns 401 (no user in context); the point is that anything
+		// other than a routing 404 proves the dispatch reached the
+		// DockerStart/Stop/Restart handler.
+		t.Run("POST "+path+" reaches handler (not a routing 404)", func(t *testing.T) {
+			req, _ := http.NewRequest(http.MethodPost, ts.URL+path, nil)
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode == http.StatusNotFound {
+				t.Errorf("got routing 404 -- /api/app-docker/sonarr/%s is unregistered or shadowed", action)
+			}
+		})
+	}
+}
+
 // --- registerAuthRoutes ---
 
 func TestRegisterAuthRoutes(t *testing.T) {
