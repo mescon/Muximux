@@ -9,12 +9,17 @@ vi.mock('$lib/healthStore', () => ({
 vi.mock('$lib/api', () => ({
   triggerHealthCheck: vi.fn(),
   getBase: vi.fn().mockReturnValue(''),
+  dockerStart: vi.fn().mockResolvedValue({ status: 'running', latency_ms: 12 }),
+  dockerStop: vi.fn().mockResolvedValue({ status: 'exited', latency_ms: 12 }),
+  dockerRestart: vi.fn().mockResolvedValue({ status: 'running', latency_ms: 12 }),
 }));
 vi.mock('$lib/debug', () => ({
   debug: vi.fn(),
 }));
 
 import Splash from './Splash.svelte';
+import { dockerStateStore } from '$lib/dockerStateStore';
+import { authState } from '$lib/authStore';
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -294,5 +299,84 @@ describe('Splash', () => {
       // Third has no shortcut — no badge
       expect(cards[2].querySelector('.kbd')).toBeNull();
     });
+  });
+});
+
+describe('Splash Docker integration', () => {
+  beforeEach(() => {
+    dockerStateStore.set(new Map());
+    authState.set({ authenticated: true, user: { username: 'erik', role: 'admin', can_use_docker_lifecycle: true }, loading: false, error: null, setupRequired: false, logoutUrl: null });
+  });
+
+  it('renders the Docker logo cluster for docker_key apps', () => {
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    const card = container.querySelector('.app-card');
+    expect(card?.querySelector('.docker-cluster svg')).not.toBeNull(); // DockerLogo
+  });
+
+  it('does not render the docker cluster for non-docker apps', () => {
+    const apps = [{ name: 'plain', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    // No DockerLogo inside the card top-right cluster.
+    const card = container.querySelector('.app-card');
+    // The HealthIndicator path renders its own dot; the docker
+    // cluster wrapper has class .docker-cluster.
+    expect(card?.querySelector('.docker-cluster')).toBeNull();
+  });
+
+  it('does not show the ... button when can_use_docker_lifecycle is false', () => {
+    authState.update((s) => ({ ...s, user: { ...s.user!, can_use_docker_lifecycle: false } }));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    expect(container.querySelector('.docker-actions-trigger')).toBeNull();
+  });
+
+  it('shows the ... button when can_use_docker_lifecycle is true', () => {
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    expect(container.querySelector('.docker-actions-trigger')).not.toBeNull();
+  });
+
+  it('applies grayscale to exited apps', () => {
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    expect(container.querySelector('.app-card.exited')).not.toBeNull();
+  });
+
+  it('opens the popover when the ... trigger is clicked for a running app', async () => {
+    dockerStateStore.set(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    const trigger = container.querySelector('.docker-actions-trigger') as HTMLButtonElement;
+    await fireEvent.click(trigger);
+    expect(container.querySelector('.docker-actions-popover')).not.toBeNull();
+  });
+
+  it('opens the confirm modal for stop (does not fire immediately)', async () => {
+    const api = await import('$lib/api');
+    dockerStateStore.set(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'lscr.io/sonarr' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    await fireEvent.click(container.querySelector('.docker-actions-trigger') as HTMLButtonElement);
+    const stopBtn = Array.from(container.querySelectorAll('.docker-popover-action')).find((b) => /stop/i.test(b.textContent || '')) as HTMLButtonElement;
+    await fireEvent.click(stopBtn);
+    // Modal is shown, action not yet fired.
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(api.dockerStop).not.toHaveBeenCalled();
+  });
+
+  it('fires dockerStart immediately for start (bypasses confirm modal)', async () => {
+    const api = await import('$lib/api');
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    await fireEvent.click(container.querySelector('.docker-actions-trigger') as HTMLButtonElement);
+    const startBtn = Array.from(container.querySelectorAll('.docker-popover-action')).find((b) => /start/i.test(b.textContent || '')) as HTMLButtonElement;
+    await fireEvent.click(startBtn);
+    expect(api.dockerStart).toHaveBeenCalledWith('sonarr');
+    // No confirm modal for start.
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
