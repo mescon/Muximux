@@ -417,3 +417,51 @@ func TestDockerRestart_Success(t *testing.T) {
 		t.Fatalf("want running, got %q", body.Status)
 	}
 }
+
+// TestDockerAction_PermissionDenied_TableDriven is a focused regression
+// matrix for the permission denial branches. The role-below-floor and
+// group-mismatch cases are already covered individually; the net-new
+// case here is a power-user being blocked by an admin floor, exercising
+// the intermediate role rank against HasMinRole.
+func TestDockerAction_PermissionDenied_TableDriven(t *testing.T) {
+	type tc struct {
+		name       string
+		userRole   string
+		userGroups []string
+		cfg        config.DiscoveryDockerConfig
+		wantStatus int
+	}
+	cases := []tc{
+		{
+			name:       "power_user_blocked_by_admin_floor",
+			userRole:   auth.RolePowerUser,
+			cfg:        config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+			wantStatus: http.StatusForbidden,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			svc := &stubDockerService{
+				writable:    true,
+				resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+			}
+			hub := &stubDockerHub{}
+			op := func(_ context.Context, _ string) error {
+				t.Fatalf("op should not be called on denial")
+				return nil
+			}
+			h, r := newDockerLifecycleHandler(t, &c.cfg,
+				[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+				svc, hub, op,
+			)
+			user := &auth.User{Username: "x", Role: c.userRole, Groups: c.userGroups}
+			r = r.WithContext(auth.WithUserContext(r.Context(), user))
+
+			w := httptest.NewRecorder()
+			h.DockerStart(w, r, "sonarr")
+			if w.Code != c.wantStatus {
+				t.Fatalf("%s: want %d, got %d (%s)", c.name, c.wantStatus, w.Code, w.Body.String())
+			}
+		})
+	}
+}
