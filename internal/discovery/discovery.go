@@ -103,6 +103,13 @@ type StatusResult struct {
 	// TLS hygiene warning (non-blocking). Surfaces e.g.
 	// "client_key permissions are world-readable; chmod 600 recommended".
 	TLSWarning string `json:"tls_warning,omitempty"`
+
+	// Lifecycle gating surfaced for the Settings panel + Splash:
+	//   socket_writable = result of the boot-time probe
+	//   lifecycle_enabled = mirror of config.Discovery.Docker.LifecycleEnabled
+	// Both are needed because the UI gating is the AND of the two.
+	SocketWritable   bool `json:"socket_writable"`
+	LifecycleEnabled bool `json:"lifecycle_enabled"`
 }
 
 // NewService constructs a Service from a discovery config. Always
@@ -146,6 +153,20 @@ func NewService(cfg *config.DiscoveryDockerConfig) *Service {
 // Status returns the cached capability state, refreshing the cache
 // from the daemon if it's stale. Cheap to call repeatedly.
 func (s *Service) Status(ctx context.Context) StatusResult {
+	r := s.status(ctx)
+	// Stamp the lifecycle-gating fields on every return path so the
+	// Settings panel + Splash can rely on their presence regardless of
+	// reachability. socketWritable comes from the boot-time probe;
+	// lifecycle_enabled mirrors config.
+	r.SocketWritable = s.SocketWritable()
+	r.LifecycleEnabled = s.cfg.LifecycleEnabled
+	return r
+}
+
+// status computes the capability state, refreshing the cache from the
+// daemon if it's stale. The lifecycle-gating fields are layered on by
+// the exported Status wrapper.
+func (s *Service) status(ctx context.Context) StatusResult {
 	s.mu.RLock()
 	cached := s.statusCache
 	cachedAt := s.statusCachedAt
@@ -567,6 +588,15 @@ func (s *Service) ProbeSocket(ctx context.Context) {
 	writable := c.IsSocketWritable(ctx)
 	s.dockerStateMu.Lock()
 	s.socketWritable = writable
+	s.dockerStateMu.Unlock()
+}
+
+// SetSocketWritableForTest is a unit-test hook used by handler tests
+// to stamp the writability flag without running the full TCP probe.
+// Not exported to other packages at runtime.
+func (s *Service) SetSocketWritableForTest(v bool) {
+	s.dockerStateMu.Lock()
+	s.socketWritable = v
 	s.dockerStateMu.Unlock()
 }
 

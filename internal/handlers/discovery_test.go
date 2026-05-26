@@ -369,3 +369,52 @@ func (b *byteReader) Close() error { return nil }
 // reused here. It seeds an admin user into the request context so the
 // handler sees a privileged caller, matching the requireAdmin wrap
 // at registration time.
+
+func TestGetDockerStatus_IncludesSocketWritableAndLifecycle(t *testing.T) {
+	cfg := &config.Config{}
+	cfg.Discovery.Docker.Enabled = true
+	cfg.Discovery.Docker.LifecycleEnabled = true
+	svc := discovery.NewService(&cfg.Discovery.Docker)
+	// Simulate a successful probe.
+	svc.SetSocketWritableForTest(true)
+
+	h := NewDiscoveryHandler(svc, cfg, "/tmp/config.yaml", &sync.RWMutex{}, nil)
+
+	r := httptest.NewRequest(http.MethodGet, "/api/discovery/docker/status", nil)
+	w := httptest.NewRecorder()
+	h.GetDockerStatus(w, r)
+
+	var body map[string]interface{}
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got, _ := body["socket_writable"].(bool); !got {
+		t.Fatalf("want socket_writable=true, got %+v", body["socket_writable"])
+	}
+	if got, _ := body["lifecycle_enabled"].(bool); !got {
+		t.Fatalf("want lifecycle_enabled=true, got %+v", body["lifecycle_enabled"])
+	}
+}
+
+func TestGetDockerStateMap_ReturnsCachedState(t *testing.T) {
+	cfg := &config.Config{}
+	cfg.Discovery.Docker.Enabled = true
+	svc := discovery.NewService(&cfg.Discovery.Docker)
+	svc.SetDockerStateForApp("sonarr", &discovery.DockerState{Status: "running", Health: "healthy", Image: "img"})
+
+	h := NewDiscoveryHandler(svc, cfg, "/tmp/config.yaml", &sync.RWMutex{}, nil)
+	r := httptest.NewRequest(http.MethodGet, "/api/discovery/docker-state", nil)
+	w := httptest.NewRecorder()
+	h.GetDockerStateMap(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("want 200, got %d (%s)", w.Code, w.Body.String())
+	}
+	var body map[string]discovery.DockerState
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if body["sonarr"].Status != "running" {
+		t.Fatalf("want sonarr running, got %+v", body)
+	}
+}

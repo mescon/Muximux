@@ -138,6 +138,27 @@ func (h *DiscoveryHandler) GetDockerStatus(w http.ResponseWriter, r *http.Reques
 	sendJSON(w, http.StatusOK, svc.Status(r.Context()))
 }
 
+// GetDockerStateMap handles GET /api/discovery/docker-state. Returns
+// the current docker-state cache as a map keyed by app name. The
+// frontend fetches this once on mount and then receives delta
+// updates via the docker_state_changed WebSocket event.
+//
+// No admin gate: state visibility mirrors HealthIndicator's
+// authenticated-user-only level. Mutations remain admin-gated by
+// the lifecycle handlers themselves.
+func (h *DiscoveryHandler) GetDockerStateMap(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+		return
+	}
+	svc := h.Service()
+	if svc == nil {
+		sendJSON(w, http.StatusOK, map[string]discovery.DockerState{})
+		return
+	}
+	sendJSON(w, http.StatusOK, svc.DockerStateSnapshot())
+}
+
 // UpdateDockerConfig handles PUT /api/discovery/docker/config. The
 // body is a config.DiscoveryDockerConfig (full struct, not patch).
 // On success the in-memory + on-disk config are updated and the

@@ -272,6 +272,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.HandleFunc("/api/discovery/docker/track/", requireAdmin(discoveryHandler.DetachTracked))
 	mux.HandleFunc("/api/discovery/docker/relink/probe", requireAdmin(discoveryHandler.RelinkProbe))
 	mux.HandleFunc("/api/discovery/docker/relink/confirm", requireAdmin(discoveryHandler.RelinkConfirm))
+	// docker-state (hyphen, not slash -- the /api/discovery/docker/
+	// prefix above would have caught a slashed variant). No requireAdmin
+	// wrap: state visibility is authenticated-user-only, mirroring the
+	// HealthIndicator level; the global RequireAuth still applies.
+	mux.HandleFunc("/api/discovery/docker-state", discoveryHandler.GetDockerStateMap)
 
 	// Gateway auth gate (Caddy forward_auth target). Not behind
 	// requireAuth - the handler IS the auth check. Lookups are

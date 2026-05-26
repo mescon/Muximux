@@ -18,6 +18,7 @@ import (
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/discovery"
 	"github.com/mescon/muximux/v3/internal/handlers"
 	"github.com/mescon/muximux/v3/internal/health"
 	"github.com/mescon/muximux/v3/internal/websocket"
@@ -1455,6 +1456,60 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestRoutes_DockerStateMap_Registered guards the /api/discovery/docker-state
+// route. It is registered inline in New() with a hyphen (not a slash) so the
+// /api/discovery/docker/ prefix does not shadow it, and without a requireAdmin
+// wrap (the global RequireAuth still applies). The test wires the discovery
+// handler onto a bare mux exactly as New() does, then proves GET reaches the
+// handler (200, not a routing 404) and a non-GET hits the method guard (405).
+func TestRoutes_DockerStateMap_Registered(t *testing.T) {
+	cfg := &config.Config{}
+	cfg.Discovery.Docker.Enabled = true
+	svc := discovery.NewService(&cfg.Discovery.Docker)
+	svc.SetDockerStateForApp("sonarr", &discovery.DockerState{Status: "running", Image: "img"})
+
+	dh := handlers.NewDiscoveryHandler(svc, cfg, "", &sync.RWMutex{}, nil)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/discovery/docker-state", dh.GetDockerStateMap)
+
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	t.Run("GET reaches handler (200, not routing 404)", func(t *testing.T) {
+		resp, err := http.Get(ts.URL + "/api/discovery/docker-state")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusNotFound {
+			t.Fatalf("got routing 404 -- /api/discovery/docker-state is unregistered or shadowed")
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("expected 200, got %d", resp.StatusCode)
+		}
+		var body map[string]discovery.DockerState
+		if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if body["sonarr"].Status != "running" {
+			t.Fatalf("want sonarr running, got %+v", body)
+		}
+	})
+
+	t.Run("POST returns 405 (route is wired, method guard hit)", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodPost, ts.URL+"/api/discovery/docker-state", nil)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusMethodNotAllowed {
+			t.Fatalf("expected 405, got %d", resp.StatusCode)
+		}
+	})
 }
 
 // --- registerAuthRoutes ---
