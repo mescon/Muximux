@@ -82,7 +82,9 @@ services:
 
 That's the whole prerequisite. The entrypoint stats the bind-mounted socket at startup, reads its group ownership from the host, and adds the runtime user to a matching group inside the container - so the non-root muximux process can actually read the socket. No `DOCKER_GID` env var, no `group_add`, no hunting for the right number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
 
-The trailing `:ro` is intentional. Muximux only **reads** container metadata - it never starts, stops, or builds anything. Marking the mount read-only means a compromised Muximux can't pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+The trailing `:ro` is the default and keeps Muximux read-only: with `:ro` it can see and list your containers but cannot start, stop, or change any of them. Marking the mount read-only means a compromised Muximux can't pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+
+Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers: the socket must be mounted `:rw` **and** `discovery.docker.lifecycle_enabled: true` must be set. Neither one alone is enough - the dashboard still won't start, stop, or restart anything until you turn on both. Even with both on, Muximux can only start, stop, and restart the containers it already tracks - it can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Every action, and every blocked attempt, is written to the audit log.
 
 For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, two override env vars are available: `DOCKER_SOCKET` (the path the entrypoint stats) and `DOCKER_GID` (bypass auto-detect and force a specific GID). Almost no one needs these.
 
@@ -371,3 +373,16 @@ All endpoints are admin-only.
 | DELETE | `/api/discovery/docker/track/{key}` | - | Detach tracking for everything matching `key` on the current endpoint |
 | POST | `/api/discovery/docker/relink/probe` | `{key}` | "Does this key still resolve on the current daemon?" |
 | POST | `/api/discovery/docker/relink/confirm` | `{old_key, new_key, strategy?}` | Move tracking from old key to new key |
+
+## Container lifecycle controls
+
+If you want the dashboard to start / stop / restart tracked containers from the overview page:
+
+1. Edit `docker-compose.yml` and switch the Docker socket mount from `:ro` to `:rw`. The `:ro` line stays as the documented default; you opt in by changing it.
+2. Set `discovery.docker.lifecycle_enabled: true` in your `config.yaml`, or toggle "Enable container lifecycle controls" under Settings -> Discovery (the checkbox is disabled until the socket is writable).
+3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups.
+4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
+
+Once enabled, Docker-tracked apps on the overview show a Docker badge plus a state pill (Stopped / Unhealthy / Paused / Restarting) when the container is not running-and-healthy, and an actions menu (Start when stopped; Stop + Restart when running). Stop and Restart prompt for confirmation; Start fires immediately.
+
+Every action - success, failure, and denied attempt (role floor not met, group mismatch, socket read-only, lifecycle disabled) - is audit-logged with the caller's username, app name, container id, and outcome (`source=audit`).

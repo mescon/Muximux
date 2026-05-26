@@ -12,8 +12,23 @@ All notable changes to Muximux are documented in this file.
 - Four GitOps labels for http_action apps: `muximux.app.http_action_method`,
   `muximux.app.http_action_headers`, `muximux.app.http_action_confirm`,
   `muximux.app.http_action_show_toast`.
+- Container lifecycle controls on the overview page. Permitted users can
+  start, stop, and restart Docker-tracked containers. Disabled by default;
+  requires a writable Docker socket mount (`:rw`) plus
+  `discovery.docker.lifecycle_enabled: true`. Who may use the controls is
+  set via `discovery.docker.lifecycle_min_role` (default `admin`) and
+  `discovery.docker.lifecycle_allowed_groups`. Every action and every
+  denied attempt is audit-logged.
+- Live Docker state badges (Stopped / Unhealthy / Paused / Restarting) on
+  Docker-tracked apps, propagated over the WebSocket (`docker_state_changed`
+  event). Badge placement is configurable via
+  `discovery.docker.health_badge_placement` (off / overview / overview+nav).
 
 ### Changed
+- The Docker socket mount stays `:ro` by default. Container lifecycle
+  controls are strictly opt-in: they require switching the mount to `:rw`
+  and setting `discovery.docker.lifecycle_enabled: true`. The 3.1.0 contract
+  that the default configuration only reads container metadata still holds.
 - **Docker discovery is lenient about container-name prefixes.** A container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` now picks up the matching catalog entry just like a bare `sonarr` / `radarr` / `plex` container would. The matcher tokenises the container name on `-`, `_`, `.` and looks for any token that exactly matches a known app key (with an adjacent-pair fallback for multi-word images like `home-assistant`). Exact-token comparison prevents false-positives like `transmissionic` reading as `transmission`.
 - **Muximux's own container is filtered out of the Discover suggestions.** Any container whose image or name contains `muximux` is skipped at scan time, so importing-yourself-as-an-app (and the resulting iframe loop) is no longer something an operator can accidentally do.
 - `open_mode: redirect` now actually navigates the window to the app URL.

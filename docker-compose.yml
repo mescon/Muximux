@@ -41,13 +41,23 @@ services:
       #
       # Uncomment to expose the Docker socket so Muximux can scan
       # the daemon for running containers (Settings → Discovery in
-      # 3.1.0+). Read-only is enough; Muximux only reads container
-      # metadata, it never starts/stops/builds anything. Mount this
-      # only if you trust the dashboard's auth posture - the socket
-      # grants effective root on the host.
+      # 3.1.0+). Read-only is enough for discovery; with :ro Muximux
+      # reads container metadata but cannot start/stop/build anything.
+      # Mount this only if you trust the dashboard's auth posture - the
+      # socket grants effective root on the host.
       # The entrypoint auto-detects the socket's group ownership and
       # grants the runtime user access; no extra env var needed.
       # - /var/run/docker.sock:/var/run/docker.sock:ro
+      #
+      # Container lifecycle controls (opt-in, 3.2.0+). To let the
+      # dashboard start/stop/restart tracked containers, use the :rw
+      # mount below INSTEAD of the :ro one above AND set
+      # discovery.docker.lifecycle_enabled: true in config.yaml. With
+      # :rw + lifecycle_enabled Muximux can start/stop/restart tracked
+      # containers (every action audit-logged) but still cannot pull,
+      # build, create, destroy, or exec into containers. See
+      # docs/wiki/docker-discovery.md#container-lifecycle-controls.
+      # - /var/run/docker.sock:/var/run/docker.sock:rw
     environment:
       # ── User/Group ───────────────────────────────────────────────
       - PUID=1000
