@@ -521,3 +521,49 @@ func TestDockerAction_CapabilityDenied_TableDriven(t *testing.T) {
 		})
 	}
 }
+
+// TestDockerAction_DaemonErrors_TableDriven drives distinct daemon
+// errors through the handler and asserts the mapped short message lands
+// in the dockerActionResult JSON (mapDockerError integration). The
+// port-already-allocated case is covered elsewhere; these rows exercise
+// the image-not-found, generic-fallback, and daemon-timeout mappings.
+func TestDockerAction_DaemonErrors_TableDriven(t *testing.T) {
+	type tc struct {
+		name        string
+		opError     error
+		wantStatus  int
+		wantMessage string
+	}
+	cases := []tc{
+		{"no_such_image", errors.New("Error response from daemon: no such image: foo:latest"), http.StatusBadGateway, "Image not found"},
+		{"generic", errors.New("the moon ate my container"), http.StatusBadGateway, "Action failed (see audit log)"},
+		{"daemon_timeout", errors.New("context deadline exceeded"), http.StatusBadGateway, "Docker daemon timeout"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			op := func(_ context.Context, _ string) error { return c.opError }
+			svc := &stubDockerService{
+				writable:    true,
+				resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+			}
+			hub := &stubDockerHub{}
+			h, r := newDockerLifecycleHandler(t,
+				&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+				[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+				svc, hub, op,
+			)
+			w := httptest.NewRecorder()
+			h.DockerStart(w, r, "sonarr")
+			if w.Code != c.wantStatus {
+				t.Fatalf("%s: want %d, got %d (%s)", c.name, c.wantStatus, w.Code, w.Body.String())
+			}
+			var body dockerActionResult
+			if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+				t.Fatalf("decode: %v", err)
+			}
+			if body.Error != c.wantMessage {
+				t.Fatalf("%s: want %q, got %q", c.name, c.wantMessage, body.Error)
+			}
+		})
+	}
+}
