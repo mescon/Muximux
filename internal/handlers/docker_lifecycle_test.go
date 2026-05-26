@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -461,6 +462,61 @@ func TestDockerAction_PermissionDenied_TableDriven(t *testing.T) {
 			h.DockerStart(w, r, "sonarr")
 			if w.Code != c.wantStatus {
 				t.Fatalf("%s: want %d, got %d (%s)", c.name, c.wantStatus, w.Code, w.Body.String())
+			}
+		})
+	}
+}
+
+// TestDockerAction_CapabilityDenied_TableDriven asserts that the
+// lifecycle-disabled and socket-read-only branches not only return 503
+// (already covered) but also surface the expected human-readable reason
+// in the response body.
+func TestDockerAction_CapabilityDenied_TableDriven(t *testing.T) {
+	type tc struct {
+		name       string
+		cfg        config.DiscoveryDockerConfig
+		socketOK   bool
+		wantStatus int
+		wantBody   string
+	}
+	cases := []tc{
+		{
+			name:       "lifecycle_disabled",
+			cfg:        config.DiscoveryDockerConfig{LifecycleEnabled: false},
+			socketOK:   true,
+			wantStatus: http.StatusServiceUnavailable,
+			wantBody:   "lifecycle controls are not enabled",
+		},
+		{
+			name:       "socket_readonly",
+			cfg:        config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+			socketOK:   false,
+			wantStatus: http.StatusServiceUnavailable,
+			wantBody:   "read-only",
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			svc := &stubDockerService{
+				writable:    c.socketOK,
+				resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+			}
+			hub := &stubDockerHub{}
+			op := func(_ context.Context, _ string) error {
+				t.Fatalf("op should not be called on capability denial")
+				return nil
+			}
+			h, r := newDockerLifecycleHandler(t, &c.cfg,
+				[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+				svc, hub, op,
+			)
+			w := httptest.NewRecorder()
+			h.DockerStart(w, r, "sonarr")
+			if w.Code != c.wantStatus {
+				t.Fatalf("%s: want %d, got %d", c.name, c.wantStatus, w.Code)
+			}
+			if !strings.Contains(strings.ToLower(w.Body.String()), strings.ToLower(c.wantBody)) {
+				t.Fatalf("%s: body %q does not contain %q", c.name, w.Body.String(), c.wantBody)
 			}
 		})
 	}
