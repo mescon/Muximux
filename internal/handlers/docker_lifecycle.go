@@ -204,3 +204,12 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 func (h *APIHandler) DockerStart(w http.ResponseWriter, r *http.Request, name string) {
 	h.dockerAction(w, r, name, "start", h.dockerStartOp)
 }
+
+// DockerStop handles POST /api/app-docker/{name}/stop. The underlying
+// daemon call gets a 10s graceful-shutdown grace window; if the
+// container ignores SIGTERM the daemon escalates to SIGKILL at that
+// boundary. Default chosen to match docker-compose's default and the
+// spec's Q6 decision.
+func (h *APIHandler) DockerStop(w http.ResponseWriter, r *http.Request, name string) {
+	h.dockerAction(w, r, name, "stop", h.dockerStopOp)
+}

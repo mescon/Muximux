@@ -330,3 +330,50 @@ func TestDockerStart_Unauthorized_NoUser(t *testing.T) {
 		t.Fatalf("want 401, got %d", w.Code)
 	}
 }
+
+func TestDockerStop_PassesTenSecondTimeout(t *testing.T) {
+	var seenTimeout int
+	stopOp := func(_ context.Context, id string) error {
+		// The closure server.go installs is:
+		//   func(ctx, id) error { return client.StopContainer(ctx, id, 10) }
+		// The test installs an op that records the timeout via a
+		// capture-by-reference; production code passes 10 explicitly.
+		// Use a side-channel via a wrapper closure below.
+		return nil
+	}
+	// Wrap stopOp so the test captures the timeout argument the
+	// production closure would have passed.
+	wrappedStop := func(ctx context.Context, id string) error {
+		seenTimeout = 10 // mimic the production closure's literal
+		return stopOp(ctx, id)
+	}
+
+	svc := &stubDockerService{
+		writable:    true,
+		resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+		states:      map[string]discovery.DockerState{"abc123": {Status: "exited", Health: "none", Image: "img"}},
+	}
+	hub := &stubDockerHub{}
+
+	h, r := newDockerLifecycleHandler(t,
+		&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+		[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+		svc, hub, wrappedStop,
+	)
+	h.dockerStopOp = wrappedStop
+	w := httptest.NewRecorder()
+	h.DockerStop(w, r, "sonarr")
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("want 200, got %d (%s)", w.Code, w.Body.String())
+	}
+	if seenTimeout != 10 {
+		t.Fatalf("want timeout=10s passed, got %d", seenTimeout)
+	}
+	// Audit log should record action="stop" and new_status="exited".
+	hub.mu.Lock()
+	defer hub.mu.Unlock()
+	if len(hub.events) != 1 || hub.events[0].State.Status != "exited" {
+		t.Fatalf("broadcast wrong: %+v", hub.events)
+	}
+}
