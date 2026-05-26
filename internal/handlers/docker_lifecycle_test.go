@@ -377,3 +377,43 @@ func TestDockerStop_PassesTenSecondTimeout(t *testing.T) {
 		t.Fatalf("broadcast wrong: %+v", hub.events)
 	}
 }
+
+func TestDockerRestart_Success(t *testing.T) {
+	var called atomic.Bool
+	restartOp := func(_ context.Context, id string) error {
+		if id != "abc123" {
+			t.Fatalf("want id=abc123, got %q", id)
+		}
+		called.Store(true)
+		return nil
+	}
+	svc := &stubDockerService{
+		writable:    true,
+		resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+		states:      map[string]discovery.DockerState{"abc123": {Status: "running", Health: "healthy", Image: "img", RestartCount: 1}},
+	}
+	hub := &stubDockerHub{}
+
+	h, r := newDockerLifecycleHandler(t,
+		&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+		[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+		svc, hub, restartOp,
+	)
+	h.dockerRestartOp = restartOp
+	w := httptest.NewRecorder()
+	h.DockerRestart(w, r, "sonarr")
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("want 200, got %d (%s)", w.Code, w.Body.String())
+	}
+	if !called.Load() {
+		t.Fatalf("restartOp not invoked")
+	}
+	var body dockerActionResult
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if body.Status != "running" {
+		t.Fatalf("want running, got %q", body.Status)
+	}
+}

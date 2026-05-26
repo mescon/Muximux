@@ -213,3 +213,8 @@ func (h *APIHandler) DockerStart(w http.ResponseWriter, r *http.Request, name st
 func (h *APIHandler) DockerStop(w http.ResponseWriter, r *http.Request, name string) {
 	h.dockerAction(w, r, name, "stop", h.dockerStopOp)
 }
+
+// DockerRestart handles POST /api/app-docker/{name}/restart.
+func (h *APIHandler) DockerRestart(w http.ResponseWriter, r *http.Request, name string) {
+	h.dockerAction(w, r, name, "restart", h.dockerRestartOp)
+}
