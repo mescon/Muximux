@@ -56,6 +56,10 @@
         host_ip: '',
         network_filter: '',
         refresh_interval: '60s',
+        lifecycle_enabled: !!s.lifecycle_enabled,
+        lifecycle_min_role: 'admin',
+        lifecycle_allowed_groups: [],
+        health_badge_placement: 'overview',
       };
       // Refresh the available-networks list in the background. We
       // intentionally don't await this on the main path so a slow
@@ -137,6 +141,10 @@
       host_ip: '',
       network_filter: '',
       refresh_interval: '60s',
+      lifecycle_enabled: false,
+      lifecycle_min_role: 'admin',
+      lifecycle_allowed_groups: [],
+      health_badge_placement: 'overview',
     };
   }
 
@@ -360,6 +368,76 @@
           class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         <p class="text-xs text-text-muted mt-1">How often the poller checks tracked containers for IP/port changes. <code>60s</code> is a good default.</p>
+      </div>
+
+      <!-- Container lifecycle controls. Start/stop/restart needs the
+           Docker socket mounted read-write (the status line reflects
+           the runtime probe); the enable checkbox is disabled until
+           the socket is writable. -->
+      <div class="border-t border-border-subtle pt-4 space-y-3">
+        <h3 class="text-sm font-semibold text-text-primary">Container lifecycle</h3>
+
+        <div class="text-xs">
+          {#if status?.socket_writable}
+            <span class="text-green-300">Docker socket: writable</span>
+          {:else if status?.reachable}
+            <span class="text-amber-300">Docker socket: read-only - lifecycle disabled</span>
+          {:else}
+            <span class="text-text-muted">Docker socket: unreachable</span>
+          {/if}
+        </div>
+
+        <label class="flex items-start gap-2 cursor-pointer text-sm">
+          <input type="checkbox" bind:checked={form.lifecycle_enabled} disabled={!status?.socket_writable} class="mt-0.5" />
+          <span>
+            <span class="text-text-primary">Enable container lifecycle controls</span>
+            <span class="block text-xs text-text-muted">Lets permitted users start, stop, and restart tracked containers from the overview. Requires a writable Docker socket (effective host root); every action is audit-logged.</span>
+          </span>
+        </label>
+
+        {#if form.lifecycle_enabled}
+          <div>
+            <label for="dd-lc-role" class="block text-sm font-medium text-text-secondary mb-1">Minimum role to use controls</label>
+            <select
+              id="dd-lc-role"
+              bind:value={form.lifecycle_min_role}
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="admin">Admin</option>
+              <option value="power-user">Power user</option>
+              <option value="user">User</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="dd-lc-groups" class="block text-sm font-medium text-text-secondary mb-1">Allowed groups (optional)</label>
+            <input
+              id="dd-lc-groups"
+              type="text"
+              placeholder="comma-separated group names"
+              value={(form.lifecycle_allowed_groups ?? []).join(', ')}
+              oninput={(e) => {
+                form.lifecycle_allowed_groups = (e.currentTarget as HTMLInputElement).value
+                  .split(',').map((g) => g.trim()).filter(Boolean);
+              }}
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            <p class="text-xs text-text-muted mt-1">When set, a user must also belong to one of these groups (in addition to meeting the minimum role).</p>
+          </div>
+        {/if}
+
+        <div>
+          <label for="dd-badge" class="block text-sm font-medium text-text-secondary mb-1">Show container health badges</label>
+          <select
+            id="dd-badge"
+            bind:value={form.health_badge_placement}
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="off">Off</option>
+            <option value="overview">Overview only</option>
+            <option value="overview_and_nav">Overview + navigation</option>
+          </select>
+        </div>
       </div>
 
       <!-- TLS section -->

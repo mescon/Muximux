@@ -405,3 +405,37 @@ describe('DiscoveryTab network-filter autocomplete', () => {
     expect(input.value).toBe('');
   });
 });
+
+describe('DiscoveryTab lifecycle subsection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///var/run/docker.sock' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
+  });
+
+  it('renders the socket-status line when status is loaded', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ socket_writable: true, lifecycle_enabled: false }));
+    render(DiscoveryTab);
+    expect(await screen.findByText(/Docker socket: writable/i)).toBeInTheDocument();
+  });
+
+  it('disables the lifecycle_enabled checkbox when the socket is read-only', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ socket_writable: false, lifecycle_enabled: false }));
+    render(DiscoveryTab);
+    const checkbox = (await screen.findByLabelText(/Enable container lifecycle controls/i)) as HTMLInputElement;
+    expect(checkbox.disabled).toBe(true);
+  });
+
+  it('shows the min-role dropdown and allowed-groups input when lifecycle is enabled', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ socket_writable: true, lifecycle_enabled: true }));
+    render(DiscoveryTab);
+    expect(await screen.findByLabelText(/Minimum role/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Allowed groups/i)).toBeInTheDocument();
+  });
+
+  it('hides the health-badge placement nothing extra when socket unreachable but still renders subsection', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ reachable: false, socket_writable: false }));
+    render(DiscoveryTab);
+    expect(await screen.findByLabelText(/Show container health badges/i)).toBeInTheDocument();
+  });
+});
