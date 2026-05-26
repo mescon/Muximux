@@ -3,6 +3,9 @@
   import type { App, Config, Group } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
+  import DockerLogo from './DockerLogo.svelte';
+  import DockerStatePill from './DockerStatePill.svelte';
+  import { dockerStateStore } from '$lib/dockerStateStore';
   import { healthData } from '$lib/healthStore';
   import { currentUser, isAuthenticated, isAdmin, logout } from '$lib/authStore';
   import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
@@ -71,6 +74,14 @@
     if (!showHealth) return false;
     return app.health_check === true;
   }
+
+  // Docker state badges only render in the nav when the operator has
+  // opted into 'overview_and_nav'. For 'overview' (default) or 'off'
+  // the nav stays exactly as before. The per-app gate also requires a
+  // docker_key so non-Docker apps are never decorated.
+  let navBadgesOn = $derived(
+    config.discovery?.docker?.health_badge_placement === 'overview_and_nav'
+  );
 
   function isUnhealthy(app: App): boolean {
     if (!shouldShowHealth(app)) return false;
@@ -989,6 +1000,13 @@
                         {/if}
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
+                        {#if navBadgesOn && app.docker_key}
+                          {@const ds = $dockerStateStore.get(app.name)}
+                          <span class="nav-docker-badge inline-flex items-center gap-1">
+                            <DockerLogo size="sm" />
+                            {#if ds}<DockerStatePill state={ds} compact />{/if}
+                          </span>
+                        {/if}
                         {#if shouldShowHealth(app)}
                           <span class="ms-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
                         {/if}
@@ -1051,6 +1069,13 @@
                   <span>{app.name}</span>
                 {:else}
                   <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+                {/if}
+                {#if navBadgesOn && app.docker_key}
+                  {@const ds = $dockerStateStore.get(app.name)}
+                  <span class="nav-docker-badge inline-flex items-center gap-1">
+                    <DockerLogo size="sm" />
+                    {#if ds}<DockerStatePill state={ds} compact />{/if}
+                  </span>
                 {/if}
                 {#if shouldShowHealth(app)}
                   <HealthIndicator appName={app.name} size="sm" />
@@ -1287,6 +1312,13 @@
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
+                  {/if}
+                  {#if navBadgesOn && app.docker_key}
+                    {@const ds = $dockerStateStore.get(app.name)}
+                    <span class="nav-docker-badge inline-flex items-center gap-1" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
+                      <DockerLogo size="sm" />
+                      {#if ds}<DockerStatePill state={ds} compact />{/if}
+                    </span>
                   {/if}
                   {#if shouldShowHealth(app)}
                     <span class="ms-auto pe-2" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
@@ -1705,6 +1737,13 @@
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
+                  {#if navBadgesOn && app.docker_key}
+                    {@const ds = $dockerStateStore.get(app.name)}
+                    <span class="nav-docker-badge inline-flex items-center gap-1" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
+                      <DockerLogo size="sm" />
+                      {#if ds}<DockerStatePill state={ds} compact />{/if}
+                    </span>
+                  {/if}
                   {#if shouldShowHealth(app)}
                     <span class="ms-auto pe-2" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
@@ -2088,6 +2127,13 @@
                         {/if}
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
+                        {#if navBadgesOn && app.docker_key}
+                          {@const ds = $dockerStateStore.get(app.name)}
+                          <span class="nav-docker-badge inline-flex items-center gap-1">
+                            <DockerLogo size="sm" />
+                            {#if ds}<DockerStatePill state={ds} compact />{/if}
+                          </span>
+                        {/if}
                         {#if shouldShowHealth(app)}
                           <span class="ms-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
                         {/if}
@@ -2149,6 +2195,13 @@
                   <span>{app.name}</span>
                 {:else}
                   <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+                {/if}
+                {#if navBadgesOn && app.docker_key}
+                  {@const ds = $dockerStateStore.get(app.name)}
+                  <span class="nav-docker-badge inline-flex items-center gap-1">
+                    <DockerLogo size="sm" />
+                    {#if ds}<DockerStatePill state={ds} compact />{/if}
+                  </span>
                 {/if}
                 {#if shouldShowHealth(app)}
                   <HealthIndicator appName={app.name} size="sm" />
@@ -2322,6 +2375,13 @@
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                       </div>
                       <span class="truncate ms-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
+                      {#if navBadgesOn && app.docker_key}
+                        {@const ds = $dockerStateStore.get(app.name)}
+                        <span class="nav-docker-badge inline-flex items-center gap-1">
+                          <DockerLogo size="sm" />
+                          {#if ds}<DockerStatePill state={ds} compact />{/if}
+                        </span>
+                      {/if}
                       {#if shouldShowHealth(app)}
                         <span class="ms-auto pe-1">
                           <HealthIndicator appName={app.name} size="sm" />

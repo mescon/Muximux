@@ -186,8 +186,16 @@ export interface Config {
   tls?: TLSConfig;
   gateway?: string;
   keybindings?: KeybindingsConfig;
+  discovery?: DiscoveryConfig;
   groups: Group[];
   apps: App[];
+}
+
+// DiscoveryConfig mirrors config.DiscoveryConfig. Currently only the
+// Docker sub-config is surfaced to the UI; the nav and overview read
+// docker.health_badge_placement to decide where Docker badges render.
+export interface DiscoveryConfig {
+  docker?: DiscoveryDockerConfig;
 }
 
 export interface SetupRequest {

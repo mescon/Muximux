@@ -69,6 +69,7 @@ vi.mock('$lib/debug', () => ({
 }));
 
 import Navigation from './Navigation.svelte';
+import { dockerStateStore } from '$lib/dockerStateStore';
 import type { App, AppIcon, Config, NavigationConfig, Group } from '$lib/types';
 
 // --- Helper factories ---
@@ -3416,5 +3417,109 @@ describe('Navigation', () => {
       const btn = container.querySelector('[title="Refresh app"]');
       expect(btn).toBeTruthy();
     });
+  });
+});
+
+describe('Navigation Docker badge', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockIsAdmin.set(true);
+    mockIsAuthenticated.set(true);
+    mockCurrentUser.set({ username: 'admin', role: 'admin' });
+    mockHealthData.set(new Map());
+    if (!HTMLElement.prototype.setPointerCapture) {
+      HTMLElement.prototype.setPointerCapture = vi.fn();
+    }
+    if (!HTMLElement.prototype.releasePointerCapture) {
+      HTMLElement.prototype.releasePointerCapture = vi.fn();
+    }
+    dockerStateStore.set(
+      new Map([
+        ['Sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }],
+      ]),
+    );
+  });
+
+  function dockerApp(overrides: Partial<App> = {}): App {
+    // Ungrouped (group: '') so the app renders in every nav layout
+    // without needing a matching config.groups entry.
+    return makeApp({ name: 'Sonarr', group: '', docker_key: 'name:/sonarr', ...overrides });
+  }
+
+  it('renders DockerLogo + pill in nav when placement=overview_and_nav', () => {
+    const { container } = render(Navigation, {
+      props: {
+        apps: [dockerApp()],
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position: 'left' },
+          discovery: { docker: { health_badge_placement: 'overview_and_nav' } },
+        } as Partial<Config>),
+      },
+    });
+    expect(container.querySelector('.nav-docker-badge')).not.toBeNull();
+    expect(container.querySelector('.nav-docker-badge svg')).not.toBeNull();
+    // exited -> the pill renders a "stopped" label
+    expect(container.querySelector('.nav-docker-badge .docker-state-pill')).not.toBeNull();
+  });
+
+  it('does NOT render the badge when placement=overview', () => {
+    const { container } = render(Navigation, {
+      props: {
+        apps: [dockerApp()],
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position: 'left' },
+          discovery: { docker: { health_badge_placement: 'overview' } },
+        } as Partial<Config>),
+      },
+    });
+    expect(container.querySelector('.nav-docker-badge')).toBeNull();
+  });
+
+  it('does NOT render the badge when placement=off', () => {
+    const { container } = render(Navigation, {
+      props: {
+        apps: [dockerApp()],
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position: 'left' },
+          discovery: { docker: { health_badge_placement: 'off' } },
+        } as Partial<Config>),
+      },
+    });
+    expect(container.querySelector('.nav-docker-badge')).toBeNull();
+  });
+
+  it('does NOT render the badge for apps without docker_key', () => {
+    const { container } = render(Navigation, {
+      props: {
+        apps: [dockerApp({ docker_key: undefined })],
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position: 'left' },
+          discovery: { docker: { health_badge_placement: 'overview_and_nav' } },
+        } as Partial<Config>),
+      },
+    });
+    expect(container.querySelector('.nav-docker-badge')).toBeNull();
+  });
+
+  it('renders the logo but no pill when no docker state is known', () => {
+    dockerStateStore.set(new Map());
+    const { container } = render(Navigation, {
+      props: {
+        apps: [dockerApp()],
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position: 'left' },
+          discovery: { docker: { health_badge_placement: 'overview_and_nav' } },
+        } as Partial<Config>),
+      },
+    });
+    const badge = container.querySelector('.nav-docker-badge');
+    expect(badge).not.toBeNull();
+    expect(badge!.querySelector('svg')).not.toBeNull();
+    expect(badge!.querySelector('.docker-state-pill')).toBeNull();
   });
 });
