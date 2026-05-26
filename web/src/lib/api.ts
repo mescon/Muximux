@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult, DockerState } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -240,6 +240,50 @@ export async function deleteApp(name: string): Promise<void> {
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
   }
+}
+
+// DockerActionResult mirrors handlers.dockerActionResult on the
+// backend. `error` is the short, operator-readable message from
+// mapDockerError; the full daemon error stays in the audit log.
+export interface DockerActionResult {
+  status?: string;
+  error?: string;
+  latency_ms: number;
+}
+
+async function postDockerAction(name: string, action: 'start' | 'stop' | 'restart'): Promise<DockerActionResult> {
+  // Path: /api/app-docker/{name}/{action} -- the hyphenated prefix
+  // avoids the /api/apps/ catch-all that intercepts /api/apps/{name}
+  // health routes. See dev/2026-05-22-docker-container-lifecycle-plan.md
+  // Task 22 for the path-collision write-up.
+  const res = await fetch(`${API_BASE}/app-docker/${encodeURIComponent(name)}/${action}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  // Even non-2xx responses carry a JSON body in the same shape
+  // (with `error` set instead of `status`); decode and return
+  // unconditionally rather than throwing.
+  return (await res.json()) as DockerActionResult;
+}
+
+export async function dockerStart(name: string): Promise<DockerActionResult> {
+  return postDockerAction(name, 'start');
+}
+export async function dockerStop(name: string): Promise<DockerActionResult> {
+  return postDockerAction(name, 'stop');
+}
+export async function dockerRestart(name: string): Promise<DockerActionResult> {
+  return postDockerAction(name, 'restart');
+}
+
+export async function getDockerState(): Promise<Map<string, DockerState>> {
+  const res = await fetch(`${API_BASE}/discovery/docker-state`, { credentials: 'same-origin' });
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
+  }
+  const obj = (await res.json()) as Record<string, DockerState>;
+  return new Map(Object.entries(obj));
 }
 
 /**

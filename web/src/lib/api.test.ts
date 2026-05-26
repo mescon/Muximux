@@ -818,3 +818,73 @@ describe('discovery api functions', () => {
     });
   });
 });
+
+describe('Docker lifecycle API', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('dockerStart POSTs to /api/app-docker/{name}/start with X-Requested-With', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ status: 'running', latency_ms: 42 }),
+    });
+    vi.stubGlobal('fetch', fetchSpy);
+
+    const { dockerStart } = await import('./api');
+    const res = await dockerStart('sonarr');
+    expect(res.status).toBe('running');
+    expect(res.latency_ms).toBe(42);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [url, opts] = fetchSpy.mock.calls[0];
+    expect(url).toContain('/api/app-docker/sonarr/start');
+    expect((opts as RequestInit).method).toBe('POST');
+    const headers = (opts as RequestInit).headers as Record<string, string>;
+    expect(headers['X-Requested-With']).toBe('XMLHttpRequest');
+  });
+
+  it('dockerStop POSTs to /stop', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ status: 'exited', latency_ms: 13 }),
+    });
+    vi.stubGlobal('fetch', fetchSpy);
+    const { dockerStop } = await import('./api');
+    await dockerStop('sonarr');
+    expect(fetchSpy.mock.calls[0][0]).toContain('/api/app-docker/sonarr/stop');
+  });
+
+  it('dockerRestart POSTs to /restart', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ status: 'running', latency_ms: 200 }),
+    });
+    vi.stubGlobal('fetch', fetchSpy);
+    const { dockerRestart } = await import('./api');
+    await dockerRestart('sonarr');
+    expect(fetchSpy.mock.calls[0][0]).toContain('/api/app-docker/sonarr/restart');
+  });
+
+  it('getDockerState GETs /api/discovery/docker-state', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ sonarr: { status: 'running', health: 'healthy', restart_count: 0, image: 'x' } }),
+    });
+    vi.stubGlobal('fetch', fetchSpy);
+    const { getDockerState } = await import('./api');
+    const map = await getDockerState();
+    expect(map.get('sonarr')?.status).toBe('running');
+  });
+
+  it('dockerStart surfaces the daemon error string on failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => ({ error: 'Port already in use', latency_ms: 8 }),
+    }));
+    const { dockerStart } = await import('./api');
+    const res = await dockerStart('sonarr');
+    expect(res.error).toBe('Port already in use');
+  });
+});
