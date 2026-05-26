@@ -596,3 +596,19 @@ func (s *Service) ResolveContainerID(ctx context.Context, key string) (string, b
 	}
 	return matched.ID, true
 }
+
+// InspectContainerState fetches and parses just the runtime state of a
+// single container. The lifecycle handlers call this immediately after
+// a successful start/stop/restart so the response body and the
+// WebSocket broadcast carry the post-action state without waiting for
+// the next poll tick. Delegates to the client; returns an error when no
+// Docker client is configured.
+func (s *Service) InspectContainerState(ctx context.Context, id string) (DockerState, error) {
+	s.mu.RLock()
+	c := s.client
+	s.mu.RUnlock()
+	if c == nil {
+		return DockerState{}, errClientNotInitialised
+	}
+	return c.InspectContainerState(ctx, id)
+}

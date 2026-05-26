@@ -85,6 +85,12 @@ const (
 	headerSetCookie       = "Set-Cookie"
 	headerXForwardedFor   = "X-Forwarded-For"
 	errBadGateway         = "Bad Gateway"
+
+	errLifecycleDisabled   = "Container lifecycle controls are not enabled"
+	errSocketReadOnly      = "Docker socket is read-only; lifecycle disabled"
+	errAccessDenied        = "Access denied"
+	errAppNotDockerTracked = "App is not Docker-tracked"
+	errContainerNotFound   = "Container not found"
 )
 
 // respondError sends an HTTP error response and logs at the appropriate level.

@@ -571,6 +571,14 @@ func GetUserFromContext(ctx context.Context) *User {
 	return user
 }
 
+// WithUserContext returns a copy of ctx carrying the given user under
+// ContextKeyUser. It mirrors what the auth middleware does when it
+// resolves a request's user, exposed so handlers and tests can build a
+// request context without going through the full middleware chain.
+func WithUserContext(ctx context.Context, user *User) context.Context {
+	return context.WithValue(ctx, ContextKeyUser, user)
+}
+
 // GetSessionFromContext extracts the session from request context
 func GetSessionFromContext(ctx context.Context) *Session {
 	session, _ := ctx.Value(ContextKeySession).(*Session)

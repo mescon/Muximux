@@ -30,6 +30,30 @@ type APIHandler struct {
 	// spec (Q8): long enough for slow webhooks, short enough that a
 	// hung target can't pile up dashboard requests.
 	actionClient *http.Client
+
+	// dockerService is the narrow capability surface the lifecycle
+	// handlers need. Wired by server.go to the *discovery.Service
+	// (which satisfies DockerServiceAPI by structural typing). A nil
+	// value disables lifecycle mutations (handler returns 503).
+	dockerService DockerServiceAPI
+	dockerHub     DockerHubBroadcaster
+	// dockerStartOp / dockerStopOp / dockerRestartOp are the underlying
+	// daemon calls behind the three lifecycle verbs, injected so the
+	// handler stays unit-testable without a real daemon.
+	dockerStartOp   dockerOp
+	dockerStopOp    dockerOp
+	dockerRestartOp dockerOp
+}
+
+// SetDockerLifecycleDeps wires the lifecycle handler's dependencies
+// from server.go. Called once at startup; nil values disable the
+// corresponding behaviour (handler returns 503).
+func (h *APIHandler) SetDockerLifecycleDeps(svc DockerServiceAPI, hub DockerHubBroadcaster, startOp, stopOp, restartOp dockerOp) {
+	h.dockerService = svc
+	h.dockerHub = hub
+	h.dockerStartOp = startOp
+	h.dockerStopOp = stopOp
+	h.dockerRestartOp = restartOp
 }
 
 // NewAPIHandler creates a new API handler
