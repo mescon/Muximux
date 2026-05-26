@@ -784,5 +784,9 @@
   "docker_state_unhealthy": "Unhealthy",
   "docker_state_paused": "Paused",
   "docker_state_restarting": "Restarting",
-  "docker_state_starting": "Starting"
+  "docker_state_starting": "Starting",
+  "docker_popover_action_start": "Start container",
+  "docker_popover_action_stop": "Stop container",
+  "docker_popover_action_restart": "Restart container",
+  "docker_popover_header_running": "Running"
 }
