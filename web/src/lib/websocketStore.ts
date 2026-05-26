@@ -1,10 +1,12 @@
 import { writable, get } from 'svelte/store';
 import type { AppHealth } from './api';
+import type { DockerState } from './types';
 import { healthData } from './healthStore';
+import { applyDockerStateChange } from './dockerStateStore';
 import { debug } from './debug';
 
 // Event types from server
-export type EventType = 'config_updated' | 'health_changed' | 'app_health_changed' | 'log_entry';
+export type EventType = 'config_updated' | 'health_changed' | 'app_health_changed' | 'log_entry' | 'docker_state_changed';
 
 export interface WebSocketEvent {
   type: EventType;
@@ -156,6 +158,15 @@ function handleEvent(event: WebSocketEvent): void {
       break;
     }
 
+    case 'docker_state_changed': {
+      // Update the per-app docker-state map. applyDockerStateChange
+      // builds a new Map (rather than mutating) so $derived chains that
+      // memoise by reference re-run -- same contract as app_health_changed.
+      const { app_name, state } = event.payload as { app_name: string; state: DockerState };
+      applyDockerStateChange(app_name, state);
+      break;
+    }
+
     case 'config_updated':
       // Config updates are handled by registered handlers
       break;
@@ -191,3 +202,6 @@ export function on(eventType: EventType, handler: EventHandler): () => void {
 export function isConnected(): boolean {
   return get(connectionState) === 'connected';
 }
+
+// Test-only export: lets unit tests drive handleEvent without a socket.
+export const __test_handleEvent__ = handleEvent;

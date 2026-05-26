@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { get } from 'svelte/store';
+import { dockerStateStore } from './dockerStateStore';
 
 // We need to mock healthStore before importing websocketStore
 vi.mock('./healthStore', async () => {
@@ -477,6 +478,35 @@ describe('websocketStore', () => {
 
       expect(handler1).toHaveBeenCalledWith('data');
       expect(handler2).toHaveBeenCalledWith('data');
+    });
+  });
+
+  describe('docker_state_changed event', () => {
+    beforeEach(() => {
+      dockerStateStore.set(new Map());
+    });
+
+    it('docker_state_changed updates dockerStateStore', async () => {
+      // Drive handleEvent directly so we don't need a real socket.
+      // The websocketStore exports `__test_handleEvent__` for this purpose.
+      // getModule() resets the module graph, so read dockerStateStore from
+      // the same fresh graph that websocketStore dispatches into.
+      const { __test_handleEvent__ } = await getModule();
+      const { dockerStateStore: freshStore } = await import('./dockerStateStore');
+      __test_handleEvent__({
+        type: 'docker_state_changed',
+        payload: {
+          app_name: 'sonarr',
+          state: {
+            status: 'exited',
+            health: 'none',
+            restart_count: 0,
+            image: 'sonarr:latest',
+          },
+        },
+      });
+      const map = get(freshStore);
+      expect(map.get('sonarr')?.status).toBe('exited');
     });
   });
 
