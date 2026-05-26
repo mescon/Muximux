@@ -788,5 +788,8 @@
   "docker_popover_action_start": "Start container",
   "docker_popover_action_stop": "Stop container",
   "docker_popover_action_restart": "Restart container",
-  "docker_popover_header_running": "Running"
+  "docker_popover_header_running": "Running",
+  "docker_modal_confirm_stop": "Stop container '{name}'?",
+  "docker_modal_confirm_restart": "Restart container '{name}'?",
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
 }
