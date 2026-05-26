@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getEffectiveUrl } from './types';
-import type { App } from './types';
+import type { App, DockerState, UserInfo, DiscoveryDockerConfig, DiscoveryDockerStatus } from './types';
 
 function makeApp(overrides: Partial<App> = {}): App {
   return {
@@ -37,5 +37,54 @@ describe('getEffectiveUrl', () => {
     } finally {
       delete (globalThis as Record<string, unknown>).__MUXIMUX_BASE__;
     }
+  });
+});
+
+describe('Docker lifecycle type extensions', () => {
+  it('DockerState union accepts all spec statuses', () => {
+    const states: DockerState['status'][] = [
+      'running', 'exited', 'paused', 'restarting', 'created', 'dead', 'missing',
+    ];
+    expect(states.length).toBe(7);
+  });
+
+  it('DockerState union accepts all spec health values', () => {
+    const healths: DockerState['health'][] = ['healthy', 'unhealthy', 'starting', 'none'];
+    expect(healths.length).toBe(4);
+  });
+
+  it('UserInfo carries can_use_docker_lifecycle', () => {
+    const u: UserInfo = {
+      username: 'erik',
+      role: 'admin',
+      can_use_docker_lifecycle: true,
+    };
+    expect(u.can_use_docker_lifecycle).toBe(true);
+  });
+
+  it('DiscoveryDockerConfig carries lifecycle and badge fields', () => {
+    const c: DiscoveryDockerConfig = {
+      enabled: true,
+      endpoint: 'unix:///var/run/docker.sock',
+      tls: { enabled: false },
+      network_strategy: 'container_ip',
+      refresh_interval: '60s',
+      lifecycle_enabled: true,
+      lifecycle_min_role: 'admin',
+      lifecycle_allowed_groups: [],
+      health_badge_placement: 'overview',
+    };
+    expect(c.lifecycle_enabled).toBe(true);
+  });
+
+  it('DiscoveryDockerStatus carries socket_writable and lifecycle_enabled', () => {
+    const s: DiscoveryDockerStatus = {
+      configured: true,
+      reachable: true,
+      strategy_ok: true,
+      socket_writable: false,
+      lifecycle_enabled: false,
+    };
+    expect(s.socket_writable).toBe(false);
   });
 });

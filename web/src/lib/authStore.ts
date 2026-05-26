@@ -7,6 +7,10 @@ export interface User {
   role: string;
   email?: string;
   display_name?: string;
+  // Per-user lifecycle gate computed by the backend. Single source of
+  // truth -- never recompute on the frontend. Mirrors UserInfo in
+  // types.ts and the can_use_docker_lifecycle JSON tag on UserResponse.
+  can_use_docker_lifecycle?: boolean;
 }
 
 // Auth state

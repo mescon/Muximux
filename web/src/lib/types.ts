@@ -259,6 +259,10 @@ export interface UserInfo {
   email?: string;
   display_name?: string;
   groups?: string[];  // group memberships used by per-app allowed_groups filtering
+  // Per-user lifecycle gate: true iff lifecycle_enabled + writable
+  // socket + user satisfies role floor + group allowlist. Single
+  // source of truth -- never recompute on the frontend.
+  can_use_docker_lifecycle?: boolean;
 }
 
 export interface CreateUserRequest {
@@ -334,6 +338,23 @@ export interface DiscoveryDockerStatus {
   recovered_at?: string;
   last_refresh_at?: string;
   tls_warning?: string;
+  // Lifecycle gating surfaced for the Settings panel + the can_use
+  // computation. Both fields default to false on a fresh install.
+  socket_writable?: boolean;
+  lifecycle_enabled?: boolean;
+}
+
+// DockerState mirrors discovery.DockerState on the backend. The value
+// shape is exactly the JSON returned by /api/discovery/docker-state
+// and the `state` field of docker_state_changed WebSocket events.
+export interface DockerState {
+  status: 'running' | 'exited' | 'paused' | 'restarting' | 'created' | 'dead' | 'missing';
+  health: 'healthy' | 'unhealthy' | 'starting' | 'none';
+  started_at?: string;
+  finished_at?: string;
+  exit_code?: number;
+  restart_count: number;
+  image: string;
 }
 
 // DiscoveryDockerConfig mirrors config.DiscoveryDockerConfig. Sent to
@@ -346,6 +367,10 @@ export interface DiscoveryDockerConfig {
   host_ip?: string;
   network_filter?: string;
   refresh_interval: string;
+  lifecycle_enabled?: boolean;
+  lifecycle_min_role?: 'admin' | 'power-user' | 'user' | '';
+  lifecycle_allowed_groups?: string[];
+  health_badge_placement?: 'off' | 'overview' | 'overview_and_nav' | '';
 }
 
 export interface DiscoveryTLSConfig {
