@@ -779,5 +779,10 @@
   "error_url_required": "URL is required",
   "error_invalid_action_url": "URL must be http:// or https://",
   "toast_action_fired": "{method} {host} -> {status} ({latency}ms)",
-  "toast_action_failed": "{method} {host} -> {error}"
+  "toast_action_failed": "{method} {host} -> {error}",
+  "docker_state_stopped": "Stopped",
+  "docker_state_unhealthy": "Unhealthy",
+  "docker_state_paused": "Paused",
+  "docker_state_restarting": "Restarting",
+  "docker_state_starting": "Starting"
 }
