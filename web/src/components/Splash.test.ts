@@ -389,4 +389,20 @@ describe('Splash Docker integration', () => {
     // No confirm modal for start.
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('hides all Docker chrome on the overview when health_badge_placement is off', () => {
+    dockerStateStore.set(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'off' } } } as any } });
+    expect(container.querySelector('.docker-cluster')).toBeNull();
+    expect(container.querySelector('.docker-control-footer')).toBeNull();
+  });
+
+  it('shows Docker chrome on the overview when health_badge_placement is overview', () => {
+    dockerStateStore.set(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    expect(container.querySelector('.docker-cluster')).not.toBeNull();
+    expect(container.querySelector('.docker-control-footer')).not.toBeNull();
+  });
 });

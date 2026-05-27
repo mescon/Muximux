@@ -55,6 +55,12 @@
         : m.docker_popover_action_restart();
   }
 
+  // health_badge_placement: 'off' suppresses all Docker chrome on the
+  // overview (the status cluster and the action footer). 'overview',
+  // 'overview_and_nav', and the unset default all show it. The navbar
+  // has its own gate (navBadgesOn, which requires 'overview_and_nav').
+  let dockerChromeOn = $derived(config?.discovery?.docker?.health_badge_placement !== 'off');
+
   onMount(() => {
     // Trigger staggered animations after mount
     mounted = true;
@@ -237,16 +243,19 @@
                     <!-- Passive Docker status indicator (all users): logo ->
                          status dot -> HTTP health dot. The lifecycle action
                          buttons live in a separate footer BELOW the card so
-                         they never overlap the open-app tap target. -->
-                    <div class="docker-cluster absolute top-2.5 end-2.5 z-10 flex items-center gap-1">
-                      <DockerLogo size="sm" class="text-slate-500" />
-                      {#if ds}
-                        <DockerStatePill state={ds} />
-                      {/if}
-                      {#if showHealth && app.health_check === true}
-                        <HealthIndicator appName={app.name} size="sm" />
-                      {/if}
-                    </div>
+                         they never overlap the open-app tap target. Hidden
+                         entirely when health_badge_placement is 'off'. -->
+                    {#if dockerChromeOn}
+                      <div class="docker-cluster absolute top-2.5 end-2.5 z-10 flex items-center gap-1">
+                        <DockerLogo size="sm" class="text-slate-500" />
+                        {#if ds}
+                          <DockerStatePill state={ds} />
+                        {/if}
+                        {#if showHealth && app.health_check === true}
+                          <HealthIndicator appName={app.name} size="sm" />
+                        {/if}
+                      </div>
+                    {/if}
                   {:else if showHealth && app.health_check === true}
                     <!-- Health indicator - per-app control (non-Docker apps) -->
                     <div class="absolute top-2.5 end-2.5 z-10">
@@ -291,7 +300,7 @@
                   ></div>
                 </button>
 
-                {#if canLifecycle && ds && allowedActions(ds).length > 0}
+                {#if canLifecycle && dockerChromeOn && ds && allowedActions(ds).length > 0}
                   <!-- Action footer BELOW the card, outside the open-app
                        button's box, so tapping to open the app can never hit
                        a lifecycle action by accident. On touch it stays
