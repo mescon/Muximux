@@ -970,3 +970,73 @@ func TestPoller_MissingContainer_RecordsMissingStatus(t *testing.T) {
 		t.Fatalf("expected missing, got %q", cache["ghost"].Status)
 	}
 }
+
+// fakeDaemonAllAware serves a container list that respects the ?all query
+// param the way the real daemon does: a stopped container only appears when
+// all=1. It also serves inspect with the given status. Used to prove the
+// poller resolves tracked-app state against the ALL list, not the
+// running-only list (a stopped tracked container must read as its real
+// state, not "missing").
+func fakeDaemonAllAware(t *testing.T, stopped *ContainerSummary, inspectStatus string) (string, func()) {
+	t.Helper()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/_ping", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	mux.HandleFunc("/v1.41/containers/json", func(w http.ResponseWriter, r *http.Request) {
+		out := []ContainerSummary{}
+		if r.URL.Query().Get("all") == "1" {
+			out = []ContainerSummary{*stopped}
+		}
+		_ = json.NewEncoder(w).Encode(out)
+	})
+	// Inspect: anything under /v1.41/containers/<id>/json that isn't the
+	// list endpoint. Returns the configured status with an exit code.
+	mux.HandleFunc("/v1.41/containers/", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"State":{"Status":"` + inspectStatus + `","ExitCode":137,"StartedAt":"2026-01-01T00:00:00Z","FinishedAt":"2026-01-02T00:00:00Z"},"RestartCount":0,"Config":{"Image":"busybox"}}`))
+	})
+	return fakeDockerOverUnix(t, mux)
+}
+
+func TestPoller_Tick_StoppedContainerResolvesExitedNotMissing(t *testing.T) {
+	// A tracked container that is stopped no longer appears in the
+	// running-only scan used for URL refresh. State resolution must
+	// fall back to the ALL list so the app reads as "exited" (Start
+	// remains offered) rather than "missing" (lifecycle actions vanish).
+	stopped := ContainerSummary{
+		ID:    "s1",
+		Names: []string{"/smoke-target"},
+		Image: "busybox",
+	}
+	socket, cleanup := fakeDaemonAllAware(t, &stopped, "exited")
+	defer cleanup()
+
+	dockerCfg := &config.DiscoveryDockerConfig{
+		Enabled: true, Endpoint: "unix://" + socket,
+	}
+	cfg := &config.Config{
+		Discovery: config.DiscoveryConfig{Docker: *dockerCfg},
+		Apps: []config.AppConfig{
+			{
+				Name:           "smoke-target",
+				URL:            "http://10.0.0.1:80",
+				DockerKey:      "name:smoke-target",
+				DockerEndpoint: "unix://" + socket,
+			},
+		},
+	}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	if svc.client == nil {
+		t.Fatalf("Service has no client; setup failure")
+	}
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	got := svc.DockerStateSnapshot()["smoke-target"]
+	if got.Status != "exited" {
+		t.Fatalf("stopped tracked container state = %q, want \"exited\" (a running-only scan would yield \"missing\")", got.Status)
+	}
+}

@@ -255,7 +255,7 @@ func (p *Poller) tick(ctx context.Context) {
 		p.applyRefreshBatch(batch)
 	}
 
-	p.refreshDockerState(ctx, tracked, containers)
+	p.refreshDockerState(ctx, tracked)
 }
 
 // trackedAppEntry / trackedSiteEntry are the per-entry snapshot the
@@ -610,9 +610,24 @@ func diffDockerStates(prev, next map[string]DockerState) []dockerStateDiff {
 // refreshDockerState inspects each tracked app's container, updates the
 // Service cache, diffs against the previous tick, and broadcasts the
 // changes. Runs at the end of every tick after the URL refresh batch.
-func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet, containers []ContainerSummary) {
+func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 	svc := p.deps.Service
 	if svc == nil || svc.client == nil {
+		return
+	}
+
+	// State resolution lists ALL containers, including stopped ones.
+	// The URL-refresh scan above is running-only (a stopped container
+	// has no IP to resolve), but a stopped *tracked* container must
+	// still read as its real state ("exited") so the dashboard keeps
+	// offering Start. Resolving it against the running-only list would
+	// drop it to "missing" and the lifecycle actions would vanish.
+	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: true})
+	if err != nil {
+		// Transient daemon failure: leave the cache untouched rather
+		// than blinking every tracked app to "missing" for one tick.
+		logging.Warn("Docker state refresh skipped: ListContainers failed",
+			"source", "discovery", "error", err.Error())
 		return
 	}
 
