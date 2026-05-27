@@ -253,6 +253,23 @@ type clientConfigResponse struct {
 	Auth                *clientAuthConfig         `json:"auth,omitempty"`
 	Groups              []config.GroupConfig      `json:"groups"`
 	Apps                []ClientAppConfig         `json:"apps"`
+	// Discovery carries only the non-sensitive Docker display settings
+	// the frontend needs for rendering (badge + controls placement).
+	// The full discovery config (endpoint, TLS material, etc.) is never
+	// sent here; the Settings UI fetches it separately via the
+	// admin-gated /api/discovery endpoints.
+	Discovery *clientDiscoveryConfig `json:"discovery,omitempty"`
+}
+
+// clientDiscoveryConfig is the sanitized discovery config sent to the
+// frontend: just the Docker badge placement used to decide where the
+// status badge renders (overview vs. also the navbar).
+type clientDiscoveryConfig struct {
+	Docker clientDiscoveryDockerConfig `json:"docker"`
+}
+
+type clientDiscoveryDockerConfig struct {
+	HealthBadgePlacement string `json:"health_badge_placement,omitempty"`
 }
 
 // clientAuthConfig is the sanitized auth config sent to the frontend.
@@ -297,6 +314,11 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 		}
 		authCfg.LogoutURL = cfg.Auth.LogoutURL
 		resp.Auth = authCfg
+	}
+	resp.Discovery = &clientDiscoveryConfig{
+		Docker: clientDiscoveryDockerConfig{
+			HealthBadgePlacement: cfg.Discovery.Docker.HealthBadgePlacement,
+		},
 	}
 	return resp
 }

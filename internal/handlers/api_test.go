@@ -129,6 +129,37 @@ func TestGetConfig(t *testing.T) {
 	}
 }
 
+// Regression: the client config response must carry the Docker badge
+// placement under "discovery.docker". Without it the frontend's
+// config.discovery is undefined, so the navbar status badge
+// (overview_and_nav) silently never renders.
+func TestGetConfig_IncludesDiscoveryPlacement(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Discovery.Docker.HealthBadgePlacement = "overview_and_nav"
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+	w := httptest.NewRecorder()
+	handler.GetConfig(w, req)
+
+	var response struct {
+		Discovery *struct {
+			Docker struct {
+				HealthBadgePlacement string `json:"health_badge_placement"`
+			} `json:"docker"`
+		} `json:"discovery"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if response.Discovery == nil {
+		t.Fatal("config response missing discovery section")
+	}
+	if response.Discovery.Docker.HealthBadgePlacement != "overview_and_nav" {
+		t.Errorf("health_badge_placement = %q, want overview_and_nav", response.Discovery.Docker.HealthBadgePlacement)
+	}
+}
+
 func TestGetApps(t *testing.T) {
 	cfg := createTestConfig()
 	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
