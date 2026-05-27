@@ -58,6 +58,12 @@ Some "apps" are really just an action -- trigger a backup, kick off a CI job, po
   redirect but the behavior was identical. Operators using `redirect` and
   expecting iframe behavior should change to `iframe`.
 
+### Fixed
+- With `navigation.auto_hide` enabled, the navigation now starts collapsed
+  on page load instead of staying expanded until the cursor entered and
+  left it (it still reveals immediately if the cursor is already over the
+  navigation on load). Thanks @jaredjxyz (#347).
+
 ## [3.1.0] - 2026-05-17
 
 The big one. Two new features that probably matter more than any single 3.0.x point release: Muximux can now **discover Docker containers** and import them as apps with one click, and it can act as a **single-sign-on gate** in front of gateway-hosted subdomains. Plus a healthy round of catalog updates, hardening, and dependency bumps.

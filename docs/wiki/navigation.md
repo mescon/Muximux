@@ -99,9 +99,12 @@ The **Overview** and **Logs** buttons in the navigation bar act as toggles. Clic
 
 When `auto_hide` is set to `true`:
 
+- The navigation **starts collapsed on page load**, so it doesn't sit open until you happen to mouse over and then leave it. (If your cursor is already over the navigation area when the page loads, it reveals immediately.)
 - The navigation bar hides itself after `auto_hide_delay` of no mouse activity near the navigation area.
 - Move your mouse to the navigation edge of the screen to reveal it again (when `show_on_hover` is `true`).
 - The **floating** position always overlays content regardless of visibility state. The other positions (top, left, right, bottom) reclaim the screen space when the navigation is hidden, giving your apps more room.
+
+Toggling `auto_hide` in Settings during a session does not retroactively collapse the navigation you are currently using; the start-collapsed behavior applies on the next page load.
 
 ## Mobile
 
