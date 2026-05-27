@@ -2,7 +2,24 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.1.1] - 2026-05-27
+
+A refinement release for the Docker story that headlined 3.1.0. Discovery already imported your containers; now Muximux can show their live state and **start / stop / restart them right from the overview**. There's also a new **webhook-style button** (`http_action`) for apps that should fire a request instead of opening a page, plus a few discovery and behaviour fixes.
+
+### Start, stop, and restart your containers from the dashboard
+
+3.1.0 read your daemon and imported containers as apps. 3.1.1 lets you act on them. Docker-tracked apps on the overview now carry a small status dot -- red when stopped, amber when unhealthy or paused, blue when restarting, and nothing at all when a container is running happily, so the page stays quiet. Hover a card and the controls slide in below it: **Start** when the container is stopped, **Stop** and **Restart** when it's running. On a phone the buttons are always visible. They sit below the card, outside the area that opens the app, so you can't fat-finger "stop" when you meant to open something.
+
+This is **off by default** and takes two deliberate steps to turn on, so a read-only dashboard can never mutate your containers by accident:
+
+1. Mount the Docker socket read-write -- in `docker-compose.yml`, change the socket line to `- /var/run/docker.sock:/var/run/docker.sock:rw` (the default ships `:ro`).
+2. Set `discovery.docker.lifecycle_enabled: true` in `config.yaml`, or tick "Enable container lifecycle controls" under **Settings -> Discovery** (the checkbox stays disabled until the socket is writable).
+
+By default only **admins** see the controls. Widen that with `discovery.docker.lifecycle_min_role` (`admin` / `power-user` / `user`) and optionally restrict to groups with `discovery.docker.lifecycle_allowed_groups`. Even fully enabled, Muximux only starts, stops, and restarts the containers it already tracks -- it never pulls or builds images, creates or destroys containers, execs into them, or touches networks and volumes. Every action, and every denied attempt, lands in the audit log. Want the state dots in the sidebar too? Set `discovery.docker.health_badge_placement: overview_and_nav` (default `overview`; `off` hides them everywhere).
+
+### Webhook-style app buttons (`http_action`)
+
+Some "apps" are really just an action -- trigger a backup, kick off a CI job, poke a webhook. Give an app `open_mode: http_action` and clicking it fires an HTTP request (configurable method + headers) through a server-side relay instead of opening a page. Optionally prompt for confirmation first (`http_action_confirm`), or silence the result toast for fire-and-forget actions (`http_action_show_toast`). Every fire is audit-logged. The same settings are available as Docker discovery labels (`muximux.app.http_action_method`, `...headers`, `...confirm`, `...show_toast`) for GitOps setups.
 
 ### Added
 - New `open_mode: http_action` for app entries -- click fires a configurable
@@ -19,10 +36,11 @@ All notable changes to Muximux are documented in this file.
   set via `discovery.docker.lifecycle_min_role` (default `admin`) and
   `discovery.docker.lifecycle_allowed_groups`. Every action and every
   denied attempt is audit-logged.
-- Live Docker state badges (Stopped / Unhealthy / Paused / Restarting) on
-  Docker-tracked apps, propagated over the WebSocket (`docker_state_changed`
-  event). Badge placement is configurable via
-  `discovery.docker.health_badge_placement` (off / overview / overview+nav).
+- Live Docker state shown as a quiet status dot on Docker-tracked apps
+  (red stopped, amber unhealthy/paused, blue restarting; none when
+  running-and-healthy), propagated over the WebSocket (`docker_state_changed`
+  event). Placement is configurable via
+  `discovery.docker.health_badge_placement` (off / overview / overview_and_nav).
 
 ### Changed
 - The Docker socket mount stays `:ro` by default. Container lifecycle

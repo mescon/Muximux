@@ -51,7 +51,7 @@ services:
       # grants the runtime user access; no extra env var needed.
       # - /var/run/docker.sock:/var/run/docker.sock:ro
       #
-      # Container lifecycle controls (opt-in, 3.2.0+). To let the
+      # Container lifecycle controls (opt-in, 3.1.1+). To let the
       # dashboard start/stop/restart tracked containers, use the :rw
       # mount below INSTEAD of the :ro one above AND set
       # discovery.docker.lifecycle_enabled: true in config.yaml. With
