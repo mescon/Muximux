@@ -88,7 +88,9 @@ The dashboards in this space approach things differently. This table is a quick 
 | Built-in users and roles | ✅ | ❌ (external auth) | ✅ | ✅ | Simple |
 | Forward-auth / OIDC / SSO | ✅ | Via external proxy | ✅ (OIDC + LDAP) | ✅ (Plex / Emby / LDAP) | ✅ (Keycloak) |
 | Auto-HTTPS via Let's Encrypt | ✅ (embedded Caddy) | ❌ | ❌ | ❌ | ❌ |
-| Reverse-proxy other sites (gateway mode) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Can be your only reverse proxy (gateway subdomains for any service) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Start / stop / restart Docker containers from the dashboard | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Keeps app URLs working as container IPs / names change | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Config | YAML (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
 | Deployment | Single Go binary | Docker / K8s / binary | Docker | Docker / PHP | Docker / Node.js |
 
