@@ -153,8 +153,20 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 		return
 	}
 
+	// Detach the mutating op (and the post-action inspect) from the
+	// request context. A lifecycle action must run to completion and
+	// audit-log its true outcome even if the client navigates away
+	// mid-request: otherwise a disconnect cancels the in-flight call,
+	// the action may still take effect on the daemon, yet we'd log it
+	// as "failed (context canceled)". WithoutCancel keeps context
+	// values (logging) while dropping cancellation; the timeout
+	// comfortably covers stop's 10s SIGTERM grace and restart's
+	// stop-then-start plus daemon overhead.
+	opCtx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 45*time.Second)
+	defer cancel()
+
 	start := time.Now()
-	err := op(r.Context(), id)
+	err := op(opCtx, id)
 	latency := time.Since(start)
 
 	if err != nil {
@@ -173,7 +185,7 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 	// Refresh this single app's state immediately so the response body
 	// and the WebSocket broadcast both carry the post-action state
 	// without waiting for the next poll tick.
-	newState, inspectErr := h.dockerService.InspectContainerState(r.Context(), id)
+	newState, inspectErr := h.dockerService.InspectContainerState(opCtx, id)
 	if inspectErr == nil {
 		h.dockerService.SetDockerStateForApp(appName, &newState)
 	}

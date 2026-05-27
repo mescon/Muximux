@@ -142,6 +142,48 @@ func TestDockerStart_Success_AuditedAndBroadcast(t *testing.T) {
 	}
 }
 
+func TestDockerStart_OpDetachedFromRequestContext(t *testing.T) {
+	// A lifecycle action must run to completion even if the client
+	// disconnects mid-request: the op runs on a context detached from
+	// r.Context(), so a canceled request must NOT cancel the op (which
+	// would otherwise log a spurious "failed (context canceled)" while
+	// the daemon still applied the action).
+	var opCalled atomic.Bool
+	var opCtxErr error
+	op := func(ctx context.Context, _ string) error {
+		opCalled.Store(true)
+		opCtxErr = ctx.Err()
+		return nil
+	}
+	svc := &stubDockerService{
+		writable:    true,
+		resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+		states:      map[string]discovery.DockerState{"abc123": {Status: "running"}},
+	}
+	h, r := newDockerLifecycleHandler(t,
+		&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+		[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+		svc, &stubDockerHub{}, op,
+	)
+	// Simulate a client that has already disconnected.
+	ctx, cancel := context.WithCancel(r.Context())
+	cancel()
+	r = r.WithContext(ctx)
+
+	w := httptest.NewRecorder()
+	h.DockerStart(w, r, "sonarr")
+
+	if !opCalled.Load() {
+		t.Fatal("op was not invoked despite a canceled request context")
+	}
+	if opCtxErr != nil {
+		t.Fatalf("op ran on a canceled context (%v); it must be detached from the request", opCtxErr)
+	}
+	if w.Code != http.StatusOK {
+		t.Fatalf("want 200 (op should complete), got %d (%s)", w.Code, w.Body.String())
+	}
+}
+
 func TestMapDockerError_KnownErrors(t *testing.T) {
 	cases := []struct {
 		name string
