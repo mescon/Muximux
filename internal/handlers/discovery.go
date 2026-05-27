@@ -178,6 +178,18 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
 		return
 	}
+	// Validate the lifecycle fields with the SAME rules the load path
+	// uses, so a PUT can't persist an unknown lifecycle_min_role (which
+	// would fail OPEN -- HasMinRole against an unknown role is level 0,
+	// i.e. every authenticated user passes) or an allowed_groups entry
+	// that bricks the next restart's load-time validation.
+	h.configMu.RLock()
+	groups := h.config.Groups
+	h.configMu.RUnlock()
+	if err := config.ValidateDiscoveryLifecycle(&newCfg, groups); err != nil {
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
+		return
+	}
 
 	// Snapshot, mutate, save, rollback on failure - same shape as the
 	// auth-config update path. Persist BEFORE rebuilding the service so

@@ -759,7 +759,7 @@ func (c *Config) validate() error {
 		return err
 	}
 
-	if err := validateDiscoveryLifecycle(&c.Discovery.Docker, c.Groups); err != nil {
+	if err := ValidateDiscoveryLifecycle(&c.Discovery.Docker, c.Groups); err != nil {
 		return err
 	}
 
@@ -858,11 +858,11 @@ func validateGatewayListen(addr string) error {
 	return nil
 }
 
-// validateDiscoveryLifecycle checks the discovery.docker lifecycle
+// ValidateDiscoveryLifecycle checks the discovery.docker lifecycle
 // fields. Unknown role / placement values are rejected up front so a
 // hand-edited config.yaml typo surfaces at boot instead of at the
 // first action click.
-func validateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) error {
+func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) error {
 	switch d.LifecycleMinRole {
 	case "", "admin", "power-user", "user":
 	default:

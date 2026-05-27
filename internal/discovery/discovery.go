@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // Service is the entry point used by HTTP handlers and the (later)
@@ -614,10 +615,20 @@ func (s *Service) ResolveContainerID(ctx context.Context, key string) (string, b
 	}
 	tk, err := ParseTrackingKey(key)
 	if err != nil {
+		// A malformed docker_key is a config error, not a missing
+		// container; log it so the operator isn't misled by the
+		// caller's generic "container not found".
+		logging.Warn("Cannot resolve container: malformed tracking key",
+			"source", "discovery", "key", key, "error", err.Error())
 		return "", false
 	}
 	containers, err := c.ListContainers(ctx, ListContainersOpts{All: true})
 	if err != nil {
+		// Daemon unreachable / listing failed. Distinct from a genuine
+		// no-match; log the cause so a transient daemon outage isn't
+		// silently reported to the operator as a deleted container.
+		logging.Warn("Cannot resolve container: ListContainers failed",
+			"source", "discovery", "key", key, "error", err.Error())
 		return "", false
 	}
 	matched := tk.FindContainer(containers)

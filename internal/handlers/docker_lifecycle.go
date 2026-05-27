@@ -93,36 +93,27 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 	cfg := h.config.Discovery.Docker
 	h.mu.RUnlock()
 
-	if !cfg.LifecycleEnabled {
+	// Run the shared user-level gate ladder (the same one behind the
+	// can_use_docker_lifecycle flag). Then map the failing rung to its
+	// HTTP status. Keeping the ladder in evaluateLifecycleGate means the
+	// enforcement here and the UI's advisory flag can't drift apart.
+	socketWritable := h.dockerService != nil && h.dockerService.SocketWritable()
+	switch reason := evaluateLifecycleGate(user, &cfg, socketWritable); reason {
+	case denyNone:
+		// allowed; fall through to the per-app checks below.
+	case denyLifecycleDisabled:
 		logging.Audit("Docker lifecycle action denied",
-			"app", name, "action", action,
-			"caller", caller, "reason", "lifecycle_disabled")
+			"app", name, "action", action, "caller", caller, "reason", string(reason))
 		respondError(w, r, http.StatusServiceUnavailable, errLifecycleDisabled)
 		return
-	}
-	if h.dockerService == nil || !h.dockerService.SocketWritable() {
+	case denySocketReadonly:
 		logging.Audit("Docker lifecycle action denied",
-			"app", name, "action", action,
-			"caller", caller, "reason", "socket_readonly")
+			"app", name, "action", action, "caller", caller, "reason", string(reason))
 		respondError(w, r, http.StatusServiceUnavailable, errSocketReadOnly)
 		return
-	}
-
-	minRole := cfg.LifecycleMinRole
-	if minRole == "" {
-		minRole = auth.RoleAdmin
-	}
-	if !auth.HasMinRole(user.Role, minRole) {
+	default: // denyMinRole, denyNotInGroup
 		logging.Audit("Docker lifecycle action denied",
-			"app", name, "action", action,
-			"caller", caller, "reason", "min_role_not_met")
-		respondError(w, r, http.StatusForbidden, errAccessDenied)
-		return
-	}
-	if len(cfg.LifecycleAllowedGroups) > 0 && !auth.InAnyGroup(user, cfg.LifecycleAllowedGroups) {
-		logging.Audit("Docker lifecycle action denied",
-			"app", name, "action", action,
-			"caller", caller, "reason", "not_in_allowed_groups")
+			"app", name, "action", action, "caller", caller, "reason", string(reason))
 		respondError(w, r, http.StatusForbidden, errAccessDenied)
 		return
 	}
@@ -182,34 +173,56 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 		return
 	}
 
-	// Refresh this single app's state immediately so the response body
-	// and the WebSocket broadcast both carry the post-action state
-	// without waiting for the next poll tick.
+	// Refresh this single app's state so the response body and the
+	// WebSocket broadcast both carry the post-action state without
+	// waiting for the next poll tick. If the inspect fails (the op may
+	// have consumed most of the 45s budget, or a stop removed the
+	// container), the op itself still succeeded: record that, but do NOT
+	// cache/broadcast/return a fabricated zero-value state -- that would
+	// blank every client's status pill until the next poll. The poller
+	// supplies the real state on its next tick.
 	newState, inspectErr := h.dockerService.InspectContainerState(opCtx, id)
-	if inspectErr == nil {
-		h.dockerService.SetDockerStateForApp(appName, &newState)
+	if inspectErr != nil {
+		logging.Audit("Docker lifecycle action succeeded; post-action inspect failed",
+			"app", appName, "action", action,
+			"container_id", id, "caller", caller,
+			"inspect_error", inspectErr.Error(), "latency_ms", latency.Milliseconds())
+		sendJSON(w, http.StatusOK, dockerActionResult{LatencyMS: latency.Milliseconds()})
+		return
 	}
+
+	h.dockerService.SetDockerStateForApp(appName, &newState)
 	if h.dockerHub != nil {
-		h.dockerHub.BroadcastDockerStateChanged(appName, &websocket.DockerStatePayload{
-			Status:       newState.Status,
-			Health:       newState.Health,
-			StartedAt:    newState.StartedAt,
-			FinishedAt:   newState.FinishedAt,
-			ExitCode:     newState.ExitCode,
-			RestartCount: newState.RestartCount,
-			Image:        newState.Image,
-		})
+		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState))
 	}
 
 	logging.Audit("Docker lifecycle action succeeded",
 		"app", appName, "action", action,
 		"container_id", id, "caller", caller,
-		"new_status", newState.Status, "latency_ms", latency.Milliseconds())
+		"new_status", string(newState.Status), "latency_ms", latency.Milliseconds())
 
 	sendJSON(w, http.StatusOK, dockerActionResult{
-		Status:    newState.Status,
+		Status:    string(newState.Status),
 		LatencyMS: latency.Milliseconds(),
 	})
+}
+
+// DockerStatePayloadFromState converts a discovery.DockerState into the
+// websocket wire payload. The two structs are deliberately separate (to
+// avoid a websocket -> discovery import cycle); centralizing the field
+// copy here means there is exactly one place to update when a field is
+// added, and both the action handler and the poller's broadcast closure
+// (server.go) go through it.
+func DockerStatePayloadFromState(st *discovery.DockerState) *websocket.DockerStatePayload {
+	return &websocket.DockerStatePayload{
+		Status:       string(st.Status),
+		Health:       string(st.Health),
+		StartedAt:    st.StartedAt,
+		FinishedAt:   st.FinishedAt,
+		ExitCode:     st.ExitCode,
+		RestartCount: st.RestartCount,
+		Image:        st.Image,
+	}
 }
 
 // DockerStart handles POST /api/app-docker/{name}/start.

@@ -1712,21 +1712,12 @@ func (s *Server) Start() error {
 			ConfigMu:      &s.configMu,
 			Proxy:         s.proxyServer, // may be nil; poller handles
 			OnConfigSaved: s.rebuildProxyRoutes,
-			// Bridge the two deliberately distinct state structs here:
-			// the poller speaks discovery.DockerState, the websocket hub
-			// speaks websocket.DockerStatePayload (kept separate so the
-			// websocket package doesn't import discovery). Convert
-			// field-by-field and fan out to connected clients.
+			// Bridge the two deliberately distinct state structs (the
+			// poller speaks discovery.DockerState, the hub speaks
+			// websocket.DockerStatePayload) through the single shared
+			// converter so the field copy lives in exactly one place.
 			BroadcastDockerStateChanged: func(appName string, state discovery.DockerState) {
-				s.wsHub.BroadcastDockerStateChanged(appName, &websocket.DockerStatePayload{
-					Status:       state.Status,
-					Health:       state.Health,
-					StartedAt:    state.StartedAt,
-					FinishedAt:   state.FinishedAt,
-					ExitCode:     state.ExitCode,
-					RestartCount: state.RestartCount,
-					Image:        state.Image,
-				})
+				s.wsHub.BroadcastDockerStateChanged(appName, handlers.DockerStatePayloadFromState(&state))
 			},
 		})
 		go s.discoveryPoller.Run(context.Background())

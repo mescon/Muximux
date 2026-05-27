@@ -926,6 +926,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
+	priorAllowedGroups := append([]string(nil), h.config.Discovery.Docker.LifecycleAllowedGroups...)
 	h.config.Groups = append(h.config.Groups[:idx], h.config.Groups[idx+1:]...)
 
 	for i := range h.config.Apps {
@@ -934,11 +935,26 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 		}
 	}
 
-	// Save config; on failure roll back both the groups slice and the
-	// apps slice so the cascading orphan-clear is undone too.
+	// Cascade-clear the deleted group from the Docker lifecycle allowlist
+	// so we don't leave a dangling reference that fails the next full
+	// SaveConfig (which runs Validate) or the next restart's load-time
+	// validation. Mirrors the app/gateway cascades above.
+	if len(priorAllowedGroups) > 0 {
+		filtered := make([]string, 0, len(priorAllowedGroups))
+		for _, g := range priorAllowedGroups {
+			if g != name {
+				filtered = append(filtered, g)
+			}
+		}
+		h.config.Discovery.Docker.LifecycleAllowedGroups = filtered
+	}
+
+	// Save config; on failure roll back the groups slice, the apps slice,
+	// and the lifecycle allowlist so every cascading clear is undone.
 	if err := h.config.Save(h.configPath); err != nil {
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
+		h.config.Discovery.Docker.LifecycleAllowedGroups = priorAllowedGroups
 		logging.Error("Groups delete save failed; in-memory state rolled back",
 			"source", "audit",
 			"group", name,

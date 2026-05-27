@@ -289,6 +289,28 @@ func TestUpdateDockerConfig_RejectsBadShape(t *testing.T) {
 	}
 }
 
+func TestUpdateDockerConfig_RejectsUnknownLifecycleMinRole(t *testing.T) {
+	// An unknown min-role must be rejected at the PUT, not persisted:
+	// HasMinRole against an unknown role is level 0, so it would fail OPEN
+	// (every authenticated user passes the gate). The load path already
+	// rejects it; the PUT path must agree.
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+	body, _ := json.Marshal(config.DiscoveryDockerConfig{
+		Enabled:          true,
+		Endpoint:         "unix:///var/run/docker.sock",
+		NetworkStrategy:  "container_ip",
+		LifecycleEnabled: true,
+		LifecycleMinRole: "superuser", // not a real role
+	})
+	req := adminCtxRequest(http.MethodPut, "/api/discovery/docker/config")
+	req.Body = httpBody(body)
+	w := httptest.NewRecorder()
+	h.UpdateDockerConfig(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400 (unknown lifecycle_min_role must not persist fail-open)", w.Code)
+	}
+}
+
 func TestScanDocker_NilService(t *testing.T) {
 	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan")

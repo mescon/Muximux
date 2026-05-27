@@ -313,3 +313,69 @@ func TestNewService_ProbesSocketWritability(t *testing.T) {
 		t.Fatalf("expected socketWritable=true after probe")
 	}
 }
+
+func TestService_LifecycleOps_AgainstFakeDaemon(t *testing.T) {
+	// Exercises the Service.*Op closures (the production glue server.go
+	// wires into the lifecycle handler) end-to-end against a fake daemon,
+	// and pins that Stop/Restart pass the 10s grace as t=10 on the wire.
+	var stopT, restartT string
+	mux := http.NewServeMux()
+	mux.HandleFunc("/_ping", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	mux.HandleFunc("/v1.41/containers/json", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode([]ContainerSummary{{ID: "c1", Names: []string{"/sonarr"}}})
+	})
+	mux.HandleFunc("/v1.41/containers/c1/start", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+	mux.HandleFunc("/v1.41/containers/c1/stop", func(w http.ResponseWriter, r *http.Request) {
+		stopT = r.URL.Query().Get("t")
+		w.WriteHeader(http.StatusNoContent)
+	})
+	mux.HandleFunc("/v1.41/containers/c1/restart", func(w http.ResponseWriter, r *http.Request) {
+		restartT = r.URL.Query().Get("t")
+		w.WriteHeader(http.StatusNoContent)
+	})
+	socket, cleanup := fakeDockerOverUnix(t, mux)
+	defer cleanup()
+
+	svc := NewService(&config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket})
+	if svc.client == nil {
+		t.Fatal("Service has no client; setup failure")
+	}
+	ctx := context.Background()
+
+	id, ok := svc.ResolveContainerID(ctx, "name:sonarr")
+	if !ok || id != "c1" {
+		t.Fatalf("ResolveContainerID = %q, %v; want c1, true", id, ok)
+	}
+	if err := svc.StartContainerOp()(ctx, "c1"); err != nil {
+		t.Fatalf("StartContainerOp: %v", err)
+	}
+	if err := svc.StopContainerOp(10)(ctx, "c1"); err != nil {
+		t.Fatalf("StopContainerOp: %v", err)
+	}
+	if err := svc.RestartContainerOp(10)(ctx, "c1"); err != nil {
+		t.Fatalf("RestartContainerOp: %v", err)
+	}
+	if stopT != "10" {
+		t.Errorf("stop grace on the wire = %q, want 10", stopT)
+	}
+	if restartT != "10" {
+		t.Errorf("restart grace on the wire = %q, want 10", restartT)
+	}
+}
+
+func TestService_LifecycleOps_NilClient_ReturnError(t *testing.T) {
+	svc := &Service{} // no client built
+	ctx := context.Background()
+	ops := map[string]func(context.Context, string) error{
+		"start":   svc.StartContainerOp(),
+		"stop":    svc.StopContainerOp(10),
+		"restart": svc.RestartContainerOp(10),
+	}
+	for name, op := range ops {
+		if err := op(ctx, "x"); err == nil {
+			t.Errorf("%s op with nil client: want error, got nil (must not panic)", name)
+		}
+	}
+}

@@ -147,31 +147,52 @@ type DockerLifecycleProbe interface {
 	SocketWritable() bool
 }
 
-// ComputeCanUseDockerLifecycle returns the per-user permission flag
-// surfaced to the frontend via /api/auth/me. Centralised here so the
-// UI's gating logic stays single-source-of-truth: the frontend never
-// re-implements the role / group check.
-func ComputeCanUseDockerLifecycle(u *auth.User, d *config.DiscoveryDockerConfig, socketWritable bool) bool {
-	if u == nil || d == nil {
-		return false
-	}
-	if !d.LifecycleEnabled {
-		return false
+// lifecycleDenyReason is the first failing rung of the user-level Docker
+// lifecycle gate, or denyNone when the user may use the controls. The
+// string values double as the audit-log "reason" field.
+type lifecycleDenyReason string
+
+const (
+	denyNone              lifecycleDenyReason = ""
+	denyLifecycleDisabled lifecycleDenyReason = "lifecycle_disabled"
+	denySocketReadonly    lifecycleDenyReason = "socket_readonly"
+	denyMinRole           lifecycleDenyReason = "min_role_not_met"
+	denyNotInGroup        lifecycleDenyReason = "not_in_allowed_groups"
+)
+
+// evaluateLifecycleGate runs the user-level lifecycle gate ladder (the
+// part independent of any specific app): lifecycle_enabled -> socket
+// writable -> min-role floor -> group allowlist. It returns the first
+// failing reason, or denyNone if the user may use the controls. Both the
+// advisory flag (ComputeCanUseDockerLifecycle, surfaced to the frontend)
+// and the server-side enforcement (dockerAction) go through this single
+// ladder so they can never diverge.
+func evaluateLifecycleGate(u *auth.User, d *config.DiscoveryDockerConfig, socketWritable bool) lifecycleDenyReason {
+	if u == nil || d == nil || !d.LifecycleEnabled {
+		return denyLifecycleDisabled
 	}
 	if !socketWritable {
-		return false
+		return denySocketReadonly
 	}
 	minRole := d.LifecycleMinRole
 	if minRole == "" {
 		minRole = auth.RoleAdmin
 	}
 	if !auth.HasMinRole(u.Role, minRole) {
-		return false
+		return denyMinRole
 	}
 	if len(d.LifecycleAllowedGroups) > 0 && !auth.InAnyGroup(u, d.LifecycleAllowedGroups) {
-		return false
+		return denyNotInGroup
 	}
-	return true
+	return denyNone
+}
+
+// ComputeCanUseDockerLifecycle returns the per-user permission flag
+// surfaced to the frontend via /api/auth/me. Centralised here so the
+// UI's gating logic stays single-source-of-truth: the frontend never
+// re-implements the role / group check.
+func ComputeCanUseDockerLifecycle(u *auth.User, d *config.DiscoveryDockerConfig, socketWritable bool) bool {
+	return evaluateLifecycleGate(u, d, socketWritable) == denyNone
 }
 
 // buildUserResponse assembles a UserResponse including the computed

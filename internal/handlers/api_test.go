@@ -535,6 +535,32 @@ func TestDeleteGroup(t *testing.T) {
 	})
 }
 
+func TestDeleteGroup_CascadeClearsLifecycleAllowlist(t *testing.T) {
+	cfg := createTestConfig()
+	// Reference the to-be-deleted group ("Media") and a surviving one
+	// ("Tools") in the Docker lifecycle allowlist.
+	cfg.Discovery.Docker.LifecycleEnabled = true
+	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"Media", "Tools"}
+	tmpFile, err := os.CreateTemp("", "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/groups/Media", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteGroup(w, req, "Media")
+
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want 204: %s", w.Code, w.Body.String())
+	}
+	got := cfg.Discovery.Docker.LifecycleAllowedGroups
+	if len(got) != 1 || got[0] != "Tools" {
+		t.Fatalf("lifecycle allowlist after delete = %v, want [Tools] (dangling 'Media' must be cascaded out)", got)
+	}
+}
+
 func TestSlugify(t *testing.T) {
 	tests := []struct {
 		input    string

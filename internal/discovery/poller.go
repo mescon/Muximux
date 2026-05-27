@@ -574,7 +574,7 @@ func buildDockerStateCache(
 	for _, t := range tracked {
 		id, ok := resolved[t.name]
 		if !ok || id == "" {
-			next[t.name] = DockerState{Status: "missing"}
+			next[t.name] = DockerState{Status: StatusMissing}
 			continue
 		}
 		st, err := inspect(ctx, id)
@@ -585,7 +585,7 @@ func buildDockerStateCache(
 				next[t.name] = p
 				continue
 			}
-			next[t.name] = DockerState{Status: "missing"}
+			next[t.name] = DockerState{Status: StatusMissing}
 			continue
 		}
 		next[t.name] = st

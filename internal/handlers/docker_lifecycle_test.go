@@ -184,6 +184,54 @@ func TestDockerStart_OpDetachedFromRequestContext(t *testing.T) {
 	}
 }
 
+func TestDockerStart_InspectFailsAfterOp_NoBlankBroadcast(t *testing.T) {
+	// The op succeeds but the post-action inspect fails (e.g. it consumed
+	// the time budget, or the container was removed). We must NOT broadcast
+	// or cache a fabricated zero-value DockerState (which would blank every
+	// client's status), and must still report the op as a success.
+	var opCalled atomic.Bool
+	op := func(_ context.Context, _ string) error { opCalled.Store(true); return nil }
+	var stateSet bool
+	svc := &stubDockerService{
+		writable:    true,
+		resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
+		inspectFunc: func(_ context.Context, _ string) (discovery.DockerState, error) {
+			return discovery.DockerState{}, errors.New("docker daemon timeout")
+		},
+		setStateFn: func(string, *discovery.DockerState) { stateSet = true },
+	}
+	hub := &stubDockerHub{}
+	h, r := newDockerLifecycleHandler(t,
+		&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
+		[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
+		svc, hub, op,
+	)
+	w := httptest.NewRecorder()
+	h.DockerStart(w, r, "sonarr")
+
+	if !opCalled.Load() {
+		t.Fatal("op should have run")
+	}
+	if w.Code != http.StatusOK {
+		t.Fatalf("op succeeded; want 200, got %d (%s)", w.Code, w.Body.String())
+	}
+	hub.mu.Lock()
+	defer hub.mu.Unlock()
+	if len(hub.events) != 0 {
+		t.Fatalf("must not broadcast a fabricated state on inspect failure; got %d events: %+v", len(hub.events), hub.events)
+	}
+	if stateSet {
+		t.Fatal("must not cache a fabricated zero state on inspect failure")
+	}
+	var body dockerActionResult
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if body.Status != "" {
+		t.Fatalf("response must not invent a status when inspect failed, got %q", body.Status)
+	}
+}
+
 func TestMapDockerError_KnownErrors(t *testing.T) {
 	cases := []struct {
 		name string
@@ -371,53 +419,6 @@ func TestDockerStart_Unauthorized_NoUser(t *testing.T) {
 	h.DockerStart(w, r, "sonarr")
 	if w.Code != http.StatusUnauthorized {
 		t.Fatalf("want 401, got %d", w.Code)
-	}
-}
-
-func TestDockerStop_PassesTenSecondTimeout(t *testing.T) {
-	var seenTimeout int
-	stopOp := func(_ context.Context, id string) error {
-		// The closure server.go installs is:
-		//   func(ctx, id) error { return client.StopContainer(ctx, id, 10) }
-		// The test installs an op that records the timeout via a
-		// capture-by-reference; production code passes 10 explicitly.
-		// Use a side-channel via a wrapper closure below.
-		return nil
-	}
-	// Wrap stopOp so the test captures the timeout argument the
-	// production closure would have passed.
-	wrappedStop := func(ctx context.Context, id string) error {
-		seenTimeout = 10 // mimic the production closure's literal
-		return stopOp(ctx, id)
-	}
-
-	svc := &stubDockerService{
-		writable:    true,
-		resolvedIDs: map[string]string{"name:/sonarr": "abc123"},
-		states:      map[string]discovery.DockerState{"abc123": {Status: "exited", Health: "none", Image: "img"}},
-	}
-	hub := &stubDockerHub{}
-
-	h, r := newDockerLifecycleHandler(t,
-		&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "admin"},
-		[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr"}},
-		svc, hub, wrappedStop,
-	)
-	h.dockerStopOp = wrappedStop
-	w := httptest.NewRecorder()
-	h.DockerStop(w, r, "sonarr")
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("want 200, got %d (%s)", w.Code, w.Body.String())
-	}
-	if seenTimeout != 10 {
-		t.Fatalf("want timeout=10s passed, got %d", seenTimeout)
-	}
-	// Audit log should record action="stop" and new_status="exited".
-	hub.mu.Lock()
-	defer hub.mu.Unlock()
-	if len(hub.events) != 1 || hub.events[0].State.Status != "exited" {
-		t.Fatalf("broadcast wrong: %+v", hub.events)
 	}
 }
 

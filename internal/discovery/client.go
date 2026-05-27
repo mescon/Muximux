@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // dockerAPIVersion is the engine API version Muximux compiles against.
@@ -240,12 +241,24 @@ func (c *Client) IsSocketWritable(ctx context.Context) bool {
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
+		// Probe couldn't reach the daemon (timeout, bad path, permission
+		// denied). Lifecycle will be disabled; log why so an operator who
+		// expects the controls isn't left guessing.
+		logging.Warn("Docker socket writability probe failed; lifecycle controls disabled",
+			"source", "discovery", "error", err.Error())
 		return false
 	}
 	defer resp.Body.Close()
 	// 404 means the daemon accepted the verb and the container was
-	// not found - the only signal we care about.
-	return resp.StatusCode == http.StatusNotFound
+	// not found - the only signal we care about. Any other status
+	// (e.g. 403/405 from a socket-proxy that strips POST) means the
+	// socket is effectively read-only; surface that distinction.
+	if resp.StatusCode != http.StatusNotFound {
+		logging.Info("Docker socket appears read-only; lifecycle controls disabled",
+			"source", "discovery", "probe_status", resp.StatusCode)
+		return false
+	}
+	return true
 }
 
 // Version returns daemon version info. Used by the Settings tab to
@@ -421,16 +434,19 @@ func (c *Client) InspectContainerState(ctx context.Context, id string) (DockerSt
 	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&env); err != nil {
 		return DockerState{}, fmt.Errorf("docker inspect state %s decode: %w", id, err)
 	}
+	// The daemon's State.Status is the authoritative closed set
+	// (created/running/paused/restarting/removing/exited/dead), so the
+	// converted value is always in-domain for ContainerStatus.
 	st := DockerState{
-		Status:       env.State.Status,
+		Status:       ContainerStatus(env.State.Status),
 		ExitCode:     env.State.ExitCode,
 		RestartCount: env.RestartCount,
 		Image:        env.Config.Image,
 	}
 	if env.State.Health != nil {
-		st.Health = env.State.Health.Status
+		st.Health = ContainerHealth(env.State.Health.Status)
 	} else {
-		st.Health = "none"
+		st.Health = HealthNone
 	}
 	if env.State.StartedAt != "" {
 		if t, perr := time.Parse(time.RFC3339Nano, env.State.StartedAt); perr == nil {
