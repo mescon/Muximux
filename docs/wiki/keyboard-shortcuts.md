@@ -22,7 +22,7 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 | `F` | Toggle Fullscreen (hide navigation) |
 | `N` | Next App |
 | `P` | Previous App |
-| `1` - `9` | Jump to App (by assignment or position) |
+| `1` - `9` | Jump to App (apps with an assigned shortcut) |
 
 **Note:** Keyboard shortcuts are only active when the Muximux UI itself is focused. When an iframe app has focus, keystrokes are sent to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
 

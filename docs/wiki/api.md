@@ -329,7 +329,7 @@ The server downloads the image, validates the content type and size (2MB limit),
 
 | Endpoint | Method | Auth Required | Description |
 |----------|--------|---------------|-------------|
-| `/api/logs/recent` | GET | Yes | Get recent log entries from the in-memory buffer |
+| `/api/logs/recent` | GET | Admin | Get recent log entries from the in-memory buffer (audit entries, client IPs, and panic stacks make this admin-only) |
 
 **Query parameters:**
 
@@ -371,8 +371,8 @@ Logs are stored in a 1000-entry ring buffer. When the buffer is full, the oldest
 
 | Endpoint | Method | Auth Required | Description |
 |----------|--------|---------------|-------------|
-| `/api/system/info` | GET | No | Get system information |
-| `/api/system/updates` | GET | No | Check for available updates |
+| `/api/system/info` | GET | Yes | Get system information (admin-only fields like data_dir, environment, and uptime are scrubbed for non-admin callers) |
+| `/api/system/updates` | GET | Admin | Check for available updates |
 
 **System info response:**
 ```json
@@ -440,7 +440,8 @@ Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
 | `config_updated` | Full config object | Configuration was changed (via Settings panel or API) |
 | `health_changed` | Array of health statuses | Health status changed for one or more apps |
 | `app_health_changed` | `{"app": "name", "health": {...}}` | Health status changed for a specific app |
-| `log_entry` | `LogEntry` object | A new log entry was recorded (see Logs section above) |
+| `docker_state_changed` | `{"app_name": "name", "state": {...}}` | Container state changed for a Docker-tracked app (status, health, restart count, etc.) |
+| `log_entry` | `LogEntry` object | A new log entry was recorded (see Logs section above). Admin-only: only broadcast to admin clients |
 
 The WebSocket client automatically reconnects if the connection drops, using exponential backoff (up to 30 seconds between retries, max 10 attempts).
 
@@ -452,5 +453,6 @@ The following endpoints are rate-limited to **5 attempts per IP address per minu
 
 - `POST /api/auth/login` -- Login attempts
 - `POST /api/auth/setup` -- Initial setup attempts
+- `GET /api/auth/oidc/login` -- OIDC login redirects (shares the login limiter)
 
 Other API endpoints are not rate-limited.

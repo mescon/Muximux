@@ -36,11 +36,11 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 - Rewrites `Location`, `Content-Location`, and `Refresh` redirect headers to the proxy path
 - Rewrites `Set-Cookie` attributes: `Path` → proxy prefix, `Domain` stripped (defaults to proxy host), `Secure` stripped when frontend is HTTP, `SameSite=Strict` → `Lax` (too restrictive through proxy)
 - Rewrites `Link` header URIs (e.g., preload hints)
-- Rewrites restrictive `Access-Control-Allow-Origin` headers to match the request origin (with `Vary: Origin`)
 - Strips `ETag` and `Last-Modified` on responses whose body was rewritten (prevents stale cache hits)
 
 **Request headers:**
-- Rewrites `Origin` and `Referer` to match the backend's scheme and host, preventing CSRF rejections
+- Strips the `Origin` header entirely (a server-to-server request has no meaningful browser origin, and backends with no CORS config reject any request bearing an `Origin`); CSRF protection for frameworks that check `Origin` is instead covered by the rewritten `Referer`
+- Rewrites `Referer` to match the backend's scheme and host, preventing CSRF rejections
 - Sets `Host` to the backend host
 - Forwards `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto`, and `X-Real-IP`
 

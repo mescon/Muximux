@@ -98,7 +98,7 @@ auth:
   trusted_proxies:
     - 192.168.0.0/16
     - 172.16.0.0/12
-    - 192.168.0.0/16
+    - 10.0.0.0/8
   headers:
     user: Remote-User        # Header containing username (default: Remote-User)
     email: Remote-Email      # Header containing email (default: Remote-Email)
@@ -155,7 +155,16 @@ If your provider is not listed, check its documentation for the logout or sign-o
 
 ### Admin Detection
 
-Users whose groups contain "admin", "admins", or "administrators" (exact match) are automatically assigned the admin role.
+Users whose groups contain "admin", "admins", or "administrators" (case-insensitive match) are automatically assigned the admin role.
+
+To use a different group name, set `forward_auth_admin_groups` on the `auth` block. When set, it replaces the default list; group matching stays case-insensitive.
+
+```yaml
+auth:
+  method: forward_auth
+  forward_auth_admin_groups:
+    - dashboard-admins
+```
 
 ### Direct Access Behavior
 

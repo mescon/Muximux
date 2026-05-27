@@ -45,7 +45,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applica
 
 ### Input Validation (ASVS V5)
 
-- **CSRF protection** -- State-changing API requests (POST, PUT) require `application/json` Content-Type, which triggers CORS preflight from cross-origin requests. Browsers cannot send cross-origin JSON requests without server approval.
+- **CSRF protection** -- State-changing API requests (POST, PUT, DELETE, PATCH) must carry either a CSRF-safe Content-Type (`application/json`, `multipart/form-data`, or `application/x-yaml`) or an `X-Requested-With` header. A cross-origin page cannot send either without a CORS preflight that Muximux never grants, which defeats the classic browser-form CSRF vector.
 - **Environment variable expansion safety** -- Only `${VAR}` syntax is expanded; bare `$VAR` references are left untouched. This prevents corruption of values like bcrypt hashes (`$2a$10$...`).
 
 ### Cryptography (ASVS V6)

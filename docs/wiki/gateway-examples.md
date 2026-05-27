@@ -1,6 +1,6 @@
 # Gateway Examples
 
-> **3.1.0 note:** The recipes below are written as gateway Caddyfile blocks for reference. In 3.1.0+ the supported configuration form is `server.gateway_sites:` declarative YAML; a 3.0.x Caddyfile is auto-migrated to the YAML form on first boot. Use the [Configuration Reference](configuration.md#gateway-sites) for the YAML schema, and **Settings -> Gateway** in the dashboard to edit visually. The Caddyfile snippets here still describe what each gateway-site option *does*; map them to the YAML equivalents by hand or feed your existing Caddyfile through `muximux migrate-gateway` to see the conversion side-by-side.
+> **3.1.0 note:** The recipes below are written as gateway Caddyfile blocks for reference. In 3.1.0+ the supported configuration form is `server.gateway_sites:` declarative YAML; a 3.0.x Caddyfile is auto-migrated to the YAML form on first boot. Use the [Configuration Reference](configuration.md) for the YAML schema, and **Settings -> Gateway** in the dashboard to edit visually. The Caddyfile snippets here still describe what each gateway-site option *does*; map them to the YAML equivalents by hand or feed your existing Caddyfile through `muximux migrate-gateway` to see the conversion side-by-side.
 
 Practical recipes for using Muximux's embedded Caddy as a reverse proxy for your other services. See [TLS & HTTPS](tls-and-gateway.md) for initial setup.
 
@@ -24,7 +24,7 @@ server:
 
 Expose ports 80 and 443 (Caddy needs both for ACME and HTTPS). Adding or removing `gateway_sites:` entries reloads Caddy in place -- no full restart required. Schema changes to existing sites (TLS-mode flip, auth gate toggle) also reload in place.
 
-The recipe sections below show the Caddyfile shape for each scenario; translate each into the corresponding `gateway_sites:` entry fields (see [Configuration Reference](configuration.md#gateway-sites) for the full schema).
+The recipe sections below show the Caddyfile shape for each scenario; translate each into the corresponding `gateway_sites:` entry fields (see [Configuration Reference](configuration.md) for the full schema).
 
 ---
 
@@ -206,7 +206,7 @@ api.example.com {
 }
 ```
 
-> **Note:** Rate limiting requires the `rate_limit` Caddy module. If it's not compiled into Muximux's embedded Caddy, this directive won't work. The standard Caddy modules included cover reverse proxying, headers, TLS, and basic auth.
+> **Note:** Rate limiting requires the third-party `rate_limit` Caddy module, which is **not** compiled into Muximux's embedded Caddy (only the standard module set is included: reverse proxying, headers, TLS, and basic auth). This directive will not work here. For rate limiting, put Muximux behind an external proxy that provides it.
 
 ---
 
@@ -282,7 +282,6 @@ services:
       - "443:443"
     volumes:
       - ./data:/app/data
-      - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
     networks:
       - proxy
 
@@ -297,22 +296,22 @@ networks:
     name: proxy
 ```
 
-Then in your Caddyfile, use the container name:
+Then in your gateway site, use the container name as the backend host:
 
-```
-grafana.example.com {
-    reverse_proxy grafana:3000
-}
+```yaml
+gateway_sites:
+  - domain: grafana.example.com
+    backend_url: http://grafana:3000
 ```
 
 ### Host networking
 
 Alternatively, use `network_mode: host` or reference `host.docker.internal`:
 
-```
-grafana.example.com {
-    reverse_proxy host.docker.internal:3000
-}
+```yaml
+gateway_sites:
+  - domain: grafana.example.com
+    backend_url: http://host.docker.internal:3000
 ```
 
 > **Note:** `host.docker.internal` works on Docker Desktop and on Linux with Docker 20.10+ (add `extra_hosts: ["host.docker.internal:host-gateway"]` to your compose file).
@@ -331,7 +330,13 @@ server:
   tls:
     domain: "home.example.com"
     email: "admin@example.com"
-  gateway: /app/data/sites.Caddyfile
+  gateway_sites:
+    - domain: grafana.example.com
+      backend_url: http://grafana:3000
+      tls: auto
+    - domain: sonarr.example.com
+      backend_url: http://sonarr:8989
+      tls: auto
 
 apps:
   - name: Grafana
@@ -354,25 +359,7 @@ apps:
     enabled: true
 ```
 
-**`sites.Caddyfile`:**
-
-```
-grafana.example.com {
-    reverse_proxy grafana:3000
-}
-
-sonarr.example.com {
-    reverse_proxy sonarr:8989
-}
-
-proxmox.example.com {
-    reverse_proxy https://proxmox:8006 {
-        transport http {
-            tls_insecure_skip_verify
-        }
-    }
-}
-```
+Gateway sites only accept an `http://` or `https://` `backend_url` with no path, query, or extra transport flags. A backend that serves a self-signed HTTPS certificate (like Proxmox) can't be verified through a gateway site, so reach it some other way -- here Proxmox is added as a dashboard app pointed at an external proxy or its direct URL rather than a gateway site.
 
 **`docker-compose.yml`:**
 
@@ -385,7 +372,6 @@ services:
       - "443:443"
     volumes:
       - ./data:/app/data
-      - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
     networks:
       - proxy
     restart: unless-stopped
@@ -395,14 +381,14 @@ networks:
     external: true
 ```
 
-Each service you add to `sites.Caddyfile` automatically gets HTTPS. Add a corresponding app entry in `config.yaml` to see it on your dashboard.
+Each gateway site you add automatically gets HTTPS. Add a corresponding app entry in `config.yaml` to see it on your dashboard.
 
 ---
 
 ## Tips
 
-- **One restart per change**: Changes to `sites.Caddyfile` require restarting Muximux. Batch your changes.
-- **Test syntax first**: The Caddyfile is validated at startup. A syntax error prevents Muximux from starting. Check Caddy's [documentation](https://caddyserver.com/docs/caddyfile) for syntax reference.
+- **In-place reload**: Adding, editing, or removing `gateway_sites` reloads Caddy in place -- no full restart required.
+- **Validated before apply**: Gateway sites are validated when the config loads or when you save in Settings → Gateway. An invalid entry (bad domain, backend with a path, unknown `tls` mode) is rejected with a specific error rather than silently breaking Caddy.
 - **Certificate storage**: Caddy stores certificates in its default data directory. In Docker, this is inside the container -- certificates are re-obtained on container recreation. To persist them, mount a volume to `/data` (Caddy's default storage path inside the Muximux container).
-- **Dashboard integration**: Services in the gateway Caddyfile are proxied by Caddy directly -- they don't go through Muximux's built-in reverse proxy. Add them as apps in `config.yaml` using their `https://` domain URLs to see them on the dashboard.
-- **Debug**: If a gateway service isn't working, check Muximux's logs. Caddy logs through Muximux's logging system and will report certificate errors, unreachable backends, and Caddyfile parse failures.
+- **Dashboard integration**: Gateway sites are proxied by Caddy directly -- they don't go through Muximux's built-in reverse proxy. Add them as apps in `config.yaml` using their `https://` domain URLs to see them on the dashboard.
+- **Debug**: If a gateway service isn't working, check Muximux's logs. Caddy logs through Muximux's logging system and will report certificate errors and unreachable backends.

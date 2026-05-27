@@ -20,7 +20,7 @@ Set `enabled: false` to disable health monitoring entirely. When disabled, all a
 ## How It Works
 
 - Muximux sends an HTTP GET request to each app that has `health_check: true` (using `health_url` if configured, otherwise the main `url`).
-- A response with HTTP status 2xx is considered **healthy**. Redirects (3xx) are followed automatically (up to 3 hops). Timeouts, connection errors, and non-2xx final responses are considered **unhealthy**. TLS certificate errors are ignored, so self-signed certs work fine.
+- A final response with HTTP status 2xx or 3xx is considered **healthy**. Redirects are followed automatically (up to 3 hops); if more redirects remain after the limit, the last 3xx response is used and still counts as healthy. Timeouts, connection errors, and 4xx/5xx responses are considered **unhealthy**. TLS certificate errors are ignored, so self-signed certs work fine.
 - Results are broadcast to all connected browsers via WebSocket in real-time.
 
 ## Custom Health URLs
@@ -66,8 +66,8 @@ This opt-in design keeps things quiet by default and lets you choose which apps 
 
 In the navigation, each app icon shows a small colored dot indicating its current health:
 
-- **Green** -- Healthy (HTTP 2xx response)
-- **Red** -- Unhealthy (error, timeout, or non-2xx response)
+- **Green** -- Healthy (HTTP 2xx or 3xx response)
+- **Red** -- Unhealthy (error, timeout, or 4xx/5xx response)
 - **Gray** -- Unknown (not yet checked or health monitoring disabled)
 
 ## Health Data

@@ -44,11 +44,12 @@ services:
       - "443:443"
     volumes:
       - ./data:/app/data
-      - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
     restart: unless-stopped
 ```
 
-Configure `tls.domain` and `gateway` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. Port 8080 does not need to be exposed -- Caddy handles all traffic on 80/443.
+Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. Port 8080 does not need to be exposed -- Caddy handles all traffic on 80/443.
+
+> **Note:** The legacy `server.gateway:` Caddyfile path was removed in 3.1.0 and replaced by the declarative `server.gateway_sites:` YAML. A 3.0.x config (and any mounted `sites.Caddyfile`) is auto-migrated on first boot under 3.1.0.
 
 ### Volume
 

@@ -82,7 +82,14 @@ auth:
 
 `trusted_proxies` is required: Muximux only honours auth headers that arrived from a trusted hop. Setting it to `0.0.0.0/0` defeats the protection; restrict it to your reverse proxy's actual address or subnet.
 
-For admin promotion via groups, Authelia by default puts your group memberships into `Remote-Groups` as a comma-separated list. Muximux looks for any of `admin`, `admins`, or `administrators` (case-insensitive). If your admin group has a different name, you'll need OIDC's `admin_groups` setting (or wait for the upcoming per-app `allowed_groups` work).
+For admin promotion via groups, Authelia by default puts your group memberships into `Remote-Groups` as a comma-separated list. Muximux looks for any of `admin`, `admins`, or `administrators` (case-insensitive). If your admin group has a different name, set `forward_auth_admin_groups` on the `auth` block to name it instead:
+
+```yaml
+auth:
+  method: forward_auth
+  forward_auth_admin_groups:
+    - dashboard-admins
+```
 
 ### Step 4: Validate
 
@@ -164,7 +171,7 @@ Same as the OIDC case in any other provider: visit `/login`, click **Login with 
 |---|---|---|
 | Forward auth: `Remote-User` empty | The reverse proxy isn't forwarding the header, or the rule that protects Muximux didn't match. | Check the reverse-proxy logs for the response headers from `/api/verify`. They should include `Remote-User`. |
 | Forward auth: requests bypass Authelia | A request reached Muximux from outside the trusted-proxy range. | Lock down access at the reverse proxy so direct connections to Muximux's port aren't possible from outside the proxy network. |
-| Forward auth: admin gear missing for known admin user | Authelia is sending `Remote-Groups: foo` and Muximux's check is for `admin`/`admins`/`administrators`. | Either rename the admin group in Authelia, or switch to the OIDC mode where `admin_groups` is configurable. |
+| Forward auth: admin gear missing for known admin user | Authelia is sending `Remote-Groups: foo` and Muximux's check is for `admin`/`admins`/`administrators`. | Either rename the admin group in Authelia, or set `forward_auth_admin_groups` in Muximux to your group's name. |
 | OIDC: `unauthorized_client` from Authelia | Client secret in `config.yaml` doesn't match Authelia's stored hash. | Regenerate the hash with `authelia hash-password` and verify the plaintext you put in Muximux's environment matches. |
 | OIDC: no `groups` claim in token | `groups` not in the client's scopes list in Authelia. | Add `groups` to both Authelia's client config (Step 1) and Muximux's `scopes:`. |
 
