@@ -85,7 +85,16 @@
 
   async function runAction(app: App, action: 'start' | 'stop' | 'restart') {
     const fn = action === 'start' ? dockerStart : action === 'stop' ? dockerStop : dockerRestart;
-    const res = await fn(app.name);
+    let res;
+    try {
+      res = await fn(app.name);
+    } catch (e) {
+      // Backstop: the api layer is written not to throw, but guard here
+      // too so an unexpected rejection still surfaces as a toast rather
+      // than a silent unhandled rejection.
+      toasts.error(`Failed to ${action} ${app.name}: ${e instanceof Error ? e.message : 'unknown error'}`);
+      return;
+    }
     if (res.error) {
       toasts.error(`Failed to ${action} ${app.name}: ${res.error}`);
     } else {

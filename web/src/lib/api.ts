@@ -256,15 +256,36 @@ async function postDockerAction(name: string, action: 'start' | 'stop' | 'restar
   // avoids the /api/apps/ catch-all that intercepts /api/apps/{name}
   // health routes. See dev/2026-05-22-docker-container-lifecycle-plan.md
   // Task 22 for the path-collision write-up.
-  const res = await fetch(`${API_BASE}/app-docker/${encodeURIComponent(name)}/${action}`, {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-  });
-  // Even non-2xx responses carry a JSON body in the same shape
-  // (with `error` set instead of `status`); decode and return
-  // unconditionally rather than throwing.
-  return (await res.json()) as DockerActionResult;
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/app-docker/${encodeURIComponent(name)}/${action}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+  } catch (e) {
+    // Network failure (daemon unreachable, connection reset): surface as
+    // an error result so the caller can toast it rather than throwing an
+    // unhandled rejection.
+    return { error: e instanceof Error ? e.message : 'Network error', latency_ms: 0 };
+  }
+  // The op-result paths (success and daemon error) return JSON in this
+  // shape; the gate-ladder denials (401/403/503/404/400) return a
+  // text/plain body via respondError. Tolerate both, and never throw:
+  // a denial must surface to the user as an error toast, not a silent
+  // JSON.parse SyntaxError.
+  const text = await res.text().catch(() => '');
+  if (text) {
+    try {
+      const parsed = JSON.parse(text) as DockerActionResult;
+      if (parsed.status !== undefined || parsed.error !== undefined) {
+        return parsed;
+      }
+    } catch {
+      // Not JSON -> a text/plain denial body; fall through.
+    }
+  }
+  return { error: text.trim() || `Request failed (${res.status})`, latency_ms: 0 };
 }
 
 export async function dockerStart(name: string): Promise<DockerActionResult> {

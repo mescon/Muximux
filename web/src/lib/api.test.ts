@@ -827,7 +827,8 @@ describe('Docker lifecycle API', () => {
   it('dockerStart POSTs to /api/app-docker/{name}/start with X-Requested-With', async () => {
     const fetchSpy = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ status: 'running', latency_ms: 42 }),
+      status: 200,
+      text: async () => JSON.stringify({ status: 'running', latency_ms: 42 }),
     });
     vi.stubGlobal('fetch', fetchSpy);
 
@@ -847,7 +848,8 @@ describe('Docker lifecycle API', () => {
   it('dockerStop POSTs to /stop', async () => {
     const fetchSpy = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ status: 'exited', latency_ms: 13 }),
+      status: 200,
+      text: async () => JSON.stringify({ status: 'exited', latency_ms: 13 }),
     });
     vi.stubGlobal('fetch', fetchSpy);
     const { dockerStop } = await import('./api');
@@ -858,12 +860,32 @@ describe('Docker lifecycle API', () => {
   it('dockerRestart POSTs to /restart', async () => {
     const fetchSpy = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ status: 'running', latency_ms: 200 }),
+      status: 200,
+      text: async () => JSON.stringify({ status: 'running', latency_ms: 200 }),
     });
     vi.stubGlobal('fetch', fetchSpy);
     const { dockerRestart } = await import('./api');
     await dockerRestart('sonarr');
     expect(fetchSpy.mock.calls[0][0]).toContain('/api/app-docker/sonarr/restart');
+  });
+
+  it('surfaces a text/plain gate-denial body as an error (not a thrown SyntaxError)', async () => {
+    // Gate denials come back via respondError as text/plain, not JSON.
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 403,
+      text: async () => 'Access denied',
+    }));
+    const { dockerStop } = await import('./api');
+    const res = await dockerStop('sonarr');
+    expect(res.error).toBe('Access denied');
+  });
+
+  it('surfaces a network failure as an error result rather than throwing', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Failed to fetch')));
+    const { dockerStart } = await import('./api');
+    const res = await dockerStart('sonarr');
+    expect(res.error).toContain('Failed to fetch');
   });
 
   it('getDockerState GETs /api/discovery/docker-state', async () => {
@@ -881,7 +903,7 @@ describe('Docker lifecycle API', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,
       status: 502,
-      json: async () => ({ error: 'Port already in use', latency_ms: 8 }),
+      text: async () => JSON.stringify({ error: 'Port already in use', latency_ms: 8 }),
     }));
     const { dockerStart } = await import('./api');
     const res = await dockerStart('sonarr');

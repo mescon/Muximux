@@ -356,7 +356,7 @@ export interface DiscoveryDockerStatus {
 // shape is exactly the JSON returned by /api/discovery/docker-state
 // and the `state` field of docker_state_changed WebSocket events.
 export interface DockerState {
-  status: 'running' | 'exited' | 'paused' | 'restarting' | 'created' | 'dead' | 'missing';
+  status: 'running' | 'exited' | 'paused' | 'restarting' | 'removing' | 'created' | 'dead' | 'missing';
   health: 'healthy' | 'unhealthy' | 'starting' | 'none';
   started_at?: string;
   finished_at?: string;

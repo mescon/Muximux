@@ -14,7 +14,11 @@ export async function refreshDockerState(): Promise<void> {
   try {
     const res = await fetch('/api/discovery/docker-state', { credentials: 'same-origin' });
     if (!res.ok) {
-      debug('docker-state', 'refresh failed', { status: res.status });
+      // A non-OK here (e.g. 401 after session expiry, or 500) leaves the
+      // store empty, which the quiet-by-default pills render as "all
+      // healthy". Warn above the debug gate so a persistent failure isn't
+      // perfectly silent; the WebSocket still backfills as state changes.
+      console.warn(`[docker-state] initial refresh failed: HTTP ${res.status}`);
       return;
     }
     const payload = (await res.json()) as Record<string, DockerState>;
@@ -25,7 +29,7 @@ export async function refreshDockerState(): Promise<void> {
     dockerStateStore.set(next);
     debug('docker-state', 'refreshed', { apps: next.size });
   } catch (e) {
-    debug('docker-state', 'refresh error', e);
+    console.warn('[docker-state] initial refresh error', e);
   }
 }
 

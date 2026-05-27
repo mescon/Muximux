@@ -16,6 +16,9 @@ vi.mock('$lib/api', () => ({
 vi.mock('$lib/debug', () => ({
   debug: vi.fn(),
 }));
+vi.mock('$lib/toastStore', () => ({
+  toasts: { error: vi.fn(), success: vi.fn(), warning: vi.fn(), info: vi.fn() },
+}));
 
 import Splash from './Splash.svelte';
 import { dockerStateStore } from '$lib/dockerStateStore';
@@ -388,6 +391,32 @@ describe('Splash Docker integration', () => {
     expect(api.dockerStart).toHaveBeenCalledWith('sonarr');
     // No confirm modal for start.
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('clicking Confirm in the stop modal actually fires dockerStop', async () => {
+    const api = await import('$lib/api');
+    vi.mocked(api.dockerStop).mockClear();
+    dockerStateStore.set(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    await fireEvent.click(container.querySelector('.docker-action-btn[aria-label="Stop container"]') as HTMLButtonElement);
+    // Confirm in the modal -> the destructive action must actually fire.
+    await fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
+    expect(api.dockerStop).toHaveBeenCalledWith('sonarr');
+  });
+
+  it('shows an error toast when an action fails', async () => {
+    const api = await import('$lib/api');
+    const { toasts } = await import('$lib/toastStore');
+    vi.mocked(toasts.error).mockClear();
+    vi.mocked(api.dockerStart).mockResolvedValueOnce({ error: 'Port already in use', latency_ms: 8 });
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    // Start fires immediately (no modal); the failed result must toast.
+    await fireEvent.click(container.querySelector('.docker-action-btn[aria-label="Start container"]') as HTMLButtonElement);
+    await Promise.resolve();
+    expect(toasts.error).toHaveBeenCalled();
   });
 
   it('hides all Docker chrome on the overview when health_badge_placement is off', () => {
