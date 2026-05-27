@@ -41,6 +41,10 @@ Some "apps" are really just an action -- trigger a backup, kick off a CI job, po
   running-and-healthy), propagated over the WebSocket (`docker_state_changed`
   event). Placement is configurable via
   `discovery.docker.health_badge_placement` (off / overview / overview_and_nav).
+- Translations: the new 3.1.1 interface strings are localized across all 35
+  supported languages (previously many fell back to English). Russian (`ru`)
+  is a full community translation contributed by @fgor09, reviewed and
+  corrected.
 
 ### Changed
 - The Docker socket mount stays `:ro` by default. Container lifecycle
