@@ -31,7 +31,7 @@ server:
   # pages for the full reference.
   # gateway_sites:
   #   - domain: sonarr.example.com
-  #     backend_url: http://10.0.0.5:8989
+  #     backend_url: http://192.168.1.5:8989
   #     tls: auto                          # auto (Let's Encrypt) | none | custom
   #     # tls_cert: /path/to/cert.pem      # required when tls: custom
   #     # tls_key: /path/to/key.pem        # required when tls: custom
@@ -95,7 +95,7 @@ auth:
 
   # ── Forward auth (Authelia / Authentik / Traefik Forward Auth) ──
   # trusted_proxies:             # CIDR ranges of your reverse proxy
-  #   - 10.0.0.0/8
+  #   - 192.168.0.0/16
   #   - 172.16.0.0/12
   #   - 192.168.0.0/16
   # headers:                     # Header names set by your auth proxy (defaults shown)
@@ -247,7 +247,7 @@ apps:
       - path: /feed/*
         methods: [GET]         # Only allow specific HTTP methods
         # allowed_ips:         # Restrict to specific IPs/CIDRs
-        #   - 10.0.0.0/8
+        #   - 192.168.0.0/16
 
   - name: Radarr
     url: http://localhost:7878

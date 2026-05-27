@@ -57,7 +57,7 @@ server:
   # Muximux session via require_auth + min_role + allowed_groups.
   gateway_sites:
     - domain: sonarr.example.com         # required
-      backend_url: http://10.0.0.5:8989  # required
+      backend_url: http://192.168.1.5:8989  # required
       tls: auto                          # auto | none | custom
       tls_cert: ""                       # required when tls=custom
       tls_key: ""                        # required when tls=custom
@@ -95,7 +95,7 @@ auth:
       display_name: ""         # Optional
 
   # Forward auth settings
-  trusted_proxies: []          # CIDR ranges, e.g., ["10.0.0.0/8"]
+  trusted_proxies: []          # CIDR ranges, e.g., ["192.168.0.0/16"]
   headers:
     user: Remote-User
     email: Remote-Email

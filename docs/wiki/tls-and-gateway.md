@@ -99,10 +99,10 @@ server:
 
   gateway_sites:
     - domain: "sonarr.example.com"
-      backend_url: "http://10.0.0.5:8989"
+      backend_url: "http://192.168.1.5:8989"
       tls: auto    # ignored when gateway_listen is set; site is HTTP-only
     - domain: "radarr.example.com"
-      backend_url: "http://10.0.0.6:7878"
+      backend_url: "http://192.168.1.6:7878"
       tls: none    # explicit HTTP
 ```
 

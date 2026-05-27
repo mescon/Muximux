@@ -267,7 +267,7 @@ When you check "Add to menu" in the import modal, a radio selector decides how t
 ### Direct
 
 ```
-Browser → http://10.0.0.4:8989  (your dashboard machine reaches the container directly)
+Browser → http://192.168.1.4:8989  (your dashboard machine reaches the container directly)
 ```
 
 - **App.url** = the discovered container URL
@@ -279,7 +279,7 @@ Use when: your dashboard machine has direct network reachability to the containe
 ### Proxy
 
 ```
-Browser → /proxy/sonarr → Muximux Go server → http://10.0.0.4:8989
+Browser → /proxy/sonarr → Muximux Go server → http://192.168.1.4:8989
 ```
 
 - **App.url** = the container URL (kept as the upstream)
@@ -292,8 +292,10 @@ Use when: the app misbehaves in iframes, the dashboard machine cannot reach the 
 ### Gateway domain
 
 ```
-Browser → https://sonarr.example.com → upstream proxy → muximux:8443 → http://10.0.0.4:8989
+Browser → https://sonarr.example.com → Muximux (embedded Caddy, :443, auto-HTTPS) → http://192.168.1.4:8989
 ```
+
+Point the subdomain's DNS at the Muximux host: Muximux **is** the reverse proxy here. Its embedded Caddy binds 80/443, provisions the certificate via Let's Encrypt, and proxies the request to the container. You do not put nginx or another proxy in front of it for this to work.
 
 - **App.url** = `https://<gateway-domain>` (static)
 - **App.proxy** = false
@@ -301,6 +303,8 @@ Browser → https://sonarr.example.com → upstream proxy → muximux:8443 → h
 - The poller refreshes the gateway site's `backend_url` (not the App's URL, which doesn't depend on the container)
 
 Use when: you want a public subdomain that survives container moves, and a clickable dashboard link that uses that domain.
+
+> If you already run an edge proxy (Cloudflare Tunnel, an upstream Traefik/nginx) and would rather it terminate TLS, set `server.gateway_listen: ":8443"` and have that proxy forward to Muximux on that port instead. In that case the flow is `Browser → upstream proxy → muximux:8443 → http://192.168.1.4:8989`.
 
 ---
 

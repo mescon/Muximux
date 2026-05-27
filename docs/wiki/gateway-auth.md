@@ -14,7 +14,7 @@ Browser -> sonarr.example.com (Caddy)
              |       no  -> 302 to /login -> back to original URL after sign-in
              |       yes -> 200 with X-Muximux-User / X-Muximux-Role headers
              v
-           reverse_proxy http://10.0.0.5:8989  (the backend)
+           reverse_proxy http://192.168.1.5:8989  (the backend)
 ```
 
 ---
@@ -67,7 +67,7 @@ In Settings → Gateway, edit a site and tick **Require Muximux login**:
 server:
   gateway_sites:
     - domain: sonarr.example.com
-      backend_url: http://10.0.0.5:8989
+      backend_url: http://192.168.1.5:8989
       tls: auto
       require_auth: true          # gate this site
       min_role: user              # optional; "user" / "power-user" / "admin"
@@ -165,7 +165,7 @@ server:
 
   gateway_sites:
     - domain: sonarr.example.com
-      backend_url: http://10.0.0.5:8989
+      backend_url: http://192.168.1.5:8989
       tls: auto
       require_auth: true             # default false
       min_role: user                 # default ""; "user" / "power-user" / "admin"

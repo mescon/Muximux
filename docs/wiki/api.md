@@ -139,7 +139,7 @@ Constraints: you cannot delete your own account, and you cannot delete the last 
 PUT /api/auth/method
 {
   "method": "forward_auth",
-  "trusted_proxies": ["10.0.0.0/8"],
+  "trusted_proxies": ["192.168.0.0/16"],
   "headers": {
     "user": "Remote-User",
     "email": "Remote-Email",

@@ -211,7 +211,7 @@ apps:
         methods: [GET, POST]    # Optional: restrict to certain HTTP methods
         require_api_key: true   # Optional: require X-Api-Key header instead
         allowed_ips:            # Optional: restrict to certain IPs/CIDRs
-          - 10.0.0.0/8
+          - 192.168.0.0/16
       - path: /feed/*
         methods: [GET]          # RSS feeds accessible without login
 ```
