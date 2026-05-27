@@ -43,6 +43,8 @@ services:
       # the daemon for running containers (Settings → Discovery in
       # 3.1.0+). Read-only is enough for discovery; with :ro Muximux
       # reads container metadata but cannot start/stop/build anything.
+      # (To also start/stop/restart tracked containers from the
+      # dashboard, use the :rw mount in the next block instead.)
       # Mount this only if you trust the dashboard's auth posture - the
       # socket grants effective root on the host.
       # The entrypoint auto-detects the socket's group ownership and

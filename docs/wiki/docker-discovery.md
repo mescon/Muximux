@@ -77,6 +77,8 @@ services:
     # ... usual ports / volumes / env ...
     volumes:
       - ./data:/app/data
+      # :ro = discovery only (read-only). Use :rw instead to also enable
+      # start/stop/restart controls -- see "Container lifecycle controls" below.
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
 
@@ -378,11 +380,11 @@ All endpoints are admin-only.
 
 If you want the dashboard to start / stop / restart tracked containers from the overview page:
 
-1. Edit `docker-compose.yml` and switch the Docker socket mount from `:ro` to `:rw`. The `:ro` line stays as the documented default; you opt in by changing it.
+1. Edit `docker-compose.yml` and switch the Docker socket mount from `:ro` to `:rw` -- change the line to `- /var/run/docker.sock:/var/run/docker.sock:rw`. The `:ro` mount stays as the documented default; you opt in by changing this one character.
 2. Set `discovery.docker.lifecycle_enabled: true` in your `config.yaml`, or toggle "Enable container lifecycle controls" under Settings -> Discovery (the checkbox is disabled until the socket is writable).
 3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups.
 4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
 
-Once enabled, Docker-tracked apps on the overview show a Docker badge plus a state pill (Stopped / Unhealthy / Paused / Restarting) when the container is not running-and-healthy, and an actions menu (Start when stopped; Stop + Restart when running). Stop and Restart prompt for confirmation; Start fires immediately.
+Once enabled, Docker-tracked apps on the overview show the Docker logo plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot - quiet by default). Hovering the card reveals the action buttons in a footer below it - Start when stopped, Stop and Restart when running; on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.
 
 Every action - success, failure, and denied attempt (role floor not met, group mismatch, socket read-only, lifecycle disabled) - is audit-logged with the caller's username, app name, container id, and outcome (`source=audit`).
