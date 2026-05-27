@@ -3459,8 +3459,8 @@ describe('Navigation Docker badge', () => {
     });
     expect(container.querySelector('.nav-docker-badge')).not.toBeNull();
     expect(container.querySelector('.nav-docker-badge svg')).not.toBeNull();
-    // exited -> the pill renders a "stopped" label
-    expect(container.querySelector('.nav-docker-badge .docker-state-pill')).not.toBeNull();
+    // exited -> the status dot renders (coloured + labelled via aria)
+    expect(container.querySelector('.nav-docker-badge .docker-status-dot')).not.toBeNull();
   });
 
   it('does NOT render the badge when placement=overview', () => {
@@ -3520,6 +3520,6 @@ describe('Navigation Docker badge', () => {
     const badge = container.querySelector('.nav-docker-badge');
     expect(badge).not.toBeNull();
     expect(badge!.querySelector('svg')).not.toBeNull();
-    expect(badge!.querySelector('.docker-state-pill')).toBeNull();
+    expect(badge!.querySelector('.docker-status-dot')).toBeNull();
   });
 });

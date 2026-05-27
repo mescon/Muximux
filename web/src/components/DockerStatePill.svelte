@@ -7,57 +7,58 @@
     compact?: boolean;
   } = $props();
 
-  // Render a label only when the state is something other than the
-  // healthy-running default. This keeps the "nothing wrong" path
-  // visually quiet -- the operator only sees noise when there's
-  // something worth a glance.
+  // Quiet by default: a running, healthy container shows no dot at all.
+  // The dot appears only to flag a state worth a glance -- down (red),
+  // unhealthy/paused (amber), or restarting/starting (blue). The Docker
+  // logo already signals "tracked container", so absence of a dot reads
+  // as "running fine"; the eye is drawn only to what needs attention.
+  let nominal = $derived(
+    state.status === 'running' &&
+    (state.health === 'healthy' || state.health === 'none' || !state.health)
+  );
+
   let label = $derived.by(() => {
-    if (state.status === 'running' && state.health === 'healthy') return '';
-    if (state.status === 'exited' || state.status === 'dead') return m.docker_state_stopped();
+    if (state.status === 'running' && state.health === 'unhealthy') return m.docker_state_unhealthy();
+    if (state.status === 'running' && state.health === 'starting') return m.docker_state_starting();
+    if (state.status === 'running') return m.docker_popover_header_running();
+    if (state.status === 'exited' || state.status === 'dead' || state.status === 'missing') return m.docker_state_stopped();
     if (state.status === 'paused') return m.docker_state_paused();
     if (state.status === 'restarting') return m.docker_state_restarting();
-    if (state.status === 'running' && state.health === 'starting') return m.docker_state_starting();
-    if (state.status === 'running' && state.health === 'unhealthy') return m.docker_state_unhealthy();
-    if (state.status === 'missing') return m.docker_state_stopped();
-    return '';
+    return state.status;
   });
 
-  // State-driven background. Keep these as CSS custom property
-  // references so themes can override.
-  let bg = $derived.by(() => {
-    if (state.status === 'exited' || state.status === 'dead' || state.status === 'missing') return 'var(--status-danger, #dc2626)';
-    if (state.status === 'paused') return 'var(--status-warning, #d97706)';
-    if (state.status === 'restarting') return 'var(--status-info, #2563eb)';
-    if (state.health === 'unhealthy') return 'var(--status-danger, #dc2626)';
-    if (state.health === 'starting') return 'var(--status-info, #2563eb)';
-    return 'var(--bg-elevated)';
+  let color = $derived.by(() => {
+    if (state.status === 'exited' || state.status === 'dead' || state.status === 'missing') return 'var(--status-error, #ef4444)';
+    if (state.status === 'paused' || state.health === 'unhealthy') return 'var(--status-warning, #f59e0b)';
+    if (state.status === 'restarting' || state.health === 'starting') return 'var(--status-info, #3b82f6)';
+    return 'var(--status-success, #22c55e)';
   });
 </script>
 
-{#if label}
+{#if !nominal}
   <span
-    class="docker-state-pill"
+    class="docker-status-dot"
     class:compact
-    style="background: {bg};"
+    style="background: {color};"
     title={label}
-  >
-    {label}
-  </span>
+    aria-label={label}
+    role="img"
+  ></span>
 {/if}
 
 <style>
-  .docker-state-pill {
+  .docker-status-dot {
     display: inline-block;
-    padding: 0.125rem 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
     border-radius: 999px;
-    color: #fff;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.025em;
-    line-height: 1.2;
+    flex: none;
+    /* A faint ring lifts the dot off both light and dark icons. */
+    box-shadow: 0 0 0 1.5px var(--bg-surface, rgba(0, 0, 0, 0.25));
   }
-  .docker-state-pill.compact {
-    padding: 0 0.375rem;
-    font-size: 0.625rem;
+  .docker-status-dot.compact {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    box-shadow: 0 0 0 1px var(--bg-surface, rgba(0, 0, 0, 0.25));
   }
 </style>

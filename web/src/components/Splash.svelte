@@ -1,13 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
-  import type { App, Config } from '$lib/types';
+  import type { App, Config, DockerState } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
   import DockerLogo from './DockerLogo.svelte';
   import DockerStatePill from './DockerStatePill.svelte';
-  import DockerActionsPopover from './DockerActionsPopover.svelte';
   import ConfirmDockerActionModal from './ConfirmDockerActionModal.svelte';
   import { dockerStateStore, refreshDockerState } from '$lib/dockerStateStore';
   import { currentUser } from '$lib/authStore';
@@ -30,9 +29,31 @@
   // Collapsible group state — persisted to localStorage
   let collapsedGroups = $state<Record<string, boolean>>({});
 
-  // Local state for the actions popover / modal.
-  let openPopoverFor = $state<string | null>(null);
+  // Pending stop/restart awaiting confirmation in the modal.
   let pendingAction = $state<{ app: App; action: 'stop' | 'restart' } | null>(null);
+
+  // Lifecycle actions that make sense for the current container state.
+  // running -> stop/restart; stopped -> start; transitional/missing ->
+  // none (nothing safe to offer). Mirrors the backend gate's intent.
+  function allowedActions(ds: DockerState | undefined): ('start' | 'stop' | 'restart')[] {
+    switch (ds?.status) {
+      case 'running':
+        return ['stop', 'restart'];
+      case 'exited':
+      case 'dead':
+        return ['start'];
+      default:
+        return [];
+    }
+  }
+
+  function actionLabel(action: 'start' | 'stop' | 'restart'): string {
+    return action === 'start'
+      ? m.docker_popover_action_start()
+      : action === 'stop'
+        ? m.docker_popover_action_stop()
+        : m.docker_popover_action_restart();
+  }
 
   onMount(() => {
     // Trigger staggered animations after mount
@@ -46,14 +67,9 @@
     void refreshDockerState();
   });
 
-  function togglePopover(app: App) {
-    openPopoverFor = openPopoverFor === app.name ? null : app.name;
-  }
-
   // start fires immediately; stop/restart route through the confirm
   // modal first (the backend re-checks the lifecycle gate regardless).
   async function fireAction(app: App, action: 'start' | 'stop' | 'restart') {
-    openPopoverFor = null;
     if (action === 'start') {
       await runAction(app, action);
       return;
@@ -205,9 +221,10 @@
             {#each sortedGroupedApps[group] as app, appIndex (app.name)}
               {@const displayKey = getDisplayKey(app)}
               {@const ds = app.docker_key ? $dockerStateStore.get(app.name) : undefined}
-              <!-- Relative wrapper anchors the docker actions trigger and
-                   popover. They live as siblings of the card button (not
-                   children) so we never nest a <button> inside a <button>. -->
+              {@const canLifecycle = !!app.docker_key && !!$currentUser?.can_use_docker_lifecycle}
+              <!-- Relative wrapper anchors the docker control cluster, which
+                   lives as a sibling of the card button (not a child) so we
+                   never nest a <button> inside a <button>. -->
               <div class="app-card-wrapper relative">
                 <button
                   class="app-card group opacity-0"
@@ -217,10 +234,10 @@
                   onclick={() => onselect?.(app)}
                 >
                   {#if app.docker_key}
-                    <!-- Docker cluster: logo -> state pill -> HTTP dot. The
-                         HTTP health dot stays rightmost so the operator's eye
-                         finds it in a stable position whether or not the
-                         docker pill is rendered. -->
+                    <!-- Passive Docker status indicator (all users): logo ->
+                         status dot -> HTTP health dot. The lifecycle action
+                         buttons live in a separate footer BELOW the card so
+                         they never overlap the open-app tap target. -->
                     <div class="docker-cluster absolute top-2.5 end-2.5 z-10 flex items-center gap-1">
                       <DockerLogo size="sm" class="text-slate-500" />
                       {#if ds}
@@ -274,21 +291,32 @@
                   ></div>
                 </button>
 
-                {#if app.docker_key && $currentUser?.can_use_docker_lifecycle}
-                  <button
-                    class="docker-actions-trigger"
-                    type="button"
-                    aria-label="Container actions for {app.name}"
-                    onclick={(e) => { e.stopPropagation(); togglePopover(app); }}
-                  >&hellip;</button>
-                  {#if openPopoverFor === app.name && ds}
-                    <DockerActionsPopover
-                      state={ds}
-                      appName={app.name}
-                      onaction={(action) => fireAction(app, action)}
-                      onclose={() => openPopoverFor = null}
-                    />
-                  {/if}
+                {#if canLifecycle && ds && allowedActions(ds).length > 0}
+                  <!-- Action footer BELOW the card, outside the open-app
+                       button's box, so tapping to open the app can never hit
+                       a lifecycle action by accident. On touch it stays
+                       visible; on pointer devices it reveals on hover/focus
+                       (see the @media block in <style>). -->
+                  <div class="docker-control-footer" role="group" aria-label="Container actions for {app.name}">
+                    {#each allowedActions(ds) as action (action)}
+                      <button
+                        class="docker-action-btn"
+                        class:start={action === 'start'}
+                        type="button"
+                        aria-label={actionLabel(action)}
+                        title={actionLabel(action)}
+                        onclick={(e) => { e.stopPropagation(); fireAction(app, action); }}
+                      >
+                        {#if action === 'start'}
+                          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                        {:else if action === 'stop'}
+                          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
+                        {:else}
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" /></svg>
+                        {/if}
+                      </button>
+                    {/each}
+                  </div>
                 {/if}
               </div>
             {/each}
@@ -395,21 +423,71 @@
     filter: grayscale(0.6);
     opacity: 0.65;
   }
-  .docker-actions-trigger {
-    position: absolute;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    z-index: 11;
-    padding: 0 0.5rem;
-    background: transparent;
-    border: 0;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 1.25rem;
-    line-height: 1;
+  /* Shrink the wrapper to the card's own width. A <button> sizes to its
+     content (it ignores flex/block stretch), so the wrapper was filling
+     the whole grid cell while the card sat narrower at the start. Fitting
+     the wrapper to the card lets the action footer span the card's real
+     width and stay centred under it. */
+  .app-card-wrapper {
+    width: fit-content;
   }
-  .docker-actions-trigger:hover {
+  /* Action footer: a strip of lifecycle buttons BELOW the card, never
+     overlapping the open-app button. Touch-first -- visible by default so
+     it's reachable on phones (no hover) and can't be confused with the
+     open-app tap because it sits outside the card. */
+  .docker-control-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 0.375rem;
+  }
+  /* On pointer-capable devices, lift the footer out of flow and reveal it
+     just below the card on hover/focus -- keeps the resting grid clean and
+     avoids reflow. Touch devices skip this block and keep it in flow. */
+  @media (hover: hover) and (pointer: fine) {
+    .docker-control-footer {
+      position: absolute;
+      top: 100%;
+      inset-inline: 0;
+      z-index: 12;
+      opacity: 0;
+      transform: translateY(-0.25rem);
+      pointer-events: none;
+      transition: opacity 0.14s ease, transform 0.14s ease;
+    }
+    .app-card-wrapper:hover .docker-control-footer,
+    .app-card-wrapper:focus-within .docker-control-footer {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  }
+  .docker-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 1px solid var(--border-subtle, transparent);
+    border-radius: 0.5rem;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: color 0.12s ease, background 0.12s ease;
+  }
+  .docker-action-btn:hover {
+    background: var(--bg-hover);
     color: var(--text-primary);
+  }
+  .docker-action-btn.start:hover {
+    color: var(--status-success, #22c55e);
+  }
+  .docker-action-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
   }
 
   @keyframes slideUp {
