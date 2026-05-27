@@ -419,6 +419,22 @@ describe('Splash Docker integration', () => {
     expect(toasts.error).toHaveBeenCalled();
   });
 
+  it('shows a success toast when the op succeeds even if status is absent (inspect-failed path)', async () => {
+    const api = await import('$lib/api');
+    const { toasts } = await import('$lib/toastStore');
+    vi.mocked(toasts.error).mockClear();
+    vi.mocked(toasts.success).mockClear();
+    // Backend op-ok/inspect-failed shape: latency only, no status, no error.
+    vi.mocked(api.dockerStart).mockResolvedValueOnce({ latency_ms: 1234 });
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    await fireEvent.click(container.querySelector('.docker-action-btn[aria-label="Start container"]') as HTMLButtonElement);
+    await Promise.resolve();
+    expect(toasts.error).not.toHaveBeenCalled();
+    expect(toasts.success).toHaveBeenCalled();
+  });
+
   it('hides all Docker chrome on the overview when health_badge_placement is off', () => {
     dockerStateStore.set(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'x' }]]));
     const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];

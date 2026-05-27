@@ -888,6 +888,21 @@ describe('Docker lifecycle API', () => {
     expect(res.error).toContain('Failed to fetch');
   });
 
+  it('treats a 2xx body with no status (op-ok, inspect-failed) as success, not an error', async () => {
+    // The backend returns 200 {latency_ms} when the op succeeded but the
+    // post-action inspect failed -- still a success, must not become an
+    // error toast carrying a raw JSON blob.
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ latency_ms: 1234 }),
+    }));
+    const { dockerStop } = await import('./api');
+    const res = await dockerStop('sonarr');
+    expect(res.error).toBeUndefined();
+    expect(res.latency_ms).toBe(1234);
+  });
+
   it('getDockerState GETs /api/discovery/docker-state', async () => {
     const fetchSpy = vi.fn().mockResolvedValue({
       ok: true,

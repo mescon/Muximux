@@ -269,23 +269,29 @@ async function postDockerAction(name: string, action: 'start' | 'stop' | 'restar
     // unhandled rejection.
     return { error: e instanceof Error ? e.message : 'Network error', latency_ms: 0 };
   }
-  // The op-result paths (success and daemon error) return JSON in this
-  // shape; the gate-ladder denials (401/403/503/404/400) return a
-  // text/plain body via respondError. Tolerate both, and never throw:
-  // a denial must surface to the user as an error toast, not a silent
-  // JSON.parse SyntaxError.
+  // Success vs failure is decided by the HTTP status, NOT by which body
+  // fields are present. A 2xx success body carries {status, latency_ms},
+  // but the op-succeeded-yet-inspect-failed path returns {latency_ms}
+  // only (no status) -- that is still a success and must not be toasted
+  // as an error. Failures arrive either as JSON {error} (daemon error)
+  // or text/plain (gate-ladder denials via respondError); tolerate both
+  // and never throw a JSON.parse SyntaxError.
   const text = await res.text().catch(() => '');
+  let parsed: Partial<DockerActionResult> = {};
   if (text) {
     try {
-      const parsed = JSON.parse(text) as DockerActionResult;
-      if (parsed.status !== undefined || parsed.error !== undefined) {
-        return parsed;
-      }
+      parsed = JSON.parse(text) as DockerActionResult;
     } catch {
-      // Not JSON -> a text/plain denial body; fall through.
+      // Not JSON -> a text/plain denial body; parsed stays empty.
     }
   }
-  return { error: text.trim() || `Request failed (${res.status})`, latency_ms: 0 };
+  if (res.ok) {
+    return { status: parsed.status, latency_ms: parsed.latency_ms ?? 0 };
+  }
+  return {
+    error: parsed.error ?? (text.trim() || `Request failed (${res.status})`),
+    latency_ms: parsed.latency_ms ?? 0,
+  };
 }
 
 export async function dockerStart(name: string): Promise<DockerActionResult> {
