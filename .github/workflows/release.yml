@@ -139,11 +139,14 @@ jobs:
             cid="$(docker create --platform="linux/${arch}" "${image}" /app/muximux)"
             docker cp "${cid}:/app/muximux" "/tmp/muximux-${arch}"
             docker rm "${cid}" >/dev/null
-            machine="$(readelf -h "/tmp/muximux-${arch}" | sed -n 's/.*Machine:[[:space:]]*//p')"
-            echo "linux/${arch} image -> ${machine}"
-            case "${arch}" in
-              amd64) echo "${machine}" | grep -qi 'X86-64'  || { echo "::error::linux/amd64 image does not contain an x86-64 binary (${machine})"; rc=1; } ;;
-              arm64) echo "${machine}" | grep -qi 'AArch64' || { echo "::error::linux/arm64 image does not contain an AArch64 binary (${machine})"; rc=1; } ;;
+            # ELF e_machine is a little-endian 2-byte field at offset 18:
+            # 3e00 = x86-64, b700 = AArch64. Read with od (coreutils) so this
+            # check has no dependency on binutils/readelf being installed.
+            machine="$(od -An -tx1 -j18 -N2 "/tmp/muximux-${arch}" | tr -d ' ')"
+            echo "linux/${arch} image -> e_machine=${machine}"
+            case "${arch}:${machine}" in
+              amd64:3e00|arm64:b700) : ;;
+              *) echo "::error::linux/${arch} image has a wrong-arch binary (e_machine=${machine})"; rc=1 ;;
             esac
           done
           exit "${rc}"
