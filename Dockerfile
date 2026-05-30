@@ -1,10 +1,12 @@
-# Automatic platform args. buildx sets these per target; the
-# defaults keep a plain `docker build` (no buildx, no --platform)
-# working on the host that runs it.
-ARG BUILDPLATFORM=linux/amd64
-ARG TARGETPLATFORM=linux/amd64
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
+# Predefined platform args, populated by BuildKit: per --platform target under
+# buildx, or from the host platform for a plain `docker build`. Declared WITHOUT
+# values on purpose — an ARG default shadows BuildKit's per-target value and
+# cross-compiles every target to that default, which is how an amd64 binary
+# ended up inside the arm64 image.
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 # Build stage - Frontend
 #
@@ -48,14 +50,15 @@ COPY internal/ ./internal/
 # Copy frontend build
 COPY --from=frontend /app/internal/server/dist ./internal/server/dist
 
-# Build binary. TARGETOS / TARGETARCH are populated automatically
-# by buildx for each entry in --platform; defaults keep a plain
-# `docker build` (no buildx, no --platform) working on amd64.
+# Build binary. TARGETOS / TARGETARCH come from BuildKit — the --platform target
+# under buildx, or the host platform for a plain `docker build`. No ARG default,
+# so the per-target value isn't shadowed; for a plain build that means a
+# host-native binary.
 ARG VERSION=dev
 ARG COMMIT=none
 ARG BUILD_DATE=unknown
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
+ARG TARGETOS
+ARG TARGETARCH
 RUN CGO_ENABLED=0 GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" go build \
     -tags embed_web \
     -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.buildDate=${BUILD_DATE}" \
