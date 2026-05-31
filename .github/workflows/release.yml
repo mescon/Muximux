@@ -133,7 +133,13 @@ jobs:
       - name: Verify each platform ships a matching-arch binary
         run: |
           set -euo pipefail
-          image="${REGISTRY}/${IMAGE_NAME}@${{ steps.build.outputs.digest }}"
+          # IMAGE_NAME comes from github.repository, which can contain
+          # uppercase (mescon/Muximux). A hand-built image ref must be
+          # lowercased or `docker create` rejects it ("repository name must
+          # be lowercase"); the metadata-action lowercases the push tags for
+          # us, but this manual digest ref does not get that treatment.
+          name="$(printf '%s' "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
+          image="${REGISTRY}/${name}@${{ steps.build.outputs.digest }}"
           rc=0
           for arch in amd64 arm64; do
             cid="$(docker create --platform="linux/${arch}" "${image}" /app/muximux)"
