@@ -110,6 +110,7 @@ jobs:
             type=raw,value=latest,enable=${{ !contains(github.ref, '-') }}
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
         with:
           context: .
@@ -123,6 +124,32 @@ jobs:
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Guards against the cross-compile regression where every platform's
+      # image shipped the same amd64 binary (an amd64 binary inside the arm64
+      # image, which then crashes under QEMU on real arm64 hosts). Pull each
+      # platform variant by digest and assert the embedded binary's ELF
+      # machine type matches the image platform.
+      - name: Verify each platform ships a matching-arch binary
+        run: |
+          set -euo pipefail
+          image="${REGISTRY}/${IMAGE_NAME}@${{ steps.build.outputs.digest }}"
+          rc=0
+          for arch in amd64 arm64; do
+            cid="$(docker create --platform="linux/${arch}" "${image}" /app/muximux)"
+            docker cp "${cid}:/app/muximux" "/tmp/muximux-${arch}"
+            docker rm "${cid}" >/dev/null
+            # ELF e_machine is a little-endian 2-byte field at offset 18:
+            # 3e00 = x86-64, b700 = AArch64. Read with od (coreutils) so this
+            # check has no dependency on binutils/readelf being installed.
+            machine="$(od -An -tx1 -j18 -N2 "/tmp/muximux-${arch}" | tr -d ' ')"
+            echo "linux/${arch} image -> e_machine=${machine}"
+            case "${arch}:${machine}" in
+              amd64:3e00|arm64:b700) : ;;
+              *) echo "::error::linux/${arch} image has a wrong-arch binary (e_machine=${machine})"; rc=1 ;;
+            esac
+          done
+          exit "${rc}"
 
   create-release:
     name: Create Release
