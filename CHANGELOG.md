@@ -2,6 +2,25 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.1.2] - 2026-05-28
+
+A packaging fix for ARM users. The `linux/arm64` Docker image published for 3.1.0 and 3.1.1 actually contained an amd64 binary, which runs only under QEMU emulation on a real arm64 host (Raspberry Pi, Apple Silicon, ARM servers) and can crash on startup. If you run Muximux on amd64 you were unaffected. This release republishes a correct arm64 image and adds a release-time guard so the problem cannot recur silently. There are no application changes -- upgrading is a drop-in image pull.
+
+### Fixed
+- The `linux/arm64` Docker image shipped an amd64 binary (a regression in
+  3.1.0, also present in 3.1.1). A default value on the predefined
+  `TARGETARCH` build argument shadowed BuildKit's per-target value, so the
+  cross-compile produced an amd64 binary for every platform while the image
+  metadata still reported `arm64` -- which is what made it easy to miss. The
+  arm64 image now contains a native arm64 (AArch64) binary. Thanks to
+  @jaredjxyz for the diagnosis and fix (#355).
+
+### Changed
+- The release workflow now verifies, after building, that each platform
+  image embeds a binary whose architecture matches the image platform
+  (amd64 -> x86-64, arm64 -> AArch64) and fails the release if they ever
+  diverge again.
+
 ## [3.1.1] - 2026-05-27
 
 A refinement release for the Docker story that headlined 3.1.0. Discovery already imported your containers; now Muximux can show their live state and **start / stop / restart them right from the overview**. There's also a new **webhook-style button** (`http_action`) for apps that should fire a request instead of opening a page, plus a few discovery and behaviour fixes.
