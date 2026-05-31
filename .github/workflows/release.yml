@@ -135,14 +135,26 @@ jobs:
           set -euo pipefail
           # IMAGE_NAME comes from github.repository, which can contain
           # uppercase (mescon/Muximux). A hand-built image ref must be
-          # lowercased or `docker create` rejects it ("repository name must
-          # be lowercase"); the metadata-action lowercases the push tags for
-          # us, but this manual digest ref does not get that treatment.
+          # lowercased or docker rejects it ("repository name must be
+          # lowercase"); the metadata-action lowercases the push tags for us,
+          # but these manual refs do not get that treatment.
           name="$(printf '%s' "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
-          image="${REGISTRY}/${name}@${{ steps.build.outputs.digest }}"
+          repo="${REGISTRY}/${name}"
+          index="${repo}@${{ steps.build.outputs.digest }}"
           rc=0
           for arch in amd64 arm64; do
-            cid="$(docker create --platform="linux/${arch}" "${image}" /app/muximux)"
+            # Address each platform by its OWN single-arch manifest digest.
+            # Creating a container from the multi-arch index digest with
+            # --platform collides on the runner once a second platform is
+            # materialized ("cannot overwrite digest"), so resolve the
+            # per-platform digest from the index first.
+            digest="$(docker buildx imagetools inspect --raw "${index}" \
+              | jq -r --arg a "${arch}" \
+                  '.manifests[] | select(.platform.os == "linux" and .platform.architecture == $a) | .digest')"
+            if [ -z "${digest}" ] || [ "${digest}" = "null" ]; then
+              echo "::error::no linux/${arch} manifest found in the image index"; rc=1; continue
+            fi
+            cid="$(docker create "${repo}@${digest}" /app/muximux)"
             docker cp "${cid}:/app/muximux" "/tmp/muximux-${arch}"
             docker rm "${cid}" >/dev/null
             # ELF e_machine is a little-endian 2-byte field at offset 18:
