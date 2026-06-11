@@ -184,7 +184,10 @@ func (s *SessionStore) SetCookie(w http.ResponseWriter, session *Session) {
 	s.mu.RLock()
 	domain := s.cookieDomain
 	s.mu.RUnlock()
-	http.SetCookie(w, &http.Cookie{
+	// gosec G124: Secure is intentionally configurable via secure_cookies so
+	// Muximux can run behind plain HTTP (documented in security.md). HttpOnly
+	// and SameSite are always set; operators on HTTPS set secure_cookies: true.
+	http.SetCookie(w, &http.Cookie{ //nolint:gosec // Secure is operator-configurable by design
 		Name:     s.cookieName,
 		Value:    session.ID,
 		Path:     "/",
@@ -204,7 +207,9 @@ func (s *SessionStore) ClearCookie(w http.ResponseWriter) {
 	s.mu.RLock()
 	domain := s.cookieDomain
 	s.mu.RUnlock()
-	http.SetCookie(w, &http.Cookie{
+	// gosec G124: mirrors SetCookie - Secure tracks the operator-configured
+	// secure_cookies flag by design; HttpOnly and SameSite are always set.
+	http.SetCookie(w, &http.Cookie{ //nolint:gosec // Secure is operator-configurable by design
 		Name:     s.cookieName,
 		Value:    "",
 		Path:     "/",

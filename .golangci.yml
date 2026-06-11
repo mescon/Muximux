@@ -36,10 +36,19 @@ linters:
       - linters:
           - errcheck
         source: w\.Write
+      # gosec G124 wants Secure/HttpOnly/SameSite on cookies. Tests attach
+      # cookies to request objects via req.AddCookie, where those attributes are
+      # response-only directives and carry no meaning, so the finding is a false
+      # positive in test code.
+      - linters:
+          - gosec
+        path: _test\.go
+        text: G124
     paths:
       - third_party$
       - builtin$
       - examples$
+      - node_modules
 formatters:
   enable:
     - gofmt
@@ -54,3 +63,4 @@ formatters:
       - third_party$
       - builtin$
       - examples$
+      - node_modules
