@@ -44,6 +44,15 @@ linters:
           - gosec
         path: _test\.go
         text: G124
+      # The session cookie (auth/session.go) always sets HttpOnly and SameSite;
+      # its Secure flag is intentionally configurable via secure_cookies so
+      # Muximux can run behind plain HTTP (documented in security.md). Suppress
+      # here rather than with an in-code nolint so the cookie lines stay
+      # untouched (an edit would re-flag them as new code in SonarCloud).
+      - linters:
+          - gosec
+        path: internal/auth/session\.go
+        text: G124
     paths:
       - third_party$
       - builtin$
