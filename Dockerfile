@@ -15,7 +15,7 @@ ARG TARGETARCH
 # under QEMU emulation when assembling a multi-arch image. The
 # bundled JS output is platform-independent, so the same dist/
 # directory ships to every target arch.
-FROM --platform=$BUILDPLATFORM node:25-alpine AS frontend
+FROM --platform=$BUILDPLATFORM node:26-alpine AS frontend
 WORKDIR /app/web
 
 # Cache npm dependencies
