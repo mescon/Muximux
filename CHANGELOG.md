@@ -2,6 +2,43 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.1.3] - 2026-06-11
+
+A correctness release for the reverse proxy, with documentation and tooling
+fixes surfaced by an internal audit. Upgrading is a drop-in: no config changes.
+
+### Fixed
+- Streaming responses (Server-Sent Events, live logs, slow downloads) were
+  severed once `proxy_timeout` elapsed, even while data was still flowing. The
+  proxy write deadline now resets on every write, so it bounds idle time
+  between writes rather than total response duration -- a backend that keeps
+  streaming within the timeout is no longer cut off.
+- Apps served from a subpath (an app whose URL ends in e.g. `/admin`) had their
+  `/api` requests routed to the backend root instead of under the mount prefix,
+  returning 404. `/api` paths are now prefixed with the app's path like every
+  other request. Root-mounted apps are unaffected.
+- The runtime interceptor's injected `<base>` tag was anchored at the proxy
+  root on every page, so relative asset paths (e.g. `img.png`) on a non-root
+  page resolved against the wrong directory. The base is now anchored at the
+  document's own directory.
+- The config import/preview validator rejected `session_max_age` and
+  `proxy_timeout` values using the documented day suffix (e.g. `7d`), even
+  though the running server accepts them. Both paths now share one duration
+  parser, so an exported config round-trips through import.
+
+### Changed
+- Removed the `icons.dashboard_icons.enabled` and `mode`
+  (`on_demand`/`prefetch`/`offline`) keys from the configuration reference and
+  the icons page. They were never read by the code; only `cache_dir` and
+  `cache_ttl` take effect.
+- The frontend coverage figure is now explicitly scoped to the unit-tested
+  `src/lib` and `src/components` surface, with the app shell (`App.svelte`,
+  `main.ts`, `src/routes`) excluded and documented as such in
+  `web/vitest.config.ts`. README and CONTRIBUTING wording updated to match, and
+  CONTRIBUTING now notes the one-time `git config core.hooksPath .githooks` step.
+- Bumped the Go and npm dependency groups, the frontend build image to
+  `node:26-alpine`, and several GitHub Actions to current versions.
+
 ## [3.1.2] - 2026-05-28
 
 A packaging fix for ARM users. The `linux/arm64` Docker image published for 3.1.0 and 3.1.1 actually contained an amd64 binary, which runs only under QEMU emulation on a real arm64 host (Raspberry Pi, Apple Silicon, ARM servers) and can crash on startup. If you run Muximux on amd64 you were unaffected. This release republishes a correct arm64 image and adds a release-time guard so the problem cannot recur silently. There are no application changes -- upgrading is a drop-in image pull.
