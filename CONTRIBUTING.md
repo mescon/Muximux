@@ -79,11 +79,16 @@ go build -tags embed_web -o muximux ./cmd/muximux
 
 Both backend (Go) and frontend (Svelte/TypeScript) maintain **85% statement/line coverage**. This is enforced by:
 
-- **Pre-push hook** -- blocks pushes below threshold
+- **Pre-push hook** -- blocks pushes below threshold (run `git config core.hooksPath .githooks` once to enable it)
 - **Codecov** -- gates PRs at 85% on new code
 - **Vitest** -- fails `npm run test:coverage` if coverage drops below threshold
 
-Tests themselves are excluded from coverage metrics.
+Scope: the backend figure covers `./internal/...` (the `cmd/` entrypoints are
+excluded). The frontend figure covers the unit-testable surface -- `src/lib`
+and `src/components`. The app shell (`src/App.svelte`, `src/main.ts`,
+`src/routes`) is integration code verified by manual/browser testing and is
+excluded from the percentage; see `web/vitest.config.ts`. Tests themselves are
+excluded from coverage metrics.
 
 ### Backend
 

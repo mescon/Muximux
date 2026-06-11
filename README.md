@@ -269,7 +269,7 @@ Suggestions and ideas are always welcome. Not everything will make it in, but th
 
 Muximux is developed using Claude Code (Opus 4.6) with MCP servers for browser automation (Playwright), GitHub integration, and other validation tools. It's a heavily AI-assisted workflow, but all code is reviewed, tested, and committed by the sole maintainer. AI output is treated the same way as a pull request from a contributor - nothing ships without understanding and approval.
 
-Every push goes through CI with 86%+ backend and 87%+ frontend test coverage, golangci-lint, ESLint, `svelte-check`, CodeQL analysis, Snyk vulnerability scanning (Go, Node, Docker), govulncheck, SonarCloud quality gates, and a pre-push hook that blocks pushes below coverage thresholds. The security model is designed against [OWASP ASVS Level 2](docs/wiki/security.md).
+Every push goes through CI with 85%+ test coverage on both backend (`./internal/...`) and frontend (the `src/lib` and `src/components` surface; the app shell is excluded and verified by browser testing), golangci-lint, ESLint, `svelte-check`, CodeQL analysis, Snyk vulnerability scanning (Go, Node, Docker), govulncheck, SonarCloud quality gates, and a pre-push hook that blocks pushes below coverage thresholds. The security model is designed against [OWASP ASVS Level 2](docs/wiki/security.md).
 
 ```bash
 git clone https://github.com/mescon/Muximux.git
