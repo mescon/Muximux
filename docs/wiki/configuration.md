@@ -144,10 +144,8 @@ navigation:
 # ─── Icons ──────────────────────────────────────
 icons:
   dashboard_icons:
-    enabled: true
-    mode: on_demand            # on_demand, prefetch, offline
-    cache_dir: icons/dashboard
-    cache_ttl: 7d
+    cache_dir: icons/dashboard   # Where fetched dashboard icons are cached
+    cache_ttl: 7d                # How long a cached icon is reused before refetch
 
 # ─── Health Monitoring ──────────────────────────
 health:

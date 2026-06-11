@@ -20,17 +20,14 @@ Dashboard icon behavior is configured in the `icons` section of `config.yaml`:
 ```yaml
 icons:
   dashboard_icons:
-    enabled: true
-    mode: on_demand    # on_demand, prefetch, or offline
-    cache_dir: icons/dashboard
-    cache_ttl: 7d      # How long to cache icons
+    cache_dir: icons/dashboard   # Where fetched icons are stored
+    cache_ttl: 7d                # How long a cached icon is reused before refetch
 ```
 
-### Modes
-
-- **on_demand** -- Icons are downloaded when first requested and cached locally. Best for most users. The first load of each icon has a slight delay; subsequent loads are instant from cache.
-- **prefetch** -- All icons are downloaded at startup. Results in slower startup time, but all icons are available immediately once the server is running.
-- **offline** -- Only use previously cached icons. No network requests are made. You must have run in `on_demand` or `prefetch` mode at least once before switching to `offline`.
+Dashboard icons are downloaded the first time they are requested and cached
+locally under `cache_dir`; subsequent loads are served from cache until
+`cache_ttl` expires, then refetched. The first load of each icon has a slight
+delay, after which it is instant.
 
 ## Lucide Icons
 

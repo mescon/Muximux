@@ -153,7 +153,7 @@ Custom CSS theme files created through the Settings UI or placed here manually. 
 
 ### icons/dashboard/
 
-Locally cached copies of icons fetched from the [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) project. These are downloaded on demand (or prefetched, depending on your configuration) and cached according to the configured TTL (default: 7 days).
+Locally cached copies of icons fetched from the [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) project. These are downloaded on demand and cached according to the configured TTL (default: 7 days).
 
 ### icons/lucide/
 
