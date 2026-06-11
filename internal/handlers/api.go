@@ -210,12 +210,12 @@ func validateImportedConfig(cfg *config.Config) error {
 	}
 
 	if cfg.Auth.SessionMaxAge != "" {
-		if _, err := time.ParseDuration(cfg.Auth.SessionMaxAge); err != nil {
+		if _, err := config.ParseFlexDuration(cfg.Auth.SessionMaxAge); err != nil {
 			return fmt.Errorf("invalid auth.session_max_age: %w", err)
 		}
 	}
 	if cfg.Server.ProxyTimeout != "" {
-		if _, err := time.ParseDuration(cfg.Server.ProxyTimeout); err != nil {
+		if _, err := config.ParseFlexDuration(cfg.Server.ProxyTimeout); err != nil {
 			return fmt.Errorf("invalid server.proxy_timeout: %w", err)
 		}
 	}

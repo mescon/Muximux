@@ -2549,6 +2549,31 @@ apps:
 		}
 	})
 
+	// The runtime parser accepts a "d" (day) suffix on durations and the
+	// docs advertise session_max_age values like "7d". The import validator
+	// must accept the same values the runtime does, or an exported config
+	// using the documented value fails its own re-import round-trip.
+	t.Run("accepts day-suffixed durations", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+		yamlBody := []byte(`
+auth:
+  session_max_age: "7d"
+server:
+  proxy_timeout: "1d"
+apps:
+  - name: X
+    url: http://example.com
+    enabled: true
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+		handler.ParseImportedConfig(w, req)
+		if w.Code != http.StatusOK {
+			t.Errorf("expected 200 for documented day-suffixed durations, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
 	// findings.md M7: unknown fields in the imported YAML must be
 	// rejected, not silently dropped. This guards against future
 	// mass-assignment if the Config struct gains a field whose name

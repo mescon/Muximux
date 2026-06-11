@@ -2076,22 +2076,12 @@ func parseDuration(s string, defaultVal time.Duration) time.Duration {
 	if s == "" {
 		return defaultVal
 	}
-
-	// Handle day suffix
-	if strings.HasSuffix(s, "d") {
-		s = strings.TrimSuffix(s, "d")
-		var days int
-		if _, err := fmt.Sscanf(s, "%d", &days); err == nil {
-			return time.Duration(days) * 24 * time.Hour
-		}
-		return defaultVal
-	}
-
-	// Try standard Go duration parsing
-	if d, err := time.ParseDuration(s); err == nil {
+	// Delegate to the shared parser so the runtime and the config import
+	// validator accept exactly the same set of values (including the "d"
+	// day suffix). Fall back to the default on any parse error.
+	if d, err := config.ParseFlexDuration(s); err == nil {
 		return d
 	}
-
 	return defaultVal
 }
 

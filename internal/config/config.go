@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -499,6 +501,23 @@ type AuthBypassRule struct {
 type AppAccessConfig struct {
 	Roles []string `yaml:"roles"`
 	Users []string `yaml:"users"`
+}
+
+// ParseFlexDuration parses a duration string, additionally accepting a "d"
+// (day) suffix that Go's time.ParseDuration rejects. It is the single source
+// of truth for duration parsing across the runtime and the config import
+// validator, so values the docs advertise (e.g. session_max_age "7d") parse
+// identically in both places. An empty string is a parse error; callers that
+// want a default should check for "" first.
+func ParseFlexDuration(s string) (time.Duration, error) {
+	if rest, ok := strings.CutSuffix(s, "d"); ok {
+		days, err := strconv.Atoi(rest)
+		if err != nil {
+			return 0, fmt.Errorf("invalid duration %q: %w", s, err)
+		}
+		return time.Duration(days) * 24 * time.Hour, nil
+	}
+	return time.ParseDuration(s)
 }
 
 // Load reads configuration from a YAML file.
