@@ -3194,6 +3194,21 @@ func TestInjectInterceptorBaseTag(t *testing.T) {
 		}
 	})
 
+	t.Run("escapes the document path so it cannot break out of the href attribute", func(t *testing.T) {
+		// docPath is derived from the request URL path (attacker-influenced). A
+		// path carrying a quote and angle brackets must not break out of the
+		// <base href="..."> attribute and inject markup - proxied content shares
+		// the Muximux origin, so that would be reflected XSS.
+		content := []byte(`<html><head><title>X</title></head><body></body></html>`)
+		result := string(rewriter.injectInterceptor(content, `/a"><script>alert(1)</script>/`))
+		if strings.Contains(result, `"><script>alert(1)</script>`) {
+			t.Errorf("base href did not escape the document path; XSS breakout present:\n%s", result)
+		}
+		if strings.Contains(result, "<script>alert(1)</script>") {
+			t.Errorf("unescaped <script> reached the document:\n%s", result)
+		}
+	})
+
 	t.Run("base tag appears before interceptor script", func(t *testing.T) {
 		content := []byte(`<html><head><title>Test</title></head><body></body></html>`)
 		result := string(rewriter.injectInterceptor(content, "/"))

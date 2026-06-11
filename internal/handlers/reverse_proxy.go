@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"html"
 	"io"
 	"net"
 	"net/http"
@@ -1367,9 +1368,14 @@ func (r *contentRewriter) injectInterceptor(content []byte, docPath string) []by
 		// document's own directory (not the proxy root) so relative assets on
 		// non-root pages resolve under the right directory rather than the
 		// proxy root.
+		// docPath is derived from the request URL path, so it is
+		// attacker-influenced; HTML-escape the href value so a path containing
+		// a quote or angle bracket cannot break out of the attribute and inject
+		// markup. Proxied content shares the Muximux origin, so an unescaped
+		// path here would be reflected XSS.
 		var baseTag []byte
 		if !bytes.Contains(lower, []byte("<base ")) && !bytes.Contains(lower, []byte("<base>")) {
-			baseTag = []byte(`<base href="` + r.proxyPrefix + documentDir(docPath) + `">`)
+			baseTag = []byte(`<base href="` + html.EscapeString(r.proxyPrefix+documentDir(docPath)) + `">`)
 		}
 
 		script := r.interceptorScript()
