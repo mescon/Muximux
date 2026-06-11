@@ -541,11 +541,13 @@ func TestDirectorPathMapping(t *testing.T) {
 			expectedScheme: "http",
 		},
 		{
-			name:           "app with subpath - API at root",
+			// A subpath-mounted app serves its whole tree, including /api,
+			// under the mount prefix, so /api is prefixed like any other path.
+			name:           "app with subpath - API under mount prefix",
 			appName:        "Pi-hole",
 			appURL:         "http://192.0.2.100/admin",
 			requestPath:    "/proxy/pi-hole/api/auth",
-			expectedPath:   "/api/auth",
+			expectedPath:   "/admin/api/auth",
 			expectedHost:   "192.0.2.100",
 			expectedScheme: "http",
 		},
@@ -796,6 +798,55 @@ func TestProxyRouteCreation(t *testing.T) {
 	}
 }
 
+// TestProxyStreamingSurvivesWriteTimeout verifies a long-lived streaming
+// response (SSE) is not severed at proxy_timeout. The write deadline must
+// bound idle time between writes, not the total stream duration, so a stream
+// that keeps emitting data within the timeout survives indefinitely.
+func TestProxyStreamingSurvivesWriteTimeout(t *testing.T) {
+	const chunks = 6
+	const interval = 120 * time.Millisecond // gap between writes, < timeout below
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		fl, ok := w.(http.Flusher)
+		if !ok {
+			t.Error("backend ResponseWriter is not a Flusher")
+			return
+		}
+		for i := 0; i < chunks; i++ {
+			fmt.Fprintf(w, "data: chunk-%d\n\n", i)
+			fl.Flush()
+			time.Sleep(interval)
+		}
+	}))
+	defer backend.Close()
+
+	apps := []config.AppConfig{
+		{Name: "Stream", URL: backend.URL, Enabled: true, Proxy: true},
+	}
+	// Timeout is shorter than the full stream (chunks*interval = 720ms) but
+	// longer than the gap between writes. An absolute write deadline cuts the
+	// stream mid-flight; a per-write idle deadline lets it run to completion.
+	handler := NewReverseProxyHandler(apps, "250ms")
+	proxyServer := httptest.NewServer(handler)
+	defer proxyServer.Close()
+
+	resp, err := http.Get(proxyServer.URL + "/proxy/stream/")
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading stream body failed (stream severed by write deadline?): %v", err)
+	}
+	if final := fmt.Sprintf("chunk-%d", chunks-1); !strings.Contains(string(body), final) {
+		t.Errorf("stream truncated: final %q missing; received:\n%s", final, body)
+	}
+}
+
 // TestProxyServeHTTP tests the HTTP handler routing
 func TestProxyServeHTTP(t *testing.T) {
 	// Create a mock backend server
@@ -1036,11 +1087,11 @@ func TestResolveBackendPath(t *testing.T) {
 			expected:    "/admin/settings",
 		},
 		{
-			name:        "app with subpath - API at root",
+			name:        "app with subpath - API under mount prefix",
 			proxyPrefix: "/proxy/pi-hole",
 			targetPath:  "/admin",
 			requestPath: "/proxy/pi-hole/api/auth",
-			expected:    "/api/auth",
+			expected:    "/admin/api/auth",
 		},
 		{
 			name:        "root request",
@@ -2030,16 +2081,26 @@ func TestResolveBackendRequestPath(t *testing.T) {
 			expected:   "/admin/settings",
 		},
 		{
-			name:       "subpath target, API path bypasses",
+			// A subpath-mounted app serves its whole tree (including its
+			// own /api) under the mount prefix, so /api must be prefixed
+			// like any other path. Returning it unchanged 404s the app's API.
+			name:       "subpath target, API path is prefixed",
 			reqPath:    "/api/auth",
 			targetPath: "/admin",
-			expected:   "/api/auth",
+			expected:   "/admin/api/auth",
 		},
 		{
-			name:       "subpath target, /api exact",
+			name:       "subpath target, /api exact is prefixed",
 			reqPath:    "/api",
 			targetPath: "/admin",
-			expected:   "/api",
+			expected:   "/admin/api",
+		},
+		{
+			// A root-mounted app's /api stays at root (nothing to prefix).
+			name:       "root target, API path unchanged",
+			reqPath:    "/api/auth",
+			targetPath: "/",
+			expected:   "/api/auth",
 		},
 		{
 			name:       "empty target path",
@@ -3067,7 +3128,7 @@ func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
 
 	t.Run("normal document-level head", func(t *testing.T) {
 		content := []byte(`<html><head><title>Test</title></head></html>`)
-		result := rewriter.injectInterceptor(content)
+		result := rewriter.injectInterceptor(content, "/")
 		if !strings.Contains(string(result), "data-muximux-proxy") {
 			t.Error("interceptor should be injected into document-level <head>")
 		}
@@ -3079,7 +3140,7 @@ func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
 		content := []byte(`<div><script>"use strict";el.srcdoc=` + "`" +
 			`<html><head><link href="style.css"></head><body></body></html>` + "`" +
 			`;</script></div>`)
-		result := rewriter.injectInterceptor(content)
+		result := rewriter.injectInterceptor(content, "/")
 		if strings.Contains(string(result), "data-muximux-proxy") {
 			t.Error("interceptor must NOT be injected into <head> that appears inside a <script> block")
 		}
@@ -3088,7 +3149,7 @@ func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
 	t.Run("head after script block is fine", func(t *testing.T) {
 		// A document where script appears before head — head is outside
 		content := []byte(`<html><script>var x = 1;</script><head><title>Test</title></head></html>`)
-		result := rewriter.injectInterceptor(content)
+		result := rewriter.injectInterceptor(content, "/")
 		if !strings.Contains(string(result), "data-muximux-proxy") {
 			t.Error("interceptor should be injected into <head> that appears after a closed <script> block")
 		}
@@ -3096,7 +3157,7 @@ func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
 
 	t.Run("no head at all", func(t *testing.T) {
 		content := []byte(`<div><p>No head tag here</p></div>`)
-		result := rewriter.injectInterceptor(content)
+		result := rewriter.injectInterceptor(content, "/")
 		if strings.Contains(string(result), "data-muximux-proxy") {
 			t.Error("interceptor should not be injected when no <head> exists")
 		}
@@ -3104,7 +3165,7 @@ func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
 
 	t.Run("header tag is not confused with head", func(t *testing.T) {
 		content := []byte(`<html><header>Not a head tag</header></html>`)
-		result := rewriter.injectInterceptor(content)
+		result := rewriter.injectInterceptor(content, "/")
 		if strings.Contains(string(result), "data-muximux-proxy") {
 			t.Error("interceptor should not be injected into <header> tag")
 		}
@@ -3116,15 +3177,26 @@ func TestInjectInterceptorBaseTag(t *testing.T) {
 
 	t.Run("injects base tag when none exists", func(t *testing.T) {
 		content := []byte(`<html><head><title>qBittorrent</title></head><body></body></html>`)
-		result := string(rewriter.injectInterceptor(content))
+		result := string(rewriter.injectInterceptor(content, "/"))
 		if !strings.Contains(result, `<base href="/proxy/qbittorrent/">`) {
 			t.Error("should inject <base> tag when document has no existing <base>")
 		}
 	})
 
+	t.Run("anchors base at the document directory for non-root pages", func(t *testing.T) {
+		// A document served at /proxy/qbittorrent/docs/page.html must get a
+		// <base> at its own directory, so a relative asset (e.g. img.png)
+		// resolves to /proxy/qbittorrent/docs/img.png, not the proxy root.
+		content := []byte(`<html><head><title>Docs</title></head><body></body></html>`)
+		result := string(rewriter.injectInterceptor(content, "/docs/page.html"))
+		if !strings.Contains(result, `<base href="/proxy/qbittorrent/docs/">`) {
+			t.Errorf("base should be anchored at the document directory; got: %s", result)
+		}
+	})
+
 	t.Run("base tag appears before interceptor script", func(t *testing.T) {
 		content := []byte(`<html><head><title>Test</title></head><body></body></html>`)
-		result := string(rewriter.injectInterceptor(content))
+		result := string(rewriter.injectInterceptor(content, "/"))
 		baseIdx := strings.Index(result, `<base href=`)
 		scriptIdx := strings.Index(result, `<script data-muximux-proxy`)
 		if baseIdx < 0 || scriptIdx < 0 {
@@ -3137,7 +3209,7 @@ func TestInjectInterceptorBaseTag(t *testing.T) {
 
 	t.Run("skips injection when base tag already exists", func(t *testing.T) {
 		content := []byte(`<html><head><base href="/admin/"><title>Pi-hole</title></head><body></body></html>`)
-		result := string(rewriter.injectInterceptor(content))
+		result := string(rewriter.injectInterceptor(content, "/"))
 		if strings.Contains(result, `<base href="/proxy/qbittorrent/">`) {
 			t.Error("should NOT inject <base> tag when document already has one")
 		}
@@ -3145,7 +3217,7 @@ func TestInjectInterceptorBaseTag(t *testing.T) {
 
 	t.Run("skips injection for self-closing base tag", func(t *testing.T) {
 		content := []byte(`<html><head><base href="/app/" /><title>App</title></head><body></body></html>`)
-		result := string(rewriter.injectInterceptor(content))
+		result := string(rewriter.injectInterceptor(content, "/"))
 		count := strings.Count(result, "<base ")
 		if count != 1 {
 			t.Errorf("expected exactly 1 <base> tag, got %d", count)

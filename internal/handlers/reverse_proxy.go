@@ -802,18 +802,46 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 	}
 }
 
-// resolveBackendRequestPath joins the request path with the target path,
-// bypassing the target path prefix for /api paths.
+// documentDir returns the directory portion of a document path, with a
+// trailing slash, suitable for a <base href>. "/" and "/docs/" both yield
+// "/docs/"-style results: "/docs/page.html" -> "/docs/", "/" -> "/".
+func documentDir(docPath string) string {
+	if docPath == "" {
+		return "/"
+	}
+	return docPath[:strings.LastIndexByte(docPath, '/')+1]
+}
+
+// proxyFacingDocPath recovers the proxy-facing request path of a proxied
+// document from its backend response. At ModifyResponse time resp.Request.URL
+// holds the backend path (target-prefixed), so for a subpath-mounted app the
+// target prefix is stripped back off to get the path the browser requested
+// under /proxy/{slug}. Returns "/" when the path is empty or the request is
+// absent.
+func proxyFacingDocPath(resp *http.Response, targetPath string) string {
+	if resp == nil || resp.Request == nil || resp.Request.URL == nil {
+		return "/"
+	}
+	p := resp.Request.URL.Path
+	if trimmed := strings.TrimSuffix(targetPath, "/"); trimmed != "" {
+		p = strings.TrimPrefix(p, trimmed)
+	}
+	if p == "" {
+		return "/"
+	}
+	return p
+}
+
+// resolveBackendRequestPath joins the request path with the target path.
+// When the app is mounted at a subpath (targetPath != "/"), its entire tree
+// - including its own /api routes - lives under that prefix, so every path is
+// prefixed. A root-mounted app (targetPath "" or "/") is returned unchanged.
 func resolveBackendRequestPath(reqPath, targetPath string) string {
 	trimmedTargetPath := strings.TrimSuffix(targetPath, "/")
 	if trimmedTargetPath == "" {
 		return reqPath
 	}
 
-	// API paths typically live at root, not under the target path
-	if strings.HasPrefix(reqPath, "/api/") || reqPath == "/api" {
-		return reqPath
-	}
 	if strings.HasPrefix(reqPath, "/") {
 		return trimmedTargetPath + reqPath
 	}
@@ -1279,7 +1307,12 @@ func (r *contentRewriter) interceptorScript() []byte {
 // via replaceState (_S). Without <base>, relative resource URLs (css/style.css,
 // scripts/app.js) resolve against the stripped "/" instead of the proxy prefix,
 // causing 404s for apps like qBittorrent that use relative paths throughout.
-func (r *contentRewriter) injectInterceptor(content []byte) []byte {
+// docPath is the proxy-facing request path of the document being served
+// (after the /proxy/{slug} prefix is stripped, before the backend target path
+// is applied), e.g. "/" or "/docs/page.html". It anchors the injected <base>
+// at the document's own directory so relative assets on non-root pages resolve
+// correctly even after the interceptor strips the proxy prefix from the URL.
+func (r *contentRewriter) injectInterceptor(content []byte, docPath string) []byte {
 	// Lowercasing the whole body just to find <head> is a body-sized
 	// allocation per proxied HTML response. <head> always lives at
 	// the top of valid HTML (and the spec requires <base> to live
@@ -1328,12 +1361,15 @@ func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 		insertPos := headIdx + closeIdx + 1
 
 		// Inject <base> tag if the document doesn't already have one.
-		// This anchors relative URL resolution to the proxy prefix so that
-		// apps using relative paths (href="css/style.css") load correctly
-		// even after _S() strips the proxy prefix from the document URL.
+		// This anchors relative URL resolution so that apps using relative
+		// paths (href="css/style.css") load correctly even after _S() strips
+		// the proxy prefix from the document URL. The base is anchored at the
+		// document's own directory (not the proxy root) so relative assets on
+		// non-root pages resolve under the right directory rather than the
+		// proxy root.
 		var baseTag []byte
 		if !bytes.Contains(lower, []byte("<base ")) && !bytes.Contains(lower, []byte("<base>")) {
-			baseTag = []byte(`<base href="` + r.proxyPrefix + `/">`)
+			baseTag = []byte(`<base href="` + r.proxyPrefix + documentDir(docPath) + `">`)
 		}
 
 		script := r.interceptorScript()
@@ -1462,7 +1498,7 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	// Inject runtime URL interceptor for HTML responses so SPAs that construct
 	// API URLs dynamically (fetch, XHR, WebSocket) route through the proxy.
 	if isHTML {
-		rewritten = rewriter.injectInterceptor(rewritten)
+		rewritten = rewriter.injectInterceptor(rewritten, proxyFacingDocPath(resp, rewriter.targetPath))
 	}
 
 	// Rewriter allocates fresh slices, so `rewritten` doesn't alias
@@ -1983,10 +2019,42 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	// Extend the server's WriteTimeout for proxied responses — proxied apps
 	// may stream large files or have slow backends that exceed the default 15s.
+	// The deadline is reset on every write/flush (see deadlineResettingWriter)
+	// so it bounds idle time between writes rather than total response duration.
+	// Without the reset, a long-lived stream (SSE, live logs, slow downloads)
+	// is severed the moment h.timeout elapses even while data is still flowing.
 	rc := http.NewResponseController(w)
 	_ = rc.SetWriteDeadline(time.Now().Add(h.timeout))
 
-	route.proxy.ServeHTTP(w, r)
+	route.proxy.ServeHTTP(&deadlineResettingWriter{ResponseWriter: w, rc: rc, timeout: h.timeout}, r)
+}
+
+// deadlineResettingWriter wraps the proxy ResponseWriter and pushes the
+// connection write deadline forward by timeout on every Write and Flush. This
+// turns the absolute deadline set before ServeHTTP into a per-write idle
+// deadline: a backend that keeps streaming within timeout never trips it,
+// while a genuinely stalled backend is still cut after timeout of silence.
+// Unwrap lets http.ResponseController reach the underlying writer for any
+// capability this wrapper does not implement. WebSocket upgrades bypass this
+// path entirely (handled via hijack before the wrapper is constructed).
+type deadlineResettingWriter struct {
+	http.ResponseWriter
+	rc      *http.ResponseController
+	timeout time.Duration
+}
+
+func (d *deadlineResettingWriter) Write(p []byte) (int, error) {
+	_ = d.rc.SetWriteDeadline(time.Now().Add(d.timeout))
+	return d.ResponseWriter.Write(p)
+}
+
+func (d *deadlineResettingWriter) Flush() {
+	_ = d.rc.SetWriteDeadline(time.Now().Add(d.timeout))
+	_ = d.rc.Flush()
+}
+
+func (d *deadlineResettingWriter) Unwrap() http.ResponseWriter {
+	return d.ResponseWriter
 }
 
 // HasRoutes returns true if there are any proxy routes configured
