@@ -2,6 +2,17 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Changed
+- Bump npm group (`@inlang/paraglide-js` 2.20.0, `@tailwindcss/vite` 4.3.1,
+  `@vitest/coverage-v8` 4.1.9, `eslint` 10.5.0, `typescript-eslint` 8.61.1,
+  `svelte-dnd-action` 0.9.70)
+- Bump `undici` from 7.25.0 to 7.28.0
+- Bump `codecov/codecov-action` from 6.0.1 to 7.0.0
+- Bump `SonarSource/sonarqube-scan-action` from 8.1.0 to 8.2.0
+- Bump `github/codeql-action` from 4.36.1 to 4.36.2
+
 ## [3.1.3] - 2026-06-11
 
 A correctness release for the reverse proxy, with documentation and tooling
