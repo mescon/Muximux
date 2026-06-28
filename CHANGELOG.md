@@ -2,13 +2,31 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.1.4] - 2026-06-29
+
+A reverse-proxy fix plus routine dependency maintenance. Upgrading is a
+drop-in: no config changes.
+
+### Fixed
+- Apps whose JavaScript contains the literal text `integrity="..."` or
+  `crossorigin="..."` rendered blank when accessed through the built-in proxy.
+  Bazarr is one example: its bundle builds a CSS selector
+  `'[crossorigin="' + a + '"]'`. The proxy's HTML integrity/crossorigin
+  attribute stripper was being applied to JavaScript as well as HTML, where it
+  matched those words inside string literals and deleted bytes, corrupting the
+  bundle so the browser could not parse it. The script path now neutralises
+  only webpack's runtime SRI and never the HTML attribute form; HTML rewriting
+  is unchanged. Thanks to @paulo-roger for the detailed report (#371).
 
 ### Changed
-- Bump npm group (`@inlang/paraglide-js` 2.20.0, `@tailwindcss/vite` 4.3.1,
-  `@vitest/coverage-v8` 4.1.9, `eslint` 10.5.0, `typescript-eslint` 8.61.1,
-  `svelte-dnd-action` 0.9.70)
-- Bump `undici` from 7.25.0 to 7.28.0
+- Bump npm group (`svelte` 5.56.4, `vite` 8.1.0, `@inlang/paraglide-js` 2.20.1,
+  `typescript-eslint` 8.62.0, `eslint` 10.5.0, `svelte-check` 4.7.1,
+  `@vitest/coverage-v8` 4.1.9, `@testing-library/svelte` 5.4.2, `globals` 17.7.0,
+  `@tailwindcss/vite` 4.3.1, `svelte-dnd-action` 0.9.70, `undici` 7.28.0)
+- Bump `github.com/coreos/go-oidc/v3` from 3.18.0 to 3.19.0
+- Bump `actions/checkout` from v6 to v7
+- Bump `actions/setup-go` from 6.4.0 to 6.5.0
+- Bump `softprops/action-gh-release` from 3.0.0 to 3.0.1
 - Bump `codecov/codecov-action` from 6.0.1 to 7.0.0
 - Bump `SonarSource/sonarqube-scan-action` from 8.1.0 to 8.2.0
 - Bump `github/codeql-action` from 4.36.1 to 4.36.2
