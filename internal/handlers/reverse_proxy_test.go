@@ -2694,6 +2694,48 @@ func TestStripIntegrity(t *testing.T) {
 	}
 }
 
+// TestRewriteScriptPreservesJSStringLiterals guards against #371: the HTML
+// integrity/crossorigin attribute stripper false-matched those words inside
+// minified JS string literals and corrupted the script. The JS path must
+// neutralise only webpack's dynamic SRI, never the attribute form.
+func TestRewriteScriptPreservesJSStringLiterals(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/bazarr", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			// The exact Bazarr construct that broke (#371): builds the CSS
+			// selector [crossorigin="<a>"]. Must pass through untouched.
+			name:     "crossorigin in JS string literal is preserved",
+			input:    `o+='[crossorigin="'+a+'"]'`,
+			expected: `o+='[crossorigin="'+a+'"]'`,
+		},
+		{
+			name:     "integrity word in JS string literal is preserved",
+			input:    `t='<link integrity="'+h+'">'`,
+			expected: `t='<link integrity="'+h+'">'`,
+		},
+		{
+			// Webpack dynamic SRI must still be neutralised in JS.
+			name:     "webpack dynamic SRI still neutralised",
+			input:    `b.integrity=b.sriHashes[c],b.sriHashes={x:"y"}`,
+			expected: `b.sriHashes={}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := string(rewriter.rewriteScript([]byte(tt.input)))
+			if result != tt.expected {
+				t.Errorf("rewriteScript() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestStripMetaCSP(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "")
 

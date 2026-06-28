@@ -207,7 +207,7 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 // third-party servers (e.g. plex.tv). ES module imports are an exception
 // because the browser's module loader bypasses fetch/XHR interception.
 func (r *contentRewriter) rewriteScript(content []byte) []byte {
-	content = r.stripIntegrity(content)
+	content = r.stripDynamicSRI(content)
 	content = r.rewriteAbsoluteURLs(content)
 	content = r.rewriteTargetPaths(content)
 	content = r.rewriteURLBase(content)
@@ -215,10 +215,23 @@ func (r *contentRewriter) rewriteScript(content []byte) []byte {
 	return content
 }
 
-// stripIntegrity removes integrity and crossorigin attributes since we modify
-// content (breaks SRI hashes), and neutralises dynamic SRI in webpack loaders.
+// stripIntegrity removes HTML integrity/crossorigin attributes (we modify
+// content, which breaks SRI hashes) and neutralises dynamic SRI in webpack
+// loaders. HTML only -- the attribute pattern is unanchored and false-matches
+// these words inside minified JS string literals, so the JS path uses
+// stripDynamicSRI instead.
 func (r *contentRewriter) stripIntegrity(result []byte) []byte {
 	result = integrityPattern.ReplaceAll(result, nil)
+	return r.stripDynamicSRI(result)
+}
+
+// stripDynamicSRI neutralises webpack's runtime SRI (the dynamic
+// `x.integrity = y.sriHashes[z]` assignment and the `sriHashes` table) without
+// touching HTML integrity/crossorigin attributes. The attribute form is an
+// HTML construct; in JavaScript those words only appear inside string literals
+// (e.g. Bazarr builds the CSS selector `'[crossorigin="' + a + '"]'`), where
+// stripping them corrupts the script. Safe for JS and JSON. (#371)
+func (r *contentRewriter) stripDynamicSRI(result []byte) []byte {
 	result = dynamicSriPattern.ReplaceAll(result, nil)
 	result = sriHashesPattern.ReplaceAll(result, r.sriHashRepl)
 	return result
