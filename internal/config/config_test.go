@@ -1745,3 +1745,20 @@ func TestDefaults_LifecycleMinRole_DefaultsToAdminWhenLifecycleEnabled(t *testin
 		t.Fatalf("want overview, got %q", c.Discovery.Docker.HealthBadgePlacement)
 	}
 }
+
+func TestNormalizeAutoImport(t *testing.T) {
+	cases := map[AutoImportMode]AutoImportMode{
+		"":        AutoImportOff, // absent defaults to off
+		"off":     AutoImportOff,
+		"add":     AutoImportAdd,
+		"update":  AutoImportUpdate,
+		"sync":    AutoImportSync,
+		"SYNC":    AutoImportSync,     // case-insensitive
+		"garbage": AutoImportOff,      // unknown fails closed
+	}
+	for in, want := range cases {
+		if got := NormalizeAutoImport(in); got != want {
+			t.Errorf("NormalizeAutoImport(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

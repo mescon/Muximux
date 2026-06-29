@@ -88,6 +88,9 @@ type DiscoveryDockerConfig struct {
 	HostIP          string             `yaml:"host_ip,omitempty" json:"host_ip,omitempty"`
 	NetworkFilter   string             `yaml:"network_filter,omitempty" json:"network_filter,omitempty"`
 	RefreshInterval string             `yaml:"refresh_interval" json:"refresh_interval"` // e.g. "60s"
+	// AutoImport controls automatic import of muximux.*-labeled
+	// containers. off (default) | add | update | sync. See AutoImportMode.
+	AutoImport AutoImportMode `yaml:"auto_import,omitempty" json:"auto_import,omitempty"`
 
 	// Container lifecycle controls (Splash actions). Two-layer opt-in:
 	// also requires the Docker socket to be mounted read-write at
@@ -122,6 +125,37 @@ const (
 	// in a Desktop / WSL container.
 	StrategyHostDockerInternal NetworkStrategy = "host_docker_internal"
 )
+
+// AutoImportMode controls whether labeled containers are imported into
+// config automatically, and how aggressively. Off by default.
+type AutoImportMode string
+
+const (
+	AutoImportOff    AutoImportMode = "off"    // suggestions only (manual import)
+	AutoImportAdd    AutoImportMode = "add"    // auto-add new; never update or remove
+	AutoImportUpdate AutoImportMode = "update" // add + re-sync fields; never remove
+	AutoImportSync   AutoImportMode = "sync"   // add + update + remove vanished
+)
+
+// NormalizeAutoImport lowercases and validates a mode, failing closed to
+// off (with a warning) for any unknown non-empty value so a typo can never
+// silently enable full sync.
+func NormalizeAutoImport(m AutoImportMode) AutoImportMode {
+	switch AutoImportMode(strings.ToLower(string(m))) {
+	case AutoImportAdd:
+		return AutoImportAdd
+	case AutoImportUpdate:
+		return AutoImportUpdate
+	case AutoImportSync:
+		return AutoImportSync
+	case AutoImportOff, "":
+		return AutoImportOff
+	default:
+		logging.Warn("Unknown discovery.docker.auto_import value; defaulting to off",
+			"source", "config", "value", string(m))
+		return AutoImportOff
+	}
+}
 
 // DiscoveryTLSConfig is the mTLS configuration used when the Docker
 // endpoint is a tcp:// address requiring certificate authentication.
@@ -680,6 +714,7 @@ func applyDiscoveryDefaults(cfg *Config) {
 	if d.HealthBadgePlacement == "" {
 		d.HealthBadgePlacement = "overview"
 	}
+	d.AutoImport = NormalizeAutoImport(d.AutoImport)
 }
 
 // expandBracedEnv replaces ${VAR} references with environment variable values.
