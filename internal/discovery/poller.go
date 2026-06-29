@@ -296,6 +296,12 @@ func (p *Poller) tick(ctx context.Context) {
 	// trigger an Update, so that site-field change does not propagate
 	// until the container is removed and re-added. We intentionally do
 	// NOT gateway-site field-diff here; update mode re-syncs app fields.
+	//
+	// Overlap note: for a non-gateway auto app whose container IP changed
+	// with no label change, the URL-refresh pass above and Reconcile's
+	// Update below may both target the same app in one batch. Harmless:
+	// both resolve to the same final URL and commit in a single save, so
+	// this is not a double-write bug.
 	if autoImport != config.AutoImportOff {
 		scan := svc.Scan(ctx, dashboardDomain)
 		desired := make([]Desired, 0, len(scan.Suggestions))

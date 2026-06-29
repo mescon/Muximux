@@ -298,9 +298,11 @@ MUXIMUX_DISCOVERY_AUTO_IMPORT=sync
 
 A container with `muximux.app.enabled=false` is excluded from auto-import (and from the Discover modal). Use it to keep a labeled container off the dashboard without stripping its labels.
 
-### Edit-wins (hand-editing detaches)
+### Edit-wins (URL edits detach)
 
-Auto-import never clobbers your manual changes. If you hand-edit an auto-imported app -- in Settings, through the API, or in `config.yaml` directly -- Muximux notices the divergence and **detaches** that app from auto-management. From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. Your edit wins. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
+Auto-import never silently clobbers a URL you took manual control of. **Changing an auto-imported app's URL** -- in Settings, through the API, or in `config.yaml` directly -- or **removing the container's `muximux.*` labels** detaches that app from auto-management. From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
+
+Other managed-field edits (name, icon, group, and similar) do **not** detach. Under `update`/`sync` they are re-synced from the labels on the next tick, so the labels remain the source of truth; under `add` they stick, because `add` never re-syncs an already-imported app.
 
 ### Known limitation -- gateway-only labels and `update`/`sync`
 

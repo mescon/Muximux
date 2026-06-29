@@ -132,6 +132,9 @@ func buildGatewaySite(sug Suggestion, endpoint string) *config.GatewaySite {
 		site.MinRole = gw.MinRole
 		site.AllowedGroups = gw.AllowedGroups
 	}
+	// ProxyHeaders, TLSCert, and TLSKey are intentionally left unset:
+	// there is no muximux.gateway.* label vocabulary for them, so auto-
+	// import cannot populate them (matches the manual import path).
 	return &site
 }
 
