@@ -165,7 +165,10 @@ func (p *Poller) tick(ctx context.Context) {
 	enabled := p.deps.Config.Discovery.Docker.Enabled
 	endpoint := p.deps.Config.Discovery.Docker.Endpoint
 	hostIP := p.deps.Config.Discovery.Docker.HostIP
-	autoImport := p.deps.Config.Discovery.Docker.AutoImport
+	// Normalize defensively: the config PUT path normalizes before storing,
+	// but snapshotting through NormalizeAutoImport here guarantees the poller
+	// fails closed to off even if some future path ever stores a raw value.
+	autoImport := config.NormalizeAutoImport(p.deps.Config.Discovery.Docker.AutoImport)
 	dashboardDomain := p.deps.Config.Server.TLS.Domain
 	tracked := p.collectTracked()
 	// Snapshot the current apps for the reconcile diff while we hold the

@@ -1361,6 +1361,113 @@ func TestTick_GatewayAppURLNotClobbered_SiteRefreshes(t *testing.T) {
 	}
 }
 
+// TestTick_GatewaySyncReconcile_AppURLStable_SiteRefreshes exercises the
+// gateway path with auto-import ACTIVE (sync mode), unlike
+// TestTick_GatewayAppURLNotClobbered_SiteRefreshes which leaves AutoImport
+// unset. A properly gateway-labeled container is already tracked as an
+// auto-imported gateway app + site. Across a tick where its IP changed, the
+// reconcile Update must NOT clobber the gateway app's static https://domain
+// URL (sameManagedFields sees the app URL unchanged) while the sibling
+// gateway Site's BackendURL still refreshes to the new container IP.
+func TestTick_GatewaySyncReconcile_AppURLStable_SiteRefreshes(t *testing.T) {
+	// gwSonarr resolves to 10.0.0.42 via container_ip; bump the IP so the
+	// site backend must refresh this tick.
+	c := gwSonarr()
+	c.NetworkSettings.Networks["media"] = ContainerNetwork{IPAddress: "10.0.0.77"}
+	set := []ContainerSummary{c}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	// Seed the already-imported gateway app + site (prior IP .42) so the tick
+	// hits the reconcile Update + the site-refresh path rather than an Add.
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com", Proxy: false, Enabled: true,
+		Icon: config.AppIconConfig{Type: "dashboard", Name: "sonarr"},
+		// Color differs from the container's #00ff00 label so Reconcile emits
+		// an Update this tick: that proves the Update path re-syncs fields
+		// WITHOUT clobbering the static gateway URL.
+		Color:     "#111111",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+		DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989",
+	}}
+
+	priorProxy := []proxy.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	app := findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.URL != "https://sonarr.example.com" {
+		t.Errorf("gateway app URL = %v, want stable https://sonarr.example.com (reconcile must not clobber)", app)
+	}
+	if app != nil && app.Color != "#00ff00" {
+		t.Errorf("gateway app color = %q, want re-synced to #00ff00 (Update path ran)", app.Color)
+	}
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || site.BackendURL != "http://10.0.0.77:8989" {
+		t.Errorf("gateway site backend = %v, want refreshed to .77", site)
+	}
+}
+
+// TestTick_AutoImportRollbackOnSaveFailure_Gateway is the gateway-path
+// sibling of TestTick_AutoImportRollbackOnSaveFailure. A sync-mode tick wants
+// to remove a vanished gateway app + its site, but SaveConfig fails. BOTH the
+// app and the gateway site must be restored to their prior state.
+func TestTick_AutoImportRollbackOnSaveFailure_Gateway(t *testing.T) {
+	// Empty daemon: the tracked gateway container has vanished, so sync mode
+	// plans a removal of both the app and its sibling site.
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com", Proxy: false, Enabled: true,
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+		DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989",
+	}}
+
+	priorProxy := []proxy.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return errors.New("synthetic save failure") },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Errorf("save failure must roll back the removal; app missing, apps=%+v", cfg.Apps)
+	}
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || site.BackendURL != "http://10.0.0.42:8989" {
+		t.Errorf("save failure must roll back the gateway site; got %v", site)
+	}
+}
+
 // gwSonarr is labeledSonarr plus a gateway-domain label, so Scan
 // suggests a gateway site and BuildDesired produces a Desired.Site.
 func gwSonarr() ContainerSummary {
