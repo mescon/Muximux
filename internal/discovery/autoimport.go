@@ -1,6 +1,10 @@
 package discovery
 
-import "github.com/mescon/muximux/v3/internal/config"
+import (
+	"reflect"
+
+	"github.com/mescon/muximux/v3/internal/config"
+)
 
 // Desired is the config Muximux wants for one labeled container: the
 // app plus an optional gateway site when the container declares a
@@ -139,4 +143,99 @@ func gatewayScheme(tls config.TLSMode) string {
 		return "http"
 	}
 	return "https"
+}
+
+// ReconcilePlan is the set of changes auto-import wants to apply this
+// tick: apps to create, auto-imported apps to refresh in place, and the
+// DockerKeys of auto-imported apps whose containers have vanished.
+type ReconcilePlan struct {
+	Add        []Desired
+	Update     []Desired
+	RemoveKeys []string
+}
+
+// Reconcile diffs the desired set (from currently labeled containers)
+// against the current config apps by DockerKey. It is a pure function:
+// no config mutation, no I/O, output depends only on its inputs.
+//
+//   - off mode: empty plan, no work.
+//   - desired key with no current app: Add (every non-off mode).
+//   - desired key whose current app is auto-imported and differs in a
+//     label-controlled field: Update (update/sync only, never add mode).
+//   - desired key whose current app exists but is not auto-imported
+//     (manual or detached): left untouched; it still suppresses the Add
+//     so no duplicate app is created.
+//   - sync only: a current auto-imported app whose DockerKey is absent
+//     from the desired set has its key listed in RemoveKeys. Apps without
+//     DockerAutoImported are never updated or removed.
+func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.AppConfig) ReconcilePlan {
+	var plan ReconcilePlan
+	if mode == config.AutoImportOff {
+		return plan
+	}
+
+	curByKey := make(map[string]config.AppConfig, len(current))
+	for _, a := range current {
+		if a.DockerKey != "" {
+			curByKey[a.DockerKey] = a
+		}
+	}
+	desiredKeys := make(map[string]bool, len(desired))
+
+	for _, d := range desired {
+		k := d.App.DockerKey
+		desiredKeys[k] = true
+		cur, exists := curByKey[k]
+		switch {
+		case !exists:
+			plan.Add = append(plan.Add, d)
+		case cur.DockerAutoImported && mode != config.AutoImportAdd && !sameManagedFields(cur, d.App):
+			plan.Update = append(plan.Update, d)
+		default:
+			// Manual/detached app, add mode, or unchanged auto app:
+			// leave the current entry as-is.
+		}
+	}
+
+	if mode == config.AutoImportSync {
+		for _, a := range current {
+			if a.DockerAutoImported && a.DockerKey != "" && !desiredKeys[a.DockerKey] {
+				plan.RemoveKeys = append(plan.RemoveKeys, a.DockerKey)
+			}
+		}
+	}
+	return plan
+}
+
+// sameManagedFields reports whether two apps agree on every
+// label-controlled field that BuildDesired sets, i.e. the fields
+// auto-import owns. It deliberately ignores tracking bookkeeping
+// (DockerKey/Endpoint/Strategy/ManagedURL/AutoImported) and unrelated
+// operator state (AuthBypass, Access, HealthCheck, Scale, ProxyHeaders,
+// ForceIconBackground) so that a hand-set field elsewhere on an
+// auto-imported app never triggers a spurious Update. A blanket
+// reflect.DeepEqual over the whole AppConfig would compare those unowned
+// fields and report false differences, so the comparison is explicit.
+func sameManagedFields(a, b config.AppConfig) bool {
+	return a.Name == b.Name &&
+		a.URL == b.URL &&
+		a.HealthURL == b.HealthURL &&
+		a.Icon == b.Icon &&
+		a.Color == b.Color &&
+		a.Group == b.Group &&
+		a.Order == b.Order &&
+		a.Enabled == b.Enabled &&
+		a.Default == b.Default &&
+		a.OpenMode == b.OpenMode &&
+		a.Proxy == b.Proxy &&
+		a.MinRole == b.MinRole &&
+		a.AllowNotifications == b.AllowNotifications &&
+		a.HTTPActionMethod == b.HTTPActionMethod &&
+		a.HTTPActionConfirm == b.HTTPActionConfirm &&
+		reflect.DeepEqual(a.ProxySkipTLSVerify, b.ProxySkipTLSVerify) &&
+		reflect.DeepEqual(a.Shortcut, b.Shortcut) &&
+		reflect.DeepEqual(a.HTTPActionShowToast, b.HTTPActionShowToast) &&
+		reflect.DeepEqual(a.AllowedGroups, b.AllowedGroups) &&
+		reflect.DeepEqual(a.Permissions, b.Permissions) &&
+		reflect.DeepEqual(a.HTTPActionHeaders, b.HTTPActionHeaders)
 }

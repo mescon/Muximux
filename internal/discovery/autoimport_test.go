@@ -282,3 +282,172 @@ func TestBuildDesired_OptionalPointersUnset(t *testing.T) {
 		t.Errorf("unset show toast must stay nil, got %v", a.HTTPActionShowToast)
 	}
 }
+
+// --- Reconcile diff tests ---
+
+// key builds a manual app (DockerKey set, not auto-imported).
+func key(k string) config.AppConfig { return config.AppConfig{Name: k, DockerKey: k} }
+
+// autoKey builds an auto-imported app for key k.
+func autoKey(k string) config.AppConfig {
+	a := key(k)
+	a.DockerAutoImported = true
+	return a
+}
+
+// desire builds the Desired an auto-import tick wants for key k.
+func desire(k string) Desired {
+	return BuildDesired(Suggestion{Key: k, Name: k, URL: "http://h:1"}, "e")
+}
+
+// TestReconcile_Off: off mode is a no-op regardless of inputs.
+func TestReconcile_Off(t *testing.T) {
+	p := Reconcile(config.AutoImportOff, []Desired{desire("a")}, []config.AppConfig{autoKey("gone")})
+	if len(p.Add) != 0 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
+		t.Errorf("off mode must be a no-op: %+v", p)
+	}
+}
+
+// TestReconcile_Modes covers add, sync-only removal, and manual-app
+// handling across modes.
+func TestReconcile_Modes(t *testing.T) {
+	// add: new key with no current app -> Add, in every non-off mode
+	for _, m := range []config.AutoImportMode{config.AutoImportAdd, config.AutoImportUpdate, config.AutoImportSync} {
+		p := Reconcile(m, []Desired{desire("a")}, nil)
+		if len(p.Add) != 1 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
+			t.Errorf("%s add: %+v", m, p)
+		}
+	}
+
+	// vanished auto app: removed only in sync
+	cur := []config.AppConfig{autoKey("gone")}
+	if p := Reconcile(config.AutoImportAdd, nil, cur); len(p.RemoveKeys) != 0 {
+		t.Errorf("add must not remove: %+v", p)
+	}
+	if p := Reconcile(config.AutoImportUpdate, nil, cur); len(p.RemoveKeys) != 0 {
+		t.Errorf("update must not remove: %+v", p)
+	}
+	if p := Reconcile(config.AutoImportSync, nil, cur); len(p.RemoveKeys) != 1 || p.RemoveKeys[0] != "gone" {
+		t.Errorf("sync must remove vanished auto app: %+v", p)
+	}
+
+	// manual app present for a key: never removed, never duplicated
+	man := []config.AppConfig{key("m")} // no DockerAutoImported
+	p := Reconcile(config.AutoImportSync, []Desired{desire("m")}, man)
+	if len(p.Add) != 0 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
+		t.Errorf("manual app must be untouched and block add: %+v", p)
+	}
+	// and a manual app whose container vanished is NOT removed in sync
+	p = Reconcile(config.AutoImportSync, nil, man)
+	if len(p.RemoveKeys) != 0 {
+		t.Errorf("sync must not remove a manual app: %+v", p)
+	}
+}
+
+// TestReconcile_DetachedAppNotRecreated: a detached app (DockerKey set,
+// DockerAutoImported false) suppresses an Add and is never updated, even
+// when the desired app's label fields differ from it.
+func TestReconcile_DetachedAppNotRecreated(t *testing.T) {
+	detached := key("d") // DockerKey set, auto false; differs from desire("d")
+	p := Reconcile(config.AutoImportSync, []Desired{desire("d")}, []config.AppConfig{detached})
+	if len(p.Add) != 0 {
+		t.Errorf("detached app must suppress add: %+v", p)
+	}
+	if len(p.Update) != 0 {
+		t.Errorf("detached app must not be updated: %+v", p)
+	}
+	if len(p.RemoveKeys) != 0 {
+		t.Errorf("detached app must not be removed: %+v", p)
+	}
+}
+
+// TestReconcile_UpdateOnlyWhenChanged: an auto app is updated only when a
+// label-controlled field actually differs, and never in add mode.
+func TestReconcile_UpdateOnlyWhenChanged(t *testing.T) {
+	cur := BuildDesired(Suggestion{Key: "u", Name: "U", URL: "http://h:1"}, "e").App
+	cur.DockerAutoImported = true
+	// identical desired -> no update
+	same := []Desired{{App: cur}}
+	if p := Reconcile(config.AutoImportUpdate, same, []config.AppConfig{cur}); len(p.Update) != 0 {
+		t.Errorf("unchanged should not update: %+v", p)
+	}
+	// changed name -> update
+	changed := BuildDesired(Suggestion{Key: "u", Name: "U2", URL: "http://h:1"}, "e")
+	if p := Reconcile(config.AutoImportUpdate, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 1 {
+		t.Errorf("changed should update: %+v", p)
+	}
+	if p := Reconcile(config.AutoImportSync, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 1 {
+		t.Errorf("sync should update changed app: %+v", p)
+	}
+	// update suppressed in add mode even when changed
+	if p := Reconcile(config.AutoImportAdd, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 0 {
+		t.Errorf("add mode must not update: %+v", p)
+	}
+}
+
+// TestSameManagedFields covers each label-controlled field flipping the
+// result, and confirms unrelated state (AuthBypass/Access/tracking) does
+// not. Without this, a blanket DeepEqual would report false differences.
+func TestSameManagedFields(t *testing.T) {
+	base := BuildDesired(Suggestion{
+		Key: "s", Name: "S", URL: "http://h:1", HealthURL: "http://h:1/health",
+		Icon: "icon", Color: "#fff", Group: "g", Order: 3, OpenMode: "iframe",
+		MinRole: "admin", AllowedGroups: []string{"x"}, Permissions: []string{"camera"},
+		Proxy: boolPtr(true), ProxySkipTLSVerify: boolPtr(true),
+		AllowNotifications: boolPtr(true), Default: boolPtr(true), Shortcut: 4,
+		HTTPActionMethod: "POST", HTTPActionHeaders: map[string]string{"A": "b"},
+		HTTPActionConfirm: boolPtr(true), HTTPActionShowToast: boolPtr(false),
+	}, "e").App
+
+	if !sameManagedFields(base, base) {
+		t.Fatal("identical apps must be same")
+	}
+
+	// Unrelated, non-label state must NOT register as a difference.
+	unrelated := base
+	unrelated.AuthBypass = []config.AuthBypassRule{{}}
+	unrelated.Access = config.AppAccessConfig{Roles: []string{"admin"}}
+	unrelated.DockerEndpoint = "other"
+	unrelated.DockerStrategy = "other"
+	unrelated.DockerManagedURL = "http://changed"
+	unrelated.HealthCheck = boolPtr(true)
+	unrelated.Scale = 2
+	if !sameManagedFields(base, unrelated) {
+		t.Errorf("unrelated fields must not register as managed difference")
+	}
+
+	// Each label-controlled field, flipped, must register a difference.
+	mutators := map[string]func(*config.AppConfig){
+		"Name":                func(a *config.AppConfig) { a.Name = "z" },
+		"URL":                 func(a *config.AppConfig) { a.URL = "z" },
+		"HealthURL":           func(a *config.AppConfig) { a.HealthURL = "z" },
+		"Icon":                func(a *config.AppConfig) { a.Icon.Name = "z" },
+		"Color":               func(a *config.AppConfig) { a.Color = "z" },
+		"Group":               func(a *config.AppConfig) { a.Group = "z" },
+		"Order":               func(a *config.AppConfig) { a.Order = 99 },
+		"Enabled":             func(a *config.AppConfig) { a.Enabled = false },
+		"OpenMode":            func(a *config.AppConfig) { a.OpenMode = "new_tab" },
+		"Proxy":               func(a *config.AppConfig) { a.Proxy = false },
+		"ProxySkipTLSVerify":  func(a *config.AppConfig) { a.ProxySkipTLSVerify = boolPtr(false) },
+		"MinRole":             func(a *config.AppConfig) { a.MinRole = "user" },
+		"AllowedGroups":       func(a *config.AppConfig) { a.AllowedGroups = []string{"y"} },
+		"Permissions":         func(a *config.AppConfig) { a.Permissions = []string{"midi"} },
+		"AllowNotifications":  func(a *config.AppConfig) { a.AllowNotifications = false },
+		"Default":             func(a *config.AppConfig) { a.Default = false },
+		"Shortcut":            func(a *config.AppConfig) { a.Shortcut = intPtr(9) },
+		"HTTPActionMethod":    func(a *config.AppConfig) { a.HTTPActionMethod = "GET" },
+		"HTTPActionHeaders":   func(a *config.AppConfig) { a.HTTPActionHeaders = map[string]string{"C": "d"} },
+		"HTTPActionConfirm":   func(a *config.AppConfig) { a.HTTPActionConfirm = false },
+		"HTTPActionShowToast": func(a *config.AppConfig) { a.HTTPActionShowToast = boolPtr(true) },
+	}
+	for name, mut := range mutators {
+		mod := base
+		mut(&mod)
+		if sameManagedFields(base, mod) {
+			t.Errorf("flipping %s must register as a managed difference", name)
+		}
+	}
+}
+
+func boolPtr(b bool) *bool { return &b }
+func intPtr(i int) *int    { return &i }
