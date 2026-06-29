@@ -609,6 +609,11 @@ func Load(path string) (*Config, error) {
 	// fine and we don't touch them.
 	applyDiscoveryDefaults(cfg)
 
+	// Direct environment override for the auto-import mode. Runs after
+	// applyDiscoveryDefaults (which normalizes the yaml value) so an
+	// operator-set MUXIMUX_DISCOVERY_AUTO_IMPORT wins over config.yaml.
+	ApplyAutoImportEnv(cfg, os.LookupEnv)
+
 	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
 	// declarative server.gateway_sites: form. Runs once before
 	// validate() so the migrated sites participate in the same
