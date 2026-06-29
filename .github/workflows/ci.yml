@@ -134,10 +134,21 @@ jobs:
           name: coverage-frontend
           path: web/coverage
 
+      - name: Derive project version from latest tag
+        id: sonarver
+        run: |
+          VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
+          # Keep only safe version characters so a tag name cannot inject
+          # extra scanner arguments through the projectVersion value.
+          VERSION="$(printf '%s' "${VERSION:-0.0.0}" | tr -cd '0-9A-Za-z.+-')"
+          echo "version=${VERSION:-0.0.0}" >> "$GITHUB_OUTPUT"
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e  # v8.2.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: -Dsonar.projectVersion=${{ steps.sonarver.outputs.version }}
 
       - name: SonarCloud Quality Gate
         uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b  # v1.2.0
