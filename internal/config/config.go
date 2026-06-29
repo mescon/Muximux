@@ -509,6 +509,10 @@ type AppConfig struct {
 	// hand-edited config.yaml, and Load() auto-detaches tracking
 	// so the operator's edit survives the next poller tick.
 	DockerManagedURL string `yaml:"docker_managed_url,omitempty" json:"docker_managed_url,omitempty"`
+	// DockerAutoImported marks an app the discovery reconciler created.
+	// Only such apps are updated or removed by auto-import; manually
+	// imported apps (DockerKey set, this false) are never touched.
+	DockerAutoImported bool `yaml:"docker_auto,omitempty" json:"docker_auto,omitempty"`
 }
 
 // AppIconConfig holds app icon settings
@@ -634,6 +638,34 @@ func Load(path string) (*Config, error) {
 	return cfg, nil
 }
 
+// detachIfHandEdited clears all Docker tracking fields on a single
+// AppConfig when URL no longer matches DockerManagedURL (the value
+// the poller last wrote). Empty DockerManagedURL is treated as "field
+// not yet recorded" and skipped so grandfathered configs keep their
+// tracking until the poller next writes the baseline.
+func detachIfHandEdited(app *AppConfig) {
+	if app.DockerKey == "" {
+		return
+	}
+	if app.DockerManagedURL == "" {
+		return // grandfather; poller hasn't recorded a baseline yet
+	}
+	if app.URL == app.DockerManagedURL {
+		return
+	}
+	logging.Info("Auto-detached app from Docker tracking due to operator URL edit in config.yaml",
+		"source", "config",
+		"app", app.Name,
+		"managed_url", app.DockerManagedURL,
+		"current_url", app.URL,
+		"previous_docker_key", app.DockerKey)
+	app.DockerKey = ""
+	app.DockerEndpoint = ""
+	app.DockerStrategy = ""
+	app.DockerManagedURL = ""
+	app.DockerAutoImported = false
+}
+
 // autoDetachEditedDockerEntries clears DockerKey/DockerEndpoint/
 // DockerStrategy on apps and gateway sites whose stored URL no
 // longer matches the value the poller last wrote (DockerManagedURL).
@@ -647,26 +679,7 @@ func Load(path string) (*Config, error) {
 // the field. Once recorded, comparisons start.
 func autoDetachEditedDockerEntries(cfg *Config) {
 	for i := range cfg.Apps {
-		app := &cfg.Apps[i]
-		if app.DockerKey == "" {
-			continue
-		}
-		if app.DockerManagedURL == "" {
-			continue // grandfather; poller hasn't recorded a baseline yet
-		}
-		if app.URL == app.DockerManagedURL {
-			continue
-		}
-		logging.Info("Auto-detached app from Docker tracking due to operator URL edit in config.yaml",
-			"source", "config",
-			"app", app.Name,
-			"managed_url", app.DockerManagedURL,
-			"current_url", app.URL,
-			"previous_docker_key", app.DockerKey)
-		app.DockerKey = ""
-		app.DockerEndpoint = ""
-		app.DockerStrategy = ""
-		app.DockerManagedURL = ""
+		detachIfHandEdited(&cfg.Apps[i])
 	}
 	for i := range cfg.Server.GatewaySites {
 		site := &cfg.Server.GatewaySites[i]

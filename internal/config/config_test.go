@@ -1762,3 +1762,18 @@ func TestNormalizeAutoImport(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadDetachClearsAutoImported(t *testing.T) {
+	// An auto-imported app whose URL was hand-edited (URL != DockerManagedURL)
+	// must detach: DockerKey and DockerAutoImported both cleared.
+	app := AppConfig{
+		Name: "Sonarr", URL: "http://edited:8989",
+		DockerKey: "label:sonarr", DockerManagedURL: "http://old:8989",
+		DockerAutoImported: true,
+	}
+	detachIfHandEdited(&app) // the helper Load() already calls
+	if app.DockerKey != "" || app.DockerAutoImported {
+		t.Errorf("expected detach to clear tracking, got key=%q auto=%v",
+			app.DockerKey, app.DockerAutoImported)
+	}
+}
