@@ -41,7 +41,7 @@ type Desired struct {
 // when the container disappears. The App.URL is the static gateway
 // domain and DockerManagedURL equals it, so no spurious detach or URL
 // rewrite results.
-func BuildDesired(sug Suggestion, endpoint string) Desired {
+func BuildDesired(sug *Suggestion, endpoint string) Desired {
 	app := config.AppConfig{
 		Name:          sug.Name,
 		URL:           sug.URL,
@@ -106,7 +106,7 @@ func BuildDesired(sug Suggestion, endpoint string) Desired {
 // produces for the same container: domain from the label, backend
 // pointing at the container URL, the muximux.gateway.* fields copied
 // through, and the tracking + clean-detach baseline stamped.
-func buildGatewaySite(sug Suggestion, endpoint string) *config.GatewaySite {
+func buildGatewaySite(sug *Suggestion, endpoint string) *config.GatewaySite {
 	site := config.GatewaySite{
 		Domain:     sug.SuggestedDomain,
 		BackendURL: sug.URL,
@@ -178,22 +178,22 @@ func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.A
 	}
 
 	curByKey := make(map[string]config.AppConfig, len(current))
-	for _, a := range current {
-		if a.DockerKey != "" {
-			curByKey[a.DockerKey] = a
+	for i := range current {
+		if current[i].DockerKey != "" {
+			curByKey[current[i].DockerKey] = current[i]
 		}
 	}
 	desiredKeys := make(map[string]bool, len(desired))
 
-	for _, d := range desired {
-		k := d.App.DockerKey
+	for i := range desired {
+		k := desired[i].App.DockerKey
 		desiredKeys[k] = true
 		cur, exists := curByKey[k]
 		switch {
 		case !exists:
-			plan.Add = append(plan.Add, d)
-		case cur.DockerAutoImported && mode != config.AutoImportAdd && !sameManagedFields(cur, d.App):
-			plan.Update = append(plan.Update, d)
+			plan.Add = append(plan.Add, desired[i])
+		case cur.DockerAutoImported && mode != config.AutoImportAdd && !sameManagedFields(&cur, &desired[i].App):
+			plan.Update = append(plan.Update, desired[i])
 		default:
 			// Manual/detached app, add mode, or unchanged auto app:
 			// leave the current entry as-is.
@@ -201,9 +201,9 @@ func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.A
 	}
 
 	if mode == config.AutoImportSync {
-		for _, a := range current {
-			if a.DockerAutoImported && a.DockerKey != "" && !desiredKeys[a.DockerKey] {
-				plan.RemoveKeys = append(plan.RemoveKeys, a.DockerKey)
+		for i := range current {
+			if current[i].DockerAutoImported && current[i].DockerKey != "" && !desiredKeys[current[i].DockerKey] {
+				plan.RemoveKeys = append(plan.RemoveKeys, current[i].DockerKey)
 			}
 		}
 	}
@@ -219,7 +219,7 @@ func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.A
 // auto-imported app never triggers a spurious Update. A blanket
 // reflect.DeepEqual over the whole AppConfig would compare those unowned
 // fields and report false differences, so the comparison is explicit.
-func sameManagedFields(a, b config.AppConfig) bool {
+func sameManagedFields(a, b *config.AppConfig) bool {
 	return a.Name == b.Name &&
 		a.URL == b.URL &&
 		a.HealthURL == b.HealthURL &&

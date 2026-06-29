@@ -18,7 +18,7 @@ func TestBuildDesired_ProxyApp(t *testing.T) {
 		Color:             "#3498db", Order: 10, OpenMode: "iframe", Proxy: &yes,
 		MinRole: "user", AllowedGroups: []string{"family", "admins"},
 	}
-	d := BuildDesired(sug, "unix:///var/run/docker.sock")
+	d := BuildDesired(&sug, "unix:///var/run/docker.sock")
 
 	if d.Site != nil {
 		t.Fatalf("no gateway domain -> no site, got %+v", d.Site)
@@ -65,7 +65,7 @@ func TestBuildDesired_DirectApp(t *testing.T) {
 		Key: "name:grafana", Name: "Grafana", URL: "http://10.0.0.9:3000",
 		EffectiveStrategy: config.StrategyContainerIP,
 	}
-	d := BuildDesired(sug, "tcp://docker:2375")
+	d := BuildDesired(&sug, "tcp://docker:2375")
 
 	if d.Site != nil {
 		t.Fatalf("no gateway domain -> no site, got %+v", d.Site)
@@ -85,7 +85,7 @@ func TestBuildDesired_DirectApp(t *testing.T) {
 // proxy label at all) must default App.Proxy to false.
 func TestBuildDesired_NilProxyIsDirect(t *testing.T) {
 	sug := Suggestion{Key: "id:abc", Name: "App", URL: "http://h:1"}
-	d := BuildDesired(sug, "e")
+	d := BuildDesired(&sug, "e")
 	if d.App.Proxy {
 		t.Error("nil Proxy -> App.Proxy must be false")
 	}
@@ -116,7 +116,7 @@ func TestBuildDesired_GatewaySite(t *testing.T) {
 			AllowedGroups:      []string{"staff"},
 		},
 	}
-	d := BuildDesired(sug, "unix:///x")
+	d := BuildDesired(&sug, "unix:///x")
 	if d.Site == nil {
 		t.Fatal("gateway domain -> gateway site expected")
 	}
@@ -174,7 +174,7 @@ func TestBuildDesired_GatewayTLSNone(t *testing.T) {
 		SuggestedDomain:  "x.example.com",
 		SuggestedGateway: &SuggestedGatewayConfig{TLS: "none"},
 	}
-	d := BuildDesired(sug, "e")
+	d := BuildDesired(&sug, "e")
 	if d.Site == nil {
 		t.Fatal("expected site")
 	}
@@ -194,7 +194,7 @@ func TestBuildDesired_GatewayNilConfig(t *testing.T) {
 		Key: "label:y", Name: "Y", URL: "http://h:2",
 		SuggestedDomain: "y.example.com",
 	}
-	d := BuildDesired(sug, "e")
+	d := BuildDesired(&sug, "e")
 	if d.Site == nil {
 		t.Fatal("domain present -> site expected even without gateway labels")
 	}
@@ -235,7 +235,7 @@ func TestBuildDesired_CarriesAllLabelFields(t *testing.T) {
 		HTTPActionConfirm:   &yes,
 		HTTPActionShowToast: &no,
 	}
-	d := BuildDesired(sug, "e")
+	d := BuildDesired(&sug, "e")
 	a := d.App
 	if a.OpenMode != "redirect" || a.Color != "#fff" || a.Order != 7 ||
 		a.MinRole != "admin" || len(a.AllowedGroups) != 1 ||
@@ -270,7 +270,7 @@ func TestBuildDesired_CarriesAllLabelFields(t *testing.T) {
 // non-nil pointers, no shortcut).
 func TestBuildDesired_OptionalPointersUnset(t *testing.T) {
 	sug := Suggestion{Key: "k", Name: "N", URL: "http://h:1"}
-	d := BuildDesired(sug, "e")
+	d := BuildDesired(&sug, "e")
 	a := d.App
 	if a.AllowNotifications || a.Default || a.HTTPActionConfirm {
 		t.Error("unset bool pointers must yield false")
@@ -297,7 +297,7 @@ func autoKey(k string) config.AppConfig {
 
 // desire builds the Desired an auto-import tick wants for key k.
 func desire(k string) Desired {
-	return BuildDesired(Suggestion{Key: k, Name: k, URL: "http://h:1"}, "e")
+	return BuildDesired(&Suggestion{Key: k, Name: k, URL: "http://h:1"}, "e")
 }
 
 // TestReconcile_Off: off mode is a no-op regardless of inputs.
@@ -364,7 +364,7 @@ func TestReconcile_DetachedAppNotRecreated(t *testing.T) {
 // TestReconcile_UpdateOnlyWhenChanged: an auto app is updated only when a
 // label-controlled field actually differs, and never in add mode.
 func TestReconcile_UpdateOnlyWhenChanged(t *testing.T) {
-	cur := BuildDesired(Suggestion{Key: "u", Name: "U", URL: "http://h:1"}, "e").App
+	cur := BuildDesired(&Suggestion{Key: "u", Name: "U", URL: "http://h:1"}, "e").App
 	cur.DockerAutoImported = true
 	// identical desired -> no update
 	same := []Desired{{App: cur}}
@@ -372,7 +372,7 @@ func TestReconcile_UpdateOnlyWhenChanged(t *testing.T) {
 		t.Errorf("unchanged should not update: %+v", p)
 	}
 	// changed name -> update
-	changed := BuildDesired(Suggestion{Key: "u", Name: "U2", URL: "http://h:1"}, "e")
+	changed := BuildDesired(&Suggestion{Key: "u", Name: "U2", URL: "http://h:1"}, "e")
 	if p := Reconcile(config.AutoImportUpdate, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 1 {
 		t.Errorf("changed should update: %+v", p)
 	}
@@ -389,7 +389,7 @@ func TestReconcile_UpdateOnlyWhenChanged(t *testing.T) {
 // result, and confirms unrelated state (AuthBypass/Access/tracking) does
 // not. Without this, a blanket DeepEqual would report false differences.
 func TestSameManagedFields(t *testing.T) {
-	base := BuildDesired(Suggestion{
+	base := BuildDesired(&Suggestion{
 		Key: "s", Name: "S", URL: "http://h:1", HealthURL: "http://h:1/health",
 		Icon: "icon", Color: "#fff", Group: "g", Order: 3, OpenMode: "iframe",
 		MinRole: "admin", AllowedGroups: []string{"x"}, Permissions: []string{"camera"},
@@ -399,7 +399,7 @@ func TestSameManagedFields(t *testing.T) {
 		HTTPActionConfirm: boolPtr(true), HTTPActionShowToast: boolPtr(false),
 	}, "e").App
 
-	if !sameManagedFields(base, base) {
+	if !sameManagedFields(&base, &base) {
 		t.Fatal("identical apps must be same")
 	}
 
@@ -412,7 +412,7 @@ func TestSameManagedFields(t *testing.T) {
 	unrelated.DockerManagedURL = "http://changed"
 	unrelated.HealthCheck = boolPtr(true)
 	unrelated.Scale = 2
-	if !sameManagedFields(base, unrelated) {
+	if !sameManagedFields(&base, &unrelated) {
 		t.Errorf("unrelated fields must not register as managed difference")
 	}
 
@@ -443,7 +443,7 @@ func TestSameManagedFields(t *testing.T) {
 	for name, mut := range mutators {
 		mod := base
 		mut(&mod)
-		if sameManagedFields(base, mod) {
+		if sameManagedFields(&base, &mod) {
 			t.Errorf("flipping %s must register as a managed difference", name)
 		}
 	}

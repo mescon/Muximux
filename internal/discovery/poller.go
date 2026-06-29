@@ -306,19 +306,19 @@ func (p *Poller) tick(ctx context.Context) {
 		scan := svc.Scan(ctx, dashboardDomain)
 		desired := make([]Desired, 0, len(scan.Suggestions))
 		for i := range scan.Suggestions {
-			desired = append(desired, BuildDesired(scan.Suggestions[i], endpoint))
+			desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 		}
 		plan := Reconcile(autoImport, desired, currentApps)
-		for _, d := range plan.Add {
-			batch.addApps = append(batch.addApps, d.App)
-			if d.Site != nil {
-				batch.addSites = append(batch.addSites, *d.Site)
+		for i := range plan.Add {
+			batch.addApps = append(batch.addApps, plan.Add[i].App)
+			if plan.Add[i].Site != nil {
+				batch.addSites = append(batch.addSites, *plan.Add[i].Site)
 			}
 		}
-		for _, d := range plan.Update {
-			batch.updateApps = append(batch.updateApps, d.App)
-			if d.Site != nil {
-				batch.updateSites = append(batch.updateSites, *d.Site)
+		for i := range plan.Update {
+			batch.updateApps = append(batch.updateApps, plan.Update[i].App)
+			if plan.Update[i].Site != nil {
+				batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
 			}
 		}
 		batch.removeKeys = append(batch.removeKeys, plan.RemoveKeys...)
@@ -668,20 +668,20 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 			remove[k] = true
 		}
 		keptApps := cfg.Apps[:0]
-		for _, a := range cfg.Apps {
-			if a.DockerKey != "" && remove[a.DockerKey] {
+		for i := range cfg.Apps {
+			if cfg.Apps[i].DockerKey != "" && remove[cfg.Apps[i].DockerKey] {
 				continue
 			}
-			keptApps = append(keptApps, a)
+			keptApps = append(keptApps, cfg.Apps[i])
 		}
 		cfg.Apps = keptApps
 		keptSites := cfg.Server.GatewaySites[:0]
-		for _, s := range cfg.Server.GatewaySites {
-			if s.DockerKey != "" && remove[s.DockerKey] {
+		for i := range cfg.Server.GatewaySites {
+			if cfg.Server.GatewaySites[i].DockerKey != "" && remove[cfg.Server.GatewaySites[i].DockerKey] {
 				touchedGateway = true
 				continue
 			}
-			keptSites = append(keptSites, s)
+			keptSites = append(keptSites, cfg.Server.GatewaySites[i])
 		}
 		cfg.Server.GatewaySites = keptSites
 	}

@@ -1753,8 +1753,8 @@ func TestNormalizeAutoImport(t *testing.T) {
 		"add":     AutoImportAdd,
 		"update":  AutoImportUpdate,
 		"sync":    AutoImportSync,
-		"SYNC":    AutoImportSync,     // case-insensitive
-		"garbage": AutoImportOff,      // unknown fails closed
+		"SYNC":    AutoImportSync, // case-insensitive
+		"garbage": AutoImportOff,  // unknown fails closed
 	}
 	for in, want := range cases {
 		if got := NormalizeAutoImport(in); got != want {
