@@ -576,6 +576,7 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerEndpoint = existing.DockerEndpoint
 		updated.DockerStrategy = existing.DockerStrategy
 		updated.DockerManagedURL = existing.DockerManagedURL
+		updated.DockerAutoImported = existing.DockerAutoImported
 		return ""
 	}
 	if existing.DockerKey != "" && existing.URL != "" && updated.URL != existing.URL {
@@ -584,6 +585,7 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerEndpoint = ""
 		updated.DockerStrategy = ""
 		updated.DockerManagedURL = ""
+		updated.DockerAutoImported = false
 		return reason
 	}
 	// Tracking stays; keep DockerManagedURL in sync with the
