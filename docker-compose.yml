@@ -87,6 +87,13 @@ services:
       #
       # Override the config file path (default: derived from data dir)
       # - MUXIMUX_CONFIG=/app/data/config.yaml
+      #
+      # Automatically import muximux.*-labeled containers (3.2.0+).
+      # off (default) | add | update | sync. With sync, Muximux mirrors
+      # labeled containers exactly (adds, updates, and removes apps).
+      # Enabling this imports every labeled container with no review step,
+      # including gateway subdomains. See docs/wiki/docker-discovery.md.
+      # - MUXIMUX_DISCOVERY_AUTO_IMPORT=sync
 
       # ── Config File Variable Expansion ──────────────────────────
       # These are available for ${VAR} expansion inside config.yaml.

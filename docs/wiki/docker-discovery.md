@@ -260,6 +260,56 @@ Unknown `muximux.*` labels are surfaced in the Discover modal's per-row notes so
 
 ---
 
+## Automatic Import
+
+Everything above is the **manual** path: labels become high-confidence pre-fills, and you click **Import** to commit them. Automatic import removes that review step. When enabled, Muximux imports every `muximux.*`-labeled container on the daemon by itself -- no modal, no click -- and keeps the imported apps in step with the labels over time.
+
+> **Security -- read before enabling.** Auto-import is **off by default** and only the host operator (who controls `config.yaml` or the environment) can turn it on. Once on, **any container on the shared Docker socket can write itself into your config with no review step** -- including a `muximux.app.gateway.domain` label that publishes a **public HTTPS subdomain with an auto-issued ACME certificate**. Treat enabling this as trusting every label on every container the daemon can see. If you don't control all of those containers, leave it `off` and import by hand.
+
+### Modes
+
+Set the mode with the `discovery.docker.auto_import` config key, or override it with the `MUXIMUX_DISCOVERY_AUTO_IMPORT` environment variable (the env var wins). Four values:
+
+| Mode | Adds new labeled containers | Re-syncs app fields when labels change | Removes the app when the container disappears |
+|---|---|---|---|
+| `off` (default) | no -- labels stay suggestions you import by hand | no | no |
+| `add` | yes, once | no -- imported, then left alone forever | no |
+| `update` | yes | yes | no |
+| `sync` | yes | yes | yes -- full GitOps mirror |
+
+- **`off`** -- today's behavior. Labeled containers are suggestions only; nothing is written until you click **Import**.
+- **`add`** -- a newly labeled container is imported one time, then never touched again. Good for bootstrapping.
+- **`update`** -- like `add`, plus Muximux re-syncs the app's fields from the labels whenever they change. Never removes anything.
+- **`sync`** -- like `update`, plus when a tracked container disappears from the daemon the auto-imported app (and its gateway site) is removed. The config becomes an exact mirror of the labeled containers.
+
+```yaml
+discovery:
+  docker:
+    enabled: true
+    auto_import: sync   # off (default) | add | update | sync
+```
+
+```bash
+# Environment override (takes precedence over config.yaml):
+MUXIMUX_DISCOVERY_AUTO_IMPORT=sync
+```
+
+### Opting a container out
+
+A container with `muximux.app.enabled=false` is excluded from auto-import (and from the Discover modal). Use it to keep a labeled container off the dashboard without stripping its labels.
+
+### Edit-wins (hand-editing detaches)
+
+Auto-import never clobbers your manual changes. If you hand-edit an auto-imported app -- in Settings, through the API, or in `config.yaml` directly -- Muximux notices the divergence and **detaches** that app from auto-management. From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. Your edit wins. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
+
+### Known limitation -- gateway-only labels and `update`/`sync`
+
+In `update` and `sync`, re-sync compares the **app** fields built from labels against the stored app. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- do change an app field, so edits to them **do** propagate on the next tick.
+
+Gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, and `muximux.gateway.forwarded_headers` -- are **not** picked up by re-sync. Changing one of these labels on a running, already-imported container has no effect until either an app field also changes, or you remove and re-add the container (which re-imports it from scratch). So if you rely on, say, toggling `muximux.gateway.require_auth` via a label, know that auto-import will not apply that toggle on its own.
+
+---
+
 ## Routing Modes Explained
 
 When you check "Add to menu" in the import modal, a radio selector decides how the menu link works:

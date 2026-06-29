@@ -2,6 +2,16 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Added
+- Automatic import of `muximux.*`-labeled Docker containers, opt-in via
+  `discovery.docker.auto_import` (or `MUXIMUX_DISCOVERY_AUTO_IMPORT`):
+  `off` (default), `add`, `update`, or `sync` (full GitOps mirror). Disabled
+  by default; enabling it imports every labeled container without a manual
+  review step. Hand-editing an auto-imported app detaches it so local changes
+  win.
+
 ## [3.1.4] - 2026-06-29
 
 A reverse-proxy fix plus routine dependency maintenance. Upgrading is a
