@@ -165,14 +165,37 @@ func (p *Poller) tick(ctx context.Context) {
 	enabled := p.deps.Config.Discovery.Docker.Enabled
 	endpoint := p.deps.Config.Discovery.Docker.Endpoint
 	hostIP := p.deps.Config.Discovery.Docker.HostIP
+	autoImport := p.deps.Config.Discovery.Docker.AutoImport
+	dashboardDomain := p.deps.Config.Server.TLS.Domain
 	tracked := p.collectTracked()
+	// Snapshot the current apps for the reconcile diff while we hold the
+	// read lock. Only needed when auto-import is active.
+	var currentApps []config.AppConfig
+	if autoImport != config.AutoImportOff {
+		currentApps = append([]config.AppConfig(nil), p.deps.Config.Apps...)
+	}
 	p.deps.ConfigMu.RUnlock()
 
 	if !enabled {
 		return
 	}
-	if len(tracked.apps) == 0 && len(tracked.sites) == 0 {
+	// Proceed when something is tracked OR auto-import is on. Auto-import
+	// must run before anything is tracked (the first boot of a declared
+	// container). Only bail when there is nothing to refresh AND no
+	// auto-import to perform.
+	if len(tracked.apps) == 0 && len(tracked.sites) == 0 && autoImport == config.AutoImportOff {
 		return // nothing to do
+	}
+
+	// Keys of tracked gateway sites. A tracked app sharing a key with a
+	// gateway site is gateway-routed: its URL is the static public domain,
+	// not a container URL, so the refresh pass must NOT resolve/rewrite it
+	// (doing so would clobber the domain and break routing). The sibling
+	// site's BackendURL refresh below keeps routing pointed at the live
+	// container.
+	gatewaySiteKeys := make(map[string]bool, len(tracked.sites))
+	for i := range tracked.sites {
+		gatewaySiteKeys[tracked.sites[i].key] = true
 	}
 
 	svc := p.deps.Service
@@ -204,6 +227,13 @@ func (p *Poller) tick(ctx context.Context) {
 	for i := range tracked.apps {
 		t := &tracked.apps[i]
 		if t.endpoint != endpoint {
+			continue
+		}
+		// Gateway-routed app: URL is the static gateway domain, not a
+		// container URL. Skip resolution so the domain is preserved; the
+		// sibling gateway site's BackendURL refresh (below) handles the
+		// container IP change.
+		if gatewaySiteKeys[t.key] {
 			continue
 		}
 		newURL, err := p.resolveURLFrom(containers, t.key, t.strategy, hostIP)
@@ -247,6 +277,42 @@ func (p *Poller) tick(ctx context.Context) {
 		if newURL != t.currentURL {
 			batch.siteURLChanges[t.domain] = newURL
 		}
+	}
+
+	// Auto-import reconcile. Scan the daemon for labeled containers, map
+	// each Suggestion to its Desired config, diff against the current
+	// apps, and fold the resulting plan into the SAME batch so the
+	// refresh and the auto-import commit atomically (one SaveConfig, one
+	// rollback) in applyRefreshBatch below.
+	//
+	// Known, deliberate limitation (approved design): Reconcile's Update
+	// only detects APP-field changes. gateway.domain / gateway.tls change
+	// App.URL so they DO propagate. But a change to a gateway-ONLY field
+	// (require_auth, min_role, streaming, strip_frame_blockers,
+	// forwarded_headers) that leaves every app field unchanged will NOT
+	// trigger an Update, so that site-field change does not propagate
+	// until the container is removed and re-added. We intentionally do
+	// NOT gateway-site field-diff here; update mode re-syncs app fields.
+	if autoImport != config.AutoImportOff {
+		scan := svc.Scan(ctx, dashboardDomain)
+		desired := make([]Desired, 0, len(scan.Suggestions))
+		for i := range scan.Suggestions {
+			desired = append(desired, BuildDesired(scan.Suggestions[i], endpoint))
+		}
+		plan := Reconcile(autoImport, desired, currentApps)
+		for _, d := range plan.Add {
+			batch.addApps = append(batch.addApps, d.App)
+			if d.Site != nil {
+				batch.addSites = append(batch.addSites, *d.Site)
+			}
+		}
+		for _, d := range plan.Update {
+			batch.updateApps = append(batch.updateApps, d.App)
+			if d.Site != nil {
+				batch.updateSites = append(batch.updateSites, *d.Site)
+			}
+		}
+		batch.removeKeys = append(batch.removeKeys, plan.RemoveKeys...)
 	}
 
 	if batch.empty() {
@@ -373,10 +439,22 @@ func containerSchemeForRefresh(c *ContainerSummary) string {
 	return "http"
 }
 
-// refreshBatch accumulates URL changes for one tick.
+// refreshBatch accumulates URL changes for one tick, plus the
+// auto-import reconcile output so both commit through the same atomic
+// SaveConfig + rollback in applyRefreshBatch.
 type refreshBatch struct {
 	appURLChanges  map[string]string // app name -> new URL
 	siteURLChanges map[string]string // gateway domain -> new BackendURL
+
+	// Auto-import reconcile output, folded into the same transaction as
+	// the URL refresh. addApps/updateApps carry their own URL (gateway
+	// apps carry the static domain); updates are matched by DockerKey.
+	// removeKeys drops apps AND any gateway site sharing that DockerKey.
+	addApps     []config.AppConfig
+	addSites    []config.GatewaySite
+	updateApps  []config.AppConfig
+	updateSites []config.GatewaySite
+	removeKeys  []string
 }
 
 func newRefreshBatch() *refreshBatch {
@@ -387,7 +465,17 @@ func newRefreshBatch() *refreshBatch {
 }
 
 func (b *refreshBatch) empty() bool {
-	return len(b.appURLChanges) == 0 && len(b.siteURLChanges) == 0
+	return len(b.appURLChanges) == 0 && len(b.siteURLChanges) == 0 &&
+		len(b.addApps) == 0 && len(b.addSites) == 0 &&
+		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
+		len(b.removeKeys) == 0
+}
+
+// reconcileChangesApps reports whether the auto-import plan touches any
+// app (added, updated, or removed). Used to fire the route-table
+// rebuild hook the same way an app URL change does.
+func (b *refreshBatch) reconcileChangesApps() bool {
+	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0
 }
 
 func (b *refreshBatch) touchesGateway() bool {
@@ -432,10 +520,16 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		}
 	}
 
+	// Fold the auto-import reconcile plan into the same in-memory
+	// transaction. Returns whether it added/updated/removed any gateway
+	// site so the Caddy reload below fires for auto-import too.
+	reconcileTouchedGateway := p.applyReconcile(batch)
+	gatewayTouched := batch.touchesGateway() || reconcileTouchedGateway
+
 	// Caddy reload, batched once for the whole tick. Only fires when
 	// the batch actually touches gateway sites - app-only changes
 	// don't need Caddy at all.
-	if batch.touchesGateway() && p.deps.Proxy != nil {
+	if gatewayTouched && p.deps.Proxy != nil {
 		newProxySites := proxy.ConfigGatewaySitesToProxy(p.deps.Config.Server.GatewaySites)
 		priorProxySites := proxy.ConfigGatewaySitesToProxy(priorSites)
 		err := p.deps.Proxy.ApplyGatewaySites(newProxySites, priorProxySites)
@@ -475,12 +569,12 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		// == priorSites, so reading it for the second argument would
 		// pass priorSites twice and rollback would be a no-op.
 		var candidateProxy []proxy.GatewaySite
-		if batch.touchesGateway() && p.deps.Proxy != nil {
+		if gatewayTouched && p.deps.Proxy != nil {
 			candidateProxy = proxy.ConfigGatewaySitesToProxy(p.deps.Config.Server.GatewaySites)
 		}
 		p.deps.Config.Apps = priorApps
 		p.deps.Config.Server.GatewaySites = priorSites
-		if batch.touchesGateway() && p.deps.Proxy != nil {
+		if gatewayTouched && p.deps.Proxy != nil {
 			reassertErr := p.deps.Proxy.ApplyGatewaySites(
 				proxy.ConfigGatewaySitesToProxy(priorSites),
 				candidateProxy,
@@ -522,7 +616,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// silent IP shift would otherwise leave the proxy hitting the
 	// stale address. Skip when no apps changed (gateway-only batches
 	// don't touch the route table).
-	if len(batch.appURLChanges) > 0 && p.deps.OnConfigSaved != nil {
+	if (len(batch.appURLChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
 		p.deps.OnConfigSaved()
 	}
 	for name, url := range batch.appURLChanges {
@@ -533,6 +627,92 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		logging.Info("Docker gateway-site URL refreshed",
 			"source", "discovery", "domain", domain, "new_backend_url", url)
 	}
+	for i := range batch.addApps {
+		logging.Info("Docker container auto-imported",
+			"source", "audit", "app", batch.addApps[i].Name, "key", batch.addApps[i].DockerKey)
+	}
+	for i := range batch.updateApps {
+		logging.Info("Docker auto-imported app re-synced",
+			"source", "audit", "app", batch.updateApps[i].Name, "key", batch.updateApps[i].DockerKey)
+	}
+	for _, k := range batch.removeKeys {
+		logging.Info("Docker auto-imported entry removed (container vanished)",
+			"source", "audit", "key", k)
+	}
+}
+
+// applyReconcile folds the auto-import plan carried on the batch into
+// the live config. The caller (applyRefreshBatch) already holds the
+// write lock and has snapshotted priorApps/priorSites for rollback, so
+// this mutates p.deps.Config in place. Returns true when it added,
+// updated, or removed any gateway site, so the caller knows to reload
+// Caddy.
+func (p *Poller) applyReconcile(batch *refreshBatch) bool {
+	cfg := p.deps.Config
+	touchedGateway := false
+
+	// Removals first: drop vanished auto-imported apps and any gateway
+	// site sharing their DockerKey.
+	if len(batch.removeKeys) > 0 {
+		remove := make(map[string]bool, len(batch.removeKeys))
+		for _, k := range batch.removeKeys {
+			remove[k] = true
+		}
+		keptApps := cfg.Apps[:0]
+		for _, a := range cfg.Apps {
+			if a.DockerKey != "" && remove[a.DockerKey] {
+				continue
+			}
+			keptApps = append(keptApps, a)
+		}
+		cfg.Apps = keptApps
+		keptSites := cfg.Server.GatewaySites[:0]
+		for _, s := range cfg.Server.GatewaySites {
+			if s.DockerKey != "" && remove[s.DockerKey] {
+				touchedGateway = true
+				continue
+			}
+			keptSites = append(keptSites, s)
+		}
+		cfg.Server.GatewaySites = keptSites
+	}
+
+	// Updates: replace the existing app/site matched by DockerKey. A
+	// site with no current match is inserted (a label that newly added a
+	// gateway domain to an already-tracked app).
+	for i := range batch.updateApps {
+		na := batch.updateApps[i]
+		for j := range cfg.Apps {
+			if cfg.Apps[j].DockerKey == na.DockerKey {
+				cfg.Apps[j] = na
+				break
+			}
+		}
+	}
+	for i := range batch.updateSites {
+		ns := batch.updateSites[i]
+		found := false
+		for j := range cfg.Server.GatewaySites {
+			if cfg.Server.GatewaySites[j].DockerKey == ns.DockerKey {
+				cfg.Server.GatewaySites[j] = ns
+				found = true
+				break
+			}
+		}
+		if !found {
+			cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, ns)
+		}
+		touchedGateway = true
+	}
+
+	// Additions.
+	cfg.Apps = append(cfg.Apps, batch.addApps...)
+	if len(batch.addSites) > 0 {
+		cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, batch.addSites...)
+		touchedGateway = true
+	}
+
+	return touchedGateway
 }
 
 // save invokes the configured save function (typically Config.Save).
