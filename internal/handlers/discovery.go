@@ -191,6 +191,13 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// Normalize the auto-import mode the SAME way config.Load does, failing
+	// closed to off for an unknown / empty value. The poller shares this live
+	// *config.Config and treats only the literal "off" as off, so a raw value
+	// stored here would fall through Reconcile and silently auto-import until
+	// the next restart re-normalized it on load.
+	newCfg.AutoImport = config.NormalizeAutoImport(newCfg.AutoImport)
+
 	// Snapshot, mutate, save, rollback on failure - same shape as the
 	// auth-config update path. Persist BEFORE rebuilding the service so
 	// a save failure leaves the running service untouched.

@@ -311,6 +311,42 @@ func TestUpdateDockerConfig_RejectsUnknownLifecycleMinRole(t *testing.T) {
 	}
 }
 
+func TestUpdateDockerConfig_NormalizesGarbageAutoImportToOff(t *testing.T) {
+	// A PUT carrying an unknown auto_import value must NOT land unnormalized
+	// in the live config: the poller treats only the literal "off" as off, so
+	// a garbage value would fall through Reconcile and silently auto-import.
+	// The handler must normalize the mode the same way config.Load does,
+	// failing closed to off.
+	h, cfg, configPath := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+
+	body := []byte(`{
+		"enabled": true,
+		"endpoint": "unix:///tmp/x.sock",
+		"network_strategy": "container_ip",
+		"auto_import": "definitely-not-a-mode"
+	}`)
+	req := adminCtxRequest(http.MethodPut, "/api/discovery/docker/config")
+	req.Body = httpBody(body)
+	w := httptest.NewRecorder()
+	h.UpdateDockerConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+
+	if cfg.Discovery.Docker.AutoImport != config.AutoImportOff {
+		t.Errorf("in-memory AutoImport = %q, want off (garbage must normalize)", cfg.Discovery.Docker.AutoImport)
+	}
+	// And the on-disk copy must agree so a restart can't resurrect the
+	// garbage value either.
+	persisted, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if persisted.Discovery.Docker.AutoImport != config.AutoImportOff {
+		t.Errorf("persisted AutoImport = %q, want off", persisted.Discovery.Docker.AutoImport)
+	}
+}
+
 func TestScanDocker_NilService(t *testing.T) {
 	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan")

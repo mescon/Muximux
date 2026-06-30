@@ -576,6 +576,7 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerEndpoint = existing.DockerEndpoint
 		updated.DockerStrategy = existing.DockerStrategy
 		updated.DockerManagedURL = existing.DockerManagedURL
+		updated.DockerAutoImported = existing.DockerAutoImported
 		return ""
 	}
 	if existing.DockerKey != "" && existing.URL != "" && updated.URL != existing.URL {
@@ -584,12 +585,20 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerEndpoint = ""
 		updated.DockerStrategy = ""
 		updated.DockerManagedURL = ""
+		updated.DockerAutoImported = false
 		return reason
 	}
 	// Tracking stays; keep DockerManagedURL in sync with the
 	// stored URL so a re-link or no-op save doesn't accidentally
 	// stale the baseline Load() compares against.
 	updated.DockerManagedURL = updated.URL
+	// A non-URL edit keeps the app auto-managed: ClientAppConfig has no
+	// docker_auto field, so updated.DockerAutoImported arrives false on a
+	// normal UI save. Preserve the marker to mirror the YAML path, where
+	// Load() only detaches on a URL change. Managed fields are re-synced
+	// from labels under update/sync; change the URL or remove the
+	// container labels to detach.
+	updated.DockerAutoImported = existing.DockerAutoImported
 	return ""
 }
 

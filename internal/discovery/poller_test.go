@@ -1040,3 +1040,589 @@ func TestPoller_Tick_StoppedContainerResolvesExitedNotMissing(t *testing.T) {
 		t.Fatalf("stopped tracked container state = %q, want \"exited\" (a running-only scan would yield \"missing\")", got.Status)
 	}
 }
+
+// --- Auto-import reconcile in the tick (Task 6) ---------------------------
+
+// mutableDaemonForPoller serves a container set the test can swap
+// between ticks (via the *set pointer), so update / vanish scenarios
+// can change what the daemon reports across reconcile passes.
+func mutableDaemonForPoller(t *testing.T, set *[]ContainerSummary) (string, func()) {
+	t.Helper()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/_ping", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	mux.HandleFunc("/v1.41/containers/json", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode(*set)
+	})
+	return fakeDockerOverUnix(t, mux)
+}
+
+// labeledSonarr is a running, media-network container carrying a stable
+// discovery id -> tracking key "label:sonarr-auto", URL via container_ip
+// -> http://10.0.0.42:8989.
+func labeledSonarr() ContainerSummary {
+	return ContainerSummary{
+		ID:     "auto-sonarr",
+		Names:  []string{"/sonarr"},
+		Image:  "linuxserver/sonarr",
+		Labels: map[string]string{LabelDiscoveryID: "sonarr-auto", LabelAppColor: "#00ff00"},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.42"}},
+		},
+		Ports: []ContainerPort{{PrivatePort: 8989, Type: "tcp"}},
+	}
+}
+
+func findAppByKey(cfg *config.Config, key string) *config.AppConfig {
+	for i := range cfg.Apps {
+		if cfg.Apps[i].DockerKey == key {
+			return &cfg.Apps[i]
+		}
+	}
+	return nil
+}
+
+func findSiteByKey(cfg *config.Config, key string) *config.GatewaySite {
+	for i := range cfg.Server.GatewaySites {
+		if cfg.Server.GatewaySites[i].DockerKey == key {
+			return &cfg.Server.GatewaySites[i]
+		}
+	}
+	return nil
+}
+
+// autoImportCfg builds a Config whose discovery is enabled, points at
+// the given socket, and uses container_ip with a network filter set so
+// Scan bypasses self-detect gating.
+func autoImportCfg(socket string, mode config.AutoImportMode) (*config.Config, *config.DiscoveryDockerConfig) {
+	dockerCfg := &config.DiscoveryDockerConfig{
+		Enabled:         true,
+		Endpoint:        "unix://" + socket,
+		NetworkStrategy: "container_ip",
+		NetworkFilter:   "media",
+		AutoImport:      mode,
+	}
+	cfg := &config.Config{
+		Discovery: config.DiscoveryConfig{Docker: *dockerCfg},
+	}
+	return cfg, dockerCfg
+}
+
+func TestTick_AutoImportAdd(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	if svc.client == nil {
+		t.Fatalf("service has no client")
+	}
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	got := findAppByKey(cfg, "label:sonarr-auto")
+	if got == nil || !got.DockerAutoImported {
+		t.Fatalf("expected auto-imported Sonarr, apps=%+v", cfg.Apps)
+	}
+	if got.URL != "http://10.0.0.42:8989" {
+		t.Errorf("imported URL = %q, want container URL", got.URL)
+	}
+	if saveCalls != 1 {
+		t.Errorf("Save called %d times, want 1", saveCalls)
+	}
+}
+
+func TestTick_AutoImportOff_DoesNotImport(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:sonarr-auto") != nil {
+		t.Errorf("off mode must not import; apps=%+v", cfg.Apps)
+	}
+	if saveCalls != 0 {
+		t.Errorf("Save called %d times, want 0 in off mode", saveCalls)
+	}
+}
+
+func TestTick_AutoImportUpdate_ResyncsChangedFieldOnly(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	// First tick (add) imports the app with color #00ff00.
+	p.tick(context.Background())
+	app := findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.Color != "#00ff00" {
+		t.Fatalf("add import failed, app=%+v", app)
+	}
+	if saveCalls != 1 {
+		t.Fatalf("save after add = %d, want 1", saveCalls)
+	}
+
+	// Switch to update mode, no container change -> no update.
+	cfg.Discovery.Docker.AutoImport = config.AutoImportUpdate
+	p.tick(context.Background())
+	if saveCalls != 1 {
+		t.Errorf("unchanged update tick saved (%d); want no write", saveCalls)
+	}
+
+	// Change a label-controlled field -> update re-syncs it.
+	set[0].Labels[LabelAppColor] = "#ff0000"
+	p.tick(context.Background())
+	app = findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.Color != "#ff0000" {
+		t.Fatalf("update did not re-sync color, app=%+v", app)
+	}
+	if saveCalls != 2 {
+		t.Errorf("save after update = %d, want 2", saveCalls)
+	}
+}
+
+func TestTick_AutoImportSyncRemovesVanished(t *testing.T) {
+	// No containers reported; an auto app + its gateway site exist.
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com", Proxy: false,
+		DockerKey: "label:gone", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+		DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", TLS: "auto",
+		DockerKey: "label:gone", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.1:8989",
+	}}
+
+	priorProxy := []proxy.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:gone") != nil {
+		t.Errorf("sync mode should remove vanished auto app; apps=%+v", cfg.Apps)
+	}
+	if findSiteByKey(cfg, "label:gone") != nil {
+		t.Errorf("sync mode should remove the vanished gateway site; sites=%+v", cfg.Server.GatewaySites)
+	}
+	if saveCalls != 1 {
+		t.Errorf("Save called %d times, want 1", saveCalls)
+	}
+}
+
+func TestTick_AutoImportAddMode_DoesNotRemoveVanished(t *testing.T) {
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "http://10.0.0.1:8989",
+		DockerKey: "label:gone", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.1:8989",
+		DockerAutoImported: true,
+	}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:gone") == nil {
+		t.Errorf("add mode must NOT remove a vanished auto app")
+	}
+}
+
+func TestTick_AutoImportLeavesManual(t *testing.T) {
+	// Manual app (tracked but not auto-imported), container gone, sync mode.
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Manual", URL: "http://10.0.0.1:8989",
+		DockerKey: "label:manual", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.1:8989",
+		DockerAutoImported: false,
+	}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:manual") == nil {
+		t.Errorf("manual app must never be removed by sync; apps=%+v", cfg.Apps)
+	}
+	if saveCalls != 0 {
+		t.Errorf("nothing should change for a manual app; saves=%d", saveCalls)
+	}
+}
+
+func TestTick_GatewayAppURLNotClobbered_SiteRefreshes(t *testing.T) {
+	// A gateway-routed tracked app: App.URL is the static domain, the
+	// sibling tracked site carries the container backend. The refresh
+	// pass must leave the app URL alone while updating the site backend.
+	containers := []ContainerSummary{{
+		ID:     "gw1",
+		Names:  []string{"/sonarr"},
+		Image:  "linuxserver/sonarr",
+		Labels: map[string]string{LabelDiscoveryID: "gw-sonarr"},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.99"}},
+		},
+		Ports: []ContainerPort{{PrivatePort: 8989, Type: "tcp"}},
+	}}
+	socket, cleanup := fakeDaemonForPoller(t, containers)
+	defer cleanup()
+
+	dockerCfg := &config.DiscoveryDockerConfig{
+		Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: "container_ip",
+	}
+	cfg := &config.Config{
+		Discovery: config.DiscoveryConfig{Docker: *dockerCfg},
+		Apps: []config.AppConfig{{
+			Name: "Sonarr", URL: "https://sonarr.example.com", Proxy: false,
+			DockerKey: "label:gw-sonarr", DockerEndpoint: "unix://" + socket,
+			DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+			DockerAutoImported: true,
+		}},
+		Server: config.ServerConfig{GatewaySites: []config.GatewaySite{{
+			Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", TLS: "auto",
+			DockerKey: "label:gw-sonarr", DockerEndpoint: "unix://" + socket,
+			DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.1:8989",
+		}}},
+	}
+
+	priorProxy := []proxy.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	if cfg.Apps[0].URL != "https://sonarr.example.com" {
+		t.Errorf("gateway app URL clobbered to %q; must stay the domain", cfg.Apps[0].URL)
+	}
+	if cfg.Server.GatewaySites[0].BackendURL != "http://10.0.0.99:8989" {
+		t.Errorf("gateway site backend = %q, want refreshed to .99", cfg.Server.GatewaySites[0].BackendURL)
+	}
+}
+
+// TestTick_GatewaySyncReconcile_AppURLStable_SiteRefreshes exercises the
+// gateway path with auto-import ACTIVE (sync mode), unlike
+// TestTick_GatewayAppURLNotClobbered_SiteRefreshes which leaves AutoImport
+// unset. A properly gateway-labeled container is already tracked as an
+// auto-imported gateway app + site. Across a tick where its IP changed, the
+// reconcile Update must NOT clobber the gateway app's static https://domain
+// URL (sameManagedFields sees the app URL unchanged) while the sibling
+// gateway Site's BackendURL still refreshes to the new container IP.
+func TestTick_GatewaySyncReconcile_AppURLStable_SiteRefreshes(t *testing.T) {
+	// gwSonarr resolves to 10.0.0.42 via container_ip; bump the IP so the
+	// site backend must refresh this tick.
+	c := gwSonarr()
+	c.NetworkSettings.Networks["media"] = ContainerNetwork{IPAddress: "10.0.0.77"}
+	set := []ContainerSummary{c}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	// Seed the already-imported gateway app + site (prior IP .42) so the tick
+	// hits the reconcile Update + the site-refresh path rather than an Add.
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com", Proxy: false, Enabled: true,
+		Icon: config.AppIconConfig{Type: "dashboard", Name: "sonarr"},
+		// Color differs from the container's #00ff00 label so Reconcile emits
+		// an Update this tick: that proves the Update path re-syncs fields
+		// WITHOUT clobbering the static gateway URL.
+		Color:     "#111111",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+		DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989",
+	}}
+
+	priorProxy := []proxy.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	app := findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.URL != "https://sonarr.example.com" {
+		t.Errorf("gateway app URL = %v, want stable https://sonarr.example.com (reconcile must not clobber)", app)
+	}
+	if app != nil && app.Color != "#00ff00" {
+		t.Errorf("gateway app color = %q, want re-synced to #00ff00 (Update path ran)", app.Color)
+	}
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || site.BackendURL != "http://10.0.0.77:8989" {
+		t.Errorf("gateway site backend = %v, want refreshed to .77", site)
+	}
+}
+
+// TestTick_AutoImportRollbackOnSaveFailure_Gateway is the gateway-path
+// sibling of TestTick_AutoImportRollbackOnSaveFailure. A sync-mode tick wants
+// to remove a vanished gateway app + its site, but SaveConfig fails. BOTH the
+// app and the gateway site must be restored to their prior state.
+func TestTick_AutoImportRollbackOnSaveFailure_Gateway(t *testing.T) {
+	// Empty daemon: the tracked gateway container has vanished, so sync mode
+	// plans a removal of both the app and its sibling site.
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com", Proxy: false, Enabled: true,
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+		DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989",
+	}}
+
+	priorProxy := []proxy.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return errors.New("synthetic save failure") },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Errorf("save failure must roll back the removal; app missing, apps=%+v", cfg.Apps)
+	}
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || site.BackendURL != "http://10.0.0.42:8989" {
+		t.Errorf("save failure must roll back the gateway site; got %v", site)
+	}
+}
+
+// gwSonarr is labeledSonarr plus a gateway-domain label, so Scan
+// suggests a gateway site and BuildDesired produces a Desired.Site.
+func gwSonarr() ContainerSummary {
+	c := labeledSonarr()
+	c.Labels[LabelAppGatewayDomain] = "sonarr.example.com"
+	c.Labels[LabelGatewayTLS] = "auto"
+	return c
+}
+
+func TestTick_AutoImportAdd_GatewaySite(t *testing.T) {
+	set := []ContainerSummary{gwSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	app := findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.URL != "https://sonarr.example.com" || app.Proxy {
+		t.Fatalf("gateway app not imported correctly: %+v", app)
+	}
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || site.Domain != "sonarr.example.com" || site.BackendURL != "http://10.0.0.42:8989" {
+		t.Fatalf("gateway site not imported correctly: %+v", site)
+	}
+	if saveCalls != 1 {
+		t.Errorf("Save called %d times, want 1", saveCalls)
+	}
+
+	// Update mode + a changed app field re-syncs the app AND replaces the
+	// existing gateway site (updateSites found-replace path).
+	cfg.Discovery.Docker.AutoImport = config.AutoImportUpdate
+	set[0].Labels[LabelAppColor] = "#abcdef"
+	p.tick(context.Background())
+	app = findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.Color != "#abcdef" {
+		t.Fatalf("gateway app update did not re-sync color: %+v", app)
+	}
+	if s := findSiteByKey(cfg, "label:sonarr-auto"); s == nil || s.Domain != "sonarr.example.com" {
+		t.Fatalf("gateway site lost on update: %+v", s)
+	}
+}
+
+// TestTick_AutoImportUpdate_InsertsGatewaySiteWhenLabelAdded covers the
+// updateSites not-found insert path: a direct app is auto-imported, then
+// a gateway-domain label is added to the container. Update mode then
+// changes App.URL (direct -> gateway domain) so Reconcile emits an
+// Update whose Desired.Site has no current match and must be inserted.
+func TestTick_AutoImportUpdate_InsertsGatewaySiteWhenLabelAdded(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background()) // direct import, no site
+	if findSiteByKey(cfg, "label:sonarr-auto") != nil {
+		t.Fatalf("direct import should not create a gateway site")
+	}
+
+	cfg.Discovery.Docker.AutoImport = config.AutoImportUpdate
+	set[0].Labels[LabelAppGatewayDomain] = "sonarr.example.com"
+	set[0].Labels[LabelGatewayTLS] = "auto"
+	p.tick(context.Background())
+
+	app := findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.URL != "https://sonarr.example.com" {
+		t.Fatalf("app URL should switch to the gateway domain: %+v", app)
+	}
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || site.BackendURL != "http://10.0.0.42:8989" {
+		t.Fatalf("gateway site should be inserted on the label add: %+v", site)
+	}
+}
+
+func TestTick_AutoImportRollbackOnSaveFailure(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { return errors.New("synthetic save failure") },
+	})
+
+	p.tick(context.Background())
+
+	if len(cfg.Apps) != 0 {
+		t.Errorf("save failure must roll back the import; apps=%+v", cfg.Apps)
+	}
+}
+
+func TestTick_AutoImportSkipsSelfAndNetworkFiltered(t *testing.T) {
+	// Three containers: a self (muximux) container, an off-network
+	// container, and the real sonarr on media. Only sonarr imports.
+	set := []ContainerSummary{
+		{
+			ID: "self", Names: []string{"/muximux"}, Image: "ghcr.io/mescon/muximux:latest",
+			Labels: map[string]string{LabelDiscoveryID: "self-id"},
+			NetworkSettings: ContainerNetworks{
+				Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.10"}},
+			},
+			Ports: []ContainerPort{{PrivatePort: 8080, Type: "tcp"}},
+		},
+		{
+			ID: "other", Names: []string{"/grafana"}, Image: "grafana/grafana",
+			Labels: map[string]string{LabelDiscoveryID: "grafana-id"},
+			NetworkSettings: ContainerNetworks{
+				Networks: map[string]ContainerNetwork{"isolated": {IPAddress: "10.9.9.9"}},
+			},
+			Ports: []ContainerPort{{PrivatePort: 3000, Type: "tcp"}},
+		},
+		labeledSonarr(),
+	}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:self-id") != nil {
+		t.Errorf("self container must not be imported")
+	}
+	if findAppByKey(cfg, "label:grafana-id") != nil {
+		t.Errorf("off-network container must not be imported")
+	}
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Errorf("media-network sonarr should import; apps=%+v", cfg.Apps)
+	}
+}

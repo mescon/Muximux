@@ -88,6 +88,9 @@ type DiscoveryDockerConfig struct {
 	HostIP          string             `yaml:"host_ip,omitempty" json:"host_ip,omitempty"`
 	NetworkFilter   string             `yaml:"network_filter,omitempty" json:"network_filter,omitempty"`
 	RefreshInterval string             `yaml:"refresh_interval" json:"refresh_interval"` // e.g. "60s"
+	// AutoImport controls automatic import of muximux.*-labeled
+	// containers. off (default) | add | update | sync. See AutoImportMode.
+	AutoImport AutoImportMode `yaml:"auto_import,omitempty" json:"auto_import,omitempty"`
 
 	// Container lifecycle controls (Splash actions). Two-layer opt-in:
 	// also requires the Docker socket to be mounted read-write at
@@ -122,6 +125,37 @@ const (
 	// in a Desktop / WSL container.
 	StrategyHostDockerInternal NetworkStrategy = "host_docker_internal"
 )
+
+// AutoImportMode controls whether labeled containers are imported into
+// config automatically, and how aggressively. Off by default.
+type AutoImportMode string
+
+const (
+	AutoImportOff    AutoImportMode = "off"    // suggestions only (manual import)
+	AutoImportAdd    AutoImportMode = "add"    // auto-add new; never update or remove
+	AutoImportUpdate AutoImportMode = "update" // add + re-sync fields; never remove
+	AutoImportSync   AutoImportMode = "sync"   // add + update + remove vanished
+)
+
+// NormalizeAutoImport lowercases and validates a mode, failing closed to
+// off (with a warning) for any unknown non-empty value so a typo can never
+// silently enable full sync.
+func NormalizeAutoImport(m AutoImportMode) AutoImportMode {
+	switch AutoImportMode(strings.ToLower(string(m))) {
+	case AutoImportAdd:
+		return AutoImportAdd
+	case AutoImportUpdate:
+		return AutoImportUpdate
+	case AutoImportSync:
+		return AutoImportSync
+	case AutoImportOff, "":
+		return AutoImportOff
+	default:
+		logging.Warn("Unknown discovery.docker.auto_import value; defaulting to off",
+			"source", "config", "value", string(m))
+		return AutoImportOff
+	}
+}
 
 // DiscoveryTLSConfig is the mTLS configuration used when the Docker
 // endpoint is a tcp:// address requiring certificate authentication.
@@ -475,6 +509,10 @@ type AppConfig struct {
 	// hand-edited config.yaml, and Load() auto-detaches tracking
 	// so the operator's edit survives the next poller tick.
 	DockerManagedURL string `yaml:"docker_managed_url,omitempty" json:"docker_managed_url,omitempty"`
+	// DockerAutoImported marks an app the discovery reconciler created.
+	// Only such apps are updated or removed by auto-import; manually
+	// imported apps (DockerKey set, this false) are never touched.
+	DockerAutoImported bool `yaml:"docker_auto,omitempty" json:"docker_auto,omitempty"`
 }
 
 // AppIconConfig holds app icon settings
@@ -571,6 +609,11 @@ func Load(path string) (*Config, error) {
 	// fine and we don't touch them.
 	applyDiscoveryDefaults(cfg)
 
+	// Direct environment override for the auto-import mode. Runs after
+	// applyDiscoveryDefaults (which normalizes the yaml value) so an
+	// operator-set MUXIMUX_DISCOVERY_AUTO_IMPORT wins over config.yaml.
+	ApplyAutoImportEnv(cfg, os.LookupEnv)
+
 	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
 	// declarative server.gateway_sites: form. Runs once before
 	// validate() so the migrated sites participate in the same
@@ -600,6 +643,34 @@ func Load(path string) (*Config, error) {
 	return cfg, nil
 }
 
+// detachIfHandEdited clears all Docker tracking fields on a single
+// AppConfig when URL no longer matches DockerManagedURL (the value
+// the poller last wrote). Empty DockerManagedURL is treated as "field
+// not yet recorded" and skipped so grandfathered configs keep their
+// tracking until the poller next writes the baseline.
+func detachIfHandEdited(app *AppConfig) {
+	if app.DockerKey == "" {
+		return
+	}
+	if app.DockerManagedURL == "" {
+		return // grandfather; poller hasn't recorded a baseline yet
+	}
+	if app.URL == app.DockerManagedURL {
+		return
+	}
+	logging.Info("Auto-detached app from Docker tracking due to operator URL edit in config.yaml",
+		"source", "config",
+		"app", app.Name,
+		"managed_url", app.DockerManagedURL,
+		"current_url", app.URL,
+		"previous_docker_key", app.DockerKey)
+	app.DockerKey = ""
+	app.DockerEndpoint = ""
+	app.DockerStrategy = ""
+	app.DockerManagedURL = ""
+	app.DockerAutoImported = false
+}
+
 // autoDetachEditedDockerEntries clears DockerKey/DockerEndpoint/
 // DockerStrategy on apps and gateway sites whose stored URL no
 // longer matches the value the poller last wrote (DockerManagedURL).
@@ -613,26 +684,7 @@ func Load(path string) (*Config, error) {
 // the field. Once recorded, comparisons start.
 func autoDetachEditedDockerEntries(cfg *Config) {
 	for i := range cfg.Apps {
-		app := &cfg.Apps[i]
-		if app.DockerKey == "" {
-			continue
-		}
-		if app.DockerManagedURL == "" {
-			continue // grandfather; poller hasn't recorded a baseline yet
-		}
-		if app.URL == app.DockerManagedURL {
-			continue
-		}
-		logging.Info("Auto-detached app from Docker tracking due to operator URL edit in config.yaml",
-			"source", "config",
-			"app", app.Name,
-			"managed_url", app.DockerManagedURL,
-			"current_url", app.URL,
-			"previous_docker_key", app.DockerKey)
-		app.DockerKey = ""
-		app.DockerEndpoint = ""
-		app.DockerStrategy = ""
-		app.DockerManagedURL = ""
+		detachIfHandEdited(&cfg.Apps[i])
 	}
 	for i := range cfg.Server.GatewaySites {
 		site := &cfg.Server.GatewaySites[i]
@@ -680,6 +732,7 @@ func applyDiscoveryDefaults(cfg *Config) {
 	if d.HealthBadgePlacement == "" {
 		d.HealthBadgePlacement = "overview"
 	}
+	d.AutoImport = NormalizeAutoImport(d.AutoImport)
 }
 
 // expandBracedEnv replaces ${VAR} references with environment variable values.

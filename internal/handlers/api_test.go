@@ -1826,6 +1826,75 @@ func TestApplyDockerTrackingPreservation_RetainsTrackingOnNonURLEdits(t *testing
 	}
 }
 
+// TestApplyDockerTrackingPreservation_DockerAutoImportedMarker pins the
+// provenance marker's lifecycle across a config save. The marker must be
+// preserved alongside the other tracking fields on an empty-payload PUT
+// (DockerKey == ""), and cleared in lockstep with the tracking fields when
+// a URL change auto-detaches the app. This keeps the save path consistent
+// with the detach Load() already performs.
+func TestApplyDockerTrackingPreservation_DockerAutoImportedMarker(t *testing.T) {
+	t.Run("preserved on empty-payload PUT", func(t *testing.T) {
+		existing := config.AppConfig{
+			Name: "App1", URL: "http://10.0.0.1:80",
+			DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+			DockerAutoImported: true,
+		}
+		updated := config.AppConfig{
+			Name: "App1", URL: "http://10.0.0.1:80",
+			// empty DockerKey signals a payload without tracking fields
+		}
+		reason := applyDockerTrackingPreservation(&updated, &existing)
+		if reason != "" {
+			t.Errorf("empty-payload PUT unexpectedly detached with reason %q", reason)
+		}
+		if !updated.DockerAutoImported {
+			t.Errorf("DockerAutoImported not preserved from existing: %+v", updated)
+		}
+	})
+
+	t.Run("cleared on URL-change auto-detach", func(t *testing.T) {
+		existing := config.AppConfig{
+			Name: "App1", URL: "http://10.0.0.1:80",
+			DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+			DockerAutoImported: true,
+		}
+		updated := config.AppConfig{
+			Name: "App1", URL: "http://manual:9999", // URL changed -> manual control
+			DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+			DockerAutoImported: true,
+		}
+		reason := applyDockerTrackingPreservation(&updated, &existing)
+		if reason == "" {
+			t.Fatal("URL change on a tracked app should have detached")
+		}
+		if updated.DockerAutoImported {
+			t.Errorf("DockerAutoImported not cleared by auto-detach: %+v", updated)
+		}
+	})
+
+	t.Run("preserved on non-URL UI save", func(t *testing.T) {
+		existing := config.AppConfig{
+			Name: "App1", URL: "http://10.0.0.1:80",
+			DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+			DockerAutoImported: true,
+		}
+		updated := config.AppConfig{
+			Name: "App1", URL: "http://10.0.0.1:80", // same URL
+			DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+			// ClientAppConfig has no docker_auto field, so the wire form
+			// arrives with DockerAutoImported == false on a normal UI save.
+			DockerAutoImported: false,
+		}
+		reason := applyDockerTrackingPreservation(&updated, &existing)
+		if reason != "" {
+			t.Errorf("non-URL save unexpectedly detached with reason %q", reason)
+		}
+		if !updated.DockerAutoImported {
+			t.Errorf("DockerAutoImported not preserved on non-URL save: %+v", updated)
+		}
+	})
+}
+
 func TestCreateAppMissingName(t *testing.T) {
 	cfg := createTestConfig()
 	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
