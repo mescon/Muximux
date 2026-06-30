@@ -2,15 +2,35 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.2.0] - 2026-06-30
+
+Hands-off Docker discovery. 3.1.0 taught Muximux to read your daemon and import containers as apps with one click; 3.2.0 can do it automatically. Label a container with the `muximux.*` keys you already use, set one flag, and Muximux imports it (and optionally its gateway subdomain) with no manual step. A GitOps-friendly addition that stays off by default.
 
 ### Added
-- Automatic import of `muximux.*`-labeled Docker containers, opt-in via
-  `discovery.docker.auto_import` (or `MUXIMUX_DISCOVERY_AUTO_IMPORT`):
-  `off` (default), `add`, `update`, or `sync` (full GitOps mirror). Disabled
-  by default; enabling it imports every labeled container without a manual
-  review step. Hand-editing an auto-imported app detaches it so local changes
-  win.
+- **Automatic import of `muximux.*`-labeled Docker containers**, opt-in via
+  `discovery.docker.auto_import` (or the `MUXIMUX_DISCOVERY_AUTO_IMPORT`
+  environment variable). Four modes:
+  - `off` (default) -- labeled containers stay manual-import suggestions,
+    exactly as today.
+  - `add` -- auto-import a newly labeled container once; never touch it after.
+  - `update` -- add, plus re-sync the app's fields from labels when they change.
+  - `sync` -- add and update, plus remove the app (and its gateway site) when
+    the container disappears. A full GitOps mirror.
+  Enabling any non-`off` mode imports every `muximux.*`-labeled container with
+  no review step, including gateway labels that publish a public HTTPS
+  subdomain, so it is off by default and only the host operator can turn it on.
+  Auto-imported apps are tracked separately from manual ones: the reconciler
+  only ever updates or removes what it created. Hand-editing an auto-imported
+  app's URL (or removing its labels) detaches it from auto-management so local
+  edits win, and `muximux.app.enabled=false` opts a single container out. A
+  known limitation: in `update`/`sync`, gateway-only label changes
+  (`require_auth`, `min_role`, streaming flags) propagate only when an app
+  field also changes. See the Docker discovery wiki page for the full
+  reference and the security note.
+
+### Changed
+- CI derives `sonar.projectVersion` from the latest git tag so the SonarCloud
+  new-code analysis tracks releases instead of a pinned, stale value.
 
 ## [3.1.4] - 2026-06-29
 
