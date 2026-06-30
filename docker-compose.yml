@@ -131,7 +131,9 @@ services:
 #
 # Any service you label with muximux.* keys appears in Muximux's
 # Discover modal (Settings > Discovery) pre-filled for one-click
-# import. The example below shows the full label set; you can
+# import -- or, with MUXIMUX_DISCOVERY_AUTO_IMPORT /
+# discovery.docker.auto_import enabled, is imported automatically
+# with no click. The example below shows the full label set; you can
 # omit the ones you don't need. See the docker-discovery wiki
 # page for the full reference and per-platform setup.
 #
@@ -165,5 +167,5 @@ services:
 #       context: .
 #       dockerfile: Dockerfile
 #       args:
-#         VERSION: "3.1.0"
+#         VERSION: "3.2.0"
 #     ...

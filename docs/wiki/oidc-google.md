@@ -6,7 +6,7 @@ This guide sets up Muximux to authenticate with Google accounts via Google Cloud
 >
 > - Sign-in works fine for any Google account you allow.
 > - `admin_groups` will not promote users to admin based on Workspace groups. Instead, decide admin status by **email allowlist** (see Step 4) or by managing the Muximux user record manually after first login.
-> - The future per-app `allowed_groups` filtering will likewise not apply to Google-authenticated users.
+> - Per-app `allowed_groups` filtering likewise will not apply to Google-authenticated users (Google emits no groups).
 >
 > If you need group-based filtering, use Keycloak / Authentik / Pocket ID / Zitadel as a federated identity layer in front of Google instead. Most of those can use Google as an upstream identity source while still emitting their own `groups` claim downstream.
 

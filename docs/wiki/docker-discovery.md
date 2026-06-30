@@ -9,6 +9,7 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
 - **Scan**: lists running containers and proposes a name, icon, URL, port, and group for each, with confidence ratings (high / medium / low).
 - **Import**: one-click adds the chosen containers as apps in the menu, gateway subdomains, or both. Each row picks a routing mode: Direct URL, internal Proxy, or Gateway domain.
 - **Refresh**: a background poller (default 60s) re-resolves each tracked container against the daemon and rewrites the saved URL if the container's IP changes. Caddy reloads once per tick when gateway-site URLs change.
+- **Auto-import** (optional): with `discovery.docker.auto_import` set to `add`/`update`/`sync`, Muximux imports `muximux.*`-labeled containers with no modal and no click, and keeps them in step with the labels. Off by default. See [Automatic Import](#automatic-import).
 - **Detach / Re-link**: per-row controls in Settings → Discovery let you stop auto-managing an entry or re-point it at a different container when you migrate daemons.
 
 ---
@@ -62,6 +63,11 @@ discovery:
     network_filter: ""                      # optional: scope scans to one network
     host_ip: ""                             # required by host_port strategy
     refresh_interval: 60s                   # poller cadence, [10s, 1h]
+    auto_import: off                        # off (default) | add | update | sync (3.2.0)
+    lifecycle_enabled: false                # allow start/stop/restart of tracked containers (needs :rw socket)
+    lifecycle_min_role: admin               # min role for lifecycle controls
+    lifecycle_allowed_groups: []            # additionally require group membership
+    health_badge_placement: overview        # overview | overview_and_nav | off
 ```
 
 ### Make the daemon socket reachable from Muximux

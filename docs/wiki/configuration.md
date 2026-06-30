@@ -165,6 +165,11 @@ discovery:
     network_filter: ""                           # scope scans to one docker network when set
     host_ip: ""                                  # required by host_port strategy
     refresh_interval: 60s                        # poller cadence
+    auto_import: off                             # off (default) | add | update | sync; auto-import muximux.*-labeled containers
+    lifecycle_enabled: false                     # allow start/stop/restart of tracked containers (requires :rw socket mount)
+    lifecycle_min_role: admin                    # min role for lifecycle controls
+    lifecycle_allowed_groups: []                 # additionally require group membership
+    health_badge_placement: overview             # overview | overview_and_nav | off
     tls:                                         # only needed for tcp:// with mTLS
       enabled: false
       ca_cert: ""                                # CA bundle that signed the daemon cert
@@ -204,7 +209,7 @@ apps:
     order: 1
     enabled: true
     default: true
-    open_mode: iframe          # iframe, new_tab, new_window, redirect
+    open_mode: iframe          # iframe, new_tab, new_window, redirect, http_action
     proxy: false
     proxy_skip_tls_verify: true  # Skip TLS certificate verification (default: true)
     proxy_headers:               # Custom headers sent to the backend

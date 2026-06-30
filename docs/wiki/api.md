@@ -22,6 +22,8 @@ When authentication is enabled, most endpoints require a valid session cookie or
 | `/api/auth/users/{username}` | PUT | Admin | Update user role/email/display name |
 | `/api/auth/users/{username}` | DELETE | Admin | Delete a user |
 | `/api/auth/method` | PUT | Admin | Switch authentication method |
+| `/api/auth/api-key` | POST | Admin | Generate or rotate the instance API key |
+| `/api/auth/api-key` | DELETE | Admin | Clear the instance API key |
 | `/api/auth/setup` | POST | No (but requires `X-Setup-Token`) | Initial setup (onboarding wizard). See [Authentication > First-Run Setup](authentication.md#first-run-setup) for the token. |
 | `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider |
 | `/api/auth/oidc/callback` | GET | No | OIDC callback handler |
@@ -209,6 +211,8 @@ Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is
 | `/api/app/{name}` | GET | Any | Get app by name |
 | `/api/app/{name}` | PUT | Admin | Update app |
 | `/api/app/{name}` | DELETE | Admin | Delete app |
+| `/api/app-action/{name}` | POST | Per-app role gate | Fire the app's configured http_action HTTP request |
+| `/api/app-docker/{name}/{start\|stop\|restart}` | POST | Role-gated | Control a Docker-tracked container (requires lifecycle_enabled + :rw socket) |
 
 **Create app request:**
 ```json
@@ -237,6 +241,26 @@ POST /api/apps
 | `/api/group/{name}` | GET | Any | Get group by name |
 | `/api/group/{name}` | PUT | Admin | Update group |
 | `/api/group/{name}` | DELETE | Admin | Delete group |
+
+---
+
+## Discovery
+
+| Endpoint | Method | Role | Description |
+|----------|--------|------|-------------|
+| `/api/discovery/docker/status` | GET | Admin | Docker daemon reachability + discovery config |
+| `/api/discovery/docker/networks` | GET | Admin | List Docker networks for URL resolution |
+| `/api/discovery/docker/config` | PUT | Admin | Update discovery config (incl. auto_import mode, lifecycle_enabled) |
+| `/api/discovery/docker/test` | POST | Admin | Test a discovery config without saving |
+| `/api/discovery/docker/scan` | GET | Admin | Scan the daemon, return importable containers |
+| `/api/discovery/docker/import` | POST | Admin | Import selected containers as apps |
+| `/api/discovery/docker/tracked` | GET | Admin | List apps currently tracked from Docker |
+| `/api/discovery/docker/track/{name}` | DELETE | Admin | Detach an app from Docker tracking |
+| `/api/discovery/docker/relink/probe` | POST | Admin | Probe a container to re-link a detached app |
+| `/api/discovery/docker/relink/confirm` | POST | Admin | Confirm a re-link |
+| `/api/discovery/docker-state` | GET | Any | Current container-state map for tracked apps |
+
+Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`, or `sync`). The discovery configuration is also part of the full configuration object, so it can be set via `PUT /api/config` as well as `PUT /api/discovery/docker/config`.
 
 ---
 
@@ -337,7 +361,7 @@ The server downloads the image, validates the content type and size (2MB limit),
 |-----------|------|---------|-------------|
 | `limit` | int | 200 | Maximum number of entries to return |
 | `level` | string | | Filter by log level (`debug`, `info`, `warn`, `error`) |
-| `source` | string | | Filter by source tag (`server`, `proxy`, `health`, `auth`, `websocket`, `caddy`, `config`, `icons`, `themes`) |
+| `source` | string | | Filter by source tag (`http`, `audit`, `server`, `auth`, `health`, `proxy`, `websocket`, `caddy`, `config`, `icons`, `themes`, `discovery`, `gateway`, `system`) |
 
 **Example:**
 ```
@@ -391,10 +415,10 @@ Logs are stored in a 1000-entry ring buffer. When the buffer is full, the oldest
 **Update check response:**
 ```json
 {
-  "current_version": "3.0.0",
-  "latest_version": "3.1.0",
+  "current_version": "3.1.1",
+  "latest_version": "3.2.0",
   "update_available": true,
-  "release_url": "https://github.com/mescon/Muximux/releases/tag/v3.1.0",
+  "release_url": "https://github.com/mescon/Muximux/releases/tag/v3.2.0",
   "changelog": "..."
 }
 ```
@@ -416,6 +440,22 @@ Logs are stored in a 1000-entry ring buffer. When the buffer is full, the oldest
   "domain": "muximux.example.com"
 }
 ```
+
+---
+
+## Gateway
+
+The declarative `server.gateway_sites:` model is the current gateway path (the legacy Caddyfile was removed in 3.1.0).
+
+| Endpoint | Method | Role | Description |
+|----------|--------|------|-------------|
+| `/api/gateway/sites` | GET | Admin | List configured gateway sites |
+| `/api/gateway/sites` | POST | Admin | Create a gateway site |
+| `/api/gateway/sites/{domain}` | PUT | Admin | Update a gateway site |
+| `/api/gateway/sites/{domain}` | DELETE | Admin | Delete a gateway site |
+| `/api/gateway/validate` | POST | Admin | Validate a gateway site config without saving |
+
+`/api/auth/forward` is the internal forward-auth verify endpoint used by the gateway to gate access. It is not meant to be called directly from a browser (a direct hit returns `400`).
 
 ---
 
