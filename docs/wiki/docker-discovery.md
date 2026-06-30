@@ -298,6 +298,16 @@ services:
       - muximux.app.allowed_groups=ops
 ```
 
+#### Finding an icon slug
+
+The `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug -- the icon filename without its extension (`sonarr.svg` becomes `sonarr`). Because the label flow has no GUI in front of you, here is where to look one up:
+
+- Browse the gallery at [dashboardicons.com](https://dashboardicons.com) and search for your app.
+- Or search visually in Muximux's own app editor (Add or Edit an app, then the icon picker); the name you land on is the slug to paste into the label.
+- Or list them straight from your running instance: `GET /api/icons/dashboard` returns every available slug (it is the same data the picker uses).
+
+Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work through this label; Lucide icons, custom uploads, and URL icons are set in the UI or `config.yaml`.
+
 #### Full label reference
 
 ##### Tracking

@@ -182,7 +182,7 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 - [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
 - [Apps](docs/wiki/apps.md) - Adding and configuring applications
 - [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
-- [Docker Discovery](docs/wiki/docker-discovery.md) - Auto-import containers as apps and control them from the dashboard
+- [Docker Discovery](docs/wiki/docker-discovery.md) - Import containers as apps (one-click, or automatically from labels) and control them from the dashboard
 - [HTTP Actions](docs/wiki/http-actions.md) - Turn an app into a one-click HTTP request
 - [Security](docs/wiki/security.md) - Security measures and OWASP ASVS compliance
 - [Authentication](docs/wiki/authentication.md) - Auth methods and setup
@@ -243,7 +243,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Reverse proxy other sites and services on your network on their own subdomains -- declarative YAML `gateway_sites` with per-site TLS modes (automatic Let's Encrypt, none, or custom certs), header forwarding, iframe-blocker stripping, and streaming-safe backends. Edit visually in Settings -> Gateway or by hand. Optionally gate each subdomain behind the Muximux login (`require_auth`) so one sign-in covers your whole homelab |
-| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Opt-in; off by default |
+| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Prefer GitOps? Opt into automatic import (`discovery.docker.auto_import`) and Muximux picks up `muximux.*`-labeled containers on its own -- declare an app in your compose file and it appears, no clicks. Off by default |
 | **Container Controls** | Start, stop, and restart Docker-discovered containers from the dashboard, with a status dot on each app card that stays quiet until a container is stopped, unhealthy, or restarting. Opt-in behind a read-write socket mount and role/group permissions; every action is audit-logged |
 | **HTTP Actions** | Turn an app into a button that fires an HTTP request (any method, custom headers) through a server-side relay instead of opening a page -- useful for webhooks and automations such as triggering a backup or waking a host. Optional confirmation prompt, and every fire is audit-logged |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
