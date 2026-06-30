@@ -211,6 +211,103 @@ services:
       - muximux.gateway.allowed_groups=family,admins
 ```
 
+#### Common scenarios
+
+The example above sets every label at once. In practice you set only the few an app needs. With automatic import (3.2.0+) these labels are the whole configuration, so here is what each common case looks like on its own. Every block is a complete, copy-pasteable `services:` entry.
+
+**A catalog app, the short way.** If the image is one Muximux recognises, a single tracking label is enough -- name, icon, group, port, and health come from the catalog:
+
+```yaml
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    labels:
+      - muximux.discovery.id=sonarr
+```
+
+**An app Muximux does not know.** For an image outside the catalog, opt in with `enabled` and supply the basics:
+
+```yaml
+services:
+  myapp:
+    image: ghcr.io/me/myapp
+    labels:
+      - muximux.discovery.id=myapp
+      - muximux.app.enabled=true
+      - muximux.app.name=My App
+      - muximux.app.icon=myapp
+      - muximux.app.group=Tools
+      - muximux.app.port=8080
+```
+
+**An app that refuses to embed.** Route it through the built-in reverse proxy so it loads in an iframe:
+
+```yaml
+services:
+  radarr:
+    image: linuxserver/radarr
+    labels:
+      - muximux.discovery.id=radarr
+      - muximux.app.port=7878
+      - muximux.app.proxy=true
+```
+
+**Published on its own subdomain.** Add gateway labels and Muximux serves the app at a public HTTPS address (automatic TLS) behind the login:
+
+```yaml
+services:
+  grafana:
+    image: grafana/grafana
+    labels:
+      - muximux.discovery.id=grafana
+      - muximux.app.name=Grafana
+      - muximux.app.port=3000
+      - muximux.app.gateway.domain=grafana.example.com
+      - muximux.gateway.tls=auto
+      - muximux.gateway.require_auth=true
+```
+
+**A button that fires a request, not a page.** Use `http_action` to turn a tile into a webhook trigger (for example an n8n flow), with a confirmation prompt. The app URL (built from `port` + `path`) is the request target:
+
+```yaml
+services:
+  n8n:
+    image: n8nio/n8n
+    labels:
+      - muximux.discovery.id=nightly-backup
+      - muximux.app.name=Run Backup
+      - muximux.app.icon=n8n
+      - muximux.app.port=5678
+      - muximux.app.path=/webhook/backup
+      - muximux.app.open_mode=http_action
+      - muximux.app.http_action_method=POST
+      - muximux.app.http_action_confirm=true
+```
+
+**Restricted to certain people.** Gate an app by role and group:
+
+```yaml
+services:
+  portainer:
+    image: portainer/portainer-ce
+    labels:
+      - muximux.discovery.id=portainer
+      - muximux.app.port=9000
+      - muximux.app.proxy=true
+      - muximux.app.min_role=admin
+      - muximux.app.allowed_groups=ops
+```
+
+#### Finding an icon slug
+
+The `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug -- the icon filename without its extension (`sonarr.svg` becomes `sonarr`). Because the label flow has no GUI in front of you, here is where to look one up:
+
+- Browse the gallery at [dashboardicons.com](https://dashboardicons.com) and search for your app.
+- Or search visually in Muximux's own app editor (Add or Edit an app, then the icon picker); the name you land on is the slug to paste into the label.
+- Or list them straight from your running instance: `GET /api/icons/dashboard` returns every available slug (it is the same data the picker uses).
+
+Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work through this label; Lucide icons, custom uploads, and URL icons are set in the UI or `config.yaml`.
+
 #### Full label reference
 
 ##### Tracking
@@ -234,7 +331,11 @@ services:
 | `muximux.app.color` | `#rrggbb` | unset | Accent color in the dashboard. |
 | `muximux.app.order` | int 0-9999 | unset | Sort order within the group. |
 | `muximux.app.default` | bool | `false` | Load this app automatically when the dashboard opens. |
-| `muximux.app.open_mode` | `iframe` \| `new_tab` \| `new_window` \| `redirect` | `iframe` | How clicking the menu entry opens the app. |
+| `muximux.app.open_mode` | `iframe` \| `new_tab` \| `new_window` \| `redirect` \| `http_action` | `iframe` | How clicking the menu entry opens the app. `http_action` fires an HTTP request instead of opening a page. |
+| `muximux.app.http_action_method` | `GET` \| `POST` \| `PUT` \| `DELETE` \| `PATCH` | `POST` | With `open_mode=http_action`, the HTTP method to send to the app URL. |
+| `muximux.app.http_action_headers` | csv `Key=Value` | unset | Extra request headers, comma-separated (e.g. `Authorization=Bearer xyz`). |
+| `muximux.app.http_action_confirm` | bool | `false` | Show a confirmation prompt before firing. |
+| `muximux.app.http_action_show_toast` | bool | `true` | Show a result toast after firing. |
 | `muximux.app.proxy` | bool | `false` | Route through Muximux's built-in reverse proxy (strips iframe-blocking headers, rewrites paths). Required for many apps that refuse to embed. |
 | `muximux.app.proxy_skip_tls_verify` | bool | `true` | When `proxy=true`, skip backend TLS cert verification (useful for self-signed homelab apps). |
 | `muximux.app.min_role` | `user` \| `power-user` \| `admin` | unset | Minimum role required to see this app. Admins always bypass. |
