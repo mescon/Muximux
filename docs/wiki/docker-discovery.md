@@ -169,7 +169,7 @@ Strategy gating: when Muximux runs natively (not in a container), `container_ip`
 
 ### Labels on your containers
 
-Label any container with `muximux.*` keys and the Discover modal picks them up as high-confidence pre-fills. A fully-labelled container goes from `docker compose up` to a fully-configured Muximux entry in one click, no post-import editing. This is the "GitOps your apps" pattern: declare your dashboard intent in `docker-compose.yml` alongside the service it describes.
+Label any container with `muximux.*` keys and the Discover modal picks them up as high-confidence pre-fills. A fully-labelled container goes from `docker compose up` to a fully-configured Muximux entry with a single click in the Discover modal, no post-import editing -- or with no click at all if you turn on [automatic import](#automatic-import). This is the "GitOps your apps" pattern: declare your dashboard intent in `docker-compose.yml` alongside the service it describes.
 
 Full example, showing one of each kind:
 
