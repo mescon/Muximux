@@ -2,7 +2,12 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.2.1] - 2026-07-01
+
+A follow-up to 3.2.0's automatic Docker import: auto-import now keeps
+gateway-only labels in sync, and the embedded gateway can front self-signed
+HTTPS backends. Plus routine dependency maintenance. Upgrading is a drop-in:
+no config changes.
 
 ### Added
 - **Gateway sites can skip backend TLS verification** via a new
@@ -17,11 +22,21 @@ All notable changes to Muximux are documented in this file.
 ### Fixed
 - Auto-import `update`/`sync` now re-syncs a container's **gateway site**, not
   only its app. Gateway-only label changes -- `muximux.gateway.require_auth`,
-  `min_role`, `allowed_groups`, `streaming`, `strip_frame_blockers`, and
-  `forwarded_headers` -- propagate on the next tick without an app field also
-  having to change (the 3.2.0 known limitation). Removing a container's
-  `muximux.app.gateway.domain` label reverts its app to the direct container
-  URL and drops the now-orphaned gateway site.
+  `min_role`, `allowed_groups`, `streaming`, `strip_frame_blockers`,
+  `forwarded_headers`, and `skip_tls_verify` -- propagate on the next tick
+  without an app field also having to change (the 3.2.0 known limitation).
+  Removing a container's `muximux.app.gateway.domain` label reverts its app to
+  the direct container URL and drops the now-orphaned gateway site.
+
+### Changed
+- Bump npm group (`vite` 8.1.2, `eslint` 10.6.0, `eslint-plugin-svelte` 3.20.0,
+  `typescript-eslint` 8.62.1, `tailwindcss` 4.3.2, `@tailwindcss/vite` 4.3.2,
+  `@inlang/paraglide-js` 2.20.2)
+- Bump `github.com/andybalholm/brotli` from 1.2.1 to 1.2.2
+- Bump `docker/build-push-action` from 7.2.0 to 7.3.0
+- Bump `docker/setup-qemu-action` from 4.1.0 to 4.2.0
+- Bump `golangci/golangci-lint-action` from 9.2.1 to 9.3.0
+- Bump `alpine` from 3.23 to 3.24
 
 ## [3.2.0] - 2026-06-30
 
