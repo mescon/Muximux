@@ -571,8 +571,9 @@ func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, in
 	// (e.g. Proxmox on :8006). Only meaningful over https; enabling the
 	// http transport with tls_insecure_skip_verify implicitly turns on
 	// TLS, so we gate it on an https upstream to avoid forcing TLS onto
-	// a plain-http backend.
-	if s.BackendSkipTLSVerify && strings.HasPrefix(strings.ToLower(s.BackendURL), "https://") {
+	// a plain-http backend. TrimSpace mirrors normalizeUpstream so a
+	// stored URL with incidental whitespace still matches.
+	if s.BackendSkipTLSVerify && strings.HasPrefix(strings.ToLower(strings.TrimSpace(s.BackendURL)), "https://") {
 		b.WriteString("\t\ttransport http {\n")
 		b.WriteString("\t\t\ttls_insecure_skip_verify\n")
 		b.WriteString("\t\t}\n")
