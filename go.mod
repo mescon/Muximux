@@ -8,7 +8,7 @@ require github.com/gorilla/websocket v1.5.3
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
-	github.com/andybalholm/brotli v1.2.1
+	github.com/andybalholm/brotli v1.2.2
 	github.com/caddyserver/caddy/v2 v2.11.4
 	github.com/coreos/go-oidc/v3 v3.19.0
 	golang.org/x/crypto v0.53.0
