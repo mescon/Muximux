@@ -26,6 +26,20 @@ Expose ports 80 and 443 (Caddy needs both for ACME and HTTPS). Adding or removin
 
 The recipe sections below show the Caddyfile shape for each scenario; translate each into the corresponding `gateway_sites:` entry fields (see [Configuration Reference](configuration.md) for the full schema).
 
+### What `gateway_sites` supports
+
+Each gateway site proxies one `backend_url` per domain. The fields you can set are:
+
+- `backend_url` -- the `http://` or `https://` backend (no path, query, or transport flags)
+- `tls` -- certificate mode (`auto`, `none`, or `custom`)
+- `proxy_headers` -- extra headers sent to the backend
+- `forwarded_headers` -- emit `X-Forwarded-*` and `X-Real-IP` (default true)
+- `streaming` -- disable response buffering for streaming backends
+- `strip_frame_blockers` -- remove `X-Frame-Options`/CSP frame headers so the app can load in an iframe
+- `require_auth` / `min_role` / `allowed_groups` -- gate the site behind Muximux auth (see [Gateway Auth](gateway-auth.md))
+
+Anything outside this list (basic auth, rate limiting, subpath routing, wildcard host matching, custom `transport` flags) is not a gateway-site option. Those recipes are marked below and need an external proxy in front of Muximux.
+
 ---
 
 ## Basic Reverse Proxy
@@ -74,6 +88,8 @@ Each domain gets its own certificate. Caddy handles renewals automatically.
 
 If those backends run as Docker containers, **Apps tab → Discover from Docker** (or **Gateway tab → Discover from Docker**) builds the same site list in one click. Pick "Gateway" routing per row and supply the public domain; the gateway site is created and Caddy reloads in the same transaction. URLs auto-refresh as container IPs shift. See [Docker Discovery](docker-discovery.md).
 
+Or enable `discovery.docker.auto_import` so labeled containers appear automatically without opening the modal (see [Docker Discovery](docker-discovery.md)). Note: gateway-only label changes propagate in update/sync mode only when an app field also changes.
+
 Labels on your compose file pre-fill name, icon, port, and a stable tracking key:
 
 ```yaml
@@ -107,6 +123,17 @@ homeassistant.example.com {
 
 Some apps need specific headers to work behind a reverse proxy.
 
+On a gateway site, forwarded headers are emitted for you and arbitrary backend headers go in `proxy_headers`:
+
+```yaml
+gateway_sites:
+  - domain: app.example.com
+    backend_url: http://app:8080
+    proxy_headers:               # extra headers sent to the backend
+      X-Api-Key: "secret"
+    forwarded_headers: true      # X-Forwarded-* + X-Real-IP (default true; set false to suppress)
+```
+
 ### Plex
 
 Plex needs large header buffers and the real client IP:
@@ -124,19 +151,11 @@ plex.example.com {
 }
 ```
 
+> Not available via `gateway_sites`: this requires an external Caddy/nginx in front of Muximux. The embedded gateway only proxies one `backend_url` per domain. Forwarded headers (`X-Real-IP`, `X-Forwarded-*`) are emitted automatically; the custom `transport`/`read_buffer` tuning is not configurable on a gateway site.
+
 ### Proxmox
 
-Proxmox uses a self-signed certificate on its backend:
-
-```
-proxmox.example.com {
-    reverse_proxy https://localhost:8006 {
-        transport http {
-            tls_insecure_skip_verify
-        }
-    }
-}
-```
+> A self-signed HTTPS backend (e.g. Proxmox) cannot be served through a `gateway_sites` entry -- there is no insecure-skip-verify option. Front it with an external proxy, or add it to the dashboard as an app pointed at its direct URL with `open_mode: new_tab`.
 
 ### Vaultwarden
 
@@ -187,6 +206,8 @@ filebrowser.example.com {
 
 Generate a bcrypt hash with Caddy's own tool (`caddy hash-password`) or any bcrypt utility -- for example `htpasswd -nbBC 12 "" 'your-password' | cut -d: -f2`. Muximux's embedded Caddy is an internal runtime only and does not expose a CLI surface of its own.
 
+> Not available via `gateway_sites`: this requires an external Caddy/nginx in front of Muximux. The embedded gateway only proxies one `backend_url` per domain. To gate a site behind Muximux's own login instead, set `require_auth` on the gateway site (see [Gateway Auth](gateway-auth.md)).
+
 ---
 
 ## Rate Limiting
@@ -230,11 +251,15 @@ services.example.com {
 
 Make sure each service is configured to serve from the correct subpath (e.g., Grafana's `GF_SERVER_ROOT_URL=https://services.example.com/grafana/`).
 
+> Not available via `gateway_sites`: this requires an external Caddy/nginx in front of Muximux. The embedded gateway only proxies one `backend_url` per domain (no path or `handle` routing).
+
 ---
 
 ## Wildcard Domains
 
 If you use a wildcard DNS record (`*.example.com → your-server-ip`), you can add new services by just appending site blocks to the Caddyfile. No DNS changes needed per service.
+
+> Not available via `gateway_sites`: this requires an external Caddy/nginx in front of Muximux. The embedded gateway only proxies one `backend_url` per domain, with no wildcard host matching. Add each subdomain as its own gateway site instead.
 
 For wildcard TLS certificates, you need a DNS provider plugin for the ACME DNS-01 challenge:
 

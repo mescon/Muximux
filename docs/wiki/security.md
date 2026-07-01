@@ -154,7 +154,7 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
 | LDAP injection | No LDAP integration |
 | SMS/phone OTP | Not offered as an auth method |
 | Hardware security modules | Self-hosted single-binary app |
-| File upload malware scanning | No user file uploads (only config import and icon caching) |
+| File upload malware scanning | No untrusted user file uploads. Custom-icon upload (PNG/SVG/JPG/WebP/GIF, 2 MB cap, admin-only, type-validated) and config import are the only upload paths; both are size-limited and validated. |
 | Multi-tenant data isolation | Single-tenant application |
 | WebSocket message authentication | WebSocket is used for read-only log streaming, not commands |
 
@@ -169,6 +169,15 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
 5. **Use the reverse proxy for sensitive apps** -- Set `proxy: true` on apps that should be gated behind Muximux's authentication.
 6. **Restrict network access** -- In a homelab, consider running Muximux on an internal network or behind a VPN for defense-in-depth.
 7. **Monitor audit logs** -- Filter for `source=audit` in the log viewer to track authentication and configuration events.
+8. **Treat the Docker socket as privileged** -- Mount it read-only
+   (`:ro`) for discovery/auto-import; only grant write access (`:rw`) if you
+   enable lifecycle controls (`discovery.docker.lifecycle_enabled`), which let
+   authorized users start/stop/restart containers (role-gated, audit-logged).
+9. **Auto-import is opt-in** -- It is off by default. Enabling
+   `discovery.docker.auto_import` imports every labeled container without a
+   click, including any exposed via public gateway subdomains; review labels
+   before turning it on, and use `muximux.app.enabled=false` to opt a
+   container out.
 
 ---
 

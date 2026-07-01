@@ -254,3 +254,26 @@ services:
     volumes:
       - ./data:/app/data
 ```
+
+---
+
+## Docker Discovery Finds Nothing / Lifecycle Buttons Fail
+
+**Symptom:** The Discover modal is empty, auto-import imports nothing, or the
+start/stop/restart buttons return an error.
+
+**Cause:** Muximux can't reach the Docker socket.
+
+**Solutions:**
+1. Mount the socket. Discovery and auto-import need it read-only:
+   `- /var/run/docker.sock:/var/run/docker.sock:ro`
+   The container entrypoint auto-detects the socket's group and grants the
+   runtime user access -- no `group_add`, root, or custom entrypoint needed.
+2. Lifecycle controls (start/stop/restart) additionally require write access
+   (`:rw`) AND `discovery.docker.lifecycle_enabled: true`. They are role-gated
+   and audit-logged.
+3. Confirm discovery is enabled (`discovery.docker.enabled: true`) and check
+   the server logs for socket connection errors on startup.
+4. For rootless Docker, a docker-socket-proxy sidecar, or a custom socket
+   path, set the `DOCKER_SOCKET` and `DOCKER_GID` override env vars (see
+   [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux)).

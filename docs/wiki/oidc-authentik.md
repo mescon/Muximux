@@ -1,6 +1,6 @@
 # OIDC: Authentik
 
-This guide sets up Muximux to authenticate against Authentik, including emitting Authentik group memberships in the ID token so they're available to `admin_groups` (and, in a future release, per-app `allowed_groups`).
+This guide sets up Muximux to authenticate against Authentik, including emitting Authentik group memberships in the ID token so they're available to `admin_groups` and per-app `allowed_groups`.
 
 The end state: users sign in with their Authentik account, Muximux receives their groups as `groups: ["Engineering", "Muximux-Admins"]`, and admins land on Settings automatically.
 
