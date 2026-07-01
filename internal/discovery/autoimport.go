@@ -164,14 +164,17 @@ type ReconcilePlan struct {
 //   - off mode: empty plan, no work.
 //   - desired key with no current app: Add (every non-off mode).
 //   - desired key whose current app is auto-imported and differs in a
-//     label-controlled field: Update (update/sync only, never add mode).
+//     label-controlled field, OR whose gateway site differs: Update
+//     (update/sync only, never add mode). The site diff makes gateway-
+//     only label changes (require_auth, min_role, streaming, ...)
+//     propagate even when no app field changed.
 //   - desired key whose current app exists but is not auto-imported
 //     (manual or detached): left untouched; it still suppresses the Add
 //     so no duplicate app is created.
 //   - sync only: a current auto-imported app whose DockerKey is absent
 //     from the desired set has its key listed in RemoveKeys. Apps without
 //     DockerAutoImported are never updated or removed.
-func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.AppConfig) ReconcilePlan {
+func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.AppConfig, currentSites []config.GatewaySite) ReconcilePlan {
 	var plan ReconcilePlan
 	if mode == config.AutoImportOff {
 		return plan
@@ -183,6 +186,15 @@ func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.A
 			curByKey[current[i].DockerKey] = current[i]
 		}
 	}
+	// Sites are keyed by the same DockerKey as their app, so a gateway-
+	// only label change can be diffed even when the app fields are
+	// untouched.
+	curSiteByKey := make(map[string]config.GatewaySite, len(currentSites))
+	for i := range currentSites {
+		if currentSites[i].DockerKey != "" {
+			curSiteByKey[currentSites[i].DockerKey] = currentSites[i]
+		}
+	}
 	desiredKeys := make(map[string]bool, len(desired))
 
 	for i := range desired {
@@ -192,7 +204,8 @@ func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.A
 		switch {
 		case !exists:
 			plan.Add = append(plan.Add, desired[i])
-		case cur.DockerAutoImported && mode != config.AutoImportAdd && !sameManagedFields(&cur, &desired[i].App):
+		case cur.DockerAutoImported && mode != config.AutoImportAdd &&
+			(!sameManagedFields(&cur, &desired[i].App) || gatewaySiteChanged(desired[i].Site, curSiteByKey, k)):
 			plan.Update = append(plan.Update, desired[i])
 		default:
 			// Manual/detached app, add mode, or unchanged auto app:
@@ -241,4 +254,39 @@ func sameManagedFields(a, b *config.AppConfig) bool {
 		reflect.DeepEqual(a.AllowedGroups, b.AllowedGroups) &&
 		reflect.DeepEqual(a.Permissions, b.Permissions) &&
 		reflect.DeepEqual(a.HTTPActionHeaders, b.HTTPActionHeaders)
+}
+
+// gatewaySiteChanged reports whether the desired gateway site for a key
+// differs from the current one. It also fires on presence changes: a
+// gateway domain newly added to (or dropped from) an already-tracked
+// container. Returns false only when neither side has a site.
+func gatewaySiteChanged(desiredSite *config.GatewaySite, currentByKey map[string]config.GatewaySite, key string) bool {
+	curSite, hasCur := currentByKey[key]
+	switch {
+	case desiredSite == nil && !hasCur:
+		return false
+	case desiredSite == nil || !hasCur:
+		return true // one side has a site, the other does not
+	default:
+		return !sameGatewaySiteManagedFields(desiredSite, &curSite)
+	}
+}
+
+// sameGatewaySiteManagedFields compares only the site fields that
+// BuildDesired derives from labels (AppName comes from the name label).
+// BackendURL is deliberately excluded: it tracks the container IP and is
+// owned by the URL-refresh pass, not the label diff, so comparing it here
+// would fight that pass on every IP change. Tracking fields (DockerKey/
+// Endpoint/Strategy/ManagedURL) and fields with no label vocabulary
+// (TLSCert/TLSKey/ProxyHeaders) are not label-controlled and excluded.
+func sameGatewaySiteManagedFields(a, b *config.GatewaySite) bool {
+	return a.Domain == b.Domain &&
+		a.TLS == b.TLS &&
+		a.AppName == b.AppName &&
+		a.StripFrameBlockers == b.StripFrameBlockers &&
+		a.Streaming == b.Streaming &&
+		a.RequireAuth == b.RequireAuth &&
+		a.MinRole == b.MinRole &&
+		reflect.DeepEqual(a.ForwardedHeaders, b.ForwardedHeaders) &&
+		reflect.DeepEqual(a.AllowedGroups, b.AllowedGroups)
 }

@@ -2,6 +2,17 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Auto-import `update`/`sync` now re-syncs a container's **gateway site**, not
+  only its app. Gateway-only label changes -- `muximux.gateway.require_auth`,
+  `min_role`, `allowed_groups`, `streaming`, `strip_frame_blockers`, and
+  `forwarded_headers` -- propagate on the next tick without an app field also
+  having to change (the 3.2.0 known limitation). Removing a container's
+  `muximux.app.gateway.domain` label reverts its app to the direct container
+  URL and drops the now-orphaned gateway site.
+
 ## [3.2.0] - 2026-06-30
 
 Hands-off Docker discovery. 3.1.0 taught Muximux to read your daemon and import containers as apps with one click; 3.2.0 can do it automatically. Label a container with the `muximux.*` keys you already use, set one flag, and Muximux imports it (and optionally its gateway subdomain) with no manual step. A GitOps-friendly addition that stays off by default.
