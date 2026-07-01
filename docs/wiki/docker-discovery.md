@@ -414,7 +414,7 @@ Other managed-field edits (name, icon, group, and similar) do **not** detach. Un
 
 ### Gateway labels and `update`/`sync`
 
-In `update` and `sync`, re-sync compares both the **app** fields and the **gateway site** built from labels against what is stored. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- and gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.allowed_groups`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, and `muximux.gateway.forwarded_headers` -- all propagate on the next tick. Toggling `muximux.gateway.require_auth` on a running container, for example, is re-synced without any app-field change.
+In `update` and `sync`, re-sync compares both the **app** fields and the **gateway site** built from labels against what is stored. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- and gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.allowed_groups`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, `muximux.gateway.forwarded_headers`, and `muximux.gateway.skip_tls_verify` -- all propagate on the next tick. Toggling `muximux.gateway.require_auth` on a running container, for example, is re-synced without any app-field change.
 
 Removing the `muximux.app.gateway.domain` label from an already-imported container reverts its app to the direct container URL and drops the now-orphaned gateway site on the next tick.
 

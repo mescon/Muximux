@@ -1585,7 +1585,10 @@ func TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates(t *testing.T) {
 	if s := findSiteByKey(cfg, "label:sonarr-auto"); s == nil || s.RequireAuth {
 		t.Fatalf("precondition: imported site must start without require_auth: %+v", s)
 	}
-	appBefore := findAppByKey(cfg, "label:sonarr-auto")
+	// Capture by value: findAppByKey returns a pointer into cfg.Apps,
+	// which the tick overwrites in place, so a captured pointer would
+	// alias the post-update URL and make the assertion vacuous.
+	appBeforeURL := findAppByKey(cfg, "label:sonarr-auto").URL
 
 	// Add a gateway-only label; no app field changes.
 	cfg.Discovery.Docker.AutoImport = config.AutoImportUpdate
@@ -1596,8 +1599,8 @@ func TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates(t *testing.T) {
 	if site == nil || !site.RequireAuth {
 		t.Fatalf("gateway-only label change must propagate to the site: %+v", site)
 	}
-	if a := findAppByKey(cfg, "label:sonarr-auto"); a == nil || a.URL != appBefore.URL {
-		t.Errorf("app URL must be unchanged by a gateway-only label: before=%q after=%+v", appBefore.URL, a)
+	if a := findAppByKey(cfg, "label:sonarr-auto"); a == nil || a.URL != appBeforeURL {
+		t.Errorf("app URL must be unchanged by a gateway-only label: before=%q after=%+v", appBeforeURL, a)
 	}
 }
 
