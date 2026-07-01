@@ -36,9 +36,10 @@ Each gateway site proxies one `backend_url` per domain. The fields you can set a
 - `forwarded_headers` -- emit `X-Forwarded-*` and `X-Real-IP` (default true)
 - `streaming` -- disable response buffering for streaming backends
 - `strip_frame_blockers` -- remove `X-Frame-Options`/CSP frame headers so the app can load in an iframe
+- `backend_skip_tls_verify` -- skip verifying a self-signed / untrusted `https` backend certificate (e.g. Proxmox)
 - `require_auth` / `min_role` / `allowed_groups` -- gate the site behind Muximux auth (see [Gateway Auth](gateway-auth.md))
 
-Anything outside this list (basic auth, rate limiting, subpath routing, wildcard host matching, custom `transport` flags) is not a gateway-site option. Those recipes are marked below and need an external proxy in front of Muximux.
+Anything outside this list (basic auth, rate limiting, subpath routing, wildcard host matching, arbitrary `transport` tuning like `read_buffer`) is not a gateway-site option. Those recipes are marked below and need an external proxy in front of Muximux.
 
 ---
 
@@ -155,7 +156,17 @@ plex.example.com {
 
 ### Proxmox
 
-> A self-signed HTTPS backend (e.g. Proxmox) cannot be served through a `gateway_sites` entry -- there is no insecure-skip-verify option. Front it with an external proxy, or add it to the dashboard as an app pointed at its direct URL with `open_mode: new_tab`.
+Proxmox serves its web UI on `:8006` with a self-signed certificate. Set `backend_skip_tls_verify: true` so the gateway does not reject that certificate:
+
+```yaml
+gateway_sites:
+  - domain: proxmox.example.com
+    backend_url: https://192.168.1.10:8006   # https + self-signed
+    tls: auto
+    backend_skip_tls_verify: true            # skip verifying the backend cert
+```
+
+`backend_skip_tls_verify` only applies to an `https://` `backend_url`, and affects the gateway-to-backend hop only -- the public-facing certificate Caddy serves for `proxmox.example.com` is unaffected. (Label form: `muximux.gateway.skip_tls_verify=true`.)
 
 ### Vaultwarden
 
@@ -384,7 +395,7 @@ apps:
     enabled: true
 ```
 
-Gateway sites only accept an `http://` or `https://` `backend_url` with no path, query, or extra transport flags. A backend that serves a self-signed HTTPS certificate (like Proxmox) can't be verified through a gateway site, so reach it some other way -- here Proxmox is added as a dashboard app pointed at an external proxy or its direct URL rather than a gateway site.
+Gateway sites only accept an `http://` or `https://` `backend_url` with no path, query, or subpath routing. Proxmox is shown here as a `new_tab` dashboard app because its UI does not embed in an iframe -- but it could equally be a gateway site, since its self-signed backend is handled by `backend_skip_tls_verify` (see the Proxmox recipe above).
 
 **`docker-compose.yml`:**
 
