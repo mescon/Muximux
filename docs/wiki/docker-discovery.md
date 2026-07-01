@@ -359,6 +359,7 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | `muximux.gateway.streaming` | bool | `false` | Disable Caddy response buffering for live-streaming backends. |
 | `muximux.gateway.strip_frame_blockers` | bool | `true` | Drop `X-Frame-Options` / `Content-Security-Policy: frame-ancestors` on responses so the site can be iframed elsewhere. |
 | `muximux.gateway.forwarded_headers` | bool | `true` | Forward `X-Forwarded-Proto` / `X-Forwarded-Host` / `X-Real-IP`. Turn off only when your backend has its own handling. |
+| `muximux.gateway.skip_tls_verify` | bool | `false` | Skip verification of the backend's TLS certificate. Only takes effect when the backend URL is `https` -- use it for self-signed / untrusted backends like Proxmox on `:8006`. Leaves the public-facing certificate unaffected. |
 | `muximux.gateway.require_auth` | bool | `false` | Gate the subdomain behind Muximux's login. Visitors land on `/login` first; admins bypass per-site role / group rules. Requires `server.session_cookie_domain` to be set. |
 | `muximux.gateway.min_role` | `user` \| `power-user` \| `admin` | unset | When `require_auth=true`, minimum role to access the site. |
 | `muximux.gateway.allowed_groups` | csv | unset | When `require_auth=true`, allow-list groups (comma-separated, case-insensitive). |

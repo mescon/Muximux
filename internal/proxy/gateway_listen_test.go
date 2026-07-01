@@ -201,3 +201,50 @@ func TestBuildCaddyfile_NoRequireAuth_OmitsForwardAuth(t *testing.T) {
 		t.Errorf("forward_auth should not appear when no site has RequireAuth; got:\n%s", out)
 	}
 }
+
+func TestBuildCaddyfile_BackendSkipTLSVerify(t *testing.T) {
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{
+			// https backend + skip on -> transport block emitted.
+			{Domain: "proxmox.example.com", BackendURL: "https://10.0.0.9:8006", TLS: "auto", BackendSkipTLSVerify: true},
+			// http backend + skip on -> NOT emitted (would force TLS onto plain http).
+			{Domain: "plain.example.com", BackendURL: "http://10.0.0.8:80", TLS: "auto", BackendSkipTLSVerify: true},
+			// https backend + skip off -> NOT emitted (verification stays on).
+			{Domain: "secure.example.com", BackendURL: "https://10.0.0.7:8443", TLS: "auto"},
+		},
+	})
+	out := p.buildCaddyfile()
+
+	proxmox := siteBlock(out, "proxmox.example.com")
+	if !strings.Contains(proxmox, "transport http {") || !strings.Contains(proxmox, "tls_insecure_skip_verify") {
+		t.Errorf("https backend with skip on must emit transport tls_insecure_skip_verify; got:\n%s", proxmox)
+	}
+
+	plain := siteBlock(out, "plain.example.com")
+	if strings.Contains(plain, "tls_insecure_skip_verify") {
+		t.Errorf("http backend must not get tls_insecure_skip_verify (would force TLS); got:\n%s", plain)
+	}
+
+	secure := siteBlock(out, "secure.example.com")
+	if strings.Contains(secure, "tls_insecure_skip_verify") {
+		t.Errorf("https backend with skip off must verify (no skip directive); got:\n%s", secure)
+	}
+}
+
+// siteBlock returns the slice of the Caddyfile from the given domain's
+// selector up to the next site selector, so per-site assertions do not
+// leak across blocks.
+func siteBlock(caddyfile, domain string) string {
+	start := strings.Index(caddyfile, domain)
+	if start < 0 {
+		return ""
+	}
+	rest := caddyfile[start+len(domain):]
+	// Stop at the next ".example.com" selector if any.
+	if next := strings.Index(rest, ".example.com {"); next >= 0 {
+		return rest[:next]
+	}
+	return rest
+}

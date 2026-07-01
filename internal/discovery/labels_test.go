@@ -142,6 +142,7 @@ func TestParseGatewayLabels(t *testing.T) {
 			"muximux.gateway.streaming":            "true",
 			"muximux.gateway.strip_frame_blockers": "true",
 			"muximux.gateway.forwarded_headers":    "false",
+			"muximux.gateway.skip_tls_verify":      "true",
 			"muximux.gateway.require_auth":         "true",
 			"muximux.gateway.min_role":             "admin",
 			"muximux.gateway.allowed_groups":       "admins",
@@ -158,6 +159,9 @@ func TestParseGatewayLabels(t *testing.T) {
 		}
 		if got.ForwardedHeaders == nil || *got.ForwardedHeaders {
 			t.Errorf("ForwardedHeaders should be pointer-to-false, got %v", got.ForwardedHeaders)
+		}
+		if got.SkipTLSVerify == nil || !*got.SkipTLSVerify {
+			t.Errorf("SkipTLSVerify = %v", got.SkipTLSVerify)
 		}
 		if got.RequireAuth == nil || !*got.RequireAuth {
 			t.Errorf("RequireAuth = %v", got.RequireAuth)

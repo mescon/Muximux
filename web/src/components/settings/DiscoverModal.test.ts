@@ -146,6 +146,7 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
         streaming: false,
         strip_frame_blockers: true,
         forwarded_headers: true,
+        skip_tls_verify: true,
         require_auth: true,
         min_role: 'user',
         allowed_groups: ['family'],
@@ -192,6 +193,7 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     expect(gw.streaming).toBe(false);
     expect(gw.strip_frame_blockers).toBe(true);
     expect(gw.forwarded_headers).toBe(true);
+    expect(gw.backend_skip_tls_verify).toBe(true);
     expect(gw.require_auth).toBe(true);
     expect(gw.min_role).toBe('user');
     expect(gw.allowed_groups).toEqual(['family']);

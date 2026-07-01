@@ -111,6 +111,7 @@ func TestBuildDesired_GatewaySite(t *testing.T) {
 			Streaming:          &yes,
 			StripFrameBlockers: &yes,
 			ForwardedHeaders:   &no,
+			SkipTLSVerify:      &yes,
 			RequireAuth:        &yes,
 			MinRole:            "power-user",
 			AllowedGroups:      []string{"staff"},
@@ -137,6 +138,9 @@ func TestBuildDesired_GatewaySite(t *testing.T) {
 	}
 	if !d.Site.RequireAuth || d.Site.MinRole != "power-user" || len(d.Site.AllowedGroups) != 1 {
 		t.Errorf("auth gate not mapped: %+v", d.Site)
+	}
+	if !d.Site.BackendSkipTLSVerify {
+		t.Errorf("skip_tls_verify label must map to site.BackendSkipTLSVerify: %+v", d.Site)
 	}
 	if d.Site.DockerKey != "label:sonarr" {
 		t.Errorf("site must carry tracking key, got %q", d.Site.DockerKey)
@@ -455,8 +459,9 @@ func TestSameGatewaySiteManagedFields(t *testing.T) {
 	fwd := false
 	base := config.GatewaySite{
 		Domain: "g.example.com", TLS: config.TLSModeAuto, AppName: "G",
-		StripFrameBlockers: true, Streaming: true, RequireAuth: true,
-		MinRole: "admin", ForwardedHeaders: &fwd, AllowedGroups: []string{"staff"},
+		StripFrameBlockers: true, Streaming: true, BackendSkipTLSVerify: true,
+		RequireAuth: true, MinRole: "admin", ForwardedHeaders: &fwd,
+		AllowedGroups: []string{"staff"},
 	}
 	if !sameGatewaySiteManagedFields(&base, &base) {
 		t.Fatal("identical sites must be same")
@@ -472,15 +477,16 @@ func TestSameGatewaySiteManagedFields(t *testing.T) {
 	}
 
 	mutators := map[string]func(*config.GatewaySite){
-		"Domain":             func(s *config.GatewaySite) { s.Domain = "z" },
-		"TLS":                func(s *config.GatewaySite) { s.TLS = config.TLSModeNone },
-		"AppName":            func(s *config.GatewaySite) { s.AppName = "Z" },
-		"StripFrameBlockers": func(s *config.GatewaySite) { s.StripFrameBlockers = false },
-		"Streaming":          func(s *config.GatewaySite) { s.Streaming = false },
-		"RequireAuth":        func(s *config.GatewaySite) { s.RequireAuth = false },
-		"MinRole":            func(s *config.GatewaySite) { s.MinRole = "user" },
-		"ForwardedHeaders":   func(s *config.GatewaySite) { tv := true; s.ForwardedHeaders = &tv },
-		"AllowedGroups":      func(s *config.GatewaySite) { s.AllowedGroups = []string{"other"} },
+		"Domain":               func(s *config.GatewaySite) { s.Domain = "z" },
+		"TLS":                  func(s *config.GatewaySite) { s.TLS = config.TLSModeNone },
+		"AppName":              func(s *config.GatewaySite) { s.AppName = "Z" },
+		"StripFrameBlockers":   func(s *config.GatewaySite) { s.StripFrameBlockers = false },
+		"Streaming":            func(s *config.GatewaySite) { s.Streaming = false },
+		"BackendSkipTLSVerify": func(s *config.GatewaySite) { s.BackendSkipTLSVerify = false },
+		"RequireAuth":          func(s *config.GatewaySite) { s.RequireAuth = false },
+		"MinRole":              func(s *config.GatewaySite) { s.MinRole = "user" },
+		"ForwardedHeaders":     func(s *config.GatewaySite) { tv := true; s.ForwardedHeaders = &tv },
+		"AllowedGroups":        func(s *config.GatewaySite) { s.AllowedGroups = []string{"other"} },
 	}
 	for name, mut := range mutators {
 		mod := base

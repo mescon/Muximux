@@ -4,6 +4,16 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Gateway sites can skip backend TLS verification** via a new
+  `backend_skip_tls_verify` field (label: `muximux.gateway.skip_tls_verify`,
+  or the "Skip backend TLS verification" toggle in Settings -> Gateway). It
+  only takes effect when the backend URL is https, and lets the embedded
+  gateway front backends that serve a self-signed or otherwise untrusted
+  certificate -- Proxmox on `:8006`, for example -- which previously had to
+  be reached through an external proxy. The public-facing certificate is
+  unaffected.
+
 ### Fixed
 - Auto-import `update`/`sync` now re-syncs a container's **gateway site**, not
   only its app. Gateway-only label changes -- `muximux.gateway.require_auth`,

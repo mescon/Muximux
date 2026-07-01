@@ -126,6 +126,9 @@ func buildGatewaySite(sug *Suggestion, endpoint string) *config.GatewaySite {
 			site.StripFrameBlockers = *gw.StripFrameBlockers
 		}
 		site.ForwardedHeaders = gw.ForwardedHeaders
+		if gw.SkipTLSVerify != nil {
+			site.BackendSkipTLSVerify = *gw.SkipTLSVerify
+		}
 		if gw.RequireAuth != nil {
 			site.RequireAuth = *gw.RequireAuth
 		}
@@ -285,6 +288,7 @@ func sameGatewaySiteManagedFields(a, b *config.GatewaySite) bool {
 		a.AppName == b.AppName &&
 		a.StripFrameBlockers == b.StripFrameBlockers &&
 		a.Streaming == b.Streaming &&
+		a.BackendSkipTLSVerify == b.BackendSkipTLSVerify &&
 		a.RequireAuth == b.RequireAuth &&
 		a.MinRole == b.MinRole &&
 		reflect.DeepEqual(a.ForwardedHeaders, b.ForwardedHeaders) &&

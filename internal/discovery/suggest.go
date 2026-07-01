@@ -91,6 +91,7 @@ type SuggestedGatewayConfig struct {
 	Streaming          *bool    `json:"streaming,omitempty"`
 	StripFrameBlockers *bool    `json:"strip_frame_blockers,omitempty"`
 	ForwardedHeaders   *bool    `json:"forwarded_headers,omitempty"`
+	SkipTLSVerify      *bool    `json:"skip_tls_verify,omitempty"`
 	RequireAuth        *bool    `json:"require_auth,omitempty"`
 	MinRole            string   `json:"min_role,omitempty"`
 	AllowedGroups      []string `json:"allowed_groups,omitempty"`
@@ -319,6 +320,7 @@ func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
 		Streaming:          gw.Streaming,
 		StripFrameBlockers: gw.StripFrameBlockers,
 		ForwardedHeaders:   gw.ForwardedHeaders,
+		SkipTLSVerify:      gw.SkipTLSVerify,
 		RequireAuth:        gw.RequireAuth,
 		MinRole:            gw.MinRole,
 		AllowedGroups:      gw.AllowedGroups,
@@ -339,7 +341,7 @@ func surfaceUnknownLabels(s *Suggestion, labels *AppLabels) {
 // by value (gocritic hugeParam).
 func gatewayLabelsNonEmpty(g *GatewayLabels) bool {
 	return g.TLS != "" || g.Streaming != nil || g.StripFrameBlockers != nil ||
-		g.ForwardedHeaders != nil || g.RequireAuth != nil ||
+		g.ForwardedHeaders != nil || g.SkipTLSVerify != nil || g.RequireAuth != nil ||
 		g.MinRole != "" || len(g.AllowedGroups) > 0
 }
 
