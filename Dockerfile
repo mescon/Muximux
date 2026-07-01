@@ -65,7 +65,7 @@ RUN CGO_ENABLED=0 GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" go build \
     -o /muximux ./cmd/muximux
 
 # Final stage - minimal runtime
-FROM alpine:3.23
+FROM alpine:3.24
 
 # Install runtime dependencies and create data directory
 RUN apk add --no-cache ca-certificates shadow su-exec tzdata wget && \
