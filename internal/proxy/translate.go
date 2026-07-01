@@ -21,16 +21,17 @@ func ConfigGatewaySitesToProxy(sites []config.GatewaySite) []GatewaySite {
 	for i := range sites {
 		s := &sites[i]
 		out[i] = GatewaySite{
-			Domain:             s.Domain,
-			BackendURL:         s.BackendURL,
-			TLS:                string(s.TLS),
-			TLSCert:            s.TLSCert,
-			TLSKey:             s.TLSKey,
-			StripFrameBlockers: s.StripFrameBlockers,
-			Streaming:          s.Streaming,
-			ProxyHeaders:       s.ProxyHeaders,
-			ForwardedHeaders:   s.ForwardedHeaders,
-			RequireAuth:        s.RequireAuth,
+			Domain:               s.Domain,
+			BackendURL:           s.BackendURL,
+			TLS:                  string(s.TLS),
+			TLSCert:              s.TLSCert,
+			TLSKey:               s.TLSKey,
+			StripFrameBlockers:   s.StripFrameBlockers,
+			Streaming:            s.Streaming,
+			BackendSkipTLSVerify: s.BackendSkipTLSVerify,
+			ProxyHeaders:         s.ProxyHeaders,
+			ForwardedHeaders:     s.ForwardedHeaders,
+			RequireAuth:          s.RequireAuth,
 		}
 	}
 	return out

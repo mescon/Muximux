@@ -121,19 +121,19 @@ func TestConfigGatewaySitesToProxy_EmptyAndPopulated(t *testing.T) {
 		t.Errorf("empty input -> %v, want nil", got)
 	}
 	in := []config.GatewaySite{
-		{Domain: "a.example.com", BackendURL: "http://10.0.0.1:8080", TLS: config.TLSModeCustom, TLSCert: "/tmp/c", TLSKey: "/tmp/k", StripFrameBlockers: true, Streaming: true},
+		{Domain: "a.example.com", BackendURL: "https://10.0.0.1:8080", TLS: config.TLSModeCustom, TLSCert: "/tmp/c", TLSKey: "/tmp/k", StripFrameBlockers: true, Streaming: true, BackendSkipTLSVerify: true},
 	}
 	out := ConfigGatewaySitesToProxy(in)
 	if len(out) != 1 {
 		t.Fatalf("got %d entries, want 1", len(out))
 	}
-	if out[0].Domain != "a.example.com" || out[0].BackendURL != "http://10.0.0.1:8080" {
+	if out[0].Domain != "a.example.com" || out[0].BackendURL != "https://10.0.0.1:8080" {
 		t.Errorf("domain/backend mismatch: %+v", out[0])
 	}
 	if out[0].TLS != "custom" || out[0].TLSCert != "/tmp/c" || out[0].TLSKey != "/tmp/k" {
 		t.Errorf("tls fields not copied: %+v", out[0])
 	}
-	if !out[0].StripFrameBlockers || !out[0].Streaming {
+	if !out[0].StripFrameBlockers || !out[0].Streaming || !out[0].BackendSkipTLSVerify {
 		t.Errorf("flags not copied: %+v", out[0])
 	}
 }

@@ -1561,6 +1561,88 @@ func TestTick_AutoImportUpdate_InsertsGatewaySiteWhenLabelAdded(t *testing.T) {
 	}
 }
 
+// TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates is #1's core
+// case: a gateway app is imported, then a gateway-only label
+// (require_auth) is added with no app-field change. Update mode must
+// still re-sync the site, proving the site diff (not just the app diff)
+// drives the update.
+func TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates(t *testing.T) {
+	set := []ContainerSummary{gwSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+	if s := findSiteByKey(cfg, "label:sonarr-auto"); s == nil || s.RequireAuth {
+		t.Fatalf("precondition: imported site must start without require_auth: %+v", s)
+	}
+	// Capture by value: findAppByKey returns a pointer into cfg.Apps,
+	// which the tick overwrites in place, so a captured pointer would
+	// alias the post-update URL and make the assertion vacuous.
+	appBeforeURL := findAppByKey(cfg, "label:sonarr-auto").URL
+
+	// Add a gateway-only label; no app field changes.
+	cfg.Discovery.Docker.AutoImport = config.AutoImportUpdate
+	set[0].Labels[LabelGatewayRequireAuth] = "true"
+	p.tick(context.Background())
+
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil || !site.RequireAuth {
+		t.Fatalf("gateway-only label change must propagate to the site: %+v", site)
+	}
+	if a := findAppByKey(cfg, "label:sonarr-auto"); a == nil || a.URL != appBeforeURL {
+		t.Errorf("app URL must be unchanged by a gateway-only label: before=%q after=%+v", appBeforeURL, a)
+	}
+}
+
+// TestTick_AutoImportUpdate_GatewayDomainDroppedRemovesSite: removing the
+// gateway-domain label from a tracked container reverts its app to the
+// direct container URL and drops the now-orphaned gateway site.
+func TestTick_AutoImportUpdate_GatewayDomainDroppedRemovesSite(t *testing.T) {
+	set := []ContainerSummary{gwSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+	site := findSiteByKey(cfg, "label:sonarr-auto")
+	if site == nil {
+		t.Fatalf("precondition: gateway site must import")
+	}
+	backend := site.BackendURL // the direct container URL the app should revert to
+
+	cfg.Discovery.Docker.AutoImport = config.AutoImportUpdate
+	delete(set[0].Labels, LabelAppGatewayDomain)
+	delete(set[0].Labels, LabelGatewayTLS)
+	p.tick(context.Background())
+
+	app := findAppByKey(cfg, "label:sonarr-auto")
+	if app == nil || app.URL != backend {
+		t.Fatalf("app should revert to its direct container URL %q: %+v", backend, app)
+	}
+	if s := findSiteByKey(cfg, "label:sonarr-auto"); s != nil {
+		t.Fatalf("orphaned gateway site must be removed: %+v", s)
+	}
+}
+
 func TestTick_AutoImportRollbackOnSaveFailure(t *testing.T) {
 	set := []ContainerSummary{labeledSonarr()}
 	socket, cleanup := mutableDaemonForPoller(t, &set)

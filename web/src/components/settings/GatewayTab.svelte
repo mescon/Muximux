@@ -374,6 +374,7 @@
       tls: 'auto',
       strip_frame_blockers: false,
       streaming: false,
+      backend_skip_tls_verify: false,
       forwarded_headers: true,
     };
   }
@@ -710,6 +711,14 @@
             <span>
               <span class="text-text-primary">Forward headers</span>
               <span class="block text-xs text-text-muted">Send X-Forwarded-Proto, X-Forwarded-Host, X-Real-IP. On by default; turn off for backends that reject those headers.</span>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-2 cursor-pointer text-sm" data-testid="gw-skip-tls-verify">
+            <input type="checkbox" bind:checked={form.backend_skip_tls_verify} />
+            <span>
+              <span class="text-text-primary">Skip backend TLS verification</span>
+              <span class="block text-xs text-text-muted">For backends serving a self-signed or untrusted HTTPS certificate (e.g. Proxmox on :8006). Only applies when the backend URL is https; the public-facing certificate is unaffected.</span>
             </span>
           </label>
 

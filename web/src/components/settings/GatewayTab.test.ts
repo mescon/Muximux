@@ -367,6 +367,21 @@ describe('GatewayTab Require Muximux login (auth gate)', () => {
     expect(arg.allowed_groups).toEqual(['family', 'admins']);
   });
 
+  it('sends backend_skip_tls_verify when the skip-TLS-verify toggle is ticked', async () => {
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByRole('button', { name: /add gateway site/i })).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+
+    await fireEvent.input(screen.getByLabelText('Domain'), { target: { value: 'proxmox.example.com' } });
+    await fireEvent.input(screen.getByLabelText('Backend URL'), { target: { value: 'https://proxmox:8006' } });
+    const skipVerify = screen.getByTestId('gw-skip-tls-verify').querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await fireEvent.click(skipVerify);
+
+    await fireEvent.click(screen.getByRole('button', { name: /add site/i }));
+    await waitFor(() => expect(mockCreateGatewaySite).toHaveBeenCalledTimes(1));
+    expect(mockCreateGatewaySite.mock.calls[0][0].backend_skip_tls_verify).toBe(true);
+  });
+
   it('omits allowed_groups from the payload when the field is empty (preserves "any user" semantics)', async () => {
     // The validator on the Go side treats an empty allowed_groups as
     // "no group check"; emitting it as an empty array vs. omitting it

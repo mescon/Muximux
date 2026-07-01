@@ -200,6 +200,7 @@
               if (typeof sg.streaming === 'boolean') gw.streaming = sg.streaming;
               if (typeof sg.strip_frame_blockers === 'boolean') gw.strip_frame_blockers = sg.strip_frame_blockers;
               if (typeof sg.forwarded_headers === 'boolean') gw.forwarded_headers = sg.forwarded_headers;
+              if (typeof sg.skip_tls_verify === 'boolean') gw.backend_skip_tls_verify = sg.skip_tls_verify;
               if (typeof sg.require_auth === 'boolean') gw.require_auth = sg.require_auth;
               if (sg.min_role) gw.min_role = sg.min_role;
               if (sg.allowed_groups && sg.allowed_groups.length > 0) gw.allowed_groups = sg.allowed_groups;

@@ -48,6 +48,7 @@ const (
 	LabelGatewayStreaming          = "muximux.gateway.streaming"            // "true" to disable Caddy response buffering
 	LabelGatewayStripFrameBlockers = "muximux.gateway.strip_frame_blockers" // "true" to drop X-Frame-Options on responses
 	LabelGatewayForwardedHeaders   = "muximux.gateway.forwarded_headers"    // "true" to forward X-Forwarded-* headers
+	LabelGatewaySkipTLSVerify      = "muximux.gateway.skip_tls_verify"      // "true" to skip verifying a self-signed HTTPS backend
 	LabelGatewayRequireAuth        = "muximux.gateway.require_auth"         // "true" to gate the site behind Muximux login
 	LabelGatewayMinRole            = "muximux.gateway.min_role"             // user | power-user | admin
 	LabelGatewayAllowedGroups      = "muximux.gateway.allowed_groups"       // comma-separated
@@ -98,6 +99,7 @@ type GatewayLabels struct {
 	Streaming          *bool
 	StripFrameBlockers *bool
 	ForwardedHeaders   *bool
+	SkipTLSVerify      *bool
 	RequireAuth        *bool
 	MinRole            string
 	AllowedGroups      []string
@@ -238,6 +240,7 @@ var gatewayLabelHandlers = map[string]func(out *GatewayLabels, v string){
 	LabelGatewayStreaming:          func(out *GatewayLabels, v string) { b := boolish(v); out.Streaming = &b },
 	LabelGatewayStripFrameBlockers: func(out *GatewayLabels, v string) { b := boolish(v); out.StripFrameBlockers = &b },
 	LabelGatewayForwardedHeaders:   func(out *GatewayLabels, v string) { b := boolish(v); out.ForwardedHeaders = &b },
+	LabelGatewaySkipTLSVerify:      func(out *GatewayLabels, v string) { b := boolish(v); out.SkipTLSVerify = &b },
 	LabelGatewayRequireAuth:        func(out *GatewayLabels, v string) { b := boolish(v); out.RequireAuth = &b },
 	LabelGatewayMinRole: func(out *GatewayLabels, v string) {
 		lv := strings.ToLower(strings.TrimSpace(v))

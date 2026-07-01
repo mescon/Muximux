@@ -111,6 +111,7 @@ func TestBuildDesired_GatewaySite(t *testing.T) {
 			Streaming:          &yes,
 			StripFrameBlockers: &yes,
 			ForwardedHeaders:   &no,
+			SkipTLSVerify:      &yes,
 			RequireAuth:        &yes,
 			MinRole:            "power-user",
 			AllowedGroups:      []string{"staff"},
@@ -137,6 +138,9 @@ func TestBuildDesired_GatewaySite(t *testing.T) {
 	}
 	if !d.Site.RequireAuth || d.Site.MinRole != "power-user" || len(d.Site.AllowedGroups) != 1 {
 		t.Errorf("auth gate not mapped: %+v", d.Site)
+	}
+	if !d.Site.BackendSkipTLSVerify {
+		t.Errorf("skip_tls_verify label must map to site.BackendSkipTLSVerify: %+v", d.Site)
 	}
 	if d.Site.DockerKey != "label:sonarr" {
 		t.Errorf("site must carry tracking key, got %q", d.Site.DockerKey)
@@ -302,7 +306,7 @@ func desire(k string) Desired {
 
 // TestReconcile_Off: off mode is a no-op regardless of inputs.
 func TestReconcile_Off(t *testing.T) {
-	p := Reconcile(config.AutoImportOff, []Desired{desire("a")}, []config.AppConfig{autoKey("gone")})
+	p := Reconcile(config.AutoImportOff, []Desired{desire("a")}, []config.AppConfig{autoKey("gone")}, nil)
 	if len(p.Add) != 0 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
 		t.Errorf("off mode must be a no-op: %+v", p)
 	}
@@ -313,7 +317,7 @@ func TestReconcile_Off(t *testing.T) {
 func TestReconcile_Modes(t *testing.T) {
 	// add: new key with no current app -> Add, in every non-off mode
 	for _, m := range []config.AutoImportMode{config.AutoImportAdd, config.AutoImportUpdate, config.AutoImportSync} {
-		p := Reconcile(m, []Desired{desire("a")}, nil)
+		p := Reconcile(m, []Desired{desire("a")}, nil, nil)
 		if len(p.Add) != 1 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
 			t.Errorf("%s add: %+v", m, p)
 		}
@@ -321,24 +325,24 @@ func TestReconcile_Modes(t *testing.T) {
 
 	// vanished auto app: removed only in sync
 	cur := []config.AppConfig{autoKey("gone")}
-	if p := Reconcile(config.AutoImportAdd, nil, cur); len(p.RemoveKeys) != 0 {
+	if p := Reconcile(config.AutoImportAdd, nil, cur, nil); len(p.RemoveKeys) != 0 {
 		t.Errorf("add must not remove: %+v", p)
 	}
-	if p := Reconcile(config.AutoImportUpdate, nil, cur); len(p.RemoveKeys) != 0 {
+	if p := Reconcile(config.AutoImportUpdate, nil, cur, nil); len(p.RemoveKeys) != 0 {
 		t.Errorf("update must not remove: %+v", p)
 	}
-	if p := Reconcile(config.AutoImportSync, nil, cur); len(p.RemoveKeys) != 1 || p.RemoveKeys[0] != "gone" {
+	if p := Reconcile(config.AutoImportSync, nil, cur, nil); len(p.RemoveKeys) != 1 || p.RemoveKeys[0] != "gone" {
 		t.Errorf("sync must remove vanished auto app: %+v", p)
 	}
 
 	// manual app present for a key: never removed, never duplicated
 	man := []config.AppConfig{key("m")} // no DockerAutoImported
-	p := Reconcile(config.AutoImportSync, []Desired{desire("m")}, man)
+	p := Reconcile(config.AutoImportSync, []Desired{desire("m")}, man, nil)
 	if len(p.Add) != 0 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
 		t.Errorf("manual app must be untouched and block add: %+v", p)
 	}
 	// and a manual app whose container vanished is NOT removed in sync
-	p = Reconcile(config.AutoImportSync, nil, man)
+	p = Reconcile(config.AutoImportSync, nil, man, nil)
 	if len(p.RemoveKeys) != 0 {
 		t.Errorf("sync must not remove a manual app: %+v", p)
 	}
@@ -349,7 +353,7 @@ func TestReconcile_Modes(t *testing.T) {
 // when the desired app's label fields differ from it.
 func TestReconcile_DetachedAppNotRecreated(t *testing.T) {
 	detached := key("d") // DockerKey set, auto false; differs from desire("d")
-	p := Reconcile(config.AutoImportSync, []Desired{desire("d")}, []config.AppConfig{detached})
+	p := Reconcile(config.AutoImportSync, []Desired{desire("d")}, []config.AppConfig{detached}, nil)
 	if len(p.Add) != 0 {
 		t.Errorf("detached app must suppress add: %+v", p)
 	}
@@ -368,20 +372,128 @@ func TestReconcile_UpdateOnlyWhenChanged(t *testing.T) {
 	cur.DockerAutoImported = true
 	// identical desired -> no update
 	same := []Desired{{App: cur}}
-	if p := Reconcile(config.AutoImportUpdate, same, []config.AppConfig{cur}); len(p.Update) != 0 {
+	if p := Reconcile(config.AutoImportUpdate, same, []config.AppConfig{cur}, nil); len(p.Update) != 0 {
 		t.Errorf("unchanged should not update: %+v", p)
 	}
 	// changed name -> update
 	changed := BuildDesired(&Suggestion{Key: "u", Name: "U2", URL: "http://h:1"}, "e")
-	if p := Reconcile(config.AutoImportUpdate, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 1 {
+	if p := Reconcile(config.AutoImportUpdate, []Desired{changed}, []config.AppConfig{cur}, nil); len(p.Update) != 1 {
 		t.Errorf("changed should update: %+v", p)
 	}
-	if p := Reconcile(config.AutoImportSync, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 1 {
+	if p := Reconcile(config.AutoImportSync, []Desired{changed}, []config.AppConfig{cur}, nil); len(p.Update) != 1 {
 		t.Errorf("sync should update changed app: %+v", p)
 	}
 	// update suppressed in add mode even when changed
-	if p := Reconcile(config.AutoImportAdd, []Desired{changed}, []config.AppConfig{cur}); len(p.Update) != 0 {
+	if p := Reconcile(config.AutoImportAdd, []Desired{changed}, []config.AppConfig{cur}, nil); len(p.Update) != 0 {
 		t.Errorf("add mode must not update: %+v", p)
+	}
+}
+
+// gwDesire builds an auto-imported gateway Desired for key k with the
+// given auth gate, for exercising site-only reconcile diffs.
+func gwDesire(k string, requireAuth bool, minRole string) Desired {
+	ra := requireAuth
+	d := BuildDesired(&Suggestion{
+		Key: k, Name: k, URL: "http://h:1",
+		EffectiveStrategy: config.StrategyContainerIP,
+		SuggestedDomain:   k + ".example.com",
+		SuggestedGateway: &SuggestedGatewayConfig{
+			TLS: "auto", RequireAuth: &ra, MinRole: minRole,
+		},
+	}, "e")
+	d.App.DockerAutoImported = true
+	return d
+}
+
+// TestReconcile_GatewaySiteFieldChange: a gateway-only label change
+// (require_auth) with unchanged app fields must still produce an Update,
+// in update/sync but never add. This is the gap #1 closes.
+func TestReconcile_GatewaySiteFieldChange(t *testing.T) {
+	cur := gwDesire("g", false, "admin")
+	curApps := []config.AppConfig{cur.App}
+	curSites := []config.GatewaySite{*cur.Site}
+
+	des := gwDesire("g", true, "admin") // only require_auth flips
+	if !sameManagedFields(&cur.App, &des.App) {
+		t.Fatal("precondition: app fields must be identical so only the site differs")
+	}
+
+	for _, m := range []config.AutoImportMode{config.AutoImportUpdate, config.AutoImportSync} {
+		p := Reconcile(m, []Desired{des}, curApps, curSites)
+		if len(p.Update) != 1 {
+			t.Errorf("%s: gateway-only change must update: %+v", m, p)
+		}
+	}
+	if p := Reconcile(config.AutoImportAdd, []Desired{des}, curApps, curSites); len(p.Update) != 0 {
+		t.Errorf("add mode must not update on site change: %+v", p)
+	}
+	// Identical site -> no update.
+	if p := Reconcile(config.AutoImportUpdate, []Desired{cur}, curApps, curSites); len(p.Update) != 0 {
+		t.Errorf("identical site must not update: %+v", p)
+	}
+}
+
+// TestReconcile_GatewayDomainDropped: when a tracked gateway container
+// loses its domain label it now routes directly (Site nil). The presence
+// change must produce an Update so the app is rewritten and the orphaned
+// site can be cleaned up downstream.
+func TestReconcile_GatewayDomainDropped(t *testing.T) {
+	cur := gwDesire("g", true, "admin")
+	curApps := []config.AppConfig{cur.App}
+	curSites := []config.GatewaySite{*cur.Site}
+
+	direct := BuildDesired(&Suggestion{Key: "g", Name: "g", URL: "http://h:1"}, "e")
+	direct.App.DockerAutoImported = true
+	if direct.Site != nil {
+		t.Fatal("precondition: dropped-domain desired must have no site")
+	}
+	if p := Reconcile(config.AutoImportUpdate, []Desired{direct}, curApps, curSites); len(p.Update) != 1 {
+		t.Errorf("dropping a gateway domain must update: %+v", p)
+	}
+}
+
+// TestSameGatewaySiteManagedFields: each label-derived site field flips
+// the result; BackendURL and tracking fields (IP/URL-refresh owned) do
+// not, so an IP change alone never looks like a label change.
+func TestSameGatewaySiteManagedFields(t *testing.T) {
+	fwd := false
+	base := config.GatewaySite{
+		Domain: "g.example.com", TLS: config.TLSModeAuto, AppName: "G",
+		StripFrameBlockers: true, Streaming: true, BackendSkipTLSVerify: true,
+		RequireAuth: true, MinRole: "admin", ForwardedHeaders: &fwd,
+		AllowedGroups: []string{"staff"},
+	}
+	if !sameGatewaySiteManagedFields(&base, &base) {
+		t.Fatal("identical sites must be same")
+	}
+
+	unrelated := base
+	unrelated.BackendURL = "http://changed:9"
+	unrelated.DockerManagedURL = "http://changed:9"
+	unrelated.DockerKey = "other"
+	unrelated.DockerEndpoint = "other"
+	if !sameGatewaySiteManagedFields(&base, &unrelated) {
+		t.Error("backend/tracking fields must not register as a managed difference")
+	}
+
+	mutators := map[string]func(*config.GatewaySite){
+		"Domain":               func(s *config.GatewaySite) { s.Domain = "z" },
+		"TLS":                  func(s *config.GatewaySite) { s.TLS = config.TLSModeNone },
+		"AppName":              func(s *config.GatewaySite) { s.AppName = "Z" },
+		"StripFrameBlockers":   func(s *config.GatewaySite) { s.StripFrameBlockers = false },
+		"Streaming":            func(s *config.GatewaySite) { s.Streaming = false },
+		"BackendSkipTLSVerify": func(s *config.GatewaySite) { s.BackendSkipTLSVerify = false },
+		"RequireAuth":          func(s *config.GatewaySite) { s.RequireAuth = false },
+		"MinRole":              func(s *config.GatewaySite) { s.MinRole = "user" },
+		"ForwardedHeaders":     func(s *config.GatewaySite) { tv := true; s.ForwardedHeaders = &tv },
+		"AllowedGroups":        func(s *config.GatewaySite) { s.AllowedGroups = []string{"other"} },
+	}
+	for name, mut := range mutators {
+		mod := base
+		mut(&mod)
+		if sameGatewaySiteManagedFields(&base, &mod) {
+			t.Errorf("flipping %s must register as a managed difference", name)
+		}
 	}
 }
 

@@ -221,6 +221,10 @@ export interface GatewaySite {
   tls_key?: string;
   strip_frame_blockers?: boolean;
   streaming?: boolean;
+  // Skip verification of a self-signed / untrusted HTTPS backend
+  // certificate (e.g. Proxmox). Only takes effect when backend_url is
+  // https; the public-facing TLS is unaffected.
+  backend_skip_tls_verify?: boolean;
   proxy_headers?: Record<string, string>;
   forwarded_headers?: boolean;
   app_name?: string;
@@ -438,6 +442,7 @@ export interface SuggestedGatewayConfig {
   streaming?: boolean;
   strip_frame_blockers?: boolean;
   forwarded_headers?: boolean;
+  skip_tls_verify?: boolean;
   require_auth?: boolean;
   min_role?: 'user' | 'power-user' | 'admin';
   allowed_groups?: string[];

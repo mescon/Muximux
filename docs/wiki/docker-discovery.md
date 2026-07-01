@@ -359,6 +359,7 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | `muximux.gateway.streaming` | bool | `false` | Disable Caddy response buffering for live-streaming backends. |
 | `muximux.gateway.strip_frame_blockers` | bool | `true` | Drop `X-Frame-Options` / `Content-Security-Policy: frame-ancestors` on responses so the site can be iframed elsewhere. |
 | `muximux.gateway.forwarded_headers` | bool | `true` | Forward `X-Forwarded-Proto` / `X-Forwarded-Host` / `X-Real-IP`. Turn off only when your backend has its own handling. |
+| `muximux.gateway.skip_tls_verify` | bool | `false` | Skip verification of the backend's TLS certificate. Only takes effect when the backend URL is `https` -- use it for self-signed / untrusted backends like Proxmox on `:8006`. Leaves the public-facing certificate unaffected. |
 | `muximux.gateway.require_auth` | bool | `false` | Gate the subdomain behind Muximux's login. Visitors land on `/login` first; admins bypass per-site role / group rules. Requires `server.session_cookie_domain` to be set. |
 | `muximux.gateway.min_role` | `user` \| `power-user` \| `admin` | unset | When `require_auth=true`, minimum role to access the site. |
 | `muximux.gateway.allowed_groups` | csv | unset | When `require_auth=true`, allow-list groups (comma-separated, case-insensitive). |
@@ -411,11 +412,11 @@ Auto-import never silently clobbers a URL you took manual control of. **Changing
 
 Other managed-field edits (name, icon, group, and similar) do **not** detach. Under `update`/`sync` they are re-synced from the labels on the next tick, so the labels remain the source of truth; under `add` they stick, because `add` never re-syncs an already-imported app.
 
-### Known limitation -- gateway-only labels and `update`/`sync`
+### Gateway labels and `update`/`sync`
 
-In `update` and `sync`, re-sync compares the **app** fields built from labels against the stored app. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- do change an app field, so edits to them **do** propagate on the next tick.
+In `update` and `sync`, re-sync compares both the **app** fields and the **gateway site** built from labels against what is stored. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- and gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.allowed_groups`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, `muximux.gateway.forwarded_headers`, and `muximux.gateway.skip_tls_verify` -- all propagate on the next tick. Toggling `muximux.gateway.require_auth` on a running container, for example, is re-synced without any app-field change.
 
-Gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, and `muximux.gateway.forwarded_headers` -- are **not** picked up by re-sync. Changing one of these labels on a running, already-imported container has no effect until either an app field also changes, or you remove and re-add the container (which re-imports it from scratch). So if you rely on, say, toggling `muximux.gateway.require_auth` via a label, know that auto-import will not apply that toggle on its own.
+Removing the `muximux.app.gateway.domain` label from an already-imported container reverts its app to the direct container URL and drops the now-orphaned gateway site on the next tick.
 
 ---
 

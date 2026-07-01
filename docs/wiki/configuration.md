@@ -64,6 +64,7 @@ server:
       streaming: false                   # disable Caddy response buffering for live data
       strip_frame_blockers: true         # strip X-Frame-Options for iframe embedding
       forwarded_headers: true            # forward X-Forwarded-Proto/Host/Real-IP
+      backend_skip_tls_verify: false     # skip verifying a self-signed HTTPS backend (Proxmox); https backends only
       proxy_headers: {}                  # extra headers injected on upstream requests
       # Optional: also surface this site in the dashboard menu
       app_name: ""                       # link to an existing app by name

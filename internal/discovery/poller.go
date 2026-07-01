@@ -171,11 +171,14 @@ func (p *Poller) tick(ctx context.Context) {
 	autoImport := config.NormalizeAutoImport(p.deps.Config.Discovery.Docker.AutoImport)
 	dashboardDomain := p.deps.Config.Server.TLS.Domain
 	tracked := p.collectTracked()
-	// Snapshot the current apps for the reconcile diff while we hold the
-	// read lock. Only needed when auto-import is active.
+	// Snapshot the current apps and gateway sites for the reconcile diff
+	// while we hold the read lock. Sites are needed so a gateway-only
+	// label change is detected. Only relevant when auto-import is active.
 	var currentApps []config.AppConfig
+	var currentSites []config.GatewaySite
 	if autoImport != config.AutoImportOff {
 		currentApps = append([]config.AppConfig(nil), p.deps.Config.Apps...)
+		currentSites = append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
 	}
 	p.deps.ConfigMu.RUnlock()
 
@@ -284,18 +287,18 @@ func (p *Poller) tick(ctx context.Context) {
 
 	// Auto-import reconcile. Scan the daemon for labeled containers, map
 	// each Suggestion to its Desired config, diff against the current
-	// apps, and fold the resulting plan into the SAME batch so the
-	// refresh and the auto-import commit atomically (one SaveConfig, one
-	// rollback) in applyRefreshBatch below.
+	// apps AND gateway sites, and fold the resulting plan into the SAME
+	// batch so the refresh and the auto-import commit atomically (one
+	// SaveConfig, one rollback) in applyRefreshBatch below.
 	//
-	// Known, deliberate limitation (approved design): Reconcile's Update
-	// only detects APP-field changes. gateway.domain / gateway.tls change
-	// App.URL so they DO propagate. But a change to a gateway-ONLY field
-	// (require_auth, min_role, streaming, strip_frame_blockers,
-	// forwarded_headers) that leaves every app field unchanged will NOT
-	// trigger an Update, so that site-field change does not propagate
-	// until the container is removed and re-added. We intentionally do
-	// NOT gateway-site field-diff here; update mode re-syncs app fields.
+	// Reconcile's Update fires when either an app field OR a label-derived
+	// gateway-site field differs, so gateway-only labels (require_auth,
+	// min_role, allowed_groups, streaming, strip_frame_blockers,
+	// forwarded_headers, skip_tls_verify) propagate on the next tick even
+	// when no app field changed. Dropping the gateway.domain label reverts
+	// the app to its container URL and drops the orphaned site
+	// (applyReconcile). currentSites is the snapshot Reconcile diffs the
+	// desired sites against.
 	//
 	// Overlap note: for a non-gateway auto app whose container IP changed
 	// with no label change, the URL-refresh pass above and Reconcile's
@@ -308,7 +311,7 @@ func (p *Poller) tick(ctx context.Context) {
 		for i := range scan.Suggestions {
 			desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 		}
-		plan := Reconcile(autoImport, desired, currentApps)
+		plan := Reconcile(autoImport, desired, currentApps, currentSites)
 		for i := range plan.Add {
 			batch.addApps = append(batch.addApps, plan.Add[i].App)
 			if plan.Add[i].Site != nil {
@@ -712,6 +715,40 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 			cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, ns)
 		}
 		touchedGateway = true
+	}
+
+	// Drop orphaned sites: an updated entry whose app was replaced but
+	// that carries no desired site (its gateway domain label was removed)
+	// leaves a stale site behind, since the update loop above only
+	// replaces or inserts. Reconcile it away by DockerKey.
+	//
+	// This relies on an invariant: dropping the gateway.domain label
+	// always changes App.URL (public domain -> container URL), so the
+	// entry is always present in updateApps whenever its site must be
+	// orphaned. sameManagedFields compares URL, so the Update is
+	// guaranteed. If that ever stops holding, a dropped site could be
+	// stranded here.
+	if len(batch.updateApps) > 0 {
+		updatedKeys := make(map[string]bool, len(batch.updateApps))
+		for i := range batch.updateApps {
+			if batch.updateApps[i].DockerKey != "" {
+				updatedKeys[batch.updateApps[i].DockerKey] = true
+			}
+		}
+		keptSiteKeys := make(map[string]bool, len(batch.updateSites))
+		for i := range batch.updateSites {
+			keptSiteKeys[batch.updateSites[i].DockerKey] = true
+		}
+		keptSites := cfg.Server.GatewaySites[:0]
+		for i := range cfg.Server.GatewaySites {
+			k := cfg.Server.GatewaySites[i].DockerKey
+			if k != "" && updatedKeys[k] && !keptSiteKeys[k] {
+				touchedGateway = true
+				continue // gateway domain was dropped from this entry
+			}
+			keptSites = append(keptSites, cfg.Server.GatewaySites[i])
+		}
+		cfg.Server.GatewaySites = keptSites
 	}
 
 	// Additions.

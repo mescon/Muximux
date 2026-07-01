@@ -58,8 +58,12 @@ type GatewaySite struct {
 	TLSKey             string
 	StripFrameBlockers bool
 	Streaming          bool
-	ProxyHeaders       map[string]string
-	ForwardedHeaders   *bool
+	// BackendSkipTLSVerify disables backend TLS-certificate
+	// verification (self-signed backends like Proxmox). Only emitted
+	// when BackendURL is https.
+	BackendSkipTLSVerify bool
+	ProxyHeaders         map[string]string
+	ForwardedHeaders     *bool
 	// RequireAuth, when true, makes the generator emit a
 	// forward_auth directive ahead of reverse_proxy that calls
 	// back to Muximux's GatewayAuthHandler on the internal port.
@@ -561,6 +565,18 @@ func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, in
 	// Custom upstream headers (auth tokens, backend API keys).
 	for k, v := range s.ProxyHeaders {
 		fmt.Fprintf(b, "\t\theader_up %s %q\n", k, v)
+	}
+
+	// Backend TLS verification skip for self-signed HTTPS backends
+	// (e.g. Proxmox on :8006). Only meaningful over https; enabling the
+	// http transport with tls_insecure_skip_verify implicitly turns on
+	// TLS, so we gate it on an https upstream to avoid forcing TLS onto
+	// a plain-http backend. TrimSpace mirrors normalizeUpstream so a
+	// stored URL with incidental whitespace still matches.
+	if s.BackendSkipTLSVerify && strings.HasPrefix(strings.ToLower(strings.TrimSpace(s.BackendURL)), "https://") {
+		b.WriteString("\t\ttransport http {\n")
+		b.WriteString("\t\t\ttls_insecure_skip_verify\n")
+		b.WriteString("\t\t}\n")
 	}
 
 	b.WriteString("\t}\n")

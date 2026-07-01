@@ -245,6 +245,13 @@ type GatewaySite struct {
 	// Jellyfin, Grafana, Home Assistant: on. Most apps: leave off.
 	Streaming bool `yaml:"streaming,omitempty" json:"streaming,omitempty"`
 
+	// BackendSkipTLSVerify disables verification of the backend's TLS
+	// certificate (Caddy `transport http { tls_insecure_skip_verify }`).
+	// It only takes effect when BackendURL is https; use it for backends
+	// that serve a self-signed or otherwise untrusted certificate, such
+	// as Proxmox on :8006. Leaves the public-facing TLS unaffected.
+	BackendSkipTLSVerify bool `yaml:"backend_skip_tls_verify,omitempty" json:"backend_skip_tls_verify,omitempty"`
+
 	// ProxyHeaders are HTTP headers injected on the upstream request.
 	// Use to forward backend API keys, Authorization tokens, etc.
 	ProxyHeaders map[string]string `yaml:"proxy_headers,omitempty" json:"proxy_headers,omitempty"`
