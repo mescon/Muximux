@@ -2724,6 +2724,28 @@ func TestRewriteScriptPreservesJSStringLiterals(t *testing.T) {
 			input:    `b.integrity=b.sriHashes[c],b.sriHashes={x:"y"}`,
 			expected: `b.sriHashes={}`,
 		},
+		{
+			// A regex literal that mentions import(...) must not be
+			// touched: no quoted absolute-path specifier is present.
+			name:     "regex literal referencing import is preserved",
+			input:    `var re=/import\(["']\/[^"']+["']\)/g;`,
+			expected: `var re=/import\(["']\/[^"']+["']\)/g;`,
+		},
+		{
+			// Dynamic import with a non-literal (concatenated) argument
+			// is not a static specifier and must be left alone.
+			name:     "dynamic import with non-literal arg is preserved",
+			input:    `import("/"+name)`,
+			expected: `import("/"+name)`,
+		},
+		{
+			// The urlBase heuristic must skip member/qualified names: the
+			// identifier-boundary guard means `x.baseUrl=""` is not an
+			// app-base-path config and stays untouched.
+			name:     "member-access baseUrl is not treated as base config",
+			input:    `obj.baseUrl="";other.baseUrl="x"`,
+			expected: `obj.baseUrl="";other.baseUrl="x"`,
+		},
 	}
 
 	for _, tt := range tests {
