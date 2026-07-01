@@ -274,3 +274,6 @@ start/stop/restart buttons return an error.
    and audit-logged.
 3. Confirm discovery is enabled (`discovery.docker.enabled: true`) and check
    the server logs for socket connection errors on startup.
+4. For rootless Docker, a docker-socket-proxy sidecar, or a custom socket
+   path, set the `DOCKER_SOCKET` and `DOCKER_GID` override env vars (see
+   [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux)).

@@ -22,6 +22,7 @@ When authentication is enabled, most endpoints require a valid session cookie or
 | `/api/auth/users/{username}` | PUT | Admin | Update user role/email/display name |
 | `/api/auth/users/{username}` | DELETE | Admin | Delete a user |
 | `/api/auth/method` | PUT | Admin | Switch authentication method |
+| `/api/auth/api-key` | GET | Admin | Report whether an instance API key is configured (never returns the key) |
 | `/api/auth/api-key` | POST | Admin | Generate or rotate the instance API key |
 | `/api/auth/api-key` | DELETE | Admin | Clear the instance API key |
 | `/api/auth/setup` | POST | No (but requires `X-Setup-Token`) | Initial setup (onboarding wizard). See [Authentication > First-Run Setup](authentication.md#first-run-setup) for the token. |

@@ -154,7 +154,7 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
 | LDAP injection | No LDAP integration |
 | SMS/phone OTP | Not offered as an auth method |
 | Hardware security modules | Self-hosted single-binary app |
-| File upload malware scanning | No untrusted user file uploads. Custom-icon upload (PNG/SVG/JPG/WebP, 2 MB cap, admin-only, type-validated) and config import are the only upload paths; both are size-limited and validated. |
+| File upload malware scanning | No untrusted user file uploads. Custom-icon upload (PNG/SVG/JPG/WebP/GIF, 2 MB cap, admin-only, type-validated) and config import are the only upload paths; both are size-limited and validated. |
 | Multi-tenant data isolation | Single-tenant application |
 | WebSocket message authentication | WebSocket is used for read-only log streaming, not commands |
 
