@@ -113,13 +113,25 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	cfg := *h.config
-	h.mu.RUnlock()
-
-	// Deep-copy slices that will be mutated to avoid writing through the
-	// shared backing array into the live config.
+	// Copy the slices we will read during the (unlocked) marshal off the
+	// live backing arrays. The poller and UpdateApp mutate Apps/Groups/
+	// GatewaySites elements in place under the write lock, so marshalling
+	// the shared arrays after RUnlock is a data race. Copying under the
+	// lock is safe (RLock excludes the writer); the marshal then runs on
+	// our private arrays. Users additionally gets its secrets stripped.
 	users := make([]config.UserConfig, len(cfg.Auth.Users))
 	copy(users, cfg.Auth.Users)
 	cfg.Auth.Users = users
+	apps := make([]config.AppConfig, len(cfg.Apps))
+	copy(apps, cfg.Apps)
+	cfg.Apps = apps
+	groups := make([]config.GroupConfig, len(cfg.Groups))
+	copy(groups, cfg.Groups)
+	cfg.Groups = groups
+	sites := make([]config.GatewaySite, len(cfg.Server.GatewaySites))
+	copy(sites, cfg.Server.GatewaySites)
+	cfg.Server.GatewaySites = sites
+	h.mu.RUnlock()
 
 	// Strip sensitive auth data
 	for i := range cfg.Auth.Users {

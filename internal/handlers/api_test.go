@@ -2852,3 +2852,31 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		}
 	})
 }
+
+// TestExportConfig_NoRaceWithConcurrentAppMutation guards the config
+// export against a data race: ExportConfig takes a shallow copy of the
+// config and marshals it after releasing the lock, so the marshal read of
+// cfg.Apps[i] must not alias a slice the poller/UpdateApp mutate in place.
+// Fails under -race unless Apps/Groups/GatewaySites are copied under the
+// lock (like Users already is).
+func TestExportConfig_NoRaceWithConcurrentAppMutation(t *testing.T) {
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "a", URL: "http://a"}}}
+	var mu sync.RWMutex
+	h := NewAPIHandler(cfg, "", &mu)
+
+	urls := []string{"http://a-0", "http://a-1"}
+	done := make(chan struct{})
+	go func() {
+		for i := 0; i < 2000; i++ {
+			mu.Lock()
+			cfg.Apps[0].URL = urls[i%2]
+			mu.Unlock()
+		}
+		close(done)
+	}()
+	for i := 0; i < 2000; i++ {
+		w := httptest.NewRecorder()
+		h.ExportConfig(w, httptest.NewRequest(http.MethodGet, "/api/config/export", nil))
+	}
+	<-done
+}
