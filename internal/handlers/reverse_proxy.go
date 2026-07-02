@@ -1500,6 +1500,17 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		return nil
 	}
 
+	// A non-gzip Content-Encoding (br, deflate, zstd, ...) can't be decoded
+	// here. Rewriting would run the regexes over compressed bytes (a no-op)
+	// and then strip the Content-Encoding header off a still-compressed
+	// body -- garbage to the browser. We only ask backends for `gzip,
+	// identity`, but one that ignores Accept-Encoding could still send
+	// another; forward it untouched rather than corrupt it.
+	if ce := strings.TrimSpace(resp.Header.Get(headerContentEncoding)); ce != "" &&
+		!strings.Contains(ce, "gzip") && !strings.EqualFold(ce, "identity") {
+		return nil
+	}
+
 	orig := resp.Body
 	var reader io.Reader = orig
 	isGzipped := strings.Contains(resp.Header.Get(headerContentEncoding), "gzip")

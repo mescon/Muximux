@@ -3859,3 +3859,30 @@ func TestBuildDirector_ExpandsIdentityHeaders(t *testing.T) {
 		t.Errorf("static header must be unchanged: %q", got)
 	}
 }
+
+// TestRewriteResponseBody_NonGzipEncodingPassThrough: a response with a
+// non-gzip Content-Encoding (e.g. br) must be forwarded untouched -- body
+// AND the encoding header -- not have its header stripped off a still-
+// compressed body.
+func TestRewriteResponseBody_NonGzipEncodingPassThrough(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	body := "\x1b\x2f\x00brotli-compressed-bytes-here" // opaque compressed bytes
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: int64(len(body)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "br")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Header.Get("Content-Encoding") != "br" {
+		t.Errorf("Content-Encoding must be preserved, got %q", resp.Header.Get("Content-Encoding"))
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if string(got) != body {
+		t.Errorf("body must be forwarded byte-for-byte")
+	}
+}
