@@ -379,15 +379,13 @@ func HashAPIKey(key string) string {
 
 // VerifyAPIKey checks a presented key against the stored hash in constant
 // time. It accepts the new sha256: form (fast) and a legacy bcrypt hash
-// (backward compatible; slow). A stored bcrypt hash is migrated to the
-// sha256: form when the key is next rotated (GenerateAPIKey); until then a
-// legacy install keeps paying bcrypt's per-verify cost, so the DoS
-// mitigation only takes full effect after a rotation.
+// (backward compatible; slow).
 //
-// The legacy bool reports whether the match used the bcrypt path. It is
-// currently unused by matchAPIKey (which has no config-write path on the
-// auth hot path) but is returned so a future opportunistic-upgrade hook
-// can re-hash the presented key on a successful legacy verify.
+// The legacy bool reports whether the match used the bcrypt path.
+// matchAPIKey consumes it to opportunistically migrate a legacy bcrypt hash
+// to the sha256: form on the first successful verify (via onAPIKeyUpgrade),
+// so an existing install closes the unauthenticated bcrypt DoS window
+// without waiting for a manual key rotation.
 func VerifyAPIKey(provided, stored string) (ok bool, legacy bool) {
 	if provided == "" || stored == "" {
 		return false, false

@@ -595,7 +595,10 @@ func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, in
 	// no worse than the old code, which already replaced the backend CSP.
 	if s.StripFrameBlockers {
 		b.WriteString("\theader -X-Frame-Options\n")
-		if dashboardDomain != "" && !strings.ContainsAny(dashboardDomain, " \t\r\n\"'{}") {
+		// The blacklist includes backslash: inside a Caddyfile double-quoted
+		// token only \" is an escape, so a trailing backslash (example.com\)
+		// would escape the closing quote and corrupt the rest of the config.
+		if dashboardDomain != "" && !strings.ContainsAny(dashboardDomain, " \t\r\n\"'{}\\") {
 			fmt.Fprintf(b, "\theader Content-Security-Policy \"frame-ancestors 'self' https://%s\"\n", dashboardDomain)
 		} else {
 			b.WriteString("\theader -Content-Security-Policy\n")

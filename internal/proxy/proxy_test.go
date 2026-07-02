@@ -381,6 +381,26 @@ func TestProxy_buildCaddyfile_GatewaySite_StripFrameBlockers(t *testing.T) {
 	if strings.Contains(cf2, "frame-ancestors") {
 		t.Errorf("fallback must not emit a restrictive frame-ancestors:\n%s", cf2)
 	}
+
+	// A dashboard domain containing a backslash must never be interpolated
+	// into the quoted Caddyfile CSP token: inside a double-quoted token only
+	// \" is an escape, so a trailing backslash would escape the closing
+	// quote and corrupt the config. Fall back to stripping instead.
+	p3 := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		Domain:       "evil.example.com\\",
+		GatewaySites: []GatewaySite{{
+			Domain: "embedded.example.com", BackendURL: "http://app:8080", StripFrameBlockers: true,
+		}},
+	})
+	cf3 := p3.buildCaddyfile()
+	if strings.Contains(cf3, "frame-ancestors") {
+		t.Errorf("a backslash in the dashboard domain must not reach the CSP token:\n%s", cf3)
+	}
+	if !strings.Contains(cf3, "header -Content-Security-Policy") {
+		t.Errorf("expected fallback to stripping CSP for an unsafe dashboard domain:\n%s", cf3)
+	}
 }
 
 func TestProxy_buildCaddyfile_GatewaySite_ProxyHeaders(t *testing.T) {
