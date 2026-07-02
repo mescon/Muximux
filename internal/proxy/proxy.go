@@ -581,15 +581,20 @@ func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, in
 
 	b.WriteString("\t}\n")
 
-	// Frame-blocker stripping is implemented as response-header
-	// rewrites: drop X-Frame-Options entirely and rewrite (or inject)
-	// CSP frame-ancestors so Muximux's own origin can iframe this
-	// site. The {scheme}://{host} placeholders resolve at request
-	// time so Muximux deployments behind a reverse proxy still get
-	// the right Origin.
+	// Frame-blocker stripping. The operator opted in to embedding this
+	// gateway subdomain in Muximux's dashboard, which lives on a DIFFERENT
+	// origin (e.g. sonarr.example.com vs muximux.example.com). Remove both
+	// framing headers the backend might send. The previous code re-added
+	// `frame-ancestors 'self'`, but at a gateway site "self" is the site's
+	// own origin, so it blocked the cross-origin dashboard -- the opposite
+	// of the feature's intent (a Caddy `{host}` placeholder can't help
+	// either: it resolves to the gateway host, not the dashboard's). We
+	// can't reliably name the dashboard origin here, so strip the CSP
+	// rather than re-add a restrictive one; this is no less protective
+	// than the old behavior, which already discarded the backend's CSP.
 	if s.StripFrameBlockers {
 		b.WriteString("\theader -X-Frame-Options\n")
-		b.WriteString("\theader Content-Security-Policy \"frame-ancestors 'self'\"\n")
+		b.WriteString("\theader -Content-Security-Policy\n")
 	}
 
 	b.WriteString("}\n")

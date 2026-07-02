@@ -359,11 +359,14 @@ func TestProxy_buildCaddyfile_GatewaySite_StripFrameBlockers(t *testing.T) {
 	if !strings.Contains(cf, "header -X-Frame-Options") {
 		t.Error("expected X-Frame-Options strip directive")
 	}
-	if !strings.Contains(cf, "Content-Security-Policy") {
-		t.Error("expected CSP frame-ancestors directive")
+	if !strings.Contains(cf, "header -Content-Security-Policy") {
+		t.Error("expected the backend CSP to be stripped so the dashboard can embed the site")
 	}
-	if !strings.Contains(cf, "frame-ancestors 'self'") {
-		t.Error("expected frame-ancestors 'self' value")
+	// The old code re-added `frame-ancestors 'self'`, which (since a
+	// gateway site is a different origin than the dashboard) blocked the
+	// embed -- the opposite of the feature's intent. It must not reappear.
+	if strings.Contains(cf, "frame-ancestors") {
+		t.Errorf("must NOT re-add a restrictive frame-ancestors CSP:\n%s", cf)
 	}
 }
 
