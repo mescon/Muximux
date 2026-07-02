@@ -59,10 +59,23 @@ func (h *APIHandler) SetDockerLifecycleDeps(svc DockerServiceAPI, hub DockerHubB
 // NewAPIHandler creates a new API handler
 func NewAPIHandler(cfg *config.Config, configPath string, mu *sync.RWMutex) *APIHandler {
 	return &APIHandler{
-		config:       cfg,
-		configPath:   configPath,
-		mu:           mu,
-		actionClient: &http.Client{Timeout: 10 * time.Second},
+		config:     cfg,
+		configPath: configPath,
+		mu:         mu,
+		actionClient: &http.Client{
+			Timeout: 10 * time.Second,
+			// Do not follow redirects. http_action targets are admin-
+			// configured (a private-IP homelab webhook is legitimate, so
+			// the initial request is intentionally not IP-filtered), but a
+			// redirect Location is controlled by the target server -- an
+			// external target that 302s to a link-local/loopback address
+			// would turn this into a server-side SSRF probe. Returning the
+			// 3xx as-is keeps the direct-hit use case working while closing
+			// the redirect vector.
+			CheckRedirect: func(*http.Request, []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		},
 	}
 }
 

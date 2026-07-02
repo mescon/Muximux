@@ -17,6 +17,44 @@ import (
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
+// TestActionClient_DoesNotFollowRedirects: http_action targets are
+// admin-configured (a private-IP homelab webhook is legitimate, so the
+// initial request is not IP-filtered), but the redirect Location is
+// controlled by the target server -- an external target that 302s to
+// 169.254.169.254 or 127.0.0.1 would let it drive internal requests
+// server-side. The client must not follow redirects.
+func TestActionClient_DoesNotFollowRedirects(t *testing.T) {
+	internalHit := false
+	internal := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		internalHit = true
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer internal.Close()
+	redirector := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, internal.URL+"/latest/meta-data/", http.StatusFound)
+	}))
+	defer redirector.Close()
+
+	h := NewAPIHandler(&config.Config{}, "", &sync.RWMutex{})
+	req, err := http.NewRequest(http.MethodGet, redirector.URL, nil)
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+	resp, err := h.actionClient.Do(req)
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
+
+	if resp.StatusCode != http.StatusFound {
+		t.Errorf("redirect must not be followed; want 302, got %d", resp.StatusCode)
+	}
+	if internalHit {
+		t.Error("actionClient followed the redirect to the internal target (SSRF)")
+	}
+}
+
 func newFireActionTest(t *testing.T, app *config.AppConfig, upstream http.HandlerFunc) *APIHandler {
 	t.Helper()
 	server := httptest.NewServer(upstream)
