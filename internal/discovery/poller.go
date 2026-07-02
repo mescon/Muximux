@@ -282,7 +282,14 @@ func (p *Poller) tick(ctx context.Context) {
 	}
 
 	svc := p.deps.Service
-	if svc == nil || svc.client == nil {
+	if svc == nil {
+		return
+	}
+	// Snapshot the client once for the whole tick under the Service lock,
+	// so a runtime Reconfigure (endpoint change) swaps it cleanly between
+	// ticks rather than mid-tick.
+	client := svc.currentClient()
+	if client == nil {
 		return
 	}
 
@@ -294,7 +301,7 @@ func (p *Poller) tick(ctx context.Context) {
 	// for the full tick. A daemon listing failure aborts the tick
 	// cleanly - we don't want to half-resolve and possibly mark
 	// containers as "not found" because the daemon was unreachable.
-	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: false})
+	containers, err := client.ListContainers(ctx, ListContainersOpts{All: false})
 	if err != nil {
 		if !p.daemonDown {
 			p.daemonDown = true
@@ -934,7 +941,11 @@ func diffDockerStates(prev, next map[string]DockerState) []dockerStateDiff {
 // changes. Runs at the end of every tick after the URL refresh batch.
 func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 	svc := p.deps.Service
-	if svc == nil || svc.client == nil {
+	if svc == nil {
+		return
+	}
+	client := svc.currentClient()
+	if client == nil {
 		return
 	}
 
@@ -944,7 +955,7 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 	// still read as its real state ("exited") so the dashboard keeps
 	// offering Start. Resolving it against the running-only list would
 	// drop it to "missing" and the lifecycle actions would vanish.
-	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: true})
+	containers, err := client.ListContainers(ctx, ListContainersOpts{All: true})
 	if err != nil {
 		// Transient daemon failure: leave the cache untouched rather
 		// than blinking every tracked app to "missing" for one tick.
@@ -972,7 +983,7 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 
 	prev := svc.DockerStateSnapshot()
 	inspect := func(ctx context.Context, id string) (DockerState, error) {
-		return svc.client.InspectContainerState(ctx, id)
+		return client.InspectContainerState(ctx, id)
 	}
 	next := buildDockerStateCache(ctx, tracked.apps, resolved, inspect, prev)
 	svc.SetDockerStateCache(next)

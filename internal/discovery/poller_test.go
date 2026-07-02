@@ -1891,3 +1891,74 @@ func TestDedupeDesiredNames(t *testing.T) {
 		t.Errorf("winner should be the lowest DockerKey (label:a), got %q", names["Sonarr"])
 	}
 }
+
+// TestService_ReconfigureReachesPoller proves the runtime-config fix: the
+// poller and the service share one *Service, so reconfiguring it in place
+// (enable discovery / change endpoint at runtime) reaches the poller
+// without a restart -- rather than only the discovery handler seeing a
+// freshly-swapped pointer.
+func TestService_ReconfigureReachesPoller(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	// Service starts disabled (no client); the poller shares it.
+	svc := NewService(&config.DiscoveryDockerConfig{Enabled: false})
+	if svc.currentClient() != nil {
+		t.Fatal("disabled service must have no client")
+	}
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+
+	p.tick(context.Background())
+	if len(cfg.Apps) != 0 {
+		t.Fatalf("poller must not import while the service has no client; apps=%+v", cfg.Apps)
+	}
+
+	// Enable at runtime by reconfiguring the SAME service pointer.
+	svc.Reconfigure(dockerCfg)
+	if svc.currentClient() == nil {
+		t.Fatal("reconfigured (enabled) service must have a client")
+	}
+	p.tick(context.Background())
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Error("after Reconfigure the poller must pick up the new client and import")
+	}
+
+	// Disabling clears the client again.
+	svc.Reconfigure(&config.DiscoveryDockerConfig{Enabled: false})
+	if svc.currentClient() != nil {
+		t.Error("disabling must clear the client")
+	}
+}
+
+// TestService_ReconfigureConcurrentWithReaders validates the lock pairing
+// between Reconfigure (writes cfg/client under s.mu) and readers like
+// currentClient/Status. Meaningful under -race. Uses empty-endpoint
+// configs so no socket probe runs (kept fast).
+func TestService_ReconfigureConcurrentWithReaders(t *testing.T) {
+	svc := NewService(&config.DiscoveryDockerConfig{Enabled: false})
+	a := config.DiscoveryDockerConfig{Enabled: true, Endpoint: ""}
+	b := config.DiscoveryDockerConfig{Enabled: false}
+	done := make(chan struct{})
+	go func() {
+		for i := 0; i < 100; i++ {
+			if i%2 == 0 {
+				svc.Reconfigure(&a)
+			} else {
+				svc.Reconfigure(&b)
+			}
+		}
+		close(done)
+	}()
+	for {
+		select {
+		case <-done:
+			return
+		default:
+			_ = svc.currentClient()
+			_ = svc.Status(context.Background())
+		}
+	}
+}

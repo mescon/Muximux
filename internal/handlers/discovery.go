@@ -215,13 +215,16 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 	}
 	h.configMu.Unlock()
 
-	// Rebuild the service. NewService is cheap (no network calls)
-	// and returns a non-nil pointer even when the new config is
-	// disabled or has a structurally bad endpoint.
-	newService := discovery.NewService(&newCfg)
-	h.serviceMu.Lock()
-	h.service = newService
-	h.serviceMu.Unlock()
+	// Reconfigure the shared service IN PLACE. The same *Service is held
+	// by the poller and the lifecycle op closures, so rebuilding it in
+	// place (rather than swapping only this handler's pointer) makes the
+	// change take effect everywhere without a restart -- enabling
+	// discovery, changing the endpoint, etc. all reach the poller and
+	// lifecycle handlers on the next tick / action.
+	h.serviceMu.RLock()
+	svc := h.service
+	h.serviceMu.RUnlock()
+	svc.Reconfigure(&newCfg)
 
 	logging.Audit("Discovery config updated",
 		"endpoint", newCfg.Endpoint,
@@ -229,7 +232,7 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 		"enabled", newCfg.Enabled)
 
 	// Return the fresh status so the UI can update without a follow-up GET.
-	sendJSON(w, http.StatusOK, newService.Status(r.Context()))
+	sendJSON(w, http.StatusOK, svc.Status(r.Context()))
 }
 
 // ScanDocker handles GET /api/discovery/docker/scan. Walks the
