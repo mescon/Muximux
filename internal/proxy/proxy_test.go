@@ -344,29 +344,42 @@ func TestProxy_buildCaddyfile_GatewaySite_StreamingFlushInterval(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_GatewaySite_StripFrameBlockers(t *testing.T) {
+	// With a dashboard domain configured, the CSP is scoped to allow the
+	// site itself AND the dashboard origin (embed works; other origins
+	// blocked -- no clickjacking).
 	p := New(&Config{
 		ListenAddr:   ":8080",
 		InternalAddr: "127.0.0.1:18080",
+		Domain:       "muximux.example.com",
 		GatewaySites: []GatewaySite{{
 			Domain:             "embedded.example.com",
 			BackendURL:         "http://app:8080",
 			StripFrameBlockers: true,
 		}},
 	})
-
 	cf := p.buildCaddyfile()
-
 	if !strings.Contains(cf, "header -X-Frame-Options") {
 		t.Error("expected X-Frame-Options strip directive")
 	}
-	if !strings.Contains(cf, "header -Content-Security-Policy") {
-		t.Error("expected the backend CSP to be stripped so the dashboard can embed the site")
+	if !strings.Contains(cf, "frame-ancestors 'self' https://muximux.example.com") {
+		t.Errorf("expected a scoped frame-ancestors allowing the dashboard origin:\n%s", cf)
 	}
-	// The old code re-added `frame-ancestors 'self'`, which (since a
-	// gateway site is a different origin than the dashboard) blocked the
-	// embed -- the opposite of the feature's intent. It must not reappear.
-	if strings.Contains(cf, "frame-ancestors") {
-		t.Errorf("must NOT re-add a restrictive frame-ancestors CSP:\n%s", cf)
+
+	// Without a dashboard domain (e.g. behind an external proxy), fall
+	// back to stripping the backend CSP so the embed still works.
+	p2 := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{{
+			Domain: "embedded.example.com", BackendURL: "http://app:8080", StripFrameBlockers: true,
+		}},
+	})
+	cf2 := p2.buildCaddyfile()
+	if !strings.Contains(cf2, "header -Content-Security-Policy") {
+		t.Errorf("with no dashboard domain, expected the backend CSP to be stripped:\n%s", cf2)
+	}
+	if strings.Contains(cf2, "frame-ancestors") {
+		t.Errorf("fallback must not emit a restrictive frame-ancestors:\n%s", cf2)
 	}
 }
 
