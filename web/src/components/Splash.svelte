@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import type { App, Config, DockerState } from '$lib/types';
+  import { safeColor } from '$lib/safeColor';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
@@ -289,7 +290,7 @@
                     <!-- Glow effect -->
                     <div
                       class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-40 transition-opacity blur-xl"
-                      style="background: {app.color || 'var(--accent-primary)'};"
+                      style="background: {safeColor(app.color, 'var(--accent-primary)')};"
                     ></div>
                     <div class="relative app-icon-wrapper">
                       <AppIcon icon={app.icon} name={app.name} color={app.color} size="xl" />
@@ -308,7 +309,7 @@
                   <!-- Color accent bar at bottom -->
                   <div
                     class="app-card-accent"
-                    style="background: {app.color || 'var(--accent-primary)'};"
+                    style="background: {safeColor(app.color, 'var(--accent-primary)')};"
                   ></div>
                 </button>
 
