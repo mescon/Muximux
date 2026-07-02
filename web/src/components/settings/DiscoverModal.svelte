@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { focusTrap } from '$lib/focusTrap';
   import type { App, DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, GatewaySite, AppIcon as AppIconType } from '$lib/types';
   import { scanDockerContainers, importDockerSuggestions } from '$lib/api';
   import AppIcon from '../AppIcon.svelte';
@@ -337,11 +337,11 @@
 {/snippet}
 
 {#if open}
-  <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="discover-modal-title" tabindex="-1" use:focusTrap={{ onEscape: onclose }}>
     <div class="bg-bg-base border border-border rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
       <header class="px-5 py-4 border-b border-border flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-semibold text-text-primary">Discover from Docker</h2>
+          <h2 id="discover-modal-title" class="text-lg font-semibold text-text-primary">Discover from Docker</h2>
           <p class="text-xs text-text-muted mt-0.5">
             {#if mode === 'apps'}
               Each container becomes an app in your menu by default. Toggle "Gateway" to also expose it on a subdomain.

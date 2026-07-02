@@ -23,10 +23,21 @@ function focusableWithin(node: HTMLElement): HTMLElement[] {
   );
 }
 
-export function focusTrap(node: HTMLElement) {
+export interface FocusTrapParams {
+  // Called when Escape is pressed while focus is inside the dialog. Wire it
+  // to the modal's close handler so the dialog is dismissable by keyboard.
+  onEscape?: () => void;
+}
+
+export function focusTrap(node: HTMLElement, params: FocusTrapParams = {}) {
   const previouslyFocused = document.activeElement as HTMLElement | null;
 
   function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && params.onEscape) {
+      e.preventDefault();
+      params.onEscape();
+      return;
+    }
     if (e.key !== 'Tab') return;
     const focusable = focusableWithin(node);
     if (focusable.length === 0) {
@@ -57,6 +68,9 @@ export function focusTrap(node: HTMLElement) {
   node.addEventListener('keydown', handleKeydown);
 
   return {
+    update(next: FocusTrapParams = {}) {
+      params = next;
+    },
     destroy() {
       node.removeEventListener('keydown', handleKeydown);
       // Restore focus to where it was before the dialog opened, so keyboard

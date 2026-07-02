@@ -50,6 +50,15 @@ describe('focusTrap', () => {
     expect(document.activeElement).toBe(last);
   });
 
+  it('calls onEscape when Escape is pressed inside the dialog', () => {
+    let escaped = 0;
+    focusTrap(dialog, { onEscape: () => { escaped += 1; } });
+    const ev = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    dialog.dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBe(true);
+    expect(escaped).toBe(1);
+  });
+
   it('restores focus to the previously-focused element on destroy', () => {
     const handle = focusTrap(dialog);
     expect(document.activeElement).toBe(first);
