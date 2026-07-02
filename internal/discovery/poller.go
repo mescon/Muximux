@@ -55,6 +55,45 @@ type Poller struct {
 	// warning - we want to surface a config typo once when it
 	// happens (or on the first tick after edit), not every tick.
 	lastBadInterval string
+	// syncAbsent tracks how many consecutive successful scans each
+	// sync-mode removal candidate has been missing (removal
+	// hysteresis). See gateSyncRemovals. Only touched from tick(),
+	// which runs one at a time, so it needs no lock.
+	syncAbsent map[string]int
+}
+
+// syncRemovalGraceTicks is how many consecutive successful scans a
+// tracked container must be absent before sync mode removes its app and
+// gateway site. This stops a single transient empty or partial scan (a
+// mass container restart, or a network_filter that briefly matches
+// nothing) from wiping every auto-imported entry, while still honoring
+// the GitOps-mirror contract once the absence persists. At the default
+// 60s refresh interval this is roughly a 2-minute grace.
+const syncRemovalGraceTicks = 3
+
+// gateSyncRemovals applies removal hysteresis to the sync-mode removal
+// candidates. It advances a per-key absence counter and returns only the
+// keys that have now been absent for syncRemovalGraceTicks consecutive
+// scans. Candidates that reappear (or that this tick no longer proposes)
+// drop out of the counter, so a container that returns within the grace
+// window is never removed and re-added.
+func (p *Poller) gateSyncRemovals(candidates []string) []string {
+	if len(candidates) == 0 {
+		p.syncAbsent = nil
+		return nil
+	}
+	next := make(map[string]int, len(candidates))
+	var ready []string
+	for _, k := range candidates {
+		n := p.syncAbsent[k] + 1
+		if n >= syncRemovalGraceTicks {
+			ready = append(ready, k)
+			continue
+		}
+		next[k] = n
+	}
+	p.syncAbsent = next
+	return ready
 }
 
 // NewPoller returns a configured Poller. It does NOT start the
@@ -334,7 +373,7 @@ func (p *Poller) tick(ctx context.Context) {
 					batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
 				}
 			}
-			batch.removeKeys = append(batch.removeKeys, plan.RemoveKeys...)
+			batch.removeKeys = append(batch.removeKeys, p.gateSyncRemovals(plan.RemoveKeys)...)
 		}
 	}
 

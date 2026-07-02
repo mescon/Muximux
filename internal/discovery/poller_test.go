@@ -1235,16 +1235,22 @@ func TestTick_AutoImportSyncRemovesVanished(t *testing.T) {
 		OnSave: func() error { saveCalls++; return nil },
 	})
 
-	p.tick(context.Background())
+	// Removal is subject to the absence grace window (hysteresis), so the
+	// container must be missing across syncRemovalGraceTicks scans before
+	// sync removes it. Tick through the grace; only the final tick commits
+	// the removal (one Save).
+	for i := 0; i < syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
 
 	if findAppByKey(cfg, "label:gone") != nil {
-		t.Errorf("sync mode should remove vanished auto app; apps=%+v", cfg.Apps)
+		t.Errorf("sync mode should remove vanished auto app after the grace period; apps=%+v", cfg.Apps)
 	}
 	if findSiteByKey(cfg, "label:gone") != nil {
-		t.Errorf("sync mode should remove the vanished gateway site; sites=%+v", cfg.Server.GatewaySites)
+		t.Errorf("sync mode should remove the vanished gateway site after the grace period; sites=%+v", cfg.Server.GatewaySites)
 	}
 	if saveCalls != 1 {
-		t.Errorf("Save called %d times, want 1", saveCalls)
+		t.Errorf("Save called %d times, want 1 (removal commits once, at the end of the grace window)", saveCalls)
 	}
 }
 
@@ -1429,7 +1435,8 @@ func TestTick_GatewaySyncReconcile_AppURLStable_SiteRefreshes(t *testing.T) {
 // app and the gateway site must be restored to their prior state.
 func TestTick_AutoImportRollbackOnSaveFailure_Gateway(t *testing.T) {
 	// Empty daemon: the tracked gateway container has vanished, so sync mode
-	// plans a removal of both the app and its sibling site.
+	// plans a removal of both the app and its sibling site once the absence
+	// grace window elapses.
 	set := []ContainerSummary{}
 	socket, cleanup := mutableDaemonForPoller(t, &set)
 	defer cleanup()
@@ -1457,7 +1464,11 @@ func TestTick_AutoImportRollbackOnSaveFailure_Gateway(t *testing.T) {
 		OnSave: func() error { return errors.New("synthetic save failure") },
 	})
 
-	p.tick(context.Background())
+	// Tick through the grace window; the final tick actually attempts the
+	// removal, whose save fails and must roll back.
+	for i := 0; i < syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
 
 	if findAppByKey(cfg, "label:sonarr-auto") == nil {
 		t.Errorf("save failure must roll back the removal; app missing, apps=%+v", cfg.Apps)
@@ -1485,6 +1496,46 @@ func gwSonarr() ContainerSummary {
 // proceeds past the URL-refresh pass) but the self-detect scan is blocked
 // (network_filter empty + no self-inspect endpoint served), so
 // svc.Scan() returns ScanBlocked with no suggestions.
+// TestTick_AutoImportSync_TransientEmptyScanDefersRemoval: a successful
+// scan that returns an empty container list is ambiguous (a transient
+// daemon hiccup looks identical to "all containers genuinely removed").
+// Removal must be deferred until the absence persists for the grace
+// window, so one empty scan can't wipe every auto-imported entry.
+func TestTick_AutoImportSync_TransientEmptyScanDefersRemoval(t *testing.T) {
+	set := []ContainerSummary{} // daemon is up (200) but the list is empty
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.5:8989",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+	}}
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy, OnSave: func() error { return nil }})
+
+	// One empty scan must not remove anything.
+	p.tick(context.Background())
+	if findAppByKey(cfg, "label:sonarr-auto") == nil || findSiteByKey(cfg, "label:sonarr-auto") == nil {
+		t.Fatal("a single empty scan must not remove the auto-imported entry")
+	}
+
+	// Sustained absence past the grace window removes it (mirror upheld).
+	for i := 0; i < syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
+	if findAppByKey(cfg, "label:sonarr-auto") != nil || findSiteByKey(cfg, "label:sonarr-auto") != nil {
+		t.Error("sustained absence should remove the auto-imported entry after the grace period")
+	}
+}
+
 func TestTick_AutoImportSync_ScanFailureDoesNotDeleteApps(t *testing.T) {
 	set := []ContainerSummary{} // container list succeeds but is empty
 	socket, cleanup := mutableDaemonForPoller(t, &set)
