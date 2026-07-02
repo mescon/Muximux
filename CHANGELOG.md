@@ -52,6 +52,10 @@ keys migrate themselves.
   remote update notes.
 - **Icon uploads require the `X-Requested-With` header** (`multipart/form-data`
   alone is no longer accepted as a CSRF marker).
+- **Container status is no longer exposed for apps a user cannot see.** The
+  docker-state endpoint (and its live updates) returned the status, image,
+  and uptime of every tracked app to any signed-in user; it now respects the
+  same `min_role` / `allowed_groups` visibility as the rest of the app.
 - Deleting a user now revokes their active sessions immediately; enabling
   built-in auth no longer briefly stores your password in the browser; and
   `strip_frame_blockers` now scopes framing to the dashboard origin instead
