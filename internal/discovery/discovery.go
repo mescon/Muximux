@@ -698,11 +698,14 @@ func (s *Service) commitPolledDockerState(next dockerStateCache, sinceSeq uint64
 // SetDockerStateCache replaces the entire cache atomically. Retained for
 // tests and non-poll callers that intentionally want a wholesale reset;
 // the poller uses snapshotDockerStateForPoll + commitPolledDockerState so
-// it does not clobber concurrent lifecycle writes.
+// it does not clobber concurrent lifecycle writes. The manual-write
+// stamps are cleared too: a wholesale reset means "forget prior manual
+// tracking", so no orphaned stamp can over-preserve a later commit.
 func (s *Service) SetDockerStateCache(next dockerStateCache) {
 	s.dockerStateMu.Lock()
 	defer s.dockerStateMu.Unlock()
 	s.dockerState = next
+	s.dockerStateManualSeq = nil
 }
 
 // DockerStateSnapshot returns a defensive copy of the current cache

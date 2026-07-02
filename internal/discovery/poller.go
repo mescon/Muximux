@@ -964,6 +964,16 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 		return
 	}
 
+	// Capture the manual-write watermark BEFORE any daemon read. next is
+	// built from container data read at/after ListContainers below, so a
+	// lifecycle write that lands concurrently with those reads must count
+	// as "after the snapshot" (seq > sinceSeq) to be preserved at commit.
+	// Snapshotting after ListContainers would leave a window where such a
+	// write is stamped seq <= sinceSeq yet next is staler than it -- e.g.
+	// a Start that creates a container the list predates, which resolves
+	// to "missing" and would otherwise clobber the fresh "running".
+	prev, sinceSeq := svc.snapshotDockerStateForPoll()
+
 	// State resolution lists ALL containers, including stopped ones.
 	// The URL-refresh scan above is running-only (a stopped container
 	// has no IP to resolve), but a stopped *tracked* container must
@@ -996,7 +1006,6 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 		}
 	}
 
-	prev, sinceSeq := svc.snapshotDockerStateForPoll()
 	inspect := func(ctx context.Context, id string) (DockerState, error) {
 		return client.InspectContainerState(ctx, id)
 	}
