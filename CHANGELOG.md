@@ -32,9 +32,9 @@ keys migrate themselves.
   action whose endpoint responded with a redirect, only the original URL is
   now requested (this closes a server-side request forgery vector). Direct
   webhook targets are unaffected.
-- **The app add/edit dialogs are now keyboard-accessible** -- focus is moved
-  into the dialog and trapped while it is open, restored on close, and
-  Escape closes it.
+- **The app add/edit and Docker-discovery dialogs are now keyboard-
+  accessible** -- focus is moved into the dialog and trapped while it is
+  open, restored on close, and Escape closes it.
 - **The Docker start/stop/restart confirmation shows progress** and stays
   open until the action finishes, instead of closing immediately.
 
@@ -57,6 +57,9 @@ keys migrate themselves.
   returned the status, image, uptime, and up/down state of every tracked app
   to any signed-in user; they now respect the same `min_role` /
   `allowed_groups` visibility as the rest of the app.
+- App, group, and icon colours are validated before being written into an
+  inline style, so a colour set via a Docker label can no longer inject
+  extra CSS declarations into the dashboard.
 - Deleting a user now revokes their active sessions immediately; enabling
   built-in auth no longer briefly stores your password in the browser; and
   `strip_frame_blockers` now scopes framing to the dashboard origin instead
