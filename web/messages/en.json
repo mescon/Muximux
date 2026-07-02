@@ -376,7 +376,7 @@
   "appForm_helpSkipTls": "Enabled by default. Disable this only if the backend has a valid, trusted TLS certificate and you want strict verification.",
   "appForm_skipTlsDesc": "Disable for backends with valid certificates",
   "appForm_customHeaders": "Custom headers",
-  "appForm_customHeadersDesc": "Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key). Use ${user}, ${role}, ${email}, ${display_name}, or ${groups} in a value to forward the signed-in user's identity.",
+  "appForm_customHeadersDesc": "Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key). Use $\\{user\\}, $\\{role\\}, $\\{email\\}, $\\{display_name\\}, or $\\{groups\\} in a value to forward the signed-in user's identity.",
   "appForm_headerName": "Header name",
   "appForm_headerValue": "Value",
   "appForm_removeHeader": "Remove header",
