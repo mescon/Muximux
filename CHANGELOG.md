@@ -2,6 +2,105 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.3.0] - 2026-07-02
+
+A broad reliability, security, and accessibility pass across the whole
+stack -- the reverse proxy, Docker discovery, auth, config persistence, and
+the frontend. One new feature (identity forwarding to proxied backends);
+everything else hardens behaviour you already rely on. Drop-in: no config
+changes required.
+
+### Added
+- **Forward the signed-in user's identity to proxied backends.** Custom
+  proxy headers now expand `${user}`, `${role}`, `${email}`,
+  `${display_name}`, and `${groups}` to the current user's values, so a
+  backend behind Muximux can trust the dashboard's authentication instead
+  of running its own login. Values are stripped of CR/LF/NUL before being
+  sent. Documented in the reverse-proxy wiki page.
+
+### Security
+- **API keys are hashed with SHA-256 instead of bcrypt.** Verifying an
+  attacker-supplied `X-Api-Key` ran bcrypt before authentication on every
+  request -- an unauthenticated CPU-amplification (DoS) vector. API keys
+  are high-entropy tokens, so a fast constant-time hash is equally
+  brute-force-resistant. Existing bcrypt hashes keep working and are
+  auto-upgraded to the new form on first successful use (no manual key
+  rotation needed).
+- **Uploaded icons are type-checked by their bytes, not the client's
+  Content-Type.** A crafted upload could claim `image/svg+xml` while
+  carrying HTML/JS and be served back with that type -- stored XSS on the
+  dashboard origin. Uploads are now sniffed and an SVG claim is honoured
+  only when the bytes actually look like SVG.
+- **The remote changelog is sanitized before rendering.** The About tab
+  rendered update-check release notes through a markdown parser and
+  `{@html}`; the content is now run through DOMPurify first, stripping
+  scripts, event-handler attributes, and `javascript:` URLs.
+- **`multipart/form-data` is no longer a stand-alone CSRF marker.** It is a
+  CORS-simple content type (sendable cross-origin with credentials and no
+  preflight), so the icon-upload endpoint was reachable by browser-form
+  CSRF. Uploads now require the `X-Requested-With` header, which the SPA
+  already sends.
+- **Docker lifecycle actions enforce per-app access.** A user who cleared
+  the lifecycle capability gate but was not allowed to see a given app
+  could still start/stop/restart its container; the per-app min-role and
+  group checks now apply to the control path too.
+- **`strip_frame_blockers` no longer strips a gateway site's framing
+  protection wholesale.** It now emits a `frame-ancestors 'self'
+  https://<dashboard>` policy scoped to the dashboard origin, so a framed
+  backend is embeddable by Muximux without being left open to clickjacking
+  from any origin.
+- **The dashboard's built-in users are honoured at gateway group gates.** A
+  built-in user's group memberships are now carried on the session, so a
+  gateway site with `allowed_groups` accepts them (previously only OIDC
+  users passed the gate).
+- `http_action` no longer follows HTTP redirects (SSRF): an action target
+  could redirect Muximux into probing link-local or loopback addresses.
+- Deleting a user now revokes their active sessions immediately, rather
+  than leaving the account usable until session expiry.
+- Restored bounded `ReadTimeout` / `ReadHeaderTimeout` on the HTTP server
+  (slowloris protection) alongside a rolling read deadline so large uploads
+  and streaming responses are not severed.
+
+### Changed
+- **The app add/edit modals are accessible dialogs.** They now expose
+  `role="dialog"` with an accessible name, trap keyboard focus while open,
+  and restore focus on close.
+- **The Docker action confirmation modal stays open while the action
+  runs.** It disables its controls, shows progress, and closes only when
+  the start/stop/restart resolves -- so a long restart gives feedback and
+  cannot be re-fired mid-flight.
+- Runtime Docker-discovery config changes are applied to the shared service
+  in place (with a stale-cache generation guard) instead of racing a
+  rebuild.
+- The health monitor is refreshed on every config save, so a newly added
+  app starts being health-checked without a restart.
+
+### Fixed
+- **Auto-import `sync` mode no longer wipes apps on a failed or empty
+  scan.** A transient daemon error, a self-detect failure, or a genuinely
+  empty scan could delete every auto-imported app and gateway site;
+  removals now require an app to be absent for several consecutive scans
+  (hysteresis) and are skipped entirely when a scan errors.
+- A Docker lifecycle state write (from a start/stop/restart) is no longer
+  clobbered by a poll tick that commits its full state map mid-action.
+- Oversized proxied responses are forwarded in full instead of being
+  truncated at the 50 MB rewrite limit.
+- `Content-Encoding` is classified by whole token, so a `gzip, br` chain is
+  no longer mis-handled as gzip.
+- Inline `<script>`/`<style>` blocks are excluded from root-path rewriting,
+  so proxied inline JS/CSS is left intact.
+- App create/update validate the app before persisting, so an invalid
+  `http_action` can no longer be written to disk and block the next boot.
+- Colliding app names are de-duplicated during auto-import, and a
+  daemon-down condition is warned once rather than every tick.
+- Fixed a data race between the discovery poller and `GET
+  /api/config/export`.
+- `config.Save` removes its temporary file when the final rename fails.
+- The final shutdown log line is written before the logger is closed
+  (previously it was dropped).
+- Enabling built-in auth from Settings no longer stores the plaintext
+  password in `sessionStorage`; it logs in before reloading instead.
+
 ## [3.2.1] - 2026-07-01
 
 A follow-up to 3.2.0's automatic Docker import: auto-import now keeps
