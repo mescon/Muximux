@@ -3800,3 +3800,62 @@ func TestRewriteResponseBody_OverLimitGzipForwardsCompressed(t *testing.T) {
 		t.Errorf("Content-Encoding must remain gzip, got %q", resp.Header.Get("Content-Encoding"))
 	}
 }
+
+// TestExpandHeaderValue covers the #388 identity-forwarding templates.
+func TestExpandHeaderValue(t *testing.T) {
+	user := &auth.User{Username: "alice", Role: "admin", Email: "a@x.io", DisplayName: "Alice A", Groups: []string{"staff", "ops"}}
+	cases := []struct {
+		name, in string
+		user     *auth.User
+		want     string
+	}{
+		{"static value untouched", "Bearer secret-token", user, "Bearer secret-token"},
+		{"dollar without brace untouched", "pa$$word", user, "pa$$word"},
+		{"user", "${user}", user, "alice"},
+		{"role", "${role}", user, "admin"},
+		{"email", "${email}", user, "a@x.io"},
+		{"display_name", "${display_name}", user, "Alice A"},
+		{"groups joined", "${groups}", user, "staff,ops"},
+		{"embedded + multiple", "u=${user};r=${role}", user, "u=alice;r=admin"},
+		{"unknown var left literal", "${unknown}", user, "${unknown}"},
+		{"unauthenticated -> empty", "${user}", nil, ""},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := expandHeaderValue(c.in, c.user); got != c.want {
+				t.Errorf("expandHeaderValue(%q) = %q, want %q", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+// TestExpandHeaderValue_SanitizesCRLF: a crafted username (e.g. from an
+// IdP claim) must not inject a header via CR/LF/NUL.
+func TestExpandHeaderValue_SanitizesCRLF(t *testing.T) {
+	user := &auth.User{Username: "alice\r\nX-Injected: evil", Role: "user\x00"}
+	if got := expandHeaderValue("${user}", user); strings.ContainsAny(got, "\r\n\x00") {
+		t.Errorf("expanded value must not contain CR/LF/NUL: %q", got)
+	}
+	if got := expandHeaderValue("${user}", user); got != "aliceX-Injected: evil" {
+		t.Errorf("unexpected sanitized value: %q", got)
+	}
+}
+
+// TestBuildDirector_ExpandsIdentityHeaders: the Director resolves ${user}
+// per request from the auth context and leaves static headers alone.
+func TestBuildDirector_ExpandsIdentityHeaders(t *testing.T) {
+	target, _ := url.Parse("http://backend:8080")
+	dir := buildDirector("/proxy/app", "", target,
+		map[string]string{"X-Forwarded-User": "${user}", "X-Static": "keep"}, "muximux_session")
+
+	req := httptest.NewRequest(http.MethodGet, "/proxy/app/foo", nil)
+	req = req.WithContext(context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{Username: "bob"}))
+	dir(req)
+
+	if got := req.Header.Get("X-Forwarded-User"); got != "bob" {
+		t.Errorf("templated header not expanded from context: %q", got)
+	}
+	if got := req.Header.Get("X-Static"); got != "keep" {
+		t.Errorf("static header must be unchanged: %q", got)
+	}
+}

@@ -766,7 +766,58 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 // customHeaders are injected into every proxied request. sessionCookieName,
 // when non-empty, is removed from the outgoing Cookie header so the Muximux
 // session identifier is never leaked to the backend.
+// expandHeaderValue substitutes the supported identity variables in a
+// custom proxy-header value with the authenticated user's details, so an
+// operator can forward identity to a backend (e.g. `X-Forwarded-User:
+// ${user}`). Supported: ${user} (username), ${role}, ${email},
+// ${display_name}, ${groups} (comma-joined). An unauthenticated request
+// (auth.method=none) expands them to empty. Substituted values are
+// stripped of CR/LF/NUL so a crafted IdP claim can't inject a header or
+// smuggle a request. Unknown ${vars} are left untouched (a visible typo,
+// not a silent empty). The backend must only trust these headers from
+// Muximux.
+func expandHeaderValue(value string, user *auth.User) string {
+	if !strings.Contains(value, "${") {
+		return value
+	}
+	var username, role, email, displayName, groups string
+	if user != nil {
+		username = sanitizeHeaderValue(user.Username)
+		role = sanitizeHeaderValue(user.Role)
+		email = sanitizeHeaderValue(user.Email)
+		displayName = sanitizeHeaderValue(user.DisplayName)
+		groups = sanitizeHeaderValue(strings.Join(user.Groups, ","))
+	}
+	return strings.NewReplacer(
+		"${user}", username,
+		"${role}", role,
+		"${email}", email,
+		"${display_name}", displayName,
+		"${groups}", groups,
+	).Replace(value)
+}
+
+// sanitizeHeaderValue strips characters that would let a value break out
+// of its header (CR/LF) or terminate the field (NUL).
+func sanitizeHeaderValue(v string) string {
+	if !strings.ContainsAny(v, "\r\n\x00") {
+		return v
+	}
+	return strings.NewReplacer("\r", "", "\n", "", "\x00", "").Replace(v)
+}
+
 func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string, sessionCookieName string) func(*http.Request) {
+	// Precompute whether any custom-header value uses an identity
+	// template, so the common (static-header) path never touches the
+	// request context.
+	customHeadersTemplated := false
+	for _, v := range customHeaders {
+		if strings.Contains(v, "${") {
+			customHeadersTemplated = true
+			break
+		}
+	}
+
 	return func(req *http.Request) {
 		// Strip the /proxy/{slug} prefix from the request path
 		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
@@ -786,9 +837,17 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		setProxyHeaders(req)
 		stripSessionCookie(req, sessionCookieName)
 
-		// Inject per-app custom headers (e.g., Authorization, X-Api-Key)
+		// Inject per-app custom headers (e.g., Authorization, X-Api-Key).
+		// Values may reference the authenticated user via ${user}/${role}/
+		// ${email}/${display_name}/${groups} to forward identity to the
+		// backend (proxy-auth pattern). The user is fetched once, only when
+		// a template is actually used.
+		var hdrUser *auth.User
+		if customHeadersTemplated {
+			hdrUser = auth.GetUserFromContext(req.Context())
+		}
 		for k, v := range customHeaders {
-			req.Header.Set(k, v)
+			req.Header.Set(k, expandHeaderValue(v, hdrUser))
 		}
 
 		req.Host = targetURL.Host
