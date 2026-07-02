@@ -3931,3 +3931,50 @@ func TestDeadlineResettingBody_Delegates(t *testing.T) {
 		t.Errorf("body must be delegated verbatim, got %q", got)
 	}
 }
+
+// TestContentEncodingKind classifies encodings for the rewrite guard.
+func TestContentEncodingKind(t *testing.T) {
+	cases := map[string]encodingKind{
+		"":           encodingIdentity,
+		"identity":   encodingIdentity,
+		"gzip":       encodingGzip,
+		"GZIP":       encodingGzip,
+		" gzip ":     encodingGzip,
+		"br":         encodingOther,
+		"gzip, br":   encodingOther, // layered -> not a single gzip layer
+		"br, gzip":   encodingOther,
+		"gzip, gzip": encodingOther,
+		"deflate":    encodingOther,
+	}
+	for in, want := range cases {
+		if got := contentEncodingKind(in); got != want {
+			t.Errorf("contentEncodingKind(%q) = %d, want %d", in, got, want)
+		}
+	}
+}
+
+// TestRewriteResponseBody_LayeredEncodingPassThrough: a multi-value
+// Content-Encoding (gzip, br) must be forwarded untouched, not fed to the
+// gzip reader (which would 502 or, for br,gzip, corrupt the body).
+func TestRewriteResponseBody_LayeredEncodingPassThrough(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	body := "opaque-doubly-compressed-bytes"
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: int64(len(body)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "gzip, br")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("layered encoding must not error (502): %v", err)
+	}
+	if resp.Header.Get("Content-Encoding") != "gzip, br" {
+		t.Errorf("Content-Encoding must be preserved, got %q", resp.Header.Get("Content-Encoding"))
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if string(got) != body {
+		t.Errorf("body must be forwarded byte-for-byte")
+	}
+}

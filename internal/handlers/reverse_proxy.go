@@ -1525,6 +1525,29 @@ var bodyReadBufPool = sync.Pool{
 // response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
 // Binary content types and responses exceeding maxRewriteSize are streamed through
 // without buffering.
+type encodingKind int
+
+const (
+	encodingIdentity encodingKind = iota // no encoding / "identity": rewrite as plaintext
+	encodingGzip                         // a single gzip layer: decompress then rewrite
+	encodingOther                        // anything else, or layered: forward untouched
+)
+
+// contentEncodingKind classifies a Content-Encoding header for rewriting.
+// Comparison is case-insensitive and by the whole value, not a substring:
+// a layered/multi-value encoding like "gzip, br" is encodingOther because
+// it is not a single gzip layer we can safely decode.
+func contentEncodingKind(ce string) encodingKind {
+	ce = strings.TrimSpace(ce)
+	if ce == "" || strings.EqualFold(ce, "identity") {
+		return encodingIdentity
+	}
+	if strings.EqualFold(ce, "gzip") {
+		return encodingGzip
+	}
+	return encodingOther
+}
+
 func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	contentType := resp.Header.Get(headerContentType)
 	if !shouldRewriteContent(contentType) {
@@ -1542,14 +1565,18 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	// body -- garbage to the browser. We only ask backends for `gzip,
 	// identity`, but one that ignores Accept-Encoding could still send
 	// another; forward it untouched rather than corrupt it.
-	if ce := strings.TrimSpace(resp.Header.Get(headerContentEncoding)); ce != "" &&
-		!strings.Contains(ce, "gzip") && !strings.EqualFold(ce, "identity") {
+	//
+	// The check is by exact (case-insensitive) encoding, not a substring:
+	// a layered/multi-value encoding like "gzip, br" is NOT a single gzip
+	// layer and must be forwarded untouched, not fed to gzip.NewReader.
+	ceKind := contentEncodingKind(resp.Header.Get(headerContentEncoding))
+	if ceKind == encodingOther {
 		return nil
 	}
 
 	orig := resp.Body
 	var reader io.Reader = orig
-	isGzipped := strings.Contains(resp.Header.Get(headerContentEncoding), "gzip")
+	isGzipped := ceKind == encodingGzip
 
 	// When gzipped, tee the compressed bytes as we decompress. If the
 	// decompressed body turns out to exceed the rewrite limit we forward
