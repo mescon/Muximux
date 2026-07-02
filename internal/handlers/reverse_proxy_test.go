@@ -3729,3 +3729,74 @@ func TestBuildUpgradeRequest_StripsCookieAndInjectsHeaders(t *testing.T) {
 		t.Errorf("expected request line + Host, got:\n%s", out)
 	}
 }
+
+// TestRewriteResponseBody_OverLimitForwardsFullStream: a chunked response
+// (unknown Content-Length) larger than the rewrite limit must be
+// forwarded in full, not truncated to the first maxRewriteSize bytes.
+func TestRewriteResponseBody_OverLimitForwardsFullStream(t *testing.T) {
+	old := maxRewriteSize
+	maxRewriteSize = 1024
+	defer func() { maxRewriteSize = old }()
+
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	body := "<html>" + strings.Repeat("x", 4096) + `<a href="/foo">` + strings.Repeat("y", 4096) + "</html>"
+	if int64(len(body)) <= maxRewriteSize {
+		t.Fatal("test body must exceed the lowered limit")
+	}
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: -1, // chunked / unknown length
+	}
+	resp.Header.Set("Content-Type", "text/html")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if string(got) != body {
+		t.Errorf("over-limit body must be forwarded in full and unmodified: got %d bytes, want %d", len(got), len(body))
+	}
+}
+
+// TestRewriteResponseBody_OverLimitGzipForwardsCompressed: a gzipped
+// response whose DECOMPRESSED size exceeds the limit (but whose compressed
+// size is under it, so it isn't fast-path skipped) must forward the
+// original compressed stream verbatim, keeping Content-Encoding: gzip.
+func TestRewriteResponseBody_OverLimitGzipForwardsCompressed(t *testing.T) {
+	old := maxRewriteSize
+	maxRewriteSize = 1024
+	defer func() { maxRewriteSize = old }()
+
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	plain := "<html>" + strings.Repeat("z", 8192) + "</html>" // decompresses > limit
+	var gzbuf bytes.Buffer
+	gw := gzip.NewWriter(&gzbuf)
+	if _, err := gw.Write([]byte(plain)); err != nil {
+		t.Fatal(err)
+	}
+	gw.Close()
+	compressed := gzbuf.Bytes()
+	if int64(len(compressed)) > maxRewriteSize {
+		t.Fatal("compressed body must be under the limit so it is not fast-path skipped")
+	}
+
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(bytes.NewReader(compressed)),
+		ContentLength: int64(len(compressed)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "gzip")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if !bytes.Equal(got, compressed) {
+		t.Errorf("over-limit gzip must forward the original compressed stream: got %d bytes, want %d", len(got), len(compressed))
+	}
+	if resp.Header.Get("Content-Encoding") != "gzip" {
+		t.Errorf("Content-Encoding must remain gzip, got %q", resp.Header.Get("Content-Encoding"))
+	}
+}

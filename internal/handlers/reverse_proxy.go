@@ -1404,7 +1404,8 @@ func (r *contentRewriter) injectInterceptor(content []byte, docPath string) []by
 // maxRewriteSize is the maximum response body size (50 MB) that will be buffered
 // for URL rewriting. Text responses larger than this stream through unmodified to
 // avoid excessive memory use. In practice, HTML/CSS/JS are rarely this large.
-const maxRewriteSize = 50 * 1024 * 1024
+// A var (not const) only so tests can lower it without allocating 50 MB.
+var maxRewriteSize int64 = 50 * 1024 * 1024
 
 // maxPooledBodyBufSize caps which read buffers go back into the
 // pool. Without this, a single oversized response (e.g. a big
@@ -1440,11 +1441,19 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		return nil
 	}
 
-	var reader io.Reader = resp.Body
+	orig := resp.Body
+	var reader io.Reader = orig
 	isGzipped := strings.Contains(resp.Header.Get(headerContentEncoding), "gzip")
 
+	// When gzipped, tee the compressed bytes as we decompress. If the
+	// decompressed body turns out to exceed the rewrite limit we forward
+	// the ORIGINAL compressed stream verbatim: the compressed bytes the
+	// gzip reader already consumed live in compressedSeen, the rest stays
+	// unread in orig, and the two concatenate to the exact original stream.
+	var compressedSeen *bytes.Buffer
 	if isGzipped {
-		gzReader, err := gzip.NewReader(resp.Body)
+		compressedSeen = &bytes.Buffer{}
+		gzReader, err := gzip.NewReader(io.TeeReader(orig, compressedSeen))
 		if err != nil {
 			// Surface decode failures so ReverseProxy's ErrorHandler can
 			// return a clean 502 rather than forwarding a partially-
@@ -1464,14 +1473,14 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	// Read upstream body into a pooled buffer. The rewriter produces
 	// an independent []byte (every rewrite path allocates fresh), so
 	// once we've finished rewriting we can release the buffer back
-	// to the pool without aliasing risk.
+	// to the pool without aliasing risk. orig is NOT closed yet: on the
+	// over-limit path below we still need to forward its unread remainder.
 	buf := bodyReadBufPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	if _, err := buf.ReadFrom(limited); err != nil {
 		bodyReadBufPool.Put(buf)
 		return fmt.Errorf("proxy: read body: %w", err)
 	}
-	resp.Body.Close()
 	body := buf.Bytes()
 
 	// releaseBuf returns the read buffer to the pool when safe.
@@ -1484,20 +1493,32 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		}
 	}
 
-	// Safety net for chunked responses without Content-Length: if the body
-	// exceeds the rewrite limit, return it unmodified rather than rewriting.
+	// Over the rewrite limit (chunked/gzipped responses whose full size
+	// isn't known up front from Content-Length). Forward the WHOLE
+	// original stream unmodified rather than truncating it to the first
+	// maxRewriteSize bytes. The prefix already read is spliced back in
+	// front of orig's unread remainder; headers (Content-Encoding,
+	// Content-Length) are left untouched so the framing stays valid.
 	if int64(len(body)) > maxRewriteSize {
-		// body aliases the pooled buffer; copy out before releasing
-		// so the response keeps a stable backing array.
-		bodyCopy := make([]byte, len(body))
-		copy(bodyCopy, body)
+		var prefix []byte
+		if isGzipped {
+			prefix = make([]byte, compressedSeen.Len())
+			copy(prefix, compressedSeen.Bytes())
+		} else {
+			prefix = make([]byte, len(body))
+			copy(prefix, body)
+		}
 		releaseBuf()
-		resp.Body = io.NopCloser(bytes.NewReader(bodyCopy))
-		resp.ContentLength = int64(len(bodyCopy))
-		resp.Header.Set("Content-Length", strconv.Itoa(len(bodyCopy)))
-		resp.Header.Del(headerContentEncoding)
+		resp.Body = struct {
+			io.Reader
+			io.Closer
+		}{io.MultiReader(bytes.NewReader(prefix), orig), orig}
 		return nil
 	}
+
+	// Under the limit: the buffer holds the entire body, so the original
+	// upstream reader can be closed now.
+	orig.Close()
 
 	lowerContentType := strings.ToLower(contentType)
 	isHTML := strings.Contains(lowerContentType, "text/html")
