@@ -1443,6 +1443,71 @@ func TestSanitizeApp(t *testing.T) {
 
 // Tests for save-failure error paths using an invalid configPath.
 // /dev/null/impossible is guaranteed to fail because /dev/null is a file, not a directory.
+// TestCreateApp_RejectsInvalidHTTPAction guards that the per-app create
+// path validates an http_action app before persisting. Without this,
+// clientAppToConfig + Save writes a structurally invalid action to disk
+// (Save does not validate), and the next boot's Load validation rejects
+// the whole config -- turning a bad single-app edit into a startup
+// failure. The handler must reject it up front with a 400.
+func TestCreateApp_RejectsInvalidHTTPAction(t *testing.T) {
+	cfg := createTestConfig()
+	tmpFile, err := os.CreateTemp(t.TempDir(), "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+	before := len(cfg.Apps)
+
+	body, _ := json.Marshal(ClientAppConfig{
+		Name:             "BadWebhook",
+		URL:              "https://hook.local/fire",
+		OpenMode:         "http_action",
+		HTTPActionMethod: "TRACE", // not in the allowed verb set
+		Enabled:          true,
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateApp(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400 for invalid http_action, got %d: %s", w.Code, w.Body.String())
+	}
+	if len(cfg.Apps) != before {
+		t.Errorf("invalid app must not be added: apps went from %d to %d", before, len(cfg.Apps))
+	}
+}
+
+// TestUpdateApp_RejectsInvalidHTTPAction is the update-path counterpart:
+// an edit that turns an app into an invalid http_action must be rejected
+// and must not mutate the stored app.
+func TestUpdateApp_RejectsInvalidHTTPAction(t *testing.T) {
+	cfg := createTestConfig()
+	tmpFile, err := os.CreateTemp(t.TempDir(), "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+	origURL := cfg.Apps[0].URL
+
+	body, _ := json.Marshal(ClientAppConfig{
+		Name:             cfg.Apps[0].Name,
+		URL:              "", // http_action requires a url
+		OpenMode:         "http_action",
+		HTTPActionMethod: "POST",
+		Enabled:          true,
+	})
+	req := httptest.NewRequest(http.MethodPut, "/api/apps/"+cfg.Apps[0].Name, bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, req, cfg.Apps[0].Name)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400 for invalid http_action, got %d: %s", w.Code, w.Body.String())
+	}
+	if cfg.Apps[0].URL != origURL {
+		t.Errorf("stored app must be unchanged on rejected update: URL is now %q", cfg.Apps[0].URL)
+	}
+}
+
 func TestCreateAppSaveFails(t *testing.T) {
 	cfg := createTestConfig()
 	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})

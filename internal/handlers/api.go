@@ -722,6 +722,14 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	newApp := clientAppToConfig(&clientApp)
 	newApp.Order = len(h.config.Apps) // Add at end
 
+	// Validate before persisting: Config.Save does not validate, so an
+	// invalid http_action would be written to disk and only rejected on
+	// the next boot's Load, taking the whole config down with it.
+	if err := config.ValidateApp(&newApp); err != nil {
+		respondError(w, r, http.StatusBadRequest, "Invalid app: "+err.Error())
+		return
+	}
+
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps = append(h.config.Apps, newApp)
 
@@ -772,6 +780,13 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		logging.Audit("Docker tracking auto-detached on URL change",
 			"kind", "app", "name", updated.Name,
 			"previous_key", detachKey)
+	}
+
+	// Validate before persisting (see CreateApp): reject an invalid
+	// http_action up front rather than writing it to disk.
+	if err := config.ValidateApp(&updated); err != nil {
+		respondError(w, r, http.StatusBadRequest, "Invalid app: "+err.Error())
+		return
 	}
 
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)

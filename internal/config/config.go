@@ -1256,6 +1256,18 @@ func validateApps(apps []AppConfig) error {
 	return nil
 }
 
+// ValidateApp runs the per-app validation checks for a single app,
+// mirroring what validateApps enforces during boot-time Load. The API's
+// per-app create/update handlers call it so an invalid app is rejected
+// with a 400 up front rather than persisted (Config.Save does not
+// validate) and only surfaced as a config-load failure on the next boot.
+func ValidateApp(a *AppConfig) error {
+	if a.OpenMode != "http_action" {
+		return nil
+	}
+	return validateAppHTTPAction(a)
+}
+
 func validateAppHTTPAction(a *AppConfig) error {
 	if strings.TrimSpace(a.URL) == "" {
 		return fmt.Errorf("http_action requires a url")
