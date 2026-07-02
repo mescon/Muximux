@@ -42,6 +42,7 @@
     "vitest": "^4.1.6"
   },
   "dependencies": {
+    "dompurify": "^3.4.11",
     "marked": "^18.0.5",
     "svelte-dnd-action": "^0.9.70",
     "svelte-sonner": "^1.1.1",
