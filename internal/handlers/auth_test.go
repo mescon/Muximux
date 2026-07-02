@@ -45,6 +45,76 @@ func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore) {
 	return handler, sessionStore
 }
 
+// TestLogin_PopulatesSessionGroups guards the gateway group gate against
+// fail-closed denial of builtin users. sessionInAllowedGroups reads a
+// user's groups from session.Data["groups"], which OIDC populates but the
+// builtin login path historically did not. A builtin user who is a member
+// of a gateway site's allowed_groups was therefore denied at a require_auth
+// gate. This asserts the builtin login now stores the user's groups in the
+// session, and that a group-gated site accepts the resulting session.
+func TestLogin_PopulatesSessionGroups(t *testing.T) {
+	sessionStore := auth.NewSessionStore("muximux_session", 24*time.Hour, false)
+	userStore := auth.NewUserStore()
+
+	hash, err := auth.HashPassword("testpass123")
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+	userStore.LoadFromConfig([]auth.UserConfig{
+		{
+			Username:     "member",
+			PasswordHash: hash,
+			Role:         "user",
+			Groups:       []string{"media", "admins"},
+		},
+	})
+	handler := NewAuthHandler(sessionStore, userStore, nil, "", nil, &sync.RWMutex{})
+
+	body, _ := json.Marshal(LoginRequest{ //nolint:gosec // test fixture
+		Username: "member",
+		Password: "testpass123",
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.Login(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var sessionID string
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "muximux_session" {
+			sessionID = c.Value
+			break
+		}
+	}
+	if sessionID == "" {
+		t.Fatal("expected session cookie to be set")
+	}
+
+	sess := sessionStore.Get(sessionID)
+	if sess == nil {
+		t.Fatal("expected session to exist in store")
+	}
+	raw, ok := sess.Data["groups"]
+	if !ok {
+		t.Fatal("expected session.Data[\"groups\"] to be populated for builtin login")
+	}
+	groups, ok := raw.([]string)
+	if !ok {
+		t.Fatalf("expected groups to be []string, got %T", raw)
+	}
+	if len(groups) != 2 || groups[0] != "media" || groups[1] != "admins" {
+		t.Errorf("expected groups [media admins], got %v", groups)
+	}
+
+	// The gateway group gate must now accept this session.
+	if !sessionInAllowedGroups(sess, []string{"admins"}) {
+		t.Error("expected group-gated site to accept a builtin member of the group")
+	}
+}
+
 func TestLogin(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)

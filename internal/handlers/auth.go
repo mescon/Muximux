@@ -281,6 +281,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Carry the user's group memberships on the session so gateway sites
+	// with an allowed_groups gate accept builtin users. The gateway
+	// forward-auth check (sessionInAllowedGroups) reads groups from
+	// session.Data, which the OIDC path populates too; without this a
+	// builtin member of an allowed group is denied at a require_auth gate.
+	if len(user.Groups) > 0 {
+		session.Data["groups"] = user.Groups
+	}
+
 	// Set session cookie
 	h.sessionStore.SetCookie(w, session)
 	logging.From(r.Context()).Info("User logged in", "source", "audit", "user", user.Username)
