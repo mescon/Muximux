@@ -1477,6 +1477,56 @@ func gwSonarr() ContainerSummary {
 	return c
 }
 
+// TestTick_AutoImportSync_ScanFailureDoesNotDeleteApps is a regression
+// guard for a data-loss bug: in sync mode a failed/blocked scan produced
+// an empty desired set, and Reconcile then treated every auto-imported
+// app as "vanished" and deleted it. A transient daemon hiccup must never
+// wipe the tracked apps. Here the container list succeeds (so the tick
+// proceeds past the URL-refresh pass) but the self-detect scan is blocked
+// (network_filter empty + no self-inspect endpoint served), so
+// svc.Scan() returns ScanBlocked with no suggestions.
+func TestTick_AutoImportSync_ScanFailureDoesNotDeleteApps(t *testing.T) {
+	set := []ContainerSummary{} // container list succeeds but is empty
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	// Empty network_filter forces the self-detect path, which is blocked
+	// in the test env (the fake daemon serves no self-inspect endpoint).
+	dockerCfg.NetworkFilter = ""
+	cfg.Discovery.Docker.NetworkFilter = ""
+	// Pre-existing auto-imported app + its gateway site.
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com",
+		DockerKey: "label:sonarr-auto", DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.5:8989",
+		DockerKey: "label:sonarr-auto",
+	}}
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Fatal("scan failure must NOT delete the auto-imported app")
+	}
+	if findSiteByKey(cfg, "label:sonarr-auto") == nil {
+		t.Fatal("scan failure must NOT delete the auto-imported gateway site")
+	}
+	if saveCalls != 0 {
+		t.Errorf("no config change expected on a blocked scan; Save called %d times", saveCalls)
+	}
+}
+
 func TestTick_AutoImportAdd_GatewaySite(t *testing.T) {
 	set := []ContainerSummary{gwSonarr()}
 	socket, cleanup := mutableDaemonForPoller(t, &set)

@@ -307,24 +307,35 @@ func (p *Poller) tick(ctx context.Context) {
 	// this is not a double-write bug.
 	if autoImport != config.AutoImportOff {
 		scan := svc.Scan(ctx, dashboardDomain)
-		desired := make([]Desired, 0, len(scan.Suggestions))
-		for i := range scan.Suggestions {
-			desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
-		}
-		plan := Reconcile(autoImport, desired, currentApps, currentSites)
-		for i := range plan.Add {
-			batch.addApps = append(batch.addApps, plan.Add[i].App)
-			if plan.Add[i].Site != nil {
-				batch.addSites = append(batch.addSites, *plan.Add[i].Site)
+		// A failed or blocked scan yields no suggestions. Treating that
+		// empty result as the desired set would make sync mode conclude
+		// every labeled container vanished and delete every auto-imported
+		// app + gateway site (data loss on a transient daemon hiccup or a
+		// self-detect failure). Skip reconcile until the scan succeeds
+		// again; the URL-refresh batch built above still commits below.
+		if scan.Error != "" || scan.ScanBlocked != "" {
+			logging.Warn("Discovery auto-import skipped: scan did not complete",
+				"source", "discovery", "error", scan.Error, "blocked", scan.ScanBlocked)
+		} else {
+			desired := make([]Desired, 0, len(scan.Suggestions))
+			for i := range scan.Suggestions {
+				desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 			}
-		}
-		for i := range plan.Update {
-			batch.updateApps = append(batch.updateApps, plan.Update[i].App)
-			if plan.Update[i].Site != nil {
-				batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
+			plan := Reconcile(autoImport, desired, currentApps, currentSites)
+			for i := range plan.Add {
+				batch.addApps = append(batch.addApps, plan.Add[i].App)
+				if plan.Add[i].Site != nil {
+					batch.addSites = append(batch.addSites, *plan.Add[i].Site)
+				}
 			}
+			for i := range plan.Update {
+				batch.updateApps = append(batch.updateApps, plan.Update[i].App)
+				if plan.Update[i].Site != nil {
+					batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
+				}
+			}
+			batch.removeKeys = append(batch.removeKeys, plan.RemoveKeys...)
 		}
-		batch.removeKeys = append(batch.removeKeys, plan.RemoveKeys...)
 	}
 
 	if batch.empty() {
