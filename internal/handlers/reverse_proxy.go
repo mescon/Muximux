@@ -32,6 +32,12 @@ var (
 	sriHashesPattern    = regexp.MustCompile(`(\w+\.sriHashes)\s*=\s*\{[^}]+\}`)
 	srcsetPattern       = regexp.MustCompile(`(srcset\s*=\s*["'])([^"']+)(["'])`)
 	rootPathAttrPattern = regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
+	// rawTextBlockPattern matches an inline <script>/<style> block as
+	// three groups: opening tag, inner content, closing tag. The inner
+	// content is JS/CSS, not HTML, so HTML-attribute path rewriting must
+	// skip it (the opening tag -- e.g. `src="/app.js"` -- is still HTML
+	// and IS rewritten).
+	rawTextBlockPattern = regexp.MustCompile(`(?is)(<(?:script|style)\b[^>]*>)(.*?)(</(?:script|style)>)`)
 	rootPathUrlPattern  = regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
 	baseHrefPattern     = regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
 	urlBaseEmptyPattern = regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*([:=])\s*(['"])(['"])`)
@@ -334,22 +340,52 @@ func (r *contentRewriter) rewriteRootPaths(result []byte) []byte {
 // rewriteRootPathAttrs rewrites attribute values starting with / but not /proxy/,
 // skipping srcset (handled separately).
 func (r *contentRewriter) rewriteRootPathAttrs(result []byte) []byte {
-	return rootPathAttrPattern.ReplaceAllFunc(result, func(match []byte) []byte {
-		if bytes.Contains(match, proxyPathPrefixB) {
-			return match
-		}
-		if bytes.HasPrefix(bytes.ToLower(match), []byte("srcset")) {
-			return match
-		}
-		quoteIdx := bytes.LastIndex(match, []byte(`"`))
-		if quoteIdx == -1 {
-			quoteIdx = bytes.LastIndex(match, []byte(`'`))
-		}
-		if quoteIdx == -1 {
-			return match
-		}
-		return spliceAt(match, quoteIdx+1, r.proxyPrefixB)
+	// The attribute pattern is an HTML construct; running it over inline
+	// <script>/<style> content false-matches JS/CSS assignments like
+	// `var apiBase="/api"` (the #371 class). Apply it only outside those
+	// blocks; the opening tag (e.g. a root-relative script src) is still
+	// rewritten.
+	return applyOutsideRawText(result, func(seg []byte) []byte {
+		return rootPathAttrPattern.ReplaceAllFunc(seg, func(match []byte) []byte {
+			if bytes.Contains(match, proxyPathPrefixB) {
+				return match
+			}
+			if bytes.HasPrefix(bytes.ToLower(match), []byte("srcset")) {
+				return match
+			}
+			quoteIdx := bytes.LastIndex(match, []byte(`"`))
+			if quoteIdx == -1 {
+				quoteIdx = bytes.LastIndex(match, []byte(`'`))
+			}
+			if quoteIdx == -1 {
+				return match
+			}
+			return spliceAt(match, quoteIdx+1, r.proxyPrefixB)
+		})
 	})
+}
+
+// applyOutsideRawText applies fn to the parts of an HTML document outside
+// inline <script>/<style> content. The block's opening tag is included in
+// the fn-processed region (so a root-relative script src is still
+// rewritten); only the raw JS/CSS body between the tags is left untouched.
+func applyOutsideRawText(content []byte, fn func([]byte) []byte) []byte {
+	locs := rawTextBlockPattern.FindAllSubmatchIndex(content, -1)
+	if len(locs) == 0 {
+		return fn(content)
+	}
+	out := make([]byte, 0, len(content))
+	last := 0
+	for _, loc := range locs {
+		// loc indices: [full0,full1, g1s,g1e, g2s,g2e, g3s,g3e].
+		// Process up to and including the opening tag (g1e); leave the
+		// inner content (g2) verbatim.
+		out = append(out, fn(content[last:loc[3]])...)
+		out = append(out, content[loc[3]:loc[5]]...)
+		last = loc[5]
+	}
+	out = append(out, fn(content[last:])...)
+	return out
 }
 
 // rewriteRootPathURLFunc rewrites CSS url() values with root-relative paths.
@@ -2136,7 +2172,39 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	rc := http.NewResponseController(w)
 	_ = rc.SetWriteDeadline(time.Now().Add(h.timeout))
 
+	// Roll the READ deadline the same way for the request body, so a large
+	// upload proxied through here isn't severed by the server's absolute
+	// ReadTimeout while it keeps making progress (a stalled upload still
+	// times out after timeout of silence). The deadline is set lazily on
+	// the first body read and cleared on EOF, so it never lingers to sever
+	// a slow streaming RESPONSE that follows an empty or fully-read body.
+	// Non-proxy endpoints keep the server's absolute ReadTimeout.
+	if r.Body != nil && r.Body != http.NoBody {
+		r.Body = &deadlineResettingBody{ReadCloser: r.Body, rc: rc, timeout: h.timeout}
+	}
+
 	route.proxy.ServeHTTP(&deadlineResettingWriter{ResponseWriter: w, rc: rc, timeout: h.timeout}, r)
+}
+
+// deadlineResettingBody wraps the proxied request body and pushes the
+// connection read deadline forward by timeout on every Read, turning the
+// server's absolute ReadTimeout into a per-read idle deadline for uploads
+// (the read-side analog of deadlineResettingWriter).
+type deadlineResettingBody struct {
+	io.ReadCloser
+	rc      *http.ResponseController
+	timeout time.Duration
+}
+
+func (d *deadlineResettingBody) Read(p []byte) (int, error) {
+	_ = d.rc.SetReadDeadline(time.Now().Add(d.timeout))
+	n, err := d.ReadCloser.Read(p)
+	if err != nil {
+		// Body fully read (EOF) or errored: drop the read deadline so it
+		// can't sever the slow streaming RESPONSE that may follow.
+		_ = d.rc.SetReadDeadline(time.Time{})
+	}
+	return n, err
 }
 
 // deadlineResettingWriter wraps the proxy ResponseWriter and pushes the

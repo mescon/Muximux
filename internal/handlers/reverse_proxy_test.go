@@ -3886,3 +3886,48 @@ func TestRewriteResponseBody_NonGzipEncodingPassThrough(t *testing.T) {
 		t.Errorf("body must be forwarded byte-for-byte")
 	}
 }
+
+// TestRewriteRootPathAttrs_SkipsInlineScript (#29): the HTML-attribute
+// path pattern must not rewrite ${...}-free root paths that appear inside
+// an inline <script> (they're JS assignments, not HTML attributes), but
+// must still rewrite real HTML attributes -- including a <script src>.
+func TestRewriteRootPathAttrs_SkipsInlineScript(t *testing.T) {
+	r := newContentRewriter("/proxy/app", "", "")
+	in := `<div data-x="/a"></div>` +
+		`<script src="/loader.js">var apiBase="/api/v1"; go("/dash");</script>` +
+		`<a href="/c">x</a>`
+	out := string(r.rewriteRootPathAttrs([]byte(in)))
+
+	// Inline JS assignments must be untouched.
+	if !strings.Contains(out, `var apiBase="/api/v1"`) {
+		t.Errorf("inline script JS must not be rewritten:\n%s", out)
+	}
+	if !strings.Contains(out, `go("/dash")`) {
+		t.Errorf("inline script call arg must not be rewritten:\n%s", out)
+	}
+	// Real HTML attributes (incl. the script's own src) must be rewritten.
+	for _, want := range []string{`data-x="/proxy/app/a"`, `src="/proxy/app/loader.js"`, `href="/proxy/app/c"`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("expected %q in:\n%s", want, out)
+		}
+	}
+}
+
+// TestDeadlineResettingBody_Delegates (#9): the rolling-deadline body
+// wrapper forwards reads to the underlying body (the SetReadDeadline call
+// is best-effort and ignored when unsupported).
+func TestDeadlineResettingBody_Delegates(t *testing.T) {
+	rc := http.NewResponseController(httptest.NewRecorder()) // no deadline support
+	b := &deadlineResettingBody{
+		ReadCloser: io.NopCloser(strings.NewReader("upload-bytes")),
+		rc:         rc,
+		timeout:    time.Second,
+	}
+	got, err := io.ReadAll(b)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	if string(got) != "upload-bytes" {
+		t.Errorf("body must be delegated verbatim, got %q", got)
+	}
+}

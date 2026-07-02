@@ -432,11 +432,20 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	}
 
 	s.httpServer = &http.Server{
-		Addr:         goListenAddr,
-		Handler:      handler,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		Addr:    goListenAddr,
+		Handler: handler,
+		// ReadTimeout is an absolute deadline over the whole request
+		// including the body. It bounds slow-body slowloris on normal
+		// (small, size-capped) endpoints. The proxy path overrides it with
+		// a ROLLING read deadline (see ServeHTTP) so a large upload that
+		// keeps making progress isn't severed at 15s while a stalled one
+		// still times out -- the read-side mirror of the write side's
+		// deadline-resetting writer. ReadHeaderTimeout bounds header
+		// slowloris independently.
+		ReadTimeout:       15 * time.Second,
+		ReadHeaderTimeout: 15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	return s, nil
