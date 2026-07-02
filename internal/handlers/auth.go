@@ -992,6 +992,36 @@ func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// UpgradeAPIKeyHash migrates a legacy bcrypt api_key_hash to the fast
+// sha256: form after the auth middleware verifies the key against the
+// legacy hash. It is wired as the middleware's onAPIKeyUpgrade hook and
+// runs off the request goroutine. The compare-and-swap on oldHash makes
+// it safe and idempotent: it only writes when the stored hash is still
+// exactly the legacy value the middleware verified against, so a
+// concurrent rotation (or a second concurrent legacy request) is a no-op
+// rather than a clobber. A save failure rolls back the in-memory change
+// and is logged; the next successful verify retries.
+func (h *AuthHandler) UpgradeAPIKeyHash(oldHash, newHash string) {
+	if oldHash == "" || newHash == "" || oldHash == newHash {
+		return
+	}
+	h.configMu.Lock()
+	defer h.configMu.Unlock()
+	if h.config.Auth.APIKeyHash != oldHash {
+		// Rotated or already migrated since the verify; nothing to do.
+		return
+	}
+	h.config.Auth.APIKeyHash = newHash
+	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Auth.APIKeyHash = oldHash
+		logging.Error("Legacy API key auto-upgrade rolled back due to save failure",
+			"source", "audit", "error", err)
+		return
+	}
+	h.refreshAuthSnapshotLocked()
+	logging.Audit("Legacy API key hash auto-upgraded to sha256 on use")
+}
+
 // DeleteAPIKey clears the configured API key. Bypass rules that
 // require the key (for example /api/appearance) immediately stop
 // authenticating with X-Api-Key once this returns. Admin only.

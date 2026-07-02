@@ -1941,6 +1941,48 @@ func TestAPIKeyStatus_Unconfigured(t *testing.T) {
 	}
 }
 
+// TestUpgradeAPIKeyHash covers the opportunistic legacy-hash migration
+// hook: it upgrades and persists only when the stored hash still matches
+// the old (legacy) value the middleware verified against (compare-and-
+// swap), and is a no-op on mismatch or when already migrated.
+func TestUpgradeAPIKeyHash(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+
+	legacy, err := auth.HashPassword("muximux_apikey") // bcrypt = legacy form
+	if err != nil {
+		t.Fatalf("hash: %v", err)
+	}
+	handler.config.Auth.APIKeyHash = legacy
+	if err := handler.config.Save(configPath); err != nil {
+		t.Fatalf("seed save: %v", err)
+	}
+	newHash := auth.HashAPIKey("muximux_apikey")
+
+	// CAS mismatch: the stored hash is not the one we claim to have
+	// verified against -> no upgrade.
+	handler.UpgradeAPIKeyHash("sha256:stale", newHash)
+	if handler.config.Auth.APIKeyHash != legacy {
+		t.Fatalf("must not upgrade on oldHash mismatch: got %q", handler.config.Auth.APIKeyHash)
+	}
+
+	// CAS match: upgrades in memory and persists to disk.
+	handler.UpgradeAPIKeyHash(legacy, newHash)
+	if handler.config.Auth.APIKeyHash != newHash {
+		t.Fatalf("expected in-memory upgrade to sha256, got %q", handler.config.Auth.APIKeyHash)
+	}
+	on := loadConfigForTest(t, configPath)
+	if on.Auth.APIKeyHash != newHash {
+		t.Fatalf("upgrade not persisted: disk hash = %q", on.Auth.APIKeyHash)
+	}
+
+	// Idempotent: replaying the old (legacy) oldHash after migration is a
+	// no-op -- the stored hash is now sha256, not the legacy value.
+	handler.UpgradeAPIKeyHash(legacy, auth.HashAPIKey("someone-elses-key"))
+	if handler.config.Auth.APIKeyHash != newHash {
+		t.Fatalf("second upgrade should be a no-op, got %q", handler.config.Auth.APIKeyHash)
+	}
+}
+
 func TestGenerateAPIKey_StoresHashAndReturnsPlaintextOnce(t *testing.T) {
 	handler, configPath := setupAuthTestWithConfig(t)
 

@@ -123,6 +123,10 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware, &s.configMu)
 	authHandler.SetBypassRules(defaultBypassRules)
 	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
+	// Migrate a legacy bcrypt api_key_hash to sha256: on first successful
+	// use, so an existing install closes the bcrypt DoS window without a
+	// manual key rotation.
+	authMiddleware.SetOnAPIKeyUpgrade(authHandler.UpgradeAPIKeyHash)
 
 	// Set up OIDC provider if configured
 	if cfg.Auth.OIDC.Enabled {
