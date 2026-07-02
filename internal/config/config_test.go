@@ -1777,3 +1777,33 @@ func TestLoadDetachClearsAutoImported(t *testing.T) {
 			app.DockerKey, app.DockerAutoImported)
 	}
 }
+
+// TestSave_RemovesTempFileOnRenameFailure: every Save error path cleans
+// up its temp file except the final rename, which used to leak a
+// .config-*.yaml on failure. Force a rename failure by pointing Save at
+// an existing (non-empty) directory and assert no temp file is left.
+func TestSave_RemovesTempFileOnRenameFailure(t *testing.T) {
+	dir := t.TempDir()
+	target := filepath.Join(dir, "config-as-dir")
+	if err := os.Mkdir(target, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(target, "keep"), []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := &Config{Apps: []AppConfig{{Name: "a", URL: "http://a"}}}
+	if err := cfg.Save(target); err == nil {
+		t.Fatal("expected Save to fail renaming onto a directory")
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), ".config-") {
+			t.Errorf("temp file leaked after failed rename: %s", e.Name())
+		}
+	}
+}

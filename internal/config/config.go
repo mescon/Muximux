@@ -1400,6 +1400,7 @@ func (c *Config) Save(path string) error {
 		return err
 	}
 	if err := os.Rename(tmpName, path); err != nil {
+		os.Remove(tmpName) // don't leave the temp file behind on a failed rename
 		return err
 	}
 	// fsync the parent directory so the rename hits stable storage

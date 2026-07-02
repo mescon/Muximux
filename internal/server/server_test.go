@@ -1108,7 +1108,9 @@ func TestRegisterAPIRoutes(t *testing.T) {
 			{Name: "Group1", Color: "#ff0000"},
 		},
 	}
-	api := handlers.NewAPIHandler(cfg, "", &sync.RWMutex{})
+	// Real temp config path so SaveConfig writes into t.TempDir() instead
+	// of failing a rename in the package dir (which leaked .config-*.yaml).
+	api := handlers.NewAPIHandler(cfg, filepath.Join(t.TempDir(), "config.yaml"), &sync.RWMutex{})
 
 	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
 		return next
@@ -1410,7 +1412,9 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 			{Name: "sonarr", URL: "http://a:8080", Enabled: true},
 		},
 	}
-	api := handlers.NewAPIHandler(cfg, "", &sync.RWMutex{})
+	// Real temp config path so SaveConfig writes into t.TempDir() instead
+	// of failing a rename in the package dir (which leaked .config-*.yaml).
+	api := handlers.NewAPIHandler(cfg, filepath.Join(t.TempDir(), "config.yaml"), &sync.RWMutex{})
 
 	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
 		return next
