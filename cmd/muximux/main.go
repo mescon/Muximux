@@ -202,6 +202,9 @@ func main() {
 		logging.Error("Error during shutdown", "source", "server", "error", err)
 	}
 
-	logging.Close()
+	// Emit the final line before tearing the logger down. Close() nils the
+	// writer and closes the underlying file, so any log call after it is
+	// written to a closed file and silently dropped.
 	logging.Info("Goodbye!", "source", "server")
+	logging.Close()
 }

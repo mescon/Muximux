@@ -94,6 +94,38 @@ func TestInit_FileOutput(t *testing.T) {
 	}
 }
 
+// TestInfoAfterCloseIsDropped guards the shutdown-ordering invariant that
+// main() relies on: once Close() tears the logger down, a subsequent log
+// call is written to the closed file and does not reach it. If this ever
+// stopped being true, the ordering fix in main (log "Goodbye!" before
+// Close) would be unnecessary -- but as long as it holds, logging after
+// Close silently loses the line.
+func TestInfoAfterCloseIsDropped(t *testing.T) {
+	defaultLogger = nil
+
+	tmpDir := t.TempDir()
+	logFile := filepath.Join(tmpDir, "close.log")
+	if err := Init(Config{Level: LevelInfo, Format: "text", Output: logFile}); err != nil {
+		t.Fatalf("Init failed: %v", err)
+	}
+
+	Info("before-close-marker", "source", "test")
+	Close()
+	Info("after-close-marker", "source", "test")
+
+	data, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatalf("read log file: %v", err)
+	}
+	got := string(data)
+	if !strings.Contains(got, "before-close-marker") {
+		t.Error("expected the pre-close line to reach the file")
+	}
+	if strings.Contains(got, "after-close-marker") {
+		t.Error("a log call after Close() reached the file; main() must log its final line before Close()")
+	}
+}
+
 func TestInit_InvalidFilePath(t *testing.T) {
 	defaultLogger = nil
 
