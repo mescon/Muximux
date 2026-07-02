@@ -3940,7 +3940,10 @@ func TestContentEncodingKind(t *testing.T) {
 		"gzip":       encodingGzip,
 		"GZIP":       encodingGzip,
 		" gzip ":     encodingGzip,
+		"x-gzip":     encodingGzip, // legacy alias, identical wire format
+		"X-Gzip":     encodingGzip,
 		"br":         encodingOther,
+		"x-compress": encodingOther, // LZW, not gzip -- must NOT be decoded as gzip
 		"gzip, br":   encodingOther, // layered -> not a single gzip layer
 		"br, gzip":   encodingOther,
 		"gzip, gzip": encodingOther,

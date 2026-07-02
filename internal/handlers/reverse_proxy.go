@@ -1542,7 +1542,12 @@ func contentEncodingKind(ce string) encodingKind {
 	if ce == "" || strings.EqualFold(ce, "identity") {
 		return encodingIdentity
 	}
-	if strings.EqualFold(ce, "gzip") {
+	// "x-gzip" is a legacy alias for gzip with an identical wire format, so
+	// gzip.NewReader decodes it. Treat it as gzip so an old backend that
+	// still emits it gets its HTML decompressed and path-rewritten rather
+	// than forwarded un-rewritten. Note "x-compress"/"compress" (LZW) is a
+	// different format Go cannot decode, so it stays encodingOther.
+	if strings.EqualFold(ce, "gzip") || strings.EqualFold(ce, "x-gzip") {
 		return encodingGzip
 	}
 	return encodingOther
