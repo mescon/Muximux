@@ -77,20 +77,24 @@ type Poller struct {
 // 60s refresh interval this is roughly a 2-minute grace.
 const syncRemovalGraceTicks = 3
 
-// gateSyncRemovals applies removal hysteresis to the sync-mode removal
-// candidates. It advances a per-key absence counter and returns only the
-// keys that have now been absent for syncRemovalGraceTicks consecutive
-// scans. Candidates that reappear (or that this tick no longer proposes)
-// drop out of the counter, so a container that returns within the grace
-// window is never removed and re-added.
 // dedupeDesiredNames drops desired entries whose app Name collides with
-// an earlier one, so two containers that resolve to the same name (a
-// duplicated muximux.app.name label, or two containers of the same
-// catalog app) don't create duplicate app entries in the config. The
-// winner is chosen deterministically (lowest DockerKey) so the same
-// container consistently keeps the name across ticks rather than the two
-// flapping. The operator is warned to give them distinct names.
-func dedupeDesiredNames(desired []Desired) []Desired {
+// another desired entry OR with a currently-configured app under a
+// different DockerKey, so auto-import never writes a duplicate app name.
+// Deduping only within the desired set was insufficient: a
+// hysteresis-deferred removal keeps the old app for a few ticks, so a new
+// lower-key container of the same name would be added immediately and
+// briefly coexist with the incumbent. Within the desired set the winner
+// is the lowest DockerKey (deterministic across ticks); against the
+// existing config the incumbent always keeps its name. The operator is
+// warned to give colliding containers distinct names.
+func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) []Desired {
+	// Names already held in the config -> the owning DockerKey ("" for a
+	// manual/hand-detached app). A desired entry under a different key
+	// must not reuse the name.
+	taken := make(map[string]string, len(currentApps))
+	for i := range currentApps {
+		taken[currentApps[i].Name] = currentApps[i].DockerKey
+	}
 	sort.SliceStable(desired, func(i, j int) bool {
 		return desired[i].App.DockerKey < desired[j].App.DockerKey
 	})
@@ -98,18 +102,29 @@ func dedupeDesiredNames(desired []Desired) []Desired {
 	out := desired[:0]
 	for i := range desired {
 		name := desired[i].App.Name
-		if winner, dup := seen[name]; dup {
-			logging.Warn("Discovery auto-import: duplicate app name; skipping the second container",
-				"source", "discovery", "name", name,
-				"kept_key", winner, "skipped_key", desired[i].App.DockerKey)
+		key := desired[i].App.DockerKey
+		if owner, held := taken[name]; held && owner != key {
+			logging.Warn("Discovery auto-import: app name already in use; skipping container",
+				"source", "discovery", "name", name, "owner_key", owner, "skipped_key", key)
 			continue
 		}
-		seen[name] = desired[i].App.DockerKey
+		if winner, dup := seen[name]; dup {
+			logging.Warn("Discovery auto-import: duplicate app name; skipping the second container",
+				"source", "discovery", "name", name, "kept_key", winner, "skipped_key", key)
+			continue
+		}
+		seen[name] = key
 		out = append(out, desired[i])
 	}
 	return out
 }
 
+// gateSyncRemovals applies removal hysteresis to the sync-mode removal
+// candidates. It advances a per-key absence counter and returns only the
+// keys that have now been absent for syncRemovalGraceTicks consecutive
+// scans. Candidates that reappear (or that this tick no longer proposes)
+// drop out of the counter, so a container that returns within the grace
+// window is never removed and re-added.
 func (p *Poller) gateSyncRemovals(candidates []string) []string {
 	if len(candidates) == 0 {
 		p.syncAbsent = nil
@@ -412,7 +427,7 @@ func (p *Poller) tick(ctx context.Context) {
 			for i := range scan.Suggestions {
 				desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 			}
-			desired = dedupeDesiredNames(desired)
+			desired = dedupeDesiredNames(desired, currentApps)
 			plan := Reconcile(autoImport, desired, currentApps, currentSites)
 			for i := range plan.Add {
 				batch.addApps = append(batch.addApps, plan.Add[i].App)

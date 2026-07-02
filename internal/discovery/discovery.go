@@ -23,9 +23,22 @@ import (
 // transport, reset caches) under s.mu, so the single shared pointer
 // reflects the change everywhere without re-wiring each holder.
 type Service struct {
+	// reconfigureMu serializes Reconfigure calls end to end (including
+	// the post-swap socket probe) so two concurrent config updates can't
+	// interleave and leave socketWritable reflecting a client that is no
+	// longer current. Distinct from mu: readers take mu (fast), never
+	// this, so a slow probe under reconfigureMu doesn't block them.
+	reconfigureMu sync.Mutex
+
 	mu     sync.RWMutex
 	cfg    config.DiscoveryDockerConfig
 	client *Client // nil when discovery is disabled or NewClient failed
+	// cfgGen increments on every Reconfigure. Long-running probes
+	// (refreshStatus/Scan self-detect) capture it before their I/O and
+	// discard their cache write-back if it changed underneath them, so a
+	// probe against a now-replaced daemon can't stamp stale self-detect
+	// onto the live Service.
+	cfgGen uint64
 
 	// Capability cache. statusCacheTTL is short (30s) because the
 	// /status endpoint is hit on every Settings page load and the
@@ -139,7 +152,14 @@ func NewService(cfg *config.DiscoveryDockerConfig) *Service {
 // lock), and the socket probe runs after the lock is released so no I/O
 // is done while holding it.
 func (s *Service) Reconfigure(cfg *config.DiscoveryDockerConfig) {
+	// Serialize whole reconfigures so the final socketWritable probe
+	// belongs to the final client (fixes a fail-open window under
+	// concurrent admin config edits).
+	s.reconfigureMu.Lock()
+	defer s.reconfigureMu.Unlock()
+
 	s.mu.Lock()
+	s.cfgGen++
 	s.cfg = *cfg
 	s.client = nil
 	// A different endpoint means a different (or no) "self" container and
@@ -360,6 +380,7 @@ var errClientNotInitialised = errors.New("discovery client not initialised; chec
 // check, then caches the result.
 func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 	s.mu.RLock()
+	gen := s.cfgGen
 	cfg := s.cfg
 	client := s.client
 	s.mu.RUnlock()
@@ -406,9 +427,11 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 		if !checked {
 			info, selfErr = client.InspectSelf(ctx)
 			s.mu.Lock()
-			s.selfChecked = true
-			s.selfInfo = info
-			s.selfErr = selfErr
+			if s.cfgGen == gen { // config unchanged under us; safe to cache
+				s.selfChecked = true
+				s.selfInfo = info
+				s.selfErr = selfErr
+			}
 			s.mu.Unlock()
 		}
 		switch {
@@ -494,6 +517,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 	case "", config.StrategyContainerIP, config.StrategyContainerDNS:
 		if cfg.NetworkFilter == "" {
 			s.mu.RLock()
+			gen := s.cfgGen
 			info := s.selfInfo
 			selfErr := s.selfErr
 			checked := s.selfChecked
@@ -501,9 +525,11 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 			if !checked {
 				info, selfErr = client.InspectSelf(ctx)
 				s.mu.Lock()
-				s.selfChecked = true
-				s.selfInfo = info
-				s.selfErr = selfErr
+				if s.cfgGen == gen { // config unchanged under us; safe to cache
+					s.selfChecked = true
+					s.selfInfo = info
+					s.selfErr = selfErr
+				}
 				s.mu.Unlock()
 			}
 			if selfErr != nil || info == nil {

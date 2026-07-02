@@ -1867,16 +1867,15 @@ func TestTick_DaemonFailureDedupesUntilRecovery(t *testing.T) {
 	}
 }
 
-// TestDedupeDesiredNames: two containers resolving to the same app name
-// collapse to one entry, with a deterministic winner (lowest DockerKey),
-// so auto-import never writes duplicate app names.
+// TestDedupeDesiredNames: two fresh containers resolving to the same name
+// collapse to one entry, winner = lowest DockerKey.
 func TestDedupeDesiredNames(t *testing.T) {
 	in := []Desired{
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},
 		{App: config.AppConfig{Name: "Radarr", DockerKey: "label:c"}},
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},
 	}
-	out := dedupeDesiredNames(in)
+	out := dedupeDesiredNames(in, nil)
 	if len(out) != 2 {
 		t.Fatalf("want 2 unique names, got %d: %+v", len(out), out)
 	}
@@ -1889,6 +1888,38 @@ func TestDedupeDesiredNames(t *testing.T) {
 	}
 	if names["Sonarr"] != "label:a" {
 		t.Errorf("winner should be the lowest DockerKey (label:a), got %q", names["Sonarr"])
+	}
+}
+
+// TestDedupeDesiredNames_RespectsIncumbent: a name already held in the
+// config by one container must not be handed to a different (even
+// lower-key) container. Otherwise the new one would be Added immediately
+// while the incumbent's removal is deferred by hysteresis, briefly
+// producing two apps of the same name.
+func TestDedupeDesiredNames_RespectsIncumbent(t *testing.T) {
+	current := []config.AppConfig{
+		{Name: "Sonarr", DockerKey: "label:b", DockerAutoImported: true},
+		{Name: "Grafana"}, // manual app, no docker key
+	}
+	in := []Desired{
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},  // challenger, lower key
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},  // incumbent, still present
+		{App: config.AppConfig{Name: "Grafana", DockerKey: "label:g"}}, // collides with a manual app
+	}
+	out := dedupeDesiredNames(in, current)
+
+	byName := map[string]string{}
+	for _, e := range out {
+		if prev, dup := byName[e.App.Name]; dup {
+			t.Errorf("duplicate name %q (keys %s and %s)", e.App.Name, prev, e.App.DockerKey)
+		}
+		byName[e.App.Name] = e.App.DockerKey
+	}
+	if byName["Sonarr"] != "label:b" {
+		t.Errorf("incumbent label:b must keep the Sonarr name, got %q", byName["Sonarr"])
+	}
+	if _, ok := byName["Grafana"]; ok {
+		t.Errorf("a name held by a manual app must not be taken by an auto-import")
 	}
 }
 
