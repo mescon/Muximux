@@ -2,6 +2,9 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"net"
 	"net/http"
 	"strings"
@@ -338,6 +341,41 @@ func matchMethod(method string, rule BypassRule) bool {
 	return false
 }
 
+// apiKeyHashPrefix marks the fast SHA-256 storage form of an API key.
+const apiKeyHashPrefix = "sha256:"
+
+// HashAPIKey returns the stored form of an API key. API keys are
+// high-entropy random tokens (not human passwords), so a plain SHA-256 is
+// as brute-force-resistant as bcrypt -- the key space is 2^256 -- without
+// bcrypt's per-verify CPU cost. That cost was an unauthenticated CPU-
+// amplification (DoS) vector on the API-key bypass path, since the compare
+// runs before authentication on every request bearing an X-Api-Key.
+func HashAPIKey(key string) string {
+	sum := sha256.Sum256([]byte(key))
+	return apiKeyHashPrefix + hex.EncodeToString(sum[:])
+}
+
+// VerifyAPIKey checks a presented key against the stored hash in constant
+// time. It accepts the new sha256: form (fast) and a legacy bcrypt hash
+// (backward compatible; slow, migrated on the next key rotation). The
+// bool return reports whether the match used the legacy bcrypt path, so
+// the caller can opportunistically upgrade the stored hash.
+func VerifyAPIKey(provided, stored string) (ok bool, legacy bool) {
+	if provided == "" || stored == "" {
+		return false, false
+	}
+	if rest, isSHA := strings.CutPrefix(stored, apiKeyHashPrefix); isSHA {
+		want, err := hex.DecodeString(rest)
+		if err != nil {
+			return false, false
+		}
+		got := sha256.Sum256([]byte(provided))
+		return subtle.ConstantTimeCompare(got[:], want) == 1, false
+	}
+	// Legacy bcrypt hash.
+	return bcrypt.CompareHashAndPassword([]byte(stored), []byte(provided)) == nil, true
+}
+
 func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 	if !rule.RequireAPIKey {
 		return true
@@ -346,7 +384,8 @@ func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 	if provided == "" || snap.config.APIKeyHash == "" {
 		return false
 	}
-	if bcrypt.CompareHashAndPassword([]byte(snap.config.APIKeyHash), []byte(provided)) != nil {
+	ok, _ := VerifyAPIKey(provided, snap.config.APIKeyHash)
+	if !ok {
 		logging.From(r.Context()).Warn("API key authentication failed", "source", "audit", "path", r.URL.Path)
 		return false
 	}

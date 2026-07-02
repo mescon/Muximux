@@ -1248,3 +1248,37 @@ func TestUpdateConfig_TrustedProxies(t *testing.T) {
 		t.Errorf("expected bob, got %s", user.Username)
 	}
 }
+
+// TestVerifyAPIKey covers the #16 fast-path: new sha256: hashes verify in
+// constant time, legacy bcrypt hashes still verify (and report legacy so
+// the caller can migrate), and mismatches/empties fail closed.
+func TestVerifyAPIKey(t *testing.T) {
+	key := "muximux_secret-token"
+	sha := HashAPIKey(key)
+	if len(sha) < 7 || sha[:7] != "sha256:" {
+		t.Fatalf("HashAPIKey format = %q", sha)
+	}
+	if ok, legacy := VerifyAPIKey(key, sha); !ok || legacy {
+		t.Errorf("sha256 verify: ok=%v legacy=%v; want true,false", ok, legacy)
+	}
+	if ok, _ := VerifyAPIKey("wrong-key", sha); ok {
+		t.Error("wrong key must not verify against a sha256 hash")
+	}
+
+	bc, err := bcrypt.GenerateFromPassword([]byte(key), bcrypt.MinCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok, legacy := VerifyAPIKey(key, string(bc)); !ok || !legacy {
+		t.Errorf("bcrypt verify: ok=%v legacy=%v; want true,true", ok, legacy)
+	}
+	if ok, _ := VerifyAPIKey("wrong-key", string(bc)); ok {
+		t.Error("wrong key must not verify against a bcrypt hash")
+	}
+	if ok, _ := VerifyAPIKey("", sha); ok {
+		t.Error("empty provided must not verify")
+	}
+	if ok, _ := VerifyAPIKey(key, ""); ok {
+		t.Error("empty stored must not verify")
+	}
+}

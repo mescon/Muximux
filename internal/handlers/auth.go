@@ -9,8 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -904,11 +902,6 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiKeyTargetCost matches the project-wide bcrypt cost used for user
-// passwords (auth.bcryptTargetCost). Hardcoded rather than imported to
-// avoid widening the auth package's exported surface for one constant.
-const apiKeyTargetCost = 12
-
 // apiKeyByteLen is the random byte budget for a generated API key.
 // 32 bytes encoded as base64url is 43 chars; with the muximux_ prefix
 // the user-visible key is 51 characters.
@@ -946,15 +939,15 @@ func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
 	}
 	plaintext := "muximux_" + base64.RawURLEncoding.EncodeToString(raw)
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), apiKeyTargetCost)
-	if err != nil {
-		respondError(w, r, http.StatusInternalServerError, "Failed to hash key", "source", "auth", "error", err)
-		return
-	}
+	// SHA-256, not bcrypt: an API key is a high-entropy token, so a fast
+	// constant-time hash is equally brute-force-resistant without bcrypt's
+	// per-verify CPU cost (an unauthenticated DoS vector on the bypass
+	// path). Existing bcrypt hashes still verify; this rotation migrates.
+	hash := auth.HashAPIKey(plaintext)
 
 	h.configMu.Lock()
 	prev := h.config.Auth.APIKeyHash
-	h.config.Auth.APIKeyHash = string(hash)
+	h.config.Auth.APIKeyHash = hash
 	saveErr := h.config.Save(h.configPath)
 	if saveErr != nil {
 		// Roll back the in-memory mutation so a failed disk write does

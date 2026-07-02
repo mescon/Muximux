@@ -13,8 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -1910,8 +1908,8 @@ func TestGenerateAPIKey_StoresHashAndReturnsPlaintextOnce(t *testing.T) {
 	if on.Auth.APIKeyHash == "" {
 		t.Fatal("APIKeyHash empty on disk after POST")
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(on.Auth.APIKeyHash), []byte(resp.Key)); err != nil {
-		t.Errorf("disk hash does not validate plaintext: %v", err)
+	if ok, _ := auth.VerifyAPIKey(resp.Key, on.Auth.APIKeyHash); !ok {
+		t.Errorf("disk hash does not validate the returned plaintext (hash=%q)", on.Auth.APIKeyHash)
 	}
 
 	// A second POST rotates the key and reports rotated=true.
