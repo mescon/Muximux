@@ -26,6 +26,7 @@ vi.mock('$lib/api', () => ({
 
 // Mock authStore
 const mockChangePassword = vi.fn();
+const mockLogin = vi.fn().mockResolvedValue({ success: true });
 const { mockIsAdmin, mockCurrentUser } = vi.hoisted(() => {
   return {
     mockIsAdmin: { value: true },
@@ -41,6 +42,7 @@ vi.mock('$lib/authStore', async () => {
     isAdmin: { subscribe: isAdminBase.subscribe },
     currentUser: { subscribe: currentUserBase.subscribe },
     changePassword: (...args: unknown[]) => mockChangePassword(...args),
+    login: (...args: unknown[]) => mockLogin(...args),
   };
 });
 
@@ -248,6 +250,59 @@ describe('SecurityTab', () => {
 
       // The Update button should not be visible
       expect(screen.queryByRole('button', { name: /update method/i })).not.toBeInTheDocument();
+    });
+
+    // #25: enabling built-in auth must NOT stash the plaintext password in
+    // web storage for an after-reload auto-login. It logs in first (setting
+    // the session cookie) and then reloads.
+    it('logs in before reload and never writes the password to sessionStorage', async () => {
+      const reloadMock = vi.fn();
+      const origLocation = window.location;
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...origLocation, reload: reloadMock },
+      });
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+
+      try {
+        // On mount there are no users (so the first-user form shows); after
+        // the user is created, loadSecurityUsers() re-fetches and must return
+        // the new user so the handler proceeds past its securityUsers guard.
+        mockListUsers.mockReset();
+        mockListUsers
+          .mockResolvedValueOnce([])
+          .mockResolvedValue([{ username: 'admin', role: 'admin', email: '', display_name: '' }]);
+        const config = makeConfig({ method: 'none' });
+        render(SecurityTab, { props: { localConfig: config } });
+
+        // Select the built-in (password) method so the first-user form shows.
+        await waitFor(() => {
+          expect(screen.getByText('Password authentication')).toBeInTheDocument();
+        });
+        await fireEvent.click(screen.getByText('Password authentication').closest('button')!);
+
+        const userInput = await screen.findByLabelText('Username');
+        const passInput = document.getElementById('setup-password') as HTMLInputElement;
+        await fireEvent.input(userInput, { target: { value: 'admin' } });
+        await fireEvent.input(passInput, { target: { value: 'sup3rsecret!' } });
+
+        await fireEvent.click(screen.getByRole('button', { name: /create user & enable/i }));
+
+        // login() is called with the just-entered credentials, before reload.
+        await waitFor(() => {
+          expect(mockLogin).toHaveBeenCalledWith('admin', 'sup3rsecret!', true);
+        });
+        expect(reloadMock).toHaveBeenCalled();
+
+        // The password must never be written to storage under any key.
+        for (const call of setItemSpy.mock.calls) {
+          expect(String(call[1])).not.toContain('sup3rsecret!');
+        }
+        expect(setItemSpy).not.toHaveBeenCalledWith('muximux_auto_login', expect.anything());
+      } finally {
+        setItemSpy.mockRestore();
+        Object.defineProperty(window, 'location', { configurable: true, value: origLocation });
+      }
     });
   });
 

@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/mescon/muximux/v3/internal/auth"
+	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/health"
 )
 
@@ -21,14 +24,23 @@ func setupHealthTest(t *testing.T) *HealthHandler {
 		{Name: "radarr", URL: "http://localhost:7878", Enabled: true},
 	})
 
-	handler := NewHealthHandler(monitor)
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "sonarr"}, {Name: "radarr"}}}
+	handler := NewHealthHandler(monitor, cfg, &sync.RWMutex{})
 	return handler
+}
+
+// adminHealthReq builds a request whose context carries an admin user, as the
+// auth middleware does in production, so the handler's visibility filter has a
+// user to evaluate.
+func adminHealthReq(method, path string) *http.Request {
+	req := httptest.NewRequest(method, path, nil)
+	return req.WithContext(auth.WithUserContext(req.Context(), &auth.User{Username: "admin", Role: auth.RoleAdmin}))
 }
 
 func TestGetAllHealth(t *testing.T) {
 	handler := setupHealthTest(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
+	req := adminHealthReq(http.MethodGet, "/api/health")
 	w := httptest.NewRecorder()
 
 	handler.GetAllHealth(w, req)
@@ -59,11 +71,51 @@ func TestGetAllHealth(t *testing.T) {
 	}
 }
 
+// TestHealth_FiltersByAppVisibility guards that the health endpoints do not
+// expose an app hidden from the caller by min_role / allowed_groups.
+func TestHealth_FiltersByAppVisibility(t *testing.T) {
+	monitor := health.NewMonitor(30*time.Second, 5*time.Second)
+	monitor.SetApps([]health.AppConfig{
+		{Name: "public", URL: "http://localhost:1", Enabled: true},
+		{Name: "secret", URL: "http://localhost:2", Enabled: true},
+	})
+	cfg := &config.Config{Apps: []config.AppConfig{
+		{Name: "public"},
+		{Name: "secret", AllowedGroups: []string{"admins"}},
+	}}
+	h := NewHealthHandler(monitor, cfg, &sync.RWMutex{})
+
+	nonAdmin := func(method, path string) *http.Request {
+		req := httptest.NewRequest(method, path, nil)
+		return req.WithContext(auth.WithUserContext(req.Context(), &auth.User{Username: "bob", Role: auth.RoleUser}))
+	}
+
+	// GetAllHealth: non-admin sees only the unrestricted app.
+	w := httptest.NewRecorder()
+	h.GetAllHealth(w, nonAdmin(http.MethodGet, "/api/apps/health"))
+	var all []*health.AppHealth
+	if err := json.NewDecoder(w.Body).Decode(&all); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	for _, ah := range all {
+		if ah.Name == "secret" {
+			t.Fatal("non-admin must not see the restricted app's health")
+		}
+	}
+
+	// GetAppHealth: the restricted app reads as 404, not an existence oracle.
+	w = httptest.NewRecorder()
+	h.GetAppHealth(w, nonAdmin(http.MethodGet, "/api/apps/secret/health"))
+	if w.Code != http.StatusNotFound {
+		t.Errorf("restricted app health should 404 for a non-admin, got %d", w.Code)
+	}
+}
+
 func TestGetAppHealth(t *testing.T) {
 	t.Run("found", func(t *testing.T) {
 		handler := setupHealthTest(t)
 
-		req := httptest.NewRequest(http.MethodGet, "/api/apps/sonarr/health", nil)
+		req := adminHealthReq(http.MethodGet, "/api/apps/sonarr/health")
 		w := httptest.NewRecorder()
 
 		handler.GetAppHealth(w, req)
@@ -84,7 +136,7 @@ func TestGetAppHealth(t *testing.T) {
 	t.Run("not found", func(t *testing.T) {
 		handler := setupHealthTest(t)
 
-		req := httptest.NewRequest(http.MethodGet, "/api/apps/nonexistent/health", nil)
+		req := adminHealthReq(http.MethodGet, "/api/apps/nonexistent/health")
 		w := httptest.NewRecorder()
 
 		handler.GetAppHealth(w, req)
@@ -97,7 +149,7 @@ func TestGetAppHealth(t *testing.T) {
 	t.Run("empty name", func(t *testing.T) {
 		handler := setupHealthTest(t)
 
-		req := httptest.NewRequest(http.MethodGet, "/api/apps//health", nil)
+		req := adminHealthReq(http.MethodGet, "/api/apps//health")
 		w := httptest.NewRecorder()
 
 		handler.GetAppHealth(w, req)
@@ -112,7 +164,7 @@ func TestCheckAppHealth(t *testing.T) {
 	t.Run("not found", func(t *testing.T) {
 		handler := setupHealthTest(t)
 
-		req := httptest.NewRequest(http.MethodPost, "/api/apps/nonexistent/health/check", nil)
+		req := adminHealthReq(http.MethodPost, "/api/apps/nonexistent/health/check")
 		w := httptest.NewRecorder()
 
 		handler.CheckAppHealth(w, req)
@@ -125,7 +177,7 @@ func TestCheckAppHealth(t *testing.T) {
 	t.Run("wrong method", func(t *testing.T) {
 		handler := setupHealthTest(t)
 
-		req := httptest.NewRequest(http.MethodGet, "/api/apps/sonarr/health/check", nil)
+		req := adminHealthReq(http.MethodGet, "/api/apps/sonarr/health/check")
 		w := httptest.NewRecorder()
 
 		handler.CheckAppHealth(w, req)
@@ -138,7 +190,7 @@ func TestCheckAppHealth(t *testing.T) {
 	t.Run("empty name", func(t *testing.T) {
 		handler := setupHealthTest(t)
 
-		req := httptest.NewRequest(http.MethodPost, "/api/apps//health/check", nil)
+		req := adminHealthReq(http.MethodPost, "/api/apps//health/check")
 		w := httptest.NewRecorder()
 
 		handler.CheckAppHealth(w, req)
@@ -160,9 +212,10 @@ func TestCheckAppHealth(t *testing.T) {
 			{Name: "testapp", URL: backend.URL, Enabled: true},
 		})
 
-		handler := NewHealthHandler(monitor)
+		cfg := &config.Config{Apps: []config.AppConfig{{Name: "testapp"}}}
+		handler := NewHealthHandler(monitor, cfg, &sync.RWMutex{})
 
-		req := httptest.NewRequest(http.MethodPost, "/api/apps/testapp/health/check", nil)
+		req := adminHealthReq(http.MethodPost, "/api/apps/testapp/health/check")
 		w := httptest.NewRecorder()
 
 		handler.CheckAppHealth(w, req)

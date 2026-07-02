@@ -2,11 +2,15 @@
   import { onMount } from 'svelte';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { appName, action, image, uptimeOrExit, onconfirm, oncancel }: {
+  let { appName, action, image, uptimeOrExit, loading = false, onconfirm, oncancel }: {
     appName: string;
     action: 'stop' | 'restart';
     image: string;
     uptimeOrExit: string;
+    // While an action is in flight the modal stays open in a disabled,
+    // non-dismissable state so the operator sees progress and cannot
+    // re-fire or cancel a running start/stop/restart.
+    loading?: boolean;
     onconfirm?: () => void;
     oncancel?: () => void;
   } = $props();
@@ -25,6 +29,7 @@
   // the dialog, and torn down on unmount.
   onMount(() => {
     const handler = (e: KeyboardEvent) => {
+      if (loading) return; // ignore keys while an action is running
       if (e.key === 'Escape') {
         e.preventDefault();
         oncancel?.();
@@ -44,6 +49,7 @@
   data-testid="docker-confirm-modal-backdrop"
   role="presentation"
   onclick={(e) => {
+    if (loading) return; // don't dismiss while an action is running
     if (e.target === e.currentTarget) oncancel?.();
   }}
 >
@@ -52,12 +58,16 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="docker-confirm-heading"
+    aria-busy={loading}
   >
     <h2 id="docker-confirm-heading" class="modal-heading">{heading}</h2>
     <p class="modal-body">{m.docker_modal_body({ image, uptimeOrExit })}</p>
     <div class="modal-actions">
-      <button type="button" class="btn" onclick={() => oncancel?.()}>{m.common_cancel()}</button>
-      <button type="button" class="btn btn-primary" autofocus onclick={() => onconfirm?.()}>
+      <button type="button" class="btn" disabled={loading} onclick={() => oncancel?.()}>{m.common_cancel()}</button>
+      <button type="button" class="btn btn-primary" autofocus disabled={loading} onclick={() => onconfirm?.()}>
+        {#if loading}
+          <span class="inline-block w-4 h-4 me-2 border-2 border-white/30 border-t-white rounded-full animate-spin align-[-2px]"></span>
+        {/if}
         {m.common_confirm()}
       </button>
     </div>

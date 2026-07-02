@@ -37,6 +37,19 @@ describe('DiscoveryRelinkModal probe outcomes', () => {
     expect(screen.getByTestId('relink-confirm-btn')).toBeInTheDocument();
   });
 
+  it('closes on Escape (focus-trap a11y)', async () => {
+    mockApi.probeDockerRelink.mockResolvedValue({
+      found: true,
+      container: { key: 'name:sonarr', name: 'sonarr', image: 'linuxserver/sonarr' },
+    } satisfies DiscoveryRelinkProbeResult);
+    const onClose = vi.fn();
+    render(DiscoveryRelinkModal, { trackingKey: 'name:sonarr-old', onClose });
+
+    const dialog = await screen.findByTestId('relink-modal');
+    await fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalled();
+  });
+
   it('renders the candidate picker when no match is found', async () => {
     mockApi.probeDockerRelink.mockResolvedValue({
       found: false,

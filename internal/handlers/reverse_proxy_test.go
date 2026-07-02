@@ -3729,3 +3729,255 @@ func TestBuildUpgradeRequest_StripsCookieAndInjectsHeaders(t *testing.T) {
 		t.Errorf("expected request line + Host, got:\n%s", out)
 	}
 }
+
+// TestRewriteResponseBody_OverLimitForwardsFullStream: a chunked response
+// (unknown Content-Length) larger than the rewrite limit must be
+// forwarded in full, not truncated to the first maxRewriteSize bytes.
+func TestRewriteResponseBody_OverLimitForwardsFullStream(t *testing.T) {
+	old := maxRewriteSize
+	maxRewriteSize = 1024
+	defer func() { maxRewriteSize = old }()
+
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	body := "<html>" + strings.Repeat("x", 4096) + `<a href="/foo">` + strings.Repeat("y", 4096) + "</html>"
+	if int64(len(body)) <= maxRewriteSize {
+		t.Fatal("test body must exceed the lowered limit")
+	}
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: -1, // chunked / unknown length
+	}
+	resp.Header.Set("Content-Type", "text/html")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if string(got) != body {
+		t.Errorf("over-limit body must be forwarded in full and unmodified: got %d bytes, want %d", len(got), len(body))
+	}
+}
+
+// TestRewriteResponseBody_OverLimitGzipForwardsCompressed: a gzipped
+// response whose DECOMPRESSED size exceeds the limit (but whose compressed
+// size is under it, so it isn't fast-path skipped) must forward the
+// original compressed stream verbatim, keeping Content-Encoding: gzip.
+func TestRewriteResponseBody_OverLimitGzipForwardsCompressed(t *testing.T) {
+	old := maxRewriteSize
+	maxRewriteSize = 1024
+	defer func() { maxRewriteSize = old }()
+
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	plain := "<html>" + strings.Repeat("z", 8192) + "</html>" // decompresses > limit
+	var gzbuf bytes.Buffer
+	gw := gzip.NewWriter(&gzbuf)
+	if _, err := gw.Write([]byte(plain)); err != nil {
+		t.Fatal(err)
+	}
+	gw.Close()
+	compressed := gzbuf.Bytes()
+	if int64(len(compressed)) > maxRewriteSize {
+		t.Fatal("compressed body must be under the limit so it is not fast-path skipped")
+	}
+
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(bytes.NewReader(compressed)),
+		ContentLength: int64(len(compressed)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "gzip")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if !bytes.Equal(got, compressed) {
+		t.Errorf("over-limit gzip must forward the original compressed stream: got %d bytes, want %d", len(got), len(compressed))
+	}
+	if resp.Header.Get("Content-Encoding") != "gzip" {
+		t.Errorf("Content-Encoding must remain gzip, got %q", resp.Header.Get("Content-Encoding"))
+	}
+}
+
+// TestExpandHeaderValue covers the #388 identity-forwarding templates.
+func TestExpandHeaderValue(t *testing.T) {
+	user := &auth.User{Username: "alice", Role: "admin", Email: "a@x.io", DisplayName: "Alice A", Groups: []string{"staff", "ops"}}
+	cases := []struct {
+		name, in string
+		user     *auth.User
+		want     string
+	}{
+		{"static value untouched", "Bearer secret-token", user, "Bearer secret-token"},
+		{"dollar without brace untouched", "pa$$word", user, "pa$$word"},
+		{"user", "${user}", user, "alice"},
+		{"role", "${role}", user, "admin"},
+		{"email", "${email}", user, "a@x.io"},
+		{"display_name", "${display_name}", user, "Alice A"},
+		{"groups joined", "${groups}", user, "staff,ops"},
+		{"embedded + multiple", "u=${user};r=${role}", user, "u=alice;r=admin"},
+		{"unknown var left literal", "${unknown}", user, "${unknown}"},
+		{"unauthenticated -> empty", "${user}", nil, ""},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := expandHeaderValue(c.in, c.user); got != c.want {
+				t.Errorf("expandHeaderValue(%q) = %q, want %q", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+// TestExpandHeaderValue_SanitizesCRLF: a crafted username (e.g. from an
+// IdP claim) must not inject a header via CR/LF/NUL.
+func TestExpandHeaderValue_SanitizesCRLF(t *testing.T) {
+	user := &auth.User{Username: "alice\r\nX-Injected: evil", Role: "user\x00"}
+	if got := expandHeaderValue("${user}", user); strings.ContainsAny(got, "\r\n\x00") {
+		t.Errorf("expanded value must not contain CR/LF/NUL: %q", got)
+	}
+	if got := expandHeaderValue("${user}", user); got != "aliceX-Injected: evil" {
+		t.Errorf("unexpected sanitized value: %q", got)
+	}
+}
+
+// TestBuildDirector_ExpandsIdentityHeaders: the Director resolves ${user}
+// per request from the auth context and leaves static headers alone.
+func TestBuildDirector_ExpandsIdentityHeaders(t *testing.T) {
+	target, _ := url.Parse("http://backend:8080")
+	dir := buildDirector("/proxy/app", "", target,
+		map[string]string{"X-Forwarded-User": "${user}", "X-Static": "keep"}, "muximux_session")
+
+	req := httptest.NewRequest(http.MethodGet, "/proxy/app/foo", nil)
+	req = req.WithContext(context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{Username: "bob"}))
+	dir(req)
+
+	if got := req.Header.Get("X-Forwarded-User"); got != "bob" {
+		t.Errorf("templated header not expanded from context: %q", got)
+	}
+	if got := req.Header.Get("X-Static"); got != "keep" {
+		t.Errorf("static header must be unchanged: %q", got)
+	}
+}
+
+// TestRewriteResponseBody_NonGzipEncodingPassThrough: a response with a
+// non-gzip Content-Encoding (e.g. br) must be forwarded untouched -- body
+// AND the encoding header -- not have its header stripped off a still-
+// compressed body.
+func TestRewriteResponseBody_NonGzipEncodingPassThrough(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	body := "\x1b\x2f\x00brotli-compressed-bytes-here" // opaque compressed bytes
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: int64(len(body)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "br")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Header.Get("Content-Encoding") != "br" {
+		t.Errorf("Content-Encoding must be preserved, got %q", resp.Header.Get("Content-Encoding"))
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if string(got) != body {
+		t.Errorf("body must be forwarded byte-for-byte")
+	}
+}
+
+// TestRewriteRootPathAttrs_SkipsInlineScript (#29): the HTML-attribute
+// path pattern must not rewrite ${...}-free root paths that appear inside
+// an inline <script> (they're JS assignments, not HTML attributes), but
+// must still rewrite real HTML attributes -- including a <script src>.
+func TestRewriteRootPathAttrs_SkipsInlineScript(t *testing.T) {
+	r := newContentRewriter("/proxy/app", "", "")
+	in := `<div data-x="/a"></div>` +
+		`<script src="/loader.js">var apiBase="/api/v1"; go("/dash");</script>` +
+		`<a href="/c">x</a>`
+	out := string(r.rewriteRootPathAttrs([]byte(in)))
+
+	// Inline JS assignments must be untouched.
+	if !strings.Contains(out, `var apiBase="/api/v1"`) {
+		t.Errorf("inline script JS must not be rewritten:\n%s", out)
+	}
+	if !strings.Contains(out, `go("/dash")`) {
+		t.Errorf("inline script call arg must not be rewritten:\n%s", out)
+	}
+	// Real HTML attributes (incl. the script's own src) must be rewritten.
+	for _, want := range []string{`data-x="/proxy/app/a"`, `src="/proxy/app/loader.js"`, `href="/proxy/app/c"`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("expected %q in:\n%s", want, out)
+		}
+	}
+}
+
+// TestDeadlineResettingBody_Delegates (#9): the rolling-deadline body
+// wrapper forwards reads to the underlying body (the SetReadDeadline call
+// is best-effort and ignored when unsupported).
+func TestDeadlineResettingBody_Delegates(t *testing.T) {
+	rc := http.NewResponseController(httptest.NewRecorder()) // no deadline support
+	b := &deadlineResettingBody{
+		ReadCloser: io.NopCloser(strings.NewReader("upload-bytes")),
+		rc:         rc,
+		timeout:    time.Second,
+	}
+	got, err := io.ReadAll(b)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	if string(got) != "upload-bytes" {
+		t.Errorf("body must be delegated verbatim, got %q", got)
+	}
+}
+
+// TestContentEncodingKind classifies encodings for the rewrite guard.
+func TestContentEncodingKind(t *testing.T) {
+	cases := map[string]encodingKind{
+		"":           encodingIdentity,
+		"identity":   encodingIdentity,
+		"gzip":       encodingGzip,
+		"GZIP":       encodingGzip,
+		" gzip ":     encodingGzip,
+		"x-gzip":     encodingGzip, // legacy alias, identical wire format
+		"X-Gzip":     encodingGzip,
+		"br":         encodingOther,
+		"x-compress": encodingOther, // LZW, not gzip -- must NOT be decoded as gzip
+		"gzip, br":   encodingOther, // layered -> not a single gzip layer
+		"br, gzip":   encodingOther,
+		"gzip, gzip": encodingOther,
+		"deflate":    encodingOther,
+	}
+	for in, want := range cases {
+		if got := contentEncodingKind(in); got != want {
+			t.Errorf("contentEncodingKind(%q) = %d, want %d", in, got, want)
+		}
+	}
+}
+
+// TestRewriteResponseBody_LayeredEncodingPassThrough: a multi-value
+// Content-Encoding (gzip, br) must be forwarded untouched, not fed to the
+// gzip reader (which would 502 or, for br,gzip, corrupt the body).
+func TestRewriteResponseBody_LayeredEncodingPassThrough(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	body := "opaque-doubly-compressed-bytes"
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: int64(len(body)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "gzip, br")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("layered encoding must not error (502): %v", err)
+	}
+	if resp.Header.Get("Content-Encoding") != "gzip, br" {
+		t.Errorf("Content-Encoding must be preserved, got %q", resp.Header.Get("Content-Encoding"))
+	}
+	got, _ := io.ReadAll(resp.Body)
+	if string(got) != body {
+		t.Errorf("body must be forwarded byte-for-byte")
+	}
+}

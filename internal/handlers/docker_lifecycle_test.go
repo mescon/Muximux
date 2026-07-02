@@ -52,18 +52,20 @@ func (s *stubDockerService) SetDockerStateForApp(name string, st *discovery.Dock
 type stubDockerHub struct {
 	mu     sync.Mutex
 	events []struct {
-		AppName string
-		State   websocket.DockerStatePayload
+		AppName    string
+		State      websocket.DockerStatePayload
+		Restricted bool
 	}
 }
 
-func (h *stubDockerHub) BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload) {
+func (h *stubDockerHub) BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload, restricted bool) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.events = append(h.events, struct {
-		AppName string
-		State   websocket.DockerStatePayload
-	}{appName, *state})
+		AppName    string
+		State      websocket.DockerStatePayload
+		Restricted bool
+	}{appName, *state, restricted})
 }
 
 func newDockerLifecycleHandler(t *testing.T, cfg *config.DiscoveryDockerConfig, apps []config.AppConfig, svc *stubDockerService, hub *stubDockerHub, opFn func(context.Context, string) error) (*APIHandler, *http.Request) {
@@ -341,6 +343,28 @@ func TestDockerStart_NotInAllowedGroup_Denied(t *testing.T) {
 	h.DockerStart(w, r, "sonarr")
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("want 403, got %d", w.Code)
+	}
+}
+
+// TestDockerStart_AppAccessDenied_Denied: a user who clears the lifecycle
+// gate but is not allowed to SEE the app (its per-app min_role) must not
+// be able to control its container.
+func TestDockerStart_AppAccessDenied_Denied(t *testing.T) {
+	op := func(_ context.Context, _ string) error { t.Fatal("op must not run"); return nil }
+	svc := &stubDockerService{writable: true, resolvedIDs: map[string]string{"name:/sonarr": "abc123"}}
+	h, r := newDockerLifecycleHandler(t,
+		&config.DiscoveryDockerConfig{LifecycleEnabled: true, LifecycleMinRole: "user"},
+		// The app is admin-only; a plain user passes the lifecycle gate
+		// (min_role user) but must be blocked by the app's own min_role.
+		[]config.AppConfig{{Name: "sonarr", DockerKey: "name:/sonarr", MinRole: "admin"}},
+		svc, &stubDockerHub{}, op,
+	)
+	user := &auth.User{Username: "lowpriv", Role: auth.RoleUser}
+	r = r.WithContext(auth.WithUserContext(r.Context(), user))
+	w := httptest.NewRecorder()
+	h.DockerStart(w, r, "sonarr")
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("want 403 (per-app access denied), got %d", w.Code)
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -156,7 +157,35 @@ func (h *DiscoveryHandler) GetDockerStateMap(w http.ResponseWriter, r *http.Requ
 		sendJSON(w, http.StatusOK, map[string]discovery.DockerState{})
 		return
 	}
-	sendJSON(w, http.StatusOK, svc.DockerStateSnapshot())
+
+	// Filter to apps the caller is allowed to see. The state map is keyed
+	// by app name and, without this, exposed the container status, image,
+	// uptime, and restart count of every tracked app to any authenticated
+	// user -- including apps hidden from them by min_role / allowed_groups.
+	// This mirrors the per-app gate the lifecycle (control) handlers apply.
+	// Fail closed: a request with no user in context sees nothing.
+	full := svc.DockerStateSnapshot()
+	user := auth.GetUserFromContext(r.Context())
+	if user == nil {
+		sendJSON(w, http.StatusOK, map[string]discovery.DockerState{})
+		return
+	}
+	h.configMu.RLock()
+	accessible := make(map[string]bool, len(h.config.Apps))
+	for i := range h.config.Apps {
+		if appAccessible(user, &h.config.Apps[i]) {
+			accessible[h.config.Apps[i].Name] = true
+		}
+	}
+	h.configMu.RUnlock()
+
+	visible := make(map[string]discovery.DockerState, len(full))
+	for name, st := range full {
+		if accessible[name] {
+			visible[name] = st
+		}
+	}
+	sendJSON(w, http.StatusOK, visible)
 }
 
 // UpdateDockerConfig handles PUT /api/discovery/docker/config. The
@@ -215,13 +244,16 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 	}
 	h.configMu.Unlock()
 
-	// Rebuild the service. NewService is cheap (no network calls)
-	// and returns a non-nil pointer even when the new config is
-	// disabled or has a structurally bad endpoint.
-	newService := discovery.NewService(&newCfg)
-	h.serviceMu.Lock()
-	h.service = newService
-	h.serviceMu.Unlock()
+	// Reconfigure the shared service IN PLACE. The same *Service is held
+	// by the poller and the lifecycle op closures, so rebuilding it in
+	// place (rather than swapping only this handler's pointer) makes the
+	// change take effect everywhere without a restart -- enabling
+	// discovery, changing the endpoint, etc. all reach the poller and
+	// lifecycle handlers on the next tick / action.
+	h.serviceMu.RLock()
+	svc := h.service
+	h.serviceMu.RUnlock()
+	svc.Reconfigure(&newCfg)
 
 	logging.Audit("Discovery config updated",
 		"endpoint", newCfg.Endpoint,
@@ -229,7 +261,7 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 		"enabled", newCfg.Enabled)
 
 	// Return the fresh status so the UI can update without a follow-up GET.
-	sendJSON(w, http.StatusOK, newService.Status(r.Context()))
+	sendJSON(w, http.StatusOK, svc.Status(r.Context()))
 }
 
 // ScanDocker handles GET /api/discovery/docker/scan. Walks the

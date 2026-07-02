@@ -443,7 +443,13 @@ func TestCSRFMiddleware(t *testing.T) {
 	}{
 		{"GET API passes through", "GET", "/api/config", "", "", http.StatusOK},
 		{"POST API with JSON passes", "POST", "/api/config", "application/json", "", http.StatusOK},
-		{"POST API with multipart passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "", http.StatusOK},
+		// multipart/form-data is a CORS-simple content type: a cross-origin
+		// fetch can send it with credentials and NO preflight. It must NOT
+		// be a CSRF-safe marker on its own -- the upload has to carry
+		// X-Requested-With (which the SPA sends and cross-origin callers
+		// cannot set without a preflight we never grant).
+		{"POST API with multipart alone blocked", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "", http.StatusForbidden},
+		{"POST API with multipart + XRW passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "XMLHttpRequest", http.StatusOK},
 		{"POST API with x-yaml passes", "POST", "/api/config/import", "application/x-yaml", "", http.StatusOK},
 		{"POST API without content-type blocked", "POST", "/api/config", "", "", http.StatusForbidden},
 		{"POST API with text/plain blocked", "POST", "/api/config", "text/plain", "", http.StatusForbidden},
@@ -1108,7 +1114,9 @@ func TestRegisterAPIRoutes(t *testing.T) {
 			{Name: "Group1", Color: "#ff0000"},
 		},
 	}
-	api := handlers.NewAPIHandler(cfg, "", &sync.RWMutex{})
+	// Real temp config path so SaveConfig writes into t.TempDir() instead
+	// of failing a rename in the package dir (which leaked .config-*.yaml).
+	api := handlers.NewAPIHandler(cfg, filepath.Join(t.TempDir(), "config.yaml"), &sync.RWMutex{})
 
 	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
 		return next
@@ -1410,7 +1418,9 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 			{Name: "sonarr", URL: "http://a:8080", Enabled: true},
 		},
 	}
-	api := handlers.NewAPIHandler(cfg, "", &sync.RWMutex{})
+	// Real temp config path so SaveConfig writes into t.TempDir() instead
+	// of failing a rename in the package dir (which leaked .config-*.yaml).
+	api := handlers.NewAPIHandler(cfg, filepath.Join(t.TempDir(), "config.yaml"), &sync.RWMutex{})
 
 	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
 		return next
@@ -1465,7 +1475,7 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 // handler onto a bare mux exactly as New() does, then proves GET reaches the
 // handler (200, not a routing 404) and a non-GET hits the method guard (405).
 func TestRoutes_DockerStateMap_Registered(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "sonarr"}}}
 	cfg.Discovery.Docker.Enabled = true
 	svc := discovery.NewService(&cfg.Discovery.Docker)
 	svc.SetDockerStateForApp("sonarr", &discovery.DockerState{Status: "running", Image: "img"})
@@ -1473,7 +1483,12 @@ func TestRoutes_DockerStateMap_Registered(t *testing.T) {
 	dh := handlers.NewDiscoveryHandler(svc, cfg, "", &sync.RWMutex{}, nil)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/discovery/docker-state", dh.GetDockerStateMap)
+	// In production the global RequireAuth injects the user; mimic that here
+	// so the handler's per-app visibility filter has a user to check against.
+	mux.HandleFunc("/api/discovery/docker-state", func(w http.ResponseWriter, r *http.Request) {
+		r = r.WithContext(auth.WithUserContext(r.Context(), &auth.User{Username: "admin", Role: auth.RoleAdmin}))
+		dh.GetDockerStateMap(w, r)
+	})
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -3070,4 +3085,36 @@ func TestServerStop(t *testing.T) {
 			t.Fatalf("Stop: %v", err)
 		}
 	})
+}
+
+// TestServer_setHealthApps_TracksConfigChanges: the health monitor's app
+// set follows config changes (the config-saved callback calls this), so
+// added/removed/edited apps take effect without a restart. Regression
+// guard for the monitor being frozen at its boot snapshot.
+func TestServer_setHealthApps_TracksConfigChanges(t *testing.T) {
+	mon := health.NewMonitor(time.Minute, time.Second)
+	s := &Server{healthMonitor: mon}
+	yes := true
+
+	s.setHealthApps([]config.AppConfig{
+		{Name: "A", URL: "http://a", Enabled: true, HealthCheck: &yes},
+	})
+	if _, ok := mon.GetAllHealth()["A"]; !ok {
+		t.Fatal("app A should be registered after setHealthApps")
+	}
+
+	// Config changed: A removed, B added.
+	s.setHealthApps([]config.AppConfig{
+		{Name: "B", URL: "http://b", Enabled: true, HealthCheck: &yes},
+	})
+	all := mon.GetAllHealth()
+	if _, ok := all["A"]; ok {
+		t.Error("app A should drop out of the monitor after removal")
+	}
+	if _, ok := all["B"]; !ok {
+		t.Error("app B should be added to the monitor after config change")
+	}
+
+	// A nil monitor must be a safe no-op.
+	(&Server{}).setHealthApps([]config.AppConfig{{Name: "X"}})
 }

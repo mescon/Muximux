@@ -1235,16 +1235,22 @@ func TestTick_AutoImportSyncRemovesVanished(t *testing.T) {
 		OnSave: func() error { saveCalls++; return nil },
 	})
 
-	p.tick(context.Background())
+	// Removal is subject to the absence grace window (hysteresis), so the
+	// container must be missing across syncRemovalGraceTicks scans before
+	// sync removes it. Tick through the grace; only the final tick commits
+	// the removal (one Save).
+	for i := 0; i < syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
 
 	if findAppByKey(cfg, "label:gone") != nil {
-		t.Errorf("sync mode should remove vanished auto app; apps=%+v", cfg.Apps)
+		t.Errorf("sync mode should remove vanished auto app after the grace period; apps=%+v", cfg.Apps)
 	}
 	if findSiteByKey(cfg, "label:gone") != nil {
-		t.Errorf("sync mode should remove the vanished gateway site; sites=%+v", cfg.Server.GatewaySites)
+		t.Errorf("sync mode should remove the vanished gateway site after the grace period; sites=%+v", cfg.Server.GatewaySites)
 	}
 	if saveCalls != 1 {
-		t.Errorf("Save called %d times, want 1", saveCalls)
+		t.Errorf("Save called %d times, want 1 (removal commits once, at the end of the grace window)", saveCalls)
 	}
 }
 
@@ -1429,7 +1435,8 @@ func TestTick_GatewaySyncReconcile_AppURLStable_SiteRefreshes(t *testing.T) {
 // app and the gateway site must be restored to their prior state.
 func TestTick_AutoImportRollbackOnSaveFailure_Gateway(t *testing.T) {
 	// Empty daemon: the tracked gateway container has vanished, so sync mode
-	// plans a removal of both the app and its sibling site.
+	// plans a removal of both the app and its sibling site once the absence
+	// grace window elapses.
 	set := []ContainerSummary{}
 	socket, cleanup := mutableDaemonForPoller(t, &set)
 	defer cleanup()
@@ -1457,7 +1464,11 @@ func TestTick_AutoImportRollbackOnSaveFailure_Gateway(t *testing.T) {
 		OnSave: func() error { return errors.New("synthetic save failure") },
 	})
 
-	p.tick(context.Background())
+	// Tick through the grace window; the final tick actually attempts the
+	// removal, whose save fails and must roll back.
+	for i := 0; i < syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
 
 	if findAppByKey(cfg, "label:sonarr-auto") == nil {
 		t.Errorf("save failure must roll back the removal; app missing, apps=%+v", cfg.Apps)
@@ -1475,6 +1486,96 @@ func gwSonarr() ContainerSummary {
 	c.Labels[LabelAppGatewayDomain] = "sonarr.example.com"
 	c.Labels[LabelGatewayTLS] = "auto"
 	return c
+}
+
+// TestTick_AutoImportSync_ScanFailureDoesNotDeleteApps is a regression
+// guard for a data-loss bug: in sync mode a failed/blocked scan produced
+// an empty desired set, and Reconcile then treated every auto-imported
+// app as "vanished" and deleted it. A transient daemon hiccup must never
+// wipe the tracked apps. Here the container list succeeds (so the tick
+// proceeds past the URL-refresh pass) but the self-detect scan is blocked
+// (network_filter empty + no self-inspect endpoint served), so
+// svc.Scan() returns ScanBlocked with no suggestions.
+// TestTick_AutoImportSync_TransientEmptyScanDefersRemoval: a successful
+// scan that returns an empty container list is ambiguous (a transient
+// daemon hiccup looks identical to "all containers genuinely removed").
+// Removal must be deferred until the absence persists for the grace
+// window, so one empty scan can't wipe every auto-imported entry.
+func TestTick_AutoImportSync_TransientEmptyScanDefersRemoval(t *testing.T) {
+	set := []ContainerSummary{} // daemon is up (200) but the list is empty
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: "container_ip", DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.5:8989",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket,
+	}}
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy, OnSave: func() error { return nil }})
+
+	// One empty scan must not remove anything.
+	p.tick(context.Background())
+	if findAppByKey(cfg, "label:sonarr-auto") == nil || findSiteByKey(cfg, "label:sonarr-auto") == nil {
+		t.Fatal("a single empty scan must not remove the auto-imported entry")
+	}
+
+	// Sustained absence past the grace window removes it (mirror upheld).
+	for i := 0; i < syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
+	if findAppByKey(cfg, "label:sonarr-auto") != nil || findSiteByKey(cfg, "label:sonarr-auto") != nil {
+		t.Error("sustained absence should remove the auto-imported entry after the grace period")
+	}
+}
+
+func TestTick_AutoImportSync_ScanFailureDoesNotDeleteApps(t *testing.T) {
+	set := []ContainerSummary{} // container list succeeds but is empty
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	// Empty network_filter forces the self-detect path, which is blocked
+	// in the test env (the fake daemon serves no self-inspect endpoint).
+	dockerCfg.NetworkFilter = ""
+	cfg.Discovery.Docker.NetworkFilter = ""
+	// Pre-existing auto-imported app + its gateway site.
+	cfg.Apps = []config.AppConfig{{
+		Name: "Sonarr", URL: "https://sonarr.example.com",
+		DockerKey: "label:sonarr-auto", DockerAutoImported: true,
+	}}
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.5:8989",
+		DockerKey: "label:sonarr-auto",
+	}}
+	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	saveCalls := 0
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { saveCalls++; return nil },
+	})
+
+	p.tick(context.Background())
+
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Fatal("scan failure must NOT delete the auto-imported app")
+	}
+	if findSiteByKey(cfg, "label:sonarr-auto") == nil {
+		t.Fatal("scan failure must NOT delete the auto-imported gateway site")
+	}
+	if saveCalls != 0 {
+		t.Errorf("no config change expected on a blocked scan; Save called %d times", saveCalls)
+	}
 }
 
 func TestTick_AutoImportAdd_GatewaySite(t *testing.T) {
@@ -1706,5 +1807,189 @@ func TestTick_AutoImportSkipsSelfAndNetworkFiltered(t *testing.T) {
 	}
 	if findAppByKey(cfg, "label:sonarr-auto") == nil {
 		t.Errorf("media-network sonarr should import; apps=%+v", cfg.Apps)
+	}
+}
+
+// TestPoller_StopConcurrentWithRun exercises Stop racing Run's startup,
+// where both touch p.stop/p.done. Meaningful under -race. Discovery is
+// disabled so tick() returns immediately and Run is a no-op loop.
+func TestPoller_StopConcurrentWithRun(t *testing.T) {
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{
+		Config:   &config.Config{}, // discovery disabled -> tick() returns early
+		ConfigMu: &mu,
+		Service:  NewService(&config.DiscoveryDockerConfig{}),
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan struct{})
+	go func() { p.Run(ctx); close(done) }()
+	p.Stop()
+	cancel()
+	<-done
+}
+
+// TestTick_DaemonFailureDedupesUntilRecovery: repeated ListContainers
+// failures set daemonDown once (so the warning is logged once, not every
+// tick), and a later success clears it (logging recovery once).
+func TestTick_DaemonFailureDedupesUntilRecovery(t *testing.T) {
+	failing := true
+	mux := http.NewServeMux()
+	mux.HandleFunc("/_ping", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	mux.HandleFunc("/v1.41/containers/json", func(w http.ResponseWriter, _ *http.Request) {
+		if failing {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		_ = json.NewEncoder(w).Encode([]ContainerSummary{})
+	})
+	socket, cleanup := fakeDockerOverUnix(t, mux)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "a", DockerKey: "label:a", DockerEndpoint: "unix://" + socket}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+
+	p.tick(context.Background())
+	if !p.daemonDown {
+		t.Fatal("first ListContainers failure must set daemonDown")
+	}
+	p.tick(context.Background())
+	if !p.daemonDown {
+		t.Fatal("daemonDown must stay set across repeated failures")
+	}
+	failing = false
+	p.tick(context.Background())
+	if p.daemonDown {
+		t.Error("a successful listing must clear daemonDown (recovery)")
+	}
+}
+
+// TestDedupeDesiredNames: two fresh containers resolving to the same name
+// collapse to one entry, winner = lowest DockerKey.
+func TestDedupeDesiredNames(t *testing.T) {
+	in := []Desired{
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},
+		{App: config.AppConfig{Name: "Radarr", DockerKey: "label:c"}},
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},
+	}
+	out := dedupeDesiredNames(in, nil)
+	if len(out) != 2 {
+		t.Fatalf("want 2 unique names, got %d: %+v", len(out), out)
+	}
+	names := map[string]string{}
+	for _, e := range out {
+		if _, dup := names[e.App.Name]; dup {
+			t.Errorf("duplicate name survived: %q", e.App.Name)
+		}
+		names[e.App.Name] = e.App.DockerKey
+	}
+	if names["Sonarr"] != "label:a" {
+		t.Errorf("winner should be the lowest DockerKey (label:a), got %q", names["Sonarr"])
+	}
+}
+
+// TestDedupeDesiredNames_RespectsIncumbent: a name already held in the
+// config by one container must not be handed to a different (even
+// lower-key) container. Otherwise the new one would be Added immediately
+// while the incumbent's removal is deferred by hysteresis, briefly
+// producing two apps of the same name.
+func TestDedupeDesiredNames_RespectsIncumbent(t *testing.T) {
+	current := []config.AppConfig{
+		{Name: "Sonarr", DockerKey: "label:b", DockerAutoImported: true},
+		{Name: "Grafana"}, // manual app, no docker key
+	}
+	in := []Desired{
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},  // challenger, lower key
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},  // incumbent, still present
+		{App: config.AppConfig{Name: "Grafana", DockerKey: "label:g"}}, // collides with a manual app
+	}
+	out := dedupeDesiredNames(in, current)
+
+	byName := map[string]string{}
+	for _, e := range out {
+		if prev, dup := byName[e.App.Name]; dup {
+			t.Errorf("duplicate name %q (keys %s and %s)", e.App.Name, prev, e.App.DockerKey)
+		}
+		byName[e.App.Name] = e.App.DockerKey
+	}
+	if byName["Sonarr"] != "label:b" {
+		t.Errorf("incumbent label:b must keep the Sonarr name, got %q", byName["Sonarr"])
+	}
+	if _, ok := byName["Grafana"]; ok {
+		t.Errorf("a name held by a manual app must not be taken by an auto-import")
+	}
+}
+
+// TestService_ReconfigureReachesPoller proves the runtime-config fix: the
+// poller and the service share one *Service, so reconfiguring it in place
+// (enable discovery / change endpoint at runtime) reaches the poller
+// without a restart -- rather than only the discovery handler seeing a
+// freshly-swapped pointer.
+func TestService_ReconfigureReachesPoller(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+
+	// Service starts disabled (no client); the poller shares it.
+	svc := NewService(&config.DiscoveryDockerConfig{Enabled: false})
+	if svc.currentClient() != nil {
+		t.Fatal("disabled service must have no client")
+	}
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+
+	p.tick(context.Background())
+	if len(cfg.Apps) != 0 {
+		t.Fatalf("poller must not import while the service has no client; apps=%+v", cfg.Apps)
+	}
+
+	// Enable at runtime by reconfiguring the SAME service pointer.
+	svc.Reconfigure(dockerCfg)
+	if svc.currentClient() == nil {
+		t.Fatal("reconfigured (enabled) service must have a client")
+	}
+	p.tick(context.Background())
+	if findAppByKey(cfg, "label:sonarr-auto") == nil {
+		t.Error("after Reconfigure the poller must pick up the new client and import")
+	}
+
+	// Disabling clears the client again.
+	svc.Reconfigure(&config.DiscoveryDockerConfig{Enabled: false})
+	if svc.currentClient() != nil {
+		t.Error("disabling must clear the client")
+	}
+}
+
+// TestService_ReconfigureConcurrentWithReaders validates the lock pairing
+// between Reconfigure (writes cfg/client under s.mu) and readers like
+// currentClient/Status. Meaningful under -race. Uses empty-endpoint
+// configs so no socket probe runs (kept fast).
+func TestService_ReconfigureConcurrentWithReaders(t *testing.T) {
+	svc := NewService(&config.DiscoveryDockerConfig{Enabled: false})
+	a := config.DiscoveryDockerConfig{Enabled: true, Endpoint: ""}
+	b := config.DiscoveryDockerConfig{Enabled: false}
+	done := make(chan struct{})
+	go func() {
+		for i := 0; i < 100; i++ {
+			if i%2 == 0 {
+				svc.Reconfigure(&a)
+			} else {
+				svc.Reconfigure(&b)
+			}
+		}
+		close(done)
+	}()
+	for {
+		select {
+		case <-done:
+			return
+		default:
+			_ = svc.currentClient()
+			_ = svc.Status(context.Background())
+		}
 	}
 }

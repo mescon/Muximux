@@ -2,6 +2,9 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"net"
 	"net/http"
 	"strings"
@@ -81,6 +84,23 @@ type Middleware struct {
 	snap         atomic.Pointer[authSnapshot]
 	sessionStore *SessionStore
 	userStore    *UserStore
+
+	// onAPIKeyUpgrade, when set, is invoked after a successful API-key
+	// verify that used a legacy (bcrypt) stored hash, so the stored hash
+	// can be migrated to the fast sha256: form on first use -- closing the
+	// unauthenticated bcrypt DoS window without waiting for a manual key
+	// rotation. It is wired once at server setup (before serving) and read
+	// on the request path; apiKeyUpgrading gates it so a burst of
+	// concurrent legacy-key requests triggers at most one in-flight
+	// migration rather than one persist per request.
+	onAPIKeyUpgrade func(oldHash, newHash string)
+	apiKeyUpgrading atomic.Bool
+}
+
+// SetOnAPIKeyUpgrade wires the opportunistic legacy-hash migration hook.
+// Call once during setup, before the middleware serves any request.
+func (m *Middleware) SetOnAPIKeyUpgrade(fn func(oldHash, newHash string)) {
+	m.onAPIKeyUpgrade = fn
 }
 
 // NewMiddleware creates a new auth middleware
@@ -179,7 +199,7 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 
 		// Check bypass rules — still attempt best-effort auth so that
 		// bypassed endpoints (e.g. /api/auth/status) can see the user.
-		if shouldBypass(r, snap) {
+		if m.shouldBypass(r, snap) {
 			logging.From(r.Context()).Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
 			user, session := m.authenticateRequest(r, snap)
 			if user != nil {
@@ -299,20 +319,25 @@ func (m *Middleware) RequireRole(roles ...string) func(http.Handler) http.Handle
 	}
 }
 
-func shouldBypass(r *http.Request, snap *authSnapshot) bool {
+func (m *Middleware) shouldBypass(r *http.Request, snap *authSnapshot) bool {
 	for _, rule := range snap.config.BypassRules {
-		if matchBypassRule(r, rule, snap) {
+		if m.matchBypassRule(r, rule, snap) {
 			return true
 		}
 	}
 	return false
 }
 
-func matchBypassRule(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
+func (m *Middleware) matchBypassRule(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
+	// matchAPIKey is evaluated last because it carries a side effect (the
+	// opportunistic legacy-hash migration). Gating it behind the pure
+	// path/method/IP checks means the migration only fires for a request
+	// that actually clears the whole rule -- not for a correct key
+	// presented from a disallowed IP.
 	return matchPath(r.URL.Path, rule) &&
 		matchMethod(r.Method, rule) &&
-		matchAPIKey(r, rule, snap) &&
-		matchAllowedIPs(r, rule, snap)
+		matchAllowedIPs(r, rule, snap) &&
+		m.matchAPIKey(r, rule, snap)
 }
 
 func matchPath(requestPath string, rule BypassRule) bool {
@@ -338,7 +363,46 @@ func matchMethod(method string, rule BypassRule) bool {
 	return false
 }
 
-func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
+// apiKeyHashPrefix marks the fast SHA-256 storage form of an API key.
+const apiKeyHashPrefix = "sha256:"
+
+// HashAPIKey returns the stored form of an API key. API keys are
+// high-entropy random tokens (not human passwords), so a plain SHA-256 is
+// as brute-force-resistant as bcrypt -- the key space is 2^256 -- without
+// bcrypt's per-verify CPU cost. That cost was an unauthenticated CPU-
+// amplification (DoS) vector on the API-key bypass path, since the compare
+// runs before authentication on every request bearing an X-Api-Key.
+func HashAPIKey(key string) string {
+	sum := sha256.Sum256([]byte(key))
+	return apiKeyHashPrefix + hex.EncodeToString(sum[:])
+}
+
+// VerifyAPIKey checks a presented key against the stored hash in constant
+// time. It accepts the new sha256: form (fast) and a legacy bcrypt hash
+// (backward compatible; slow).
+//
+// The legacy bool reports whether the match used the bcrypt path.
+// matchAPIKey consumes it to opportunistically migrate a legacy bcrypt hash
+// to the sha256: form on the first successful verify (via onAPIKeyUpgrade),
+// so an existing install closes the unauthenticated bcrypt DoS window
+// without waiting for a manual key rotation.
+func VerifyAPIKey(provided, stored string) (ok bool, legacy bool) {
+	if provided == "" || stored == "" {
+		return false, false
+	}
+	if rest, isSHA := strings.CutPrefix(stored, apiKeyHashPrefix); isSHA {
+		want, err := hex.DecodeString(rest)
+		if err != nil {
+			return false, false
+		}
+		got := sha256.Sum256([]byte(provided))
+		return subtle.ConstantTimeCompare(got[:], want) == 1, false
+	}
+	// Legacy bcrypt hash.
+	return bcrypt.CompareHashAndPassword([]byte(stored), []byte(provided)) == nil, true
+}
+
+func (m *Middleware) matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 	if !rule.RequireAPIKey {
 		return true
 	}
@@ -346,9 +410,33 @@ func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 	if provided == "" || snap.config.APIKeyHash == "" {
 		return false
 	}
-	if bcrypt.CompareHashAndPassword([]byte(snap.config.APIKeyHash), []byte(provided)) != nil {
+	ok, legacy := VerifyAPIKey(provided, snap.config.APIKeyHash)
+	if !ok {
 		logging.From(r.Context()).Warn("API key authentication failed", "source", "audit", "path", r.URL.Path)
 		return false
+	}
+	// Opportunistically migrate a legacy bcrypt hash to the fast sha256:
+	// form on first successful use. The verify above proved `provided` is
+	// the correct key, so sha256(provided) is a valid replacement. Pass
+	// the old hash too so the persist can compare-and-swap and skip if the
+	// stored hash changed (e.g. a concurrent rotation) since this verify.
+	// Fire at most one migration at a time; the disk write runs off the
+	// request goroutine so it never adds latency to the auth path.
+	if legacy && m.onAPIKeyUpgrade != nil && m.apiKeyUpgrading.CompareAndSwap(false, true) {
+		oldHash := snap.config.APIKeyHash
+		newHash := HashAPIKey(provided)
+		go func() {
+			defer m.apiKeyUpgrading.Store(false)
+			// net/http only recovers panics on its own serving
+			// goroutines; a panic here would crash the process. Contain
+			// it -- a failed migration must never take the server down.
+			defer func() {
+				if rec := recover(); rec != nil {
+					logging.Error("API key auto-upgrade hook panicked", "source", "audit", "panic", rec)
+				}
+			}()
+			m.onAPIKeyUpgrade(oldHash, newHash)
+		}()
 	}
 	return true
 }

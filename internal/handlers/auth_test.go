@@ -13,8 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -45,6 +43,76 @@ func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore) {
 
 	handler := NewAuthHandler(sessionStore, userStore, nil, "", nil, &sync.RWMutex{})
 	return handler, sessionStore
+}
+
+// TestLogin_PopulatesSessionGroups guards the gateway group gate against
+// fail-closed denial of builtin users. sessionInAllowedGroups reads a
+// user's groups from session.Data["groups"], which OIDC populates but the
+// builtin login path historically did not. A builtin user who is a member
+// of a gateway site's allowed_groups was therefore denied at a require_auth
+// gate. This asserts the builtin login now stores the user's groups in the
+// session, and that a group-gated site accepts the resulting session.
+func TestLogin_PopulatesSessionGroups(t *testing.T) {
+	sessionStore := auth.NewSessionStore("muximux_session", 24*time.Hour, false)
+	userStore := auth.NewUserStore()
+
+	hash, err := auth.HashPassword("testpass123")
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+	userStore.LoadFromConfig([]auth.UserConfig{
+		{
+			Username:     "member",
+			PasswordHash: hash,
+			Role:         "user",
+			Groups:       []string{"media", "admins"},
+		},
+	})
+	handler := NewAuthHandler(sessionStore, userStore, nil, "", nil, &sync.RWMutex{})
+
+	body, _ := json.Marshal(LoginRequest{ //nolint:gosec // test fixture
+		Username: "member",
+		Password: "testpass123",
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.Login(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var sessionID string
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "muximux_session" {
+			sessionID = c.Value
+			break
+		}
+	}
+	if sessionID == "" {
+		t.Fatal("expected session cookie to be set")
+	}
+
+	sess := sessionStore.Get(sessionID)
+	if sess == nil {
+		t.Fatal("expected session to exist in store")
+	}
+	raw, ok := sess.Data["groups"]
+	if !ok {
+		t.Fatal("expected session.Data[\"groups\"] to be populated for builtin login")
+	}
+	groups, ok := raw.([]string)
+	if !ok {
+		t.Fatalf("expected groups to be []string, got %T", raw)
+	}
+	if len(groups) != 2 || groups[0] != "media" || groups[1] != "admins" {
+		t.Errorf("expected groups [media admins], got %v", groups)
+	}
+
+	// The gateway group gate must now accept this session.
+	if !sessionInAllowedGroups(sess, []string{"admins"}) {
+		t.Error("expected group-gated site to accept a builtin member of the group")
+	}
 }
 
 func TestLogin(t *testing.T) {
@@ -1054,6 +1122,43 @@ func TestUpdateUser(t *testing.T) {
 	})
 }
 
+// TestDeleteUser_RevokesSessions: deleting a user must invalidate their
+// live sessions. Otherwise the deleted account stays authenticated (and,
+// via userFromSession, keeps its captured role) until the session's
+// 7-day absolute expiry -- defeating deletion as an access-revocation
+// control. ChangePassword already does this; deletion must too.
+func TestDeleteUser_RevokesSessions(t *testing.T) {
+	handler, sessionStore := setupAuthTest(t)
+
+	hash, _ := auth.HashPassword("password123")
+	if err := handler.userStore.Add(&auth.User{
+		ID: "victim", Username: "victim", PasswordHash: hash, Role: "user",
+	}); err != nil {
+		t.Fatalf("add user: %v", err)
+	}
+	sess, err := sessionStore.Create("victim", "victim", "user")
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+	if sessionStore.Get(sess.ID) == nil {
+		t.Fatal("precondition: victim session must exist")
+	}
+
+	currentUser := &auth.User{ID: "admin", Username: "admin", Role: "admin"}
+	req := httptest.NewRequest(http.MethodDelete, "/api/auth/users/victim", nil)
+	req = req.WithContext(context.WithValue(req.Context(), auth.ContextKeyUser, currentUser))
+	w := httptest.NewRecorder()
+
+	handler.DeleteUser(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+	if sessionStore.Get(sess.ID) != nil {
+		t.Error("deleting a user must revoke their active sessions")
+	}
+}
+
 func TestDeleteUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)
@@ -1836,6 +1941,48 @@ func TestAPIKeyStatus_Unconfigured(t *testing.T) {
 	}
 }
 
+// TestUpgradeAPIKeyHash covers the opportunistic legacy-hash migration
+// hook: it upgrades and persists only when the stored hash still matches
+// the old (legacy) value the middleware verified against (compare-and-
+// swap), and is a no-op on mismatch or when already migrated.
+func TestUpgradeAPIKeyHash(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+
+	legacy, err := auth.HashPassword("muximux_apikey") // bcrypt = legacy form
+	if err != nil {
+		t.Fatalf("hash: %v", err)
+	}
+	handler.config.Auth.APIKeyHash = legacy
+	if err := handler.config.Save(configPath); err != nil {
+		t.Fatalf("seed save: %v", err)
+	}
+	newHash := auth.HashAPIKey("muximux_apikey")
+
+	// CAS mismatch: the stored hash is not the one we claim to have
+	// verified against -> no upgrade.
+	handler.UpgradeAPIKeyHash("sha256:stale", newHash)
+	if handler.config.Auth.APIKeyHash != legacy {
+		t.Fatalf("must not upgrade on oldHash mismatch: got %q", handler.config.Auth.APIKeyHash)
+	}
+
+	// CAS match: upgrades in memory and persists to disk.
+	handler.UpgradeAPIKeyHash(legacy, newHash)
+	if handler.config.Auth.APIKeyHash != newHash {
+		t.Fatalf("expected in-memory upgrade to sha256, got %q", handler.config.Auth.APIKeyHash)
+	}
+	on := loadConfigForTest(t, configPath)
+	if on.Auth.APIKeyHash != newHash {
+		t.Fatalf("upgrade not persisted: disk hash = %q", on.Auth.APIKeyHash)
+	}
+
+	// Idempotent: replaying the old (legacy) oldHash after migration is a
+	// no-op -- the stored hash is now sha256, not the legacy value.
+	handler.UpgradeAPIKeyHash(legacy, auth.HashAPIKey("someone-elses-key"))
+	if handler.config.Auth.APIKeyHash != newHash {
+		t.Fatalf("second upgrade should be a no-op, got %q", handler.config.Auth.APIKeyHash)
+	}
+}
+
 func TestGenerateAPIKey_StoresHashAndReturnsPlaintextOnce(t *testing.T) {
 	handler, configPath := setupAuthTestWithConfig(t)
 
@@ -1873,8 +2020,8 @@ func TestGenerateAPIKey_StoresHashAndReturnsPlaintextOnce(t *testing.T) {
 	if on.Auth.APIKeyHash == "" {
 		t.Fatal("APIKeyHash empty on disk after POST")
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(on.Auth.APIKeyHash), []byte(resp.Key)); err != nil {
-		t.Errorf("disk hash does not validate plaintext: %v", err)
+	if ok, _ := auth.VerifyAPIKey(resp.Key, on.Auth.APIKeyHash); !ok {
+		t.Errorf("disk hash does not validate the returned plaintext (hash=%q)", on.Auth.APIKeyHash)
 	}
 
 	// A second POST rotates the key and reports rotated=true.

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/auth"
+	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
 	"github.com/mescon/muximux/v3/internal/logging"
 	"github.com/mescon/muximux/v3/internal/websocket"
@@ -55,7 +56,7 @@ type DockerServiceAPI interface {
 // DockerHubBroadcaster is the narrow surface the lifecycle handlers
 // need from websocket.Hub. Same rationale as DockerServiceAPI.
 type DockerHubBroadcaster interface {
-	BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload)
+	BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload, restricted bool)
 }
 
 // dockerOp is the signature of the underlying daemon call. Start has
@@ -119,12 +120,11 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 	}
 
 	h.mu.RLock()
-	var appName, dockerKey string
+	var app config.AppConfig
 	var found bool
 	for i := range h.config.Apps {
 		if h.config.Apps[i].Name == name {
-			appName = h.config.Apps[i].Name
-			dockerKey = h.config.Apps[i].DockerKey
+			app = h.config.Apps[i]
 			found = true
 			break
 		}
@@ -134,6 +134,19 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 		respondError(w, r, http.StatusNotFound, errAppNotFound)
 		return
 	}
+	// Per-app access gate: a user who clears the lifecycle gate above but
+	// is not allowed to SEE this app (its own min_role / allowed_groups)
+	// must not be able to control its container. The lifecycle gate alone
+	// governs the capability; this governs which apps it applies to.
+	// Mirrors http_action's appAccessible; admins bypass by role.
+	if !appAccessible(user, &app) {
+		logging.Audit("Docker lifecycle action denied",
+			"app", name, "action", action, "caller", caller, "reason", "app_access_denied")
+		respondError(w, r, http.StatusForbidden, errAccessDenied)
+		return
+	}
+	appName := app.Name
+	dockerKey := app.DockerKey
 	if dockerKey == "" {
 		respondError(w, r, http.StatusBadRequest, errAppNotDockerTracked)
 		return
@@ -193,7 +206,11 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 
 	h.dockerService.SetDockerStateForApp(appName, &newState)
 	if h.dockerHub != nil {
-		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState))
+		// A restricted app (min_role / allowed_groups) broadcasts its
+		// realtime state to admins only, matching the docker-state GET
+		// filter, so a non-admin can't learn a hidden app's state.
+		restricted := app.MinRole != "" || len(app.AllowedGroups) > 0
+		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState), restricted)
 	}
 
 	logging.Audit("Docker lifecycle action succeeded",

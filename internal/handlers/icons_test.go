@@ -304,6 +304,43 @@ func TestUploadCustomIcon(t *testing.T) {
 		}
 	})
 
+	// A client can set any Content-Type on a multipart part. If the upload
+	// handler trusts that header, an attacker uploads HTML/JS bytes while
+	// declaring image/svg+xml; the icon is stored as .svg and later served
+	// with Content-Type: image/svg+xml -- stored XSS on the dashboard
+	// origin. The handler must sniff the bytes and reject a payload that is
+	// not actually one of the allowed image types.
+	t.Run("rejects html masquerading as svg", func(t *testing.T) {
+		dir := t.TempDir()
+		handler, _ := NewIconHandler(nil, nil, dir)
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+		h := make(textproto.MIMEHeader)
+		h["Content-Disposition"] = []string{`form-data; name="icon"; filename="evil.svg"`}
+		h["Content-Type"] = []string{"image/svg+xml"}
+		part, err := writer.CreatePart(h)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = part.Write([]byte(`<!DOCTYPE html><html><body><script>alert(document.domain)</script></body></html>`)); err != nil {
+			t.Fatal(err)
+		}
+		if err = writer.WriteField("name", "evil"); err != nil {
+			t.Fatal(err)
+		}
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		w := httptest.NewRecorder()
+		handler.UploadCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400 for html-as-svg upload, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
 	t.Run("no file", func(t *testing.T) {
 		dir := t.TempDir()
 		handler, _ := NewIconHandler(nil, nil, dir)

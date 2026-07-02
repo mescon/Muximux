@@ -116,6 +116,28 @@ apps:
 | `proxy_skip_tls_verify` | `true` | When the backend uses HTTPS with a self-signed or internal CA certificate, this skips verification. Set to `false` if you want strict TLS validation. |
 | `proxy_headers` | (none) | Key-value map of headers added to every request forwarded to the backend. Useful for API keys or auth tokens the app requires. |
 
+#### Forwarding the signed-in user's identity
+
+A `proxy_headers` value can reference the authenticated Muximux user, so the backend can do header-based ("proxy") auth without its own login. Use any of these variables in a value:
+
+| Variable | Expands to |
+|---|---|
+| `${user}` | Username |
+| `${role}` | `admin` / `power-user` / `user` |
+| `${email}` | Email (if known) |
+| `${display_name}` | Display name |
+| `${groups}` | Group memberships, comma-separated |
+
+```yaml
+proxy_headers:
+  X-Forwarded-User: "${user}"
+  X-Forwarded-Groups: "${groups}"
+```
+
+The values are resolved per request from the current session and stripped of any CR/LF/NUL, so a crafted identity claim can't inject a header. On an unauthenticated instance (`auth.method: none`) the variables expand to empty. Static values (API keys, bearer tokens) are sent verbatim -- only values containing `${...}` are templated.
+
+> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux -- bind the backend to Muximux's network / an internal address so a client can't send `X-Forwarded-User` directly. This is the same trust model as any reverse-proxy header auth.
+
 The global `server.proxy_timeout` (default: `30s`) controls how long the proxy waits for a backend response before timing out. This applies to all proxied apps.
 
 ### When to Use It

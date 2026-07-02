@@ -59,10 +59,23 @@ func (h *APIHandler) SetDockerLifecycleDeps(svc DockerServiceAPI, hub DockerHubB
 // NewAPIHandler creates a new API handler
 func NewAPIHandler(cfg *config.Config, configPath string, mu *sync.RWMutex) *APIHandler {
 	return &APIHandler{
-		config:       cfg,
-		configPath:   configPath,
-		mu:           mu,
-		actionClient: &http.Client{Timeout: 10 * time.Second},
+		config:     cfg,
+		configPath: configPath,
+		mu:         mu,
+		actionClient: &http.Client{
+			Timeout: 10 * time.Second,
+			// Do not follow redirects. http_action targets are admin-
+			// configured (a private-IP homelab webhook is legitimate, so
+			// the initial request is intentionally not IP-filtered), but a
+			// redirect Location is controlled by the target server -- an
+			// external target that 302s to a link-local/loopback address
+			// would turn this into a server-side SSRF probe. Returning the
+			// 3xx as-is keeps the direct-hit use case working while closing
+			// the redirect vector.
+			CheckRedirect: func(*http.Request, []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		},
 	}
 }
 
@@ -100,13 +113,25 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	cfg := *h.config
-	h.mu.RUnlock()
-
-	// Deep-copy slices that will be mutated to avoid writing through the
-	// shared backing array into the live config.
+	// Copy the slices we will read during the (unlocked) marshal off the
+	// live backing arrays. The poller and UpdateApp mutate Apps/Groups/
+	// GatewaySites elements in place under the write lock, so marshalling
+	// the shared arrays after RUnlock is a data race. Copying under the
+	// lock is safe (RLock excludes the writer); the marshal then runs on
+	// our private arrays. Users additionally gets its secrets stripped.
 	users := make([]config.UserConfig, len(cfg.Auth.Users))
 	copy(users, cfg.Auth.Users)
 	cfg.Auth.Users = users
+	apps := make([]config.AppConfig, len(cfg.Apps))
+	copy(apps, cfg.Apps)
+	cfg.Apps = apps
+	groups := make([]config.GroupConfig, len(cfg.Groups))
+	copy(groups, cfg.Groups)
+	cfg.Groups = groups
+	sites := make([]config.GatewaySite, len(cfg.Server.GatewaySites))
+	copy(sites, cfg.Server.GatewaySites)
+	cfg.Server.GatewaySites = sites
+	h.mu.RUnlock()
 
 	// Strip sensitive auth data
 	for i := range cfg.Auth.Users {
@@ -697,6 +722,14 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	newApp := clientAppToConfig(&clientApp)
 	newApp.Order = len(h.config.Apps) // Add at end
 
+	// Validate before persisting: Config.Save does not validate, so an
+	// invalid http_action would be written to disk and only rejected on
+	// the next boot's Load, taking the whole config down with it.
+	if err := config.ValidateApp(&newApp); err != nil {
+		respondError(w, r, http.StatusBadRequest, "Invalid app: "+err.Error())
+		return
+	}
+
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps = append(h.config.Apps, newApp)
 
@@ -747,6 +780,13 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		logging.Audit("Docker tracking auto-detached on URL change",
 			"kind", "app", "name", updated.Name,
 			"previous_key", detachKey)
+	}
+
+	// Validate before persisting (see CreateApp): reject an invalid
+	// http_action up front rather than writing it to disk.
+	if err := config.ValidateApp(&updated); err != nil {
+		respondError(w, r, http.StatusBadRequest, "Invalid app: "+err.Error())
+		return
 	}
 
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)

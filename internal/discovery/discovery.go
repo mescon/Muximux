@@ -17,15 +17,28 @@ import (
 // results to keep the /status endpoint cheap, and tracks the
 // last-divergence state for the Settings banner.
 //
-// Service is constructed once per Server lifecycle. When discovery
-// config changes at runtime the Server replaces the Service rather
-// than mutating the existing one - the client transport may need
-// to be rebuilt (TLS settings, endpoint scheme), and rebuild-on-swap
-// is simpler than diff-and-reconfigure.
+// Service is constructed once per Server lifecycle and shared by the
+// poller, the lifecycle handlers, and the status handler. When discovery
+// config changes at runtime, Reconfigure rebuilds it IN PLACE (new client
+// transport, reset caches) under s.mu, so the single shared pointer
+// reflects the change everywhere without re-wiring each holder.
 type Service struct {
+	// reconfigureMu serializes Reconfigure calls end to end (including
+	// the post-swap socket probe) so two concurrent config updates can't
+	// interleave and leave socketWritable reflecting a client that is no
+	// longer current. Distinct from mu: readers take mu (fast), never
+	// this, so a slow probe under reconfigureMu doesn't block them.
+	reconfigureMu sync.Mutex
+
 	mu     sync.RWMutex
 	cfg    config.DiscoveryDockerConfig
 	client *Client // nil when discovery is disabled or NewClient failed
+	// cfgGen increments on every Reconfigure. Long-running probes
+	// (refreshStatus/Scan self-detect) capture it before their I/O and
+	// discard their cache write-back if it changed underneath them, so a
+	// probe against a now-replaced daemon can't stamp stale self-detect
+	// onto the live Service.
+	cfgGen uint64
 
 	// Capability cache. statusCacheTTL is short (30s) because the
 	// /status endpoint is hit on every Settings page load and the
@@ -65,10 +78,21 @@ type Service struct {
 	dockerStateMu sync.RWMutex
 	dockerState   dockerStateCache
 
-	// socketWritable is set once at Service construction by the
-	// capability probe. The lifecycle handlers return 503 when this
-	// is false; the Settings tab surfaces "socket is read-only" as a
-	// status line.
+	// dockerStateSeq is a monotonic counter bumped on every manual
+	// (lifecycle-handler) write to dockerState, and manualSeq records the
+	// counter value at each app's last manual write. The poller captures
+	// the counter when it snapshots the cache and hands it back at commit
+	// time so its wholesale map replacement does not clobber a lifecycle
+	// write that landed mid-tick (the write exists precisely to show fresh
+	// post-action state before the next poll). Guarded by dockerStateMu.
+	dockerStateSeq       uint64
+	dockerStateManualSeq map[string]uint64
+
+	// socketWritable is set by the capability probe at construction and
+	// re-probed on every Reconfigure (reset to false first, so lifecycle
+	// fails closed until the new probe succeeds). The lifecycle handlers
+	// return 503 when this is false; the Settings tab surfaces "socket is
+	// read-only" as a status line.
 	socketWritable bool
 }
 
@@ -119,13 +143,44 @@ type StatusResult struct {
 // When the client cannot be built, the error is captured in
 // statusCache.LastError and surfaced via Status().
 func NewService(cfg *config.DiscoveryDockerConfig) *Service {
-	if cfg == nil {
-		return &Service{}
+	s := &Service{}
+	if cfg != nil {
+		s.Reconfigure(cfg)
 	}
-	s := &Service{cfg: *cfg}
+	return s
+}
+
+// Reconfigure rebuilds the service in place from a new discovery config.
+// The single *Service is shared by the poller, the lifecycle handlers,
+// and the status handler, so mutating in place -- rather than allocating
+// a fresh Service and swapping only one holder's pointer -- makes a
+// runtime config change (enable/disable discovery, or point at a
+// different daemon) take effect everywhere without a restart.
+//
+// Safe to call concurrently with readers: the cfg/client swap happens
+// under s.mu (readers take currentClient() / Scan() under the same
+// lock), and the socket probe runs after the lock is released so no I/O
+// is done while holding it.
+func (s *Service) Reconfigure(cfg *config.DiscoveryDockerConfig) {
+	// Serialize whole reconfigures so the final socketWritable probe
+	// belongs to the final client (fixes a fail-open window under
+	// concurrent admin config edits).
+	s.reconfigureMu.Lock()
+	defer s.reconfigureMu.Unlock()
+
+	s.mu.Lock()
+	s.cfgGen++
+	s.cfg = *cfg
+	s.client = nil
+	// A different endpoint means a different (or no) "self" container and
+	// a stale status; force both to re-resolve.
+	s.selfChecked = false
+	s.selfInfo = nil
+	s.selfErr = nil
+	s.statusCache = StatusResult{}
+	s.statusCachedAt = time.Time{}
 	if cfg.Enabled && cfg.Endpoint != "" {
-		client, err := NewClient(cfg)
-		if err == nil {
+		if client, err := NewClient(cfg); err == nil {
 			s.client = client
 		} else {
 			s.statusCache = StatusResult{
@@ -137,18 +192,43 @@ func NewService(cfg *config.DiscoveryDockerConfig) *Service {
 			s.statusCachedAt = time.Now()
 		}
 	}
-	if s.client != nil {
-		// Best-effort probe with a short timeout so a slow socket
-		// doesn't block boot. The lifecycle flag stays false until
-		// the probe completes successfully. Running it synchronously
-		// here - before the Service is handed to any poller or
-		// handler - means socketWritable is stamped before any
-		// concurrent reader exists.
+	hasClient := s.client != nil
+	s.mu.Unlock()
+
+	// socketWritable lives under dockerStateMu; fail closed until the
+	// probe re-runs against the new client.
+	s.dockerStateMu.Lock()
+	s.socketWritable = false
+	s.dockerStateMu.Unlock()
+
+	if hasClient {
+		// Best-effort probe with a short timeout so a slow socket doesn't
+		// block the caller. The lifecycle flag stays false until it
+		// succeeds.
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		s.ProbeSocket(ctx)
 		cancel()
 	}
-	return s
+}
+
+// currentClient returns the active docker client under the read lock so a
+// concurrent Reconfigure can swap it without racing readers. nil when
+// discovery is disabled or the client failed to build.
+func (s *Service) currentClient() *Client {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.client
+}
+
+// snapshotCfg returns a copy of the current discovery config under the
+// read lock. Callers use the returned value for the duration of a call so
+// a concurrent Reconfigure can't tear a multi-field read. The struct is
+// copied by value; its slice fields are only ever replaced wholesale (by
+// Reconfigure), never mutated in place, so the shallow copy is safe.
+func (s *Service) snapshotCfg() config.DiscoveryDockerConfig {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.cfg
 }
 
 // Status returns the cached capability state, refreshing the cache
@@ -160,7 +240,7 @@ func (s *Service) Status(ctx context.Context) StatusResult {
 	// reachability. socketWritable comes from the boot-time probe;
 	// lifecycle_enabled mirrors config.
 	r.SocketWritable = s.SocketWritable()
-	r.LifecycleEnabled = s.cfg.LifecycleEnabled
+	r.LifecycleEnabled = s.snapshotCfg().LifecycleEnabled
 	return r
 }
 
@@ -169,17 +249,18 @@ func (s *Service) Status(ctx context.Context) StatusResult {
 // the exported Status wrapper.
 func (s *Service) status(ctx context.Context) StatusResult {
 	s.mu.RLock()
+	cfg := s.cfg
 	cached := s.statusCache
 	cachedAt := s.statusCachedAt
 	clientPresent := s.client != nil
 	s.mu.RUnlock()
 
-	if !s.cfg.Enabled {
+	if !cfg.Enabled {
 		// Disabled - no client, no probe.
 		return StatusResult{
 			Configured: false,
-			Endpoint:   s.cfg.Endpoint,
-			Strategy:   s.cfg.NetworkStrategy,
+			Endpoint:   cfg.Endpoint,
+			Strategy:   cfg.NetworkStrategy,
 		}
 	}
 	if !clientPresent {
@@ -308,31 +389,45 @@ var errClientNotInitialised = errors.New("discovery client not initialised; chec
 // refreshStatus does the actual probe + selfDetect + TLS-hygiene
 // check, then caches the result.
 func (s *Service) refreshStatus(ctx context.Context) StatusResult {
+	s.mu.RLock()
+	gen := s.cfgGen
+	cfg := s.cfg
+	client := s.client
+	s.mu.RUnlock()
+
 	r := StatusResult{
 		Configured: true,
-		Endpoint:   s.cfg.Endpoint,
-		Strategy:   s.cfg.NetworkStrategy,
+		Endpoint:   cfg.Endpoint,
+		Strategy:   cfg.NetworkStrategy,
 	}
 
 	// TLS file hygiene runs even when the daemon is unreachable so
 	// the operator gets the warning early.
-	if w := tlsHygieneWarning(&s.cfg.TLS); w != "" {
+	if w := tlsHygieneWarning(&cfg.TLS); w != "" {
 		r.TLSWarning = w
 	}
 
-	if err := s.client.Ping(ctx); err != nil {
+	// The client may have been cleared by a concurrent Reconfigure
+	// between status()'s presence check and here.
+	if client == nil {
+		r.LastError = errClientNotInitialised.Error()
+		s.cacheStatus(&r)
+		return r
+	}
+
+	if err := client.Ping(ctx); err != nil {
 		r.LastError = err.Error()
 		s.cacheStatus(&r)
 		return r
 	}
 	r.Reachable = true
 
-	if v, err := s.client.Version(ctx); err == nil {
+	if v, err := client.Version(ctx); err == nil {
 		r.APIVersion = v.APIVersion
 	}
 
 	// Strategy probe: only network-membership strategies need self-detect.
-	switch s.cfg.NetworkStrategy {
+	switch cfg.NetworkStrategy {
 	case config.StrategyContainerIP, config.StrategyContainerDNS:
 		s.mu.RLock()
 		checked := s.selfChecked
@@ -340,18 +435,20 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 		selfErr := s.selfErr
 		s.mu.RUnlock()
 		if !checked {
-			info, selfErr = s.client.InspectSelf(ctx)
+			info, selfErr = client.InspectSelf(ctx)
 			s.mu.Lock()
-			s.selfChecked = true
-			s.selfInfo = info
-			s.selfErr = selfErr
+			if s.cfgGen == gen { // config unchanged under us; safe to cache
+				s.selfChecked = true
+				s.selfInfo = info
+				s.selfErr = selfErr
+			}
 			s.mu.Unlock()
 		}
 		switch {
 		case selfErr == nil && info != nil:
 			r.StrategyOK = true
 			r.SelfDetect = string(info.Method)
-		case s.cfg.NetworkFilter != "":
+		case cfg.NetworkFilter != "":
 			// selfDetect failed but operator scoped via network_filter,
 			// which substitutes for self-membership.
 			r.StrategyOK = true
@@ -365,7 +462,7 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 		r.StrategyOK = true
 	default:
 		r.StrategyOK = false
-		r.LastError = "unknown network_strategy: " + string(s.cfg.NetworkStrategy)
+		r.LastError = "unknown network_strategy: " + string(cfg.NetworkStrategy)
 	}
 
 	// Refresh-state telemetry (in-memory; resets on restart). Single
@@ -413,12 +510,11 @@ type ScanResult struct {
 // domains as "<container>.<dashboard-domain>" without us reaching
 // into the wider config from inside this package.
 func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
-	if !s.cfg.Enabled {
+	cfg := s.snapshotCfg()
+	if !cfg.Enabled {
 		return ScanResult{ScanBlocked: "Docker discovery is disabled. Enable it in Settings → Discovery."}
 	}
-	s.mu.RLock()
-	client := s.client
-	s.mu.RUnlock()
+	client := s.currentClient()
 	if client == nil {
 		return ScanResult{Error: "discovery client not initialised; check Settings → Discovery"}
 	}
@@ -427,10 +523,11 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 	// successful self-detect OR an explicit network_filter. Without
 	// either, we'd be enumerating containers across every network
 	// visible to the daemon - a scope we don't control.
-	switch s.cfg.NetworkStrategy {
+	switch cfg.NetworkStrategy {
 	case "", config.StrategyContainerIP, config.StrategyContainerDNS:
-		if s.cfg.NetworkFilter == "" {
+		if cfg.NetworkFilter == "" {
 			s.mu.RLock()
+			gen := s.cfgGen
 			info := s.selfInfo
 			selfErr := s.selfErr
 			checked := s.selfChecked
@@ -438,9 +535,11 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 			if !checked {
 				info, selfErr = client.InspectSelf(ctx)
 				s.mu.Lock()
-				s.selfChecked = true
-				s.selfInfo = info
-				s.selfErr = selfErr
+				if s.cfgGen == gen { // config unchanged under us; safe to cache
+					s.selfChecked = true
+					s.selfInfo = info
+					s.selfErr = selfErr
+				}
 				s.mu.Unlock()
 			}
 			if selfErr != nil || info == nil {
@@ -455,7 +554,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 
 	containers, err := client.ListContainers(ctx, ListContainersOpts{
 		All:     false,
-		Network: s.cfg.NetworkFilter,
+		Network: cfg.NetworkFilter,
 	})
 	if err != nil {
 		return ScanResult{Error: err.Error()}
@@ -473,8 +572,8 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		}
 		out.Suggestions = append(out.Suggestions, suggestForContainer(
 			&containers[i],
-			s.cfg.NetworkStrategy,
-			s.cfg.HostIP,
+			cfg.NetworkStrategy,
+			cfg.HostIP,
 			dashboardDomain,
 		))
 	}
@@ -538,16 +637,75 @@ func (s *Service) SetDockerStateForApp(name string, st *DockerState) {
 	if s.dockerState == nil {
 		s.dockerState = make(dockerStateCache)
 	}
+	if s.dockerStateManualSeq == nil {
+		s.dockerStateManualSeq = make(map[string]uint64)
+	}
+	s.dockerStateSeq++
 	s.dockerState[name] = *st
+	s.dockerStateManualSeq[name] = s.dockerStateSeq
 }
 
-// SetDockerStateCache replaces the entire cache atomically. The poller
-// calls this at the end of each tick with the freshly-built map so
-// apps that disappeared from the tracked set are pruned in one step.
+// snapshotDockerStateForPoll returns a defensive copy of the current cache
+// together with the manual-write sequence counter at snapshot time. The
+// poller pairs it with commitPolledDockerState so a lifecycle write that
+// lands while the tick is inspecting containers is not lost.
+func (s *Service) snapshotDockerStateForPoll() (dockerStateCache, uint64) {
+	s.dockerStateMu.RLock()
+	defer s.dockerStateMu.RUnlock()
+	out := make(dockerStateCache, len(s.dockerState))
+	for k, v := range s.dockerState {
+		out[k] = v
+	}
+	return out, s.dockerStateSeq
+}
+
+// commitPolledDockerState replaces the cache with the poller's freshly
+// built map, but preserves any entry a lifecycle handler wrote after the
+// poll snapshot was taken (manualSeq > sinceSeq). Without this guard the
+// wholesale replacement would clobber a Start/Stop/Restart result that
+// landed mid-tick, blinking the status pill back to its pre-action state
+// until the next poll. Vanished apps (absent from next and not freshly
+// written) are still pruned. sinceSeq is the counter returned by
+// snapshotDockerStateForPoll at the start of the tick.
+func (s *Service) commitPolledDockerState(next dockerStateCache, sinceSeq uint64) {
+	s.dockerStateMu.Lock()
+	defer s.dockerStateMu.Unlock()
+	// Preserve fresher lifecycle writes: for any app still tracked (present
+	// in next) whose last manual write happened after the snapshot, keep
+	// the current entry instead of the poll's possibly-staler read.
+	for name, seq := range s.dockerStateManualSeq {
+		if seq <= sinceSeq {
+			continue
+		}
+		if _, tracked := next[name]; tracked {
+			if cur, ok := s.dockerState[name]; ok {
+				next[name] = cur
+			}
+		}
+	}
+	// Carry forward manual-seq stamps only for apps that survive in the new
+	// cache, so the map does not grow without bound as apps come and go.
+	prunedSeq := make(map[string]uint64, len(s.dockerStateManualSeq))
+	for name, seq := range s.dockerStateManualSeq {
+		if _, ok := next[name]; ok {
+			prunedSeq[name] = seq
+		}
+	}
+	s.dockerState = next
+	s.dockerStateManualSeq = prunedSeq
+}
+
+// SetDockerStateCache replaces the entire cache atomically. Retained for
+// tests and non-poll callers that intentionally want a wholesale reset;
+// the poller uses snapshotDockerStateForPoll + commitPolledDockerState so
+// it does not clobber concurrent lifecycle writes. The manual-write
+// stamps are cleared too: a wholesale reset means "forget prior manual
+// tracking", so no orphaned stamp can over-preserve a later commit.
 func (s *Service) SetDockerStateCache(next dockerStateCache) {
 	s.dockerStateMu.Lock()
 	defer s.dockerStateMu.Unlock()
 	s.dockerState = next
+	s.dockerStateManualSeq = nil
 }
 
 // DockerStateSnapshot returns a defensive copy of the current cache

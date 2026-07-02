@@ -469,7 +469,7 @@ func (p *Proxy) buildCaddyfile() string {
 
 	// Emit each structured gateway site as its own Caddy site block.
 	for i := range p.config.GatewaySites {
-		writeGatewaySiteBlock(&b, &p.config.GatewaySites[i], p.config.GatewayListen, p.config.InternalAddr)
+		writeGatewaySiteBlock(&b, &p.config.GatewaySites[i], p.config.GatewayListen, p.config.InternalAddr, p.config.Domain)
 	}
 
 	return b.String()
@@ -483,7 +483,7 @@ func (p *Proxy) buildCaddyfile() string {
 // this site. Empty: legacy 80/443 with auto-HTTPS. Non-empty (e.g.
 // ":8443"): the site is served on that address as plain HTTP unless
 // TLS=custom (which keeps the operator-supplied cert).
-func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, internalAddr string) {
+func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, internalAddr, dashboardDomain string) {
 	b.WriteString("\n")
 
 	// Site selector. Three shapes:
@@ -581,15 +581,28 @@ func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, in
 
 	b.WriteString("\t}\n")
 
-	// Frame-blocker stripping is implemented as response-header
-	// rewrites: drop X-Frame-Options entirely and rewrite (or inject)
-	// CSP frame-ancestors so Muximux's own origin can iframe this
-	// site. The {scheme}://{host} placeholders resolve at request
-	// time so Muximux deployments behind a reverse proxy still get
-	// the right Origin.
+	// Frame-blocker stripping. The operator opted in to embedding this
+	// gateway subdomain in Muximux's dashboard, which lives on a DIFFERENT
+	// origin (e.g. sonarr.example.com vs muximux.example.com). The old
+	// code re-added `frame-ancestors 'self'`, but at a gateway site "self"
+	// is the site's own origin, so it blocked the cross-origin dashboard
+	// -- the opposite of the feature's intent. Emit a scoped policy that
+	// allows the site itself AND the dashboard origin, so the embed works
+	// while every other origin is still blocked (no clickjacking). When
+	// the dashboard domain isn't known (no server.tls.domain, e.g. behind
+	// an external proxy), fall back to stripping the backend's framing CSP
+	// -- for this opt-in, trusted-backend feature that's acceptable, and
+	// no worse than the old code, which already replaced the backend CSP.
 	if s.StripFrameBlockers {
 		b.WriteString("\theader -X-Frame-Options\n")
-		b.WriteString("\theader Content-Security-Policy \"frame-ancestors 'self'\"\n")
+		// The blacklist includes backslash: inside a Caddyfile double-quoted
+		// token only \" is an escape, so a trailing backslash (example.com\)
+		// would escape the closing quote and corrupt the rest of the config.
+		if dashboardDomain != "" && !strings.ContainsAny(dashboardDomain, " \t\r\n\"'{}\\") {
+			fmt.Fprintf(b, "\theader Content-Security-Policy \"frame-ancestors 'self' https://%s\"\n", dashboardDomain)
+		} else {
+			b.WriteString("\theader -Content-Security-Policy\n")
+		}
 	}
 
 	b.WriteString("}\n")

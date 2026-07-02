@@ -378,7 +378,10 @@
     // Restore sidebar width
     const storedWidth = localStorage.getItem('muximux_sidebar_width');
     if (storedWidth) {
-      sidebarWidth = parseInt(storedWidth, 10);
+      // Guard against corrupted storage: a non-numeric value would make
+      // parseInt return NaN and collapse the sidebar layout.
+      const w = parseInt(storedWidth, 10);
+      if (Number.isFinite(w) && w > 0) sidebarWidth = w;
     }
 
     // Set up responsive listeners

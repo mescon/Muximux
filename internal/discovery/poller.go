@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 
@@ -55,6 +56,92 @@ type Poller struct {
 	// warning - we want to surface a config typo once when it
 	// happens (or on the first tick after edit), not every tick.
 	lastBadInterval string
+	// syncAbsent tracks how many consecutive successful scans each
+	// sync-mode removal candidate has been missing (removal
+	// hysteresis). See gateSyncRemovals. Only touched from tick(),
+	// which runs one at a time, so it needs no lock.
+	syncAbsent map[string]int
+	// daemonDown dedupes the "daemon unreachable" warning: we log once
+	// when the container listing starts failing and once when it
+	// recovers, instead of every tick for the duration of an outage.
+	// Only touched from tick().
+	daemonDown bool
+}
+
+// syncRemovalGraceTicks is how many consecutive successful scans a
+// tracked container must be absent before sync mode removes its app and
+// gateway site. This stops a single transient empty or partial scan (a
+// mass container restart, or a network_filter that briefly matches
+// nothing) from wiping every auto-imported entry, while still honoring
+// the GitOps-mirror contract once the absence persists. At the default
+// 60s refresh interval this is roughly a 2-minute grace.
+const syncRemovalGraceTicks = 3
+
+// dedupeDesiredNames drops desired entries whose app Name collides with
+// another desired entry OR with a currently-configured app under a
+// different DockerKey, so auto-import never writes a duplicate app name.
+// Deduping only within the desired set was insufficient: a
+// hysteresis-deferred removal keeps the old app for a few ticks, so a new
+// lower-key container of the same name would be added immediately and
+// briefly coexist with the incumbent. Within the desired set the winner
+// is the lowest DockerKey (deterministic across ticks); against the
+// existing config the incumbent always keeps its name. The operator is
+// warned to give colliding containers distinct names.
+func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) []Desired {
+	// Names already held in the config -> the owning DockerKey ("" for a
+	// manual/hand-detached app). A desired entry under a different key
+	// must not reuse the name.
+	taken := make(map[string]string, len(currentApps))
+	for i := range currentApps {
+		taken[currentApps[i].Name] = currentApps[i].DockerKey
+	}
+	sort.SliceStable(desired, func(i, j int) bool {
+		return desired[i].App.DockerKey < desired[j].App.DockerKey
+	})
+	seen := make(map[string]string, len(desired)) // name -> winning DockerKey
+	out := desired[:0]
+	for i := range desired {
+		name := desired[i].App.Name
+		key := desired[i].App.DockerKey
+		if owner, held := taken[name]; held && owner != key {
+			logging.Warn("Discovery auto-import: app name already in use; skipping container",
+				"source", "discovery", "name", name, "owner_key", owner, "skipped_key", key)
+			continue
+		}
+		if winner, dup := seen[name]; dup {
+			logging.Warn("Discovery auto-import: duplicate app name; skipping the second container",
+				"source", "discovery", "name", name, "kept_key", winner, "skipped_key", key)
+			continue
+		}
+		seen[name] = key
+		out = append(out, desired[i])
+	}
+	return out
+}
+
+// gateSyncRemovals applies removal hysteresis to the sync-mode removal
+// candidates. It advances a per-key absence counter and returns only the
+// keys that have now been absent for syncRemovalGraceTicks consecutive
+// scans. Candidates that reappear (or that this tick no longer proposes)
+// drop out of the counter, so a container that returns within the grace
+// window is never removed and re-added.
+func (p *Poller) gateSyncRemovals(candidates []string) []string {
+	if len(candidates) == 0 {
+		p.syncAbsent = nil
+		return nil
+	}
+	next := make(map[string]int, len(candidates))
+	var ready []string
+	for _, k := range candidates {
+		n := p.syncAbsent[k] + 1
+		if n >= syncRemovalGraceTicks {
+			ready = append(ready, k)
+			continue
+		}
+		next[k] = n
+	}
+	p.syncAbsent = next
+	return ready
 }
 
 // NewPoller returns a configured Poller. It does NOT start the
@@ -71,8 +158,12 @@ func NewPoller(deps PollerDeps) *Poller {
 // any URL drift right away. Subsequent ticks honor the configured
 // interval.
 func (p *Poller) Run(ctx context.Context) {
-	ctx, p.stop = context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(ctx)
+	// Publish stop + done under doneM: Stop() may be called (from a
+	// concurrent goroutine) before or during Run's startup, and both
+	// fields are read there. Guarding only done left a race on stop.
 	p.doneM.Lock()
+	p.stop = cancel
 	p.done = make(chan struct{})
 	p.doneM.Unlock()
 	defer close(p.done)
@@ -98,12 +189,13 @@ func (p *Poller) Run(ctx context.Context) {
 // Stop signals Run to exit and waits up to 5 seconds for it. Safe to
 // call multiple times.
 func (p *Poller) Stop() {
-	if p.stop != nil {
-		p.stop()
-	}
 	p.doneM.Lock()
+	stop := p.stop
 	d := p.done
 	p.doneM.Unlock()
+	if stop != nil {
+		stop()
+	}
 	if d == nil {
 		return
 	}
@@ -205,7 +297,14 @@ func (p *Poller) tick(ctx context.Context) {
 	}
 
 	svc := p.deps.Service
-	if svc == nil || svc.client == nil {
+	if svc == nil {
+		return
+	}
+	// Snapshot the client once for the whole tick under the Service lock,
+	// so a runtime Reconfigure (endpoint change) swaps it cleanly between
+	// ticks rather than mid-tick.
+	client := svc.currentClient()
+	if client == nil {
 		return
 	}
 
@@ -217,11 +316,18 @@ func (p *Poller) tick(ctx context.Context) {
 	// for the full tick. A daemon listing failure aborts the tick
 	// cleanly - we don't want to half-resolve and possibly mark
 	// containers as "not found" because the daemon was unreachable.
-	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: false})
+	containers, err := client.ListContainers(ctx, ListContainersOpts{All: false})
 	if err != nil {
-		logging.Warn("Discovery refresh skipped: ListContainers failed",
-			"source", "discovery", "error", err.Error())
+		if !p.daemonDown {
+			p.daemonDown = true
+			logging.Warn("Discovery refresh skipped: ListContainers failed (retrying each tick; suppressing repeats until recovery)",
+				"source", "discovery", "error", err.Error())
+		}
 		return
+	}
+	if p.daemonDown {
+		p.daemonDown = false
+		logging.Info("Discovery daemon reachable again", "source", "discovery")
 	}
 
 	// Resolve each tracked entry's container -> new URL. Skips
@@ -307,24 +413,36 @@ func (p *Poller) tick(ctx context.Context) {
 	// this is not a double-write bug.
 	if autoImport != config.AutoImportOff {
 		scan := svc.Scan(ctx, dashboardDomain)
-		desired := make([]Desired, 0, len(scan.Suggestions))
-		for i := range scan.Suggestions {
-			desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
-		}
-		plan := Reconcile(autoImport, desired, currentApps, currentSites)
-		for i := range plan.Add {
-			batch.addApps = append(batch.addApps, plan.Add[i].App)
-			if plan.Add[i].Site != nil {
-				batch.addSites = append(batch.addSites, *plan.Add[i].Site)
+		// A failed or blocked scan yields no suggestions. Treating that
+		// empty result as the desired set would make sync mode conclude
+		// every labeled container vanished and delete every auto-imported
+		// app + gateway site (data loss on a transient daemon hiccup or a
+		// self-detect failure). Skip reconcile until the scan succeeds
+		// again; the URL-refresh batch built above still commits below.
+		if scan.Error != "" || scan.ScanBlocked != "" {
+			logging.Warn("Discovery auto-import skipped: scan did not complete",
+				"source", "discovery", "error", scan.Error, "blocked", scan.ScanBlocked)
+		} else {
+			desired := make([]Desired, 0, len(scan.Suggestions))
+			for i := range scan.Suggestions {
+				desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 			}
-		}
-		for i := range plan.Update {
-			batch.updateApps = append(batch.updateApps, plan.Update[i].App)
-			if plan.Update[i].Site != nil {
-				batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
+			desired = dedupeDesiredNames(desired, currentApps)
+			plan := Reconcile(autoImport, desired, currentApps, currentSites)
+			for i := range plan.Add {
+				batch.addApps = append(batch.addApps, plan.Add[i].App)
+				if plan.Add[i].Site != nil {
+					batch.addSites = append(batch.addSites, *plan.Add[i].Site)
+				}
 			}
+			for i := range plan.Update {
+				batch.updateApps = append(batch.updateApps, plan.Update[i].App)
+				if plan.Update[i].Site != nil {
+					batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
+				}
+			}
+			batch.removeKeys = append(batch.removeKeys, p.gateSyncRemovals(plan.RemoveKeys)...)
 		}
-		batch.removeKeys = append(batch.removeKeys, plan.RemoveKeys...)
 	}
 
 	if batch.empty() {
@@ -838,9 +956,23 @@ func diffDockerStates(prev, next map[string]DockerState) []dockerStateDiff {
 // changes. Runs at the end of every tick after the URL refresh batch.
 func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 	svc := p.deps.Service
-	if svc == nil || svc.client == nil {
+	if svc == nil {
 		return
 	}
+	client := svc.currentClient()
+	if client == nil {
+		return
+	}
+
+	// Capture the manual-write watermark BEFORE any daemon read. next is
+	// built from container data read at/after ListContainers below, so a
+	// lifecycle write that lands concurrently with those reads must count
+	// as "after the snapshot" (seq > sinceSeq) to be preserved at commit.
+	// Snapshotting after ListContainers would leave a window where such a
+	// write is stamped seq <= sinceSeq yet next is staler than it -- e.g.
+	// a Start that creates a container the list predates, which resolves
+	// to "missing" and would otherwise clobber the fresh "running".
+	prev, sinceSeq := svc.snapshotDockerStateForPoll()
 
 	// State resolution lists ALL containers, including stopped ones.
 	// The URL-refresh scan above is running-only (a stopped container
@@ -848,7 +980,7 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 	// still read as its real state ("exited") so the dashboard keeps
 	// offering Start. Resolving it against the running-only list would
 	// drop it to "missing" and the lifecycle actions would vanish.
-	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: true})
+	containers, err := client.ListContainers(ctx, ListContainersOpts{All: true})
 	if err != nil {
 		// Transient daemon failure: leave the cache untouched rather
 		// than blinking every tracked app to "missing" for one tick.
@@ -863,6 +995,10 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 		t := &tracked.apps[i]
 		tk, err := ParseTrackingKey(t.key)
 		if err != nil {
+			// Consistent with the URL-refresh pass: surface a malformed
+			// tracking key instead of silently skipping it.
+			logging.Warn("Docker state refresh: unparseable tracking key",
+				"source", "discovery", "name", t.name, "key", t.key, "error", err.Error())
 			continue
 		}
 		if m := tk.FindContainer(containers); m != nil {
@@ -870,12 +1006,13 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 		}
 	}
 
-	prev := svc.DockerStateSnapshot()
 	inspect := func(ctx context.Context, id string) (DockerState, error) {
-		return svc.client.InspectContainerState(ctx, id)
+		return client.InspectContainerState(ctx, id)
 	}
 	next := buildDockerStateCache(ctx, tracked.apps, resolved, inspect, prev)
-	svc.SetDockerStateCache(next)
+	// Commit without clobbering any lifecycle write that landed while we
+	// were inspecting (sinceSeq is the manual-write counter at snapshot).
+	svc.commitPolledDockerState(next, sinceSeq)
 
 	diffs := diffDockerStates(prev, next)
 	if p.deps.BroadcastDockerStateChanged != nil {

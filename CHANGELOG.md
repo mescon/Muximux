@@ -2,6 +2,90 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.2.2] - 2026-07-03
+
+A security-focused release. It hardens authentication, the reverse proxy,
+and file uploads, and fixes several cases where a proxied backend rendered
+incorrectly through Muximux. One small new capability -- identity forwarding
+to proxied backends. Drop-in: no config changes required, and existing API
+keys migrate themselves.
+
+### Added
+- **Forward the signed-in user's identity to proxied backends.** A custom
+  proxy header value can now include `${user}`, `${role}`, `${email}`,
+  `${display_name}`, or `${groups}`, and Muximux substitutes the current
+  user's values before forwarding the request. A backend behind Muximux can
+  use this to trust the dashboard's login instead of running its own. Opt-in:
+  only headers you configure with these placeholders are affected. See the
+  reverse-proxy wiki page.
+
+### Changed (behaviour worth noting)
+- **Built-in users are now accepted at gateway sites with a group
+  allowlist.** A gateway site with `allowed_groups` previously admitted only
+  OIDC users; a built-in user's group memberships are now honoured too. If
+  you use `allowed_groups`, built-in users in those groups will start getting
+  access.
+- **Docker start/stop/restart now respect per-app visibility.** A user who
+  cannot see an app (because of its `min_role` or `allowed_groups`) can no
+  longer start, stop, or restart its container.
+- **`http_action` no longer follows HTTP redirects.** If you configured an
+  action whose endpoint responded with a redirect, only the original URL is
+  now requested (this closes a server-side request forgery vector). Direct
+  webhook targets are unaffected.
+- **The app add/edit and Docker-discovery dialogs are now keyboard-
+  accessible** -- focus is moved into the dialog and trapped while it is
+  open, restored on close, and Escape closes it.
+- **The Docker start/stop/restart confirmation shows progress** and stays
+  open until the action finishes, instead of closing immediately.
+
+### Security
+- **API keys are now hashed with SHA-256 instead of bcrypt.** Verifying an
+  API key ran bcrypt before authentication on every request bearing an
+  `X-Api-Key`, an unauthenticated CPU-amplification (DoS) vector. Keys are
+  high-entropy tokens, so a fast hash is equally brute-force-resistant.
+  Existing keys keep working and auto-upgrade on first use -- no rotation
+  needed.
+- **Uploaded icons are validated by their actual bytes, not the browser's
+  declared type**, closing a path where an upload claiming `image/svg+xml`
+  but carrying HTML/JS became stored XSS on the dashboard.
+- **The About-tab changelog is sanitized** (DOMPurify) before rendering the
+  remote update notes.
+- **Icon uploads require the `X-Requested-With` header** (`multipart/form-data`
+  alone is no longer accepted as a CSRF marker).
+- **Container status and health are no longer exposed for apps a user cannot
+  see.** The docker-state and app-health endpoints (and their live updates)
+  returned the status, image, uptime, and up/down state of every tracked app
+  to any signed-in user; they now respect the same `min_role` /
+  `allowed_groups` visibility as the rest of the app.
+- App, group, and icon colours are validated before being written into an
+  inline style, so a colour set via a Docker label can no longer inject
+  extra CSS declarations into the dashboard.
+- Deleting a user now revokes their active sessions immediately; enabling
+  built-in auth no longer briefly stores your password in the browser; and
+  `strip_frame_blockers` now scopes framing to the dashboard origin instead
+  of removing the protection entirely.
+
+### Fixed
+- **Auto-import `sync` no longer removes your apps when a Docker scan fails
+  or comes back empty.** A transient daemon error or a momentary empty scan
+  could previously delete every auto-imported app and gateway site.
+- **Proxied backends that send Brotli, Zstandard, or layered (`gzip, br`)
+  compressed responses now render correctly** instead of showing garbled
+  content, and legacy `x-gzip` backends keep working.
+- **Large proxied responses (over 50 MB) are delivered in full** instead of
+  being cut off.
+- **Modern single-page apps (Nuxt / Next / SvelteKit) that broke when
+  proxied now work** -- Muximux no longer rewrites paths inside a page's
+  inline scripts.
+- A newly added app starts being health-checked without a restart; colliding
+  auto-imported app names are de-duplicated; an invalid `http_action` is
+  rejected before it is saved (so it can't block startup); and a Docker
+  status indicator no longer briefly reverts after a start/stop/restart.
+
+Also includes internal hardening not visible in normal use: a config-export
+data race, resource-cleanup and shutdown-logging fixes, and discovery
+internals.
+
 ## [3.2.1] - 2026-07-01
 
 A follow-up to 3.2.0's automatic Docker import: auto-import now keeps

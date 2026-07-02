@@ -32,6 +32,12 @@ var (
 	sriHashesPattern    = regexp.MustCompile(`(\w+\.sriHashes)\s*=\s*\{[^}]+\}`)
 	srcsetPattern       = regexp.MustCompile(`(srcset\s*=\s*["'])([^"']+)(["'])`)
 	rootPathAttrPattern = regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
+	// rawTextBlockPattern matches an inline <script>/<style> block as
+	// three groups: opening tag, inner content, closing tag. The inner
+	// content is JS/CSS, not HTML, so HTML-attribute path rewriting must
+	// skip it (the opening tag -- e.g. `src="/app.js"` -- is still HTML
+	// and IS rewritten).
+	rawTextBlockPattern = regexp.MustCompile(`(?is)(<(?:script|style)\b[^>]*>)(.*?)(</(?:script|style)>)`)
 	rootPathUrlPattern  = regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
 	baseHrefPattern     = regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
 	urlBaseEmptyPattern = regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*([:=])\s*(['"])(['"])`)
@@ -334,22 +340,52 @@ func (r *contentRewriter) rewriteRootPaths(result []byte) []byte {
 // rewriteRootPathAttrs rewrites attribute values starting with / but not /proxy/,
 // skipping srcset (handled separately).
 func (r *contentRewriter) rewriteRootPathAttrs(result []byte) []byte {
-	return rootPathAttrPattern.ReplaceAllFunc(result, func(match []byte) []byte {
-		if bytes.Contains(match, proxyPathPrefixB) {
-			return match
-		}
-		if bytes.HasPrefix(bytes.ToLower(match), []byte("srcset")) {
-			return match
-		}
-		quoteIdx := bytes.LastIndex(match, []byte(`"`))
-		if quoteIdx == -1 {
-			quoteIdx = bytes.LastIndex(match, []byte(`'`))
-		}
-		if quoteIdx == -1 {
-			return match
-		}
-		return spliceAt(match, quoteIdx+1, r.proxyPrefixB)
+	// The attribute pattern is an HTML construct; running it over inline
+	// <script>/<style> content false-matches JS/CSS assignments like
+	// `var apiBase="/api"` (the #371 class). Apply it only outside those
+	// blocks; the opening tag (e.g. a root-relative script src) is still
+	// rewritten.
+	return applyOutsideRawText(result, func(seg []byte) []byte {
+		return rootPathAttrPattern.ReplaceAllFunc(seg, func(match []byte) []byte {
+			if bytes.Contains(match, proxyPathPrefixB) {
+				return match
+			}
+			if bytes.HasPrefix(bytes.ToLower(match), []byte("srcset")) {
+				return match
+			}
+			quoteIdx := bytes.LastIndex(match, []byte(`"`))
+			if quoteIdx == -1 {
+				quoteIdx = bytes.LastIndex(match, []byte(`'`))
+			}
+			if quoteIdx == -1 {
+				return match
+			}
+			return spliceAt(match, quoteIdx+1, r.proxyPrefixB)
+		})
 	})
+}
+
+// applyOutsideRawText applies fn to the parts of an HTML document outside
+// inline <script>/<style> content. The block's opening tag is included in
+// the fn-processed region (so a root-relative script src is still
+// rewritten); only the raw JS/CSS body between the tags is left untouched.
+func applyOutsideRawText(content []byte, fn func([]byte) []byte) []byte {
+	locs := rawTextBlockPattern.FindAllSubmatchIndex(content, -1)
+	if len(locs) == 0 {
+		return fn(content)
+	}
+	out := make([]byte, 0, len(content))
+	last := 0
+	for _, loc := range locs {
+		// loc indices: [full0,full1, g1s,g1e, g2s,g2e, g3s,g3e].
+		// Process up to and including the opening tag (g1e); leave the
+		// inner content (g2) verbatim.
+		out = append(out, fn(content[last:loc[3]])...)
+		out = append(out, content[loc[3]:loc[5]]...)
+		last = loc[5]
+	}
+	out = append(out, fn(content[last:])...)
+	return out
 }
 
 // rewriteRootPathURLFunc rewrites CSS url() values with root-relative paths.
@@ -766,7 +802,58 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 // customHeaders are injected into every proxied request. sessionCookieName,
 // when non-empty, is removed from the outgoing Cookie header so the Muximux
 // session identifier is never leaked to the backend.
+// expandHeaderValue substitutes the supported identity variables in a
+// custom proxy-header value with the authenticated user's details, so an
+// operator can forward identity to a backend (e.g. `X-Forwarded-User:
+// ${user}`). Supported: ${user} (username), ${role}, ${email},
+// ${display_name}, ${groups} (comma-joined). An unauthenticated request
+// (auth.method=none) expands them to empty. Substituted values are
+// stripped of CR/LF/NUL so a crafted IdP claim can't inject a header or
+// smuggle a request. Unknown ${vars} are left untouched (a visible typo,
+// not a silent empty). The backend must only trust these headers from
+// Muximux.
+func expandHeaderValue(value string, user *auth.User) string {
+	if !strings.Contains(value, "${") {
+		return value
+	}
+	var username, role, email, displayName, groups string
+	if user != nil {
+		username = sanitizeHeaderValue(user.Username)
+		role = sanitizeHeaderValue(user.Role)
+		email = sanitizeHeaderValue(user.Email)
+		displayName = sanitizeHeaderValue(user.DisplayName)
+		groups = sanitizeHeaderValue(strings.Join(user.Groups, ","))
+	}
+	return strings.NewReplacer(
+		"${user}", username,
+		"${role}", role,
+		"${email}", email,
+		"${display_name}", displayName,
+		"${groups}", groups,
+	).Replace(value)
+}
+
+// sanitizeHeaderValue strips characters that would let a value break out
+// of its header (CR/LF) or terminate the field (NUL).
+func sanitizeHeaderValue(v string) string {
+	if !strings.ContainsAny(v, "\r\n\x00") {
+		return v
+	}
+	return strings.NewReplacer("\r", "", "\n", "", "\x00", "").Replace(v)
+}
+
 func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string, sessionCookieName string) func(*http.Request) {
+	// Precompute whether any custom-header value uses an identity
+	// template, so the common (static-header) path never touches the
+	// request context.
+	customHeadersTemplated := false
+	for _, v := range customHeaders {
+		if strings.Contains(v, "${") {
+			customHeadersTemplated = true
+			break
+		}
+	}
+
 	return func(req *http.Request) {
 		// Strip the /proxy/{slug} prefix from the request path
 		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
@@ -786,9 +873,17 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		setProxyHeaders(req)
 		stripSessionCookie(req, sessionCookieName)
 
-		// Inject per-app custom headers (e.g., Authorization, X-Api-Key)
+		// Inject per-app custom headers (e.g., Authorization, X-Api-Key).
+		// Values may reference the authenticated user via ${user}/${role}/
+		// ${email}/${display_name}/${groups} to forward identity to the
+		// backend (proxy-auth pattern). The user is fetched once, only when
+		// a template is actually used.
+		var hdrUser *auth.User
+		if customHeadersTemplated {
+			hdrUser = auth.GetUserFromContext(req.Context())
+		}
 		for k, v := range customHeaders {
-			req.Header.Set(k, v)
+			req.Header.Set(k, expandHeaderValue(v, hdrUser))
 		}
 
 		req.Host = targetURL.Host
@@ -1404,7 +1499,8 @@ func (r *contentRewriter) injectInterceptor(content []byte, docPath string) []by
 // maxRewriteSize is the maximum response body size (50 MB) that will be buffered
 // for URL rewriting. Text responses larger than this stream through unmodified to
 // avoid excessive memory use. In practice, HTML/CSS/JS are rarely this large.
-const maxRewriteSize = 50 * 1024 * 1024
+// A var (not const) only so tests can lower it without allocating 50 MB.
+var maxRewriteSize int64 = 50 * 1024 * 1024
 
 // maxPooledBodyBufSize caps which read buffers go back into the
 // pool. Without this, a single oversized response (e.g. a big
@@ -1429,6 +1525,34 @@ var bodyReadBufPool = sync.Pool{
 // response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
 // Binary content types and responses exceeding maxRewriteSize are streamed through
 // without buffering.
+type encodingKind int
+
+const (
+	encodingIdentity encodingKind = iota // no encoding / "identity": rewrite as plaintext
+	encodingGzip                         // a single gzip layer: decompress then rewrite
+	encodingOther                        // anything else, or layered: forward untouched
+)
+
+// contentEncodingKind classifies a Content-Encoding header for rewriting.
+// Comparison is case-insensitive and by the whole value, not a substring:
+// a layered/multi-value encoding like "gzip, br" is encodingOther because
+// it is not a single gzip layer we can safely decode.
+func contentEncodingKind(ce string) encodingKind {
+	ce = strings.TrimSpace(ce)
+	if ce == "" || strings.EqualFold(ce, "identity") {
+		return encodingIdentity
+	}
+	// "x-gzip" is a legacy alias for gzip with an identical wire format, so
+	// gzip.NewReader decodes it. Treat it as gzip so an old backend that
+	// still emits it gets its HTML decompressed and path-rewritten rather
+	// than forwarded un-rewritten. Note "x-compress"/"compress" (LZW) is a
+	// different format Go cannot decode, so it stays encodingOther.
+	if strings.EqualFold(ce, "gzip") || strings.EqualFold(ce, "x-gzip") {
+		return encodingGzip
+	}
+	return encodingOther
+}
+
 func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	contentType := resp.Header.Get(headerContentType)
 	if !shouldRewriteContent(contentType) {
@@ -1440,11 +1564,34 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		return nil
 	}
 
-	var reader io.Reader = resp.Body
-	isGzipped := strings.Contains(resp.Header.Get(headerContentEncoding), "gzip")
+	// A non-gzip Content-Encoding (br, deflate, zstd, ...) can't be decoded
+	// here. Rewriting would run the regexes over compressed bytes (a no-op)
+	// and then strip the Content-Encoding header off a still-compressed
+	// body -- garbage to the browser. We only ask backends for `gzip,
+	// identity`, but one that ignores Accept-Encoding could still send
+	// another; forward it untouched rather than corrupt it.
+	//
+	// The check is by exact (case-insensitive) encoding, not a substring:
+	// a layered/multi-value encoding like "gzip, br" is NOT a single gzip
+	// layer and must be forwarded untouched, not fed to gzip.NewReader.
+	ceKind := contentEncodingKind(resp.Header.Get(headerContentEncoding))
+	if ceKind == encodingOther {
+		return nil
+	}
 
+	orig := resp.Body
+	var reader io.Reader = orig
+	isGzipped := ceKind == encodingGzip
+
+	// When gzipped, tee the compressed bytes as we decompress. If the
+	// decompressed body turns out to exceed the rewrite limit we forward
+	// the ORIGINAL compressed stream verbatim: the compressed bytes the
+	// gzip reader already consumed live in compressedSeen, the rest stays
+	// unread in orig, and the two concatenate to the exact original stream.
+	var compressedSeen *bytes.Buffer
 	if isGzipped {
-		gzReader, err := gzip.NewReader(resp.Body)
+		compressedSeen = &bytes.Buffer{}
+		gzReader, err := gzip.NewReader(io.TeeReader(orig, compressedSeen))
 		if err != nil {
 			// Surface decode failures so ReverseProxy's ErrorHandler can
 			// return a clean 502 rather than forwarding a partially-
@@ -1464,14 +1611,14 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	// Read upstream body into a pooled buffer. The rewriter produces
 	// an independent []byte (every rewrite path allocates fresh), so
 	// once we've finished rewriting we can release the buffer back
-	// to the pool without aliasing risk.
+	// to the pool without aliasing risk. orig is NOT closed yet: on the
+	// over-limit path below we still need to forward its unread remainder.
 	buf := bodyReadBufPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	if _, err := buf.ReadFrom(limited); err != nil {
 		bodyReadBufPool.Put(buf)
 		return fmt.Errorf("proxy: read body: %w", err)
 	}
-	resp.Body.Close()
 	body := buf.Bytes()
 
 	// releaseBuf returns the read buffer to the pool when safe.
@@ -1484,20 +1631,32 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		}
 	}
 
-	// Safety net for chunked responses without Content-Length: if the body
-	// exceeds the rewrite limit, return it unmodified rather than rewriting.
+	// Over the rewrite limit (chunked/gzipped responses whose full size
+	// isn't known up front from Content-Length). Forward the WHOLE
+	// original stream unmodified rather than truncating it to the first
+	// maxRewriteSize bytes. The prefix already read is spliced back in
+	// front of orig's unread remainder; headers (Content-Encoding,
+	// Content-Length) are left untouched so the framing stays valid.
 	if int64(len(body)) > maxRewriteSize {
-		// body aliases the pooled buffer; copy out before releasing
-		// so the response keeps a stable backing array.
-		bodyCopy := make([]byte, len(body))
-		copy(bodyCopy, body)
+		var prefix []byte
+		if isGzipped {
+			prefix = make([]byte, compressedSeen.Len())
+			copy(prefix, compressedSeen.Bytes())
+		} else {
+			prefix = make([]byte, len(body))
+			copy(prefix, body)
+		}
 		releaseBuf()
-		resp.Body = io.NopCloser(bytes.NewReader(bodyCopy))
-		resp.ContentLength = int64(len(bodyCopy))
-		resp.Header.Set("Content-Length", strconv.Itoa(len(bodyCopy)))
-		resp.Header.Del(headerContentEncoding)
+		resp.Body = struct {
+			io.Reader
+			io.Closer
+		}{io.MultiReader(bytes.NewReader(prefix), orig), orig}
 		return nil
 	}
+
+	// Under the limit: the buffer holds the entire body, so the original
+	// upstream reader can be closed now.
+	orig.Close()
 
 	lowerContentType := strings.ToLower(contentType)
 	isHTML := strings.Contains(lowerContentType, "text/html")
@@ -2045,7 +2204,39 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	rc := http.NewResponseController(w)
 	_ = rc.SetWriteDeadline(time.Now().Add(h.timeout))
 
+	// Roll the READ deadline the same way for the request body, so a large
+	// upload proxied through here isn't severed by the server's absolute
+	// ReadTimeout while it keeps making progress (a stalled upload still
+	// times out after timeout of silence). The deadline is set lazily on
+	// the first body read and cleared on EOF, so it never lingers to sever
+	// a slow streaming RESPONSE that follows an empty or fully-read body.
+	// Non-proxy endpoints keep the server's absolute ReadTimeout.
+	if r.Body != nil && r.Body != http.NoBody {
+		r.Body = &deadlineResettingBody{ReadCloser: r.Body, rc: rc, timeout: h.timeout}
+	}
+
 	route.proxy.ServeHTTP(&deadlineResettingWriter{ResponseWriter: w, rc: rc, timeout: h.timeout}, r)
+}
+
+// deadlineResettingBody wraps the proxied request body and pushes the
+// connection read deadline forward by timeout on every Read, turning the
+// server's absolute ReadTimeout into a per-read idle deadline for uploads
+// (the read-side analog of deadlineResettingWriter).
+type deadlineResettingBody struct {
+	io.ReadCloser
+	rc      *http.ResponseController
+	timeout time.Duration
+}
+
+func (d *deadlineResettingBody) Read(p []byte) (int, error) {
+	_ = d.rc.SetReadDeadline(time.Now().Add(d.timeout))
+	n, err := d.ReadCloser.Read(p)
+	if err != nil {
+		// Body fully read (EOF) or errored: drop the read deadline so it
+		// can't sever the slow streaming RESPONSE that may follow.
+		_ = d.rc.SetReadDeadline(time.Time{})
+	}
+	return n, err
 }
 
 // deadlineResettingWriter wraps the proxy ResponseWriter and pushes the

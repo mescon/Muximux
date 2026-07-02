@@ -4,6 +4,7 @@
   import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
+  import { focusTrap } from '$lib/focusTrap';
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
   import AboutTab from './settings/AboutTab.svelte';
@@ -661,6 +662,11 @@
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full border border-border {addAppStep === 'choose' ? 'max-w-2xl' : 'max-w-lg'}"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-app-title"
+      tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 10, duration: 150 }}
       out:fade={{ duration: 75 }}
     >
@@ -677,7 +683,7 @@
               </svg>
             </button>
           {/if}
-          <h3 class="text-lg font-semibold text-text-primary">{addAppStep === 'choose' ? m.settings_addApplication() : m.settings_configureApp({ appName: newApp.name || m.settings_appFallbackName() })}</h3>
+          <h3 id="add-app-title" class="text-lg font-semibold text-text-primary">{addAppStep === 'choose' ? m.settings_addApplication() : m.settings_configureApp({ appName: newApp.name || m.settings_appFallbackName() })}</h3>
         </div>
         <button
           class="btn btn-ghost btn-icon"
@@ -897,10 +903,15 @@
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-lg border border-border"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-app-title"
+      tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 10, duration: 150 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
+        <h3 id="edit-app-title" class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={cancelEditApp}

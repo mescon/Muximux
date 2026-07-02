@@ -61,4 +61,25 @@ describe('ConfirmDockerActionModal', () => {
     await fireEvent.click(backdrop);
     expect(oncancel).toHaveBeenCalledOnce();
   });
+
+  // #27: while the confirmed action runs the modal stays open but is
+  // disabled/non-dismissable, so it cannot be re-fired or cancelled.
+  it('disables both buttons and marks the dialog busy while loading', () => {
+    const { getByText, container } = render(ConfirmDockerActionModal, {
+      props: { appName: 'sonarr', action: 'restart', image: 'x', uptimeOrExit: '', loading: true },
+    });
+    expect((getByText('Confirm').closest('button') as HTMLButtonElement).disabled).toBe(true);
+    expect((getByText('Cancel').closest('button') as HTMLButtonElement).disabled).toBe(true);
+    expect(container.querySelector('[role="dialog"]')?.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('ignores Escape and backdrop clicks while loading', async () => {
+    const oncancel = vi.fn();
+    const { container } = render(ConfirmDockerActionModal, {
+      props: { appName: 'sonarr', action: 'stop', image: 'x', uptimeOrExit: '', loading: true, oncancel },
+    });
+    await fireEvent.keyDown(window, { key: 'Escape' });
+    await fireEvent.click(container.querySelector('.modal-backdrop') as HTMLElement);
+    expect(oncancel).not.toHaveBeenCalled();
+  });
 });

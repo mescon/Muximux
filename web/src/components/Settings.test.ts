@@ -635,6 +635,23 @@ describe('Settings', () => {
       });
     });
 
+    // #26: the modal must be an accessible, labelled dialog and move focus
+    // into itself when opened.
+    it('exposes the Add App modal as a labelled dialog and moves focus in', async () => {
+      renderSettings({ initialTab: 'apps' });
+      await fireEvent.click(screen.getByTestId('trigger-add-app'));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+      // aria-labelledby points at the heading, so the accessible name is set.
+      expect(dialog).toHaveAccessibleName('Add Application');
+      // focusTrap moved focus into the dialog rather than leaving it on the
+      // body / the trigger button outside.
+      await waitFor(() => {
+        expect(dialog.contains(document.activeElement)).toBe(true);
+      });
+    });
+
     it('shows search input and popular apps in choose step', async () => {
       renderSettings({ initialTab: 'apps' });
       await fireEvent.click(screen.getByTestId('trigger-add-app'));

@@ -2,6 +2,7 @@
   import type { AppIcon as AppIconType } from '$lib/types';
   import { getBase } from '$lib/api';
   import { debug } from '$lib/debug';
+  import { safeColor } from '$lib/safeColor';
 
   let { icon, name, color = '#374151', size = 'md', showBackground = true, forceBackground = false, scale }: {
     icon: AppIconType;
@@ -53,15 +54,18 @@
   let fallbackLetter = $derived(name.charAt(0).toUpperCase());
   // When showBackground is enabled, use the icon's explicit background if set,
   // otherwise darken the app color to create contrast.
+  // Colours can come from Docker labels / imports, so validate every one
+  // before it reaches an inline style (see safeColor).
+  let safeBg = $derived(safeColor(icon?.background));
   let bgColor = $derived(
     (showBackground || forceBackground)
-      ? (icon?.background && icon.background !== 'transparent'
-          ? icon.background
-          : `color-mix(in srgb, ${color || '#374151'} 50%, black)`)
+      ? (safeBg && safeBg !== 'transparent'
+          ? safeBg
+          : `color-mix(in srgb, ${safeColor(color, '#374151')} 50%, black)`)
       : 'transparent'
   );
   // Icon tint color for Lucide (CSS mask); falls back to theme text color
-  let tintColor = $derived(icon?.color || '');
+  let tintColor = $derived(safeColor(icon?.color));
 
   let imageError = $state(false);
 

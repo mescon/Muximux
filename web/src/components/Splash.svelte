@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import type { App, Config, DockerState } from '$lib/types';
+  import { safeColor } from '$lib/safeColor';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
@@ -31,6 +32,9 @@
 
   // Pending stop/restart awaiting confirmation in the modal.
   let pendingAction = $state<{ app: App; action: 'stop' | 'restart' } | null>(null);
+  // True while the confirmed docker action is running, so the confirm modal
+  // stays open in a disabled/spinner state until it resolves.
+  let pendingActionRunning = $state(false);
 
   // Lifecycle actions that make sense for the current container state.
   // running -> stop/restart; stopped -> start; transitional/missing ->
@@ -286,7 +290,7 @@
                     <!-- Glow effect -->
                     <div
                       class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-40 transition-opacity blur-xl"
-                      style="background: {app.color || 'var(--accent-primary)'};"
+                      style="background: {safeColor(app.color, 'var(--accent-primary)')};"
                     ></div>
                     <div class="relative app-icon-wrapper">
                       <AppIcon icon={app.icon} name={app.name} color={app.color} size="xl" />
@@ -305,7 +309,7 @@
                   <!-- Color accent bar at bottom -->
                   <div
                     class="app-card-accent"
-                    style="background: {app.color || 'var(--accent-primary)'};"
+                    style="background: {safeColor(app.color, 'var(--accent-primary)')};"
                   ></div>
                 </button>
 
@@ -420,12 +424,22 @@
     action={pendingAction.action}
     image={ds?.image ?? ''}
     uptimeOrExit={ds?.status === 'running' ? 'running' : `exit ${ds?.exit_code ?? 0}`}
+    loading={pendingActionRunning}
     onconfirm={async () => {
+      if (pendingActionRunning) return;
       const a = pendingAction!;
-      pendingAction = null;
-      await runAction(a.app, a.action);
+      // Keep the modal open (disabled) until the action resolves, then
+      // close. Closing before the await would drop all in-flight feedback
+      // and let the operator re-fire a long restart.
+      pendingActionRunning = true;
+      try {
+        await runAction(a.app, a.action);
+      } finally {
+        pendingActionRunning = false;
+        pendingAction = null;
+      }
     }}
-    oncancel={() => pendingAction = null}
+    oncancel={() => { if (!pendingActionRunning) pendingAction = null; }}
   />
 {/if}
 

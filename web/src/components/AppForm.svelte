@@ -529,7 +529,8 @@
           value={app.shortcut ?? ''}
           onchange={(e) => {
             const val = (e.target as HTMLSelectElement).value;
-            app.shortcut = val ? parseInt(val) : undefined;
+            const n = val ? parseInt(val, 10) : NaN;
+            app.shortcut = Number.isFinite(n) ? n : undefined;
           }}
           class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500"
         >

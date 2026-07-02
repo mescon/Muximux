@@ -9,8 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -281,6 +279,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Message: "Failed to create session",
 		})
 		return
+	}
+
+	// Carry the user's group memberships on the session so gateway sites
+	// with an allowed_groups gate accept builtin users. The gateway
+	// forward-auth check (sessionInAllowedGroups) reads groups from
+	// session.Data, which the OIDC path populates too; without this a
+	// builtin member of an allowed group is denied at a require_auth gate.
+	if len(user.Groups) > 0 {
+		session.Data["groups"] = user.Groups
 	}
 
 	// Set session cookie
@@ -774,6 +781,16 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Revoke the deleted user's live sessions so the account cannot keep
+	// acting (with its captured role) until the session's absolute expiry.
+	// Mirrors ChangePassword. Keyed by user ID (== username for builtin
+	// users). Best-effort: the user is already gone from the store, so a
+	// lingering session would fail the GetByID lookup anyway, but this
+	// closes the userFromSession fallback path immediately.
+	if prev != nil {
+		h.sessionStore.DeleteByUserID(prev.ID, "")
+	}
+
 	logging.From(r.Context()).Info("User deleted", "source", "audit", "user", username)
 	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
@@ -894,11 +911,6 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiKeyTargetCost matches the project-wide bcrypt cost used for user
-// passwords (auth.bcryptTargetCost). Hardcoded rather than imported to
-// avoid widening the auth package's exported surface for one constant.
-const apiKeyTargetCost = 12
-
 // apiKeyByteLen is the random byte budget for a generated API key.
 // 32 bytes encoded as base64url is 43 chars; with the muximux_ prefix
 // the user-visible key is 51 characters.
@@ -936,15 +948,15 @@ func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
 	}
 	plaintext := "muximux_" + base64.RawURLEncoding.EncodeToString(raw)
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), apiKeyTargetCost)
-	if err != nil {
-		respondError(w, r, http.StatusInternalServerError, "Failed to hash key", "source", "auth", "error", err)
-		return
-	}
+	// SHA-256, not bcrypt: an API key is a high-entropy token, so a fast
+	// constant-time hash is equally brute-force-resistant without bcrypt's
+	// per-verify CPU cost (an unauthenticated DoS vector on the bypass
+	// path). Existing bcrypt hashes still verify; this rotation migrates.
+	hash := auth.HashAPIKey(plaintext)
 
 	h.configMu.Lock()
 	prev := h.config.Auth.APIKeyHash
-	h.config.Auth.APIKeyHash = string(hash)
+	h.config.Auth.APIKeyHash = hash
 	saveErr := h.config.Save(h.configPath)
 	if saveErr != nil {
 		// Roll back the in-memory mutation so a failed disk write does
@@ -978,6 +990,36 @@ func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
 		"rotated":    rotated,
 		"configured": true,
 	})
+}
+
+// UpgradeAPIKeyHash migrates a legacy bcrypt api_key_hash to the fast
+// sha256: form after the auth middleware verifies the key against the
+// legacy hash. It is wired as the middleware's onAPIKeyUpgrade hook and
+// runs off the request goroutine. The compare-and-swap on oldHash makes
+// it safe and idempotent: it only writes when the stored hash is still
+// exactly the legacy value the middleware verified against, so a
+// concurrent rotation (or a second concurrent legacy request) is a no-op
+// rather than a clobber. A save failure rolls back the in-memory change
+// and is logged; the next successful verify retries.
+func (h *AuthHandler) UpgradeAPIKeyHash(oldHash, newHash string) {
+	if h.config == nil || oldHash == "" || newHash == "" || oldHash == newHash {
+		return
+	}
+	h.configMu.Lock()
+	defer h.configMu.Unlock()
+	if h.config.Auth.APIKeyHash != oldHash {
+		// Rotated or already migrated since the verify; nothing to do.
+		return
+	}
+	h.config.Auth.APIKeyHash = newHash
+	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Auth.APIKeyHash = oldHash
+		logging.Error("Legacy API key auto-upgrade rolled back due to save failure",
+			"source", "audit", "error", err)
+		return
+	}
+	h.refreshAuthSnapshotLocked()
+	logging.Audit("Legacy API key hash auto-upgraded to sha256 on use")
 }
 
 // DeleteAPIKey clears the configured API key. Bypass rules that

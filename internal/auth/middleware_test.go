@@ -383,7 +383,7 @@ func TestShouldBypass(t *testing.T) {
 				req.Header.Set(k, v)
 			}
 
-			got := shouldBypass(req, m.snapshot())
+			got := m.shouldBypass(req, m.snapshot())
 			if got != tt.want {
 				t.Errorf("shouldBypass() = %v, want %v", got, tt.want)
 			}
@@ -1091,13 +1091,69 @@ func TestMatchMethod(t *testing.T) {
 
 // --- matchAPIKey ---
 
+// TestMatchAPIKey_FiresLegacyUpgradeHook verifies the opportunistic
+// migration: a successful verify against a legacy bcrypt hash fires
+// onAPIKeyUpgrade with the old hash and the sha256 of the presented key.
+func TestMatchAPIKey_FiresLegacyUpgradeHook(t *testing.T) {
+	legacy := testHashAPIKey(t, "mysecret") // bcrypt
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: legacy})
+
+	type upgrade struct{ oldHash, newHash string }
+	ch := make(chan upgrade, 1)
+	m.SetOnAPIKeyUpgrade(func(oldHash, newHash string) { ch <- upgrade{oldHash, newHash} })
+
+	snap := m.snapshot()
+	rule := BypassRule{RequireAPIKey: true}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("X-Api-Key", "mysecret")
+	if !m.matchAPIKey(req, rule, snap) {
+		t.Fatal("expected the correct key to match")
+	}
+
+	select {
+	case u := <-ch:
+		if u.oldHash != legacy {
+			t.Errorf("old hash: got %q want %q", u.oldHash, legacy)
+		}
+		if want := HashAPIKey("mysecret"); u.newHash != want {
+			t.Errorf("new hash: got %q want %q", u.newHash, want)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("upgrade hook was not fired for a legacy bcrypt hash")
+	}
+}
+
+// TestMatchAPIKey_NoUpgradeForSHA256 verifies the hook does NOT fire when
+// the stored hash is already in the fast sha256: form.
+func TestMatchAPIKey_NoUpgradeForSHA256(t *testing.T) {
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: HashAPIKey("mysecret")})
+
+	fired := make(chan struct{}, 1)
+	m.SetOnAPIKeyUpgrade(func(_, _ string) { fired <- struct{}{} })
+
+	snap := m.snapshot()
+	rule := BypassRule{RequireAPIKey: true}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("X-Api-Key", "mysecret")
+	if !m.matchAPIKey(req, rule, snap) {
+		t.Fatal("expected the correct key to match")
+	}
+
+	select {
+	case <-fired:
+		t.Fatal("upgrade hook must not fire when the stored hash is already sha256")
+	case <-time.After(200 * time.Millisecond):
+		// no upgrade, as expected
+	}
+}
+
 func TestMatchAPIKey(t *testing.T) {
 	t.Run("not required always passes", func(t *testing.T) {
 		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: testHashAPIKey(t, "secret")})
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: false}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		if !matchAPIKey(req, rule, snap) {
+		if !m.matchAPIKey(req, rule, snap) {
 			t.Error("expected true when not required")
 		}
 	})
@@ -1108,7 +1164,7 @@ func TestMatchAPIKey(t *testing.T) {
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "mysecret")
-		if !matchAPIKey(req, rule, snap) {
+		if !m.matchAPIKey(req, rule, snap) {
 			t.Error("expected true for correct API key")
 		}
 	})
@@ -1119,7 +1175,7 @@ func TestMatchAPIKey(t *testing.T) {
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "wrong")
-		if matchAPIKey(req, rule, snap) {
+		if m.matchAPIKey(req, rule, snap) {
 			t.Error("expected false for wrong API key")
 		}
 	})
@@ -1129,7 +1185,7 @@ func TestMatchAPIKey(t *testing.T) {
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		if matchAPIKey(req, rule, snap) {
+		if m.matchAPIKey(req, rule, snap) {
 			t.Error("expected false for missing API key")
 		}
 	})
@@ -1140,7 +1196,7 @@ func TestMatchAPIKey(t *testing.T) {
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "anything")
-		if matchAPIKey(req, rule, snap) {
+		if m.matchAPIKey(req, rule, snap) {
 			t.Error("expected false when no API key hash configured")
 		}
 	})
@@ -1246,5 +1302,39 @@ func TestUpdateConfig_TrustedProxies(t *testing.T) {
 	}
 	if user.Username != "bob" {
 		t.Errorf("expected bob, got %s", user.Username)
+	}
+}
+
+// TestVerifyAPIKey covers the #16 fast-path: new sha256: hashes verify in
+// constant time, legacy bcrypt hashes still verify (and report legacy so
+// the caller can migrate), and mismatches/empties fail closed.
+func TestVerifyAPIKey(t *testing.T) {
+	key := "muximux_secret-token"
+	sha := HashAPIKey(key)
+	if len(sha) < 7 || sha[:7] != "sha256:" {
+		t.Fatalf("HashAPIKey format = %q", sha)
+	}
+	if ok, legacy := VerifyAPIKey(key, sha); !ok || legacy {
+		t.Errorf("sha256 verify: ok=%v legacy=%v; want true,false", ok, legacy)
+	}
+	if ok, _ := VerifyAPIKey("wrong-key", sha); ok {
+		t.Error("wrong key must not verify against a sha256 hash")
+	}
+
+	bc, err := bcrypt.GenerateFromPassword([]byte(key), bcrypt.MinCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok, legacy := VerifyAPIKey(key, string(bc)); !ok || !legacy {
+		t.Errorf("bcrypt verify: ok=%v legacy=%v; want true,true", ok, legacy)
+	}
+	if ok, _ := VerifyAPIKey("wrong-key", string(bc)); ok {
+		t.Error("wrong key must not verify against a bcrypt hash")
+	}
+	if ok, _ := VerifyAPIKey("", sha); ok {
+		t.Error("empty provided must not verify")
+	}
+	if ok, _ := VerifyAPIKey(key, ""); ok {
+		t.Error("empty stored must not verify")
 	}
 }

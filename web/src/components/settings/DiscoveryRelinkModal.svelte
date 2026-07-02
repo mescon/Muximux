@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { DiscoveryRelinkProbeResult, DiscoveryRelinkCandidate } from '$lib/types';
   import { probeDockerRelink, confirmDockerRelink, detachDockerTracked } from '$lib/api';
+  import { focusTrap } from '$lib/focusTrap';
 
   let { trackingKey, onClose } = $props<{ trackingKey: string; onClose: () => void }>();
 
@@ -63,6 +64,8 @@
   role="dialog"
   aria-modal="true"
   aria-labelledby="relink-modal-title"
+  tabindex="-1"
+  use:focusTrap={{ onEscape: onClose }}
   data-testid="relink-modal"
 >
   <div class="bg-bg-base border border-border rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">

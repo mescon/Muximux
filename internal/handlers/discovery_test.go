@@ -9,6 +9,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
 )
@@ -455,13 +456,14 @@ func TestGetDockerStatus_IncludesSocketWritableAndLifecycle(t *testing.T) {
 }
 
 func TestGetDockerStateMap_ReturnsCachedState(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "sonarr"}}}
 	cfg.Discovery.Docker.Enabled = true
 	svc := discovery.NewService(&cfg.Discovery.Docker)
 	svc.SetDockerStateForApp("sonarr", &discovery.DockerState{Status: "running", Health: "healthy", Image: "img"})
 
 	h := NewDiscoveryHandler(svc, cfg, "/tmp/config.yaml", &sync.RWMutex{}, nil)
 	r := httptest.NewRequest(http.MethodGet, "/api/discovery/docker-state", nil)
+	r = r.WithContext(auth.WithUserContext(r.Context(), &auth.User{Username: "admin", Role: auth.RoleAdmin}))
 	w := httptest.NewRecorder()
 	h.GetDockerStateMap(w, r)
 
@@ -474,5 +476,52 @@ func TestGetDockerStateMap_ReturnsCachedState(t *testing.T) {
 	}
 	if body["sonarr"].Status != "running" {
 		t.Fatalf("want sonarr running, got %+v", body)
+	}
+}
+
+// TestGetDockerStateMap_FiltersByAppVisibility guards the read-side
+// companion to the #13 lifecycle access gate: the docker-state endpoint
+// must not expose container state for apps the requesting user is not
+// allowed to see (min_role / allowed_groups), or a non-admin could learn
+// the existence, image, and status of hidden apps.
+func TestGetDockerStateMap_FiltersByAppVisibility(t *testing.T) {
+	cfg := &config.Config{Apps: []config.AppConfig{
+		{Name: "public"},
+		{Name: "secret", AllowedGroups: []string{"admins"}},
+	}}
+	cfg.Discovery.Docker.Enabled = true
+	svc := discovery.NewService(&cfg.Discovery.Docker)
+	svc.SetDockerStateForApp("public", &discovery.DockerState{Status: "running", Image: "pub"})
+	svc.SetDockerStateForApp("secret", &discovery.DockerState{Status: "running", Image: "sec"})
+	h := NewDiscoveryHandler(svc, cfg, "/tmp/config.yaml", &sync.RWMutex{}, nil)
+
+	get := func(user *auth.User) map[string]discovery.DockerState {
+		r := httptest.NewRequest(http.MethodGet, "/api/discovery/docker-state", nil)
+		r = r.WithContext(auth.WithUserContext(r.Context(), user))
+		w := httptest.NewRecorder()
+		h.GetDockerStateMap(w, r)
+		if w.Code != http.StatusOK {
+			t.Fatalf("want 200, got %d (%s)", w.Code, w.Body.String())
+		}
+		var body map[string]discovery.DockerState
+		if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		return body
+	}
+
+	// A non-admin with no groups sees only the unrestricted app.
+	nonAdmin := get(&auth.User{Username: "bob", Role: auth.RoleUser})
+	if _, ok := nonAdmin["public"]; !ok {
+		t.Error("non-admin should see the public app's state")
+	}
+	if _, ok := nonAdmin["secret"]; ok {
+		t.Error("non-admin must NOT see the group-restricted app's state")
+	}
+
+	// An admin sees everything.
+	admin := get(&auth.User{Username: "admin", Role: auth.RoleAdmin})
+	if len(admin) != 2 {
+		t.Errorf("admin should see both apps, got %d: %+v", len(admin), admin)
 	}
 }

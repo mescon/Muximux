@@ -193,13 +193,17 @@ func (h *Hub) BroadcastHealthUpdate(health interface{}) {
 }
 
 // BroadcastAppHealthUpdate sends an app-specific health update event
-func (h *Hub) BroadcastAppHealthUpdate(appName string, health interface{}) {
+func (h *Hub) BroadcastAppHealthUpdate(appName string, health interface{}, restricted bool) {
 	h.Broadcast(Event{
 		Type: EventAppHealthChanged,
 		Payload: map[string]interface{}{
 			"app":    appName,
 			"health": health,
 		},
+		// A restricted app (min_role / allowed_groups) delivers its health
+		// update to admin clients only, matching the health GET filter, so a
+		// non-admin can't learn a hidden app's existence or status.
+		adminOnly: restricted,
 	})
 }
 
@@ -234,19 +238,25 @@ type DockerStateChangedEvent struct {
 	State   DockerStatePayload `json:"state"`
 }
 
-// BroadcastDockerStateChanged fans a per-app state update out to every
-// connected client. Not adminOnly: state visibility is for everyone
-// authenticated, mirroring the existing HealthIndicator behaviour.
-// Mutations are gated by the handler-side role/group check, not by
-// event filtering. state is taken by pointer to avoid copying the
-// (relatively heavy) payload on every call.
-func (h *Hub) BroadcastDockerStateChanged(appName string, state *DockerStatePayload) {
+// BroadcastDockerStateChanged fans a per-app state update out to connected
+// clients. When restricted is true (the app has a min_role or allowed_groups
+// gate) the update is delivered only to admin clients, so a non-admin cannot
+// learn the container status, image, or uptime of an app hidden from them --
+// the realtime companion to the per-app filter on GET /api/discovery/
+// docker-state. Non-admins still receive that app's state via the (filtered)
+// GET endpoint on the next poll if they are allowed to see it.
+//
+// The client set does not carry each user's groups, so this is a coarse gate
+// (admin vs not) rather than a full per-user check; it fails safe (never
+// over-delivers). state is taken by pointer to avoid copying the payload.
+func (h *Hub) BroadcastDockerStateChanged(appName string, state *DockerStatePayload, restricted bool) {
 	h.Broadcast(Event{
 		Type: EventDockerStateChanged,
 		Payload: DockerStateChangedEvent{
 			AppName: appName,
 			State:   *state,
 		},
+		adminOnly: restricted,
 	})
 }
 

@@ -123,6 +123,10 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware, &s.configMu)
 	authHandler.SetBypassRules(defaultBypassRules)
 	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
+	// Migrate a legacy bcrypt api_key_hash to sha256: on first successful
+	// use, so an existing install closes the bcrypt DoS window without a
+	// manual key rotation.
+	authMiddleware.SetOnAPIKeyUpgrade(authHandler.UpgradeAPIKeyHash)
 
 	// Set up OIDC provider if configured
 	if cfg.Auth.OIDC.Enabled {
@@ -225,6 +229,12 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// call.
 	s.rebuildProxyRoutes = func() {
 		reverseProxyHandler.RebuildRoutes(cfg.Apps)
+		// Keep the health monitor's app set in step with config changes
+		// (add/remove/edit an app, or a poller URL refresh). Without this
+		// it stayed frozen at its boot snapshot until restart: new apps
+		// went unchecked, deleted apps kept being probed, and URL edits
+		// were checked against the stale URL.
+		s.setHealthApps(cfg.Apps)
 	}
 	api.SetOnConfigSave(s.rebuildProxyRoutes)
 
@@ -426,11 +436,20 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	}
 
 	s.httpServer = &http.Server{
-		Addr:         goListenAddr,
-		Handler:      handler,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		Addr:    goListenAddr,
+		Handler: handler,
+		// ReadTimeout is an absolute deadline over the whole request
+		// including the body. It bounds slow-body slowloris on normal
+		// (small, size-capped) endpoints. The proxy path overrides it with
+		// a ROLLING read deadline (see ServeHTTP) so a large upload that
+		// keeps making progress isn't severed at 15s while a stalled one
+		// still times out -- the read-side mirror of the write side's
+		// deadline-resetting writer. ReadHeaderTimeout bounds header
+		// slowloris independently.
+		ReadTimeout:       15 * time.Second,
+		ReadHeaderTimeout: 15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	return s, nil
@@ -731,25 +750,15 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 
 	// Configure apps for health monitoring.
 	// Health checks are opt-in: only apps with health_check: true are monitored.
-	healthApps := make([]health.AppConfig, 0, len(cfg.Apps))
-	for i := range cfg.Apps {
-		hcEnabled := cfg.Apps[i].HealthCheck != nil && *cfg.Apps[i].HealthCheck
-		healthApps = append(healthApps, health.AppConfig{
-			Name:      cfg.Apps[i].Name,
-			URL:       cfg.Apps[i].URL,
-			HealthURL: cfg.Apps[i].HealthURL,
-			Enabled:   cfg.Apps[i].Enabled && hcEnabled,
-		})
-	}
-	s.healthMonitor.SetApps(healthApps)
+	s.setHealthApps(cfg.Apps)
 
 	// Broadcast health changes via WebSocket
 	s.healthMonitor.SetHealthChangeCallback(func(appName string, appHealth *health.AppHealth) {
-		wsHub.BroadcastAppHealthUpdate(appName, appHealth)
+		wsHub.BroadcastAppHealthUpdate(appName, appHealth, s.appAccessRestricted(appName))
 	})
 
 	// Health check routes
-	healthHandler := handlers.NewHealthHandler(s.healthMonitor)
+	healthHandler := handlers.NewHealthHandler(s.healthMonitor, cfg, &s.configMu)
 	mux.HandleFunc("/api/apps/health", healthHandler.GetAllHealth)
 	mux.HandleFunc("/api/apps/", func(w http.ResponseWriter, r *http.Request) {
 		// Route /api/apps/{name}/health and /api/apps/{name}/health/check
@@ -1717,13 +1726,29 @@ func (s *Server) Start() error {
 			// websocket.DockerStatePayload) through the single shared
 			// converter so the field copy lives in exactly one place.
 			BroadcastDockerStateChanged: func(appName string, state discovery.DockerState) {
-				s.wsHub.BroadcastDockerStateChanged(appName, handlers.DockerStatePayloadFromState(&state))
+				s.wsHub.BroadcastDockerStateChanged(appName, handlers.DockerStatePayloadFromState(&state), s.appAccessRestricted(appName))
 			},
 		})
 		go s.discoveryPoller.Run(context.Background())
 	}
 
 	return s.httpServer.ListenAndServe()
+}
+
+// appAccessRestricted reports whether the named app has a per-app
+// visibility gate (min_role or allowed_groups). The poller's docker-state
+// broadcast uses it to route a restricted app's realtime update to admin
+// clients only, matching the GET /api/discovery/docker-state filter. An
+// app not found in config is treated as restricted (fail safe).
+func (s *Server) appAccessRestricted(name string) bool {
+	s.configMu.RLock()
+	defer s.configMu.RUnlock()
+	for i := range s.config.Apps {
+		if s.config.Apps[i].Name == name {
+			return s.config.Apps[i].MinRole != "" || len(s.config.Apps[i].AllowedGroups) > 0
+		}
+	}
+	return true
 }
 
 // GetHub returns the WebSocket hub for broadcasting events
@@ -2072,6 +2097,34 @@ func computeDashboardURL(cfg *config.Config) string {
 }
 
 // parseDuration parses a duration string like "7d", "24h", "30m"
+// buildHealthApps projects the app list into the health monitor's view.
+// Health checks are opt-in: an app is monitored only when it is enabled
+// AND has health_check: true. Used at startup and re-applied on every
+// config save so added/removed/edited apps (and poller URL refreshes)
+// take effect without a restart.
+// setHealthApps refreshes the health monitor's view of the apps. Called
+// at startup and after every config save so the monitored set tracks
+// config changes without a restart. Safe when the monitor is nil.
+func (s *Server) setHealthApps(apps []config.AppConfig) {
+	if s.healthMonitor != nil {
+		s.healthMonitor.SetApps(buildHealthApps(apps))
+	}
+}
+
+func buildHealthApps(apps []config.AppConfig) []health.AppConfig {
+	out := make([]health.AppConfig, 0, len(apps))
+	for i := range apps {
+		hcEnabled := apps[i].HealthCheck != nil && *apps[i].HealthCheck
+		out = append(out, health.AppConfig{
+			Name:      apps[i].Name,
+			URL:       apps[i].URL,
+			HealthURL: apps[i].HealthURL,
+			Enabled:   apps[i].Enabled && hcEnabled,
+		})
+	}
+	return out
+}
+
 func parseDuration(s string, defaultVal time.Duration) time.Duration {
 	if s == "" {
 		return defaultVal
@@ -2364,12 +2417,15 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 // cross-origin attacks. Every /api/ request that mutates state
 // (POST / PUT / DELETE / PATCH) must carry either:
 //
-//   - a JSON-style Content-Type (or multipart for icon uploads, or
-//     application/x-yaml for the import path), OR
+//   - a non-simple Content-Type (application/json, or application/x-yaml
+//     for the import path), OR
 //   - the `X-Requested-With` header.
 //
 // Cross-origin pages cannot send either without a CORS preflight that
 // we never grant, so this is enough to defeat browser-form CSRF.
+// multipart/form-data is intentionally excluded: it is CORS-simple and
+// so sendable cross-origin without a preflight, so the multipart icon
+// upload relies on X-Requested-With, which the SPA always sends.
 //
 // The earlier shape only checked POST / PUT and trusted the
 // browser's "non-simple method" preflight rule for DELETE / PATCH.
@@ -2406,8 +2462,15 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		// X-Requested-With header. Either alone defeats the
 		// cross-origin browser-form vector.
 		ct := r.Header.Get(headerContentType)
+		// NB: multipart/form-data is deliberately NOT in this set. It is a
+		// CORS-simple content type, so a cross-origin page can POST it with
+		// credentials and no preflight -- accepting it as a CSRF marker
+		// would leave the icon-upload endpoint open to browser-form CSRF.
+		// Uploads must instead carry X-Requested-With (the SPA sends it;
+		// cross-origin callers cannot without a preflight we never grant).
+		// application/json and application/x-yaml are both non-simple and
+		// therefore do force a preflight.
 		hasSafeContentType := strings.HasPrefix(ct, contentTypeJSON) ||
-			strings.HasPrefix(ct, "multipart/form-data") ||
 			strings.HasPrefix(ct, "application/x-yaml")
 		hasRequestedWith := r.Header.Get("X-Requested-With") != ""
 		// X-Requested-With is the consistent opt-in marker on

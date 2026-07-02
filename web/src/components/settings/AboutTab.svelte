@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { SystemInfo, UpdateInfo } from '$lib/types';
   import { fetchSystemInfo, checkForUpdates } from '$lib/api';
+  import { renderChangelog } from '$lib/changelog';
   import * as m from '$lib/paraglide/messages.js';
 
   let systemInfo = $state<SystemInfo | null>(null);
@@ -28,13 +29,13 @@
       updateInfo = updInfo;
       if (updInfo?.changelog) {
         changelogExpanded = true;
-        // Pull marked off the main bundle. Failure here is silent on
-        // purpose: a missing parser just leaves parsedChangelog
-        // empty, which the template already handles via a
-        // truthy-check around the {@html ...} block.
+        // Parse + sanitize off the main bundle. The changelog is remote
+        // (update-check) content rendered via {@html}, so it must be
+        // sanitized before it hits the DOM (see renderChangelog). Failure
+        // here is silent on purpose: an empty parsedChangelog is handled
+        // by the truthy-check around the {@html ...} block.
         try {
-          const { marked } = await import('marked');
-          parsedChangelog = String(marked.parse(updInfo.changelog));
+          parsedChangelog = await renderChangelog(updInfo.changelog);
         } catch {
           parsedChangelog = '';
         }
