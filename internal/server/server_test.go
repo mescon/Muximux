@@ -443,7 +443,13 @@ func TestCSRFMiddleware(t *testing.T) {
 	}{
 		{"GET API passes through", "GET", "/api/config", "", "", http.StatusOK},
 		{"POST API with JSON passes", "POST", "/api/config", "application/json", "", http.StatusOK},
-		{"POST API with multipart passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "", http.StatusOK},
+		// multipart/form-data is a CORS-simple content type: a cross-origin
+		// fetch can send it with credentials and NO preflight. It must NOT
+		// be a CSRF-safe marker on its own -- the upload has to carry
+		// X-Requested-With (which the SPA sends and cross-origin callers
+		// cannot set without a preflight we never grant).
+		{"POST API with multipart alone blocked", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "", http.StatusForbidden},
+		{"POST API with multipart + XRW passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "XMLHttpRequest", http.StatusOK},
 		{"POST API with x-yaml passes", "POST", "/api/config/import", "application/x-yaml", "", http.StatusOK},
 		{"POST API without content-type blocked", "POST", "/api/config", "", "", http.StatusForbidden},
 		{"POST API with text/plain blocked", "POST", "/api/config", "text/plain", "", http.StatusForbidden},

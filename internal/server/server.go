@@ -2397,12 +2397,15 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 // cross-origin attacks. Every /api/ request that mutates state
 // (POST / PUT / DELETE / PATCH) must carry either:
 //
-//   - a JSON-style Content-Type (or multipart for icon uploads, or
-//     application/x-yaml for the import path), OR
+//   - a non-simple Content-Type (application/json, or application/x-yaml
+//     for the import path), OR
 //   - the `X-Requested-With` header.
 //
 // Cross-origin pages cannot send either without a CORS preflight that
 // we never grant, so this is enough to defeat browser-form CSRF.
+// multipart/form-data is intentionally excluded: it is CORS-simple and
+// so sendable cross-origin without a preflight, so the multipart icon
+// upload relies on X-Requested-With, which the SPA always sends.
 //
 // The earlier shape only checked POST / PUT and trusted the
 // browser's "non-simple method" preflight rule for DELETE / PATCH.
@@ -2439,8 +2442,15 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		// X-Requested-With header. Either alone defeats the
 		// cross-origin browser-form vector.
 		ct := r.Header.Get(headerContentType)
+		// NB: multipart/form-data is deliberately NOT in this set. It is a
+		// CORS-simple content type, so a cross-origin page can POST it with
+		// credentials and no preflight -- accepting it as a CSRF marker
+		// would leave the icon-upload endpoint open to browser-form CSRF.
+		// Uploads must instead carry X-Requested-With (the SPA sends it;
+		// cross-origin callers cannot without a preflight we never grant).
+		// application/json and application/x-yaml are both non-simple and
+		// therefore do force a preflight.
 		hasSafeContentType := strings.HasPrefix(ct, contentTypeJSON) ||
-			strings.HasPrefix(ct, "multipart/form-data") ||
 			strings.HasPrefix(ct, "application/x-yaml")
 		hasRequestedWith := r.Header.Get("X-Requested-With") != ""
 		// X-Requested-With is the consistent opt-in marker on
