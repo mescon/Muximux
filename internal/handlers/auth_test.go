@@ -1054,6 +1054,43 @@ func TestUpdateUser(t *testing.T) {
 	})
 }
 
+// TestDeleteUser_RevokesSessions: deleting a user must invalidate their
+// live sessions. Otherwise the deleted account stays authenticated (and,
+// via userFromSession, keeps its captured role) until the session's
+// 7-day absolute expiry -- defeating deletion as an access-revocation
+// control. ChangePassword already does this; deletion must too.
+func TestDeleteUser_RevokesSessions(t *testing.T) {
+	handler, sessionStore := setupAuthTest(t)
+
+	hash, _ := auth.HashPassword("password123")
+	if err := handler.userStore.Add(&auth.User{
+		ID: "victim", Username: "victim", PasswordHash: hash, Role: "user",
+	}); err != nil {
+		t.Fatalf("add user: %v", err)
+	}
+	sess, err := sessionStore.Create("victim", "victim", "user")
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+	if sessionStore.Get(sess.ID) == nil {
+		t.Fatal("precondition: victim session must exist")
+	}
+
+	currentUser := &auth.User{ID: "admin", Username: "admin", Role: "admin"}
+	req := httptest.NewRequest(http.MethodDelete, "/api/auth/users/victim", nil)
+	req = req.WithContext(context.WithValue(req.Context(), auth.ContextKeyUser, currentUser))
+	w := httptest.NewRecorder()
+
+	handler.DeleteUser(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+	if sessionStore.Get(sess.ID) != nil {
+		t.Error("deleting a user must revoke their active sessions")
+	}
+}
+
 func TestDeleteUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)

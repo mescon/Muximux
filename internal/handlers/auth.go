@@ -774,6 +774,16 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Revoke the deleted user's live sessions so the account cannot keep
+	// acting (with its captured role) until the session's absolute expiry.
+	// Mirrors ChangePassword. Keyed by user ID (== username for builtin
+	// users). Best-effort: the user is already gone from the store, so a
+	// lingering session would fail the GetByID lookup anyway, but this
+	// closes the userFromSession fallback path immediately.
+	if prev != nil {
+		h.sessionStore.DeleteByUserID(prev.ID, "")
+	}
+
 	logging.From(r.Context()).Info("User deleted", "source", "audit", "user", username)
 	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
