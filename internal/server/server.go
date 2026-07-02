@@ -225,6 +225,12 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// call.
 	s.rebuildProxyRoutes = func() {
 		reverseProxyHandler.RebuildRoutes(cfg.Apps)
+		// Keep the health monitor's app set in step with config changes
+		// (add/remove/edit an app, or a poller URL refresh). Without this
+		// it stayed frozen at its boot snapshot until restart: new apps
+		// went unchecked, deleted apps kept being probed, and URL edits
+		// were checked against the stale URL.
+		s.setHealthApps(cfg.Apps)
 	}
 	api.SetOnConfigSave(s.rebuildProxyRoutes)
 
@@ -731,17 +737,7 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 
 	// Configure apps for health monitoring.
 	// Health checks are opt-in: only apps with health_check: true are monitored.
-	healthApps := make([]health.AppConfig, 0, len(cfg.Apps))
-	for i := range cfg.Apps {
-		hcEnabled := cfg.Apps[i].HealthCheck != nil && *cfg.Apps[i].HealthCheck
-		healthApps = append(healthApps, health.AppConfig{
-			Name:      cfg.Apps[i].Name,
-			URL:       cfg.Apps[i].URL,
-			HealthURL: cfg.Apps[i].HealthURL,
-			Enabled:   cfg.Apps[i].Enabled && hcEnabled,
-		})
-	}
-	s.healthMonitor.SetApps(healthApps)
+	s.setHealthApps(cfg.Apps)
 
 	// Broadcast health changes via WebSocket
 	s.healthMonitor.SetHealthChangeCallback(func(appName string, appHealth *health.AppHealth) {
@@ -2072,6 +2068,34 @@ func computeDashboardURL(cfg *config.Config) string {
 }
 
 // parseDuration parses a duration string like "7d", "24h", "30m"
+// buildHealthApps projects the app list into the health monitor's view.
+// Health checks are opt-in: an app is monitored only when it is enabled
+// AND has health_check: true. Used at startup and re-applied on every
+// config save so added/removed/edited apps (and poller URL refreshes)
+// take effect without a restart.
+// setHealthApps refreshes the health monitor's view of the apps. Called
+// at startup and after every config save so the monitored set tracks
+// config changes without a restart. Safe when the monitor is nil.
+func (s *Server) setHealthApps(apps []config.AppConfig) {
+	if s.healthMonitor != nil {
+		s.healthMonitor.SetApps(buildHealthApps(apps))
+	}
+}
+
+func buildHealthApps(apps []config.AppConfig) []health.AppConfig {
+	out := make([]health.AppConfig, 0, len(apps))
+	for i := range apps {
+		hcEnabled := apps[i].HealthCheck != nil && *apps[i].HealthCheck
+		out = append(out, health.AppConfig{
+			Name:      apps[i].Name,
+			URL:       apps[i].URL,
+			HealthURL: apps[i].HealthURL,
+			Enabled:   apps[i].Enabled && hcEnabled,
+		})
+	}
+	return out
+}
+
 func parseDuration(s string, defaultVal time.Duration) time.Duration {
 	if s == "" {
 		return defaultVal

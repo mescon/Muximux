@@ -3075,3 +3075,35 @@ func TestServerStop(t *testing.T) {
 		}
 	})
 }
+
+// TestServer_setHealthApps_TracksConfigChanges: the health monitor's app
+// set follows config changes (the config-saved callback calls this), so
+// added/removed/edited apps take effect without a restart. Regression
+// guard for the monitor being frozen at its boot snapshot.
+func TestServer_setHealthApps_TracksConfigChanges(t *testing.T) {
+	mon := health.NewMonitor(time.Minute, time.Second)
+	s := &Server{healthMonitor: mon}
+	yes := true
+
+	s.setHealthApps([]config.AppConfig{
+		{Name: "A", URL: "http://a", Enabled: true, HealthCheck: &yes},
+	})
+	if _, ok := mon.GetAllHealth()["A"]; !ok {
+		t.Fatal("app A should be registered after setHealthApps")
+	}
+
+	// Config changed: A removed, B added.
+	s.setHealthApps([]config.AppConfig{
+		{Name: "B", URL: "http://b", Enabled: true, HealthCheck: &yes},
+	})
+	all := mon.GetAllHealth()
+	if _, ok := all["A"]; ok {
+		t.Error("app A should drop out of the monitor after removal")
+	}
+	if _, ok := all["B"]; !ok {
+		t.Error("app B should be added to the monitor after config change")
+	}
+
+	// A nil monitor must be a safe no-op.
+	(&Server{}).setHealthApps([]config.AppConfig{{Name: "X"}})
+}
