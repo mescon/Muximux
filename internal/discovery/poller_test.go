@@ -1866,3 +1866,28 @@ func TestTick_DaemonFailureDedupesUntilRecovery(t *testing.T) {
 		t.Error("a successful listing must clear daemonDown (recovery)")
 	}
 }
+
+// TestDedupeDesiredNames: two containers resolving to the same app name
+// collapse to one entry, with a deterministic winner (lowest DockerKey),
+// so auto-import never writes duplicate app names.
+func TestDedupeDesiredNames(t *testing.T) {
+	in := []Desired{
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},
+		{App: config.AppConfig{Name: "Radarr", DockerKey: "label:c"}},
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},
+	}
+	out := dedupeDesiredNames(in)
+	if len(out) != 2 {
+		t.Fatalf("want 2 unique names, got %d: %+v", len(out), out)
+	}
+	names := map[string]string{}
+	for _, e := range out {
+		if _, dup := names[e.App.Name]; dup {
+			t.Errorf("duplicate name survived: %q", e.App.Name)
+		}
+		names[e.App.Name] = e.App.DockerKey
+	}
+	if names["Sonarr"] != "label:a" {
+		t.Errorf("winner should be the lowest DockerKey (label:a), got %q", names["Sonarr"])
+	}
+}

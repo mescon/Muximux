@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 
@@ -82,6 +83,33 @@ const syncRemovalGraceTicks = 3
 // scans. Candidates that reappear (or that this tick no longer proposes)
 // drop out of the counter, so a container that returns within the grace
 // window is never removed and re-added.
+// dedupeDesiredNames drops desired entries whose app Name collides with
+// an earlier one, so two containers that resolve to the same name (a
+// duplicated muximux.app.name label, or two containers of the same
+// catalog app) don't create duplicate app entries in the config. The
+// winner is chosen deterministically (lowest DockerKey) so the same
+// container consistently keeps the name across ticks rather than the two
+// flapping. The operator is warned to give them distinct names.
+func dedupeDesiredNames(desired []Desired) []Desired {
+	sort.SliceStable(desired, func(i, j int) bool {
+		return desired[i].App.DockerKey < desired[j].App.DockerKey
+	})
+	seen := make(map[string]string, len(desired)) // name -> winning DockerKey
+	out := desired[:0]
+	for i := range desired {
+		name := desired[i].App.Name
+		if winner, dup := seen[name]; dup {
+			logging.Warn("Discovery auto-import: duplicate app name; skipping the second container",
+				"source", "discovery", "name", name,
+				"kept_key", winner, "skipped_key", desired[i].App.DockerKey)
+			continue
+		}
+		seen[name] = desired[i].App.DockerKey
+		out = append(out, desired[i])
+	}
+	return out
+}
+
 func (p *Poller) gateSyncRemovals(candidates []string) []string {
 	if len(candidates) == 0 {
 		p.syncAbsent = nil
@@ -377,6 +405,7 @@ func (p *Poller) tick(ctx context.Context) {
 			for i := range scan.Suggestions {
 				desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 			}
+			desired = dedupeDesiredNames(desired)
 			plan := Reconcile(autoImport, desired, currentApps, currentSites)
 			for i := range plan.Add {
 				batch.addApps = append(batch.addApps, plan.Add[i].App)
