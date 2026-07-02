@@ -2,6 +2,36 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.2.2] - 2026-07-02
+
+A reliability and security hotfix. Drop-in: no config changes.
+
+### Security
+- `http_action` no longer follows HTTP redirects. An admin-configured
+  action target could return a redirect to a link-local or loopback
+  address (e.g. `169.254.169.254`, `127.0.0.1`) and drive Muximux into
+  probing internal services -- a server-side request forgery (SSRF)
+  vector. The action's own URL is still requested directly (internal
+  homelab webhooks keep working); only redirect-following is dropped.
+- Deleting a user now revokes their active sessions immediately. Before,
+  a deleted account -- including its captured role -- stayed usable until
+  the session's absolute expiry (up to 7 days), defeating deletion as an
+  access-revocation control.
+
+### Fixed
+- Auto-import in `sync` mode no longer deletes every auto-imported app and
+  gateway site when a Docker scan fails or is blocked (a transient daemon
+  error or a self-detect failure). Reconcile is skipped until the scan
+  succeeds again.
+- Oversized proxied responses are forwarded in full instead of being
+  silently truncated at the 50 MB rewrite limit. A chunked or gzipped
+  response larger than the limit (e.g. a large JSON API payload) was cut
+  to the first 50 MB; the whole stream is now passed through unmodified.
+- Fixed a data race between the discovery poller refreshing an app URL in
+  place and `GET /api/config/export` marshalling the config.
+- `config.Save` removes its temporary file when the final rename fails,
+  instead of leaking a `.config-*.yaml` in the data directory.
+
 ## [3.2.1] - 2026-07-01
 
 A follow-up to 3.2.0's automatic Docker import: auto-import now keeps
