@@ -14,7 +14,7 @@
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, connectionState } from './lib/websocketStore';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
-  import { checkAuthStatus, isAuthenticated, isAdmin, login, setupRequired } from './lib/authStore';
+  import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
@@ -316,19 +316,10 @@
       return;
     }
 
-    // Auto-login after auth method transition (credentials stored by Settings)
-    const autoLogin = sessionStorage.getItem('muximux_auto_login');
-    if (autoLogin) {
-      sessionStorage.removeItem('muximux_auto_login');
-      try {
-        const { u, p } = JSON.parse(autoLogin);
-        if (u && p) {
-          await login(u, p, true);
-        }
-      } catch {
-        // Fall through — user will see the login form
-      }
-    }
+    // Note: the auth-method transition (enabling built-in auth from Settings)
+    // now logs in before reloading, so there is no stored-credential
+    // auto-login step here anymore -- the session cookie already carries the
+    // authenticated session across the reload.
 
     // Try to load config (will 401 if auth required and not logged in)
     try {

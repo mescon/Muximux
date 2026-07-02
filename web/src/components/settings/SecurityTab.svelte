@@ -3,7 +3,7 @@
   import { fly } from 'svelte/transition';
   import type { Config, UserInfo, ChangeAuthMethodRequest } from '$lib/types';
   import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getAPIKeyStatus, generateAPIKey, deleteAPIKey } from '$lib/api';
-  import { changePassword, isAdmin, currentUser } from '$lib/authStore';
+  import { changePassword, login, isAdmin, currentUser } from '$lib/authStore';
   import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -462,9 +462,19 @@
                         } finally {
                           methodLoading = false;
                         }
-                        // Auth middleware is now "builtin" — store credentials for auto-login after reload
+                        // Auth middleware is now "builtin", so this page has no
+                        // valid session. Log in NOW to set the session cookie, then
+                        // reload into an authenticated page. Doing the login here
+                        // (rather than stashing the plaintext password in
+                        // sessionStorage for an after-reload auto-login) keeps the
+                        // password out of web storage entirely.
                         sessionStorage.setItem('muximux_return_to', 'security');
-                        sessionStorage.setItem('muximux_auto_login', JSON.stringify({ u: savedUser, p: savedPass }));
+                        try {
+                          await login(savedUser, savedPass, true);
+                        } catch {
+                          // Even if the login call fails, reload so the operator
+                          // lands on the login form rather than a broken page.
+                        }
                         window.location.reload();
                       }
                     }}
