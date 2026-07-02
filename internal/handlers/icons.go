@@ -427,11 +427,17 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Determine content type
-	contentType := header.Header.Get(headerContentType)
-	if contentType == "" || contentType == "application/octet-stream" {
-		// Detect from file content
-		contentType = http.DetectContentType(data)
+	// Determine content type from the bytes, not the client-declared
+	// multipart Content-Type. A client can label any payload
+	// image/svg+xml; if we trusted that, HTML/JS bytes would be stored as
+	// .svg and later served with Content-Type: image/svg+xml -- stored
+	// XSS on the dashboard origin. resolveIconContentType honours a type
+	// only when the bytes actually sniff to an allowed image (and an SVG
+	// claim only when the bytes look like SVG), returning "" otherwise.
+	contentType := resolveIconContentType(data, header.Header.Get(headerContentType))
+	if contentType == "" {
+		respondError(w, r, http.StatusBadRequest, "Unsupported file type", "source", "icons", "name", name)
+		return
 	}
 
 	// Save the icon
