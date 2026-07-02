@@ -78,6 +78,16 @@ type Service struct {
 	dockerStateMu sync.RWMutex
 	dockerState   dockerStateCache
 
+	// dockerStateSeq is a monotonic counter bumped on every manual
+	// (lifecycle-handler) write to dockerState, and manualSeq records the
+	// counter value at each app's last manual write. The poller captures
+	// the counter when it snapshots the cache and hands it back at commit
+	// time so its wholesale map replacement does not clobber a lifecycle
+	// write that landed mid-tick (the write exists precisely to show fresh
+	// post-action state before the next poll). Guarded by dockerStateMu.
+	dockerStateSeq       uint64
+	dockerStateManualSeq map[string]uint64
+
 	// socketWritable is set by the capability probe at construction and
 	// re-probed on every Reconfigure (reset to false first, so lifecycle
 	// fails closed until the new probe succeeds). The lifecycle handlers
@@ -627,12 +637,68 @@ func (s *Service) SetDockerStateForApp(name string, st *DockerState) {
 	if s.dockerState == nil {
 		s.dockerState = make(dockerStateCache)
 	}
+	if s.dockerStateManualSeq == nil {
+		s.dockerStateManualSeq = make(map[string]uint64)
+	}
+	s.dockerStateSeq++
 	s.dockerState[name] = *st
+	s.dockerStateManualSeq[name] = s.dockerStateSeq
 }
 
-// SetDockerStateCache replaces the entire cache atomically. The poller
-// calls this at the end of each tick with the freshly-built map so
-// apps that disappeared from the tracked set are pruned in one step.
+// snapshotDockerStateForPoll returns a defensive copy of the current cache
+// together with the manual-write sequence counter at snapshot time. The
+// poller pairs it with commitPolledDockerState so a lifecycle write that
+// lands while the tick is inspecting containers is not lost.
+func (s *Service) snapshotDockerStateForPoll() (dockerStateCache, uint64) {
+	s.dockerStateMu.RLock()
+	defer s.dockerStateMu.RUnlock()
+	out := make(dockerStateCache, len(s.dockerState))
+	for k, v := range s.dockerState {
+		out[k] = v
+	}
+	return out, s.dockerStateSeq
+}
+
+// commitPolledDockerState replaces the cache with the poller's freshly
+// built map, but preserves any entry a lifecycle handler wrote after the
+// poll snapshot was taken (manualSeq > sinceSeq). Without this guard the
+// wholesale replacement would clobber a Start/Stop/Restart result that
+// landed mid-tick, blinking the status pill back to its pre-action state
+// until the next poll. Vanished apps (absent from next and not freshly
+// written) are still pruned. sinceSeq is the counter returned by
+// snapshotDockerStateForPoll at the start of the tick.
+func (s *Service) commitPolledDockerState(next dockerStateCache, sinceSeq uint64) {
+	s.dockerStateMu.Lock()
+	defer s.dockerStateMu.Unlock()
+	// Preserve fresher lifecycle writes: for any app still tracked (present
+	// in next) whose last manual write happened after the snapshot, keep
+	// the current entry instead of the poll's possibly-staler read.
+	for name, seq := range s.dockerStateManualSeq {
+		if seq <= sinceSeq {
+			continue
+		}
+		if _, tracked := next[name]; tracked {
+			if cur, ok := s.dockerState[name]; ok {
+				next[name] = cur
+			}
+		}
+	}
+	// Carry forward manual-seq stamps only for apps that survive in the new
+	// cache, so the map does not grow without bound as apps come and go.
+	prunedSeq := make(map[string]uint64, len(s.dockerStateManualSeq))
+	for name, seq := range s.dockerStateManualSeq {
+		if _, ok := next[name]; ok {
+			prunedSeq[name] = seq
+		}
+	}
+	s.dockerState = next
+	s.dockerStateManualSeq = prunedSeq
+}
+
+// SetDockerStateCache replaces the entire cache atomically. Retained for
+// tests and non-poll callers that intentionally want a wholesale reset;
+// the poller uses snapshotDockerStateForPoll + commitPolledDockerState so
+// it does not clobber concurrent lifecycle writes.
 func (s *Service) SetDockerStateCache(next dockerStateCache) {
 	s.dockerStateMu.Lock()
 	defer s.dockerStateMu.Unlock()

@@ -996,12 +996,14 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 		}
 	}
 
-	prev := svc.DockerStateSnapshot()
+	prev, sinceSeq := svc.snapshotDockerStateForPoll()
 	inspect := func(ctx context.Context, id string) (DockerState, error) {
 		return client.InspectContainerState(ctx, id)
 	}
 	next := buildDockerStateCache(ctx, tracked.apps, resolved, inspect, prev)
-	svc.SetDockerStateCache(next)
+	// Commit without clobbering any lifecycle write that landed while we
+	// were inspecting (sinceSeq is the manual-write counter at snapshot).
+	svc.commitPolledDockerState(next, sinceSeq)
 
 	diffs := diffDockerStates(prev, next)
 	if p.deps.BroadcastDockerStateChanged != nil {
