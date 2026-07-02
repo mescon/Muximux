@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -156,7 +157,35 @@ func (h *DiscoveryHandler) GetDockerStateMap(w http.ResponseWriter, r *http.Requ
 		sendJSON(w, http.StatusOK, map[string]discovery.DockerState{})
 		return
 	}
-	sendJSON(w, http.StatusOK, svc.DockerStateSnapshot())
+
+	// Filter to apps the caller is allowed to see. The state map is keyed
+	// by app name and, without this, exposed the container status, image,
+	// uptime, and restart count of every tracked app to any authenticated
+	// user -- including apps hidden from them by min_role / allowed_groups.
+	// This mirrors the per-app gate the lifecycle (control) handlers apply.
+	// Fail closed: a request with no user in context sees nothing.
+	full := svc.DockerStateSnapshot()
+	user := auth.GetUserFromContext(r.Context())
+	if user == nil {
+		sendJSON(w, http.StatusOK, map[string]discovery.DockerState{})
+		return
+	}
+	h.configMu.RLock()
+	accessible := make(map[string]bool, len(h.config.Apps))
+	for i := range h.config.Apps {
+		if appAccessible(user, &h.config.Apps[i]) {
+			accessible[h.config.Apps[i].Name] = true
+		}
+	}
+	h.configMu.RUnlock()
+
+	visible := make(map[string]discovery.DockerState, len(full))
+	for name, st := range full {
+		if accessible[name] {
+			visible[name] = st
+		}
+	}
+	sendJSON(w, http.StatusOK, visible)
 }
 
 // UpdateDockerConfig handles PUT /api/discovery/docker/config. The

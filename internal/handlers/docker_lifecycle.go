@@ -56,7 +56,7 @@ type DockerServiceAPI interface {
 // DockerHubBroadcaster is the narrow surface the lifecycle handlers
 // need from websocket.Hub. Same rationale as DockerServiceAPI.
 type DockerHubBroadcaster interface {
-	BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload)
+	BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload, restricted bool)
 }
 
 // dockerOp is the signature of the underlying daemon call. Start has
@@ -206,7 +206,11 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 
 	h.dockerService.SetDockerStateForApp(appName, &newState)
 	if h.dockerHub != nil {
-		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState))
+		// A restricted app (min_role / allowed_groups) broadcasts its
+		// realtime state to admins only, matching the docker-state GET
+		// filter, so a non-admin can't learn a hidden app's state.
+		restricted := app.MinRole != "" || len(app.AllowedGroups) > 0
+		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState), restricted)
 	}
 
 	logging.Audit("Docker lifecycle action succeeded",

@@ -1475,7 +1475,7 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 // handler onto a bare mux exactly as New() does, then proves GET reaches the
 // handler (200, not a routing 404) and a non-GET hits the method guard (405).
 func TestRoutes_DockerStateMap_Registered(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "sonarr"}}}
 	cfg.Discovery.Docker.Enabled = true
 	svc := discovery.NewService(&cfg.Discovery.Docker)
 	svc.SetDockerStateForApp("sonarr", &discovery.DockerState{Status: "running", Image: "img"})
@@ -1483,7 +1483,12 @@ func TestRoutes_DockerStateMap_Registered(t *testing.T) {
 	dh := handlers.NewDiscoveryHandler(svc, cfg, "", &sync.RWMutex{}, nil)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/discovery/docker-state", dh.GetDockerStateMap)
+	// In production the global RequireAuth injects the user; mimic that here
+	// so the handler's per-app visibility filter has a user to check against.
+	mux.HandleFunc("/api/discovery/docker-state", func(w http.ResponseWriter, r *http.Request) {
+		r = r.WithContext(auth.WithUserContext(r.Context(), &auth.User{Username: "admin", Role: auth.RoleAdmin}))
+		dh.GetDockerStateMap(w, r)
+	})
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()

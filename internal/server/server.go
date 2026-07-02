@@ -1726,13 +1726,29 @@ func (s *Server) Start() error {
 			// websocket.DockerStatePayload) through the single shared
 			// converter so the field copy lives in exactly one place.
 			BroadcastDockerStateChanged: func(appName string, state discovery.DockerState) {
-				s.wsHub.BroadcastDockerStateChanged(appName, handlers.DockerStatePayloadFromState(&state))
+				s.wsHub.BroadcastDockerStateChanged(appName, handlers.DockerStatePayloadFromState(&state), s.appAccessRestricted(appName))
 			},
 		})
 		go s.discoveryPoller.Run(context.Background())
 	}
 
 	return s.httpServer.ListenAndServe()
+}
+
+// appAccessRestricted reports whether the named app has a per-app
+// visibility gate (min_role or allowed_groups). The poller's docker-state
+// broadcast uses it to route a restricted app's realtime update to admin
+// clients only, matching the GET /api/discovery/docker-state filter. An
+// app not found in config is treated as restricted (fail safe).
+func (s *Server) appAccessRestricted(name string) bool {
+	s.configMu.RLock()
+	defer s.configMu.RUnlock()
+	for i := range s.config.Apps {
+		if s.config.Apps[i].Name == name {
+			return s.config.Apps[i].MinRole != "" || len(s.config.Apps[i].AllowedGroups) > 0
+		}
+	}
+	return true
 }
 
 // GetHub returns the WebSocket hub for broadcasting events

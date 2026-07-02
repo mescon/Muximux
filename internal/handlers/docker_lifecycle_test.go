@@ -52,18 +52,20 @@ func (s *stubDockerService) SetDockerStateForApp(name string, st *discovery.Dock
 type stubDockerHub struct {
 	mu     sync.Mutex
 	events []struct {
-		AppName string
-		State   websocket.DockerStatePayload
+		AppName    string
+		State      websocket.DockerStatePayload
+		Restricted bool
 	}
 }
 
-func (h *stubDockerHub) BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload) {
+func (h *stubDockerHub) BroadcastDockerStateChanged(appName string, state *websocket.DockerStatePayload, restricted bool) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.events = append(h.events, struct {
-		AppName string
-		State   websocket.DockerStatePayload
-	}{appName, *state})
+		AppName    string
+		State      websocket.DockerStatePayload
+		Restricted bool
+	}{appName, *state, restricted})
 }
 
 func newDockerLifecycleHandler(t *testing.T, cfg *config.DiscoveryDockerConfig, apps []config.AppConfig, svc *stubDockerService, hub *stubDockerHub, opFn func(context.Context, string) error) (*APIHandler, *http.Request) {

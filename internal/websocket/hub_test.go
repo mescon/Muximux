@@ -410,7 +410,7 @@ func TestHub_BroadcastDockerStateChanged_DeliversToAllClients(t *testing.T) {
 		Status: "exited",
 		Health: "none",
 		Image:  "linuxserver/sonarr:latest",
-	})
+	}, false)
 
 	select {
 	case msg := <-userSend:
@@ -428,6 +428,40 @@ func TestHub_BroadcastDockerStateChanged_DeliversToAllClients(t *testing.T) {
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatalf("admin client never received event")
+	}
+}
+
+// TestHub_BroadcastDockerStateChanged_RestrictedAppAdminOnly guards the
+// realtime companion to the docker-state visibility filter: a restricted
+// app's state update must reach admin clients only, never a non-admin.
+func TestHub_BroadcastDockerStateChanged_RestrictedAppAdminOnly(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+	defer hub.Close()
+
+	userSend := make(chan []byte, 16)
+	hub.Register(&Client{send: userSend, isAdmin: false})
+	adminSend := make(chan []byte, 16)
+	hub.Register(&Client{send: adminSend, isAdmin: true})
+	time.Sleep(20 * time.Millisecond)
+
+	hub.BroadcastDockerStateChanged("secret", &DockerStatePayload{Status: "running", Image: "sec"}, true)
+
+	// Admin receives it.
+	select {
+	case msg := <-adminSend:
+		if !strings.Contains(string(msg), `"app_name":"secret"`) {
+			t.Fatalf("admin payload mismatch: %s", msg)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatalf("admin client never received restricted event")
+	}
+	// Non-admin must NOT receive it.
+	select {
+	case msg := <-userSend:
+		t.Fatalf("non-admin must not receive a restricted app's state: %s", msg)
+	case <-time.After(300 * time.Millisecond):
+		// correct: nothing delivered
 	}
 }
 
