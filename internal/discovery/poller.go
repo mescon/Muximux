@@ -60,6 +60,11 @@ type Poller struct {
 	// hysteresis). See gateSyncRemovals. Only touched from tick(),
 	// which runs one at a time, so it needs no lock.
 	syncAbsent map[string]int
+	// daemonDown dedupes the "daemon unreachable" warning: we log once
+	// when the container listing starts failing and once when it
+	// recovers, instead of every tick for the duration of an outage.
+	// Only touched from tick().
+	daemonDown bool
 }
 
 // syncRemovalGraceTicks is how many consecutive successful scans a
@@ -263,9 +268,16 @@ func (p *Poller) tick(ctx context.Context) {
 	// containers as "not found" because the daemon was unreachable.
 	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: false})
 	if err != nil {
-		logging.Warn("Discovery refresh skipped: ListContainers failed",
-			"source", "discovery", "error", err.Error())
+		if !p.daemonDown {
+			p.daemonDown = true
+			logging.Warn("Discovery refresh skipped: ListContainers failed (retrying each tick; suppressing repeats until recovery)",
+				"source", "discovery", "error", err.Error())
+		}
 		return
+	}
+	if p.daemonDown {
+		p.daemonDown = false
+		logging.Info("Discovery daemon reachable again", "source", "discovery")
 	}
 
 	// Resolve each tracked entry's container -> new URL. Skips
@@ -918,6 +930,10 @@ func (p *Poller) refreshDockerState(ctx context.Context, tracked trackedSet) {
 		t := &tracked.apps[i]
 		tk, err := ParseTrackingKey(t.key)
 		if err != nil {
+			// Consistent with the URL-refresh pass: surface a malformed
+			// tracking key instead of silently skipping it.
+			logging.Warn("Docker state refresh: unparseable tracking key",
+				"source", "discovery", "name", t.name, "key", t.key, "error", err.Error())
 			continue
 		}
 		if m := tk.FindContainer(containers); m != nil {

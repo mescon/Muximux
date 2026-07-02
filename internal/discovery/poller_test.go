@@ -1828,3 +1828,41 @@ func TestPoller_StopConcurrentWithRun(t *testing.T) {
 	cancel()
 	<-done
 }
+
+// TestTick_DaemonFailureDedupesUntilRecovery: repeated ListContainers
+// failures set daemonDown once (so the warning is logged once, not every
+// tick), and a later success clears it (logging recovery once).
+func TestTick_DaemonFailureDedupesUntilRecovery(t *testing.T) {
+	failing := true
+	mux := http.NewServeMux()
+	mux.HandleFunc("/_ping", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	mux.HandleFunc("/v1.41/containers/json", func(w http.ResponseWriter, _ *http.Request) {
+		if failing {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		_ = json.NewEncoder(w).Encode([]ContainerSummary{})
+	})
+	socket, cleanup := fakeDockerOverUnix(t, mux)
+	defer cleanup()
+
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "a", DockerKey: "label:a", DockerEndpoint: "unix://" + socket}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+
+	p.tick(context.Background())
+	if !p.daemonDown {
+		t.Fatal("first ListContainers failure must set daemonDown")
+	}
+	p.tick(context.Background())
+	if !p.daemonDown {
+		t.Fatal("daemonDown must stay set across repeated failures")
+	}
+	failing = false
+	p.tick(context.Background())
+	if p.daemonDown {
+		t.Error("a successful listing must clear daemonDown (recovery)")
+	}
+}
