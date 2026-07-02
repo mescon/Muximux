@@ -754,11 +754,11 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 
 	// Broadcast health changes via WebSocket
 	s.healthMonitor.SetHealthChangeCallback(func(appName string, appHealth *health.AppHealth) {
-		wsHub.BroadcastAppHealthUpdate(appName, appHealth)
+		wsHub.BroadcastAppHealthUpdate(appName, appHealth, s.appAccessRestricted(appName))
 	})
 
 	// Health check routes
-	healthHandler := handlers.NewHealthHandler(s.healthMonitor)
+	healthHandler := handlers.NewHealthHandler(s.healthMonitor, cfg, &s.configMu)
 	mux.HandleFunc("/api/apps/health", healthHandler.GetAllHealth)
 	mux.HandleFunc("/api/apps/", func(w http.ResponseWriter, r *http.Request) {
 		// Route /api/apps/{name}/health and /api/apps/{name}/health/check

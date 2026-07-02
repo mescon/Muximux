@@ -193,13 +193,17 @@ func (h *Hub) BroadcastHealthUpdate(health interface{}) {
 }
 
 // BroadcastAppHealthUpdate sends an app-specific health update event
-func (h *Hub) BroadcastAppHealthUpdate(appName string, health interface{}) {
+func (h *Hub) BroadcastAppHealthUpdate(appName string, health interface{}, restricted bool) {
 	h.Broadcast(Event{
 		Type: EventAppHealthChanged,
 		Payload: map[string]interface{}{
 			"app":    appName,
 			"health": health,
 		},
+		// A restricted app (min_role / allowed_groups) delivers its health
+		// update to admin clients only, matching the health GET filter, so a
+		// non-admin can't learn a hidden app's existence or status.
+		adminOnly: restricted,
 	})
 }
 

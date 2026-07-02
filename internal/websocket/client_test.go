@@ -290,7 +290,7 @@ func TestBroadcast_FilterByRole(t *testing.T) {
 	// send channel). Then assert the admin saw both in order and the user
 	// saw exactly the health update.
 	hub.BroadcastConfigUpdate(map[string]string{"title": "sensitive"})
-	hub.BroadcastAppHealthUpdate("sonarr", map[string]string{"status": "up"})
+	hub.BroadcastAppHealthUpdate("sonarr", map[string]string{"status": "up"}, false)
 	time.Sleep(200 * time.Millisecond)
 
 	readAll := func(conn *websocket.Conn) []string {

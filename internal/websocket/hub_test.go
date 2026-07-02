@@ -200,7 +200,7 @@ func TestHub_BroadcastAppHealthUpdate(t *testing.T) {
 	hub.Register(client)
 	time.Sleep(50 * time.Millisecond)
 
-	hub.BroadcastAppHealthUpdate("myapp", map[string]string{"status": "healthy"})
+	hub.BroadcastAppHealthUpdate("myapp", map[string]string{"status": "healthy"}, false)
 	time.Sleep(50 * time.Millisecond)
 
 	select {
