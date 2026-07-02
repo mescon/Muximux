@@ -1002,7 +1002,7 @@ func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
 // rather than a clobber. A save failure rolls back the in-memory change
 // and is logged; the next successful verify retries.
 func (h *AuthHandler) UpgradeAPIKeyHash(oldHash, newHash string) {
-	if oldHash == "" || newHash == "" || oldHash == newHash {
+	if h.config == nil || oldHash == "" || newHash == "" || oldHash == newHash {
 		return
 	}
 	h.configMu.Lock()

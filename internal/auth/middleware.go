@@ -329,10 +329,15 @@ func (m *Middleware) shouldBypass(r *http.Request, snap *authSnapshot) bool {
 }
 
 func (m *Middleware) matchBypassRule(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
+	// matchAPIKey is evaluated last because it carries a side effect (the
+	// opportunistic legacy-hash migration). Gating it behind the pure
+	// path/method/IP checks means the migration only fires for a request
+	// that actually clears the whole rule -- not for a correct key
+	// presented from a disallowed IP.
 	return matchPath(r.URL.Path, rule) &&
 		matchMethod(r.Method, rule) &&
-		m.matchAPIKey(r, rule, snap) &&
-		matchAllowedIPs(r, rule, snap)
+		matchAllowedIPs(r, rule, snap) &&
+		m.matchAPIKey(r, rule, snap)
 }
 
 func matchPath(requestPath string, rule BypassRule) bool {
@@ -424,6 +429,14 @@ func (m *Middleware) matchAPIKey(r *http.Request, rule BypassRule, snap *authSna
 		newHash := HashAPIKey(provided)
 		go func() {
 			defer m.apiKeyUpgrading.Store(false)
+			// net/http only recovers panics on its own serving
+			// goroutines; a panic here would crash the process. Contain
+			// it -- a failed migration must never take the server down.
+			defer func() {
+				if rec := recover(); rec != nil {
+					logging.Error("API key auto-upgrade hook panicked", "source", "audit", "panic", rec)
+				}
+			}()
 			m.onAPIKeyUpgrade(oldHash, newHash)
 		}()
 	}
