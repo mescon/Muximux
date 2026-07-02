@@ -1809,3 +1809,22 @@ func TestTick_AutoImportSkipsSelfAndNetworkFiltered(t *testing.T) {
 		t.Errorf("media-network sonarr should import; apps=%+v", cfg.Apps)
 	}
 }
+
+// TestPoller_StopConcurrentWithRun exercises Stop racing Run's startup,
+// where both touch p.stop/p.done. Meaningful under -race. Discovery is
+// disabled so tick() returns immediately and Run is a no-op loop.
+func TestPoller_StopConcurrentWithRun(t *testing.T) {
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{
+		Config:   &config.Config{}, // discovery disabled -> tick() returns early
+		ConfigMu: &mu,
+		Service:  NewService(&config.DiscoveryDockerConfig{}),
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan struct{})
+	go func() { p.Run(ctx); close(done) }()
+	p.Stop()
+	cancel()
+	<-done
+}

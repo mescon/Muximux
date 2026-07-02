@@ -110,8 +110,12 @@ func NewPoller(deps PollerDeps) *Poller {
 // any URL drift right away. Subsequent ticks honor the configured
 // interval.
 func (p *Poller) Run(ctx context.Context) {
-	ctx, p.stop = context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(ctx)
+	// Publish stop + done under doneM: Stop() may be called (from a
+	// concurrent goroutine) before or during Run's startup, and both
+	// fields are read there. Guarding only done left a race on stop.
 	p.doneM.Lock()
+	p.stop = cancel
 	p.done = make(chan struct{})
 	p.doneM.Unlock()
 	defer close(p.done)
@@ -137,12 +141,13 @@ func (p *Poller) Run(ctx context.Context) {
 // Stop signals Run to exit and waits up to 5 seconds for it. Safe to
 // call multiple times.
 func (p *Poller) Stop() {
-	if p.stop != nil {
-		p.stop()
-	}
 	p.doneM.Lock()
+	stop := p.stop
 	d := p.done
 	p.doneM.Unlock()
+	if stop != nil {
+		stop()
+	}
 	if d == nil {
 		return
 	}
