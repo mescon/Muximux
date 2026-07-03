@@ -644,7 +644,7 @@
             </p>
           {:else}
             <p class="text-xs text-text-muted mt-1">
-              Where Muximux forwards requests. Private IPs (10.x, 192.168.x, Docker hostnames) are fine.
+              Where Muximux forwards requests. Any http(s) address it can reach works: a Docker service name, a LAN / VPN / Tailscale IP, or a public host.
             </p>
           {/if}
         </div>
