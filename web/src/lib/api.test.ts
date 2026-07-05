@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  slugify,
   parseImportedConfig,
   exportConfig,
   fetchConfig,
@@ -96,39 +95,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 
 // --- Tests ---
 
-describe('slugify', () => {
-  it('converts spaces to hyphens', () => {
-    expect(slugify('hello world')).toBe('hello-world');
-  });
-
-  it('removes special characters', () => {
-    expect(slugify('hello@world!')).toBe('helloworld');
-  });
-
-  it('converts to lowercase', () => {
-    expect(slugify('Hello World')).toBe('hello-world');
-  });
-
-  it('collapses multiple spaces into single hyphen', () => {
-    expect(slugify('hello   world')).toBe('hello-world');
-  });
-
-  it('handles empty string', () => {
-    expect(slugify('')).toBe('');
-  });
-
-  it('handles string with only special chars', () => {
-    expect(slugify('!@#$%')).toBe('');
-  });
-
-  it('keeps numbers', () => {
-    expect(slugify('app 2 test')).toBe('app-2-test');
-  });
-
-  it('keeps existing hyphens', () => {
-    expect(slugify('my-app')).toBe('my-app');
-  });
-});
+// slugify / findSlugConflict tests live in slug.test.ts alongside their module.
 
 describe('parseImportedConfig', () => {
   let originalFetch: typeof globalThis.fetch;

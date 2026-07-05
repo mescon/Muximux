@@ -337,6 +337,7 @@
   "appForm_name": "Name",
   "appForm_helpName": "Displayed in the navigation bar and page title. Also used as a unique identifier — renaming an app creates a new proxy route.",
   "appForm_placeholderName": "My App",
+  "appForm_slugConflict": "Same proxy path (/proxy/{slug}/) as \"{other}\". Rename one so their slugs differ.",
   "appForm_url": "URL",
   "appForm_helpUrl": "The full address of the application. Used to load the app in an iframe, or as the link when opened in a new tab/window.",
   "appForm_placeholderUrl": "http://localhost:8080",

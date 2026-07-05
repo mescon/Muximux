@@ -19,6 +19,7 @@
   import { selectedFamily, variantMode, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig, fetchConfig, type ImportedConfig } from '$lib/api';
+  import { slugify, findSlugConflict } from '$lib/slug';
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
@@ -281,6 +282,11 @@
         return;
       }
     }
+    const slugClash = findSlugConflict(newApp, localApps);
+    if (slugClash) {
+      appErrors = { name: m.appForm_slugConflict({ other: slugClash, slug: slugify(newApp.name ?? '') }) };
+      return;
+    }
     appErrors = {};
     newApp.order = localApps.length;
     const app = { ...newApp };
@@ -342,6 +348,11 @@
           editAppErrors = { url: httpActionErr };
           return;
         }
+      }
+      const slugClash = findSlugConflict(editingApp, localApps);
+      if (slugClash) {
+        editAppErrors = { name: m.appForm_slugConflict({ other: slugClash, slug: slugify(editingApp.name ?? '') }) };
+        return;
       }
       editAppErrors = {};
       stampAppId(editingApp);

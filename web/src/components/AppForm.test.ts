@@ -78,6 +78,25 @@ describe('AppForm', () => {
       expect(input.value).toBe('http://localhost:8080');
     });
 
+    it('warns when the name slugifies to another enabled app\'s proxy path', () => {
+      const other = makeApp({ name: 'Radarr' });
+      (other as App & { id?: string }).id = 'Radarr';
+      const editing = makeApp({ name: 'radarr' });
+      (editing as App & { id?: string }).id = 'radarr-new';
+      render(AppForm, { props: { app: editing, mode: 'create', groups: defaultGroups, allApps: [other] } });
+      const warning = document.querySelector('[data-testid="app-slug-conflict"]');
+      expect(warning).toBeInTheDocument();
+      expect(warning?.textContent).toContain('Radarr');
+      expect(warning?.textContent).toContain('/proxy/radarr/');
+    });
+
+    it('shows no slug warning when slugs are distinct', () => {
+      const other = makeApp({ name: 'Sonarr' });
+      (other as App & { id?: string }).id = 'Sonarr';
+      render(AppForm, { props: { app: makeApp({ name: 'Radarr' }), mode: 'create', groups: defaultGroups, allApps: [other] } });
+      expect(document.querySelector('[data-testid="app-slug-conflict"]')).not.toBeInTheDocument();
+    });
+
     it('uses edit prefix for IDs in edit mode', () => {
       render(AppForm, { props: { app: makeApp(), mode: 'edit', groups: defaultGroups, allApps: [] } });
       expect(document.getElementById('edit-app-name')).toBeInTheDocument();

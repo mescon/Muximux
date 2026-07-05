@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { App, Group } from '$lib/types';
   import { openModes, IFRAME_PERMISSIONS } from '$lib/constants';
+  import { slugify, findSlugConflict } from '$lib/slug';
   import AppIcon from './AppIcon.svelte';
   import HeadersEditor from './HeadersEditor.svelte';
   import * as m from '$lib/paraglide/messages.js';
@@ -26,6 +27,11 @@
   } = $props();
 
   let prefix = $derived(mode === 'create' ? 'create' : 'edit');
+
+  // As-you-type guard: warn when this app's name slugifies to the same
+  // /proxy/<slug>/ route as another enabled app. The backend also rejects it
+  // on save (config.validateUniqueAppSlugs); this is the immediate hint.
+  let slugConflictWith = $derived(findSlugConflict(app, allApps));
 
   // Standard iframe Feature Policy permissions we expose as simple checkboxes,
   // with per-permission description and docs URL used by the hover tooltip.
@@ -156,6 +162,11 @@
       placeholder={m.appForm_placeholderName()}
     />
     {#if errors.name}<p class="text-red-400 text-xs mt-1">{errors.name}</p>{/if}
+    {#if !errors.name && slugConflictWith}
+      <p class="text-amber-400 text-xs mt-1" data-testid="app-slug-conflict">
+        {m.appForm_slugConflict({ other: slugConflictWith, slug: slugify(app.name ?? '') })}
+      </p>
+    {/if}
   </div>
 
   <div>
