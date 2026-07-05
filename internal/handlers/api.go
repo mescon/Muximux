@@ -733,6 +733,14 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps = append(h.config.Apps, newApp)
 
+	// Reject a slug collision (two enabled apps mapping to the same
+	// /proxy/<slug>/ route) before persisting, rolling back the append.
+	if err := config.ValidateUniqueAppSlugs(h.config.Apps); err != nil {
+		h.config.Apps = priorApps
+		respondError(w, r, http.StatusBadRequest, "Invalid app: "+err.Error())
+		return
+	}
+
 	// Save config (rollback on disk failure so the in-memory state
 	// never diverges from what's on disk).
 	if err := h.saveOrRollbackApps(priorApps, "create", newApp.Name); err != nil {
@@ -791,6 +799,14 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps[idx] = updated
+
+	// Reject a slug collision introduced by this edit (e.g. renaming an app
+	// into another's slug), rolling back the in-memory change.
+	if err := config.ValidateUniqueAppSlugs(h.config.Apps); err != nil {
+		h.config.Apps = priorApps
+		respondError(w, r, http.StatusBadRequest, "Invalid app: "+err.Error())
+		return
+	}
 
 	// Save config (rollback on disk failure).
 	if err := h.saveOrRollbackApps(priorApps, "update", clientApp.Name); err != nil {
@@ -1255,31 +1271,11 @@ func userInAnyAllowedGroup(userGroups, allowed []string) bool {
 	return false
 }
 
-// Slugify converts a name to a URL-safe slug
+// Slugify converts a name to a URL-safe slug. The implementation lives in
+// the config package so slug-collision validation can share it; this is a
+// re-export for the handler call sites.
 func Slugify(name string) string {
-	// Slugify: lowercase, keep alphanumeric, collapse separators to single dash, trim edges
-	result := make([]byte, 0, len(name))
-	lastDash := true // start true to suppress leading dash
-	for _, c := range name {
-		switch {
-		case c >= 'A' && c <= 'Z':
-			result = append(result, byte(c+32)) // lowercase
-			lastDash = false
-		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
-			result = append(result, byte(c)) //nolint:gosec // case guard restricts c to ASCII range
-			lastDash = false
-		case c == ' ', c == '-', c == '_':
-			if !lastDash {
-				result = append(result, '-')
-				lastDash = true
-			}
-		}
-	}
-	// Trim trailing dash
-	if len(result) > 0 && result[len(result)-1] == '-' {
-		result = result[:len(result)-1]
-	}
-	return string(result)
+	return config.Slugify(name)
 }
 
 // getUserRoleAndGroups extracts both the role and the group memberships

@@ -838,6 +838,10 @@ func (c *Config) validate() error {
 		return err
 	}
 
+	if err := validateUniqueAppSlugs(c.Apps); err != nil {
+		return err
+	}
+
 	if err := ValidateDiscoveryLifecycle(&c.Discovery.Docker, c.Groups); err != nil {
 		return err
 	}
@@ -1254,6 +1258,66 @@ func validateApps(apps []AppConfig) error {
 		}
 	}
 	return nil
+}
+
+// Slugify converts an app name to the URL-safe slug used for its
+// /proxy/<slug>/ route, its nav deep-link hash, and its health key.
+// Lowercase, alphanumeric kept, separators collapsed to a single dash,
+// edges trimmed. It lives here so validation can detect slug collisions;
+// the handlers package re-exports it.
+func Slugify(name string) string {
+	result := make([]byte, 0, len(name))
+	lastDash := true // start true to suppress a leading dash
+	for _, c := range name {
+		switch {
+		case c >= 'A' && c <= 'Z':
+			result = append(result, byte(c+32)) // lowercase
+			lastDash = false
+		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
+			result = append(result, byte(c)) //nolint:gosec // case guard restricts c to ASCII range
+			lastDash = false
+		case c == ' ', c == '-', c == '_':
+			if !lastDash {
+				result = append(result, '-')
+				lastDash = true
+			}
+		}
+	}
+	if len(result) > 0 && result[len(result)-1] == '-' {
+		result = result[:len(result)-1]
+	}
+	return string(result)
+}
+
+// validateUniqueAppSlugs rejects a config where two enabled apps produce the
+// same slug. The slug keys an app's /proxy/<slug>/ route, its nav deep-link
+// hash, and its health entry, so a collision silently makes one app
+// unreachable (the route map is last-write-wins). Disabled apps get no route
+// or nav entry, so they are excluded. An empty slug (a name with no
+// alphanumerics) is skipped -- that name is already unusable on its own.
+func validateUniqueAppSlugs(apps []AppConfig) error {
+	seen := make(map[string]string, len(apps)) // slug -> first app name
+	for i := range apps {
+		if !apps[i].Enabled {
+			continue
+		}
+		slug := Slugify(apps[i].Name)
+		if slug == "" {
+			continue
+		}
+		if prev, ok := seen[slug]; ok {
+			return fmt.Errorf("apps %q and %q map to the same proxy path /proxy/%s/ -- rename one so their slugs differ", prev, apps[i].Name, slug)
+		}
+		seen[slug] = apps[i].Name
+	}
+	return nil
+}
+
+// ValidateUniqueAppSlugs is the exported entry point the API's per-app
+// create/update handlers call before persisting, so a slug collision is
+// rejected with a clear message rather than silently overwriting a route.
+func ValidateUniqueAppSlugs(apps []AppConfig) error {
+	return validateUniqueAppSlugs(apps)
 }
 
 // ValidateApp runs the per-app validation checks for a single app,

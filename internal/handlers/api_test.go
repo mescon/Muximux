@@ -1508,6 +1508,36 @@ func TestUpdateApp_RejectsInvalidHTTPAction(t *testing.T) {
 	}
 }
 
+// TestCreateApp_RejectsSlugCollision guards that two enabled apps cannot map
+// to the same /proxy/<slug>/ route: "Radarr" and "radarr" both slugify to
+// "radarr", which would silently overwrite one route (last-write-wins).
+func TestCreateApp_RejectsSlugCollision(t *testing.T) {
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "Radarr", URL: "http://radarr:7878", Enabled: true, Proxy: true}}}
+	tmpFile, err := os.CreateTemp(t.TempDir(), "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+	before := len(cfg.Apps)
+
+	body, _ := json.Marshal(ClientAppConfig{
+		Name:    "radarr", // distinct name, same slug as "Radarr"
+		URL:     "http://other:1",
+		Enabled: true,
+		Proxy:   true,
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateApp(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for a slug collision, got %d: %s", w.Code, w.Body.String())
+	}
+	if len(cfg.Apps) != before {
+		t.Errorf("colliding app must not be added: apps went from %d to %d", before, len(cfg.Apps))
+	}
+}
+
 func TestCreateAppSaveFails(t *testing.T) {
 	cfg := createTestConfig()
 	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})

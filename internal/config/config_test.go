@@ -1317,6 +1317,39 @@ func TestValidateGatewaySite_MinRoleIgnoredWhenRequireAuthFalse(t *testing.T) {
 	}
 }
 
+func TestValidate_DuplicateAppSlugs(t *testing.T) {
+	app := func(name string, enabled bool) AppConfig {
+		return AppConfig{Name: name, URL: "http://x:1", Enabled: enabled}
+	}
+	cases := []struct {
+		name    string
+		apps    []AppConfig
+		wantErr string // substring match; empty means expect success
+	}{
+		{"distinct slugs ok", []AppConfig{app("Radarr", true), app("Sonarr", true)}, ""},
+		{"case-only collision rejected", []AppConfig{app("Radarr", true), app("radarr", true)}, "proxy path"},
+		{"separator collision rejected", []AppConfig{app("My App", true), app("My-App", true)}, "proxy path"},
+		{"names in the message", []AppConfig{app("Radarr", true), app("radarr", true)}, "Radarr"},
+		{"disabled duplicate allowed", []AppConfig{app("Radarr", true), app("radarr", false)}, ""},
+		{"single app ok", []AppConfig{app("Radarr", true)}, ""},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := &Config{Apps: tc.apps}
+			err := cfg.Validate()
+			if tc.wantErr == "" {
+				if err != nil {
+					t.Fatalf("expected success, got %v", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+				t.Fatalf("expected error containing %q, got %v", tc.wantErr, err)
+			}
+		})
+	}
+}
+
 func TestValidate_HTTPAction(t *testing.T) {
 	base := func() *Config {
 		return &Config{
