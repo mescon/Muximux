@@ -40,6 +40,8 @@
   import * as m from '$lib/paraglide/messages.js';
   import { setLocale, getLocale, locales } from '$lib/paraglide/runtime.js';
   import LocaleSelect from './LocaleSelect.svelte';
+  import { moveItem } from '$lib/reorder';
+  import { announce } from '$lib/announce';
 
   // Config restore state
   let restoreFileInput = $state<HTMLInputElement | undefined>(undefined);
@@ -717,6 +719,26 @@
     wizardGroups = e.detail.items;
   }
 
+  // Keyboard reordering (mirrors the drag result) so the wizard's lists are
+  // reorderable without a pointer. Final ordering is applied at completion,
+  // so simply reordering the arrays here is enough.
+  function moveWizardGroup(index: number, direction: -1 | 1) {
+    const next = moveItem(wizardGroups, index, direction);
+    if (next === wizardGroups) return;
+    const moved = next[index + direction];
+    wizardGroups = next;
+    announce(m.apps_movedTo({ name: moved.name, position: `${index + direction + 1}`, total: `${next.length}` }));
+  }
+
+  function moveWizardApp(groupName: string, index: number, direction: -1 | 1) {
+    const list = dndApps[groupName] || [];
+    const next = moveItem(list, index, direction);
+    if (next === list) return;
+    const moved = next[index + direction];
+    dndApps[groupName] = next;
+    announce(m.apps_movedTo({ name: moved.name, position: `${index + direction + 1}`, total: `${next.length}` }));
+  }
+
   function getGroupColor(group: string): string {
     const colors: Record<string, string> = {
       'Media': '#E5A00D',
@@ -877,6 +899,37 @@
     }
   }
 </script>
+
+{#snippet wizardMoveButtons(upLabel: string, downLabel: string, atTop: boolean, atBottom: boolean, onUp: () => void, onDown: () => void)}
+  <button
+    type="button"
+    class="flex-shrink-0 p-1 text-text-disabled hover:text-text-secondary rounded transition-colors"
+    class:opacity-30={atTop}
+    class:cursor-not-allowed={atTop}
+    aria-label={upLabel}
+    aria-disabled={atTop}
+    data-testid="wizard-move-up"
+    onclick={() => { if (!atTop) onUp(); }}
+  >
+    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+  <button
+    type="button"
+    class="flex-shrink-0 p-1 text-text-disabled hover:text-text-secondary rounded transition-colors"
+    class:opacity-30={atBottom}
+    class:cursor-not-allowed={atBottom}
+    aria-label={downLabel}
+    aria-disabled={atBottom}
+    data-testid="wizard-move-down"
+    onclick={() => { if (!atBottom) onDown(); }}
+  >
+    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+{/snippet}
 
 <div class="fixed inset-0 z-50 bg-bg-base overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-modal="true" aria-label="Setup wizard" tabindex="0">
   <!-- Top bar nav preview — rendered as wizard root flex child so it sits above the stepper -->
@@ -1778,6 +1831,14 @@
                                        focus:outline-none transition-colors"
                               />
                             </div>
+                            {@render wizardMoveButtons(
+                              m.apps_moveUp({ name: group.name }),
+                              m.apps_moveDown({ name: group.name }),
+                              i === 0,
+                              i === wizardGroups.length - 1,
+                              () => moveWizardGroup(i, -1),
+                              () => moveWizardGroup(i, 1)
+                            )}
                             <button
                               class="flex-shrink-0 p-1 text-text-disabled hover:text-red-400 rounded transition-colors"
                               onclick={() => deleteGroup(i)}
@@ -1793,7 +1854,7 @@
                                  use:dndzone={{items: groupApps, flipDurationMs, type: 'wizard-apps', dropTargetStyle: {}}}
                                  onconsider={(e) => handleDndConsider(e, group.name)}
                                  onfinalize={(e) => handleDndFinalize(e, group.name)}>
-                              {#each groupApps as item (item.id)}
+                              {#each groupApps as item, appIdx (item.id)}
                                 {@const appColor = getAppDisplayColor(item.name)}
                                 {@const appIcon = getAppDisplayIcon(item.name)}
                                 <div class="p-2 rounded bg-bg-surface cursor-grab group/drag text-sm text-text-primary"
@@ -1829,6 +1890,14 @@
                                       onclick={(e) => e.stopPropagation()}
                                       class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border focus:border-brand-500 focus:outline-none px-0 py-0"
                                     />
+                                    {@render wizardMoveButtons(
+                                      m.apps_moveUp({ name: item.name }),
+                                      m.apps_moveDown({ name: item.name }),
+                                      appIdx === 0,
+                                      appIdx === groupApps.length - 1,
+                                      () => moveWizardApp(group.name, appIdx, -1),
+                                      () => moveWizardApp(group.name, appIdx, 1)
+                                    )}
                                     <button
                                       class="p-1 text-text-disabled hover:text-red-400 transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}

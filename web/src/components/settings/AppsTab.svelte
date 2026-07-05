@@ -6,6 +6,8 @@
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import * as m from '$lib/paraglide/messages.js';
   import { fetchDiscoveryDockerStatus } from '$lib/api';
+  import { moveItem } from '$lib/reorder';
+  import { announce } from '$lib/announce';
 
   let {
     dndGroups = $bindable(),
@@ -151,9 +153,65 @@
     dndGroupedApps[groupName] = newItems;
     onsyncAppOrder(groupName, newItems);
   }
+
+  // Keyboard reordering: the same result as a drag, driven by the up/down
+  // buttons on each row so keyboard-only and pointer-averse users can
+  // reorder too. moveItem returns the original array unchanged at a bound,
+  // which we treat as a silent no-op (the button is aria-disabled there).
+  function moveGroup(index: number, direction: -1 | 1) {
+    const next = moveItem(dndGroups, index, direction);
+    if (next === dndGroups) return;
+    const moved = next[index + direction];
+    next.forEach((g, i) => { g.order = i; });
+    dndGroups = next;
+    onsyncGroupOrder(dndGroups);
+    announce(m.apps_movedTo({ name: moved.name, position: `${index + direction + 1}`, total: `${next.length}` }));
+  }
+
+  function moveApp(groupName: string, index: number, direction: -1 | 1) {
+    const list = dndGroupedApps[groupName] || [];
+    const next = moveItem(list, index, direction);
+    if (next === list) return;
+    const moved = next[index + direction];
+    next.forEach((a, i) => { a.group = groupName; a.order = i; stampAppId(a); });
+    dndGroupedApps[groupName] = next;
+    onsyncAppOrder(groupName, next);
+    announce(m.apps_movedTo({ name: moved.name, position: `${index + direction + 1}`, total: `${next.length}` }));
+  }
 </script>
 
-{#snippet appRowContent(app: App)}
+{#snippet moveButtons(upLabel: string, downLabel: string, atTop: boolean, atBottom: boolean, onUp: () => void, onDown: () => void)}
+  <button
+    type="button"
+    class="btn btn-ghost btn-icon btn-sm"
+    class:opacity-30={atTop}
+    class:cursor-not-allowed={atTop}
+    aria-label={upLabel}
+    aria-disabled={atTop}
+    data-testid="move-up"
+    onclick={() => { if (!atTop) onUp(); }}
+  >
+    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+  <button
+    type="button"
+    class="btn btn-ghost btn-icon btn-sm"
+    class:opacity-30={atBottom}
+    class:cursor-not-allowed={atBottom}
+    aria-label={downLabel}
+    aria-disabled={atBottom}
+    data-testid="move-down"
+    onclick={() => { if (!atBottom) onDown(); }}
+  >
+    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+{/snippet}
+
+{#snippet appRowContent(app: App, groupName: string, index: number, total: number)}
   <!-- Drag handle -->
   <div class="flex-shrink-0 text-text-disabled hover:text-text-muted">
     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -222,6 +280,14 @@
     </div>
   {:else}
     <div class="flex items-center gap-1 app-actions">
+      {@render moveButtons(
+        m.apps_moveUp({ name: app.name }),
+        m.apps_moveDown({ name: app.name }),
+        index === 0,
+        index === total - 1,
+        () => moveApp(groupName, index, -1),
+        () => moveApp(groupName, index, 1)
+      )}
       <button class="btn btn-ghost btn-icon btn-sm"
               onclick={() => onstartEditApp(app)} title={m.common_edit()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -294,7 +360,7 @@
   </div>
 
   <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-disabled">
-    <span>{m.apps_dragHelp()}</span>
+    <span>{m.apps_dragHelp()} {m.apps_reorderHelp()}</span>
     <span class="flex items-center gap-3 text-text-disabled">
       <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></span> {m.apps_proxy()}</span>
       <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></span> {m.apps_newTab()}</span>
@@ -306,7 +372,7 @@
 
   <!-- Groups with their apps (dnd-zone for group reordering) -->
   <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} onconsider={handleGroupDndConsider} onfinalize={handleGroupDndFinalize}>
-    {#each dndGroups as group ((group as Group & Record<string, unknown>).id)}
+    {#each dndGroups as group, groupIndex ((group as Group & Record<string, unknown>).id)}
       {@const appsInGroup = dndGroupedApps[group.name] || []}
       <div class="rounded-lg border border-border" animate:flip={{duration: flipDurationMs}}>
         <!-- Group header -->
@@ -344,6 +410,14 @@
             </div>
           {:else}
             <div class="flex items-center gap-1 app-actions">
+              {@render moveButtons(
+                m.apps_moveUp({ name: group.name }),
+                m.apps_moveDown({ name: group.name }),
+                groupIndex === 0,
+                groupIndex === dndGroups.length - 1,
+                () => moveGroup(groupIndex, -1),
+                () => moveGroup(groupIndex, 1)
+              )}
               <button class="btn btn-ghost btn-icon btn-sm"
                       onclick={() => onstartEditGroup(group)} title={m.apps_editGroup()}>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -365,12 +439,12 @@
           {#if appsInGroup.length === 0}
             <div class="text-center py-3 text-text-disabled text-sm italic">{m.apps_noAppsInGroup()}</div>
           {/if}
-          {#each appsInGroup as app ((app as App & Record<string, unknown>).id)}
+          {#each appsInGroup as app, appIndex ((app as App & Record<string, unknown>).id)}
             <div
               class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
               animate:flip={{duration: flipDurationMs}}
             >
-              {@render appRowContent(app)}
+              {@render appRowContent(app, group.name, appIndex, appsInGroup.length)}
             </div>
           {/each}
         </div>
@@ -391,12 +465,12 @@
         {/if}
       </div>
       <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
-        {#each ungroupedApps as app ((app as App & Record<string, unknown>).id)}
+        {#each ungroupedApps as app, appIndex ((app as App & Record<string, unknown>).id)}
           <div
             class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
             animate:flip={{duration: flipDurationMs}}
           >
-            {@render appRowContent(app)}
+            {@render appRowContent(app, '', appIndex, ungroupedApps.length)}
           </div>
         {/each}
       </div>

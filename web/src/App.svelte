@@ -6,6 +6,7 @@
   import Splash from './components/Splash.svelte';
   import Login from './components/Login.svelte';
   import { Toaster } from 'svelte-sonner';
+  import Announcer from './components/Announcer.svelte';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
   import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
@@ -1171,6 +1172,9 @@
 
 <!-- Toast notifications (always rendered, position adapts to nav) -->
 <Toaster position={toastPosition} theme="dark" richColors />
+
+<!-- Visually-hidden live region for screen-reader announcements (e.g. keyboard reordering) -->
+<Announcer />
 
 <style>
   .fullscreen-exit-btn {

@@ -1073,4 +1073,161 @@ describe('AppsTab', () => {
       expect(screen.getByTestId('docker-managed-badge')).toBeInTheDocument();
     });
   });
+
+  // ===========================================================================
+  // Keyboard reordering: the up/down buttons are the accessible equivalent of
+  // a drag. They must produce the same reordered array the DnD finalize path
+  // does (via onsyncAppOrder / onsyncGroupOrder) and be disabled at the ends.
+  // ===========================================================================
+  describe('Keyboard reordering (move up/down buttons)', () => {
+    it('moves an app down and syncs the new order for that group', async () => {
+      const handlers = { ...defaultHandlers };
+      const group = withId(makeGroup({ name: 'Media' }));
+      const sonarr = withId(makeApp({ name: 'Sonarr', group: 'Media', order: 0 }));
+      const radarr = withId(makeApp({ name: 'Radarr', group: 'Media', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [group],
+          dndGroupedApps: { Media: [sonarr, radarr] },
+          localAppsCount: 2,
+          localGroupsCount: 1,
+          ...handlers,
+        },
+      });
+
+      await fireEvent.click(screen.getByLabelText('Move Sonarr down'));
+
+      expect(handlers.onsyncAppOrder).toHaveBeenCalledTimes(1);
+      const [groupName, items] = handlers.onsyncAppOrder.mock.calls[0];
+      expect(groupName).toBe('Media');
+      expect((items as App[]).map(a => a.name)).toEqual(['Radarr', 'Sonarr']);
+      // order is renumbered to match the new positions
+      expect((items as App[]).map(a => a.order)).toEqual([0, 1]);
+    });
+
+    it('moves an app up and syncs the new order', async () => {
+      const handlers = { ...defaultHandlers };
+      const group = withId(makeGroup({ name: 'Media' }));
+      const sonarr = withId(makeApp({ name: 'Sonarr', group: 'Media', order: 0 }));
+      const radarr = withId(makeApp({ name: 'Radarr', group: 'Media', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [group],
+          dndGroupedApps: { Media: [sonarr, radarr] },
+          localAppsCount: 2,
+          localGroupsCount: 1,
+          ...handlers,
+        },
+      });
+
+      await fireEvent.click(screen.getByLabelText('Move Radarr up'));
+
+      const [, items] = handlers.onsyncAppOrder.mock.calls[0];
+      expect((items as App[]).map(a => a.name)).toEqual(['Radarr', 'Sonarr']);
+    });
+
+    it('disables move-up on the first app and does not sync when it is clicked', async () => {
+      const handlers = { ...defaultHandlers };
+      const group = withId(makeGroup({ name: 'Media' }));
+      const sonarr = withId(makeApp({ name: 'Sonarr', group: 'Media', order: 0 }));
+      const radarr = withId(makeApp({ name: 'Radarr', group: 'Media', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [group],
+          dndGroupedApps: { Media: [sonarr, radarr] },
+          localAppsCount: 2,
+          localGroupsCount: 1,
+          ...handlers,
+        },
+      });
+
+      const upBtn = screen.getByLabelText('Move Sonarr up');
+      expect(upBtn.getAttribute('aria-disabled')).toBe('true');
+      await fireEvent.click(upBtn);
+      expect(handlers.onsyncAppOrder).not.toHaveBeenCalled();
+    });
+
+    it('disables move-down on the last app', () => {
+      const group = withId(makeGroup({ name: 'Media' }));
+      const sonarr = withId(makeApp({ name: 'Sonarr', group: 'Media', order: 0 }));
+      const radarr = withId(makeApp({ name: 'Radarr', group: 'Media', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [group],
+          dndGroupedApps: { Media: [sonarr, radarr] },
+          localAppsCount: 2,
+          localGroupsCount: 1,
+          ...defaultHandlers,
+        },
+      });
+
+      expect(screen.getByLabelText('Move Radarr down').getAttribute('aria-disabled')).toBe('true');
+    });
+
+    it('moves a group down and syncs the new group order', async () => {
+      const handlers = { ...defaultHandlers };
+      const media = withId(makeGroup({ name: 'Media', order: 0 }));
+      const tools = withId(makeGroup({ name: 'Tools', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [media, tools],
+          dndGroupedApps: { Media: [], Tools: [] },
+          localAppsCount: 0,
+          localGroupsCount: 2,
+          ...handlers,
+        },
+      });
+
+      await fireEvent.click(screen.getByLabelText('Move Media down'));
+
+      expect(handlers.onsyncGroupOrder).toHaveBeenCalledTimes(1);
+      const [groups] = handlers.onsyncGroupOrder.mock.calls[0];
+      expect((groups as Group[]).map(g => g.name)).toEqual(['Tools', 'Media']);
+      expect((groups as Group[]).map(g => g.order)).toEqual([0, 1]);
+    });
+
+    it('disables move-up on the first group', () => {
+      const media = withId(makeGroup({ name: 'Media', order: 0 }));
+      const tools = withId(makeGroup({ name: 'Tools', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [media, tools],
+          dndGroupedApps: { Media: [], Tools: [] },
+          localAppsCount: 0,
+          localGroupsCount: 2,
+          ...defaultHandlers,
+        },
+      });
+
+      expect(screen.getByLabelText('Move Media up').getAttribute('aria-disabled')).toBe('true');
+    });
+
+    it('reorders ungrouped apps too', async () => {
+      const handlers = { ...defaultHandlers };
+      const a = withId(makeApp({ name: 'Loose1', group: '', order: 0 }));
+      const b = withId(makeApp({ name: 'Loose2', group: '', order: 1 }));
+
+      render(AppsTab, {
+        props: {
+          dndGroups: [],
+          dndGroupedApps: { '': [a, b] },
+          localAppsCount: 2,
+          localGroupsCount: 1,
+          ...handlers,
+        },
+      });
+
+      await fireEvent.click(screen.getByLabelText('Move Loose1 down'));
+
+      const [groupName, items] = handlers.onsyncAppOrder.mock.calls[0];
+      expect(groupName).toBe('');
+      expect((items as App[]).map(app => app.name)).toEqual(['Loose2', 'Loose1']);
+    });
+  });
 });

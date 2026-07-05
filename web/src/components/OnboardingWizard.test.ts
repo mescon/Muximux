@@ -2446,4 +2446,84 @@ describe('OnboardingWizard', () => {
       expect(setup.method).toBe('none');
     });
   });
+
+  // =======================================================================
+  // Keyboard reordering on the apps step (up/down buttons on group cards and
+  // app chips). Mirrors the AppsTab behavior so the wizard is reorderable
+  // without a pointer. We drive the real selection flow to populate groups.
+  // =======================================================================
+  describe('Keyboard reordering', () => {
+    async function selectTemplate(name: string) {
+      const card = screen.getByText(name).closest('[role="checkbox"]') as HTMLElement;
+      await fireEvent.click(card);
+    }
+
+    it('reorders groups via the move-down button on a group card', async () => {
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      renderWizard();
+
+      // Plex -> Media group, Sonarr -> Downloads group. Two groups appear in
+      // the review column, ordered [Media, Downloads].
+      await selectTemplate('Plex');
+      await selectTemplate('Sonarr');
+
+      await waitFor(() => expect(screen.getByLabelText('Move Media up')).toBeInTheDocument());
+
+      // Media is first: its up is disabled, Downloads' up is enabled.
+      expect(screen.getByLabelText('Move Media up').getAttribute('aria-disabled')).toBe('true');
+      expect(screen.getByLabelText('Move Downloads up').getAttribute('aria-disabled')).toBe('false');
+
+      await fireEvent.click(screen.getByLabelText('Move Media down'));
+
+      // After the move the order is [Downloads, Media]: Downloads' up is now
+      // disabled (it is first) and Media's up is enabled.
+      await waitFor(() =>
+        expect(screen.getByLabelText('Move Downloads up').getAttribute('aria-disabled')).toBe('true')
+      );
+      expect(screen.getByLabelText('Move Media up').getAttribute('aria-disabled')).toBe('false');
+    });
+
+    it('reorders apps within a group via the move-down button on an app chip', async () => {
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      renderWizard();
+
+      // Select Plex, then add a second instance ("Plex 2"). Both land in the
+      // Media group, giving us two reorderable app chips.
+      await selectTemplate('Plex');
+      await waitFor(() => expect(screen.getByTitle('Add another Plex')).toBeInTheDocument());
+      await fireEvent.click(screen.getByTitle('Add another Plex'));
+
+      await waitFor(() => expect(screen.getByLabelText('Move Plex 2 up')).toBeInTheDocument());
+
+      // Media apps are [Plex, Plex 2]: Plex's up is disabled (first), Plex 2's
+      // down is disabled (last).
+      expect(screen.getByLabelText('Move Plex up').getAttribute('aria-disabled')).toBe('true');
+      expect(screen.getByLabelText('Move Plex 2 down').getAttribute('aria-disabled')).toBe('true');
+
+      await fireEvent.click(screen.getByLabelText('Move Plex down'));
+
+      // After the swap [Plex 2, Plex], Plex 2 is first so its up is disabled.
+      await waitFor(() =>
+        expect(screen.getByLabelText('Move Plex 2 up').getAttribute('aria-disabled')).toBe('true')
+      );
+    });
+
+    it('does not reorder past the top when the disabled move-up is clicked', async () => {
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      renderWizard();
+
+      await selectTemplate('Plex');
+      await selectTemplate('Sonarr');
+      await waitFor(() => expect(screen.getByLabelText('Move Media up')).toBeInTheDocument());
+
+      // Clicking the disabled up button on the first group is a no-op: order
+      // stays [Media, Downloads], so Media's up remains disabled.
+      await fireEvent.click(screen.getByLabelText('Move Media up'));
+      expect(screen.getByLabelText('Move Media up').getAttribute('aria-disabled')).toBe('true');
+      expect(screen.getByLabelText('Move Downloads up').getAttribute('aria-disabled')).toBe('false');
+    });
+  });
 });
