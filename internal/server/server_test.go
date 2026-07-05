@@ -1124,8 +1124,11 @@ func TestRegisterAPIRoutes(t *testing.T) {
 		return next
 	})
 
+	lifecycleLimiter := newRateLimiter(100, time.Minute, nil)
+	defer lifecycleLimiter.stop()
+
 	mux := http.NewServeMux()
-	registerAPIRoutes(mux, api, noopAdmin)
+	registerAPIRoutes(mux, api, noopAdmin, lifecycleLimiter)
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -1428,8 +1431,11 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 		return next
 	})
 
+	lifecycleLimiter := newRateLimiter(100, time.Minute, nil)
+	defer lifecycleLimiter.stop()
+
 	mux := http.NewServeMux()
-	registerAPIRoutes(mux, api, noopAdmin)
+	registerAPIRoutes(mux, api, noopAdmin, lifecycleLimiter)
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -1467,6 +1473,57 @@ func TestRoutes_DockerLifecycle_Registered(t *testing.T) {
 				t.Errorf("got routing 404 -- /api/app-docker/sonarr/%s is unregistered or shadowed", action)
 			}
 		})
+	}
+}
+
+// TestRoutes_DockerLifecycle_RateLimited proves the /api/app-docker/ POST
+// routes are wrapped by the lifecycle rate limiter, so a client cannot
+// hammer the Docker daemon (each action spawns a goroutine with a 45s
+// daemon timeout). Registered with a max of 2/window here; the third POST
+// from the same IP must be rejected with 429 before it reaches the handler.
+func TestRoutes_DockerLifecycle_RateLimited(t *testing.T) {
+	cfg := &config.Config{
+		Server: config.ServerConfig{Title: "Test"},
+		Apps: []config.AppConfig{
+			{Name: "sonarr", URL: "http://a:8080", Enabled: true},
+		},
+	}
+	api := handlers.NewAPIHandler(cfg, filepath.Join(t.TempDir(), "config.yaml"), &sync.RWMutex{})
+
+	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
+		return next
+	})
+
+	limiter := newRateLimiter(2, time.Minute, nil)
+	defer limiter.stop()
+
+	mux := http.NewServeMux()
+	registerAPIRoutes(mux, api, noopAdmin, limiter)
+
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	path := ts.URL + "/api/app-docker/sonarr/start"
+
+	// First two POSTs are allowed through (they reach the handler, which
+	// returns 401 with no user wired -- not a 429). The third is over the
+	// limit and must be rejected at the limiter with 429.
+	var codes []int
+	for i := 0; i < 3; i++ {
+		req, _ := http.NewRequest(http.MethodPost, path, nil)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		codes = append(codes, resp.StatusCode)
+		resp.Body.Close()
+	}
+
+	if codes[0] == http.StatusTooManyRequests || codes[1] == http.StatusTooManyRequests {
+		t.Errorf("first two POSTs should be allowed, got %v", codes)
+	}
+	if codes[2] != http.StatusTooManyRequests {
+		t.Errorf("third POST should be rate-limited (429), got %d (all: %v)", codes[2], codes)
 	}
 }
 

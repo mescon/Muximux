@@ -256,6 +256,7 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 	svc.Reconfigure(&newCfg)
 
 	logging.Audit("Discovery config updated",
+		"caller", auditCaller(r),
 		"endpoint", newCfg.Endpoint,
 		"strategy", newCfg.NetworkStrategy,
 		"enabled", newCfg.Enabled)

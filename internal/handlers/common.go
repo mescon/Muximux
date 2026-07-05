@@ -7,8 +7,20 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
+
+// auditCaller returns the acting user's username for an audit-log entry,
+// or "unknown" when no authenticated user is on the request context. Every
+// audit event for a state-changing action should carry this so the log
+// records who did it, not just what changed.
+func auditCaller(r *http.Request) string {
+	if u := auth.GetUserFromContext(r.Context()); u != nil && u.Username != "" {
+		return u.Username
+	}
+	return "unknown"
+}
 
 // writeFileAtomic writes data to filename atomically: write to a temp file
 // in the same directory, then rename over the target. An abrupt exit

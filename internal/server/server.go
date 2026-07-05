@@ -69,6 +69,7 @@ type Server struct {
 	setupToken         string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
 	loginLimiter       *rateLimiter
 	setupLimiter       *rateLimiter
+	lifecycleLimiter   *rateLimiter
 	logCh              chan logging.LogEntry
 	cleanupDone        chan struct{}
 	iconCacheDirs      []string
@@ -160,7 +161,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// API routes
 	api := handlers.NewAPIHandler(cfg, configPath, &s.configMu)
-	registerAPIRoutes(mux, api, requireAdmin)
+	// 30 lifecycle actions/min/IP: invisible to a human clicking start/stop
+	// buttons, but caps a script hammering the daemon (each action spawns a
+	// goroutine holding a 45s daemon timeout).
+	s.lifecycleLimiter = newRateLimiter(30, 1*time.Minute, authMiddleware.GetClientIP)
+	registerAPIRoutes(mux, api, requireAdmin, s.lifecycleLimiter)
 
 	// Health monitoring
 	s.setupHealthRoutes(mux, cfg, wsHub)
@@ -600,7 +605,9 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 }
 
 // registerAPIRoutes registers config, apps, and groups CRUD endpoints.
-func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmin adminGuard) {
+// lifecycleLimiter rate-limits the Docker lifecycle POST routes so a client
+// cannot flood the daemon with start/stop/restart calls.
+func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmin adminGuard, lifecycleLimiter *rateLimiter) {
 	// Config endpoint - handle both GET and PUT
 	mux.HandleFunc("/api/config", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -687,7 +694,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 	// singular-noun precedent /api/app-action/ established by the
 	// http_action feature. POST-only; authentication runs at the global
 	// middleware layer, per-app lifecycle gating runs inside the handler.
-	mux.HandleFunc("/api/app-docker/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/app-docker/", lifecycleLimiter.wrap(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 			return
@@ -710,7 +717,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 		default:
 			http.Error(w, "Not found", http.StatusNotFound)
 		}
-	})
+	}))
 
 	// Individual group endpoint
 	mux.HandleFunc("/api/group/", func(w http.ResponseWriter, r *http.Request) {
@@ -1784,6 +1791,9 @@ func (s *Server) Stop() error {
 	}
 	if s.setupLimiter != nil {
 		s.setupLimiter.stop()
+	}
+	if s.lifecycleLimiter != nil {
+		s.lifecycleLimiter.stop()
 	}
 
 	// Stop icon cache cleanup

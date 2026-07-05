@@ -564,16 +564,19 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	h.notifyConfigSaved()
 
 	// Audit log per committed entry. Single line per item so a search
-	// for the docker_key gives full provenance.
+	// for the docker_key gives full provenance, including who imported it.
+	caller := auditCaller(r)
 	for i := range results {
 		switch results[i].Status {
 		case "created":
 			logging.Audit("Docker discovery import",
+				"caller", caller,
 				"key", results[i].Key,
 				"app", results[i].AppName,
 				"gateway", results[i].Domain)
 		case "skipped_exists":
 			logging.Audit("Docker discovery import skipped",
+				"caller", caller,
 				"key", results[i].Key,
 				"reason", "already exists")
 		}
