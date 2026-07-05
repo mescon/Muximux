@@ -4,7 +4,7 @@
 
 # Muximux
 
-A self-hosted homelab dashboard with an optional built-in reverse proxy that makes stubborn apps work in iframes.
+A self-hosted homelab dashboard with an optional built-in embedding proxy that makes stubborn apps work in iframes.
 
 One binary. One port. One YAML config file.
 
@@ -64,7 +64,7 @@ There's a good chance you already have a homelab dashboard. [Homepage](https://g
 
 Muximux is built for a specific kind of user: someone who spends the day working *inside* their self-hosted apps, not glancing at widgets on a landing page. Click Sonarr and Sonarr opens inside the dashboard. Click Plex and Plex does too. No new tabs, no context switches. You never actually leave Muximux.
 
-Making apps embed reliably is where it gets interesting. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in reverse proxy that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime so even heavy single-page apps work the way they do when opened directly. Most dashboards point at your apps. Muximux makes them actually embed.
+Making apps embed reliably is where it gets interesting. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in **embedding proxy** that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime so even heavy single-page apps work the way they do when opened directly. Most dashboards point at your apps. Muximux makes them actually embed. No other dashboard does this, and it is the reason Muximux exists.
 
 There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a freeform grid editor where you arrange resizable widgets on a canvas (Homarr is built around that). It doesn't have Dashy's breadth of built-in monitoring widgets. It's focused on one thing: making apps work side by side inside a single tab, polished enough to live in.
 
@@ -88,7 +88,7 @@ The dashboards in this space approach things differently. This table is a quick 
 | Built-in users and roles | ✅ | ❌ (external auth) | ✅ | ✅ | Simple |
 | Forward-auth / OIDC / SSO | ✅ | Via external proxy | ✅ (OIDC + LDAP) | ✅ (Plex / Emby / LDAP) | ✅ (Keycloak) |
 | Auto-HTTPS via Let's Encrypt | ✅ (embedded Caddy) | ❌ | ❌ | ❌ | ❌ |
-| Can be your only reverse proxy (gateway subdomains for any service) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Can front other services on their own subdomains (embedded Caddy) | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Start / stop / restart Docker containers from the dashboard | ✅ | ❌ | ✅ | ❌ | ❌ |
 | Keeps app URLs working as container IPs / names change | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Config | YAML (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
@@ -103,7 +103,7 @@ If the rows near the top describe what you want, keep reading.
 Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mescon/Muximux/tree/v2.0) was a PHP application that served as a simple bookmark portal. v3 replaces it with a modern stack and a much broader feature set:
 
 - **Go backend** with the frontend embedded in the binary - no PHP, no web server, no runtime dependencies
-- **Built-in reverse proxy** that rewrites HTML, CSS, JS, and headers so apps actually work inside iframes
+- **Built-in embedding proxy** that rewrites HTML, CSS, JS, and headers so apps actually work inside iframes (distinct from the optional gateway below)
 - **Real-time health monitoring** via WebSocket - see which apps are up or down without refreshing
 - **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC
 - **Optional TLS and gateway** - an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
@@ -122,13 +122,17 @@ Muximux fits different setups. Pick the level that matches yours.
 
 You already have Traefik, nginx, or Caddy handling TLS and auth. Run Muximux behind it with `auth: none` and let your proxy do the heavy lifting. Muximux serves on a single port and your proxy forwards to it. This is the simplest setup.
 
-### Dashboard with the built-in reverse proxy
+### Dashboard with the embedding proxy
 
-Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux will proxy them through `/proxy/{slug}/`, stripping blocking headers and rewriting paths. This runs inside the Go server and works in every deployment mode - no extra configuration needed.
+Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux's **embedding proxy** forwards them through `/proxy/{slug}/`, stripping iframe-blocking headers and rewriting paths so they render inside the dashboard. This runs inside the Go server, works in every deployment mode, and is the one thing no other dashboard does - no extra configuration needed.
 
-### Full reverse proxy appliance
+Note these are two different jobs: the **embedding proxy** exists to make an app render *inside the dashboard*, which a general-purpose proxy can't do. The **gateway** below is the ordinary "route a subdomain to a backend" kind of proxy.
 
-No existing proxy? Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS via Let's Encrypt and declare your other services under `gateway_sites:` in `config.yaml` (or set them up in **Settings -> Gateway**) to serve them on their own subdomains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing - all from the same single binary.
+### Dashboard plus gateway (skip the separate proxy)
+
+No existing proxy, and you would rather not run one? Muximux's optional **gateway** - an embedded [Caddy](https://caddyserver.com) - can front your other services too. Set `tls.domain` for automatic HTTPS via Let's Encrypt and declare services under `gateway_sites:` in `config.yaml` (or **Settings -> Gateway**) to serve them on their own subdomains, with optional per-site auth. TLS certificates, HTTP-to-HTTPS redirects, and routing all come from the same single binary.
+
+The gateway is deliberately homelab-simple. If you need wildcard certificates, complex routing rules, load balancing, or access-control lists, keep a dedicated proxy - [Nginx Proxy Manager](https://nginxproxymanager.com), [Traefik](https://traefik.io), or Caddy on its own - and run Muximux behind it (the first option above). The gateway is here so you *do not have to* run a separate proxy for a homelab-sized setup, not to out-feature the tools that specialize in it.
 
 See the [Deployment Guide](docs/wiki/deployment.md) for Docker Compose examples for each setup.
 
