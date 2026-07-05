@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
+  import { isSafeAppUrl } from '$lib/appUrl';
   import { resolvePermissions } from '$lib/constants';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
   import * as m from '$lib/paraglide/messages.js';
@@ -9,24 +10,14 @@
 
   // Allowlist the iframe src so `javascript:` / `data:` URLs in app.url
   // cannot execute in Muximux's origin via the `allow-same-origin`
-  // sandbox token (findings.md H4). Same-origin paths (proxied apps,
-  // which arrive as `/proxy/...`) and http/https URLs are accepted;
-  // anything else falls back to `about:blank` so the iframe becomes
-  // inert rather than a stored-XSS pivot.
+  // sandbox token (findings.md H4). The rule (single-slash same-origin
+  // path, or absolute http/https) lives in isSafeAppUrl so it is shared
+  // with the form schema; anything else falls back to `about:blank` so
+  // the iframe becomes inert rather than a stored-XSS pivot.
   function safeIframeSrc(raw: string): string {
-    if (!raw) return 'about:blank';
-    if (raw.startsWith('/') && !raw.startsWith('//') && !raw.startsWith('/\\')) {
-      return raw;
-    }
-    try {
-      const u = new URL(raw, window.location.href);
-      if (u.protocol === 'http:' || u.protocol === 'https:') {
-        return u.toString();
-      }
-    } catch {
-      /* fall through */
-    }
-    return 'about:blank';
+    if (!isSafeAppUrl(raw)) return 'about:blank';
+    if (raw.startsWith('/')) return raw;
+    return new URL(raw, window.location.href).toString();
   }
 
   let effectiveUrl = $derived(safeIframeSrc(getEffectiveUrl(app)));

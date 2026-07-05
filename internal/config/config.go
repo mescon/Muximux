@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"gopkg.in/yaml.v3"
 
@@ -1228,9 +1229,19 @@ func isValidHeaderValue(s string) bool {
 // outside it is either non-idempotent in surprising ways (TRACE) or
 // has body semantics we deliberately do not support yet (CONNECT,
 // OPTIONS). Spec lock: only these five.
-var httpActionAllowedMethods = map[string]struct{}{
-	"GET": {}, "POST": {}, "PUT": {}, "DELETE": {}, "PATCH": {},
-}
+// httpActionMethods is the ordered, canonical set of HTTP verbs accepted for
+// an http_action app. The lookup set and the "expected one of ..." error
+// message both derive from it, so the verb list has one Go source; a test
+// (TestHTTPActionMethodsMatchFrontend) keeps the AppForm dropdown in sync.
+var httpActionMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
+
+var httpActionAllowedMethods = func() map[string]struct{} {
+	m := make(map[string]struct{}, len(httpActionMethods))
+	for _, v := range httpActionMethods {
+		m[v] = struct{}{}
+	}
+	return m
+}()
 
 // httpActionHeaderKeyPattern is the practical RFC 7230 token subset
 // we accept for http_action header names: alphanumerics, hyphen,
@@ -1246,14 +1257,12 @@ var httpActionHeaderKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 func validateApps(apps []AppConfig) error {
 	for i := range apps {
 		a := &apps[i]
-		if a.OpenMode != "http_action" {
-			if a.HTTPActionMethod != "" || len(a.HTTPActionHeaders) > 0 || a.HTTPActionConfirm || a.HTTPActionShowToast != nil {
-				logging.Warn("http_action fields set on non-http_action app, ignored",
-					"source", "config", "app", a.Name, "open_mode", a.OpenMode)
-			}
-			continue
+		if a.OpenMode != "http_action" &&
+			(a.HTTPActionMethod != "" || len(a.HTTPActionHeaders) > 0 || a.HTTPActionConfirm || a.HTTPActionShowToast != nil) {
+			logging.Warn("http_action fields set on non-http_action app, ignored",
+				"source", "config", "app", a.Name, "open_mode", a.OpenMode)
 		}
-		if err := validateAppHTTPAction(a); err != nil {
+		if err := ValidateApp(a); err != nil {
 			return fmt.Errorf("app %q: %w", a.Name, err)
 		}
 	}
@@ -1326,10 +1335,55 @@ func ValidateUniqueAppSlugs(apps []AppConfig) error {
 // with a 400 up front rather than persisted (Config.Save does not
 // validate) and only surfaced as a config-load failure on the next boot.
 func ValidateApp(a *AppConfig) error {
-	if a.OpenMode != "http_action" {
+	if err := validateAppName(a); err != nil {
+		return err
+	}
+	if a.OpenMode == "http_action" {
+		return validateAppHTTPAction(a)
+	}
+	return validateAppURL(a)
+}
+
+// validateAppName mirrors the frontend zod rule (schemas.ts): a name is
+// required and bounded. Enforced on the backend too so a direct API call or
+// a hand-edited config can't persist an unnamed app (which would have no nav
+// label and an empty slug).
+func validateAppName(a *AppConfig) error {
+	if strings.TrimSpace(a.Name) == "" {
+		return fmt.Errorf("name is required")
+	}
+	if utf8.RuneCountInString(a.Name) > 100 {
+		return fmt.Errorf("name must be under 100 characters")
+	}
+	return nil
+}
+
+// validateAppURL is the URL rule for non-http_action apps. It matches the
+// frontend iframe src allowlist (AppFrame.safeIframeSrc): a single-slash
+// same-origin path is allowed (proxied/local apps), a protocol-relative
+// "//" or "/\" is not, and any absolute URL must use http or https so a
+// javascript:/file:/data: URL can never become an iframe src.
+func validateAppURL(a *AppConfig) error {
+	if strings.TrimSpace(a.URL) == "" {
+		return fmt.Errorf("url is required")
+	}
+	if strings.HasPrefix(a.URL, "/") {
+		if strings.HasPrefix(a.URL, "//") || strings.HasPrefix(a.URL, "/\\") {
+			return fmt.Errorf("url %q must be an absolute http(s) URL or a single-slash path", a.URL)
+		}
 		return nil
 	}
-	return validateAppHTTPAction(a)
+	u, err := url.Parse(a.URL)
+	if err != nil {
+		return fmt.Errorf("url %q is not parseable: %w", a.URL, err)
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("url %q must use http or https", a.URL)
+	}
+	if u.Hostname() == "" {
+		return fmt.Errorf("url %q must have a hostname", a.URL)
+	}
+	return nil
 }
 
 func validateAppHTTPAction(a *AppConfig) error {
@@ -1348,7 +1402,7 @@ func validateAppHTTPAction(a *AppConfig) error {
 	}
 	if a.HTTPActionMethod != "" {
 		if _, ok := httpActionAllowedMethods[a.HTTPActionMethod]; !ok {
-			return fmt.Errorf("http_action_method %q is invalid; expected one of GET, POST, PUT, DELETE, PATCH", a.HTTPActionMethod)
+			return fmt.Errorf("http_action_method %q is invalid; expected one of %s", a.HTTPActionMethod, strings.Join(httpActionMethods, ", "))
 		}
 	}
 	for k, v := range a.HTTPActionHeaders {

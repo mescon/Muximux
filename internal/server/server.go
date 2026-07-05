@@ -2323,6 +2323,21 @@ func remoteIP(r *http.Request) string {
 
 // securityHeadersMiddleware adds standard security headers to all responses.
 // inlineScriptHash is the CSP hash for the base-path injection script (empty when no base path).
+// iframePermissionFeatures is the closed set of Permissions-Policy features
+// Muximux delegates to embedded app iframes. It is the document-level ceiling
+// (each entry emitted as "feature=*"): an iframe's allow attribute can only
+// grant features listed here. This MUST stay in sync with the frontend's
+// IFRAME_PERMISSIONS (web/src/lib/constants.ts) -- if a permission is added
+// there but not here, selecting it silently does nothing. The single-source
+// guard is TestIframePermissionsMatchFrontend, which reads both lists.
+var iframePermissionFeatures = []string{
+	"camera", "microphone", "geolocation", "display-capture", "fullscreen",
+	"clipboard-read", "clipboard-write", "autoplay", "midi", "payment",
+	"publickey-credentials-get", "publickey-credentials-create",
+	"encrypted-media", "screen-wake-lock", "picture-in-picture",
+	"usb", "serial", "hid",
+}
+
 func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.Handler {
 	scriptSrc := "script-src 'self'"
 	if inlineScriptHash != "" {
@@ -2363,26 +2378,11 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 	// `bluetooth` in HTTP Permissions-Policy headers (they work in iframe allow
 	// attributes but not yet as header directives), so they are omitted here.
 	// Re-add when browser support lands.
-	permissionsPolicy := strings.Join([]string{
-		"camera=*",
-		"microphone=*",
-		"geolocation=*",
-		"display-capture=*",
-		"fullscreen=*",
-		"clipboard-read=*",
-		"clipboard-write=*",
-		"autoplay=*",
-		"midi=*",
-		"payment=*",
-		"publickey-credentials-get=*",
-		"publickey-credentials-create=*",
-		"encrypted-media=*",
-		"screen-wake-lock=*",
-		"picture-in-picture=*",
-		"usb=*",
-		"serial=*",
-		"hid=*",
-	}, ", ")
+	policyParts := make([]string, len(iframePermissionFeatures))
+	for i, f := range iframePermissionFeatures {
+		policyParts[i] = f + "=*"
+	}
+	permissionsPolicy := strings.Join(policyParts, ", ")
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")

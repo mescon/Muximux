@@ -83,7 +83,7 @@ describe('schemas', () => {
       const result = appSchema.safeParse({ name: '', url: 'not-a-url' });
       const errors = extractErrors(result);
       expect(errors.name).toBe('Name is required');
-      expect(errors.url).toBe('Must be a valid URL');
+      expect(errors.url).toBe('Must be an http(s) URL or a same-origin path');
     });
 
     it('only includes the first error for each field', () => {

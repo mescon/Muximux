@@ -10,6 +10,8 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -3117,4 +3119,39 @@ func TestServer_setHealthApps_TracksConfigChanges(t *testing.T) {
 
 	// A nil monitor must be a safe no-op.
 	(&Server{}).setHealthApps([]config.AppConfig{{Name: "X"}})
+}
+
+// TestIframePermissionsMatchFrontend is the single-source-of-truth guard for
+// the iframe permission list. The Go Permissions-Policy header
+// (iframePermissionFeatures) is the document-level ceiling; the frontend
+// IFRAME_PERMISSIONS list drives the per-app checkboxes and the iframe allow
+// attribute. If they drift -- a permission selectable in the UI that the
+// header doesn't permit -- delegation silently fails. This test reads both
+// lists and fails if they differ, so neither can be edited alone.
+func TestIframePermissionsMatchFrontend(t *testing.T) {
+	src, err := os.ReadFile(filepath.Join("..", "..", "web", "src", "lib", "constants.ts"))
+	if err != nil {
+		t.Fatalf("read constants.ts: %v", err)
+	}
+	// Scope to the IFRAME_PERMISSIONS array so unrelated `id:` fields can't leak in.
+	block := string(src)
+	if i := strings.Index(block, "IFRAME_PERMISSIONS"); i >= 0 {
+		block = block[i:]
+		if j := strings.Index(block, "];"); j >= 0 {
+			block = block[:j]
+		}
+	}
+	ids := regexp.MustCompile(`id:\s*'([a-z-]+)'`).FindAllStringSubmatch(block, -1)
+	frontend := make([]string, 0, len(ids))
+	for _, m := range ids {
+		frontend = append(frontend, m[1])
+	}
+
+	backend := append([]string(nil), iframePermissionFeatures...)
+	sort.Strings(backend)
+	sort.Strings(frontend)
+
+	if strings.Join(backend, ",") != strings.Join(frontend, ",") {
+		t.Errorf("iframe permission lists have drifted -- keep them in sync\n  backend (server.go iframePermissionFeatures): %v\n  frontend (constants.ts IFRAME_PERMISSIONS):    %v", backend, frontend)
+	}
 }

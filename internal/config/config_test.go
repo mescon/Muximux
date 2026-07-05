@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -1350,6 +1351,43 @@ func TestValidate_DuplicateAppSlugs(t *testing.T) {
 	}
 }
 
+func TestValidate_AppNameAndURL(t *testing.T) {
+	app := func(name, u, mode string) AppConfig {
+		return AppConfig{Name: name, URL: u, OpenMode: mode, Enabled: true}
+	}
+	cases := []struct {
+		name    string
+		app     AppConfig
+		wantErr string // substring; empty means expect success
+	}{
+		{"ok absolute http", app("Radarr", "http://radarr:7878", "iframe"), ""},
+		{"ok absolute https", app("Radarr", "https://radarr.example.com", "iframe"), ""},
+		{"ok single-slash relative", app("Local", "/proxy/thing/", "iframe"), ""},
+		{"reject empty name", app("", "http://x:1", "iframe"), "name is required"},
+		{"reject long name", app(strings.Repeat("a", 101), "http://x:1", "iframe"), "100 characters"},
+		{"reject empty url", app("NoURL", "", "iframe"), "url is required"},
+		{"reject javascript url", app("Evil", "javascript:alert(1)", "iframe"), "http or https"},
+		{"reject file url", app("File", "file:///etc/passwd", "iframe"), "http or https"},
+		{"reject protocol-relative", app("Proto", "//evil.example.com", "iframe"), "single-slash"},
+		{"reject backslash path", app("Back", "/\\evil.example.com", "iframe"), "single-slash"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := &Config{Apps: []AppConfig{tc.app}}
+			err := cfg.Validate()
+			if tc.wantErr == "" {
+				if err != nil {
+					t.Fatalf("expected success, got %v", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+				t.Fatalf("expected error containing %q, got %v", tc.wantErr, err)
+			}
+		})
+	}
+}
+
 func TestValidate_HTTPAction(t *testing.T) {
 	base := func() *Config {
 		return &Config{
@@ -1838,5 +1876,33 @@ func TestSave_RemovesTempFileOnRenameFailure(t *testing.T) {
 		if strings.HasPrefix(e.Name(), ".config-") {
 			t.Errorf("temp file leaked after failed rename: %s", e.Name())
 		}
+	}
+}
+
+// TestHTTPActionMethodsMatchFrontend keeps the http_action verb list single-
+// sourced: the backend allowlist (httpActionMethods) and the AppForm method
+// dropdown must offer the same verbs. Adding a verb to one without the other
+// means either a config that 400s a valid-looking selection, or a verb the UI
+// can't offer. This reads the dropdown and fails on any drift.
+func TestHTTPActionMethodsMatchFrontend(t *testing.T) {
+	src, err := os.ReadFile(filepath.Join("..", "..", "web", "src", "components", "AppForm.svelte"))
+	if err != nil {
+		t.Fatalf("read AppForm.svelte: %v", err)
+	}
+	// Scope to the method <select> so unrelated <option>s (groups, modes) don't leak in.
+	block := string(src)
+	if i := strings.Index(block, "app-action-method"); i >= 0 {
+		block = block[i:]
+		if j := strings.Index(block, "</select>"); j >= 0 {
+			block = block[:j]
+		}
+	}
+	opts := regexp.MustCompile(`<option value="([A-Z]+)">`).FindAllStringSubmatch(block, -1)
+	frontend := make([]string, 0, len(opts))
+	for _, m := range opts {
+		frontend = append(frontend, m[1])
+	}
+	if strings.Join(httpActionMethods, ",") != strings.Join(frontend, ",") {
+		t.Errorf("http_action method lists have drifted -- keep them in sync\n  backend (config.httpActionMethods):        %v\n  frontend (AppForm.svelte method dropdown): %v", httpActionMethods, frontend)
 	}
 }

@@ -1,8 +1,12 @@
 import { z } from 'zod';
+import { isSafeAppUrl } from './appUrl';
 
 export const appSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name must be under 100 characters'),
-  url: z.string().min(1, 'URL is required').url('Must be a valid URL'),
+  // Matches AppFrame's iframe src allowlist and the backend
+  // config.validateAppURL: an absolute http(s) URL, or a single-slash
+  // same-origin path (e.g. a proxied app). Anything else is rejected.
+  url: z.string().min(1, 'URL is required').refine(isSafeAppUrl, 'Must be an http(s) URL or a same-origin path'),
 });
 
 export const groupSchema = z.object({
