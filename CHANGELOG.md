@@ -2,6 +2,44 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.2.3] - 2026-07-06
+
+A small, drop-in release. It adds keyboard-accessible reordering for your
+apps and groups, fixes a proxy-routing collision that could silently hide an
+app, and tightens container-control rate limiting and audit logging. No
+config changes required.
+
+### Added
+- **Reorder apps and groups from the keyboard.** Every app row and group
+  header -- in Settings and in the setup wizard -- now has up and down
+  buttons beside the drag handle, so lists can be reordered without a pointer
+  drag. Each move is announced to screen readers, and a button is disabled at
+  the end of its list.
+
+### Changed
+- The gateway backend-URL help text now spells out the address forms it
+  accepts (a Docker service name, a LAN / VPN / Tailscale IP, or a public
+  host). The README also renames the built-in per-app proxy the "embedding
+  proxy", to distinguish it from the optional gateway that can front other
+  services on their own subdomains.
+
+### Fixed
+- **Two apps that resolve to the same proxy path no longer silently break
+  each other.** When two enabled apps produced the same `/proxy/<slug>/`
+  path, one route was quietly overwritten and that app became unreachable
+  through the proxy. Muximux now rejects the collision when you save and
+  flags it in the app form as you type, so you can rename one first.
+- App name and URL validation now behaves identically in the add/edit form
+  and on the server, so the two can no longer disagree about which values
+  are accepted.
+
+### Security
+- **Container start/stop/restart is now rate-limited** to 30 actions per
+  minute per client, so a script cannot flood the Docker daemon with
+  lifecycle calls. Normal use through the dashboard is unaffected.
+- **Audit-log entries for discovery configuration changes and Docker imports
+  now record the acting user**, not just what changed.
+
 ## [3.2.2] - 2026-07-03
 
 A security-focused release. It hardens authentication, the reverse proxy,
