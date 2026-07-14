@@ -5,7 +5,7 @@
     "en", "sv", "uk", "zh", "es", "hi", "pt", "bn", "ru", "ja",
     "vi", "yue", "tr", "ar", "wuu", "mr", "nb", "fi", "da",
     "et", "lv", "lt", "pl", "de", "nl", "fr", "it", "hu", "cs",
-    "ro", "el", "bg", "hr", "sr", "sk", "sl"
+    "ro", "el", "bg", "hr", "sr", "sk", "sl", "ko"
   ],
   "modules": [
     "https://cdn.jsdelivr.net/npm/@inlang/plugin-message-format@latest/dist/index.js",

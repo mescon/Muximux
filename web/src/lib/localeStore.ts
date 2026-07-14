@@ -39,6 +39,7 @@ export const localeFlags: Record<string, string> = {
   hu: '\u{1F1ED}\u{1F1FA}', cs: '\u{1F1E8}\u{1F1FF}', ro: '\u{1F1F7}\u{1F1F4}',
   el: '\u{1F1EC}\u{1F1F7}', bg: '\u{1F1E7}\u{1F1EC}', hr: '\u{1F1ED}\u{1F1F7}',
   sr: '\u{1F1F7}\u{1F1F8}', sk: '\u{1F1F8}\u{1F1F0}', sl: '\u{1F1F8}\u{1F1EE}',
+  ko: '\u{1F1F0}\u{1F1F7}',
 };
 
 /** Native display names for each supported locale. */
@@ -79,6 +80,7 @@ export const localeNames: Record<string, string> = {
   sr: '\u0421\u0440\u043f\u0441\u043a\u0438',
   sk: 'Sloven\u010dina',
   sl: 'Sloven\u0161\u010dina',
+  ko: '\ud55c\uad6d\uc5b4',
 };
 
 /** Returns the list of available locales with their display names and flags, sorted alphabetically by name. */
