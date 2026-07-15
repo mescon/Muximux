@@ -316,8 +316,10 @@ GPL v2 - see [LICENSE](LICENSE) for details.
 
 ## Star History
 
-## Star History
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/chart?repos=mescon/Muximux&type=date&legend=bottom-right&sealed_token=LDDm2a1soFeW4mRYs24I5rnsckelSClDLdHC1NQiWhsQc0-4V44uUuETu2GZiJqVeUqQi7q8QkItsBJ6HQVFGk0-SW6njgr_sxwolLy09WiKG9ApLJrzVw)](https://www.star-history.com/?repos=mescon%2FMuximux&type=date&legend=bottom-right)
+<a href="https://www.star-history.com/?repos=mescon%2FMuximux&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=mescon/Muximux&type=date&theme=dark&legend=bottom-right&sealed_token=FULv35iBfdbVnac3f8vXM8CV4Sp45DJqgPc-clcNpVOA2mZ1sbRGkOiM4ASXWKj5l6s6i1VNq52fZVnmtXqksaQYFL_yP67455yuhaVGr1bJSHxkIWVDGg" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=mescon/Muximux&type=date&legend=bottom-right&sealed_token=FULv35iBfdbVnac3f8vXM8CV4Sp45DJqgPc-clcNpVOA2mZ1sbRGkOiM4ASXWKj5l6s6i1VNq52fZVnmtXqksaQYFL_yP67455yuhaVGr1bJSHxkIWVDGg" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=mescon/Muximux&type=date&legend=bottom-right&sealed_token=FULv35iBfdbVnac3f8vXM8CV4Sp45DJqgPc-clcNpVOA2mZ1sbRGkOiM4ASXWKj5l6s6i1VNq52fZVnmtXqksaQYFL_yP67455yuhaVGr1bJSHxkIWVDGg" />
+ </picture>
+</a>
