@@ -748,6 +748,29 @@ func applyDiscoveryDefaults(cfg *Config) {
 // like bcrypt hashes ($2a$10$...) are not corrupted.
 var bracedEnvRe = regexp.MustCompile(`\$\{([^}]+)\}`)
 
+// IdentityPlaceholders is the canonical list of ${...} names that
+// proxy-header values (app and gateway proxy_headers) substitute with the
+// signed-in user's identity per request. It is the single source of truth:
+// the config loader reserves these names from environment-variable expansion
+// (below), and handlers.expandHeaderValue builds its per-request substitution
+// from this same list, so the two can never drift. Adding a placeholder means
+// adding it here and giving it a value in handlers.expandHeaderValue (a drift
+// test enforces the latter).
+var IdentityPlaceholders = []string{"user", "role", "email", "display_name", "groups"}
+
+// reservedIdentityPlaceholders is IdentityPlaceholders as a set, used to skip
+// these names during ${VAR} env expansion. Resolving them at load time would
+// emit a spurious "missing environment variable" warning and, worse, if an
+// operator happened to have an env var of the same name, bake that fixed
+// value into the config and forward it for every user.
+var reservedIdentityPlaceholders = func() map[string]struct{} {
+	m := make(map[string]struct{}, len(IdentityPlaceholders))
+	for _, name := range IdentityPlaceholders {
+		m[name] = struct{}{}
+	}
+	return m
+}()
+
 // IsBracedEnvRef reports whether s looks like a ${VAR} environment variable reference.
 func IsBracedEnvRef(s string) bool {
 	return bracedEnvRe.MatchString(s)
@@ -763,6 +786,12 @@ func expandBracedEnv(s string) (string, []string) {
 	missing := map[string]struct{}{}
 	expanded := bracedEnvRe.ReplaceAllStringFunc(s, func(match string) string {
 		key := match[2 : len(match)-1] // strip ${ and }
+		// Identity placeholders are reserved for per-request substitution
+		// at proxy time; never resolve them from the environment and never
+		// flag them as missing.
+		if _, reserved := reservedIdentityPlaceholders[key]; reserved {
+			return match
+		}
 		if val, ok := os.LookupEnv(key); ok {
 			return val
 		}

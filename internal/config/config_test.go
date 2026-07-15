@@ -726,6 +726,73 @@ auth:
 	}
 }
 
+func TestExpandBracedEnv_ReservesIdentityPlaceholders(t *testing.T) {
+	// The per-request identity placeholders (handlers.expandHeaderValue)
+	// share the ${VAR} syntax with env expansion. They must be left
+	// literal here so they survive to proxy time -- and crucially must NOT
+	// be resolved even when an env var of the same name is set, which would
+	// otherwise bake a fixed value in at load time and forward it for every
+	// user.
+	t.Setenv("role", "env-value-must-not-win")
+	t.Setenv("groups", "env-value-must-not-win")
+
+	in := "a=${user} b=${role} c=${email} d=${display_name} e=${groups} f=${MUXIMUX_UNSET_XYZ}"
+	out, missing := expandBracedEnv(in)
+
+	if out != in {
+		t.Errorf("identity placeholders and unset vars must stay literal\n want: %s\n got:  %s", in, out)
+	}
+	// Only the genuinely-unknown var is "missing"; the reserved identity
+	// placeholders must not be reported (that warning misled operators).
+	if len(missing) != 1 || missing[0] != "MUXIMUX_UNSET_XYZ" {
+		t.Errorf("missing should be exactly [MUXIMUX_UNSET_XYZ], got %v", missing)
+	}
+}
+
+func TestLoadReservesIdentityPlaceholdersInProxyHeaders(t *testing.T) {
+	// End-to-end at the Load layer: a colliding env var must not corrupt
+	// the identity placeholders in an app's proxy_headers.
+	t.Setenv("role", "SHOULD-NOT-LEAK")
+	content := `
+apps:
+  - name: Echo
+    url: "http://127.0.0.1:9"
+    proxy: true
+    proxy_headers:
+      X-User: "${user}"
+      X-Role: "${role}"
+      X-Email: "${email}"
+      X-Display: "${display_name}"
+      X-Groups: "${groups}"
+`
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	h := cfg.Apps[0].ProxyHeaders
+	for k, want := range map[string]string{
+		"X-User": "${user}", "X-Role": "${role}", "X-Email": "${email}",
+		"X-Display": "${display_name}", "X-Groups": "${groups}",
+	} {
+		if h[k] != want {
+			t.Errorf("%s: identity placeholder must be preserved literally, want %q, got %q", k, want, h[k])
+		}
+	}
+	for _, m := range cfg.MissingEnvVars {
+		switch m {
+		case "user", "role", "email", "display_name", "groups":
+			t.Errorf("identity placeholder %q must not be reported as a missing env var", m)
+		}
+	}
+}
+
 func TestNeedsSetup(t *testing.T) {
 	tests := []struct {
 		name string

@@ -816,21 +816,24 @@ func expandHeaderValue(value string, user *auth.User) string {
 	if !strings.Contains(value, "${") {
 		return value
 	}
-	var username, role, email, displayName, groups string
+	// Map each canonical placeholder name to the user's value. Keyed by the
+	// same config.IdentityPlaceholders list the config loader reserves from
+	// env expansion, so the set the proxy substitutes cannot drift from the
+	// set config protects. A nil user (auth.method=none) leaves the map
+	// empty, so every placeholder expands to "".
+	vals := map[string]string{}
 	if user != nil {
-		username = sanitizeHeaderValue(user.Username)
-		role = sanitizeHeaderValue(user.Role)
-		email = sanitizeHeaderValue(user.Email)
-		displayName = sanitizeHeaderValue(user.DisplayName)
-		groups = sanitizeHeaderValue(strings.Join(user.Groups, ","))
+		vals["user"] = sanitizeHeaderValue(user.Username)
+		vals["role"] = sanitizeHeaderValue(user.Role)
+		vals["email"] = sanitizeHeaderValue(user.Email)
+		vals["display_name"] = sanitizeHeaderValue(user.DisplayName)
+		vals["groups"] = sanitizeHeaderValue(strings.Join(user.Groups, ","))
 	}
-	return strings.NewReplacer(
-		"${user}", username,
-		"${role}", role,
-		"${email}", email,
-		"${display_name}", displayName,
-		"${groups}", groups,
-	).Replace(value)
+	args := make([]string, 0, len(config.IdentityPlaceholders)*2)
+	for _, name := range config.IdentityPlaceholders {
+		args = append(args, "${"+name+"}", vals[name])
+	}
+	return strings.NewReplacer(args...).Replace(value)
 }
 
 // sanitizeHeaderValue strips characters that would let a value break out

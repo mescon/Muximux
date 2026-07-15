@@ -3829,6 +3829,28 @@ func TestExpandHeaderValue(t *testing.T) {
 	}
 }
 
+// TestExpandHeaderValue_CoversEveryReservedPlaceholder guards the drift the
+// #388 fix closed: config.IdentityPlaceholders reserves these names from
+// env-var expansion at load time, so expandHeaderValue MUST actually
+// substitute each one. A reserved placeholder the proxy never fills would be
+// forwarded literally (e.g. "${tenant}") to the backend -- worse than the
+// pre-fix behaviour. This ties the two halves together so adding a name to
+// config.IdentityPlaceholders without wiring it here fails the build.
+func TestExpandHeaderValue_CoversEveryReservedPlaceholder(t *testing.T) {
+	user := &auth.User{
+		Username: "u", Role: "r", Email: "e", DisplayName: "d",
+		Groups: []string{"g1", "g2"},
+	}
+	for _, name := range config.IdentityPlaceholders {
+		ph := "${" + name + "}"
+		got := expandHeaderValue(ph, user)
+		if got == ph || got == "" {
+			t.Errorf("reserved placeholder %s not substituted by expandHeaderValue (got %q); "+
+				"config reserves it from env expansion but the proxy would forward it literally", ph, got)
+		}
+	}
+}
+
 // TestExpandHeaderValue_SanitizesCRLF: a crafted username (e.g. from an
 // IdP claim) must not inject a header via CR/LF/NUL.
 func TestExpandHeaderValue_SanitizesCRLF(t *testing.T) {
