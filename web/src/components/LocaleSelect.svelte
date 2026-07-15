@@ -132,6 +132,24 @@
 
 <svelte:window onclick={handleClickOutside} />
 
+{#snippet localeFlag(loc: { tag: string; name: string; flag: string })}
+  {#if loc.tag === 'ru'}
+    <!-- ru has no flag emoji, so its flag is drawn inline. The thin ring
+         keeps the stripes visible on light and dark backgrounds alike. -->
+    <svg
+      class="shrink-0 rounded-[1px]"
+      style="width:1.35em;height:0.9em;box-shadow:0 0 0 0.5px rgba(128,128,128,0.5)"
+      viewBox="0 0 9 6"
+      aria-hidden="true"
+    >
+      <rect width="9" height="6" fill="#ffffff" />
+      <rect y="2" width="9" height="2" fill="#0039a6" />
+    </svg>
+  {:else}
+    <span class="shrink-0">{loc.flag}</span>
+  {/if}
+{/snippet}
+
 <div class="relative {className}">
   <button
     bind:this={buttonRef}
@@ -148,7 +166,7 @@
     onkeydown={handleKeydown}
   >
     {#if selected}
-      <span class="shrink-0">{selected.flag}</span>
+      {@render localeFlag(selected)}
       <span class="truncate">{selected.name}</span>
     {:else}
       <span class="text-text-muted">—</span>
@@ -181,7 +199,7 @@
           onkeydown={handleKeydown}
           onpointerenter={() => { highlightedIndex = i; }}
         >
-          <span class="shrink-0">{locale.flag}</span>
+          {@render localeFlag(locale)}
           <span class="truncate">{locale.name}</span>
           {#if locale.tag === effectiveValue}
             <svg class="w-4 h-4 ms-auto shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

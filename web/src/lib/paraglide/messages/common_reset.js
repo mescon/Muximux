@@ -1,0 +1,204 @@
+/* eslint-disable */
+import { getLocale, experimentalStaticLocale } from '../runtime.js';
+
+/** @typedef {import('../runtime.js').LocalizedString} LocalizedString */
+
+/** @typedef {{}} Common_ResetInputs */
+
+const en_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reset`)
+};
+
+const sv_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Återställ`)
+};
+
+const uk_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Скинути`)
+};
+
+const zh_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`重置`)
+};
+
+const es_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Restablecer`)
+};
+
+const hi_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`रीसेट करें`)
+};
+
+const pt_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Repor`)
+};
+
+const bn_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`রিসেট করুন`)
+};
+
+const ru_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Сбросить`)
+};
+
+const ja_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`リセット`)
+};
+
+const vi_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Đặt lại`)
+};
+
+const yue_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`重設`)
+};
+
+const tr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sıfırla`)
+};
+
+const ar_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`إعادة تعيين`)
+};
+
+const wuu_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`重置`)
+};
+
+const mr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`रीसेट करा`)
+};
+
+const nb_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tilbakestill`)
+};
+
+const fi_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Palauta`)
+};
+
+const da_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nulstil`)
+};
+
+const et_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Lähtesta`)
+};
+
+const lv_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Atiestatīt`)
+};
+
+const lt_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Atstatyti`)
+};
+
+const pl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Resetuj`)
+};
+
+const de_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Zurücksetzen`)
+};
+
+const nl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Herstellen`)
+};
+
+const fr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Réinitialiser`)
+};
+
+const it_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ripristina`)
+};
+
+const hu_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Visszaállítás`)
+};
+
+const cs_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Resetovat`)
+};
+
+const ro_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Resetare`)
+};
+
+const el_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Επαναφορά`)
+};
+
+const bg_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Нулиране`)
+};
+
+const hr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Poništi`)
+};
+
+const sr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Poništi`)
+};
+
+const sk_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Resetovať`)
+};
+
+const sl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ponastavi`)
+};
+
+const ko_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`초기화`)
+};
+
+/**
+* | output |
+* | --- |
+* | "Reset" |
+*
+* @param {Common_ResetInputs} inputs
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }} options
+* @returns {LocalizedString}
+*/
+export const common_reset = /** @type {((inputs?: Common_ResetInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_ResetInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
+	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
+	if (locale === "en") return en_common_reset(inputs)
+	if (locale === "sv") return sv_common_reset(inputs)
+	if (locale === "uk") return uk_common_reset(inputs)
+	if (locale === "zh") return zh_common_reset(inputs)
+	if (locale === "es") return es_common_reset(inputs)
+	if (locale === "hi") return hi_common_reset(inputs)
+	if (locale === "pt") return pt_common_reset(inputs)
+	if (locale === "bn") return bn_common_reset(inputs)
+	if (locale === "ru") return ru_common_reset(inputs)
+	if (locale === "ja") return ja_common_reset(inputs)
+	if (locale === "vi") return vi_common_reset(inputs)
+	if (locale === "yue") return yue_common_reset(inputs)
+	if (locale === "tr") return tr_common_reset(inputs)
+	if (locale === "ar") return ar_common_reset(inputs)
+	if (locale === "wuu") return wuu_common_reset(inputs)
+	if (locale === "mr") return mr_common_reset(inputs)
+	if (locale === "nb") return nb_common_reset(inputs)
+	if (locale === "fi") return fi_common_reset(inputs)
+	if (locale === "da") return da_common_reset(inputs)
+	if (locale === "et") return et_common_reset(inputs)
+	if (locale === "lv") return lv_common_reset(inputs)
+	if (locale === "lt") return lt_common_reset(inputs)
+	if (locale === "pl") return pl_common_reset(inputs)
+	if (locale === "de") return de_common_reset(inputs)
+	if (locale === "nl") return nl_common_reset(inputs)
+	if (locale === "fr") return fr_common_reset(inputs)
+	if (locale === "it") return it_common_reset(inputs)
+	if (locale === "hu") return hu_common_reset(inputs)
+	if (locale === "cs") return cs_common_reset(inputs)
+	if (locale === "ro") return ro_common_reset(inputs)
+	if (locale === "el") return el_common_reset(inputs)
+	if (locale === "bg") return bg_common_reset(inputs)
+	if (locale === "hr") return hr_common_reset(inputs)
+	if (locale === "sr") return sr_common_reset(inputs)
+	if (locale === "sk") return sk_common_reset(inputs)
+	if (locale === "sl") return sl_common_reset(inputs)
+	return ko_common_reset(inputs)
+});

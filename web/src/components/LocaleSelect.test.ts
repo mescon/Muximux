@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 vi.mock('$lib/paraglide/runtime.js', () => ({
   setLocale: vi.fn(),
   getLocale: vi.fn().mockReturnValue('en'),
-  locales: ['en', 'sv', 'ar', 'de', 'fr'],
+  locales: ['en', 'sv', 'ar', 'de', 'fr', 'ru'],
   localStorageKey: 'PARAGLIDE_LOCALE',
 }));
 
@@ -169,8 +169,20 @@ describe('LocaleSelect', () => {
     await fireEvent.click(button);
 
     const options = screen.getAllByRole('option');
-    // Should have options for all 5 mocked locales
-    expect(options.length).toBe(5);
+    // Should have options for all 6 mocked locales
+    expect(options.length).toBe(6);
+  });
+
+  it('renders an inline SVG flag for Russian, not an emoji', async () => {
+    render(LocaleSelect, { props: { value: 'en' } });
+    await fireEvent.click(screen.getByRole('combobox'));
+
+    const ruOption = screen.getAllByRole('option').find(o => o.textContent?.includes('Русский'));
+    expect(ruOption).toBeTruthy();
+    // ru's flag is drawn inline (no emoji), so the option has an SVG and must
+    // not contain the emoji flag (U+1F1F7 U+1F1FA).
+    expect(ruOption!.querySelector('svg')).toBeTruthy();
+    expect(ruOption!.textContent).not.toContain('\u{1F1F7}\u{1F1FA}');
   });
 
   it('marks the current value as selected in the dropdown', async () => {

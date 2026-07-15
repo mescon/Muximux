@@ -25,7 +25,12 @@ export function syncLocaleFromConfig(configLocale: string): void {
   setLocale(configLocale as typeof locales[number]);
 }
 
-/** Flag emoji for each supported locale. */
+/**
+ * Flag emoji for each supported locale.
+ *
+ * Note: `ru`'s flag is drawn inline in LocaleSelect.svelte (there is no emoji
+ * for it), so its entry here is a fallback that the picker does not use.
+ */
 export const localeFlags: Record<string, string> = {
   en: '\u{1F1EC}\u{1F1E7}', sv: '\u{1F1F8}\u{1F1EA}', uk: '\u{1F1FA}\u{1F1E6}',
   zh: '\u{1F1E8}\u{1F1F3}', es: '\u{1F1EA}\u{1F1F8}', hi: '\u{1F1EE}\u{1F1F3}',
