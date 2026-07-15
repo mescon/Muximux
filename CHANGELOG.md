@@ -4,9 +4,17 @@ All notable changes to Muximux are documented in this file.
 
 ## [3.2.4] - 2026-07-15
 
-A small fix release: proxy-header identity forwarding no longer collides with
-environment variables, and OIDC group-to-admin mapping now works with more
-providers (Zitadel project roles, Microsoft Entra). Drop-in, no config changes.
+A small release: proxy-header identity forwarding no longer collides with
+environment variables, OIDC group-to-admin mapping now works with more
+providers (Zitadel project roles, Microsoft Entra), and the interface gains a
+Korean translation. Drop-in, no config changes.
+
+### Added
+- **Korean (ko) translation**, bringing the interface to 37 languages.
+- **`muximux hash --api-key`** generates the SHA-256 `api_key_hash` form
+  directly. Plain `muximux hash` still produces a bcrypt hash for a user
+  `password_hash`; a bcrypt `api_key_hash` remains accepted and auto-upgrades
+  to SHA-256 on first use.
 
 ### Fixed
 - **Identity-forwarding placeholders no longer collide with environment
@@ -26,12 +34,6 @@ providers (Zitadel project roles, Microsoft Entra). Drop-in, no config changes.
   endpoint; Entra returns groups only in the ID token, so `admin_groups`
   could never match. The verified ID token's claims are now merged with
   userinfo (userinfo takes precedence).
-
-### Added
-- **`muximux hash --api-key`** generates the SHA-256 `api_key_hash` form
-  directly. Plain `muximux hash` still produces a bcrypt hash for a user
-  `password_hash`; a bcrypt `api_key_hash` remains accepted and auto-upgrades
-  to SHA-256 on first use.
 
 ## [3.2.3] - 2026-07-06
 
