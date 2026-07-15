@@ -59,11 +59,14 @@ if [ "$pushing_release_tag" = true ]; then
         fi
     fi
 
-    if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
-        NPM_UPDATES=$( (cd "$REPO_ROOT/web" && npm outdated --json 2>/dev/null || true) | node -e 'let o={};try{o=JSON.parse(require("fs").readFileSync(0,"utf8")||"{}")}catch(e){}; for(const [k,v] of Object.entries(o)){ if(v&&v.current&&v.wanted&&v.current!==v.wanted) console.log("  "+k+" "+v.current+" -> "+v.wanted) }' 2>/dev/null || true)
-        if [ -n "$NPM_UPDATES" ]; then
-            fail "Frontend dependency updates available (within range):"
-            echo "$NPM_UPDATES"
+    if command -v npm >/dev/null 2>&1; then
+        # Peer-aware check: `npm update --dry-run` reflects what npm can
+        # actually install -- exactly what scripts/update-deps.sh applies.
+        # `npm outdated`'s "wanted" ignores peer constraints, so it would flag
+        # updates npm won't apply (e.g. a typescript-eslint bump held back by a
+        # typescript peer) and wedge every release with nothing to fix.
+        if (cd "$REPO_ROOT/web" && npm update --dry-run 2>&1) | grep -qiE '(added|removed|changed) [1-9]'; then
+            fail "Frontend minor/patch dependency updates are available."
             dep_stale=1
         fi
     fi
