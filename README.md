@@ -316,4 +316,8 @@ GPL v2 - see [LICENSE](LICENSE) for details.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/image?repos=mescon/Muximux&type=date&legend=top-left)](https://www.star-history.com/?repos=mescon%2FMuximux&type=date&legend=bottom-right)
+## Star History
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/chart?repos=mescon/Muximux&type=date&legend=bottom-right&sealed_token=LDDm2a1soFeW4mRYs24I5rnsckelSClDLdHC1NQiWhsQc0-4V44uUuETu2GZiJqVeUqQi7q8QkItsBJ6HQVFGk0-SW6njgr_sxwolLy09WiKG9ApLJrzVw)](https://www.star-history.com/?repos=mescon%2FMuximux&type=date&legend=bottom-right)
