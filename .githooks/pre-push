@@ -2,6 +2,8 @@
 #
 # Pre-push hook: runs tests with coverage checks before allowing push.
 # Mirrors CI pipeline (go test + vitest) to catch issues locally.
+# When a release tag (vX.Y.Z) is pushed, it additionally refuses to release
+# with stale minor/patch dependencies (see scripts/update-deps.sh).
 #
 # To bypass in emergencies: git push --no-verify
 #
@@ -28,6 +30,53 @@ fail()  { echo -e "${RED}✗${NC} $*"; }
 warn()  { echo -e "${YELLOW}!${NC} $*"; }
 
 errors=0
+
+# ─── Release-tag dependency freshness ──────────────────────────────
+# When a version tag (vX.Y.Z) is among the refs being pushed, refuse the push
+# if minor/patch dependency updates are available -- the ones
+# scripts/update-deps.sh would pull in -- so a release never ships one weekly
+# Dependabot run behind. Major upgrades are intentionally excluded; they stay
+# as reviewable Dependabot PRs. Reads the pre-push ref list from stdin.
+# Only fires on release tags, so ordinary pushes are unaffected.
+# Bypass with: git push --no-verify
+pushing_release_tag=false
+while read -r _lref _lsha rref _rsha; do
+    case "${rref:-}" in
+        refs/tags/v[0-9]*) pushing_release_tag=true ;;
+    esac
+done
+
+if [ "$pushing_release_tag" = true ]; then
+    info "Release tag detected — checking dependencies are current..."
+    dep_stale=0
+
+    if command -v go >/dev/null 2>&1; then
+        GO_UPDATES=$(go list -m -u -f '{{if and .Update (not .Indirect)}}  {{.Path}} {{.Version}} -> {{.Update.Version}}{{end}}' all 2>/dev/null | grep -v '^[[:space:]]*$' || true)
+        if [ -n "$GO_UPDATES" ]; then
+            fail "Go dependency updates available (minor/patch):"
+            echo "$GO_UPDATES"
+            dep_stale=1
+        fi
+    fi
+
+    if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
+        NPM_UPDATES=$( (cd "$REPO_ROOT/web" && npm outdated --json 2>/dev/null || true) | node -e 'let o={};try{o=JSON.parse(require("fs").readFileSync(0,"utf8")||"{}")}catch(e){}; for(const [k,v] of Object.entries(o)){ if(v&&v.current&&v.wanted&&v.current!==v.wanted) console.log("  "+k+" "+v.current+" -> "+v.wanted) }' 2>/dev/null || true)
+        if [ -n "$NPM_UPDATES" ]; then
+            fail "Frontend dependency updates available (within range):"
+            echo "$NPM_UPDATES"
+            dep_stale=1
+        fi
+    fi
+
+    if [ "$dep_stale" -ne 0 ]; then
+        echo ""
+        echo -e "${RED}${BOLD}Release blocked:${NC} dependencies are behind their latest minor/patch."
+        echo -e "Run ${YELLOW}scripts/update-deps.sh${NC}, commit the result, move the tag to the new commit, then push again."
+        echo -e "Majors stay as Dependabot PRs. Override with ${YELLOW}git push --no-verify${NC}."
+        exit 1
+    fi
+    pass "Dependencies current."
+fi
 
 # ─── Go tests with race detection + coverage ───────────────────────
 info "Running Go tests with coverage..."
