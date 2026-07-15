@@ -345,14 +345,27 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract user details from claims
-	username := getStringClaim(userInfo, p.config.UsernameClaim)
-	if username == "" {
-		username = getStringClaim(userInfo, "sub") // Fallback to subject
+	// Merge the verified ID token's claims with userinfo. Some IdPs only
+	// emit certain claims in the ID token and never at the userinfo endpoint
+	// -- most notably Microsoft Entra, whose group claims appear only in the
+	// ID token -- so userinfo alone would silently miss them and break
+	// admin_groups matching. The ID token was cryptographically verified
+	// above (signature, issuer, audience, nonce), so its claims are
+	// trustworthy; userinfo takes precedence for any claim it provides.
+	var idClaims map[string]interface{}
+	if err := idToken.Claims(&idClaims); err != nil {
+		logging.From(r.Context()).Warn("OIDC: failed to parse ID token claims", "source", "auth", "error", err.Error())
 	}
-	email := getStringClaim(userInfo, p.config.EmailClaim)
-	displayName := getStringClaim(userInfo, p.config.DisplayNameClaim)
-	groups := getStringListClaim(userInfo, p.config.GroupsClaim)
+	claims := mergeClaims(idClaims, userInfo)
+
+	// Extract user details from the merged claims
+	username := getStringClaim(claims, p.config.UsernameClaim)
+	if username == "" {
+		username = getStringClaim(claims, "sub") // Fallback to subject
+	}
+	email := getStringClaim(claims, p.config.EmailClaim)
+	displayName := getStringClaim(claims, p.config.DisplayNameClaim)
+	groups := getStringListClaim(claims, p.config.GroupsClaim)
 
 	// Determine role
 	role := determineOIDCRole(groups, p.config.AdminGroups)
@@ -594,6 +607,22 @@ func getStringClaim(claims map[string]interface{}, key string) string {
 		}
 	}
 	return ""
+}
+
+// mergeClaims overlays userinfo claims on top of the verified ID token's
+// claims and returns the combined set. Userinfo wins for any claim it
+// provides; claims present only in the ID token (e.g. Microsoft Entra's
+// group claims, which never appear at the userinfo endpoint) survive. Both
+// arguments may be nil.
+func mergeClaims(idClaims, userInfo map[string]interface{}) map[string]interface{} {
+	merged := make(map[string]interface{}, len(idClaims)+len(userInfo))
+	for k, v := range idClaims {
+		merged[k] = v
+	}
+	for k, v := range userInfo {
+		merged[k] = v
+	}
+	return merged
 }
 
 // getStringListClaim extracts a string list claim from user info

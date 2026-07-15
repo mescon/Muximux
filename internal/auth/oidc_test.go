@@ -90,6 +90,15 @@ func testJWKSResponse(t *testing.T) map[string]interface{} {
 // the same verification code path as a real IdP.
 func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Server {
 	t.Helper()
+	return mockOIDCServerWithIDClaims(t, userinfo, nil)
+}
+
+// mockOIDCServerWithIDClaims is mockOIDCServer with control over extra claims
+// embedded in the signed ID token, on top of the standard iss/aud/sub/nonce.
+// Use it to model an IdP (e.g. Microsoft Entra) that emits a claim only in
+// the ID token and never at the userinfo endpoint.
+func mockOIDCServerWithIDClaims(t *testing.T, userinfo, idTokenExtra map[string]interface{}) *httptest.Server {
+	t.Helper()
 	mux := http.NewServeMux()
 
 	var (
@@ -154,6 +163,9 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 			"iat":   now.Unix(),
 			"exp":   now.Add(time.Hour).Unix(),
 			"nonce": nonceForToken,
+		}
+		for k, v := range idTokenExtra {
+			claims[k] = v
 		}
 		resp := TokenResponse{
 			AccessToken: "test-access-token",
@@ -1062,6 +1074,49 @@ func TestGetStringListClaim(t *testing.T) {
 	})
 }
 
+// --- mergeClaims ---
+
+func TestMergeClaims(t *testing.T) {
+	t.Run("id-token-only claim survives (Entra groups)", func(t *testing.T) {
+		idClaims := map[string]interface{}{
+			"sub":    "user1",
+			"groups": []interface{}{"admins", "staff"},
+		}
+		userInfo := map[string]interface{}{
+			"sub":   "user1",
+			"email": "user1@example.com",
+		}
+		merged := mergeClaims(idClaims, userInfo)
+		groups := getStringListClaim(merged, "groups")
+		if len(groups) != 2 || groups[0] != "admins" {
+			t.Errorf("id-token groups should survive when userinfo omits them, got %v", groups)
+		}
+		if getStringClaim(merged, "email") != "user1@example.com" {
+			t.Error("userinfo email should be present in merged claims")
+		}
+	})
+
+	t.Run("userinfo takes precedence over id token", func(t *testing.T) {
+		idClaims := map[string]interface{}{"groups": []interface{}{"from-id-token"}}
+		userInfo := map[string]interface{}{"groups": []interface{}{"from-userinfo"}}
+		merged := mergeClaims(idClaims, userInfo)
+		groups := getStringListClaim(merged, "groups")
+		if len(groups) != 1 || groups[0] != "from-userinfo" {
+			t.Errorf("userinfo should win for claims it provides, got %v", groups)
+		}
+	})
+
+	t.Run("nil maps are safe", func(t *testing.T) {
+		if merged := mergeClaims(nil, nil); len(merged) != 0 {
+			t.Errorf("expected empty map, got %v", merged)
+		}
+		merged := mergeClaims(map[string]interface{}{"a": 1}, nil)
+		if merged["a"] != 1 {
+			t.Error("id claims should pass through when userinfo is nil")
+		}
+	})
+}
+
 // --- determineOIDCRole ---
 
 func TestDetermineOIDCRole(t *testing.T) {
@@ -1374,6 +1429,61 @@ func TestHandleCallback_AdminGroupDetection(t *testing.T) {
 	// Verify the session was created with admin role
 	if ss.Count() != 1 {
 		t.Fatalf("expected 1 session, got %d", ss.Count())
+	}
+}
+
+// TestHandleCallback_GroupsFromIDTokenOnly models Microsoft Entra: the
+// userinfo endpoint returns NO groups, and the groups claim is present only
+// in the signed (and verified) ID token. Muximux must merge the ID token's
+// claims with userinfo so admin_groups still matches; without the merge the
+// user would silently come back as a plain user.
+func TestHandleCallback_GroupsFromIDTokenOnly(t *testing.T) {
+	userinfo := map[string]interface{}{
+		"sub":                "entra-user",
+		"preferred_username": "entrauser",
+		"email":              "entra@example.com",
+		"name":               "Entra User",
+		// deliberately NO "groups" here -- Entra never returns them at userinfo
+	}
+	idTokenExtra := map[string]interface{}{
+		"groups": []interface{}{"users", "admin-group"},
+	}
+	srv := mockOIDCServerWithIDClaims(t, userinfo, idTokenExtra)
+	defer srv.Close()
+
+	p, ss := newTestOIDCProvider(t, srv.URL)
+	if err := p.loadDiscovery(context.Background()); err != nil {
+		t.Fatalf("loadDiscovery failed: %v", err)
+	}
+
+	testState := "entra-state"
+	p.statesMu.Lock()
+	p.states[testState] = stateEntry{createdAt: time.Now(), redirectURL: "/"}
+	p.statesMu.Unlock()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/callback?code=test-code&state="+testState, nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+
+	if rec.Code != http.StatusFound {
+		t.Fatalf("expected 302, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var sessionCookie *http.Cookie
+	for _, c := range rec.Result().Cookies() {
+		if c.Name == "test_session" {
+			sessionCookie = c
+		}
+	}
+	if sessionCookie == nil {
+		t.Fatal("expected a session cookie")
+	}
+	session := ss.Get(sessionCookie.Value)
+	if session == nil {
+		t.Fatal("session not found in store")
+	}
+	if session.Role != RoleAdmin {
+		t.Errorf("role = %q, want admin -- admin-group is only in the ID token, so the ID-token/userinfo merge is not working", session.Role)
 	}
 }
 
