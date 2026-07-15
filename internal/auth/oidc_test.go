@@ -1043,6 +1043,23 @@ func TestGetStringListClaim(t *testing.T) {
 			t.Errorf("expected nil for unsupported type, got %v", result)
 		}
 	})
+
+	t.Run("object claim uses keys as groups (Zitadel project roles)", func(t *testing.T) {
+		// Zitadel returns urn:zitadel:iam:org:project:roles as an object
+		// keyed by role name, with org metadata as the value. The role
+		// names (keys) are the group list; values are ignored. Returned
+		// sorted so the result is deterministic.
+		claims := map[string]interface{}{
+			"urn:zitadel:iam:org:project:roles": map[string]interface{}{
+				"muximux-user":  map[string]interface{}{"orgid": "org.example.com"},
+				"muximux-admin": map[string]interface{}{"orgid": "org.example.com"},
+			},
+		}
+		result := getStringListClaim(claims, "urn:zitadel:iam:org:project:roles")
+		if len(result) != 2 || result[0] != "muximux-admin" || result[1] != "muximux-user" {
+			t.Errorf("expected sorted [muximux-admin muximux-user], got %v", result)
+		}
+	})
 }
 
 // --- determineOIDCRole ---

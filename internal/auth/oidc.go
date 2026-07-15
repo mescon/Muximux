@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -612,6 +613,18 @@ func getStringListClaim(claims map[string]interface{}, key string) []string {
 		case string:
 			// Some providers return groups as space-separated string
 			return strings.Fields(val)
+		case map[string]interface{}:
+			// Some providers (e.g. Zitadel's
+			// urn:zitadel:iam:org:project:roles) return the claim as an
+			// object keyed by the group/role name, with metadata as the
+			// value. Use the keys as the group list, sorted so the result
+			// is deterministic.
+			result := make([]string, 0, len(val))
+			for k := range val {
+				result = append(result, k)
+			}
+			sort.Strings(result)
+			return result
 		}
 	}
 	return nil
