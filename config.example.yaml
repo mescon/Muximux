@@ -81,9 +81,9 @@ auth:
   method: none                 # none, builtin, forward_auth, oidc
   # session_max_age: 24h       # How long sessions last (default: 24h)
   # secure_cookies: false      # Set true when serving over HTTPS
-  # api_key_hash: "$2a$10$..."  # Optional: bcrypt hash of API key for X-Api-Key header auth
-  #   Generate with:  muximux hash 'my-api-key'
-  #   Or:  htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
+  # api_key_hash: "sha256:..."  # Optional: SHA-256 hash of API key for X-Api-Key header auth
+  #   Generate with:  muximux hash --api-key 'my-api-key'
+  #   (A legacy bcrypt hash is still accepted and auto-upgrades to SHA-256 on first use.)
 
   # ── Builtin auth ──
   # users:

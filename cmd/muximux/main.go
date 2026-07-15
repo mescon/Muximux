@@ -58,41 +58,56 @@ func applyOverrides(cfg *config.Config, listenAddr, basePath string) {
 	}
 }
 
-// runHash generates a bcrypt hash from a password/key provided as an argument or via stdin.
+// runHash generates a hash from a password/key provided as an argument or via
+// stdin. By default it produces a bcrypt hash for a user password_hash. With
+// the --api-key flag it produces the SHA-256 form (sha256:...) that api_key_hash
+// stores -- API keys are high-entropy tokens, so a fast hash is appropriate and
+// avoids running bcrypt on every X-Api-Key request.
 func runHash() {
-	var password string
+	args := os.Args[2:] // everything after "hash"
+	apiKey := false
+	if len(args) > 0 && args[0] == "--api-key" {
+		apiKey = true
+		args = args[1:]
+	}
 
-	if len(os.Args) > 2 {
-		password = os.Args[2]
+	var value string
+	if len(args) > 0 {
+		value = args[0]
 	} else {
 		fmt.Print("Enter value to hash: ")
 		fd := int(os.Stdin.Fd()) //nolint:gosec // Fd() returns 0 for stdin; overflow is not possible
 		if term.IsTerminal(fd) {
-			bytePassword, err := term.ReadPassword(fd)
+			byteValue, err := term.ReadPassword(fd)
 			fmt.Println()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
 				os.Exit(1)
 			}
-			password = string(bytePassword)
+			value = string(byteValue)
 		} else {
 			reader := bufio.NewReader(os.Stdin)
 			var err error
-			password, err = reader.ReadString('\n')
+			value, err = reader.ReadString('\n')
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
 				os.Exit(1)
 			}
-			password = strings.TrimSpace(password)
+			value = strings.TrimSpace(value)
 		}
 	}
 
-	if password == "" {
+	if value == "" {
 		fmt.Fprintln(os.Stderr, "Value cannot be empty")
 		os.Exit(1)
 	}
 
-	hash, err := auth.HashPassword(password)
+	if apiKey {
+		fmt.Println(auth.HashAPIKey(value))
+		return
+	}
+
+	hash, err := auth.HashPassword(value)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating hash: %v\n", err)
 		os.Exit(1)
