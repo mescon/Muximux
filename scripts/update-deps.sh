@@ -39,7 +39,7 @@ GO_PACKAGES=$(go list ./... | grep -v '/cmd/' | grep -v 'node_modules')
 go test -count=1 $GO_PACKAGES
 
 step "Verifying frontend build + tests"
-( cd web && npm run build && npx vitest run )
+( cd web && npm run build && npm test )
 # The production build rewrites this generated file; keep it out of the diff.
 git checkout -- web/src/lib/paraglide/.prettierignore 2>/dev/null || true
 

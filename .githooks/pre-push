@@ -153,7 +153,7 @@ fi
 # ─── Frontend tests with coverage ─────────────────────────────────
 info "Running frontend tests with coverage..."
 
-FE_OUTPUT=$(cd "$REPO_ROOT/web" && npx vitest run --coverage 2>&1)
+FE_OUTPUT=$(cd "$REPO_ROOT/web" && npm test -- --coverage 2>&1)
 FE_EXIT=$?
 
 if [ $FE_EXIT -eq 0 ]; then
