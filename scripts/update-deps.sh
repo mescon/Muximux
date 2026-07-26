@@ -25,8 +25,17 @@ cd "$ROOT"
 
 step() { printf '\n\033[0;36m▸ %s\033[0m\n' "$1"; }
 
-step "Updating Go modules (minor/patch, no majors)"
-go get -u ./...
+step "Updating direct Go modules (minor/patch, no majors)"
+# Update DIRECT modules only and let minimum-version selection resolve the
+# transitives. `go get -u ./...` force-upgrades every transitive dependency
+# past what intermediate libraries were built against -- it once dragged
+# cel-go beyond what caddy compiles with. Indirect security bumps still
+# arrive as Dependabot alerts/PRs and are caught by govulncheck in CI.
+DIRECT_UPDATES=$(go list -m -u -f '{{if and .Update (not .Indirect)}}{{.Path}}{{end}}' all 2>/dev/null | grep -v '^[[:space:]]*$' || true)
+if [ -n "$DIRECT_UPDATES" ]; then
+  # shellcheck disable=SC2086
+  go get $DIRECT_UPDATES
+fi
 go mod tidy
 
 step "Updating frontend packages (minor/patch, within semver ranges)"
