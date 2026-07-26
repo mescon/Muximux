@@ -8,9 +8,15 @@ updates:
       - dependencies
       - go
     groups:
+      # Majors are excluded from the group so one breaking major (e.g. a
+      # TypeScript-style ecosystem shift) cannot wedge the whole batch;
+      # each major arrives as its own reviewable PR instead.
       go-dependencies:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: npm
     directory: /web
@@ -23,6 +29,9 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: docker
     directory: /
