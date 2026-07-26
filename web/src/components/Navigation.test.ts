@@ -768,6 +768,42 @@ describe('Navigation', () => {
       expect(evt.ctrlKey).toBe(true);
     });
 
+    it('right-click on an app opens Edit App for admins and suppresses the native menu (#407)', async () => {
+      const oneditappFn = vi.fn();
+      render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'top', bar_style: 'flat', show_labels: true } }),
+          oneditapp: oneditappFn,
+        },
+      });
+      const appBtn = screen.getByText('AppOne').closest('button');
+      const evt = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      await fireEvent(appBtn!, evt);
+      expect(oneditappFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppOne' }));
+      expect(evt.defaultPrevented).toBe(true);
+    });
+
+    it('right-click keeps the native context menu for non-admins (#407)', async () => {
+      mockIsAdmin.set(false);
+      const oneditappFn = vi.fn();
+      render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'top', bar_style: 'flat', show_labels: true } }),
+          oneditapp: oneditappFn,
+        },
+      });
+      const appBtn = screen.getByText('AppOne').closest('button');
+      const evt = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      await fireEvent(appBtn!, evt);
+      expect(oneditappFn).not.toHaveBeenCalled();
+      expect(evt.defaultPrevented).toBe(false);
+      mockIsAdmin.set(true);
+    });
+
     it('middle-click (auxclick, button 1) selects the app; right-button auxclick does not (#407)', async () => {
       const onselectFn = vi.fn();
       render(Navigation, {

@@ -20,6 +20,7 @@
     config,
     showSplash = false,
     onselect,
+    oneditapp,
     onsearch,
     onsplash,
     onsettings,
@@ -40,6 +41,7 @@
     config: Config;
     showSplash?: boolean;
     onselect?: (app: App, e?: MouseEvent) => void;
+    oneditapp?: (app: App) => void;
     onsearch?: () => void;
     onsplash?: () => void;
     onsettings?: () => void;
@@ -300,6 +302,18 @@
   // Group dropdown state for top/bottom bars
   let openGroupDropdown = $state<string | null>(null);
   let dropdownCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Right-click on an app icon jumps straight to its Edit App modal
+  // (admin only, #407). Non-admins keep the browser's native context menu,
+  // so preventDefault only fires when the shortcut actually applies.
+  function handleAppContextMenu(e: MouseEvent, app: App) {
+    if (!$isAdmin || !oneditapp) return;
+    e.preventDefault();
+    openGroupDropdown = null;
+    mobileMenuOpen = false;
+    panelOpen = false;
+    oneditapp(app);
+  }
 
   function openDropdown(groupName: string) {
     if (dropdownCloseTimeout) { clearTimeout(dropdownCloseTimeout); dropdownCloseTimeout = null; }
@@ -1009,7 +1023,7 @@
                                  : 'text-text-secondary hover:text-text-primary'}
                                {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                         style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
-                        onclick={(e) => { onselect?.(app, e); openGroupDropdown = null; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); openGroupDropdown = null; } }}
+                        onclick={(e) => { onselect?.(app, e); openGroupDropdown = null; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); openGroupDropdown = null; } }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                       >
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -1077,7 +1091,7 @@
                        {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                 style="border-bottom: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
                        {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
-                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }}
+                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                 onmouseenter={() => hoveredGroup = null}
               >
                 <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
@@ -1318,7 +1332,7 @@
                            ? 'bg-bg-elevated text-text-primary'
                            : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                   tabindex={expandedGroups[groupName] ? 0 : -1}
-                  onclick={(e) => { onselect?.(app, e); mobileMenuOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); mobileMenuOpen = false; } }}
+                  onclick={(e) => { onselect?.(app, e); mobileMenuOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); mobileMenuOpen = false; } }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -1742,7 +1756,7 @@
                            ? 'bg-bg-elevated text-text-primary'
                            : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                   tabindex={expandedGroups[groupName] ? 0 : -1}
-                  onclick={(e) => { onselect?.(app, e); mobileMenuOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); mobileMenuOpen = false; } }}
+                  onclick={(e) => { onselect?.(app, e); mobileMenuOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); mobileMenuOpen = false; } }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute end-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -2136,7 +2150,7 @@
                                  : 'text-text-secondary hover:text-text-primary'}
                                {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                         style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
-                        onclick={(e) => { onselect?.(app, e); openGroupDropdown = null; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); openGroupDropdown = null; } }}
+                        onclick={(e) => { onselect?.(app, e); openGroupDropdown = null; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); openGroupDropdown = null; } }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                       >
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -2203,7 +2217,7 @@
                        {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                 style="border-top: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
                        {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
-                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }}
+                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                 onmouseenter={() => hoveredGroup = null}
               >
                 <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
@@ -2382,7 +2396,7 @@
                                ? 'bg-bg-elevated text-text-primary'
                                : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                       tabindex={expandedGroups[groupName] ? 0 : -1}
-                      onclick={(e) => { onselect?.(app, e); panelOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); panelOpen = false; } }}
+                      onclick={(e) => { onselect?.(app, e); panelOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); panelOpen = false; } }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
                     >
                       {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                         <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>

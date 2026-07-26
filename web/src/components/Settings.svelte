@@ -30,12 +30,14 @@
     config,
     apps,
     initialTab = 'general',
+    initialEditAppName,
     onclose,
     onsave,
   }: {
     config: Config;
     apps: App[];
     initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'gateway' | 'discovery' | 'about';
+    initialEditAppName?: string | null;
     onclose?: () => void;
     onsave?: (config: Config) => void;
   } = $props();
@@ -57,6 +59,16 @@
     isMobile = isMobileViewport();
     const handleResize = () => { isMobile = isMobileViewport(); };
     window.addEventListener('resize', handleResize);
+
+    // Deep-link straight into an app's edit modal (right-click on a nav
+    // icon, #407). Resolve by name against dndGroupedApps: the edit
+    // modal's save/cancel flow depends on object identity within those
+    // arrays, so the App-level object cannot be used directly.
+    if (initialEditAppName) {
+      const match = Object.values(dndGroupedApps).flat().find(a => a.name === initialEditAppName);
+      if (match) startEditApp(match);
+    }
+
     return () => window.removeEventListener('resize', handleResize);
   });
 

@@ -532,6 +532,7 @@ function renderSettings(overrides: {
   config?: Partial<Config>;
   apps?: App[];
   initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about';
+  initialEditAppName?: string;
   onclose?: () => void;
   onsave?: (config: Config) => void;
 } = {}) {
@@ -542,6 +543,7 @@ function renderSettings(overrides: {
       config,
       apps,
       ...(overrides.initialTab ? { initialTab: overrides.initialTab } : {}),
+      ...(overrides.initialEditAppName ? { initialEditAppName: overrides.initialEditAppName } : {}),
       ...(overrides.onclose ? { onclose: overrides.onclose } : {}),
       ...(overrides.onsave ? { onsave: overrides.onsave } : {}),
     },
@@ -834,6 +836,22 @@ describe('Settings', () => {
   // C. Edit App Modal Flow
   // =======================================================================
   describe('Edit App Modal Flow', () => {
+    it('opens the edit modal directly when initialEditAppName is set (right-click deep link, #407)', async () => {
+      renderSettings({ initialTab: 'apps', initialEditAppName: 'Sonarr' });
+      await waitFor(() => {
+        expect(screen.getByText('Edit Sonarr')).toBeInTheDocument();
+      });
+    });
+
+    it('ignores an unknown initialEditAppName (no modal, no crash)', async () => {
+      renderSettings({ initialTab: 'apps', initialEditAppName: 'DoesNotExist' });
+      // The apps tab renders normally with no edit modal open.
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger-edit-app')).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/^Edit DoesNotExist$/)).not.toBeInTheDocument();
+    });
+
     it('opens Edit App modal with app name in heading', async () => {
       renderSettings({ initialTab: 'apps' });
       await fireEvent.click(screen.getByTestId('trigger-edit-app'));

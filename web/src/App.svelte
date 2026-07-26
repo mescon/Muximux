@@ -38,6 +38,8 @@
   let showSplash = $state(true);
   let showSettings = $state(false);
   let settingsInitialTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
+  // Deep-link into an app's edit modal (right-click on a nav icon, #407)
+  let settingsEditAppName = $state<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic imports lose component typing
   type LazyComponent = any;
   let settingsRef = $state<LazyComponent>(undefined);
@@ -1005,6 +1007,7 @@
         {config}
         {showSplash}
         onselect={(app, e) => selectApp(app, e)}
+        oneditapp={(app) => { settingsInitialTab = 'apps'; settingsEditAppName = app.name; openSettings(); }}
         onsearch={() => { loadCommandPalette().then(() => showCommandPalette = true); }}
         onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { navigateHome(); } }}
         onsettings={() => { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }}
@@ -1143,7 +1146,8 @@
       {config}
       {apps}
       initialTab={settingsInitialTab}
-      onclose={() => { showSettings = false; settingsInitialTab = 'general'; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
+      initialEditAppName={settingsEditAppName}
+      onclose={() => { showSettings = false; settingsInitialTab = 'general'; settingsEditAppName = null; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
       onsave={(newConfig: Config) => handleSaveConfig(newConfig)}
     />
   {/if}
