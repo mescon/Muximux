@@ -2,6 +2,36 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.3.0] - 2026-07-27
+
+Three quality-of-life features for getting at your apps faster, plus a
+dependency refresh carrying several upstream security fixes. Drop-in: no
+config changes required; the new tab branding is opt-in.
+
+### Added
+- **Ctrl+Click (Cmd on macOS) or middle-click opens an app in a new browser
+  tab**, whatever its open mode. Proxied apps open their `/proxy/` path so
+  the Muximux session carries over; direct apps open their configured URL.
+- **Right-click an app icon to edit it.** The Edit App modal opens directly,
+  pre-filled -- no digging through the settings list to tweak a URL or icon.
+  Admin-only; everyone else keeps the browser's native context menu.
+- **Dynamic tab title and icon** (Settings -> General, off by default): while
+  an app is open, the browser tab shows that app's name and icon instead of
+  the dashboard's, so a Muximux tab is recognisable among many. In split
+  view the focused panel drives the tab; the overview, logs, and settings
+  views restore the defaults.
+
+### Security
+- **Dependency refresh with upstream security fixes**: grpc 1.82.1 (xDS
+  RBAC / HTTP2 advisories), opentelemetry 1.44.0 (uncapped baggage-header
+  parsing, reachable from the HTTP server), dompurify 3.4.12 (sanitizer
+  bypass), and brace-expansion 5.0.8 (expansion DoS), plus current minor and
+  patch versions across the Go and frontend dependency trees.
+
+Also includes internal release tooling: a release tag is now refused while
+dependencies are behind their latest minor/patch, and
+`scripts/update-deps.sh` applies the refresh in one verified step.
+
 ## [3.2.4] - 2026-07-15
 
 A small release: proxy-header identity forwarding no longer collides with
