@@ -20,7 +20,7 @@
     apps: App[];
     config: Config;
     showHealth?: boolean;
-    onselect?: (app: App) => void;
+    onselect?: (app: App, e?: MouseEvent) => void;
     onsettings?: () => void;
     onabout?: () => void;
   } = $props();
@@ -250,7 +250,7 @@
                   class:animate-slide-up={mounted}
                   class:exited={ds?.status === 'exited' || ds?.status === 'dead'}
                   style="animation-delay: {getStaggerDelay(groupIndex, appIndex)};"
-                  onclick={() => onselect?.(app)}
+                  onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }}
                 >
                   {#if app.docker_key}
                     <!-- Passive Docker status indicator (all users): logo ->

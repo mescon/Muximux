@@ -749,7 +749,42 @@ describe('Navigation', () => {
       const appBtn = screen.getByText('AppOne').closest('button');
       await fireEvent.click(appBtn!);
       expect(onselectFn).toHaveBeenCalledTimes(1);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppOne' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppOne' }), expect.anything());
+    });
+
+    it('passes the MouseEvent through so Ctrl+Click intent survives (#407)', async () => {
+      const onselectFn = vi.fn();
+      render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'top', bar_style: 'flat', show_labels: true } }),
+          onselect: onselectFn,
+        },
+      });
+      const appBtn = screen.getByText('AppOne').closest('button');
+      await fireEvent.click(appBtn!, { ctrlKey: true });
+      const evt = onselectFn.mock.calls[0][1] as MouseEvent;
+      expect(evt.ctrlKey).toBe(true);
+    });
+
+    it('middle-click (auxclick, button 1) selects the app; right-button auxclick does not (#407)', async () => {
+      const onselectFn = vi.fn();
+      render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'top', bar_style: 'flat', show_labels: true } }),
+          onselect: onselectFn,
+        },
+      });
+      const appBtn = screen.getByText('AppOne').closest('button');
+      await fireEvent(appBtn!, new MouseEvent('auxclick', { button: 1, bubbles: true }));
+      expect(onselectFn).toHaveBeenCalledTimes(1);
+      expect((onselectFn.mock.calls[0][1] as MouseEvent).button).toBe(1);
+
+      await fireEvent(appBtn!, new MouseEvent('auxclick', { button: 2, bubbles: true }));
+      expect(onselectFn).toHaveBeenCalledTimes(1); // unchanged
     });
 
     it('highlights current app with bg-bg-base class (top flat bar)', () => {
@@ -801,7 +836,7 @@ describe('Navigation', () => {
       });
       const appBtn = screen.getByText('Sonarr').closest('button');
       await fireEvent.click(appBtn!);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Sonarr' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Sonarr' }), expect.anything());
     });
 
     it('shows open mode icon for new_tab apps', () => {
@@ -1678,7 +1713,7 @@ describe('Navigation', () => {
       });
       const appBtn = screen.getByText('AppOne').closest('button');
       await fireEvent.click(appBtn!);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppOne' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppOne' }), expect.anything());
       // Panel should close after app selection
       await waitFor(() => {
         expect(container.querySelector('.floating-panel')).toBeFalsy();
@@ -1973,7 +2008,7 @@ describe('Navigation', () => {
       });
       const appBtn = screen.getByText('Radarr').closest('button');
       await fireEvent.click(appBtn!);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Radarr' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Radarr' }), expect.anything());
     });
 
     it('highlights current app with bg-bg-elevated in right sidebar', () => {
@@ -2068,7 +2103,7 @@ describe('Navigation', () => {
       });
       const appBtn = screen.getByText('AppTwo').closest('button');
       await fireEvent.click(appBtn!);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppTwo' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'AppTwo' }), expect.anything());
     });
 
     it('highlights current app in bottom flat bar with bg-bg-base', () => {
@@ -2160,7 +2195,7 @@ describe('Navigation', () => {
       });
       const grafanaBtn = screen.getByText('Grafana').closest('button');
       await fireEvent.click(grafanaBtn!);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Grafana' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Grafana' }), expect.anything());
     });
   });
 
@@ -2236,7 +2271,7 @@ describe('Navigation', () => {
       });
       const radarrBtn = screen.getByText('Radarr').closest('button');
       await fireEvent.click(radarrBtn!);
-      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Radarr' }));
+      expect(onselectFn).toHaveBeenCalledWith(expect.objectContaining({ name: 'Radarr' }), expect.anything());
     });
   });
 

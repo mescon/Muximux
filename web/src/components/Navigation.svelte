@@ -39,7 +39,7 @@
     currentApp: App | null;
     config: Config;
     showSplash?: boolean;
-    onselect?: (app: App) => void;
+    onselect?: (app: App, e?: MouseEvent) => void;
     onsearch?: () => void;
     onsplash?: () => void;
     onsettings?: () => void;
@@ -1009,7 +1009,7 @@
                                  : 'text-text-secondary hover:text-text-primary'}
                                {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                         style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
-                        onclick={() => { onselect?.(app); openGroupDropdown = null; }}
+                        onclick={(e) => { onselect?.(app, e); openGroupDropdown = null; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); openGroupDropdown = null; } }}
                       >
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -1077,7 +1077,7 @@
                        {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                 style="border-bottom: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
                        {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
-                onclick={() => onselect?.(app)}
+                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }}
                 onmouseenter={() => hoveredGroup = null}
               >
                 <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
@@ -1318,7 +1318,7 @@
                            ? 'bg-bg-elevated text-text-primary'
                            : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                   tabindex={expandedGroups[groupName] ? 0 : -1}
-                  onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
+                  onclick={(e) => { onselect?.(app, e); mobileMenuOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); mobileMenuOpen = false; } }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -1742,7 +1742,7 @@
                            ? 'bg-bg-elevated text-text-primary'
                            : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                   tabindex={expandedGroups[groupName] ? 0 : -1}
-                  onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
+                  onclick={(e) => { onselect?.(app, e); mobileMenuOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); mobileMenuOpen = false; } }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute end-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -2136,7 +2136,7 @@
                                  : 'text-text-secondary hover:text-text-primary'}
                                {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                         style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
-                        onclick={() => { onselect?.(app); openGroupDropdown = null; }}
+                        onclick={(e) => { onselect?.(app, e); openGroupDropdown = null; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); openGroupDropdown = null; } }}
                       >
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -2203,7 +2203,7 @@
                        {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                 style="border-top: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
                        {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
-                onclick={() => onselect?.(app)}
+                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }}
                 onmouseenter={() => hoveredGroup = null}
               >
                 <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
@@ -2382,7 +2382,7 @@
                                ? 'bg-bg-elevated text-text-primary'
                                : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                       tabindex={expandedGroups[groupName] ? 0 : -1}
-                      onclick={() => { onselect?.(app); panelOpen = false; }}
+                      onclick={(e) => { onselect?.(app, e); panelOpen = false; }} onauxclick={(e) => { if (e.button === 1) { onselect?.(app, e); panelOpen = false; } }}
                     >
                       {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                         <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>

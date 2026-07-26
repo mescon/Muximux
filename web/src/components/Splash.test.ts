@@ -129,7 +129,7 @@ describe('Splash', () => {
     await fireEvent.click(appButton!);
 
     expect(onselect).toHaveBeenCalledTimes(1);
-    expect(onselect).toHaveBeenCalledWith(expect.objectContaining({ name: 'Sonarr' }));
+    expect(onselect).toHaveBeenCalledWith(expect.objectContaining({ name: 'Sonarr' }), expect.anything());
   });
 
   it('shows app count in footer', () => {

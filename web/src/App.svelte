@@ -8,6 +8,7 @@
   import { Toaster } from 'svelte-sonner';
   import Announcer from './components/Announcer.svelte';
   import ErrorState from './components/ErrorState.svelte';
+  import { wantsNewTab } from './lib/appOpen';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
   import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
   import { slugify } from './lib/slug';
@@ -613,8 +614,15 @@
     }
   }
 
-  function selectApp(app: App) {
+  function selectApp(app: App, e?: MouseEvent) {
     const url = getEffectiveUrl(app);
+    // Ctrl/Cmd+Click or middle-click opens a real browser tab regardless of
+    // the app's open_mode (#407); http_action is excluded inside wantsNewTab.
+    if (wantsNewTab(e, app)) {
+      trackVisit(app.name);
+      window.open(url, '_blank');
+      return;
+    }
     if (app.open_mode === 'new_tab') {
       window.open(url, '_blank');
     } else if (app.open_mode === 'new_window') {
@@ -996,7 +1004,7 @@
         {currentApp}
         {config}
         {showSplash}
-        onselect={(app) => selectApp(app)}
+        onselect={(app, e) => selectApp(app, e)}
         onsearch={() => { loadCommandPalette().then(() => showCommandPalette = true); }}
         onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { navigateHome(); } }}
         onsettings={() => { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }}
@@ -1023,11 +1031,11 @@
       onpointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
     >
       {#if showSplash && !$isFullscreen}
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
+        <Splash {apps} {config} onselect={(app, e) => selectApp(app, e)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
       {:else if showLogs && LogsComponent}
         <LogsComponent onclose={() => { showLogs = false; showSplash = !splitState.panels[0]; if (location.hash === '#logs') { if (splitState.panels[0]) updateHash(); else clearHash(); } }} />
       {:else if $isFullscreen && !currentApp}
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
+        <Splash {apps} {config} onselect={(app, e) => selectApp(app, e)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
       {/if}
 
       {#if splitState.enabled}
