@@ -24,7 +24,9 @@
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { initDebug, debug } from './lib/debug';
-  import { syncFaviconsWithTheme } from './lib/favicon';
+  import { syncFaviconsWithTheme, setAppFavicon } from './lib/favicon';
+  import { resolveIconUrl } from './lib/iconUrl';
+  import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
   import { syncLocaleFromConfig } from './lib/localeStore';
   import { getLocale } from '$lib/paraglide/runtime.js';
@@ -170,6 +172,39 @@
     }
     return result.trim() || 'Muximux';
   }
+
+  // Dynamic tab branding (#407): when navigation.dynamic_tab_branding is on,
+  // the browser tab reflects the active app -- name in the title, app icon
+  // as the favicon. Splash/settings/logs views restore the defaults.
+  let brandedApp = $derived.by(() => {
+    if (!config?.navigation?.dynamic_tab_branding) return null;
+    if (showSplash || showSettings || showLogs) return null;
+    return currentApp ?? null;
+  });
+
+  let tabTitle = $derived.by(() => {
+    const base = resolveTitle(config?.title || 'Muximux');
+    // If the operator's title template already places the app via %title%,
+    // resolveTitle covers it -- don't prefix the name twice.
+    if (brandedApp && !(config?.title || '').includes('%title%')) {
+      return `${brandedApp.name} - ${base}`;
+    }
+    return base;
+  });
+
+  $effect(() => {
+    if (brandedApp) {
+      // Lucide icons are monochrome; tint them with the app colour (neutral
+      // grey fallback) so they stay visible on dark tab strips. A null icon
+      // URL (letter-fallback apps) keeps the default favicon.
+      const tint = brandedApp.icon?.type === 'lucide'
+        ? (safeColor(brandedApp.color) || '#9ca3af')
+        : undefined;
+      void setAppFavicon(resolveIconUrl(brandedApp.icon), tint);
+    } else {
+      void setAppFavicon(null);
+    }
+  });
 
   // Hash clearing is handled explicitly by navigateHome() and clearHash().
   // No reactive $effect needed — all "go home" code paths call clearHash() directly.
@@ -960,7 +995,7 @@
 
 <!-- Dynamic page title -->
 <svelte:head>
-  <title>{resolveTitle(config?.title || 'Muximux')}</title>
+  <title>{tabTitle}</title>
 </svelte:head>
 
 <svelte:window onkeydown={handleKeydown} />

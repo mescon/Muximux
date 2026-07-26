@@ -432,10 +432,15 @@ type NavigationConfig struct {
 	IconScale          float64        `yaml:"icon_scale" json:"icon_scale"`
 	ShowSplashOnStart  bool           `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
 	ShowShadow         bool           `yaml:"show_shadow" json:"show_shadow"`
-	FloatingPosition   string         `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
-	BarStyle           string         `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
-	HideSidebarFooter  bool           `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
-	MaxOpenTabs        int            `yaml:"max_open_tabs" json:"max_open_tabs"`
+	// DynamicTabBranding, when true, sets the browser tab title and favicon
+	// to the active app's name and icon while an app is open (#407). Off by
+	// default so existing title templates and the theme-tinted favicon keep
+	// their behaviour.
+	DynamicTabBranding bool   `yaml:"dynamic_tab_branding" json:"dynamic_tab_branding"`
+	FloatingPosition   string `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
+	BarStyle           string `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
+	HideSidebarFooter  bool   `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
+	MaxOpenTabs        int    `yaml:"max_open_tabs" json:"max_open_tabs"`
 }
 
 // IconsConfig holds icon settings

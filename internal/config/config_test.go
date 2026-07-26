@@ -658,6 +658,30 @@ auth:
 	}
 }
 
+func TestLoadDynamicTabBranding(t *testing.T) {
+	// Off by default: existing configs keep their static tab title/favicon.
+	if defaultConfig().Navigation.DynamicTabBranding {
+		t.Error("dynamic_tab_branding must default to false")
+	}
+
+	content := `
+navigation:
+  dynamic_tab_branding: true
+`
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+	if !cfg.Navigation.DynamicTabBranding {
+		t.Error("dynamic_tab_branding: true was not loaded")
+	}
+}
+
 func TestLoadExpandsBracedEnvVars(t *testing.T) {
 	t.Setenv("MUXIMUX_TEST_TITLE", "FromEnv")
 	content := `

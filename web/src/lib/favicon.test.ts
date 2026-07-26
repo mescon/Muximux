@@ -221,4 +221,65 @@ describe('favicon module', () => {
       });
     });
   });
+
+  describe('setAppFavicon (dynamic tab branding, #407)', () => {
+    it('rewrites the tab icon links to the app icon URL (not apple-touch/manifest)', async () => {
+      const { setAppFavicon } = await freshImport();
+      await setAppFavicon('/icons/dashboard/sonarr.svg');
+      expect(linkElements['link[rel="icon"][type="image/x-icon"]'].href).toBe('/icons/dashboard/sonarr.svg');
+      expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toBe('/icons/dashboard/sonarr.svg');
+      expect(linkElements['link[rel="icon"][sizes="16x16"]'].href).toBe('/icons/dashboard/sonarr.svg');
+      expect(linkElements['link[rel="apple-touch-icon"]'].href).toBe('');
+      expect(linkElements['link[rel="manifest"]'].href).toBe('');
+    });
+
+    it('suppresses theme sync while an override is active, and restores on null', async () => {
+      const mockGetComputedStyle = vi.fn().mockReturnValue({
+        getPropertyValue: vi.fn().mockReturnValue('#ff0000'),
+      });
+      vi.stubGlobal('getComputedStyle', mockGetComputedStyle);
+
+      const { setAppFavicon, syncFaviconsWithTheme } = await freshImport();
+      await setAppFavicon('/icons/custom/x.png');
+
+      // Theme observer fires; the app icon must survive.
+      syncFaviconsWithTheme();
+      expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toBe('/icons/custom/x.png');
+
+      // Restore: the theme-tinted logo comes back.
+      await setAppFavicon(null);
+      expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toContain('data:image/svg+xml');
+
+      vi.unstubAllGlobals();
+    });
+
+    it('restore without an active override is a no-op', async () => {
+      const { setAppFavicon } = await freshImport();
+      await setAppFavicon(null);
+      expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toBe('');
+    });
+
+    it('tints a monochrome SVG via fetch and falls back to the raw URL on failure', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<svg><path stroke="currentColor"/></svg>'),
+      });
+      vi.stubGlobal('fetch', fetchMock);
+
+      const { setAppFavicon } = await freshImport();
+      await setAppFavicon('/icons/lucide/home.svg', '#00ff00');
+      expect(fetchMock).toHaveBeenCalledWith('/icons/lucide/home.svg');
+      const href = linkElements['link[rel="icon"][sizes="32x32"]'].href;
+      expect(href).toContain('data:image/svg+xml');
+      expect(decodeURIComponent(href)).toContain('#00ff00');
+      expect(decodeURIComponent(href)).not.toContain('currentColor');
+
+      // Failure path: raw URL is used untinted.
+      fetchMock.mockRejectedValueOnce(new Error('offline'));
+      await setAppFavicon('/icons/lucide/tv.svg', '#00ff00');
+      expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toBe('/icons/lucide/tv.svg');
+
+      vi.unstubAllGlobals();
+    });
+  });
 });

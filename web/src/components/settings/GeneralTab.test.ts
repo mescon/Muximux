@@ -53,6 +53,23 @@ describe('GeneralTab', () => {
     vi.clearAllMocks();
   });
 
+  it('toggles dynamic tab branding into localConfig (#407)', async () => {
+    const config = makeConfig();
+    render(GeneralTab, {
+      props: {
+        localConfig: config,
+        localApps: [],
+        onexport: vi.fn(),
+        onimportselect: vi.fn(),
+      },
+    });
+
+    const toggle = screen.getByTestId('dynamic-tab-branding') as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+    await fireEvent.click(toggle);
+    expect(config.navigation.dynamic_tab_branding).toBe(true);
+  });
+
   it('renders Dashboard Title input with correct value', () => {
     const config = makeConfig({ title: 'My Dashboard' });
     render(GeneralTab, {

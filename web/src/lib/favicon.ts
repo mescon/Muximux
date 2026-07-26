@@ -128,10 +128,68 @@ function updateManifest(color: string, png192DataURL: string) {
 let lastAccentColor = '';
 export function syncFaviconsWithTheme(): void {
   if (typeof document === 'undefined') return;
+  // While an app favicon override is active (dynamic tab branding, #407),
+  // the theme observer must not repaint the logo over the app icon.
+  if (appOverrideToken > 0) return;
   const color = getComputedStyle(document.documentElement)
     .getPropertyValue('--accent-primary')
     .trim();
   if (!color || color === lastAccentColor) return;
   lastAccentColor = color;
   updateFavicons(color);
+}
+
+// ─── Per-app favicon override (dynamic tab branding, #407) ─────────────
+
+// 0 = no override; otherwise the token of the most recent setAppFavicon
+// call. The token lets a slow async tint detect that it lost the race to a
+// newer call (or to a restore) and drop its result instead of repainting.
+let appOverrideToken = 0;
+let nextToken = 0;
+
+/**
+ * Tint a same-origin monochrome SVG (e.g. a lucide icon) by fetching its
+ * markup and substituting currentColor, so it stays visible on dark tab
+ * strips. Returns null when the fetch fails; the caller falls back to the
+ * raw URL.
+ */
+async function tintSvgUrl(url: string, color: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const svg = await res.text();
+    return svgToDataURI(svg.replaceAll('currentColor', color));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Swap the browser-tab favicon to an app's icon, or restore the
+ * theme-tinted Muximux logo by passing null. Only the tab icon links are
+ * rewritten -- apple-touch-icon, the manifest, and theme-color stay
+ * Muximux-branded. Pass `tint` for monochrome (lucide) icons.
+ */
+export async function setAppFavicon(url: string | null, tint?: string): Promise<void> {
+  if (typeof document === 'undefined') return;
+
+  if (url === null) {
+    if (appOverrideToken === 0) return;
+    appOverrideToken = 0;
+    lastAccentColor = ''; // force the next sync to repaint the logo
+    syncFaviconsWithTheme();
+    return;
+  }
+
+  const token = ++nextToken;
+  appOverrideToken = token;
+  let href = url;
+  if (tint) {
+    href = (await tintSvgUrl(url, tint)) ?? url;
+    // A newer call (or a restore) won while we were fetching: drop this.
+    if (appOverrideToken !== token) return;
+  }
+  setLinkHref('link[rel="icon"][type="image/x-icon"]', href);
+  setLinkHref('link[rel="icon"][sizes="32x32"]', href);
+  setLinkHref('link[rel="icon"][sizes="16x16"]', href);
 }

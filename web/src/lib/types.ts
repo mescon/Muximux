@@ -115,6 +115,7 @@ export interface NavigationConfig {
   show_icon_background: boolean;
   icon_scale: number;
   show_splash_on_startup: boolean;
+  dynamic_tab_branding?: boolean;
   show_shadow: boolean;
   floating_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   bar_style: 'grouped' | 'flat';

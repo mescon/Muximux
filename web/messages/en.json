@@ -114,6 +114,8 @@
   "general_languageAfterSave": "Select the display language for the interface. Changes take effect after saving.",
   "general_dashboardTitle": "Dashboard Title",
   "general_titleHint": "Variables: %title% (app name), %group%, %version%, %url%. Example: Muximux - %title%",
+  "general_dynamicTabBranding": "Dynamic tab title and icon",
+  "general_dynamicTabBrandingHint": "While an app is open, the browser tab shows that app's name and icon instead of the dashboard's.",
   "general_navPosition": "Navigation Position",
   "general_navPositionTop": "Top Bar",
   "general_navPositionTopDesc": "Horizontal bar at the top",

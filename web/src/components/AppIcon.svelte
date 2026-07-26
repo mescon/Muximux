@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { AppIcon as AppIconType } from '$lib/types';
-  import { getBase } from '$lib/api';
+  import { resolveIconUrl } from '$lib/iconUrl';
   import { debug } from '$lib/debug';
   import { safeColor } from '$lib/safeColor';
 
@@ -26,31 +26,9 @@
   const sizePx: Record<string, number> = { sm: 24, md: 32, lg: 48, xl: 64 };
   let scaleStyle = $derived(scale && scale !== 1 ? `width: ${sizePx[size] * scale}px; height: ${sizePx[size] * scale}px;` : '');
 
-  // Generate icon URL based on type
-  function getIconUrl(): string | null {
-    if (!icon) return null;
-
-    const base = getBase();
-    switch (icon.type) {
-      case 'dashboard': {
-        if (!icon.name) return null;
-        const variant = icon.variant || 'svg';
-        return `${base}/icons/dashboard/${icon.name}.${variant}`;
-      }
-      case 'custom':
-        if (!icon.file) return null;
-        return `${base}/icons/custom/${icon.file}`;
-      case 'url':
-        return icon.url || null;
-      case 'lucide':
-        if (!icon.name) return null;
-        return `${base}/icons/lucide/${icon.name}.svg`;
-      default:
-        return null;
-    }
-  }
-
-  let iconUrl = $derived(getIconUrl());
+  // Icon URL resolution lives in $lib/iconUrl (shared with the dynamic tab
+  // favicon) so inline rendering and the favicon can never disagree.
+  let iconUrl = $derived(resolveIconUrl(icon));
   let fallbackLetter = $derived(name.charAt(0).toUpperCase());
   // When showBackground is enabled, use the icon's explicit background if set,
   // otherwise darken the app color to create contrast.

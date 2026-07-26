@@ -47,6 +47,21 @@
     <p class="text-xs text-text-disabled mt-1.5">
       {m.general_titleHint()}
     </p>
+    <div class="p-3 bg-bg-hover rounded-lg mt-3">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={localConfig.navigation.dynamic_tab_branding ?? false}
+          onchange={(e) => { localConfig.navigation.dynamic_tab_branding = (e.currentTarget as HTMLInputElement).checked; }}
+          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          data-testid="dynamic-tab-branding"
+        />
+        <div>
+          <div class="text-sm text-text-primary">{m.general_dynamicTabBranding()}</div>
+          <div class="text-xs text-text-disabled">{m.general_dynamicTabBrandingHint()}</div>
+        </div>
+      </label>
+    </div>
   </div>
 
   <!-- Language -->
