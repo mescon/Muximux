@@ -164,7 +164,6 @@ const ko_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) 
 */
 export const settings_keybindings = /** @type {((inputs?: Settings_KeybindingsInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_KeybindingsInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_settings_keybindings(inputs)
 	if (locale === "sv") return sv_settings_keybindings(inputs)
 	if (locale === "uk") return uk_settings_keybindings(inputs)
 	if (locale === "zh") return zh_settings_keybindings(inputs)
@@ -200,5 +199,6 @@ export const settings_keybindings = /** @type {((inputs?: Settings_KeybindingsIn
 	if (locale === "sr") return sr_settings_keybindings(inputs)
 	if (locale === "sk") return sk_settings_keybindings(inputs)
 	if (locale === "sl") return sl_settings_keybindings(inputs)
-	return ko_settings_keybindings(inputs)
+	if (locale === "ko") return ko_settings_keybindings(inputs)
+	return en_settings_keybindings(inputs)
 });

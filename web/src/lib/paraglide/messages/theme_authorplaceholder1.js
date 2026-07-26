@@ -164,7 +164,6 @@ const ko_theme_authorplaceholder1 = /** @type {(inputs: Theme_Authorplaceholder1
 */
 const theme_authorplaceholder1 = /** @type {((inputs?: Theme_Authorplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Authorplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_theme_authorplaceholder1(inputs)
 	if (locale === "sv") return sv_theme_authorplaceholder1(inputs)
 	if (locale === "uk") return uk_theme_authorplaceholder1(inputs)
 	if (locale === "zh") return zh_theme_authorplaceholder1(inputs)
@@ -200,6 +199,7 @@ const theme_authorplaceholder1 = /** @type {((inputs?: Theme_Authorplaceholder1I
 	if (locale === "sr") return sr_theme_authorplaceholder1(inputs)
 	if (locale === "sk") return sk_theme_authorplaceholder1(inputs)
 	if (locale === "sl") return sl_theme_authorplaceholder1(inputs)
-	return ko_theme_authorplaceholder1(inputs)
+	if (locale === "ko") return ko_theme_authorplaceholder1(inputs)
+	return en_theme_authorplaceholder1(inputs)
 });
 export { theme_authorplaceholder1 as "theme_authorPlaceholder" }

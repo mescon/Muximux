@@ -164,7 +164,6 @@ const ko_appform_icontypeurl3 = /** @type {(inputs: Appform_Icontypeurl3Inputs) 
 */
 const appform_icontypeurl3 = /** @type {((inputs?: Appform_Icontypeurl3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Icontypeurl3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_appform_icontypeurl3(inputs)
 	if (locale === "sv") return sv_appform_icontypeurl3(inputs)
 	if (locale === "uk") return uk_appform_icontypeurl3(inputs)
 	if (locale === "zh") return zh_appform_icontypeurl3(inputs)
@@ -200,6 +199,7 @@ const appform_icontypeurl3 = /** @type {((inputs?: Appform_Icontypeurl3Inputs, o
 	if (locale === "sr") return sr_appform_icontypeurl3(inputs)
 	if (locale === "sk") return sk_appform_icontypeurl3(inputs)
 	if (locale === "sl") return sl_appform_icontypeurl3(inputs)
-	return ko_appform_icontypeurl3(inputs)
+	if (locale === "ko") return ko_appform_icontypeurl3(inputs)
+	return en_appform_icontypeurl3(inputs)
 });
 export { appform_icontypeurl3 as "appForm_iconTypeUrl" }

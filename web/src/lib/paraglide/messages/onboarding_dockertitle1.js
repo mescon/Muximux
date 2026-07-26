@@ -164,7 +164,6 @@ const ko_onboarding_dockertitle1 = /** @type {(inputs: Onboarding_Dockertitle1In
 */
 const onboarding_dockertitle1 = /** @type {((inputs?: Onboarding_Dockertitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Dockertitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_dockertitle1(inputs)
 	if (locale === "sv") return sv_onboarding_dockertitle1(inputs)
 	if (locale === "uk") return uk_onboarding_dockertitle1(inputs)
 	if (locale === "zh") return zh_onboarding_dockertitle1(inputs)
@@ -200,6 +199,7 @@ const onboarding_dockertitle1 = /** @type {((inputs?: Onboarding_Dockertitle1Inp
 	if (locale === "sr") return sr_onboarding_dockertitle1(inputs)
 	if (locale === "sk") return sk_onboarding_dockertitle1(inputs)
 	if (locale === "sl") return sl_onboarding_dockertitle1(inputs)
-	return ko_onboarding_dockertitle1(inputs)
+	if (locale === "ko") return ko_onboarding_dockertitle1(inputs)
+	return en_onboarding_dockertitle1(inputs)
 });
 export { onboarding_dockertitle1 as "onboarding_dockerTitle" }

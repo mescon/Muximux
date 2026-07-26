@@ -164,7 +164,6 @@ const ko_onboarding_featurebuiltinproxy3 = /** @type {(inputs: Onboarding_Featur
 */
 const onboarding_featurebuiltinproxy3 = /** @type {((inputs?: Onboarding_Featurebuiltinproxy3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Featurebuiltinproxy3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_featurebuiltinproxy3(inputs)
 	if (locale === "sv") return sv_onboarding_featurebuiltinproxy3(inputs)
 	if (locale === "uk") return uk_onboarding_featurebuiltinproxy3(inputs)
 	if (locale === "zh") return zh_onboarding_featurebuiltinproxy3(inputs)
@@ -200,6 +199,7 @@ const onboarding_featurebuiltinproxy3 = /** @type {((inputs?: Onboarding_Feature
 	if (locale === "sr") return sr_onboarding_featurebuiltinproxy3(inputs)
 	if (locale === "sk") return sk_onboarding_featurebuiltinproxy3(inputs)
 	if (locale === "sl") return sl_onboarding_featurebuiltinproxy3(inputs)
-	return ko_onboarding_featurebuiltinproxy3(inputs)
+	if (locale === "ko") return ko_onboarding_featurebuiltinproxy3(inputs)
+	return en_onboarding_featurebuiltinproxy3(inputs)
 });
 export { onboarding_featurebuiltinproxy3 as "onboarding_featureBuiltInProxy" }

@@ -164,7 +164,6 @@ const ko_logs_resume = /** @type {(inputs: Logs_ResumeInputs) => LocalizedString
 */
 export const logs_resume = /** @type {((inputs?: Logs_ResumeInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_ResumeInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_logs_resume(inputs)
 	if (locale === "sv") return sv_logs_resume(inputs)
 	if (locale === "uk") return uk_logs_resume(inputs)
 	if (locale === "zh") return zh_logs_resume(inputs)
@@ -200,5 +199,6 @@ export const logs_resume = /** @type {((inputs?: Logs_ResumeInputs, options?: { 
 	if (locale === "sr") return sr_logs_resume(inputs)
 	if (locale === "sk") return sk_logs_resume(inputs)
 	if (locale === "sl") return sl_logs_resume(inputs)
-	return ko_logs_resume(inputs)
+	if (locale === "ko") return ko_logs_resume(inputs)
+	return en_logs_resume(inputs)
 });

@@ -164,7 +164,6 @@ const ko_login_usernamerequired1 = /** @type {(inputs: Login_Usernamerequired1In
 */
 const login_usernamerequired1 = /** @type {((inputs?: Login_Usernamerequired1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Usernamerequired1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_login_usernamerequired1(inputs)
 	if (locale === "sv") return sv_login_usernamerequired1(inputs)
 	if (locale === "uk") return uk_login_usernamerequired1(inputs)
 	if (locale === "zh") return zh_login_usernamerequired1(inputs)
@@ -200,6 +199,7 @@ const login_usernamerequired1 = /** @type {((inputs?: Login_Usernamerequired1Inp
 	if (locale === "sr") return sr_login_usernamerequired1(inputs)
 	if (locale === "sk") return sk_login_usernamerequired1(inputs)
 	if (locale === "sl") return sl_login_usernamerequired1(inputs)
-	return ko_login_usernamerequired1(inputs)
+	if (locale === "ko") return ko_login_usernamerequired1(inputs)
+	return en_login_usernamerequired1(inputs)
 });
 export { login_usernamerequired1 as "login_usernameRequired" }

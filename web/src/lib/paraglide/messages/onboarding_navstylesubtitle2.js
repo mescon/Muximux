@@ -164,7 +164,6 @@ const ko_onboarding_navstylesubtitle2 = /** @type {(inputs: Onboarding_Navstyles
 */
 const onboarding_navstylesubtitle2 = /** @type {((inputs?: Onboarding_Navstylesubtitle2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Navstylesubtitle2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_navstylesubtitle2(inputs)
 	if (locale === "sv") return sv_onboarding_navstylesubtitle2(inputs)
 	if (locale === "uk") return uk_onboarding_navstylesubtitle2(inputs)
 	if (locale === "zh") return zh_onboarding_navstylesubtitle2(inputs)
@@ -200,6 +199,7 @@ const onboarding_navstylesubtitle2 = /** @type {((inputs?: Onboarding_Navstylesu
 	if (locale === "sr") return sr_onboarding_navstylesubtitle2(inputs)
 	if (locale === "sk") return sk_onboarding_navstylesubtitle2(inputs)
 	if (locale === "sl") return sl_onboarding_navstylesubtitle2(inputs)
-	return ko_onboarding_navstylesubtitle2(inputs)
+	if (locale === "ko") return ko_onboarding_navstylesubtitle2(inputs)
+	return en_onboarding_navstylesubtitle2(inputs)
 });
 export { onboarding_navstylesubtitle2 as "onboarding_navStyleSubtitle" }

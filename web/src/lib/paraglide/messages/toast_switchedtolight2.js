@@ -164,7 +164,6 @@ const ko_toast_switchedtolight2 = /** @type {(inputs: Toast_Switchedtolight2Inpu
 */
 const toast_switchedtolight2 = /** @type {((inputs?: Toast_Switchedtolight2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Switchedtolight2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_toast_switchedtolight2(inputs)
 	if (locale === "sv") return sv_toast_switchedtolight2(inputs)
 	if (locale === "uk") return uk_toast_switchedtolight2(inputs)
 	if (locale === "zh") return zh_toast_switchedtolight2(inputs)
@@ -200,6 +199,7 @@ const toast_switchedtolight2 = /** @type {((inputs?: Toast_Switchedtolight2Input
 	if (locale === "sr") return sr_toast_switchedtolight2(inputs)
 	if (locale === "sk") return sk_toast_switchedtolight2(inputs)
 	if (locale === "sl") return sl_toast_switchedtolight2(inputs)
-	return ko_toast_switchedtolight2(inputs)
+	if (locale === "ko") return ko_toast_switchedtolight2(inputs)
+	return en_toast_switchedtolight2(inputs)
 });
 export { toast_switchedtolight2 as "toast_switchedToLight" }

@@ -164,7 +164,6 @@ const ko_settings_background = /** @type {(inputs: Settings_BackgroundInputs) =>
 */
 export const settings_background = /** @type {((inputs?: Settings_BackgroundInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_BackgroundInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_settings_background(inputs)
 	if (locale === "sv") return sv_settings_background(inputs)
 	if (locale === "uk") return uk_settings_background(inputs)
 	if (locale === "zh") return zh_settings_background(inputs)
@@ -200,5 +199,6 @@ export const settings_background = /** @type {((inputs?: Settings_BackgroundInpu
 	if (locale === "sr") return sr_settings_background(inputs)
 	if (locale === "sk") return sk_settings_background(inputs)
 	if (locale === "sl") return sl_settings_background(inputs)
-	return ko_settings_background(inputs)
+	if (locale === "ko") return ko_settings_background(inputs)
+	return en_settings_background(inputs)
 });

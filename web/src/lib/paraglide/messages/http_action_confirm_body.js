@@ -164,7 +164,6 @@ const ko_http_action_confirm_body = /** @type {(inputs: Http_Action_Confirm_Body
 */
 export const http_action_confirm_body = /** @type {((inputs?: Http_Action_Confirm_BodyInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Http_Action_Confirm_BodyInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_http_action_confirm_body(inputs)
 	if (locale === "sv") return sv_http_action_confirm_body(inputs)
 	if (locale === "uk") return uk_http_action_confirm_body(inputs)
 	if (locale === "zh") return zh_http_action_confirm_body(inputs)
@@ -200,5 +199,6 @@ export const http_action_confirm_body = /** @type {((inputs?: Http_Action_Confir
 	if (locale === "sr") return sr_http_action_confirm_body(inputs)
 	if (locale === "sk") return sk_http_action_confirm_body(inputs)
 	if (locale === "sl") return sl_http_action_confirm_body(inputs)
-	return ko_http_action_confirm_body(inputs)
+	if (locale === "ko") return ko_http_action_confirm_body(inputs)
+	return en_http_action_confirm_body(inputs)
 });

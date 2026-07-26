@@ -164,7 +164,6 @@ const ko_nav_focuspanel11 = /** @type {(inputs: Nav_Focuspanel11Inputs) => Local
 */
 const nav_focuspanel11 = /** @type {((inputs?: Nav_Focuspanel11Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Focuspanel11Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_nav_focuspanel11(inputs)
 	if (locale === "sv") return sv_nav_focuspanel11(inputs)
 	if (locale === "uk") return uk_nav_focuspanel11(inputs)
 	if (locale === "zh") return zh_nav_focuspanel11(inputs)
@@ -200,6 +199,7 @@ const nav_focuspanel11 = /** @type {((inputs?: Nav_Focuspanel11Inputs, options?:
 	if (locale === "sr") return sr_nav_focuspanel11(inputs)
 	if (locale === "sk") return sk_nav_focuspanel11(inputs)
 	if (locale === "sl") return sl_nav_focuspanel11(inputs)
-	return ko_nav_focuspanel11(inputs)
+	if (locale === "ko") return ko_nav_focuspanel11(inputs)
+	return en_nav_focuspanel11(inputs)
 });
 export { nav_focuspanel11 as "nav_focusPanel1" }

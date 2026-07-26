@@ -164,7 +164,6 @@ const ko_common_default = /** @type {(inputs: Common_DefaultInputs) => Localized
 */
 export const common_default = /** @type {((inputs?: Common_DefaultInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DefaultInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_common_default(inputs)
 	if (locale === "sv") return sv_common_default(inputs)
 	if (locale === "uk") return uk_common_default(inputs)
 	if (locale === "zh") return zh_common_default(inputs)
@@ -200,5 +199,6 @@ export const common_default = /** @type {((inputs?: Common_DefaultInputs, option
 	if (locale === "sr") return sr_common_default(inputs)
 	if (locale === "sk") return sk_common_default(inputs)
 	if (locale === "sl") return sl_common_default(inputs)
-	return ko_common_default(inputs)
+	if (locale === "ko") return ko_common_default(inputs)
+	return en_common_default(inputs)
 });

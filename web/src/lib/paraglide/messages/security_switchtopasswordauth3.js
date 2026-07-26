@@ -164,7 +164,6 @@ const ko_security_switchtopasswordauth3 = /** @type {(inputs: Security_Switchtop
 */
 const security_switchtopasswordauth3 = /** @type {((inputs?: Security_Switchtopasswordauth3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Switchtopasswordauth3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_security_switchtopasswordauth3(inputs)
 	if (locale === "sv") return sv_security_switchtopasswordauth3(inputs)
 	if (locale === "uk") return uk_security_switchtopasswordauth3(inputs)
 	if (locale === "zh") return zh_security_switchtopasswordauth3(inputs)
@@ -200,6 +199,7 @@ const security_switchtopasswordauth3 = /** @type {((inputs?: Security_Switchtopa
 	if (locale === "sr") return sr_security_switchtopasswordauth3(inputs)
 	if (locale === "sk") return sk_security_switchtopasswordauth3(inputs)
 	if (locale === "sl") return sl_security_switchtopasswordauth3(inputs)
-	return ko_security_switchtopasswordauth3(inputs)
+	if (locale === "ko") return ko_security_switchtopasswordauth3(inputs)
+	return en_security_switchtopasswordauth3(inputs)
 });
 export { security_switchtopasswordauth3 as "security_switchToPasswordAuth" }

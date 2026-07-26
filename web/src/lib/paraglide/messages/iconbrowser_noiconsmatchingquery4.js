@@ -164,7 +164,6 @@ const ko_iconbrowser_noiconsmatchingquery4 = /** @type {(inputs: Iconbrowser_Noi
 */
 const iconbrowser_noiconsmatchingquery4 = /** @type {((inputs: Iconbrowser_Noiconsmatchingquery4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Noiconsmatchingquery4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_iconbrowser_noiconsmatchingquery4(inputs)
 	if (locale === "sv") return sv_iconbrowser_noiconsmatchingquery4(inputs)
 	if (locale === "uk") return uk_iconbrowser_noiconsmatchingquery4(inputs)
 	if (locale === "zh") return zh_iconbrowser_noiconsmatchingquery4(inputs)
@@ -200,6 +199,7 @@ const iconbrowser_noiconsmatchingquery4 = /** @type {((inputs: Iconbrowser_Noico
 	if (locale === "sr") return sr_iconbrowser_noiconsmatchingquery4(inputs)
 	if (locale === "sk") return sk_iconbrowser_noiconsmatchingquery4(inputs)
 	if (locale === "sl") return sl_iconbrowser_noiconsmatchingquery4(inputs)
-	return ko_iconbrowser_noiconsmatchingquery4(inputs)
+	if (locale === "ko") return ko_iconbrowser_noiconsmatchingquery4(inputs)
+	return en_iconbrowser_noiconsmatchingquery4(inputs)
 });
 export { iconbrowser_noiconsmatchingquery4 as "iconBrowser_noIconsMatchingQuery" }

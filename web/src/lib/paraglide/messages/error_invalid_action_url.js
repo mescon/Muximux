@@ -164,7 +164,6 @@ const ko_error_invalid_action_url = /** @type {(inputs: Error_Invalid_Action_Url
 */
 export const error_invalid_action_url = /** @type {((inputs?: Error_Invalid_Action_UrlInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Invalid_Action_UrlInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_error_invalid_action_url(inputs)
 	if (locale === "sv") return sv_error_invalid_action_url(inputs)
 	if (locale === "uk") return uk_error_invalid_action_url(inputs)
 	if (locale === "zh") return zh_error_invalid_action_url(inputs)
@@ -200,5 +199,6 @@ export const error_invalid_action_url = /** @type {((inputs?: Error_Invalid_Acti
 	if (locale === "sr") return sr_error_invalid_action_url(inputs)
 	if (locale === "sk") return sk_error_invalid_action_url(inputs)
 	if (locale === "sl") return sl_error_invalid_action_url(inputs)
-	return ko_error_invalid_action_url(inputs)
+	if (locale === "ko") return ko_error_invalid_action_url(inputs)
+	return en_error_invalid_action_url(inputs)
 });

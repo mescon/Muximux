@@ -164,7 +164,6 @@ const ko_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addaltern
 */
 const keybindings_addalternative1 = /** @type {((inputs?: Keybindings_Addalternative1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Addalternative1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_keybindings_addalternative1(inputs)
 	if (locale === "sv") return sv_keybindings_addalternative1(inputs)
 	if (locale === "uk") return uk_keybindings_addalternative1(inputs)
 	if (locale === "zh") return zh_keybindings_addalternative1(inputs)
@@ -200,6 +199,7 @@ const keybindings_addalternative1 = /** @type {((inputs?: Keybindings_Addalterna
 	if (locale === "sr") return sr_keybindings_addalternative1(inputs)
 	if (locale === "sk") return sk_keybindings_addalternative1(inputs)
 	if (locale === "sl") return sl_keybindings_addalternative1(inputs)
-	return ko_keybindings_addalternative1(inputs)
+	if (locale === "ko") return ko_keybindings_addalternative1(inputs)
+	return en_keybindings_addalternative1(inputs)
 });
 export { keybindings_addalternative1 as "keybindings_addAlternative" }

@@ -164,7 +164,6 @@ const ko_general_languageaftersave2 = /** @type {(inputs: General_Languageafters
 */
 const general_languageaftersave2 = /** @type {((inputs?: General_Languageaftersave2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Languageaftersave2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_general_languageaftersave2(inputs)
 	if (locale === "sv") return sv_general_languageaftersave2(inputs)
 	if (locale === "uk") return uk_general_languageaftersave2(inputs)
 	if (locale === "zh") return zh_general_languageaftersave2(inputs)
@@ -200,6 +199,7 @@ const general_languageaftersave2 = /** @type {((inputs?: General_Languageaftersa
 	if (locale === "sr") return sr_general_languageaftersave2(inputs)
 	if (locale === "sk") return sk_general_languageaftersave2(inputs)
 	if (locale === "sl") return sl_general_languageaftersave2(inputs)
-	return ko_general_languageaftersave2(inputs)
+	if (locale === "ko") return ko_general_languageaftersave2(inputs)
+	return en_general_languageaftersave2(inputs)
 });
 export { general_languageaftersave2 as "general_languageAfterSave" }

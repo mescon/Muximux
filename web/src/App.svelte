@@ -42,6 +42,17 @@
   let settingsInitialTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
   // Deep-link into an app's edit modal (right-click on a nav icon, #407)
   let settingsEditAppName = $state<string | null>(null);
+  // Settings can be closed through several paths besides its onclose prop
+  // (Escape, keybinding toggle, gear toggle, navigateHome, popstate), so the
+  // deep-link state is cleared reactively whenever it closes -- a stale
+  // initialEditAppName would otherwise reopen the edit modal on the next,
+  // unrelated Settings open.
+  $effect(() => {
+    if (!showSettings) {
+      settingsInitialTab = 'general';
+      settingsEditAppName = null;
+    }
+  });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic imports lose component typing
   type LazyComponent = any;
   let settingsRef = $state<LazyComponent>(undefined);
@@ -652,11 +663,16 @@
   }
 
   function selectApp(app: App, e?: MouseEvent) {
+    // Middle-click on an action app must stay a no-op (as it was before
+    // auxclick handling existed) -- falling through would fire the webhook.
+    if (e?.button === 1 && app.open_mode === 'http_action') return;
     const url = getEffectiveUrl(app);
     // Ctrl/Cmd+Click or middle-click opens a real browser tab regardless of
     // the app's open_mode (#407); http_action is excluded inside wantsNewTab.
+    // No trackVisit here: the LRU iframe cache is for in-dashboard views,
+    // and marking the app visited would mount a hidden iframe for it (and
+    // could evict a live one when max_open_tabs is set).
     if (wantsNewTab(e, app)) {
-      trackVisit(app.name);
       window.open(url, '_blank');
       return;
     }

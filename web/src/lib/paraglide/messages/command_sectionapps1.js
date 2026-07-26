@@ -164,7 +164,6 @@ const ko_command_sectionapps1 = /** @type {(inputs: Command_Sectionapps1Inputs) 
 */
 const command_sectionapps1 = /** @type {((inputs?: Command_Sectionapps1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Sectionapps1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_command_sectionapps1(inputs)
 	if (locale === "sv") return sv_command_sectionapps1(inputs)
 	if (locale === "uk") return uk_command_sectionapps1(inputs)
 	if (locale === "zh") return zh_command_sectionapps1(inputs)
@@ -200,6 +199,7 @@ const command_sectionapps1 = /** @type {((inputs?: Command_Sectionapps1Inputs, o
 	if (locale === "sr") return sr_command_sectionapps1(inputs)
 	if (locale === "sk") return sk_command_sectionapps1(inputs)
 	if (locale === "sl") return sl_command_sectionapps1(inputs)
-	return ko_command_sectionapps1(inputs)
+	if (locale === "ko") return ko_command_sectionapps1(inputs)
+	return en_command_sectionapps1(inputs)
 });
 export { command_sectionapps1 as "command_sectionApps" }

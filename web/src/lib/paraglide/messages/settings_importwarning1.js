@@ -164,7 +164,6 @@ const ko_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1In
 */
 const settings_importwarning1 = /** @type {((inputs?: Settings_Importwarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Importwarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_settings_importwarning1(inputs)
 	if (locale === "sv") return sv_settings_importwarning1(inputs)
 	if (locale === "uk") return uk_settings_importwarning1(inputs)
 	if (locale === "zh") return zh_settings_importwarning1(inputs)
@@ -200,6 +199,7 @@ const settings_importwarning1 = /** @type {((inputs?: Settings_Importwarning1Inp
 	if (locale === "sr") return sr_settings_importwarning1(inputs)
 	if (locale === "sk") return sk_settings_importwarning1(inputs)
 	if (locale === "sl") return sl_settings_importwarning1(inputs)
-	return ko_settings_importwarning1(inputs)
+	if (locale === "ko") return ko_settings_importwarning1(inputs)
+	return en_settings_importwarning1(inputs)
 });
 export { settings_importwarning1 as "settings_importWarning" }

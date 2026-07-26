@@ -164,7 +164,6 @@ const ko_security_noauthdesc2 = /** @type {(inputs: Security_Noauthdesc2Inputs) 
 */
 const security_noauthdesc2 = /** @type {((inputs?: Security_Noauthdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Noauthdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_security_noauthdesc2(inputs)
 	if (locale === "sv") return sv_security_noauthdesc2(inputs)
 	if (locale === "uk") return uk_security_noauthdesc2(inputs)
 	if (locale === "zh") return zh_security_noauthdesc2(inputs)
@@ -200,6 +199,7 @@ const security_noauthdesc2 = /** @type {((inputs?: Security_Noauthdesc2Inputs, o
 	if (locale === "sr") return sr_security_noauthdesc2(inputs)
 	if (locale === "sk") return sk_security_noauthdesc2(inputs)
 	if (locale === "sl") return sl_security_noauthdesc2(inputs)
-	return ko_security_noauthdesc2(inputs)
+	if (locale === "ko") return ko_security_noauthdesc2(inputs)
+	return en_security_noauthdesc2(inputs)
 });
 export { security_noauthdesc2 as "security_noAuthDesc" }

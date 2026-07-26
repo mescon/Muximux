@@ -164,7 +164,6 @@ const ko_onboarding_appsselected1 = /** @type {(inputs: Onboarding_Appsselected1
 */
 const onboarding_appsselected1 = /** @type {((inputs: Onboarding_Appsselected1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Appsselected1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_appsselected1(inputs)
 	if (locale === "sv") return sv_onboarding_appsselected1(inputs)
 	if (locale === "uk") return uk_onboarding_appsselected1(inputs)
 	if (locale === "zh") return zh_onboarding_appsselected1(inputs)
@@ -200,6 +199,7 @@ const onboarding_appsselected1 = /** @type {((inputs: Onboarding_Appsselected1In
 	if (locale === "sr") return sr_onboarding_appsselected1(inputs)
 	if (locale === "sk") return sk_onboarding_appsselected1(inputs)
 	if (locale === "sl") return sl_onboarding_appsselected1(inputs)
-	return ko_onboarding_appsselected1(inputs)
+	if (locale === "ko") return ko_onboarding_appsselected1(inputs)
+	return en_onboarding_appsselected1(inputs)
 });
 export { onboarding_appsselected1 as "onboarding_appsSelected" }

@@ -164,7 +164,6 @@ const ko_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavi
 */
 const shortcuts_descnavigateresults2 = /** @type {((inputs?: Shortcuts_Descnavigateresults2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Descnavigateresults2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_shortcuts_descnavigateresults2(inputs)
 	if (locale === "sv") return sv_shortcuts_descnavigateresults2(inputs)
 	if (locale === "uk") return uk_shortcuts_descnavigateresults2(inputs)
 	if (locale === "zh") return zh_shortcuts_descnavigateresults2(inputs)
@@ -200,6 +199,7 @@ const shortcuts_descnavigateresults2 = /** @type {((inputs?: Shortcuts_Descnavig
 	if (locale === "sr") return sr_shortcuts_descnavigateresults2(inputs)
 	if (locale === "sk") return sk_shortcuts_descnavigateresults2(inputs)
 	if (locale === "sl") return sl_shortcuts_descnavigateresults2(inputs)
-	return ko_shortcuts_descnavigateresults2(inputs)
+	if (locale === "ko") return ko_shortcuts_descnavigateresults2(inputs)
+	return en_shortcuts_descnavigateresults2(inputs)
 });
 export { shortcuts_descnavigateresults2 as "shortcuts_descNavigateResults" }

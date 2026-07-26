@@ -164,7 +164,6 @@ const ko_onboarding_letsgetstarted2 = /** @type {(inputs: Onboarding_Letsgetstar
 */
 const onboarding_letsgetstarted2 = /** @type {((inputs?: Onboarding_Letsgetstarted2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Letsgetstarted2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_letsgetstarted2(inputs)
 	if (locale === "sv") return sv_onboarding_letsgetstarted2(inputs)
 	if (locale === "uk") return uk_onboarding_letsgetstarted2(inputs)
 	if (locale === "zh") return zh_onboarding_letsgetstarted2(inputs)
@@ -200,6 +199,7 @@ const onboarding_letsgetstarted2 = /** @type {((inputs?: Onboarding_Letsgetstart
 	if (locale === "sr") return sr_onboarding_letsgetstarted2(inputs)
 	if (locale === "sk") return sk_onboarding_letsgetstarted2(inputs)
 	if (locale === "sl") return sl_onboarding_letsgetstarted2(inputs)
-	return ko_onboarding_letsgetstarted2(inputs)
+	if (locale === "ko") return ko_onboarding_letsgetstarted2(inputs)
+	return en_onboarding_letsgetstarted2(inputs)
 });
 export { onboarding_letsgetstarted2 as "onboarding_letsGetStarted" }

@@ -164,7 +164,6 @@ const ko_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetu
 */
 const toast_dashboardsetupcomplete2 = /** @type {((inputs?: Toast_Dashboardsetupcomplete2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Dashboardsetupcomplete2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "sv") return sv_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "uk") return uk_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "zh") return zh_toast_dashboardsetupcomplete2(inputs)
@@ -200,6 +199,7 @@ const toast_dashboardsetupcomplete2 = /** @type {((inputs?: Toast_Dashboardsetup
 	if (locale === "sr") return sr_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "sk") return sk_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "sl") return sl_toast_dashboardsetupcomplete2(inputs)
-	return ko_toast_dashboardsetupcomplete2(inputs)
+	if (locale === "ko") return ko_toast_dashboardsetupcomplete2(inputs)
+	return en_toast_dashboardsetupcomplete2(inputs)
 });
 export { toast_dashboardsetupcomplete2 as "toast_dashboardSetupComplete" }

@@ -164,7 +164,6 @@ const ko_error_failedchangemethod2 = /** @type {(inputs: Error_Failedchangemetho
 */
 const error_failedchangemethod2 = /** @type {((inputs?: Error_Failedchangemethod2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedchangemethod2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_error_failedchangemethod2(inputs)
 	if (locale === "sv") return sv_error_failedchangemethod2(inputs)
 	if (locale === "uk") return uk_error_failedchangemethod2(inputs)
 	if (locale === "zh") return zh_error_failedchangemethod2(inputs)
@@ -200,6 +199,7 @@ const error_failedchangemethod2 = /** @type {((inputs?: Error_Failedchangemethod
 	if (locale === "sr") return sr_error_failedchangemethod2(inputs)
 	if (locale === "sk") return sk_error_failedchangemethod2(inputs)
 	if (locale === "sl") return sl_error_failedchangemethod2(inputs)
-	return ko_error_failedchangemethod2(inputs)
+	if (locale === "ko") return ko_error_failedchangemethod2(inputs)
+	return en_error_failedchangemethod2(inputs)
 });
 export { error_failedchangemethod2 as "error_failedChangeMethod" }

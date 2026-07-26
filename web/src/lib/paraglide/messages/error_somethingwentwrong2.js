@@ -164,7 +164,6 @@ const ko_error_somethingwentwrong2 = /** @type {(inputs: Error_Somethingwentwron
 */
 const error_somethingwentwrong2 = /** @type {((inputs?: Error_Somethingwentwrong2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Somethingwentwrong2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_error_somethingwentwrong2(inputs)
 	if (locale === "sv") return sv_error_somethingwentwrong2(inputs)
 	if (locale === "uk") return uk_error_somethingwentwrong2(inputs)
 	if (locale === "zh") return zh_error_somethingwentwrong2(inputs)
@@ -200,6 +199,7 @@ const error_somethingwentwrong2 = /** @type {((inputs?: Error_Somethingwentwrong
 	if (locale === "sr") return sr_error_somethingwentwrong2(inputs)
 	if (locale === "sk") return sk_error_somethingwentwrong2(inputs)
 	if (locale === "sl") return sl_error_somethingwentwrong2(inputs)
-	return ko_error_somethingwentwrong2(inputs)
+	if (locale === "ko") return ko_error_somethingwentwrong2(inputs)
+	return en_error_somethingwentwrong2(inputs)
 });
 export { error_somethingwentwrong2 as "error_somethingWentWrong" }

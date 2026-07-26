@@ -164,7 +164,6 @@ const ko_security_proxytype1 = /** @type {(inputs: Security_Proxytype1Inputs) =>
 */
 const security_proxytype1 = /** @type {((inputs?: Security_Proxytype1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Proxytype1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_security_proxytype1(inputs)
 	if (locale === "sv") return sv_security_proxytype1(inputs)
 	if (locale === "uk") return uk_security_proxytype1(inputs)
 	if (locale === "zh") return zh_security_proxytype1(inputs)
@@ -200,6 +199,7 @@ const security_proxytype1 = /** @type {((inputs?: Security_Proxytype1Inputs, opt
 	if (locale === "sr") return sr_security_proxytype1(inputs)
 	if (locale === "sk") return sk_security_proxytype1(inputs)
 	if (locale === "sl") return sl_security_proxytype1(inputs)
-	return ko_security_proxytype1(inputs)
+	if (locale === "ko") return ko_security_proxytype1(inputs)
+	return en_security_proxytype1(inputs)
 });
 export { security_proxytype1 as "security_proxyType" }

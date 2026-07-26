@@ -164,7 +164,6 @@ const ko_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinar
 */
 const about_downloaddarwinarm642 = /** @type {((inputs?: About_Downloaddarwinarm642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloaddarwinarm642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_about_downloaddarwinarm642(inputs)
 	if (locale === "sv") return sv_about_downloaddarwinarm642(inputs)
 	if (locale === "uk") return uk_about_downloaddarwinarm642(inputs)
 	if (locale === "zh") return zh_about_downloaddarwinarm642(inputs)
@@ -200,6 +199,7 @@ const about_downloaddarwinarm642 = /** @type {((inputs?: About_Downloaddarwinarm
 	if (locale === "sr") return sr_about_downloaddarwinarm642(inputs)
 	if (locale === "sk") return sk_about_downloaddarwinarm642(inputs)
 	if (locale === "sl") return sl_about_downloaddarwinarm642(inputs)
-	return ko_about_downloaddarwinarm642(inputs)
+	if (locale === "ko") return ko_about_downloaddarwinarm642(inputs)
+	return en_about_downloaddarwinarm642(inputs)
 });
 export { about_downloaddarwinarm642 as "about_downloadDarwinArm64" }

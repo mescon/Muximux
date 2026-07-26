@@ -164,7 +164,6 @@ const ko_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedStri
 */
 export const apps_heading = /** @type {((inputs?: Apps_HeadingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_HeadingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_apps_heading(inputs)
 	if (locale === "sv") return sv_apps_heading(inputs)
 	if (locale === "uk") return uk_apps_heading(inputs)
 	if (locale === "zh") return zh_apps_heading(inputs)
@@ -200,5 +199,6 @@ export const apps_heading = /** @type {((inputs?: Apps_HeadingInputs, options?: 
 	if (locale === "sr") return sr_apps_heading(inputs)
 	if (locale === "sk") return sk_apps_heading(inputs)
 	if (locale === "sl") return sl_apps_heading(inputs)
-	return ko_apps_heading(inputs)
+	if (locale === "ko") return ko_apps_heading(inputs)
+	return en_apps_heading(inputs)
 });

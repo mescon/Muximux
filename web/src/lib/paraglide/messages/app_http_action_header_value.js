@@ -164,7 +164,6 @@ const ko_app_http_action_header_value = /** @type {(inputs: App_Http_Action_Head
 */
 export const app_http_action_header_value = /** @type {((inputs?: App_Http_Action_Header_ValueInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<App_Http_Action_Header_ValueInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_app_http_action_header_value(inputs)
 	if (locale === "sv") return sv_app_http_action_header_value(inputs)
 	if (locale === "uk") return uk_app_http_action_header_value(inputs)
 	if (locale === "zh") return zh_app_http_action_header_value(inputs)
@@ -200,5 +199,6 @@ export const app_http_action_header_value = /** @type {((inputs?: App_Http_Actio
 	if (locale === "sr") return sr_app_http_action_header_value(inputs)
 	if (locale === "sk") return sk_app_http_action_header_value(inputs)
 	if (locale === "sl") return sl_app_http_action_header_value(inputs)
-	return ko_app_http_action_header_value(inputs)
+	if (locale === "ko") return ko_app_http_action_header_value(inputs)
+	return en_app_http_action_header_value(inputs)
 });

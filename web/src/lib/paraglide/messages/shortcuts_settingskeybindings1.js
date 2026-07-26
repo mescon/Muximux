@@ -164,7 +164,6 @@ const ko_shortcuts_settingskeybindings1 = /** @type {(inputs: Shortcuts_Settings
 */
 const shortcuts_settingskeybindings1 = /** @type {((inputs?: Shortcuts_Settingskeybindings1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Settingskeybindings1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_shortcuts_settingskeybindings1(inputs)
 	if (locale === "sv") return sv_shortcuts_settingskeybindings1(inputs)
 	if (locale === "uk") return uk_shortcuts_settingskeybindings1(inputs)
 	if (locale === "zh") return zh_shortcuts_settingskeybindings1(inputs)
@@ -200,6 +199,7 @@ const shortcuts_settingskeybindings1 = /** @type {((inputs?: Shortcuts_Settingsk
 	if (locale === "sr") return sr_shortcuts_settingskeybindings1(inputs)
 	if (locale === "sk") return sk_shortcuts_settingskeybindings1(inputs)
 	if (locale === "sl") return sl_shortcuts_settingskeybindings1(inputs)
-	return ko_shortcuts_settingskeybindings1(inputs)
+	if (locale === "ko") return ko_shortcuts_settingskeybindings1(inputs)
+	return en_shortcuts_settingskeybindings1(inputs)
 });
 export { shortcuts_settingskeybindings1 as "shortcuts_settingsKeybindings" }

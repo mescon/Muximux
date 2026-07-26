@@ -164,7 +164,6 @@ const ko_toast_action_fired = /** @type {(inputs: Toast_Action_FiredInputs) => L
 */
 export const toast_action_fired = /** @type {((inputs: Toast_Action_FiredInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Action_FiredInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_toast_action_fired(inputs)
 	if (locale === "sv") return sv_toast_action_fired(inputs)
 	if (locale === "uk") return uk_toast_action_fired(inputs)
 	if (locale === "zh") return zh_toast_action_fired(inputs)
@@ -200,5 +199,6 @@ export const toast_action_fired = /** @type {((inputs: Toast_Action_FiredInputs,
 	if (locale === "sr") return sr_toast_action_fired(inputs)
 	if (locale === "sk") return sk_toast_action_fired(inputs)
 	if (locale === "sl") return sl_toast_action_fired(inputs)
-	return ko_toast_action_fired(inputs)
+	if (locale === "ko") return ko_toast_action_fired(inputs)
+	return en_toast_action_fired(inputs)
 });

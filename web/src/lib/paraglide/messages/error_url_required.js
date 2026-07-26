@@ -164,7 +164,6 @@ const ko_error_url_required = /** @type {(inputs: Error_Url_RequiredInputs) => L
 */
 export const error_url_required = /** @type {((inputs?: Error_Url_RequiredInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Url_RequiredInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_error_url_required(inputs)
 	if (locale === "sv") return sv_error_url_required(inputs)
 	if (locale === "uk") return uk_error_url_required(inputs)
 	if (locale === "zh") return zh_error_url_required(inputs)
@@ -200,5 +199,6 @@ export const error_url_required = /** @type {((inputs?: Error_Url_RequiredInputs
 	if (locale === "sr") return sr_error_url_required(inputs)
 	if (locale === "sk") return sk_error_url_required(inputs)
 	if (locale === "sl") return sl_error_url_required(inputs)
-	return ko_error_url_required(inputs)
+	if (locale === "ko") return ko_error_url_required(inputs)
+	return en_error_url_required(inputs)
 });

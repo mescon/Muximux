@@ -164,7 +164,6 @@ const ko_splash_active = /** @type {(inputs: Splash_ActiveInputs) => LocalizedSt
 */
 export const splash_active = /** @type {((inputs?: Splash_ActiveInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Splash_ActiveInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_splash_active(inputs)
 	if (locale === "sv") return sv_splash_active(inputs)
 	if (locale === "uk") return uk_splash_active(inputs)
 	if (locale === "zh") return zh_splash_active(inputs)
@@ -200,5 +199,6 @@ export const splash_active = /** @type {((inputs?: Splash_ActiveInputs, options?
 	if (locale === "sr") return sr_splash_active(inputs)
 	if (locale === "sk") return sk_splash_active(inputs)
 	if (locale === "sl") return sl_splash_active(inputs)
-	return ko_splash_active(inputs)
+	if (locale === "ko") return ko_splash_active(inputs)
+	return en_splash_active(inputs)
 });

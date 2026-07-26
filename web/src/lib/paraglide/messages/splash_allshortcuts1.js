@@ -164,7 +164,6 @@ const ko_splash_allshortcuts1 = /** @type {(inputs: Splash_Allshortcuts1Inputs) 
 */
 const splash_allshortcuts1 = /** @type {((inputs?: Splash_Allshortcuts1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Splash_Allshortcuts1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_splash_allshortcuts1(inputs)
 	if (locale === "sv") return sv_splash_allshortcuts1(inputs)
 	if (locale === "uk") return uk_splash_allshortcuts1(inputs)
 	if (locale === "zh") return zh_splash_allshortcuts1(inputs)
@@ -200,6 +199,7 @@ const splash_allshortcuts1 = /** @type {((inputs?: Splash_Allshortcuts1Inputs, o
 	if (locale === "sr") return sr_splash_allshortcuts1(inputs)
 	if (locale === "sk") return sk_splash_allshortcuts1(inputs)
 	if (locale === "sl") return sl_splash_allshortcuts1(inputs)
-	return ko_splash_allshortcuts1(inputs)
+	if (locale === "ko") return ko_splash_allshortcuts1(inputs)
+	return en_splash_allshortcuts1(inputs)
 });
 export { splash_allshortcuts1 as "splash_allShortcuts" }

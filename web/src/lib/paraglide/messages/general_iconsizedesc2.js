@@ -164,7 +164,6 @@ const ko_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs
 */
 const general_iconsizedesc2 = /** @type {((inputs?: General_Iconsizedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Iconsizedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_general_iconsizedesc2(inputs)
 	if (locale === "sv") return sv_general_iconsizedesc2(inputs)
 	if (locale === "uk") return uk_general_iconsizedesc2(inputs)
 	if (locale === "zh") return zh_general_iconsizedesc2(inputs)
@@ -200,6 +199,7 @@ const general_iconsizedesc2 = /** @type {((inputs?: General_Iconsizedesc2Inputs,
 	if (locale === "sr") return sr_general_iconsizedesc2(inputs)
 	if (locale === "sk") return sk_general_iconsizedesc2(inputs)
 	if (locale === "sl") return sl_general_iconsizedesc2(inputs)
-	return ko_general_iconsizedesc2(inputs)
+	if (locale === "ko") return ko_general_iconsizedesc2(inputs)
+	return en_general_iconsizedesc2(inputs)
 });
 export { general_iconsizedesc2 as "general_iconSizeDesc" }

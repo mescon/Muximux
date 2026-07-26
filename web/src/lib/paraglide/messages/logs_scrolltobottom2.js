@@ -164,7 +164,6 @@ const ko_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) 
 */
 const logs_scrolltobottom2 = /** @type {((inputs?: Logs_Scrolltobottom2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_Scrolltobottom2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_logs_scrolltobottom2(inputs)
 	if (locale === "sv") return sv_logs_scrolltobottom2(inputs)
 	if (locale === "uk") return uk_logs_scrolltobottom2(inputs)
 	if (locale === "zh") return zh_logs_scrolltobottom2(inputs)
@@ -200,6 +199,7 @@ const logs_scrolltobottom2 = /** @type {((inputs?: Logs_Scrolltobottom2Inputs, o
 	if (locale === "sr") return sr_logs_scrolltobottom2(inputs)
 	if (locale === "sk") return sk_logs_scrolltobottom2(inputs)
 	if (locale === "sl") return sl_logs_scrolltobottom2(inputs)
-	return ko_logs_scrolltobottom2(inputs)
+	if (locale === "ko") return ko_logs_scrolltobottom2(inputs)
+	return en_logs_scrolltobottom2(inputs)
 });
 export { logs_scrolltobottom2 as "logs_scrollToBottom" }

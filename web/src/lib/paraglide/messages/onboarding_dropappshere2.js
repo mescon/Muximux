@@ -164,7 +164,6 @@ const ko_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2
 */
 const onboarding_dropappshere2 = /** @type {((inputs?: Onboarding_Dropappshere2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Dropappshere2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_dropappshere2(inputs)
 	if (locale === "sv") return sv_onboarding_dropappshere2(inputs)
 	if (locale === "uk") return uk_onboarding_dropappshere2(inputs)
 	if (locale === "zh") return zh_onboarding_dropappshere2(inputs)
@@ -200,6 +199,7 @@ const onboarding_dropappshere2 = /** @type {((inputs?: Onboarding_Dropappshere2I
 	if (locale === "sr") return sr_onboarding_dropappshere2(inputs)
 	if (locale === "sk") return sk_onboarding_dropappshere2(inputs)
 	if (locale === "sl") return sl_onboarding_dropappshere2(inputs)
-	return ko_onboarding_dropappshere2(inputs)
+	if (locale === "ko") return ko_onboarding_dropappshere2(inputs)
+	return en_onboarding_dropappshere2(inputs)
 });
 export { onboarding_dropappshere2 as "onboarding_dropAppsHere" }

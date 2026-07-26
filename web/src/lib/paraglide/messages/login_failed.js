@@ -164,7 +164,6 @@ const ko_login_failed = /** @type {(inputs: Login_FailedInputs) => LocalizedStri
 */
 export const login_failed = /** @type {((inputs?: Login_FailedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_FailedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_login_failed(inputs)
 	if (locale === "sv") return sv_login_failed(inputs)
 	if (locale === "uk") return uk_login_failed(inputs)
 	if (locale === "zh") return zh_login_failed(inputs)
@@ -200,5 +199,6 @@ export const login_failed = /** @type {((inputs?: Login_FailedInputs, options?: 
 	if (locale === "sr") return sr_login_failed(inputs)
 	if (locale === "sk") return sk_login_failed(inputs)
 	if (locale === "sl") return sl_login_failed(inputs)
-	return ko_login_failed(inputs)
+	if (locale === "ko") return ko_login_failed(inputs)
+	return en_login_failed(inputs)
 });

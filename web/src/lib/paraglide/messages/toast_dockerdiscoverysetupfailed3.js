@@ -164,7 +164,6 @@ const ko_toast_dockerdiscoverysetupfailed3 = /** @type {(inputs: Toast_Dockerdis
 */
 const toast_dockerdiscoverysetupfailed3 = /** @type {((inputs?: Toast_Dockerdiscoverysetupfailed3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Dockerdiscoverysetupfailed3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_toast_dockerdiscoverysetupfailed3(inputs)
 	if (locale === "sv") return sv_toast_dockerdiscoverysetupfailed3(inputs)
 	if (locale === "uk") return uk_toast_dockerdiscoverysetupfailed3(inputs)
 	if (locale === "zh") return zh_toast_dockerdiscoverysetupfailed3(inputs)
@@ -200,6 +199,7 @@ const toast_dockerdiscoverysetupfailed3 = /** @type {((inputs?: Toast_Dockerdisc
 	if (locale === "sr") return sr_toast_dockerdiscoverysetupfailed3(inputs)
 	if (locale === "sk") return sk_toast_dockerdiscoverysetupfailed3(inputs)
 	if (locale === "sl") return sl_toast_dockerdiscoverysetupfailed3(inputs)
-	return ko_toast_dockerdiscoverysetupfailed3(inputs)
+	if (locale === "ko") return ko_toast_dockerdiscoverysetupfailed3(inputs)
+	return en_toast_dockerdiscoverysetupfailed3(inputs)
 });
 export { toast_dockerdiscoverysetupfailed3 as "toast_dockerDiscoverySetupFailed" }

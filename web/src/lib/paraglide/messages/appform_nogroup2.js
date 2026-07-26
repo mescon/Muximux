@@ -164,7 +164,6 @@ const ko_appform_nogroup2 = /** @type {(inputs: Appform_Nogroup2Inputs) => Local
 */
 const appform_nogroup2 = /** @type {((inputs?: Appform_Nogroup2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Nogroup2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_appform_nogroup2(inputs)
 	if (locale === "sv") return sv_appform_nogroup2(inputs)
 	if (locale === "uk") return uk_appform_nogroup2(inputs)
 	if (locale === "zh") return zh_appform_nogroup2(inputs)
@@ -200,6 +199,7 @@ const appform_nogroup2 = /** @type {((inputs?: Appform_Nogroup2Inputs, options?:
 	if (locale === "sr") return sr_appform_nogroup2(inputs)
 	if (locale === "sk") return sk_appform_nogroup2(inputs)
 	if (locale === "sl") return sl_appform_nogroup2(inputs)
-	return ko_appform_nogroup2(inputs)
+	if (locale === "ko") return ko_appform_nogroup2(inputs)
+	return en_appform_nogroup2(inputs)
 });
 export { appform_nogroup2 as "appForm_noGroup" }

@@ -164,7 +164,6 @@ const ko_settings_noiconset2 = /** @type {(inputs: Settings_Noiconset2Inputs) =>
 */
 const settings_noiconset2 = /** @type {((inputs?: Settings_Noiconset2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Noiconset2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_settings_noiconset2(inputs)
 	if (locale === "sv") return sv_settings_noiconset2(inputs)
 	if (locale === "uk") return uk_settings_noiconset2(inputs)
 	if (locale === "zh") return zh_settings_noiconset2(inputs)
@@ -200,6 +199,7 @@ const settings_noiconset2 = /** @type {((inputs?: Settings_Noiconset2Inputs, opt
 	if (locale === "sr") return sr_settings_noiconset2(inputs)
 	if (locale === "sk") return sk_settings_noiconset2(inputs)
 	if (locale === "sl") return sl_settings_noiconset2(inputs)
-	return ko_settings_noiconset2(inputs)
+	if (locale === "ko") return ko_settings_noiconset2(inputs)
+	return en_settings_noiconset2(inputs)
 });
 export { settings_noiconset2 as "settings_noIconSet" }

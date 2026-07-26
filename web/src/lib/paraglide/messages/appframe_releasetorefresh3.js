@@ -164,7 +164,6 @@ const ko_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefr
 */
 const appframe_releasetorefresh3 = /** @type {((inputs?: Appframe_Releasetorefresh3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appframe_Releasetorefresh3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_appframe_releasetorefresh3(inputs)
 	if (locale === "sv") return sv_appframe_releasetorefresh3(inputs)
 	if (locale === "uk") return uk_appframe_releasetorefresh3(inputs)
 	if (locale === "zh") return zh_appframe_releasetorefresh3(inputs)
@@ -200,6 +199,7 @@ const appframe_releasetorefresh3 = /** @type {((inputs?: Appframe_Releasetorefre
 	if (locale === "sr") return sr_appframe_releasetorefresh3(inputs)
 	if (locale === "sk") return sk_appframe_releasetorefresh3(inputs)
 	if (locale === "sl") return sl_appframe_releasetorefresh3(inputs)
-	return ko_appframe_releasetorefresh3(inputs)
+	if (locale === "ko") return ko_appframe_releasetorefresh3(inputs)
+	return en_appframe_releasetorefresh3(inputs)
 });
 export { appframe_releasetorefresh3 as "appFrame_releaseToRefresh" }

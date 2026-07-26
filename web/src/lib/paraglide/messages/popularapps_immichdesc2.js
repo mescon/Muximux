@@ -164,7 +164,6 @@ const ko_popularapps_immichdesc2 = /** @type {(inputs: Popularapps_Immichdesc2In
 */
 const popularapps_immichdesc2 = /** @type {((inputs?: Popularapps_Immichdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Immichdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_popularapps_immichdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_immichdesc2(inputs)
 	if (locale === "uk") return uk_popularapps_immichdesc2(inputs)
 	if (locale === "zh") return zh_popularapps_immichdesc2(inputs)
@@ -200,6 +199,7 @@ const popularapps_immichdesc2 = /** @type {((inputs?: Popularapps_Immichdesc2Inp
 	if (locale === "sr") return sr_popularapps_immichdesc2(inputs)
 	if (locale === "sk") return sk_popularapps_immichdesc2(inputs)
 	if (locale === "sl") return sl_popularapps_immichdesc2(inputs)
-	return ko_popularapps_immichdesc2(inputs)
+	if (locale === "ko") return ko_popularapps_immichdesc2(inputs)
+	return en_popularapps_immichdesc2(inputs)
 });
 export { popularapps_immichdesc2 as "popularApps_immichDesc" }

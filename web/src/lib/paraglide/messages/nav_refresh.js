@@ -164,7 +164,6 @@ const ko_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString
 */
 export const nav_refresh = /** @type {((inputs?: Nav_RefreshInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_RefreshInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_nav_refresh(inputs)
 	if (locale === "sv") return sv_nav_refresh(inputs)
 	if (locale === "uk") return uk_nav_refresh(inputs)
 	if (locale === "zh") return zh_nav_refresh(inputs)
@@ -200,5 +199,6 @@ export const nav_refresh = /** @type {((inputs?: Nav_RefreshInputs, options?: { 
 	if (locale === "sr") return sr_nav_refresh(inputs)
 	if (locale === "sk") return sk_nav_refresh(inputs)
 	if (locale === "sl") return sl_nav_refresh(inputs)
-	return ko_nav_refresh(inputs)
+	if (locale === "ko") return ko_nav_refresh(inputs)
+	return en_nav_refresh(inputs)
 });

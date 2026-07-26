@@ -164,7 +164,6 @@ const ko_docker_popover_action_start = /** @type {(inputs: Docker_Popover_Action
 */
 export const docker_popover_action_start = /** @type {((inputs?: Docker_Popover_Action_StartInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Docker_Popover_Action_StartInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_docker_popover_action_start(inputs)
 	if (locale === "sv") return sv_docker_popover_action_start(inputs)
 	if (locale === "uk") return uk_docker_popover_action_start(inputs)
 	if (locale === "zh") return zh_docker_popover_action_start(inputs)
@@ -200,5 +199,6 @@ export const docker_popover_action_start = /** @type {((inputs?: Docker_Popover_
 	if (locale === "sr") return sr_docker_popover_action_start(inputs)
 	if (locale === "sk") return sk_docker_popover_action_start(inputs)
 	if (locale === "sl") return sl_docker_popover_action_start(inputs)
-	return ko_docker_popover_action_start(inputs)
+	if (locale === "ko") return ko_docker_popover_action_start(inputs)
+	return en_docker_popover_action_start(inputs)
 });

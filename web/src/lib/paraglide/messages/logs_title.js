@@ -164,7 +164,6 @@ const ko_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} 
 */
 export const logs_title = /** @type {((inputs?: Logs_TitleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_TitleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_logs_title(inputs)
 	if (locale === "sv") return sv_logs_title(inputs)
 	if (locale === "uk") return uk_logs_title(inputs)
 	if (locale === "zh") return zh_logs_title(inputs)
@@ -200,5 +199,6 @@ export const logs_title = /** @type {((inputs?: Logs_TitleInputs, options?: { lo
 	if (locale === "sr") return sr_logs_title(inputs)
 	if (locale === "sk") return sk_logs_title(inputs)
 	if (locale === "sl") return sl_logs_title(inputs)
-	return ko_logs_title(inputs)
+	if (locale === "ko") return ko_logs_title(inputs)
+	return en_logs_title(inputs)
 });

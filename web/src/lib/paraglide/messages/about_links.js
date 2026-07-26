@@ -164,7 +164,6 @@ const ko_about_links = /** @type {(inputs: About_LinksInputs) => LocalizedString
 */
 export const about_links = /** @type {((inputs?: About_LinksInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_LinksInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_about_links(inputs)
 	if (locale === "sv") return sv_about_links(inputs)
 	if (locale === "uk") return uk_about_links(inputs)
 	if (locale === "zh") return zh_about_links(inputs)
@@ -200,5 +199,6 @@ export const about_links = /** @type {((inputs?: About_LinksInputs, options?: { 
 	if (locale === "sr") return sr_about_links(inputs)
 	if (locale === "sk") return sk_about_links(inputs)
 	if (locale === "sl") return sl_about_links(inputs)
-	return ko_about_links(inputs)
+	if (locale === "ko") return ko_about_links(inputs)
+	return en_about_links(inputs)
 });

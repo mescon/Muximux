@@ -164,7 +164,6 @@ const ko_about_latestversion1 = /** @type {(inputs: About_Latestversion1Inputs) 
 */
 const about_latestversion1 = /** @type {((inputs?: About_Latestversion1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Latestversion1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_about_latestversion1(inputs)
 	if (locale === "sv") return sv_about_latestversion1(inputs)
 	if (locale === "uk") return uk_about_latestversion1(inputs)
 	if (locale === "zh") return zh_about_latestversion1(inputs)
@@ -200,6 +199,7 @@ const about_latestversion1 = /** @type {((inputs?: About_Latestversion1Inputs, o
 	if (locale === "sr") return sr_about_latestversion1(inputs)
 	if (locale === "sk") return sk_about_latestversion1(inputs)
 	if (locale === "sl") return sl_about_latestversion1(inputs)
-	return ko_about_latestversion1(inputs)
+	if (locale === "ko") return ko_about_latestversion1(inputs)
+	return en_about_latestversion1(inputs)
 });
 export { about_latestversion1 as "about_latestVersion" }

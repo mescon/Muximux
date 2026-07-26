@@ -164,7 +164,6 @@ const ko_login_externalauth1 = /** @type {(inputs: Login_Externalauth1Inputs) =>
 */
 const login_externalauth1 = /** @type {((inputs?: Login_Externalauth1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Externalauth1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_login_externalauth1(inputs)
 	if (locale === "sv") return sv_login_externalauth1(inputs)
 	if (locale === "uk") return uk_login_externalauth1(inputs)
 	if (locale === "zh") return zh_login_externalauth1(inputs)
@@ -200,6 +199,7 @@ const login_externalauth1 = /** @type {((inputs?: Login_Externalauth1Inputs, opt
 	if (locale === "sr") return sr_login_externalauth1(inputs)
 	if (locale === "sk") return sk_login_externalauth1(inputs)
 	if (locale === "sl") return sl_login_externalauth1(inputs)
-	return ko_login_externalauth1(inputs)
+	if (locale === "ko") return ko_login_externalauth1(inputs)
+	return en_login_externalauth1(inputs)
 });
 export { login_externalauth1 as "login_externalAuth" }

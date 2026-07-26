@@ -164,7 +164,6 @@ const ko_logs_cleartitle1 = /** @type {(inputs: Logs_Cleartitle1Inputs) => Local
 */
 const logs_cleartitle1 = /** @type {((inputs?: Logs_Cleartitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_Cleartitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_logs_cleartitle1(inputs)
 	if (locale === "sv") return sv_logs_cleartitle1(inputs)
 	if (locale === "uk") return uk_logs_cleartitle1(inputs)
 	if (locale === "zh") return zh_logs_cleartitle1(inputs)
@@ -200,6 +199,7 @@ const logs_cleartitle1 = /** @type {((inputs?: Logs_Cleartitle1Inputs, options?:
 	if (locale === "sr") return sr_logs_cleartitle1(inputs)
 	if (locale === "sk") return sk_logs_cleartitle1(inputs)
 	if (locale === "sl") return sl_logs_cleartitle1(inputs)
-	return ko_logs_cleartitle1(inputs)
+	if (locale === "ko") return ko_logs_cleartitle1(inputs)
+	return en_logs_cleartitle1(inputs)
 });
 export { logs_cleartitle1 as "logs_clearTitle" }

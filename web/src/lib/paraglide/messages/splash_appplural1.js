@@ -164,7 +164,6 @@ const ko_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 */
 const splash_appplural1 = /** @type {((inputs?: Splash_Appplural1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Splash_Appplural1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_splash_appplural1(inputs)
 	if (locale === "sv") return sv_splash_appplural1(inputs)
 	if (locale === "uk") return uk_splash_appplural1(inputs)
 	if (locale === "zh") return zh_splash_appplural1(inputs)
@@ -200,6 +199,7 @@ const splash_appplural1 = /** @type {((inputs?: Splash_Appplural1Inputs, options
 	if (locale === "sr") return sr_splash_appplural1(inputs)
 	if (locale === "sk") return sk_splash_appplural1(inputs)
 	if (locale === "sl") return sl_splash_appplural1(inputs)
-	return ko_splash_appplural1(inputs)
+	if (locale === "ko") return ko_splash_appplural1(inputs)
+	return en_splash_appplural1(inputs)
 });
 export { splash_appplural1 as "splash_appPlural" }

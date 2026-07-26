@@ -164,7 +164,6 @@ const ko_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failed
 */
 const iconbrowser_failedtoloadicons4 = /** @type {((inputs?: Iconbrowser_Failedtoloadicons4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Failedtoloadicons4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "sv") return sv_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "uk") return uk_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "zh") return zh_iconbrowser_failedtoloadicons4(inputs)
@@ -200,6 +199,7 @@ const iconbrowser_failedtoloadicons4 = /** @type {((inputs?: Iconbrowser_Failedt
 	if (locale === "sr") return sr_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "sk") return sk_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "sl") return sl_iconbrowser_failedtoloadicons4(inputs)
-	return ko_iconbrowser_failedtoloadicons4(inputs)
+	if (locale === "ko") return ko_iconbrowser_failedtoloadicons4(inputs)
+	return en_iconbrowser_failedtoloadicons4(inputs)
 });
 export { iconbrowser_failedtoloadicons4 as "iconBrowser_failedToLoadIcons" }

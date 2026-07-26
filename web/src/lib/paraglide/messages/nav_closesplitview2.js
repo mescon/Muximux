@@ -164,7 +164,6 @@ const ko_nav_closesplitview2 = /** @type {(inputs: Nav_Closesplitview2Inputs) =>
 */
 const nav_closesplitview2 = /** @type {((inputs?: Nav_Closesplitview2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Closesplitview2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_nav_closesplitview2(inputs)
 	if (locale === "sv") return sv_nav_closesplitview2(inputs)
 	if (locale === "uk") return uk_nav_closesplitview2(inputs)
 	if (locale === "zh") return zh_nav_closesplitview2(inputs)
@@ -200,6 +199,7 @@ const nav_closesplitview2 = /** @type {((inputs?: Nav_Closesplitview2Inputs, opt
 	if (locale === "sr") return sr_nav_closesplitview2(inputs)
 	if (locale === "sk") return sk_nav_closesplitview2(inputs)
 	if (locale === "sl") return sl_nav_closesplitview2(inputs)
-	return ko_nav_closesplitview2(inputs)
+	if (locale === "ko") return ko_nav_closesplitview2(inputs)
+	return en_nav_closesplitview2(inputs)
 });
 export { nav_closesplitview2 as "nav_closeSplitView" }

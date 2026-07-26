@@ -164,7 +164,6 @@ const ko_nav_viewlogs1 = /** @type {(inputs: Nav_Viewlogs1Inputs) => LocalizedSt
 */
 const nav_viewlogs1 = /** @type {((inputs?: Nav_Viewlogs1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Viewlogs1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_nav_viewlogs1(inputs)
 	if (locale === "sv") return sv_nav_viewlogs1(inputs)
 	if (locale === "uk") return uk_nav_viewlogs1(inputs)
 	if (locale === "zh") return zh_nav_viewlogs1(inputs)
@@ -200,6 +199,7 @@ const nav_viewlogs1 = /** @type {((inputs?: Nav_Viewlogs1Inputs, options?: { loc
 	if (locale === "sr") return sr_nav_viewlogs1(inputs)
 	if (locale === "sk") return sk_nav_viewlogs1(inputs)
 	if (locale === "sl") return sl_nav_viewlogs1(inputs)
-	return ko_nav_viewlogs1(inputs)
+	if (locale === "ko") return ko_nav_viewlogs1(inputs)
+	return en_nav_viewlogs1(inputs)
 });
 export { nav_viewlogs1 as "nav_viewLogs" }

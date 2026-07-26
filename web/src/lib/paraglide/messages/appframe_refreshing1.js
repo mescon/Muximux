@@ -164,7 +164,6 @@ const ko_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) 
 */
 const appframe_refreshing1 = /** @type {((inputs?: Appframe_Refreshing1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appframe_Refreshing1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_appframe_refreshing1(inputs)
 	if (locale === "sv") return sv_appframe_refreshing1(inputs)
 	if (locale === "uk") return uk_appframe_refreshing1(inputs)
 	if (locale === "zh") return zh_appframe_refreshing1(inputs)
@@ -200,6 +199,7 @@ const appframe_refreshing1 = /** @type {((inputs?: Appframe_Refreshing1Inputs, o
 	if (locale === "sr") return sr_appframe_refreshing1(inputs)
 	if (locale === "sk") return sk_appframe_refreshing1(inputs)
 	if (locale === "sl") return sl_appframe_refreshing1(inputs)
-	return ko_appframe_refreshing1(inputs)
+	if (locale === "ko") return ko_appframe_refreshing1(inputs)
+	return en_appframe_refreshing1(inputs)
 });
 export { appframe_refreshing1 as "appFrame_refreshing" }

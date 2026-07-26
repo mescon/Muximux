@@ -164,7 +164,6 @@ const ko_settings_added = /** @type {(inputs: Settings_AddedInputs) => Localized
 */
 export const settings_added = /** @type {((inputs?: Settings_AddedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_AddedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_settings_added(inputs)
 	if (locale === "sv") return sv_settings_added(inputs)
 	if (locale === "uk") return uk_settings_added(inputs)
 	if (locale === "zh") return zh_settings_added(inputs)
@@ -200,5 +199,6 @@ export const settings_added = /** @type {((inputs?: Settings_AddedInputs, option
 	if (locale === "sr") return sr_settings_added(inputs)
 	if (locale === "sk") return sk_settings_added(inputs)
 	if (locale === "sl") return sl_settings_added(inputs)
-	return ko_settings_added(inputs)
+	if (locale === "ko") return ko_settings_added(inputs)
+	return en_settings_added(inputs)
 });

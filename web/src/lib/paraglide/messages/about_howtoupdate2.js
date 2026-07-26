@@ -164,7 +164,6 @@ const ko_about_howtoupdate2 = /** @type {(inputs: About_Howtoupdate2Inputs) => L
 */
 const about_howtoupdate2 = /** @type {((inputs?: About_Howtoupdate2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Howtoupdate2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_about_howtoupdate2(inputs)
 	if (locale === "sv") return sv_about_howtoupdate2(inputs)
 	if (locale === "uk") return uk_about_howtoupdate2(inputs)
 	if (locale === "zh") return zh_about_howtoupdate2(inputs)
@@ -200,6 +199,7 @@ const about_howtoupdate2 = /** @type {((inputs?: About_Howtoupdate2Inputs, optio
 	if (locale === "sr") return sr_about_howtoupdate2(inputs)
 	if (locale === "sk") return sk_about_howtoupdate2(inputs)
 	if (locale === "sl") return sl_about_howtoupdate2(inputs)
-	return ko_about_howtoupdate2(inputs)
+	if (locale === "ko") return ko_about_howtoupdate2(inputs)
+	return en_about_howtoupdate2(inputs)
 });
 export { about_howtoupdate2 as "about_howToUpdate" }

@@ -164,7 +164,6 @@ const ko_theme_appearance = /** @type {(inputs: Theme_AppearanceInputs) => Local
 */
 export const theme_appearance = /** @type {((inputs?: Theme_AppearanceInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_AppearanceInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_theme_appearance(inputs)
 	if (locale === "sv") return sv_theme_appearance(inputs)
 	if (locale === "uk") return uk_theme_appearance(inputs)
 	if (locale === "zh") return zh_theme_appearance(inputs)
@@ -200,5 +199,6 @@ export const theme_appearance = /** @type {((inputs?: Theme_AppearanceInputs, op
 	if (locale === "sr") return sr_theme_appearance(inputs)
 	if (locale === "sk") return sk_theme_appearance(inputs)
 	if (locale === "sl") return sl_theme_appearance(inputs)
-	return ko_theme_appearance(inputs)
+	if (locale === "ko") return ko_theme_appearance(inputs)
+	return en_theme_appearance(inputs)
 });

@@ -164,7 +164,6 @@ const ko_general_advanced = /** @type {(inputs: General_AdvancedInputs) => Local
 */
 export const general_advanced = /** @type {((inputs?: General_AdvancedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_AdvancedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_general_advanced(inputs)
 	if (locale === "sv") return sv_general_advanced(inputs)
 	if (locale === "uk") return uk_general_advanced(inputs)
 	if (locale === "zh") return zh_general_advanced(inputs)
@@ -200,5 +199,6 @@ export const general_advanced = /** @type {((inputs?: General_AdvancedInputs, op
 	if (locale === "sr") return sr_general_advanced(inputs)
 	if (locale === "sk") return sk_general_advanced(inputs)
 	if (locale === "sl") return sl_general_advanced(inputs)
-	return ko_general_advanced(inputs)
+	if (locale === "ko") return ko_general_advanced(inputs)
+	return en_general_advanced(inputs)
 });

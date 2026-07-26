@@ -157,6 +157,10 @@ async function tintSvgUrl(url: string, color: string): Promise<string | null> {
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
+    // An auth redirect or error page can 200 with HTML; wrapping that in a
+    // data:image/svg+xml URI would yield a broken favicon. Fall back to the
+    // raw URL instead.
+    if (!(res.headers.get('content-type') || '').includes('svg')) return null;
     const svg = await res.text();
     return svgToDataURI(svg.replaceAll('currentColor', color));
   } catch {

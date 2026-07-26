@@ -262,6 +262,7 @@ describe('favicon module', () => {
     it('tints a monochrome SVG via fetch and falls back to the raw URL on failure', async () => {
       const fetchMock = vi.fn().mockResolvedValue({
         ok: true,
+        headers: new Headers({ 'content-type': 'image/svg+xml' }),
         text: () => Promise.resolve('<svg><path stroke="currentColor"/></svg>'),
       });
       vi.stubGlobal('fetch', fetchMock);
@@ -278,6 +279,15 @@ describe('favicon module', () => {
       fetchMock.mockRejectedValueOnce(new Error('offline'));
       await setAppFavicon('/icons/lucide/tv.svg', '#00ff00');
       expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toBe('/icons/lucide/tv.svg');
+
+      // Non-SVG 200 (e.g. an auth redirect serving HTML): raw URL, no data URI.
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'text/html' }),
+        text: () => Promise.resolve('<!doctype html><p>login</p>'),
+      });
+      await setAppFavicon('/icons/lucide/radio.svg', '#00ff00');
+      expect(linkElements['link[rel="icon"][sizes="32x32"]'].href).toBe('/icons/lucide/radio.svg');
 
       vi.unstubAllGlobals();
     });

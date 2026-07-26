@@ -164,7 +164,6 @@ const ko_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => L
 */
 const general_enableall1 = /** @type {((inputs?: General_Enableall1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Enableall1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_general_enableall1(inputs)
 	if (locale === "sv") return sv_general_enableall1(inputs)
 	if (locale === "uk") return uk_general_enableall1(inputs)
 	if (locale === "zh") return zh_general_enableall1(inputs)
@@ -200,6 +199,7 @@ const general_enableall1 = /** @type {((inputs?: General_Enableall1Inputs, optio
 	if (locale === "sr") return sr_general_enableall1(inputs)
 	if (locale === "sk") return sk_general_enableall1(inputs)
 	if (locale === "sl") return sl_general_enableall1(inputs)
-	return ko_general_enableall1(inputs)
+	if (locale === "ko") return ko_general_enableall1(inputs)
+	return en_general_enableall1(inputs)
 });
 export { general_enableall1 as "general_enableAll" }

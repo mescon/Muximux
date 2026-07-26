@@ -164,7 +164,6 @@ const ko_appform_helpenabled2 = /** @type {(inputs: Appform_Helpenabled2Inputs) 
 */
 const appform_helpenabled2 = /** @type {((inputs?: Appform_Helpenabled2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Helpenabled2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_appform_helpenabled2(inputs)
 	if (locale === "sv") return sv_appform_helpenabled2(inputs)
 	if (locale === "uk") return uk_appform_helpenabled2(inputs)
 	if (locale === "zh") return zh_appform_helpenabled2(inputs)
@@ -200,6 +199,7 @@ const appform_helpenabled2 = /** @type {((inputs?: Appform_Helpenabled2Inputs, o
 	if (locale === "sr") return sr_appform_helpenabled2(inputs)
 	if (locale === "sk") return sk_appform_helpenabled2(inputs)
 	if (locale === "sl") return sl_appform_helpenabled2(inputs)
-	return ko_appform_helpenabled2(inputs)
+	if (locale === "ko") return ko_appform_helpenabled2(inputs)
+	return en_appform_helpenabled2(inputs)
 });
 export { appform_helpenabled2 as "appForm_helpEnabled" }

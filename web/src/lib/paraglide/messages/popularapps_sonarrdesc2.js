@@ -164,7 +164,6 @@ const ko_popularapps_sonarrdesc2 = /** @type {(inputs: Popularapps_Sonarrdesc2In
 */
 const popularapps_sonarrdesc2 = /** @type {((inputs?: Popularapps_Sonarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Sonarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_popularapps_sonarrdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_sonarrdesc2(inputs)
 	if (locale === "uk") return uk_popularapps_sonarrdesc2(inputs)
 	if (locale === "zh") return zh_popularapps_sonarrdesc2(inputs)
@@ -200,6 +199,7 @@ const popularapps_sonarrdesc2 = /** @type {((inputs?: Popularapps_Sonarrdesc2Inp
 	if (locale === "sr") return sr_popularapps_sonarrdesc2(inputs)
 	if (locale === "sk") return sk_popularapps_sonarrdesc2(inputs)
 	if (locale === "sl") return sl_popularapps_sonarrdesc2(inputs)
-	return ko_popularapps_sonarrdesc2(inputs)
+	if (locale === "ko") return ko_popularapps_sonarrdesc2(inputs)
+	return en_popularapps_sonarrdesc2(inputs)
 });
 export { popularapps_sonarrdesc2 as "popularApps_sonarrDesc" }

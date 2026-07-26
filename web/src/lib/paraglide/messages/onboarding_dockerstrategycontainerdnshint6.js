@@ -164,7 +164,6 @@ const ko_onboarding_dockerstrategycontainerdnshint6 = /** @type {(inputs: Onboar
 */
 const onboarding_dockerstrategycontainerdnshint6 = /** @type {((inputs?: Onboarding_Dockerstrategycontainerdnshint6Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Dockerstrategycontainerdnshint6Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_onboarding_dockerstrategycontainerdnshint6(inputs)
 	if (locale === "sv") return sv_onboarding_dockerstrategycontainerdnshint6(inputs)
 	if (locale === "uk") return uk_onboarding_dockerstrategycontainerdnshint6(inputs)
 	if (locale === "zh") return zh_onboarding_dockerstrategycontainerdnshint6(inputs)
@@ -200,6 +199,7 @@ const onboarding_dockerstrategycontainerdnshint6 = /** @type {((inputs?: Onboard
 	if (locale === "sr") return sr_onboarding_dockerstrategycontainerdnshint6(inputs)
 	if (locale === "sk") return sk_onboarding_dockerstrategycontainerdnshint6(inputs)
 	if (locale === "sl") return sl_onboarding_dockerstrategycontainerdnshint6(inputs)
-	return ko_onboarding_dockerstrategycontainerdnshint6(inputs)
+	if (locale === "ko") return ko_onboarding_dockerstrategycontainerdnshint6(inputs)
+	return en_onboarding_dockerstrategycontainerdnshint6(inputs)
 });
 export { onboarding_dockerstrategycontainerdnshint6 as "onboarding_dockerStrategyContainerDNSHint" }

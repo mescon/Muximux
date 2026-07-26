@@ -164,7 +164,6 @@ const ko_docker_state_paused = /** @type {(inputs: Docker_State_PausedInputs) =>
 */
 export const docker_state_paused = /** @type {((inputs?: Docker_State_PausedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Docker_State_PausedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_docker_state_paused(inputs)
 	if (locale === "sv") return sv_docker_state_paused(inputs)
 	if (locale === "uk") return uk_docker_state_paused(inputs)
 	if (locale === "zh") return zh_docker_state_paused(inputs)
@@ -200,5 +199,6 @@ export const docker_state_paused = /** @type {((inputs?: Docker_State_PausedInpu
 	if (locale === "sr") return sr_docker_state_paused(inputs)
 	if (locale === "sk") return sk_docker_state_paused(inputs)
 	if (locale === "sl") return sl_docker_state_paused(inputs)
-	return ko_docker_state_paused(inputs)
+	if (locale === "ko") return ko_docker_state_paused(inputs)
+	return en_docker_state_paused(inputs)
 });

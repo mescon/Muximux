@@ -164,7 +164,6 @@ const ko_docker_modal_body = /** @type {(inputs: Docker_Modal_BodyInputs) => Loc
 */
 export const docker_modal_body = /** @type {((inputs: Docker_Modal_BodyInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Docker_Modal_BodyInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "en") return en_docker_modal_body(inputs)
 	if (locale === "sv") return sv_docker_modal_body(inputs)
 	if (locale === "uk") return uk_docker_modal_body(inputs)
 	if (locale === "zh") return zh_docker_modal_body(inputs)
@@ -200,5 +199,6 @@ export const docker_modal_body = /** @type {((inputs: Docker_Modal_BodyInputs, o
 	if (locale === "sr") return sr_docker_modal_body(inputs)
 	if (locale === "sk") return sk_docker_modal_body(inputs)
 	if (locale === "sl") return sl_docker_modal_body(inputs)
-	return ko_docker_modal_body(inputs)
+	if (locale === "ko") return ko_docker_modal_body(inputs)
+	return en_docker_modal_body(inputs)
 });
