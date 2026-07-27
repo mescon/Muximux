@@ -91,7 +91,7 @@ The dashboards in this space approach things differently. This table is a quick 
 | Can front other services on their own subdomains (embedded Caddy) | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Start / stop / restart Docker containers from the dashboard | ✅ | ❌ | ✅ | ❌ | ❌ |
 | Keeps app URLs working as container IPs / names change | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Config | YAML (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
+| Config | YAML + Docker labels (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
 | Deployment | Single Go binary | Docker / K8s / binary | Docker | Docker / PHP | Docker / Node.js |
 
 If the rows near the top describe what you want, keep reading.
@@ -232,6 +232,24 @@ groups:
 ```
 
 Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. The data directory (where config, themes, and icons live) defaults to `data/` beside the binary and can be set via `--data` or `MUXIMUX_DATA`.
+
+### Or configure apps with Docker labels
+
+With [Docker Discovery](docs/wiki/docker-discovery.md) enabled, a container can declare its own Muximux entry -- the labels pre-fill the import modal, or with `discovery.docker.auto_import` the app appears (and stays in sync) with no clicks at all. Declare it once in your compose file and Muximux picks it up:
+
+```yaml
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    labels:
+      - muximux.app.name=Sonarr
+      - muximux.app.group=Media
+      - muximux.app.icon=sonarr
+      - muximux.app.port=8989
+      - muximux.app.proxy=true
+```
+
+`muximux.app.*` labels cover the whole app entry (icon, group, open mode, health check, access control, ...), and `muximux.gateway.*` can additionally publish the container on its own gateway subdomain. A background poller keeps imported URLs current as container IPs change across restarts. Full label reference: [Docker Discovery](docs/wiki/docker-discovery.md).
 
 For the full configuration reference, authentication options, TLS setup, and more, see the **[Wiki](docs/wiki/README.md)**.
 
