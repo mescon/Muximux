@@ -10,147 +10,147 @@ const en_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsd
 };
 
 const sv_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Visa hjälp för tangentbordsgenvägar`)
+	return /** @type {LocalizedString} */ (`Öppna snabbreferensen`)
 };
 
 const uk_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Показати довідку гарячих клавіш`)
+	return /** @type {LocalizedString} */ (`Показати короткий довідник`)
 };
 
 const zh_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`显示键盘快捷键帮助`)
+	return /** @type {LocalizedString} */ (`显示快速参考`)
 };
 
 const es_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mostrar ayuda de atajos de teclado`)
+	return /** @type {LocalizedString} */ (`Abrir la referencia rápida`)
 };
 
 const hi_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`कीबोर्ड शॉर्टकट सहायता दिखाएं`)
+	return /** @type {LocalizedString} */ (`त्वरित संदर्भ दिखाएं`)
 };
 
 const pt_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mostrar ajuda de atalhos de teclado`)
+	return /** @type {LocalizedString} */ (`Abrir a referência rápida`)
 };
 
 const bn_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`কীবোর্ড শর্টকাট সাহায্য দেখান`)
+	return /** @type {LocalizedString} */ (`দ্রুত রেফারেন্স দেখান`)
 };
 
 const ru_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Показать справку по горячим клавишам`)
+	return /** @type {LocalizedString} */ (`Показать краткую справку`)
 };
 
 const ja_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`キーボードショートカットのヘルプを表示`)
+	return /** @type {LocalizedString} */ (`クイックリファレンスを表示`)
 };
 
 const vi_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hiện trợ giúp phím tắt`)
+	return /** @type {LocalizedString} */ (`Mở tra cứu nhanh`)
 };
 
 const yue_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`顯示鍵盤快捷鍵幫助`)
+	return /** @type {LocalizedString} */ (`顯示快速參考`)
 };
 
 const tr_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Klavye kısayolları yardımını göster`)
+	return /** @type {LocalizedString} */ (`Hızlı başvuruyu göster`)
 };
 
 const ar_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`عرض مساعدة اختصارات لوحة المفاتيح`)
+	return /** @type {LocalizedString} */ (`عرض المرجع السريع`)
 };
 
 const wuu_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`显示键盘快捷键帮助`)
+	return /** @type {LocalizedString} */ (`显示快速参考`)
 };
 
 const mr_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`कीबोर्ड शॉर्टकट मदत दाखवा`)
+	return /** @type {LocalizedString} */ (`द्रुत संदर्भ दाखवा`)
 };
 
 const nb_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vis hjelp for tastatursnarveier`)
+	return /** @type {LocalizedString} */ (`Åpne hurtigreferansen`)
 };
 
 const fi_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Näytä pikanäppäinten ohje`)
+	return /** @type {LocalizedString} */ (`Avaa pikaopas`)
 };
 
 const da_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vis hjælp til tastaturgenveje`)
+	return /** @type {LocalizedString} */ (`Åbn den hurtige oversigt`)
 };
 
 const et_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Näita kiirklahvide abi`)
+	return /** @type {LocalizedString} */ (`Ava kiirjuhend`)
 };
 
 const lv_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rādīt tastatūras saīšņu palīdzību`)
+	return /** @type {LocalizedString} */ (`Atvērt ātro uzziņu`)
 };
 
 const lt_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rodyti sparčiųjų klavišų pagalbą`)
+	return /** @type {LocalizedString} */ (`Atverti greitą apžvalgą`)
 };
 
 const pl_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pokaż pomoc skrótów klawiszowych`)
+	return /** @type {LocalizedString} */ (`Pokaż szybki przewodnik`)
 };
 
 const de_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hilfe zu Tastenkürzeln anzeigen`)
+	return /** @type {LocalizedString} */ (`Kurzübersicht öffnen`)
 };
 
 const nl_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sneltoetshulp tonen`)
+	return /** @type {LocalizedString} */ (`Snel overzicht openen`)
 };
 
 const fr_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Afficher l'aide des raccourcis clavier`)
+	return /** @type {LocalizedString} */ (`Ouvrir l'aide-mémoire`)
 };
 
 const it_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mostra guida scorciatoie da tastiera`)
+	return /** @type {LocalizedString} */ (`Apri la guida rapida`)
 };
 
 const hu_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billentyűparancsok súgója`)
+	return /** @type {LocalizedString} */ (`Gyors áttekintés megnyitása`)
 };
 
 const cs_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Zobrazit nápovědu klávesových zkratek`)
+	return /** @type {LocalizedString} */ (`Zobrazit rychlý přehled`)
 };
 
 const ro_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Afișează ajutorul pentru scurtături`)
+	return /** @type {LocalizedString} */ (`Deschide ghidul rapid`)
 };
 
 const el_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Εμφάνιση βοήθειας συντομεύσεων`)
+	return /** @type {LocalizedString} */ (`Άνοιγμα της γρήγορης αναφοράς`)
 };
 
 const bg_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Покажи помощ за клавишни комбинации`)
+	return /** @type {LocalizedString} */ (`Покажи краткия справочник`)
 };
 
 const hr_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prikaži pomoć za tipkovničke prečace`)
+	return /** @type {LocalizedString} */ (`Prikaži brzi pregled`)
 };
 
 const sr_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prikaži pomoć za prečice na tastaturi`)
+	return /** @type {LocalizedString} */ (`Prikaži brzi pregled`)
 };
 
 const sk_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Zobraziť pomoc klávesových skratiek`)
+	return /** @type {LocalizedString} */ (`Zobraziť rýchly prehľad`)
 };
 
 const sl_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prikaži pomoč za bližnjice`)
+	return /** @type {LocalizedString} */ (`Prikaži hitri pregled`)
 };
 
 const ko_keybindings_shortcutsdesc1 = /** @type {(inputs: Keybindings_Shortcutsdesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`키보드 단축키 도움말 표시`)
+	return /** @type {LocalizedString} */ (`빠른 참조 표시`)
 };
 
 /**

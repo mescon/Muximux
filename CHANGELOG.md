@@ -2,6 +2,37 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.3.1] - 2026-07-28
+
+A discoverability and localisation release. The mouse and link shortcuts
+added in 3.3.0 are now documented in the interface itself, and every
+remaining English-only string has been translated. Drop-in.
+
+### Added
+- **The help modal is now a Quick Reference** (press `?`). Renamed from
+  "Keyboard Shortcuts" because it no longer covers only the keyboard: a new
+  Mouse & Links section documents right-clicking an app icon to edit it,
+  Ctrl/Cmd+Click or middle-click to open an app in a new browser tab, and the
+  `/#app` and `/#app1+app2` link forms. These worked in 3.3.0 but were
+  invisible unless you read the wiki.
+
+### Changed
+- The Quick Reference is wider and its Mouse & Links section spans the full
+  width, so rows that previously wrapped across three lines now fit on one.
+  The dialog also describes itself to screen readers via its subtitle.
+
+### Fixed
+- **The interface is fully translated again.** Every string that was
+  English-only is now translated in all 36 other languages: the Quick
+  Reference, the keyboard-reordering announcements and slug-conflict warning
+  from 3.2.3, and the dynamic tab branding from 3.3.0. All 37 locales carry
+  every key.
+- The identity-forwarding sentence in the custom-headers help (added in
+  3.2.2) had never been translated; it is now present in every language.
+- The command palette and keybindings settings still called the help modal
+  "Keyboard Shortcuts" in every language, sending anyone looking for the
+  mouse shortcuts past the entry that documents them.
+
 ## [3.3.0] - 2026-07-27
 
 Three quality-of-life features for getting at your apps faster, plus a

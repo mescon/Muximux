@@ -667,7 +667,7 @@
     // auxclick handling existed) -- falling through would fire the webhook.
     if (e?.button === 1 && app.open_mode === 'http_action') return;
     const url = getEffectiveUrl(app);
-    // Ctrl/Cmd+Click or middle-click opens a real browser tab regardless of
+    // Ctrl/Cmd+Click or middle-click opens a new browser tab regardless of
     // the app's open_mode (#407); http_action is excluded inside wantsNewTab.
     // No trackVisit here: the LRU iframe cache is for in-dashboard views,
     // and marking the app visited would mount a hidden iframe for it (and

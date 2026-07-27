@@ -82,6 +82,7 @@
   role="dialog"
   aria-modal="true"
   aria-label={m.shortcuts_title()}
+  aria-describedby="shortcuts-subtitle"
   tabindex="-1"
   transition:fade={{ duration: 150 }}
 >
@@ -97,7 +98,7 @@
     <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-subtle);">
       <div>
         <h2 class="text-lg font-semibold" style="color: var(--text-primary);">{m.shortcuts_title()}</h2>
-        <p class="text-xs mt-0.5" style="color: var(--text-muted);">{m.shortcuts_subtitle()}</p>
+        <p id="shortcuts-subtitle" class="text-xs mt-0.5" style="color: var(--text-muted);">{m.shortcuts_subtitle()}</p>
       </div>
       <button
         class="shortcuts-close-btn p-1.5 rounded-md"

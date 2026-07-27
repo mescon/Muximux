@@ -2,7 +2,7 @@
 
 > Auto-generated i18n message functions. Import `messages.js` to use translated strings.
 
-Compiled from: `/home/mescon/Projects/muximux3/web/project.inlang`
+Compiled from: `./project.inlang`
 
 
 ## What is this folder?

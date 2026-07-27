@@ -33,8 +33,7 @@ export const localStorageKey = "PARAGLIDE_LOCALE";
  * @type {Array<"cookie" | "baseLocale" | "globalVariable" | "url" | "preferredLanguage" | "localStorage" | `custom-${string}`>}
  */
 export const strategy = [
-  "cookie",
-  "globalVariable",
+  "localStorage",
   "baseLocale"
 ];
 /**
@@ -231,7 +230,7 @@ export const urlPatterns = [
 export let serverAsyncLocalStorage = undefined;
 export const disableAsyncLocalStorage = false;
 export const experimentalMiddlewareLocaleSplitting = false;
-export const isServer = typeof window === 'undefined';
+export const isServer = import.meta.env?.SSR ?? typeof window === 'undefined';
 /** @type {Locale | undefined} */
 export const experimentalStaticLocale = undefined;
 /**
@@ -247,12 +246,12 @@ export const experimentalStaticLocale = undefined;
 export function overwriteServerAsyncLocalStorage(value) {
     serverAsyncLocalStorage = value;
 }
-const TREE_SHAKE_COOKIE_STRATEGY_USED = true;
+const TREE_SHAKE_COOKIE_STRATEGY_USED = false;
 const TREE_SHAKE_URL_STRATEGY_USED = false;
-const TREE_SHAKE_GLOBAL_VARIABLE_STRATEGY_USED = true;
+const TREE_SHAKE_GLOBAL_VARIABLE_STRATEGY_USED = false;
 const TREE_SHAKE_PREFERRED_LANGUAGE_STRATEGY_USED = false;
 const TREE_SHAKE_DEFAULT_URL_PATTERN_USED = true;
-const TREE_SHAKE_LOCAL_STORAGE_STRATEGY_USED = false;
+const TREE_SHAKE_LOCAL_STORAGE_STRATEGY_USED = true;
 
 /** @type {any} */ (globalThis).__paraglide =
 	/** @type {any} */ (globalThis).__paraglide ?? {};

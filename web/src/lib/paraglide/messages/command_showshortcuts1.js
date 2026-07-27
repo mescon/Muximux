@@ -10,147 +10,147 @@ const en_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inpu
 };
 
 const sv_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Visa tangentbordsgenvägar`)
+	return /** @type {LocalizedString} */ (`Visa snabbreferens`)
 };
 
 const uk_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Показати клавіатурні скорочення`)
+	return /** @type {LocalizedString} */ (`Показати короткий довідник`)
 };
 
 const zh_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`显示键盘快捷键`)
+	return /** @type {LocalizedString} */ (`显示快速参考`)
 };
 
 const es_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mostrar atajos de teclado`)
+	return /** @type {LocalizedString} */ (`Mostrar referencia rápida`)
 };
 
 const hi_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`कीबोर्ड शॉर्टकट दिखाएं`)
+	return /** @type {LocalizedString} */ (`त्वरित संदर्भ दिखाएं`)
 };
 
 const pt_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mostrar atalhos de teclado`)
+	return /** @type {LocalizedString} */ (`Mostrar referência rápida`)
 };
 
 const bn_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`কীবোর্ড শর্টকাট দেখান`)
+	return /** @type {LocalizedString} */ (`দ্রুত রেফারেন্স দেখান`)
 };
 
 const ru_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Показать горячие клавиши`)
+	return /** @type {LocalizedString} */ (`Показать краткую справку`)
 };
 
 const ja_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`キーボードショートカットを表示`)
+	return /** @type {LocalizedString} */ (`クイックリファレンスを表示`)
 };
 
 const vi_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hiển thị phím tắt`)
+	return /** @type {LocalizedString} */ (`Hiển thị tra cứu nhanh`)
 };
 
 const yue_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`顯示快速鍵`)
+	return /** @type {LocalizedString} */ (`顯示快速參考`)
 };
 
 const tr_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Klavye Kısayollarını Göster`)
+	return /** @type {LocalizedString} */ (`Hızlı Başvuruyu Göster`)
 };
 
 const ar_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`عرض اختصارات لوحة المفاتيح`)
+	return /** @type {LocalizedString} */ (`عرض المرجع السريع`)
 };
 
 const wuu_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`显示快捷键`)
+	return /** @type {LocalizedString} */ (`显示快速参考`)
 };
 
 const mr_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`कीबोर्ड शॉर्टकट दाखवा`)
+	return /** @type {LocalizedString} */ (`द्रुत संदर्भ दाखवा`)
 };
 
 const nb_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vis tastatursnarveier`)
+	return /** @type {LocalizedString} */ (`Vis hurtigreferanse`)
 };
 
 const fi_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Näytä pikanäppäimet`)
+	return /** @type {LocalizedString} */ (`Näytä pikaopas`)
 };
 
 const da_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vis tastaturgenveje`)
+	return /** @type {LocalizedString} */ (`Vis hurtig oversigt`)
 };
 
 const et_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Kuva kiirklahvid`)
+	return /** @type {LocalizedString} */ (`Kuva kiirjuhend`)
 };
 
 const lv_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rādīt tastatūras saīsnes`)
+	return /** @type {LocalizedString} */ (`Rādīt ātro uzziņu`)
 };
 
 const lt_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rodyti klaviatūros sparčiuosius klavišus`)
+	return /** @type {LocalizedString} */ (`Rodyti greitą apžvalgą`)
 };
 
 const pl_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pokaż skróty klawiszowe`)
+	return /** @type {LocalizedString} */ (`Pokaż szybki przewodnik`)
 };
 
 const de_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tastenkürzel anzeigen`)
+	return /** @type {LocalizedString} */ (`Kurzübersicht anzeigen`)
 };
 
 const nl_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sneltoetsen tonen`)
+	return /** @type {LocalizedString} */ (`Snel overzicht tonen`)
 };
 
 const fr_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Afficher les raccourcis clavier`)
+	return /** @type {LocalizedString} */ (`Afficher l'aide-mémoire`)
 };
 
 const it_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mostra scorciatoie da tastiera`)
+	return /** @type {LocalizedString} */ (`Mostra guida rapida`)
 };
 
 const hu_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billentyűparancsok megjelenítése`)
+	return /** @type {LocalizedString} */ (`Gyors áttekintés megjelenítése`)
 };
 
 const cs_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Zobrazit klávesové zkratky`)
+	return /** @type {LocalizedString} */ (`Zobrazit rychlý přehled`)
 };
 
 const ro_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Afișează scurtăturile de tastatură`)
+	return /** @type {LocalizedString} */ (`Afișează ghidul rapid`)
 };
 
 const el_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Εμφάνιση συντομεύσεων πληκτρολογίου`)
+	return /** @type {LocalizedString} */ (`Εμφάνιση γρήγορης αναφοράς`)
 };
 
 const bg_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Покажи клавишните комбинации`)
+	return /** @type {LocalizedString} */ (`Покажи краткия справочник`)
 };
 
 const hr_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prikaži tipkovne prečace`)
+	return /** @type {LocalizedString} */ (`Prikaži brzi pregled`)
 };
 
 const sr_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prikaži prečice na tastaturi`)
+	return /** @type {LocalizedString} */ (`Prikaži brzi pregled`)
 };
 
 const sk_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Zobraziť klávesové skratky`)
+	return /** @type {LocalizedString} */ (`Zobraziť rýchly prehľad`)
 };
 
 const sl_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prikaži tipkovne bližnjice`)
+	return /** @type {LocalizedString} */ (`Prikaži hitri pregled`)
 };
 
 const ko_command_showshortcuts1 = /** @type {(inputs: Command_Showshortcuts1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`키보드 단축키 표시`)
+	return /** @type {LocalizedString} */ (`빠른 참조 표시`)
 };
 
 /**

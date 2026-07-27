@@ -3,7 +3,7 @@ import type { App } from './types';
 /**
  * True when a click carries the universal "open in a new browser tab"
  * intent: Ctrl+Click (Cmd+Click on macOS) or middle-click. Selecting an app
- * this way opens its effective URL in a real browser tab instead of the
+ * this way opens its effective URL in a new browser tab instead of the
  * app's configured open_mode (#407).
  *
  * http_action apps are excluded -- they have no page to open, so the
