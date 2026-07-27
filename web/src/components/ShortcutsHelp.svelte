@@ -40,10 +40,22 @@
   const additionalShortcuts = $derived([
     {
       get category() { return m.shortcuts_categoryModal(); },
+      wide: false,
       items: [
         { get keys() { return [m.shortcuts_keyEscape()]; }, get description() { return m.shortcuts_descCloseModals(); } },
         { get keys() { return [m.shortcuts_keyUpDown()]; }, get description() { return m.shortcuts_descNavigateResults(); } },
         { get keys() { return [m.shortcuts_keyEnter()]; }, get description() { return m.shortcuts_descSelectItem(); } }
+      ]
+    },
+    {
+      get category() { return m.shortcuts_categoryMouse(); },
+      // Spans both grid columns: these rows have long labels and wide key
+      // chips, so a half-width column forces them to wrap.
+      wide: true,
+      items: [
+        { get keys() { return [m.shortcuts_keyRightClick()]; }, get description() { return m.shortcuts_descEditApp(); } },
+        { get keys() { return [m.shortcuts_keyCtrlClick(), m.shortcuts_keyMiddleClick()]; }, get description() { return m.shortcuts_descOpenNewTab(); } },
+        { get keys() { return [m.shortcuts_keyHashLink(), m.shortcuts_keyHashSplitLink()]; }, get description() { return m.shortcuts_descDirectLink(); } }
       ]
     }
   ]);
@@ -77,13 +89,16 @@
     class="shortcuts-modal shadow-2xl w-full overflow-hidden
            {isMobile
              ? 'h-full max-h-full rounded-none'
-             : 'rounded-xl max-w-2xl'}"
+             : 'rounded-xl max-w-4xl'}"
     in:fly={{ y: isMobile ? 50 : 0, duration: 200 }}
     out:fade={{ duration: 100 }}
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-subtle);">
-      <h2 class="text-lg font-semibold" style="color: var(--text-primary);">{m.shortcuts_title()}</h2>
+      <div>
+        <h2 class="text-lg font-semibold" style="color: var(--text-primary);">{m.shortcuts_title()}</h2>
+        <p class="text-xs mt-0.5" style="color: var(--text-muted);">{m.shortcuts_subtitle()}</p>
+      </div>
       <button
         class="shortcuts-close-btn p-1.5 rounded-md"
         onclick={() => onclose?.()}
@@ -107,14 +122,14 @@
               </h3>
               <div class="space-y-2">
                 {#each bindings as binding (binding.action)}
-                  <div class="flex items-center justify-between py-1">
+                  <div class="flex items-start justify-between gap-3 py-1">
                     <span style="color: var(--text-secondary);">{binding.label}</span>
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-1 shrink-0">
                       {#each binding.combos as combo, i (i)}
                         {#if i > 0}
                           <span class="text-xs" style="color: var(--text-disabled);">{m.common_or()}</span>
                         {/if}
-                        <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
+                        <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono whitespace-nowrap">
                           {#if combo.ctrl}Ctrl+{/if}{#if combo.alt}Alt+{/if}{#if combo.shift}Shift+{/if}{#if combo.meta}⌘{/if}{combo.key.length === 1 ? combo.key.toUpperCase() : combo.key}
                         </kbd>
                       {/each}
@@ -133,9 +148,9 @@
               {m.shortcuts_categoryApps()}
             </h3>
             <div class="space-y-2">
-              <div class="flex items-center justify-between py-1">
+              <div class="flex items-start justify-between gap-3 py-1">
                 <span style="color: var(--text-secondary);">{m.shortcuts_descSwitchByNumber()}</span>
-                <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
+                <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono whitespace-nowrap">
                   {m.shortcuts_keyNumbers()}
                 </kbd>
               </div>
@@ -145,20 +160,20 @@
 
         <!-- Additional non-customizable shortcuts -->
         {#each additionalShortcuts as section (section.category)}
-          <div>
+          <div class={section.wide ? 'md:col-span-2' : ''}>
             <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
               {section.category}
             </h3>
             <div class="space-y-2">
               {#each section.items as shortcut (shortcut.description)}
-                <div class="flex items-center justify-between py-1">
+                <div class="flex items-start justify-between gap-3 py-1">
                   <span style="color: var(--text-secondary);">{shortcut.description}</span>
-                  <div class="flex items-center gap-1">
+                  <div class="flex items-center gap-1 shrink-0">
                     {#each shortcut.keys as key, i (i)}
                       {#if i > 0}
                         <span class="text-xs" style="color: var(--text-disabled);">{m.common_or()}</span>
                       {/if}
-                      <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
+                      <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono whitespace-nowrap">
                         {key}
                       </kbd>
                     {/each}

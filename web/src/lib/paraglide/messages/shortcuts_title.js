@@ -6,157 +6,157 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Shortcuts_TitleInputs */
 
 const en_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard Shortcuts`)
+	return /** @type {LocalizedString} */ (`Quick Reference`)
 };
 
 const sv_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tangentbordsgenvägar`)
+	return /** @type {LocalizedString} */ (`Snabbreferens`)
 };
 
 const uk_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Клавіатурні скорочення`)
+	return /** @type {LocalizedString} */ (`Короткий довідник`)
 };
 
 const zh_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`键盘快捷键`)
+	return /** @type {LocalizedString} */ (`快速参考`)
 };
 
 const es_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Atajos de teclado`)
+	return /** @type {LocalizedString} */ (`Referencia rápida`)
 };
 
 const hi_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`कीबोर्ड शॉर्टकट`)
+	return /** @type {LocalizedString} */ (`त्वरित संदर्भ`)
 };
 
 const pt_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Atalhos de teclado`)
+	return /** @type {LocalizedString} */ (`Referência rápida`)
 };
 
 const bn_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`কীবোর্ড শর্টকাট`)
+	return /** @type {LocalizedString} */ (`দ্রুত রেফারেন্স`)
 };
 
 const ru_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Горячие клавиши`)
+	return /** @type {LocalizedString} */ (`Краткая справка`)
 };
 
 const ja_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`キーボードショートカット`)
+	return /** @type {LocalizedString} */ (`クイックリファレンス`)
 };
 
 const vi_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Phím tắt`)
+	return /** @type {LocalizedString} */ (`Tra cứu nhanh`)
 };
 
 const yue_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`快速鍵`)
+	return /** @type {LocalizedString} */ (`快速參考`)
 };
 
 const tr_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Klavye Kısayolları`)
+	return /** @type {LocalizedString} */ (`Hızlı Başvuru`)
 };
 
 const ar_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`اختصارات لوحة المفاتيح`)
+	return /** @type {LocalizedString} */ (`مرجع سريع`)
 };
 
 const wuu_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`快捷键`)
+	return /** @type {LocalizedString} */ (`快速参考`)
 };
 
 const mr_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`कीबोर्ड शॉर्टकट`)
+	return /** @type {LocalizedString} */ (`द्रुत संदर्भ`)
 };
 
 const nb_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tastatursnarveier`)
+	return /** @type {LocalizedString} */ (`Hurtigreferanse`)
 };
 
 const fi_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pikanäppäimet`)
+	return /** @type {LocalizedString} */ (`Pikaopas`)
 };
 
 const da_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tastaturgenveje`)
+	return /** @type {LocalizedString} */ (`Hurtig oversigt`)
 };
 
 const et_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Kiirklahvid`)
+	return /** @type {LocalizedString} */ (`Kiirjuhend`)
 };
 
 const lv_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tastatūras saīsnes`)
+	return /** @type {LocalizedString} */ (`Ātrā uzziņa`)
 };
 
 const lt_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Klaviatūros spartieji klavišai`)
+	return /** @type {LocalizedString} */ (`Greita apžvalga`)
 };
 
 const pl_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Skróty klawiszowe`)
+	return /** @type {LocalizedString} */ (`Szybki przewodnik`)
 };
 
 const de_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tastenkürzel`)
+	return /** @type {LocalizedString} */ (`Kurzübersicht`)
 };
 
 const nl_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sneltoetsen`)
+	return /** @type {LocalizedString} */ (`Snel overzicht`)
 };
 
 const fr_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Raccourcis clavier`)
+	return /** @type {LocalizedString} */ (`Aide-mémoire`)
 };
 
 const it_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scorciatoie da tastiera`)
+	return /** @type {LocalizedString} */ (`Guida rapida`)
 };
 
 const hu_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billentyűparancsok`)
+	return /** @type {LocalizedString} */ (`Gyors áttekintés`)
 };
 
 const cs_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Klávesové zkratky`)
+	return /** @type {LocalizedString} */ (`Rychlý přehled`)
 };
 
 const ro_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scurtături de tastatură`)
+	return /** @type {LocalizedString} */ (`Ghid rapid`)
 };
 
 const el_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Συντομεύσεις πληκτρολογίου`)
+	return /** @type {LocalizedString} */ (`Γρήγορη αναφορά`)
 };
 
 const bg_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Клавишни комбинации`)
+	return /** @type {LocalizedString} */ (`Кратък справочник`)
 };
 
 const hr_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tipkovni prečaci`)
+	return /** @type {LocalizedString} */ (`Brzi pregled`)
 };
 
 const sr_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Prečice na tastaturi`)
+	return /** @type {LocalizedString} */ (`Brzi pregled`)
 };
 
 const sk_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Klávesové skratky`)
+	return /** @type {LocalizedString} */ (`Rýchly prehľad`)
 };
 
 const sl_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tipkovne bližnjice`)
+	return /** @type {LocalizedString} */ (`Hitri pregled`)
 };
 
 const ko_shortcuts_title = /** @type {(inputs: Shortcuts_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`키보드 단축키`)
+	return /** @type {LocalizedString} */ (`빠른 참조`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Keyboard Shortcuts" |
+* | "Quick Reference" |
 *
 * @param {Shortcuts_TitleInputs} inputs
 * @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" | "ko" }} options

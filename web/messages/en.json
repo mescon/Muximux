@@ -530,7 +530,7 @@
   "keybindings_conflictDetected": "Conflict detected",
   "keybindings_conflictDesc": "This shortcut is already used by:",
   "keybindings_useAnyway": "Use Anyway",
-  "shortcuts_title": "Keyboard Shortcuts",
+  "shortcuts_title": "Quick Reference",
   "shortcuts_closeAriaLabel": "Close",
   "shortcuts_categoryNavigation": "Navigation",
   "shortcuts_categoryActions": "Actions",
@@ -544,6 +544,15 @@
   "shortcuts_descCloseModals": "Close modals / Go to home",
   "shortcuts_descNavigateResults": "Navigate results (in search/palette)",
   "shortcuts_descSelectItem": "Select highlighted item",
+  "shortcuts_categoryMouse": "Mouse & Links",
+  "shortcuts_keyRightClick": "Right-click",
+  "shortcuts_keyCtrlClick": "Ctrl/Cmd+Click",
+  "shortcuts_keyMiddleClick": "Middle-click",
+  "shortcuts_keyHashLink": "/#app",
+  "shortcuts_keyHashSplitLink": "/#app1+app2",
+  "shortcuts_descEditApp": "Edit an app in place (admin only)",
+  "shortcuts_descOpenNewTab": "Open an app in a new tab",
+  "shortcuts_descDirectLink": "Link to an app, or two apps in split view",
   "shortcuts_descSwitchByNumber": "Switch to app by number",
   "shortcuts_customizeHint": "Customize shortcuts in",
   "shortcuts_settingsKeybindings": "Settings → Keybindings",
@@ -798,5 +807,6 @@
   "docker_popover_header_running": "Running",
   "docker_modal_confirm_stop": "Stop container '{name}'?",
   "docker_modal_confirm_restart": "Restart container '{name}'?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "shortcuts_subtitle": "Keyboard, mouse and link shortcuts"
 }

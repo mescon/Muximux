@@ -9,114 +9,149 @@ const en_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedStri
 	return /** @type {LocalizedString} */ (`Move ${i?.name} up`)
 };
 
+const sv_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Flytta ${i?.name} uppåt`)
+};
+
+const uk_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Перемістити ${i?.name} вгору`)
+};
+
+const zh_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`上移 ${i?.name}`)
+};
+
+const es_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Subir ${i?.name}`)
+};
+
+const hi_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} को ऊपर ले जाएं`)
+};
+
+const pt_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Mover ${i?.name} para cima`)
+};
+
+const bn_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} উপরে সরান`)
+};
+
+const ru_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Переместить ${i?.name} вверх`)
+};
+
+const ja_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} を上に移動`)
+};
+
+const vi_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Di chuyển ${i?.name} lên`)
+};
+
+const yue_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`將 ${i?.name} 向上移`)
+};
+
+const tr_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} uygulamasını yukarı taşı`)
+};
+
+const ar_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`نقل ${i?.name} لأعلى`)
+};
+
+const wuu_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} 往上移`)
+};
+
+const mr_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} वर हलवा`)
+};
+
+const nb_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Flytt ${i?.name} opp`)
+};
+
+const fi_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Siirrä sovellus "${i?.name}" ylöspäin`)
+};
+
+const da_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Flyt ${i?.name} op`)
+};
+
+const et_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Liiguta rakendus "${i?.name}" üles`)
+};
+
+const lv_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Pārvietot lietotni "${i?.name}" uz augšu`)
+};
+
+const lt_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Perkelti programą "${i?.name}" aukštyn`)
+};
+
+const pl_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Przenieś ${i?.name} w górę`)
+};
+
+const de_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} nach oben verschieben`)
+};
+
+const nl_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} omhoog verplaatsen`)
+};
+
+const fr_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Déplacer ${i?.name} vers le haut`)
+};
+
+const it_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Sposta ${i?.name} su`)
+};
+
+const hu_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`"${i?.name}" alkalmazás mozgatása felfelé`)
+};
+
+const cs_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Přesunout ${i?.name} nahoru`)
+};
+
+const ro_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Mută ${i?.name} mai sus`)
+};
+
+const el_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Μετακίνηση της εφαρμογής "${i?.name}" πάνω`)
+};
+
+const bg_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Премести ${i?.name} нагоре`)
+};
+
+const hr_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Pomakni aplikaciju "${i?.name}" gore`)
+};
+
+const sr_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Pomeri aplikaciju "${i?.name}" gore`)
+};
+
+const sk_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Presunúť ${i?.name} nahor`)
+};
+
+const sl_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Premakni aplikacijo "${i?.name}" navzgor`)
+};
+
 const ko_apps_moveup1 = /** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */ (i) => {
 	return /** @type {LocalizedString} */ (`${i?.name} 위로 이동`)
 };
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const sv_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const uk_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const zh_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const es_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const hi_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const pt_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const bn_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const ru_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const ja_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const vi_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const yue_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const tr_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const ar_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const wuu_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const mr_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const nb_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const fi_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const da_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const et_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const lv_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const lt_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const pl_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const de_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const nl_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const fr_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const it_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const hu_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const cs_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const ro_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const el_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const bg_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const hr_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const sr_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const sk_apps_moveup1 = en_apps_moveup1;
-
-/** @type {(inputs: Apps_Moveup1Inputs) => LocalizedString} */
-const sl_apps_moveup1 = en_apps_moveup1;
 
 /**
 * | output |

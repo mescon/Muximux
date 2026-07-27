@@ -39,9 +39,12 @@ describe('ShortcutsHelp', () => {
     vi.clearAllMocks();
   });
 
-  it('renders "Keyboard Shortcuts" heading', () => {
+  it('renders the "Quick Reference" heading and subtitle', () => {
     render(ShortcutsHelp);
-    expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
+    // Renamed from "Keyboard Shortcuts": the modal now also documents mouse
+    // actions and link forms, so the title is general and a subtitle says so.
+    expect(screen.getByText('Quick Reference')).toBeInTheDocument();
+    expect(screen.getByText('Keyboard, mouse and link shortcuts')).toBeInTheDocument();
   });
 
   it('displays keybindings grouped by category', () => {
@@ -74,6 +77,22 @@ describe('ShortcutsHelp', () => {
     render(ShortcutsHelp);
     expect(screen.getByText('Modal Navigation')).toBeInTheDocument();
     expect(screen.getByText('Close modals / Go to home')).toBeInTheDocument();
+  });
+
+  it('shows the "Mouse & Links" section with the discoverability rows (#407 follow-up)', () => {
+    render(ShortcutsHelp);
+    expect(screen.getByText('Mouse & Links')).toBeInTheDocument();
+    // Right-click to edit
+    expect(screen.getByText('Right-click')).toBeInTheDocument();
+    expect(screen.getByText(/Edit an app in place/)).toBeInTheDocument();
+    // Ctrl/Cmd or middle-click to open in a new tab
+    expect(screen.getByText('Ctrl/Cmd+Click')).toBeInTheDocument();
+    expect(screen.getByText('Middle-click')).toBeInTheDocument();
+    expect(screen.getByText('Open an app in a new tab')).toBeInTheDocument();
+    // Hash deep links, single and split
+    expect(screen.getByText('/#app')).toBeInTheDocument();
+    expect(screen.getByText('/#app1+app2')).toBeInTheDocument();
+    expect(screen.getByText(/two apps in split view/)).toBeInTheDocument();
   });
 
   it('shows customization hint', () => {

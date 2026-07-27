@@ -9,114 +9,149 @@ const en_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedSt
 	return /** @type {LocalizedString} */ (`Moved ${i?.name} to position ${i?.position} of ${i?.total}`)
 };
 
+const sv_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Flyttade ${i?.name} till position ${i?.position} av ${i?.total}`)
+};
+
+const uk_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Застосунок ${i?.name} переміщено на позицію ${i?.position} з ${i?.total}`)
+};
+
+const zh_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`已将 ${i?.name} 移动到第 ${i?.position} 位，共 ${i?.total} 位`)
+};
+
+const es_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} movida a la posición ${i?.position} de ${i?.total}`)
+};
+
+const hi_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} को ${i?.total} में से ${i?.position} स्थान पर ले जाया गया`)
+};
+
+const pt_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} movida para a posição ${i?.position} de ${i?.total}`)
+};
+
+const bn_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} কে ${i?.total}-এর মধ্যে ${i?.position} নম্বর অবস্থানে সরানো হয়েছে`)
+};
+
+const ru_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Приложение ${i?.name} перемещено на позицию ${i?.position} из ${i?.total}`)
+};
+
+const ja_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} を ${i?.total} 件中 ${i?.position} 番目に移動しました`)
+};
+
+const vi_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Đã chuyển ${i?.name} đến vị trí ${i?.position} trong ${i?.total}`)
+};
+
+const yue_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`已將 ${i?.name} 移到第 ${i?.position} 位（共 ${i?.total} 位）`)
+};
+
+const tr_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name}, ${i?.total} öğeden ${i?.position}. sıraya taşındı`)
+};
+
+const ar_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`تم نقل ${i?.name} إلى الموضع ${i?.position} من ${i?.total}`)
+};
+
+const wuu_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} 移到了第 ${i?.position} 位，一共 ${i?.total} 位`)
+};
+
+const mr_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} ला ${i?.total} पैकी ${i?.position} स्थानावर हलवले`)
+};
+
+const nb_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Flyttet ${i?.name} til posisjon ${i?.position} av ${i?.total}`)
+};
+
+const fi_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Sovellus "${i?.name}" siirretty sijalle ${i?.position}/${i?.total}`)
+};
+
+const da_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Flyttede ${i?.name} til position ${i?.position} af ${i?.total}`)
+};
+
+const et_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Rakendus "${i?.name}" liigutatud kohale ${i?.position} / ${i?.total}`)
+};
+
+const lv_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Lietotne "${i?.name}" pārvietota uz ${i?.position}. pozīciju no ${i?.total}`)
+};
+
+const lt_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Programa "${i?.name}" perkelta į ${i?.position} poziciją iš ${i?.total}`)
+};
+
+const pl_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Przeniesiono ${i?.name} na pozycję ${i?.position} z ${i?.total}`)
+};
+
+const de_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} auf Position ${i?.position} von ${i?.total} verschoben`)
+};
+
+const nl_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} verplaatst naar positie ${i?.position} van ${i?.total}`)
+};
+
+const fr_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} déplacée à la position ${i?.position} sur ${i?.total}`)
+};
+
+const it_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} spostata alla posizione ${i?.position} di ${i?.total}`)
+};
+
+const hu_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`"${i?.name}" áthelyezve a(z) ${i?.position}. helyre a(z) ${i?.total} közül`)
+};
+
+const cs_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Aplikace ${i?.name} přesunuta na pozici ${i?.position} z ${i?.total}`)
+};
+
+const ro_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`${i?.name} mutată pe poziția ${i?.position} din ${i?.total}`)
+};
+
+const el_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Η εφαρμογή "${i?.name}" μετακινήθηκε στη θέση ${i?.position} από ${i?.total}`)
+};
+
+const bg_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Приложението ${i?.name} е преместено на позиция ${i?.position} от ${i?.total}`)
+};
+
+const hr_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Aplikacija "${i?.name}" premještena na poziciju ${i?.position} od ${i?.total}`)
+};
+
+const sr_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Aplikacija "${i?.name}" premeštena na poziciju ${i?.position} od ${i?.total}`)
+};
+
+const sk_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Aplikácia ${i?.name} presunutá na pozíciu ${i?.position} z ${i?.total}`)
+};
+
+const sl_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
+	return /** @type {LocalizedString} */ (`Aplikacija "${i?.name}" premaknjena na mesto ${i?.position} od ${i?.total}`)
+};
+
 const ko_apps_movedto1 = /** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */ (i) => {
 	return /** @type {LocalizedString} */ (`${i?.name}이(가) ${i?.total}개 중 ${i?.position}번 위치로 이동되었습니다`)
 };
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const sv_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const uk_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const zh_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const es_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const hi_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const pt_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const bn_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const ru_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const ja_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const vi_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const yue_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const tr_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const ar_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const wuu_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const mr_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const nb_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const fi_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const da_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const et_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const lv_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const lt_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const pl_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const de_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const nl_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const fr_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const it_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const hu_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const cs_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const ro_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const el_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const bg_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const hr_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const sr_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const sk_apps_movedto1 = en_apps_movedto1;
-
-/** @type {(inputs: Apps_Movedto1Inputs) => LocalizedString} */
-const sl_apps_movedto1 = en_apps_movedto1;
 
 /**
 * | output |
