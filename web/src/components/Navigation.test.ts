@@ -1501,6 +1501,32 @@ describe('Navigation', () => {
   });
 
   // --------------------------------------------------------------------------
+  // Flat bar group markers act as jump targets
+  // --------------------------------------------------------------------------
+  describe('Flat bar group markers', () => {
+    it('renders group markers as labelled buttons that survive a click', async () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'top', show_labels: true, bar_style: 'flat' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const markers = container.querySelectorAll('button.flat-group-divider');
+      expect(markers.length).toBeGreaterThan(0);
+      expect(markers[0].getAttribute('aria-label')).toBeTruthy();
+      // jsdom has no scrollIntoView, so the handler must guard rather than
+      // throw and take the click listener down with it.
+      await fireEvent.click(markers[0]);
+      expect(container.querySelectorAll('button.flat-group-divider').length).toBe(markers.length);
+    });
+  });
+
+
+  // --------------------------------------------------------------------------
   // 17. No apps edge case (2 tests)
   // --------------------------------------------------------------------------
   describe('Edge cases', () => {

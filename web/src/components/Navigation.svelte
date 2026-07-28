@@ -337,6 +337,16 @@
     el.scrollLeft += e.deltaY || e.deltaX;
   }
 
+  // The flat bar is one long scrolling row, so its group markers double as
+  // jump targets: clicking one scrolls that group to the start of the row.
+  // Guarded because scrollIntoView is absent in jsdom and older embedded
+  // webviews, where a no-op beats taking the click handler down.
+  function scrollToGroup(e: MouseEvent) {
+    const marker = e.currentTarget as HTMLElement | null;
+    if (typeof marker?.scrollIntoView !== 'function') return;
+    marker.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+  }
+
   // Group apps by their group, sorted by order. The server now sends
   // disabled apps to admins (so the Settings UI can edit them and
   // round-trip saves don't silently destroy them), but disabled apps
@@ -1059,13 +1069,15 @@
             {@const groupConfig = getGroupConfig(groupName)}
             {#if hasRealGroups}
               <!-- Group icon divider -->
-              <!-- svelte-ignore a11y_no_static_element_interactions -->
-              <div
-                class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
+              <button
+                type="button"
+                class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-pointer
                        {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
                 style="{gi > 0 ? 'margin-inline-start: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
+                onclick={scrollToGroup}
                 title={groupName}
+                aria-label={groupName}
               >
                 {#if groupConfig?.icon?.name}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
@@ -1080,7 +1092,7 @@
                     class="fixed -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider pointer-events-none z-[100] px-1.5 py-0.5 rounded bg-bg-elevated/90 text-text-muted shadow-sm"
                   >{groupName}</span>
                 {/if}
-              </div>
+              </button>
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
               <button
@@ -2185,13 +2197,15 @@
           {#each groupNames as groupName, gi (groupName)}
             {@const groupConfig = getGroupConfig(groupName)}
             {#if hasRealGroups}
-              <!-- svelte-ignore a11y_no_static_element_interactions -->
-              <div
-                class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
+              <button
+                type="button"
+                class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-pointer
                        {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
                 style="{gi > 0 ? 'margin-inline-start: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
+                onclick={scrollToGroup}
                 title={groupName}
+                aria-label={groupName}
               >
                 {#if groupConfig?.icon?.name}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
@@ -2206,7 +2220,7 @@
                     class="fixed -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider pointer-events-none z-[100] px-1.5 py-0.5 rounded bg-bg-elevated/90 text-text-muted shadow-sm"
                   >{groupName}</span>
                 {/if}
-              </div>
+              </button>
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
               <button
