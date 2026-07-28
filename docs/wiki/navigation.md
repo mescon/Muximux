@@ -108,7 +108,13 @@ Toggling `auto_hide` in Settings during a session does not retroactively collaps
 
 ## Mobile
 
-On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. This provides a clean mobile experience with a FAB button in the bottom-right corner that opens the full app list as a popover panel. Your configured position is preserved in settings and takes effect again on wider viewports.
+On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. This provides a clean mobile experience: a single floating button opens the full app list as a popover panel, leaving the rest of the screen to the app. The button sits in whichever corner `floating_position` names (default `bottom-right`), so it can be moved out of the way of an app's own controls. Your configured position is preserved in settings and takes effect again on wider viewports.
+
+| App open | Navigation open |
+|---|---|
+| [![Mobile - app open](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/17-mobile.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/17-mobile.png) | [![Mobile - navigation](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/18-mobile-menu.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/18-mobile-menu.png) |
+
+The panel opens anchored to the button rather than filling the screen, so the button stays exactly where you pressed it. With the panel closed, the button is the only Muximux chrome on screen.
 
 Swipe left or right on the main content area to switch between apps.
 

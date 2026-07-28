@@ -53,6 +53,11 @@ One binary. One port. One YAML config file.
 <td align="center"><a href="docs/screenshots/15-split-vertical.png"><img src="docs/screenshots/15-split-vertical.png" width="280" alt="Split View - Vertical"></a><br><sub>Split View - Vertical</sub></td>
 <td align="center"><a href="docs/screenshots/16-command-palette.png"><img src="docs/screenshots/16-command-palette.png" width="280" alt="Command Palette"></a><br><sub>Command Palette</sub></td>
 </tr>
+<tr>
+<td align="center"><a href="docs/screenshots/17-mobile.png"><img src="docs/screenshots/17-mobile.png" width="140" alt="Mobile - App Open"></a><br><sub>Mobile - App Open</sub></td>
+<td align="center"><a href="docs/screenshots/18-mobile-menu.png"><img src="docs/screenshots/18-mobile-menu.png" width="140" alt="Mobile - Navigation"></a><br><sub>Mobile - Navigation</sub></td>
+<td></td>
+</tr>
 </table>
 </details>
 

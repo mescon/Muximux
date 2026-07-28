@@ -30,6 +30,7 @@ apps:
     proxy_skip_tls_verify: true     # Skip TLS cert verification for proxy (default: true)
     proxy_headers:                  # Custom headers sent to the backend
       X-Api-Key: "your-key"
+    forwarded_headers: true         # Send X-Forwarded-*/X-Real-IP (default true)
     scale: 1.0                      # Zoom level for iframe (0.5 - 2.0)
     health_check: true               # Enable health monitoring (opt-in, disabled by default)
     shortcut: 1                      # Assign keyboard shortcut 1-9
@@ -178,6 +179,39 @@ This is useful when an app is designed for a different screen size, has a minimu
 
 ---
 
+## Forwarded Headers
+
+When proxying an app, Muximux adds the usual reverse-proxy headers to the upstream request: `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto` and `X-Real-IP`. Most backends want these -- it is how they learn the real client IP and the scheme the browser used.
+
+Some do not. If your backend sits behind its own reverse proxy (Traefik, nginx, Caddy) that is configured to trust forwarded headers only from specific sources, that proxy will **reject the request outright** when Muximux is not in its trusted list. Traefik answers `400 Bad Request`, which surfaces in Muximux as a blank or failed pane with a 400 in the logs.
+
+Set `forwarded_headers: false` on the app to suppress them:
+
+```yaml
+apps:
+  - name: Seerr
+    url: https://request.example.com
+    proxy: true
+    forwarded_headers: false      # backend's reverse proxy rejects X-Forwarded-*
+```
+
+The field defaults to `true`, so omit it unless you hit this. It applies to both the HTTP and the WebSocket paths of the embedding proxy.
+
+The same option exists on [gateway sites](gateway-examples.md) for the same reason, and as the `muximux.gateway.forwarded_headers` [Docker label](docker-discovery.md).
+
+**Diagnosing it:** if a proxied app returns 400 while the same URL loads fine in a browser tab, compare the two directly:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://app.example.com/
+curl -s -o /dev/null -w '%{http_code}\n' -H 'X-Forwarded-For: 127.0.0.1' \
+     -H 'X-Forwarded-Proto: http' -H 'X-Forwarded-Host: muximux.example.com' \
+     https://app.example.com/
+```
+
+A `200` followed by a `400` confirms it; set `forwarded_headers: false` and reload.
+
+---
+
 ## Enabling and Disabling Apps
 
 Set `enabled: false` to hide an app from the navigation without removing its configuration:
@@ -228,7 +262,7 @@ Each bypass rule supports the following fields:
 **Common use cases:**
 
 - Allowing RSS feed readers to fetch feeds without a login session
-- Allowing API integrations (e.g., Overseerr calling Sonarr) to communicate through the proxy
+- Allowing API integrations (e.g., Seerr calling Sonarr) to communicate through the proxy
 - Allowing webhook receivers (e.g., from GitHub or notification services) to reach an app endpoint
 
 > **Tip:** Combine `require_api_key` or `allowed_ips` with auth bypass to ensure the endpoint is still protected -- just not by Muximux's session-based login.

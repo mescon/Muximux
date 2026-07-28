@@ -40,7 +40,7 @@ This step uses a two-column layout (single column on mobile):
 
 Below the Docker card, browse popular self-hosted application templates organized by category:
 
-- **Media** -- Plex, Jellyfin, Emby, Tautulli, Overseerr, Navidrome
+- **Media** -- Plex, Jellyfin, Emby, Tautulli, Seerr, Navidrome
 - **Downloads** -- Sonarr, Radarr, Lidarr, Prowlarr, qBittorrent, SABnzbd, NZBGet, Transmission, Deluge
 - **System** -- Portainer, Proxmox, Unraid, TrueNAS, Home Assistant, Pi-hole, AdGuard Home, Nginx Proxy Manager, Traefik, Grafana, Prometheus, Uptime Kuma
 - **Utilities** -- Vaultwarden, Nextcloud, Photoprism, Immich, Paperless-ngx, Gitea, Code Server, Syncthing, Mealie, Bookstack

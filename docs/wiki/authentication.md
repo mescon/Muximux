@@ -323,7 +323,7 @@ A user with no groups passes the role gate but fails any non-empty `allowed_grou
 
 ## API Key Authentication
 
-Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Overseerr or a cron job reach Muximux without having to maintain a logged-in session.
+Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Seerr or a cron job reach Muximux without having to maintain a logged-in session.
 
 **Important scope note:** the API key is not a universal bypass. It only authenticates requests whose path has been **allowlisted** with `require_api_key: true`. Everything else still requires a session cookie. This keeps a leaked key's blast radius bounded to exactly the endpoints the operator has opted in.
 
@@ -337,7 +337,7 @@ Out of the box, these paths accept `X-Api-Key`:
 
 Additionally, operators can allowlist **per-app proxy paths** via `auth_bypass` on each proxied app. This is the common integration pattern: expose a backend app's own API (e.g. Sonarr's `/api/v3/*`) through the Muximux reverse proxy, gated by the Muximux API key at the front door. See [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the full setup.
 
-#### Example 1: Overseerr calling Sonarr through Muximux
+#### Example 1: Seerr calling Sonarr through Muximux
 
 ```yaml
 apps:
@@ -354,7 +354,7 @@ apps:
         require_api_key: true
 ```
 
-Overseerr calls:
+Seerr calls:
 
 ```bash
 curl -H "X-Api-Key: $MUXIMUX_API_KEY" \
@@ -457,7 +457,7 @@ Muximux authentication controls access to the **Muximux dashboard and its API**.
 
 - **With `proxy: true`, no `auth_bypass`** -- Requests to the app go through Muximux's built-in reverse proxy, where a Muximux login session is required. Users must be logged in to reach the app. This is the secure option for interactive use.
 
-- **With `proxy: true` and `auth_bypass` rules** -- Specific paths on the proxied app can be opened to non-browser integrations that present the Muximux API key (see [Per-App Auth Bypass](apps.md#per-app-auth-bypass) and the Sonarr / Overseerr example in [API Key Authentication](#api-key-authentication)). Muximux still sits in the request path, so: the Muximux API key gates the front door, and `proxy_headers` injects the backend's own credentials on the way through -- the external caller never sees the backend's key. This is how you expose a backend API to another service without giving that service a Muximux login.
+- **With `proxy: true` and `auth_bypass` rules** -- Specific paths on the proxied app can be opened to non-browser integrations that present the Muximux API key (see [Per-App Auth Bypass](apps.md#per-app-auth-bypass) and the Sonarr / Seerr example in [API Key Authentication](#api-key-authentication)). Muximux still sits in the request path, so: the Muximux API key gates the front door, and `proxy_headers` injects the backend's own credentials on the way through -- the external caller never sees the backend's key. This is how you expose a backend API to another service without giving that service a Muximux login.
 
 - **Without `proxy: true`** -- The browser loads the app directly from its own URL (in an iframe, new tab, etc.). Muximux is not in the request path and has no ability to block or authenticate those requests. Anyone who knows the app's URL can access it directly.
 

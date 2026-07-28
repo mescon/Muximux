@@ -2,6 +2,43 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.3.2] - 2026-07-28
+
+A fix release for two layout bugs in 3.3.1, plus an escape hatch for
+backends that sit behind a strict reverse proxy. Drop-in.
+
+### Added
+- **`forwarded_headers` on apps.** Set it to `false` when a proxied backend
+  is fronted by a reverse proxy that only trusts `X-Forwarded-*` from
+  specific sources. Traefik and nginx answer `400 Bad Request` in that
+  situation, which made such a backend impossible to embed at all. The
+  option already existed for gateway sites; it now covers the embedding
+  proxy too, on both the HTTP and WebSocket paths. Defaults to `true`, so
+  nothing changes unless you set it.
+- Clicking a group marker in a flat top or bottom bar now scrolls that
+  group's apps into view. Flat mode has no collapsible sections, so the
+  markers were previously decorative.
+
+### Changed
+- The app catalog now lists **Seerr**, the project Overseerr and Jellyseerr
+  are merging into, and Docker discovery recognises the `seerr/seerr` and
+  `ghcr.io/seerr/seerr` images. The `linuxserver/overseerr` and
+  `fallenbagel/jellyseerr` mappings are unchanged and still report their own
+  names -- those tags remain the pre-merge projects.
+- Screenshots throughout the README and wiki have been retaken, and the
+  mobile view is now documented.
+
+### Fixed
+- **Dashboard tiles were sized to their labels.** A tile for "Home
+  Assistant" came out wider than one for "Pi-hole", so the overview grid was
+  visibly ragged and rows failed to line up. Tiles now fill their grid cell.
+- **The log viewer's message column collapsed to one character wide**,
+  rendering "HTTP request" vertically down the page, one letter per line.
+  Any entry carrying a wide attribute list triggered it, which is most HTTP
+  entries.
+- The mobile navigation button honours `floating_position`; the wiki
+  incorrectly stated it was always bottom-right.
+
 ## [3.3.1] - 2026-07-28
 
 A discoverability and localisation release. The mouse and link shortcuts

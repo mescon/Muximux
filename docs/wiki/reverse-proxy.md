@@ -300,5 +300,5 @@ The following apps have been tested with the built-in reverse proxy and runtime 
 |---|---|---|
 | Plex | Works | Full support including posters, PIN auth, WebSocket, media playback |
 | Sonarr/Radarr/Lidarr | Works | Set base URL to `/proxy/{slug}` for best results |
-| Overseerr | Works | |
+| Seerr | Works | |
 | Tautulli | Works | Set URL base in Tautulli settings |

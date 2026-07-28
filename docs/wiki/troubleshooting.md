@@ -55,7 +55,7 @@ Muximux includes a runtime URL interceptor that handles most of these cases auto
 | `location.pathname` checks | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
 | Inline event handlers | `<div onclick="go('/page')">` | URL in HTML attribute, not intercepted by runtime patches |
 
-**Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs, solving the problem at the source. Many popular apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Overseerr, Tautulli, etc.).
+**Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs, solving the problem at the source. Many popular apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
 
 ### Single-Page App (SPA) Routing Issues
 
