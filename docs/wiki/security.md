@@ -178,6 +178,10 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
    click, including any exposed via public gateway subdomains; review labels
    before turning it on, and use `muximux.app.enabled=false` to opt a
    container out.
+10. **Verify what you download** -- Release binaries and container images
+    carry signed SLSA provenance. Check it before deploying, pinning the
+    signing workflow rather than only the repository:
+    see [Verifying a Download](installation.md#verifying-a-download).
 
 ---
 

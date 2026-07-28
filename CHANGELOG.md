@@ -26,9 +26,13 @@ promptly if you use `auth_bypass` on a proxied app.
   asset. Verify a download without trusting the registry:
 
   ```
-  gh attestation verify muximux-linux-amd64 --repo mescon/Muximux
-  gh attestation verify oci://ghcr.io/mescon/muximux:3.3.2 --repo mescon/Muximux
+  gh attestation verify muximux-linux-amd64 --repo mescon/Muximux \
+    --signer-workflow mescon/Muximux/.github/workflows/release.yml
   ```
+
+  Naming the signing workflow asserts *which* workflow built the artifact;
+  bare `--repo` only asserts that some workflow in the repository did. See
+  [Verifying a Download](https://github.com/mescon/Muximux/wiki/installation#verifying-a-download).
 
 ### Changed
 - The app catalog now lists **Seerr**, the project Overseerr and Jellyseerr

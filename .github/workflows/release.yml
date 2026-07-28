@@ -113,6 +113,22 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,value=latest,enable=${{ !contains(github.ref, '-') }}
 
+      # Derive the same version metadata the binary job uses, so a container
+      # and a downloaded binary from one tag identify themselves identically.
+      # github.ref_name carries the leading "v" and github.sha is the full
+      # 40-char hash; the binary job strips both.
+      - name: Normalise version metadata
+        id: ver
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          {
+            echo "version=${REF_NAME#v}"
+            echo "commit=${SHA:0:8}"
+            echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
@@ -123,9 +139,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VERSION=${{ github.ref_name }}
-            COMMIT=${{ github.sha }}
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ steps.ver.outputs.version }}
+            COMMIT=${{ steps.ver.outputs.commit }}
+            BUILD_DATE=${{ steps.ver.outputs.build_date }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

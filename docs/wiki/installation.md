@@ -97,6 +97,64 @@ By default, Muximux uses `data/` beside the binary as its base data directory, w
 
 ---
 
+## Verifying a Download
+
+Every release binary and container image published from 3.3.2 onward carries
+a signed [SLSA provenance](https://slsa.dev/provenance/v1) attestation binding
+it to the exact workflow, repository and tag that produced it. The signing key
+is ephemeral and never stored -- GitHub's OIDC token binds the certificate to
+the individual workflow run.
+
+Verification needs the [GitHub CLI](https://cli.github.com/) and no other setup.
+
+### Binaries
+
+```bash
+gh attestation verify muximux-linux-amd64 \
+  --repo mescon/Muximux \
+  --signer-workflow mescon/Muximux/.github/workflows/release.yml
+```
+
+### Container images
+
+```bash
+gh attestation verify oci://ghcr.io/mescon/muximux:3.3.2 \
+  --repo mescon/Muximux \
+  --signer-workflow mescon/Muximux/.github/workflows/release.yml
+```
+
+An exit status of `0` means the artifact verified; recent `gh` versions print
+nothing on success. A failure exits non-zero and says why.
+
+**Prefer `--signer-workflow` over bare `--repo`.** On its own, `--repo` only
+asserts that *some* workflow in the repository signed the artifact. Naming the
+workflow asserts *which* one, so a build produced by any other workflow in the
+repo -- including one added by a compromised or mistaken change -- fails the
+check rather than passing it.
+
+### Checksums
+
+`checksums.txt` accompanies every release and covers the binaries and the SBOM:
+
+```bash
+sha256sum -c checksums.txt
+```
+
+Checksums confirm the file is intact; the attestation confirms *where it came
+from*. They answer different questions, so use both.
+
+### SBOM
+
+`muximux-sbom.spdx.json` is an SPDX 2.3 software bill of materials for the
+release. It lets you answer "is this build affected by CVE-X" without
+rebuilding, and can be fed straight to a scanner:
+
+```bash
+grype sbom:muximux-sbom.spdx.json
+```
+
+---
+
 ## Building from Source
 
 Building from source requires:
