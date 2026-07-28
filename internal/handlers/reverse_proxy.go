@@ -108,6 +108,10 @@ type proxyRoute struct {
 	rewriter          *contentRewriter
 	customHeaders     map[string]string
 	sessionCookieName string
+	// forwardedHeaders mirrors AppConfig.ForwardedOrDefault(). Backends
+	// behind a reverse proxy that distrusts X-Forwarded-* answer 400 when
+	// they receive them, so operators need a per-app opt-out.
+	forwardedHeaders bool
 
 	// Access controls mirrored from the source AppConfig. ServeHTTP
 	// enforces both before forwarding so a non-admin user who has
@@ -761,7 +765,7 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 
 	appName := app.Name
 	proxy := &httputil.ReverseProxy{
-		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders, sessionCookieName),
+		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders, sessionCookieName, app.ForwardedOrDefault()),
 		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter), //nolint:bodyclose // response body managed by httputil.ReverseProxy
 		Transport:      transport,
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
@@ -792,6 +796,7 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 		rewriter:          rewriter,
 		customHeaders:     app.ProxyHeaders,
 		sessionCookieName: sessionCookieName,
+		forwardedHeaders:  app.ForwardedOrDefault(),
 		minRole:           app.MinRole,
 		allowedGroups:     append([]string(nil), app.AllowedGroups...),
 	}
@@ -845,7 +850,7 @@ func sanitizeHeaderValue(v string) string {
 	return strings.NewReplacer("\r", "", "\n", "", "\x00", "").Replace(v)
 }
 
-func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string, sessionCookieName string) func(*http.Request) {
+func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string, sessionCookieName string, forwardedHeaders bool) func(*http.Request) {
 	// Precompute whether any custom-header value uses an identity
 	// template, so the common (static-header) path never touches the
 	// request context.
@@ -873,7 +878,9 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		req.URL.Scheme = targetURL.Scheme
 		req.URL.Host = targetURL.Host
 
-		setProxyHeaders(req)
+		if forwardedHeaders {
+			setProxyHeaders(req)
+		}
 		stripSessionCookie(req, sessionCookieName)
 
 		// Inject per-app custom headers (e.g., Authorization, X-Api-Key).
@@ -2056,8 +2063,12 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 	defer backendConn.Close()
 
-	// Add proxy headers to the original request before forwarding
-	setProxyHeaders(r)
+	// Add proxy headers to the original request before forwarding, unless
+	// the operator disabled them for this app (backends behind a strict
+	// reverse proxy reject X-Forwarded-* from untrusted sources).
+	if route.forwardedHeaders {
+		setProxyHeaders(r)
+	}
 
 	// Send upgrade request to backend
 	upgradeReq := route.buildUpgradeRequest(r, backendPath, targetHost)

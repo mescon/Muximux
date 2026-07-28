@@ -491,13 +491,21 @@ type AppConfig struct {
 	Proxy               bool              `yaml:"proxy"`
 	ProxySkipTLSVerify  *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
 	ProxyHeaders        map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
-	Scale               float64           `yaml:"scale"`
-	Shortcut            *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
-	MinRole             string            `yaml:"min_role,omitempty"`                           // minimum role to see this app (default: "user")
-	AllowedGroups       []string          `yaml:"allowed_groups,omitempty"`                     // optional group allowlist; user must be in at least one of these groups (empty = no group gate)
-	ForceIconBackground bool              `yaml:"force_icon_background,omitempty"`              // show icon background even when global setting is off
-	AuthBypass          []AuthBypassRule  `yaml:"auth_bypass"`
-	Access              AppAccessConfig   `yaml:"access"`
+	// ForwardedHeaders defaults to true: emit X-Forwarded-For,
+	// X-Forwarded-Host, X-Forwarded-Proto and X-Real-IP to the backend.
+	// Set false for backends that reject them -- a Traefik or nginx in
+	// front of the app will answer 400 when it receives X-Forwarded-*
+	// from a source it does not trust, which makes the app unembeddable
+	// until the headers are suppressed. Mirrors GatewaySite.ForwardedHeaders
+	// so both proxies expose the same escape hatch.
+	ForwardedHeaders    *bool            `yaml:"forwarded_headers,omitempty" json:"forwarded_headers,omitempty"`
+	Scale               float64          `yaml:"scale"`
+	Shortcut            *int             `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
+	MinRole             string           `yaml:"min_role,omitempty"`                           // minimum role to see this app (default: "user")
+	AllowedGroups       []string         `yaml:"allowed_groups,omitempty"`                     // optional group allowlist; user must be in at least one of these groups (empty = no group gate)
+	ForceIconBackground bool             `yaml:"force_icon_background,omitempty"`              // show icon background even when global setting is off
+	AuthBypass          []AuthBypassRule `yaml:"auth_bypass"`
+	Access              AppAccessConfig  `yaml:"access"`
 	// Permissions is the list of browser feature policy permissions delegated to
 	// the iframe (camera, microphone, geolocation, fullscreen, display-capture,
 	// clipboard-read, clipboard-write, autoplay, midi, payment). Empty = no
@@ -526,6 +534,14 @@ type AppConfig struct {
 	// Only such apps are updated or removed by auto-import; manually
 	// imported apps (DockerKey set, this false) are never touched.
 	DockerAutoImported bool `yaml:"docker_auto,omitempty" json:"docker_auto,omitempty"`
+}
+
+// ForwardedOrDefault reports whether the embedding proxy should emit the
+// X-Forwarded-* and X-Real-IP headers for this app, defaulting to true
+// when the operator left the field unset. Keeps the "nil means default
+// true" convention in one place, matching GatewaySite.ForwardedOrDefault.
+func (a *AppConfig) ForwardedOrDefault() bool {
+	return a.ForwardedHeaders == nil || *a.ForwardedHeaders
 }
 
 // AppIconConfig holds app icon settings

@@ -14,6 +14,10 @@ export interface App {
   health_check?: boolean;  // true = enabled, undefined/false = disabled (opt-in)
   proxy_skip_tls_verify?: boolean;
   proxy_headers?: Record<string, string>;
+  // Emit X-Forwarded-* / X-Real-IP to the backend. Defaults to true when
+  // unset; set false for backends fronted by a reverse proxy that rejects
+  // those headers from an untrusted source (Traefik answers 400).
+  forwarded_headers?: boolean;
   http_action_method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   http_action_headers?: Record<string, string>;
   http_action_confirm?: boolean;

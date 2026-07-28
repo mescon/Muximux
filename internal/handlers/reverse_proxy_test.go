@@ -622,7 +622,7 @@ func TestDirectorPathMapping(t *testing.T) {
 
 func TestDirectorOriginRefererRewriting(t *testing.T) {
 	targetURL, _ := url.Parse("https://192.0.2.42:8989")
-	director := buildDirector("/proxy/sonarr", "", targetURL, nil, "")
+	director := buildDirector("/proxy/sonarr", "", targetURL, nil, "", true)
 
 	tests := []struct {
 		name            string
@@ -753,7 +753,7 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 	// Test with targetPath to verify Referer includes backend base path
 	t.Run("referer includes target path for subpath apps", func(t *testing.T) {
 		subURL, _ := url.Parse("http://192.0.2.100/admin")
-		subDirector := buildDirector("/proxy/pihole", "/admin", subURL, nil, "")
+		subDirector := buildDirector("/proxy/pihole", "/admin", subURL, nil, "", true)
 		req := httptest.NewRequest("POST", "/proxy/pihole/settings", nil)
 		req.Header.Set("Referer", "https://muximux.example.com/proxy/pihole/settings")
 		subDirector(req)
@@ -2169,6 +2169,68 @@ func TestSetProxyHeaders(t *testing.T) {
 			t.Errorf("X-Forwarded-Proto = %q, want 'https'", got)
 		}
 	})
+}
+
+// TestForwardedOrDefault covers the nil-means-true convention on
+// AppConfig, which mirrors GatewaySite.ForwardedOrDefault.
+func TestForwardedOrDefault(t *testing.T) {
+	tr, fa := true, false
+	cases := []struct {
+		name string
+		in   *bool
+		want bool
+	}{
+		{"unset defaults to true", nil, true},
+		{"explicit true", &tr, true},
+		{"explicit false", &fa, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			app := &config.AppConfig{ForwardedHeaders: tc.in}
+			if got := app.ForwardedOrDefault(); got != tc.want {
+				t.Errorf("ForwardedOrDefault() = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+// TestBuildDirector_ForwardedHeadersDisabled proves the director skips
+// the X-Forwarded-* block when an app opts out. Backends fronted by a
+// strict Traefik/nginx answer 400 when they receive those headers from
+// an untrusted source, so suppressing them is what makes such a backend
+// embeddable at all.
+func TestBuildDirector_ForwardedHeadersDisabled(t *testing.T) {
+	target, err := url.Parse("http://backend.invalid")
+	if err != nil {
+		t.Fatalf("parse target: %v", err)
+	}
+
+	for _, tc := range []struct {
+		name      string
+		forwarded bool
+		wantSet   bool
+	}{
+		{"enabled sends them", true, true},
+		{"disabled suppresses them", false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			director := buildDirector("/proxy/app", "", target, nil, "muximux_session", tc.forwarded)
+			req := httptest.NewRequest("GET", "/proxy/app/page", nil)
+			req.RemoteAddr = "192.168.1.100:12345"
+
+			director(req)
+
+			for _, h := range []string{"X-Forwarded-For", "X-Forwarded-Host", "X-Forwarded-Proto", "X-Real-IP"} {
+				got := req.Header.Get(h)
+				if tc.wantSet && got == "" {
+					t.Errorf("%s was not set but forwarding is enabled", h)
+				}
+				if !tc.wantSet && got != "" {
+					t.Errorf("%s = %q, want empty when forwarding is disabled", h, got)
+				}
+			}
+		})
+	}
 }
 
 // TestReverseProxy_EnforcesMinRoleAndAllowedGroups covers codebase
@@ -3637,7 +3699,7 @@ func TestStripSessionCookie(t *testing.T) {
 // backend.
 func TestBuildDirector_StripsSessionCookie(t *testing.T) {
 	targetURL, _ := url.Parse("https://192.0.2.99:8080")
-	director := buildDirector("/proxy/app", "", targetURL, nil, "muximux_session")
+	director := buildDirector("/proxy/app", "", targetURL, nil, "muximux_session", true)
 
 	req := httptest.NewRequest(http.MethodGet, "/proxy/app/status", nil)
 	req.Header.Set("Cookie", "muximux_session=SECRET; backend_pref=light")
@@ -3868,7 +3930,7 @@ func TestExpandHeaderValue_SanitizesCRLF(t *testing.T) {
 func TestBuildDirector_ExpandsIdentityHeaders(t *testing.T) {
 	target, _ := url.Parse("http://backend:8080")
 	dir := buildDirector("/proxy/app", "", target,
-		map[string]string{"X-Forwarded-User": "${user}", "X-Static": "keep"}, "muximux_session")
+		map[string]string{"X-Forwarded-User": "${user}", "X-Static": "keep"}, "muximux_session", true)
 
 	req := httptest.NewRequest(http.MethodGet, "/proxy/app/foo", nil)
 	req = req.WithContext(context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{Username: "bob"}))
