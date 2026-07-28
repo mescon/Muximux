@@ -653,10 +653,16 @@
     text-align: center;
   }
 
+  /* Must not shrink. The row is a nowrap flex line that scrolls
+     horizontally, and every sibling (timestamp, level, source, attrs) is
+     flex-shrink: 0 -- so the message was the only item able to absorb the
+     overflow. With word-break: break-all it would collapse to a single
+     character wide and render one letter per line down the page whenever a
+     row carried a wide attrs list. */
   .log-message {
     color: var(--text-secondary);
+    flex-shrink: 0;
     white-space: pre-wrap;
-    word-break: break-all;
   }
 
   .log-attrs {

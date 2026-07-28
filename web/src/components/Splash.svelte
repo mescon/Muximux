@@ -455,13 +455,20 @@
     filter: grayscale(0.6);
     opacity: 0.65;
   }
-  /* Shrink the wrapper to the card's own width. A <button> sizes to its
-     content (it ignores flex/block stretch), so the wrapper was filling
-     the whole grid cell while the card sat narrower at the start. Fitting
-     the wrapper to the card lets the action footer span the card's real
-     width and stay centred under it. */
+  /* Fill the grid cell so every tile is the same size. A <button> sizes to
+     its own content and ignores flex/block stretch, so without an explicit
+     width a long label ("Home Assistant") produces a wider tile than a short
+     one ("Pi-hole") and the grid reads as ragged. Stretching the wrapper and
+     the card to the cell keeps the action footer spanning the card's real
+     width and centred under it. */
   .app-card-wrapper {
-    width: fit-content;
+    width: 100%;
+    height: 100%;
+  }
+
+  .app-card {
+    width: 100%;
+    height: 100%;
   }
   /* Action footer: a strip of lifecycle buttons BELOW the card, never
      overlapping the open-app button. Touch-first -- visible by default so
