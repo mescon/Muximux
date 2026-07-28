@@ -4,8 +4,10 @@ All notable changes to Muximux are documented in this file.
 
 ## [3.3.2] - 2026-07-28
 
-A fix release for two layout bugs in 3.3.1, plus an escape hatch for
-backends that sit behind a strict reverse proxy. Drop-in.
+Closes a path-traversal bypass, fixes two layout bugs from 3.3.1, and adds
+an escape hatch for backends that sit behind a strict reverse proxy.
+Release artifacts now carry signed provenance. Drop-in, but worth taking
+promptly if you use `auth_bypass` on a proxied app.
 
 ### Added
 - **`forwarded_headers` on apps.** Set it to `false` when a proxied backend
@@ -18,6 +20,15 @@ backends that sit behind a strict reverse proxy. Drop-in.
 - Clicking a group marker in a flat top or bottom bar now scrolls that
   group's apps into view. Flat mode has no collapsible sections, so the
   markers were previously decorative.
+- **Release artifacts now carry signed build provenance and an SBOM.** Every
+  published binary and the container image are attested to the workflow,
+  commit and runner that produced them, and an SPDX SBOM ships as a release
+  asset. Verify a download without trusting the registry:
+
+  ```
+  gh attestation verify muximux-linux-amd64 --repo mescon/Muximux
+  gh attestation verify oci://ghcr.io/mescon/muximux:3.3.2 --repo mescon/Muximux
+  ```
 
 ### Changed
 - The app catalog now lists **Seerr**, the project Overseerr and Jellyseerr
@@ -27,6 +38,21 @@ backends that sit behind a strict reverse proxy. Drop-in.
   names -- those tags remain the pre-merge projects.
 - Screenshots throughout the README and wiki have been retaken, and the
   mobile view is now documented.
+
+### Security
+- **Rejected percent-encoded path traversal.** `http.ServeMux` compares the
+  escaped path when deciding whether to redirect, so `..%2f` reached the
+  handler with `r.URL.Path` already decoded to contain `../`. Auth bypass
+  rules are prefix-matched against that value and the proxy joins it onto
+  the app's base path, so an encoded traversal could satisfy an
+  `auth_bypass` rule for `/api/*` and still reach a backend path outside
+  `/api`. Requests whose decoded path contains a `.` or `..` segment are now
+  refused with 400 before authentication runs. Found by a new fuzz target.
+- Added fuzz coverage for the content rewriter, script rewriter, identity
+  header expansion and backend path join -- the parts of the proxy that
+  consume bytes Muximux does not control.
+- Added ID token rejection tests for issuer, audience, expiry, signature,
+  `alg=none` and nonce, none of which were previously asserted.
 
 ### Fixed
 - **Dashboard tiles were sized to their labels.** A tile for "Home

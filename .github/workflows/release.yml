@@ -82,6 +82,10 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # Provenance attestation signs with a short-lived OIDC identity and
+      # writes the result to the repository's attestation store.
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
 
@@ -124,6 +128,17 @@ jobs:
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Binds the pushed image to this workflow, commit and runner.
+      # Verifiable without trusting the registry:
+      #   gh attestation verify oci://ghcr.io/mescon/muximux:VERSION \
+      #     --repo mescon/Muximux
+      - name: Attest image provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373  # v4.1.1
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/muximux
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
 
       # Guards against the cross-compile regression where every platform's
       # image shipped the same amd64 binary (an amd64 binary inside the arm64
@@ -175,6 +190,8 @@ jobs:
     needs: [build-binaries, build-docker]
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
 
@@ -185,10 +202,29 @@ jobs:
           pattern: muximux-*
           merge-multiple: true
 
+      # An SBOM lets an operator answer "is this build affected by CVE-X"
+      # without rebuilding, and feeds vulnerability scanners directly.
+      - name: Generate SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610  # v0.24.0
+        with:
+          path: .
+          format: spdx-json
+          output-file: artifacts/muximux-sbom.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
       - name: Create checksums
         run: |
           cd artifacts
           sha256sum muximux-* > checksums.txt
+
+      # Signed provenance binds each published binary to the workflow, commit
+      # and runner that produced it. Verifiable with:
+      #   gh attestation verify muximux-linux-amd64 --repo mescon/Muximux
+      - name: Attest binary provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373  # v4.1.1
+        with:
+          subject-path: 'artifacts/muximux-*'
 
       - name: Extract release notes
         id: changelog
@@ -224,6 +260,7 @@ jobs:
           files: |
             artifacts/muximux-*
             artifacts/checksums.txt
+            artifacts/muximux-sbom.spdx.json
 
       - name: Create Release (auto-generated notes)
         if: steps.changelog.outputs.found != 'true'
@@ -235,3 +272,4 @@ jobs:
           files: |
             artifacts/muximux-*
             artifacts/checksums.txt
+            artifacts/muximux-sbom.spdx.json
