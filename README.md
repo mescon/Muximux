@@ -22,6 +22,10 @@ One binary. One port. One YAML config file.
 
 > **AI Disclosure** -- Muximux is developed with significant AI assistance (Claude Code). All code is reviewed, tested, and approved by the maintainer before shipping. See [Development](#development) for details.
 
+![Muximux tour](docs/muximux-tour.gif)
+
+*The dashboard, Plex running inside a pane (it refuses to be framed without the proxy), split view, and themes.*
+
 ![Muximux Dashboard](docs/screenshots/09-dashboard-dark.png)
 
 <details>
