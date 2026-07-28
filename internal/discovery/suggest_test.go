@@ -152,9 +152,9 @@ func TestSuggest_HostPortStrategyWithPublicPort(t *testing.T) {
 func TestSuggest_GatewayDomainSuggested(t *testing.T) {
 	// dashboardDomain set, container name available.
 	c := sonarrContainer()
-	s := suggestForContainer(&c, "container_ip", "", "yi.se")
-	if s.SuggestedDomain != "sonarr.yi.se" {
-		t.Errorf("SuggestedDomain = %q, want sonarr.yi.se", s.SuggestedDomain)
+	s := suggestForContainer(&c, "container_ip", "", "example.com")
+	if s.SuggestedDomain != "sonarr.example.com" {
+		t.Errorf("SuggestedDomain = %q, want sonarr.example.com", s.SuggestedDomain)
 	}
 
 	// dashboardDomain empty - leave SuggestedDomain empty.
@@ -165,7 +165,7 @@ func TestSuggest_GatewayDomainSuggested(t *testing.T) {
 
 	// label override always wins.
 	c.Labels = map[string]string{"muximux.app.gateway.domain": "myown.example.com"}
-	s3 := suggestForContainer(&c, "container_ip", "", "yi.se")
+	s3 := suggestForContainer(&c, "container_ip", "", "example.com")
 	if s3.SuggestedDomain != "myown.example.com" {
 		t.Errorf("SuggestedDomain label override: got %q", s3.SuggestedDomain)
 	}

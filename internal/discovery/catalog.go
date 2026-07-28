@@ -71,6 +71,14 @@ var builtinCatalog = []CatalogEntry{
 	// seerr-release. The original images keep working for now,
 	// but operators should plan a migration as security patches
 	// will land on the merged project.
+	// The merged project ships under its own images. Listed first so a
+	// Seerr container is identified as Seerr rather than falling through
+	// to a substring match on one of its predecessors.
+	{Image: "seerr/seerr", Name: "Seerr", Icon: "seerr", Group: "Media", Port: 5055},
+	{Image: "ghcr.io/seerr/seerr", Name: "Seerr", Icon: "seerr", Group: "Media", Port: 5055},
+	// Predecessor images keep their own names: these tags still resolve to
+	// the pre-merge projects, so reporting them as "Seerr" would misname
+	// what is actually running.
 	{Image: "linuxserver/overseerr", Name: "Overseerr", Icon: "overseerr", Group: "Media", Port: 5055, Description: "Overseerr is merging into Seerr (docs.seerr.dev). Plan a migration; the original image keeps working for now."},
 	{Image: "fallenbagel/jellyseerr", Name: "Jellyseerr", Icon: "jellyseerr", Group: "Media", Port: 5055, Description: "Jellyseerr is merging into Seerr (docs.seerr.dev). Plan a migration; the original image keeps working for now."},
 

@@ -71,9 +71,9 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       get description() { return m.popularApps_stashDesc(); }
     },
     {
-      name: 'Overseerr',
+      name: 'Seerr',
       defaultUrl: 'http://localhost:5055',
-      icon: 'overseerr',
+      icon: 'seerr',
       color: '#7B2BF9',
       iconBackground: '#150D2E',
       get group() { return m.popularApps_groupMedia(); },
