@@ -3212,3 +3212,65 @@ func TestIframePermissionsMatchFrontend(t *testing.T) {
 		t.Errorf("iframe permission lists have drifted -- keep them in sync\n  backend (server.go iframePermissionFeatures): %v\n  frontend (constants.ts IFRAME_PERMISSIONS):    %v", backend, frontend)
 	}
 }
+
+// TestRejectDotSegments_ClosesEncodedTraversalBypass covers the chain found
+// by FuzzResolveBackendRequestPath: http.ServeMux compares the *escaped*
+// path when deciding whether to redirect, so a percent-encoded traversal is
+// dispatched to the handler with r.URL.Path already decoded to contain
+// "../". Downstream, auth.matchPath prefix-matches auth_bypass rules against
+// that decoded value and the reverse proxy joins it onto the app's base
+// path -- so an encoded traversal could satisfy a bypass rule for "/api/*"
+// and still reach a backend path outside /api.
+func TestRejectDotSegments_ClosesEncodedTraversalBypass(t *testing.T) {
+	var reached string
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		reached = r.URL.Path
+		w.WriteHeader(http.StatusOK)
+	})
+	srv := httptest.NewServer(rejectDotSegmentsMiddleware(inner))
+	defer srv.Close()
+
+	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+
+	blocked := []string{
+		"/proxy/app/api/..%2f..%2fadmin",
+		"/proxy/app/%2e%2e%2fsecret",
+		"/proxy/app/a/%2e%2e/%2e%2e/b",
+		"/%2e/hidden",
+	}
+	for _, p := range blocked {
+		reached = ""
+		resp, err := client.Get(srv.URL + p)
+		if err != nil {
+			t.Fatalf("%s: %v", p, err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("%s: status = %d, want 400", p, resp.StatusCode)
+		}
+		if reached != "" {
+			t.Errorf("%s: reached the handler as %q, want blocked", p, reached)
+		}
+	}
+
+	// Paths whose segments merely contain dots are legitimate and must pass.
+	allowed := []string{
+		"/proxy/app/static/app..js",
+		"/proxy/app/..hidden",
+		"/proxy/app/v1.2.3/x",
+		"/proxy/app/",
+	}
+	for _, p := range allowed {
+		reached = ""
+		resp, err := client.Get(srv.URL + p)
+		if err != nil {
+			t.Fatalf("%s: %v", p, err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("%s: status = %d, want 200 (legitimate path)", p, resp.StatusCode)
+		}
+	}
+}

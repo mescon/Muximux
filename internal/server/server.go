@@ -1194,9 +1194,10 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.Middleware, inlineScriptHash string) http.Handler {
 	// Build middleware chain from innermost to outermost.
 	// Final order: panicRecovery → requestID → resolveClientIP → requestLogging
-	// → bodySize → securityHeaders → csrf → auth → mux
+	// → bodySize → securityHeaders → rejectDotSegments → csrf → auth → mux
 	handler := authMiddleware.RequireAuth(mux)
 	handler = csrfMiddleware(handler)
+	handler = rejectDotSegmentsMiddleware(handler)
 	handler = securityHeadersMiddleware(handler, inlineScriptHash)
 	handler = bodySizeLimitMiddleware(handler)
 	handler = requestLoggingMiddleware(handler)
@@ -2153,6 +2154,50 @@ func parseDuration(s string, defaultVal time.Duration) time.Duration {
 // Writing http.Error unconditionally after headers are committed produces
 // a 200 with corrupt trailing bytes for streaming handlers and dumps the
 // panic stack inline with the user-visible body (findings.md M16).
+// rejectDotSegmentsMiddleware refuses any request whose decoded path
+// contains a "." or ".." segment.
+//
+// http.ServeMux already redirects paths that literally contain "../", but it
+// compares the *escaped* path, so a percent-encoded traversal
+// ("/proxy/app/api/..%2f..%2fadmin") sails through while r.URL.Path is
+// decoded to "/proxy/app/api/../../admin". Two things downstream trust that
+// value:
+//
+//   - auth.matchPath prefix-matches bypass rules against it, so a rule for
+//     "/api/*" would match a path that no longer stays under /api; and
+//   - the reverse proxy joins it onto the app's configured base path before
+//     forwarding, so the backend receives the dot segments and resolves them.
+//
+// Together those let an encoded traversal satisfy an auth_bypass rule and
+// then reach a backend path the rule was never meant to expose. Rejecting
+// outright is safer than silently cleaning: a normalised path would still
+// have matched the bypass rule that the pre-normalised one satisfied.
+//
+// This sits outside auth so nothing downstream ever sees a dot segment.
+func rejectDotSegmentsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if hasDotSegment(r.URL.Path) {
+			logging.From(r.Context()).Warn("Rejected path containing dot segments",
+				"source", "audit", "path", r.URL.Path, "raw_path", r.URL.RawPath, "method", r.Method)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// hasDotSegment reports whether any segment of the path is "." or "..".
+// Operates on segments rather than substrings so filenames that merely
+// contain dots ("app..js", "..hidden") are not rejected.
+func hasDotSegment(p string) bool {
+	for _, seg := range strings.Split(p, "/") {
+		if seg == "." || seg == ".." {
+			return true
+		}
+	}
+	return false
+}
+
 func panicRecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sr := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
