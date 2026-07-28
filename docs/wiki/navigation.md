@@ -44,6 +44,8 @@ Apps are organized under collapsible group headers. Each group has its own secti
 
 A streamlined layout that displays all apps in a single continuous row. Groups are separated by small icon dividers (using the group's configured icon) rather than full headers. This creates a more compact, dock-like appearance and is useful when you want to maximize horizontal space or prefer a cleaner look.
 
+The dividers are buttons, not decoration: hovering one highlights that group's apps and dims the rest, and clicking it scrolls the bar to the start of that group. Flat mode has no collapsible sections, so this is how you jump straight to a group when the row is longer than the window.
+
 ```yaml
 navigation:
   position: top

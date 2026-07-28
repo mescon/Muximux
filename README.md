@@ -101,7 +101,7 @@ The dashboards in this space approach things differently. This table is a quick 
 | Start / stop / restart Docker containers from the dashboard | ✅ | ❌ | ✅ | ❌ | ❌ |
 | Keeps app URLs working as container IPs / names change | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Config | YAML + Docker labels (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
-| Deployment | Single Go binary | Docker / K8s / binary | Docker | Docker / PHP | Docker / Node.js |
+| Deployment | Docker / single static binary | Docker / K8s / binary | Docker | Docker / PHP | Docker / Node.js |
 
 If the rows near the top describe what you want, keep reading.
 
@@ -182,6 +182,8 @@ services:
 
 By default, Muximux uses `data/` beside the binary as its data directory (containing config, themes, icons). Override it with `--data` or the `MUXIMUX_DATA` environment variable.
 
+Release binaries and images carry signed build provenance and ship with an SBOM, so you can confirm a download came from the workflow that claims to have built it -- see [Verifying a Download](docs/wiki/installation.md#verifying-a-download).
+
 See [docker-compose.yml](docker-compose.yml) for a full example with environment variables, health checks, and optional TLS/gateway ports.
 
 ---
@@ -190,7 +192,7 @@ See [docker-compose.yml](docker-compose.yml) for a full example with environment
 
 Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 
-- [Installation](docs/wiki/installation.md) - Docker, binary, building from source
+- [Installation](docs/wiki/installation.md) - Docker, binary, building from source, and verifying a download
 - [Getting Started](docs/wiki/getting-started.md) - First launch and onboarding
 - [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
 - [Apps](docs/wiki/apps.md) - Adding and configuring applications
