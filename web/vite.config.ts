@@ -11,6 +11,10 @@ export default defineConfig({
     paraglideVitePlugin({
       project: './project.inlang',
       outdir: './src/lib/paraglide',
+      // Keep in sync with the --strategy flag on the "paraglide" script in
+      // package.json, which regenerates the same output for check/lint/test.
+      // The CLI default differs from this, so omitting it there makes the
+      // suite run against a locale strategy the build never ships.
       strategy: ['localStorage', 'baseLocale'],
       emitGitIgnore: false,
     }),

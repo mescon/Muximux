@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide",
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --strategy localStorage baseLocale",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
