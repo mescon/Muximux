@@ -4,13 +4,13 @@ Thank you for considering contributing to Muximux! This guide covers development
 
 ## Development Tooling
 
-The primary development environment for Muximux is Claude Code (Opus 4.6) with MCP servers for browser automation, GitHub integration, and validation. All code is reviewed, tested, and committed by the maintainer - AI output is treated the same way as any other pull request. Contributors are welcome to use whatever tools they prefer.
+The primary development environment for Muximux is Claude Code with MCP servers for browser automation, GitHub integration, and validation. All code is reviewed, tested, and committed by the sole maintainer, [@mescon](https://github.com/mescon) - AI output is treated the same way as any other pull request. Contributors are welcome to use whatever tools they prefer.
 
 ## Prerequisites
 
 - **Go** 1.26+ (check with `go version`)
 - **Node.js** 20+ with npm (check with `node --version`)
-- **golangci-lint** (`go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`)
+- **golangci-lint v2** (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`) -- `.golangci.yml` is a v2 config and v1 cannot parse it
 
 ## Getting Started
 
@@ -26,19 +26,19 @@ git config core.hooksPath .githooks
 
 Muximux uses a Go backend with an embedded Svelte frontend. During development, you run them separately:
 
-**Terminal 1 — Backend** (serves API on :8080, falls back to `web/dist/` for static files):
+**Terminal 1 -- Backend** (serves API on :8080, falls back to `internal/server/dist/` for static files):
 
 ```bash
 go run ./cmd/muximux
 ```
 
-**Terminal 2 — Frontend** (Vite dev server with hot reload, proxies API to :8080):
+**Terminal 2 -- Frontend** (Vite dev server with hot reload, proxies API to :8080):
 
 ```bash
 cd web && npm install && npm run dev
 ```
 
-The backend detects when no embedded assets are present (dev mode) and automatically falls back to serving files from `web/dist/` on disk.
+The backend detects when no embedded assets are present (dev mode) and automatically falls back to serving files from `internal/server/dist/` on disk. That is the same directory Vite builds into, so a `npm run build` is immediately visible to a non-embedded binary without any copy step.
 
 ## Building
 
@@ -48,7 +48,7 @@ The backend detects when no embedded assets are present (dev mode) and automatic
 go build -o muximux ./cmd/muximux
 ```
 
-This compiles without the `embed_web` build tag, so the binary won't contain frontend assets. It will serve from `web/dist/` at runtime (you need to build the frontend separately or use the Vite dev server).
+This compiles without the `embed_web` build tag, so the binary won't contain frontend assets. It serves from `internal/server/dist/` at runtime, so run `cd web && npm run build` first, or use the Vite dev server instead. Note that the path is relative to the working directory, so run the binary from the repository root.
 
 ### Production build (embedded frontend)
 
@@ -66,7 +66,7 @@ go build -tags embed_web -o muximux ./cmd/muximux
 
 - Run `golangci-lint run` before submitting
 - All exported identifiers must have doc comments (enforced in CI at 80% threshold)
-- Follow standard Go conventions — `gofmt` is assumed
+- Follow standard Go conventions -- `gofmt` is assumed
 
 ### Svelte / TypeScript
 
@@ -85,10 +85,10 @@ Both backend (Go) and frontend (Svelte/TypeScript) maintain **85% statement/line
 
 Scope: the backend figure covers `./internal/...` (the `cmd/` entrypoints are
 excluded). The frontend figure covers the unit-testable surface -- `src/lib`
-and `src/components`. The app shell (`src/App.svelte`, `src/main.ts`,
-`src/routes`) is integration code verified by manual/browser testing and is
-excluded from the percentage; see `web/vitest.config.ts`. Tests themselves are
-excluded from coverage metrics.
+and `src/components`. The app shell (`src/App.svelte`, `src/main.ts`) is
+integration code verified by manual/browser testing and is excluded from the
+percentage; see `web/vitest.config.ts`. Tests themselves are excluded from
+coverage metrics.
 
 ### Backend
 
@@ -109,6 +109,25 @@ cd web && npm run test
 cd web && npx vitest run --coverage
 ```
 
+### Fuzzing
+
+The proxy parses bytes that come from backend responses and from the request
+line, so the parts of it that do so have fuzz targets in
+`internal/handlers/reverse_proxy_fuzz_test.go`:
+`FuzzResolveBackendRequestPath`, `FuzzContentRewriter`, `FuzzRewriteScript` and
+`FuzzExpandHeaderValue`. The seed corpora live in `internal/handlers/testdata/fuzz/`.
+
+They run as ordinary unit tests against the corpus during `go test`. To
+actually fuzz, run one target at a time:
+
+```bash
+go test ./internal/handlers/ -run=Fuzz -fuzz=FuzzResolveBackendRequestPath -fuzztime=60s
+```
+
+If you change path joining, header expansion or the content rewriter, run the
+relevant target before pushing. New crashers are written to `testdata/fuzz/`
+and should be committed with the fix.
+
 ### Full pre-push check (mirrors CI)
 
 The pre-push hook runs automatically if you configured `.githooks`. To run manually:
@@ -123,7 +142,12 @@ The pre-push hook runs automatically if you configured `.githooks`. To run manua
 2. Make your changes with tests
 3. Ensure all checks pass locally (`go test -race ./...`, `npm run test`, `golangci-lint run`)
 4. Write a clear PR description explaining the "why"
-5. Keep PRs focused — one feature or fix per PR
+5. Keep PRs focused -- one feature or fix per PR
+
+## Reporting a Vulnerability
+
+Do not open a public issue or pull request for a security problem. See
+[SECURITY.md](SECURITY.md) for how to report one privately.
 
 ## Commit Style
 
@@ -138,15 +162,18 @@ cmd/muximux/          Entry point (main.go)
 internal/
   auth/               Authentication (sessions, users, OIDC, middleware)
   config/             YAML config loading and types
+  discovery/          Docker container discovery and refresh polling
   handlers/           HTTP handlers (API, auth, health, icons, themes, etc.)
   health/             Health monitoring
   icons/              Icon providers (Dashboard Icons, Lucide, custom)
   logging/            Structured logging
   proxy/              Embedded Caddy reverse proxy
   server/             HTTP server, routing, middleware, embed handling
+  server/dist/        Frontend build output (generated; embedded at build time)
   websocket/          WebSocket hub for real-time events
 web/
-  src/lib/            Svelte components, stores, types
-  src/routes/         SvelteKit pages
+  src/components/     Svelte components
+  src/lib/            Stores, types, helpers, generated Paraglide locales
+  src/test/           Test setup and shared fixtures
 data/                 Runtime data directory (config, themes, icons)
 ```

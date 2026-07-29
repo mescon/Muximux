@@ -39,6 +39,12 @@ import (
 	"github.com/mescon/muximux/v3/internal/websocket"
 )
 
+// devDistDir is where the frontend build lands on disk, used when the binary
+// was built without the embed_web tag. It must track the outDir in
+// web/vite.config.ts, which writes here so that //go:embed dist can pick the
+// bundle up from this package's directory in an embedded build.
+const devDistDir = "internal/server/dist"
+
 // validThemeName only allows safe CSS theme filenames (allowlist approach)
 var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
 
@@ -406,9 +412,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Serve embedded frontend files
 	if distErr != nil {
-		// Fallback to serving from web/dist during development
-		fileServer := http.FileServer(http.Dir("web/dist"))
-		staticHandler, inlineScriptHash = spaHandlerDev(fileServer, "web/dist", cfg.Server.NormalizedBasePath())
+		// Fallback to serving the on-disk build during development
+		fileServer := http.FileServer(http.Dir(devDistDir))
+		staticHandler, inlineScriptHash = spaHandlerDev(fileServer, devDistDir, cfg.Server.NormalizedBasePath())
 	} else {
 		staticHandler, inlineScriptHash = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, cfg.Server.NormalizedBasePath())
 	}
@@ -872,7 +878,7 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 			http.ServeContent(w, r, name, stat.ModTime(), f)
 			return
 		}
-		// Fall through to static handler (web/dist/themes/ or embedded)
+		// Fall through to static handler (on-disk themes/ or embedded)
 		(*staticHandler).ServeHTTP(w, r)
 	})
 	return nil
@@ -1870,7 +1876,7 @@ func (s *Server) handleServiceWorker(distFS fs.FS) http.HandlerFunc {
 	}
 	if swContent == nil {
 		var err error
-		swContent, err = os.ReadFile("web/dist/sw.js") //nolint:gosec // dev fallback path
+		swContent, err = os.ReadFile(filepath.Join(devDistDir, "sw.js")) //nolint:gosec // dev fallback path
 		if err != nil {
 			lastErr = err
 		}

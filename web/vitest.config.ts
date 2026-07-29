@@ -21,7 +21,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html', 'lcov'],
       // Coverage is scoped to the unit-testable surface: the lib (logic,
       // stores, utilities) and the reusable components. The app shell
-      // (App.svelte mount/orchestration, main.ts entrypoint, src/routes) is
+      // (App.svelte mount/orchestration, main.ts entrypoint) is
       // integration code verified by manual/browser testing, not unit tests,
       // and is deliberately excluded from the percentage. The 85% threshold
       // below therefore measures lib + components, not the whole frontend.
@@ -34,7 +34,6 @@ export default defineConfig({
         'src/lib/paraglide/**',
         'src/App.svelte',
         'src/main.ts',
-        'src/routes/**',
       ],
       thresholds: {
         statements: 85,
