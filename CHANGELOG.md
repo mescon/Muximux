@@ -2,6 +2,31 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.3.3] - 2026-07-29
+
+A first-run release: the setup step every new install begins with was
+English-only, and the quick start did not say where to find the token it
+asks for. Drop-in.
+
+### Fixed
+- **The setup-token step is translated.** Its label, placeholder and hint
+  were hardcoded English while everything around them was localised, so in
+  36 of the 37 supported languages the very first screen a new install shows
+  was untranslated. The token path is passed as a parameter, so translators
+  control where it falls in the sentence.
+- **The Docker quick start now says where the setup token is.** The command
+  runs detached, so nothing is printed, and the onboarding wizard then asks
+  for a token the reader has never seen. The README now shows both ways to
+  retrieve it (`docker logs muximux | grep token`, or `cat
+  data/.setup-token`).
+
+### Changed
+- Container images report the same version metadata as the binaries. An
+  image built from a tag previously reported `v3.3.2` with the full 40-char
+  commit while a binary from that same tag reported `3.3.2` with a short
+  one; both now use the short form without the leading `v`, and the build
+  date comes from build time rather than the commit timestamp.
+
 ## [3.3.2] - 2026-07-28
 
 Closes a path-traversal bypass, fixes two layout bugs from 3.3.1, and adds
