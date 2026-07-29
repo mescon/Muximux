@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Käynnissä",
   "docker_modal_confirm_stop": "Pysäytetäänkö säiliö '{name}'?",
   "docker_modal_confirm_restart": "Käynnistetäänkö säiliö '{name}' uudelleen?",
-  "docker_modal_body": "Vedos: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Vedos: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Asennustunniste",
+  "onboarding_setupTokenPlaceholder": "Liitä palvelimella tulostettu tunniste",
+  "onboarding_setupTokenHint": "Kertakäyttöinen tunniste tulostettiin palvelimen lokiin ensimmäisellä käynnistyksellä ja tallennettiin tiedostoon {file}. Liitä se tähän todistaaksesi omistajuuden ennen asennuksen viimeistelyä tai varmuuskopion palauttamista."
 }

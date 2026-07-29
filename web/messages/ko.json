@@ -808,5 +808,8 @@
   "docker_popover_header_running": "실행 중",
   "docker_modal_confirm_stop": "'{name}' 컨테이너를 중지하시겠습니까?",
   "docker_modal_confirm_restart": "'{name}' 컨테이너를 재시작하시겠습니까?",
-  "docker_modal_body": "이미지: {image} - {uptimeOrExit}"
+  "docker_modal_body": "이미지: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "설정 토큰",
+  "onboarding_setupTokenPlaceholder": "서버에 출력된 토큰을 붙여넣으세요",
+  "onboarding_setupTokenHint": "첫 부팅 시 일회용 토큰이 서버 로그에 출력되어 {file}에 저장되었습니다. 설정을 완료하거나 백업을 복원하기 전에 소유권을 증명하려면 여기에 붙여넣으세요."
 }

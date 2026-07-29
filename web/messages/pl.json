@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Działa",
   "docker_modal_confirm_stop": "Zatrzymać kontener '{name}'?",
   "docker_modal_confirm_restart": "Uruchomić ponownie kontener '{name}'?",
-  "docker_modal_body": "Obraz: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Obraz: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Token konfiguracji",
+  "onboarding_setupTokenPlaceholder": "Wklej token wyświetlony na serwerze",
+  "onboarding_setupTokenHint": "Podczas pierwszego uruchomienia jednorazowy token został zapisany w dzienniku serwera oraz w pliku {file}. Wklej go tutaj, aby potwierdzić własność przed zakończeniem konfiguracji lub przywróceniem kopii zapasowej."
 }

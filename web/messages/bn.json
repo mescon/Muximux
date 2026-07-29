@@ -808,5 +808,8 @@
   "docker_popover_header_running": "চলছে",
   "docker_modal_confirm_stop": "কন্টেইনার '{name}' বন্ধ করবেন?",
   "docker_modal_confirm_restart": "কন্টেইনার '{name}' পুনরায় চালু করবেন?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "সেটআপ টোকেন",
+  "onboarding_setupTokenPlaceholder": "সার্ভারে মুদ্রিত টোকেনটি পেস্ট করুন",
+  "onboarding_setupTokenHint": "প্রথম বুটে সার্ভার লগে একটি এককালীন টোকেন মুদ্রিত হয়েছে এবং {file}-এ সংরক্ষিত হয়েছে। সেটআপ সম্পূর্ণ করার বা ব্যাকআপ পুনরুদ্ধার করার আগে মালিকানা প্রমাণ করতে এটি এখানে পেস্ট করুন।"
 }

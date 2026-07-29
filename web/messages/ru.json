@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Работает",
   "docker_modal_confirm_stop": "Остановить контейнер «{name}»?",
   "docker_modal_confirm_restart": "Перезапустить контейнер «{name}»?",
-  "docker_modal_body": "Образ: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Образ: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Токен настройки",
+  "onboarding_setupTokenPlaceholder": "Вставьте токен, выведенный на сервере",
+  "onboarding_setupTokenHint": "При первом запуске одноразовый токен был записан в журнал сервера и сохранён в {file}. Вставьте его сюда, чтобы подтвердить право владения перед завершением настройки или восстановлением резервной копии."
 }

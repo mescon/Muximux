@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Actief",
   "docker_modal_confirm_stop": "Container '{name}' stoppen?",
   "docker_modal_confirm_restart": "Container '{name}' opnieuw starten?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Installatietoken",
+  "onboarding_setupTokenPlaceholder": "Plak het token dat op de server is weergegeven",
+  "onboarding_setupTokenHint": "Bij de eerste start is een eenmalig token naar het serverlogboek geschreven en opgeslagen in {file}. Plak het hier om eigendom aan te tonen voordat u de installatie voltooit of een back-up herstelt."
 }

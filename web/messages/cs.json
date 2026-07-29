@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Běží",
   "docker_modal_confirm_stop": "Zastavit kontejner '{name}'?",
   "docker_modal_confirm_restart": "Restartovat kontejner '{name}'?",
-  "docker_modal_body": "Obraz: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Obraz: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Instalační token",
+  "onboarding_setupTokenPlaceholder": "Vložte token vypsaný na serveru",
+  "onboarding_setupTokenHint": "Při prvním spuštění byl do protokolu serveru vypsán jednorázový token a uložen do {file}. Vložte jej sem, abyste prokázali vlastnictví před dokončením nastavení nebo obnovením zálohy."
 }

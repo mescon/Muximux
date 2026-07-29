@@ -808,5 +808,8 @@
   "docker_popover_header_running": "実行中",
   "docker_modal_confirm_stop": "コンテナ '{name}' を停止しますか？",
   "docker_modal_confirm_restart": "コンテナ '{name}' を再起動しますか？",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "セットアップトークン",
+  "onboarding_setupTokenPlaceholder": "サーバーに表示されたトークンを貼り付けてください",
+  "onboarding_setupTokenHint": "初回起動時にワンタイムトークンがサーバーログに出力され、{file} に保存されました。セットアップの完了またはバックアップの復元の前に、所有権を証明するためここに貼り付けてください。"
 }

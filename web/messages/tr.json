@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Çalışıyor",
   "docker_modal_confirm_stop": "'{name}' kapsayıcısı durdurulsun mu?",
   "docker_modal_confirm_restart": "'{name}' kapsayıcısı yeniden başlatılsın mı?",
-  "docker_modal_body": "İmaj: {image} - {uptimeOrExit}"
+  "docker_modal_body": "İmaj: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Kurulum belirteci",
+  "onboarding_setupTokenPlaceholder": "Sunucuda görüntülenen belirteci yapıştırın",
+  "onboarding_setupTokenHint": "İlk açılışta sunucu günlüğüne tek kullanımlık bir belirteç yazıldı ve {file} dosyasına kaydedildi. Kurulumu tamamlamadan veya bir yedeği geri yüklemeden önce sahipliği kanıtlamak için buraya yapıştırın."
 }

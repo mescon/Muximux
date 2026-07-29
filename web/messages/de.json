@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Läuft",
   "docker_modal_confirm_stop": "Container '{name}' stoppen?",
   "docker_modal_confirm_restart": "Container '{name}' neu starten?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Einrichtungs-Token",
+  "onboarding_setupTokenPlaceholder": "Fügen Sie das auf dem Server ausgegebene Token ein",
+  "onboarding_setupTokenHint": "Beim ersten Start wurde ein einmaliges Token im Serverprotokoll ausgegeben und in {file} gespeichert. Fügen Sie es hier ein, um den Besitz nachzuweisen, bevor Sie die Einrichtung abschließen oder ein Backup wiederherstellen."
 }

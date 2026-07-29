@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Pokrenut",
   "docker_modal_confirm_stop": "Zaustaviti kontejner '{name}'?",
   "docker_modal_confirm_restart": "Ponovno pokrenuti kontejner '{name}'?",
-  "docker_modal_body": "Slika: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Slika: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Token za postavljanje",
+  "onboarding_setupTokenPlaceholder": "Zalijepite token ispisan na poslužitelju",
+  "onboarding_setupTokenHint": "Pri prvom pokretanju jednokratni token ispisan je u zapisnik poslužitelja i spremljen u {file}. Zalijepite ga ovdje kako biste dokazali vlasništvo prije dovršetka postavljanja ili vraćanja sigurnosne kopije."
 }

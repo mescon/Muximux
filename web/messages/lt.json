@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Veikia",
   "docker_modal_confirm_stop": "Sustabdyti konteinerį '{name}'?",
   "docker_modal_confirm_restart": "Paleisti konteinerį '{name}' iš naujo?",
-  "docker_modal_body": "Atvaizdas: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Atvaizdas: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Sąrankos prieigos raktas",
+  "onboarding_setupTokenPlaceholder": "Įklijuokite serveryje išvestą prieigos raktą",
+  "onboarding_setupTokenHint": "Pirmojo paleidimo metu į serverio žurnalą buvo įrašytas vienkartinis prieigos raktas ir išsaugotas į {file}. Įklijuokite jį čia, kad įrodytumėte nuosavybę prieš užbaigdami sąranką ar atkurdami atsarginę kopiją."
 }

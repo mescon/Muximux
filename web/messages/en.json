@@ -808,5 +808,8 @@
   "docker_modal_confirm_stop": "Stop container '{name}'?",
   "docker_modal_confirm_restart": "Restart container '{name}'?",
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
-  "shortcuts_subtitle": "Keyboard, mouse and link shortcuts"
+  "shortcuts_subtitle": "Keyboard, mouse and link shortcuts",
+  "onboarding_setupTokenLabel": "Setup token",
+  "onboarding_setupTokenPlaceholder": "Paste the token printed on the server",
+  "onboarding_setupTokenHint": "A one-time token was printed to the server log on first boot and saved to {file}. Paste it here to prove ownership before completing setup or restoring a backup."
 }

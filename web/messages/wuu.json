@@ -808,5 +808,8 @@
   "docker_popover_header_running": "运行中",
   "docker_modal_confirm_stop": "停止容器 '{name}' 𠲎？",
   "docker_modal_confirm_restart": "重启容器 '{name}' 𠲎？",
-  "docker_modal_body": "镜像：{image} - {uptimeOrExit}"
+  "docker_modal_body": "镜像：{image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "设置令牌",
+  "onboarding_setupTokenPlaceholder": "粘贴服务器浪向打印个令牌",
+  "onboarding_setupTokenHint": "头一趟启动个辰光，一趟性令牌已经写勒服务器日志里向，并且存勒 {file}。请勒该搭粘贴，好勒完成设置或者恢复备份之前证明所有权。"
 }

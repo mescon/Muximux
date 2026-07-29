@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Σε εκτέλεση",
   "docker_modal_confirm_stop": "Διακοπή του container '{name}';",
   "docker_modal_confirm_restart": "Επανεκκίνηση του container '{name}';",
-  "docker_modal_body": "Εικόνα: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Εικόνα: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Διακριτικό εγκατάστασης",
+  "onboarding_setupTokenPlaceholder": "Επικολλήστε το διακριτικό που εμφανίστηκε στον διακομιστή",
+  "onboarding_setupTokenHint": "Ένα διακριτικό μίας χρήσης καταγράφηκε στο αρχείο καταγραφής του διακομιστή κατά την πρώτη εκκίνηση και αποθηκεύτηκε στο {file}. Επικολλήστε το εδώ για να αποδείξετε την κυριότητα πριν ολοκληρώσετε την εγκατάσταση ή επαναφέρετε ένα αντίγραφο ασφαλείας."
 }

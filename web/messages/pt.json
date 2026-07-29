@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Em execução",
   "docker_modal_confirm_stop": "Parar o contentor '{name}'?",
   "docker_modal_confirm_restart": "Reiniciar o contentor '{name}'?",
-  "docker_modal_body": "Imagem: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Imagem: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Token de configuração",
+  "onboarding_setupTokenPlaceholder": "Cole o token exibido no servidor",
+  "onboarding_setupTokenHint": "Um token de uso único foi registado no log do servidor no primeiro arranque e guardado em {file}. Cole-o aqui para provar a propriedade antes de concluir a configuração ou restaurar uma cópia de segurança."
 }

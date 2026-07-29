@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Запущено",
   "docker_modal_confirm_stop": "Зупинити контейнер '{name}'?",
   "docker_modal_confirm_restart": "Перезапустити контейнер '{name}'?",
-  "docker_modal_body": "Образ: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Образ: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Токен налаштування",
+  "onboarding_setupTokenPlaceholder": "Вставте токен, виведений на сервері",
+  "onboarding_setupTokenHint": "Під час першого запуску одноразовий токен було записано до журналу сервера та збережено у {file}. Вставте його тут, щоб підтвердити право власності перед завершенням налаштування або відновленням резервної копії."
 }

@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Deluje",
   "docker_modal_confirm_stop": "Ustaviti vsebnik '{name}'?",
   "docker_modal_confirm_restart": "Znova zagnati vsebnik '{name}'?",
-  "docker_modal_body": "Slika: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Slika: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Namestitveni žeton",
+  "onboarding_setupTokenPlaceholder": "Prilepite žeton, izpisan na strežniku",
+  "onboarding_setupTokenHint": "Ob prvem zagonu je bil v dnevnik strežnika izpisan enkratni žeton in shranjen v {file}. Prilepite ga sem, da dokažete lastništvo, preden dokončate namestitev ali obnovite varnostno kopijo."
 }

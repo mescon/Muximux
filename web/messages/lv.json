@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Darbojas",
   "docker_modal_confirm_stop": "Apturēt konteineru '{name}'?",
   "docker_modal_confirm_restart": "Restartēt konteineru '{name}'?",
-  "docker_modal_body": "Attēls: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Attēls: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Iestatīšanas pilnvara",
+  "onboarding_setupTokenPlaceholder": "Ielīmējiet serverī izdrukāto pilnvaru",
+  "onboarding_setupTokenHint": "Pirmajā palaišanas reizē servera žurnālā tika izdrukāta vienreizēja pilnvara un saglabāta failā {file}. Ielīmējiet to šeit, lai apliecinātu īpašumtiesības pirms iestatīšanas pabeigšanas vai dublējuma atjaunošanas."
 }

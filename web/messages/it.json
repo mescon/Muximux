@@ -808,5 +808,8 @@
   "docker_popover_header_running": "In esecuzione",
   "docker_modal_confirm_stop": "Arrestare il container '{name}'?",
   "docker_modal_confirm_restart": "Riavviare il container '{name}'?",
-  "docker_modal_body": "Immagine: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Immagine: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Token di configurazione",
+  "onboarding_setupTokenPlaceholder": "Incolla il token stampato sul server",
+  "onboarding_setupTokenHint": "Al primo avvio è stato stampato un token monouso nel log del server e salvato in {file}. Incollalo qui per dimostrare la proprietà prima di completare la configurazione o ripristinare un backup."
 }

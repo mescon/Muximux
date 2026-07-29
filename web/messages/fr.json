@@ -808,5 +808,8 @@
   "docker_popover_header_running": "En cours d'exécution",
   "docker_modal_confirm_stop": "Arrêter le conteneur '{name}' ?",
   "docker_modal_confirm_restart": "Redémarrer le conteneur '{name}' ?",
-  "docker_modal_body": "Image : {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image : {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Jeton d'installation",
+  "onboarding_setupTokenPlaceholder": "Collez le jeton affiché sur le serveur",
+  "onboarding_setupTokenHint": "Un jeton à usage unique a été inscrit dans le journal du serveur au premier démarrage et enregistré dans {file}. Collez-le ici pour prouver que vous êtes le propriétaire avant de terminer l'installation ou de restaurer une sauvegarde."
 }

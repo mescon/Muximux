@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Đang chạy",
   "docker_modal_confirm_stop": "Dừng container '{name}'?",
   "docker_modal_confirm_restart": "Khởi động lại container '{name}'?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Mã thiết lập",
+  "onboarding_setupTokenPlaceholder": "Dán mã được in trên máy chủ",
+  "onboarding_setupTokenHint": "Một mã dùng một lần đã được ghi vào nhật ký máy chủ trong lần khởi động đầu tiên và lưu tại {file}. Dán mã vào đây để chứng minh quyền sở hữu trước khi hoàn tất thiết lập hoặc khôi phục bản sao lưu."
 }

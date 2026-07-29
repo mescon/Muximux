@@ -808,5 +808,8 @@
   "docker_popover_header_running": "قيد التشغيل",
   "docker_modal_confirm_stop": "إيقاف الحاوية '{name}'؟",
   "docker_modal_confirm_restart": "إعادة تشغيل الحاوية '{name}'؟",
-  "docker_modal_body": "الصورة: {image} - {uptimeOrExit}"
+  "docker_modal_body": "الصورة: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "رمز الإعداد",
+  "onboarding_setupTokenPlaceholder": "الصق الرمز المطبوع على الخادم",
+  "onboarding_setupTokenHint": "تمت طباعة رمز لمرة واحدة في سجل الخادم عند أول تشغيل وحُفظ في {file}. الصقه هنا لإثبات الملكية قبل إكمال الإعداد أو استعادة نسخة احتياطية."
 }

@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Работещ",
   "docker_modal_confirm_stop": "Да се спре ли контейнерът '{name}'?",
   "docker_modal_confirm_restart": "Да се рестартира ли контейнерът '{name}'?",
-  "docker_modal_body": "Образ: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Образ: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Токен за настройка",
+  "onboarding_setupTokenPlaceholder": "Поставете токена, отпечатан на сървъра",
+  "onboarding_setupTokenHint": "Еднократен токен беше отпечатан в дневника на сървъра при първото стартиране и записан в {file}. Поставете го тук, за да потвърдите собствеността, преди да завършите настройката или да възстановите резервно копие."
 }

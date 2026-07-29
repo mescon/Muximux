@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Kjører",
   "docker_modal_confirm_stop": "Stopp container '{name}'?",
   "docker_modal_confirm_restart": "Start container '{name}' på nytt?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Oppsettstoken",
+  "onboarding_setupTokenPlaceholder": "Lim inn token som ble skrevet ut på serveren",
+  "onboarding_setupTokenHint": "Et engangstoken ble skrevet til serverloggen ved første oppstart og lagret i {file}. Lim det inn her for å bevise eierskap før du fullfører oppsettet eller gjenoppretter en sikkerhetskopi."
 }

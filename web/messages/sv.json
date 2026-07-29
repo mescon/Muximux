@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Körs",
   "docker_modal_confirm_stop": "Stoppa container '{name}'?",
   "docker_modal_confirm_restart": "Starta om container '{name}'?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Installationstoken",
+  "onboarding_setupTokenPlaceholder": "Klistra in token som visades på servern",
+  "onboarding_setupTokenHint": "En engångstoken skrevs till serverloggen vid första starten och sparades i {file}. Klistra in den här för att styrka ägarskap innan du slutför installationen eller återställer en säkerhetskopia."
 }

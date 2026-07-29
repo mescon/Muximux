@@ -1329,18 +1329,18 @@
 
           {#if needsSetup}
             <div class="max-w-xl mx-auto mb-6 text-start">
-              <label for="setup-token" class="block text-sm font-medium text-text-primary mb-1">Setup token</label>
+              <label for="setup-token" class="block text-sm font-medium text-text-primary mb-1">{m.onboarding_setupTokenLabel()}</label>
               <input
                 id="setup-token"
                 type="text"
                 bind:value={setupToken}
                 autocomplete="off"
                 spellcheck="false"
-                placeholder="Paste the token printed on the server"
+                placeholder={m.onboarding_setupTokenPlaceholder()}
                 class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary focus:outline-none focus:border-brand-500 font-mono text-sm"
               />
               <p class="text-xs text-text-muted mt-1">
-                A one-time token was printed to the server's stdout on first boot (also saved to <code>data/.setup-token</code>). Paste it here to prove ownership before completing setup or restoring a backup.
+                {m.onboarding_setupTokenHint({ file: 'data/.setup-token' })}
               </p>
             </div>
           {/if}

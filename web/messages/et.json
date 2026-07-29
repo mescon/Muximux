@@ -808,5 +808,8 @@
   "docker_popover_header_running": "Töötab",
   "docker_modal_confirm_stop": "Kas peatada konteiner '{name}'?",
   "docker_modal_confirm_restart": "Kas taaskäivitada konteiner '{name}'?",
-  "docker_modal_body": "Tõmmis: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Tõmmis: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Seadistustunnus",
+  "onboarding_setupTokenPlaceholder": "Kleebi serveris kuvatud tunnus",
+  "onboarding_setupTokenHint": "Esmakäivitusel kirjutati serveri logisse ühekordne tunnus ja see salvestati faili {file}. Kleebi see siia, et tõendada omandiõigust enne seadistuse lõpetamist või varukoopia taastamist."
 }

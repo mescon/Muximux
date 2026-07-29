@@ -808,5 +808,8 @@
   "docker_popover_header_running": "În execuție",
   "docker_modal_confirm_stop": "Oprești containerul '{name}'?",
   "docker_modal_confirm_restart": "Repornești containerul '{name}'?",
-  "docker_modal_body": "Imagine: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Imagine: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "Token de configurare",
+  "onboarding_setupTokenPlaceholder": "Lipiți tokenul afișat pe server",
+  "onboarding_setupTokenHint": "La prima pornire, un token de unică folosință a fost scris în jurnalul serverului și salvat în {file}. Lipiți-l aici pentru a dovedi proprietatea înainte de a finaliza configurarea sau de a restaura o copie de rezervă."
 }

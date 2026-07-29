@@ -808,5 +808,8 @@
   "docker_popover_header_running": "चालू आहे",
   "docker_modal_confirm_stop": "कंटेनर '{name}' थांबवायचे?",
   "docker_modal_confirm_restart": "कंटेनर '{name}' पुन्हा सुरू करायचे?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "सेटअप टोकन",
+  "onboarding_setupTokenPlaceholder": "सर्व्हरवर छापलेले टोकन पेस्ट करा",
+  "onboarding_setupTokenHint": "पहिल्यांदा सुरू करताना सर्व्हर लॉगमध्ये एकवेळ वापरायचे टोकन छापले गेले आणि {file} मध्ये जतन केले गेले. सेटअप पूर्ण करण्यापूर्वी किंवा बॅकअप पुनर्संचयित करण्यापूर्वी मालकी सिद्ध करण्यासाठी ते येथे पेस्ट करा."
 }

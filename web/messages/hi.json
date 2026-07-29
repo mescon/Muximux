@@ -808,5 +808,8 @@
   "docker_popover_header_running": "चल रहा है",
   "docker_modal_confirm_stop": "कंटेनर '{name}' को रोकें?",
   "docker_modal_confirm_restart": "कंटेनर '{name}' को पुनरारंभ करें?",
-  "docker_modal_body": "Image: {image} - {uptimeOrExit}"
+  "docker_modal_body": "Image: {image} - {uptimeOrExit}",
+  "onboarding_setupTokenLabel": "सेटअप टोकन",
+  "onboarding_setupTokenPlaceholder": "सर्वर पर मुद्रित टोकन चिपकाएँ",
+  "onboarding_setupTokenHint": "पहली बार शुरू होने पर सर्वर लॉग में एक बार उपयोग होने वाला टोकन मुद्रित किया गया और {file} में सहेजा गया। सेटअप पूरा करने या बैकअप पुनर्स्थापित करने से पहले स्वामित्व सिद्ध करने के लिए इसे यहाँ चिपकाएँ।"
 }
