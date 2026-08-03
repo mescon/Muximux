@@ -7,7 +7,12 @@ describe('Skeleton', () => {
     const { container } = render(Skeleton);
     const div = container.querySelector('div');
     expect(div).toBeInTheDocument();
-    expect(div).toHaveStyle({ width: '100%', height: '1rem' });
+    // Assert the declared inline style rather than the computed one. Skeleton's
+    // contract is that it passes width/height straight through to the style
+    // attribute, and jsdom 30 resolves rem against the root font size in
+    // getComputedStyle (1rem -> 16px), which toHaveStyle would compare against.
+    expect(div?.style.width).toBe('100%');
+    expect(div?.style.height).toBe('1rem');
   });
 
   it('has animate-pulse class', () => {
@@ -21,7 +26,8 @@ describe('Skeleton', () => {
     const div = container.querySelector('div');
     expect(div).toHaveClass('rounded-full');
     // When circle is true, width should equal height
-    expect(div).toHaveStyle({ width: '3rem', height: '3rem' });
+    expect(div?.style.width).toBe('3rem');
+    expect(div?.style.height).toBe('3rem');
   });
 
   it('applies rounded (not rounded-full) when circle is false', () => {
@@ -46,6 +52,7 @@ describe('Skeleton', () => {
   it('applies custom width and height', () => {
     const { container } = render(Skeleton, { props: { width: '50%', height: '2rem' } });
     const div = container.querySelector('div');
-    expect(div).toHaveStyle({ width: '50%', height: '2rem' });
+    expect(div?.style.width).toBe('50%');
+    expect(div?.style.height).toBe('2rem');
   });
 });
