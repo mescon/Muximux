@@ -48,3 +48,11 @@ updates:
     labels:
       - dependencies
       - ci
+    groups:
+      # init and analyze are subpaths of one action and must run the same
+      # version, or analyze fails with "Loaded a configuration file for
+      # version X, but running version Y". Ungrouped, Dependabot raises one
+      # PR per subpath and neither can pass CI alone.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
