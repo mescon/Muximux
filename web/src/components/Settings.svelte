@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { iconLabel } from '$lib/iconUrl';
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
@@ -879,7 +880,7 @@
               class="btn btn-secondary btn-sm flex-1 text-start"
               onclick={() => openIconBrowser('newGroup')}
             >
-              {newGroup.icon?.name || m.settings_chooseIcon()}
+              {iconLabel(newGroup.icon) || m.settings_chooseIcon()}
             </button>
           </div>
         </div>
@@ -1029,7 +1030,7 @@
                 class="btn btn-secondary btn-sm w-full text-start"
                 onclick={() => openIconBrowser('editGroup')}
               >
-                {editingGroup.icon?.name || m.settings_chooseIcon()}
+                {iconLabel(editingGroup.icon) || m.settings_chooseIcon()}
               </button>
               <p class="text-xs text-text-muted mt-1">
                 {editingGroup.icon?.type === 'dashboard' ? m.settings_dashboardIcon() : editingGroup.icon?.type || m.settings_noIconSet()}

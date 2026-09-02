@@ -3,6 +3,7 @@
   import { flip } from 'svelte/animate';
   import { type App, type Group, type DiscoveryDockerStatus, stampAppId } from '$lib/types';
   import AppIcon from '../AppIcon.svelte';
+  import { hasIcon } from '$lib/iconUrl';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import * as m from '$lib/paraglide/messages.js';
   import { fetchDiscoveryDockerStatus } from '$lib/api';
@@ -386,7 +387,7 @@
 
           <!-- Group icon -->
           <div class="flex-shrink-0">
-            {#if group.icon?.name}
+            {#if hasIcon(group.icon)}
               <AppIcon icon={group.icon} name={group.name} color={group.color || '#374151'} size="sm" showBackground={true} />
             {:else}
               <span class="w-6 h-6 rounded flex-shrink-0 block" style="background-color: {group.color || '#374151'}"></span>

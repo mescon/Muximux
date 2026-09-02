@@ -29,3 +29,23 @@ export function resolveIconUrl(icon: AppIcon | undefined | null): string | null 
       return null;
   }
 }
+
+/**
+ * True when the config names an icon that resolveIconUrl can turn into a URL.
+ * Callers must not test `icon.name` for this: dashboard and lucide icons use
+ * `name`, but custom uploads use `file` and remote icons use `url`, so a
+ * `name` check silently rejects both of those types (#437).
+ */
+export function hasIcon(icon: AppIcon | undefined | null): icon is AppIcon {
+  return resolveIconUrl(icon) !== null;
+}
+
+/**
+ * Human-readable identifier for an icon config, for labels such as the
+ * "choose icon" button: the dashboard/lucide name, the custom upload's
+ * filename, or the remote URL. Null when nothing is set.
+ */
+export function iconLabel(icon: AppIcon | undefined | null): string | null {
+  if (!icon) return null;
+  return icon.name || icon.file || icon.url || null;
+}
