@@ -33,7 +33,7 @@ RUN npm run build
 # CGO_ENABLED=0 the binary is statically linked, so this is far
 # faster than emulating the whole Go toolchain under QEMU for
 # each target arch.
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS backend
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS backend
 WORKDIR /app
 
 # Install build dependencies
