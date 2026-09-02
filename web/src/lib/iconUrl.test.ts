@@ -3,7 +3,7 @@ import type { AppIcon } from './types';
 
 vi.mock('./api', () => ({ getBase: () => '/base' }));
 
-import { resolveIconUrl, hasIcon } from './iconUrl';
+import { resolveIconUrl, hasIcon, iconLabel } from './iconUrl';
 
 describe('resolveIconUrl', () => {
   it('returns null for missing icon or missing identifiers', () => {
@@ -49,5 +49,23 @@ describe('hasIcon', () => {
   it('is false for undefined or null', () => {
     expect(hasIcon(undefined)).toBe(false);
     expect(hasIcon(null)).toBe(false);
+  });
+});
+
+describe('iconLabel', () => {
+  it('returns the name for dashboard and lucide icons', () => {
+    expect(iconLabel({ type: 'dashboard', name: 'plex' })).toBe('plex');
+    expect(iconLabel({ type: 'lucide', name: 'house' })).toBe('house');
+  });
+
+  it('returns the filename for a custom upload and the url for a remote icon', () => {
+    expect(iconLabel({ type: 'custom', name: '', file: 'my-logo.png' })).toBe('my-logo.png');
+    expect(iconLabel({ type: 'url', name: '', url: 'https://example.com/i.png' })).toBe('https://example.com/i.png');
+  });
+
+  it('returns null when nothing identifies the icon', () => {
+    expect(iconLabel({ type: 'custom', name: '' })).toBe(null);
+    expect(iconLabel(undefined)).toBe(null);
+    expect(iconLabel(null)).toBe(null);
   });
 });

@@ -1008,7 +1008,7 @@
                 style={hasActiveApp && config.navigation.show_app_colors ? `border-bottom: 2px solid ${groupConfig?.color || currentApp?.color || 'var(--accent-primary)'}` : ''}
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
-                {#if groupConfig?.icon?.name}
+                {#if hasIcon(groupConfig?.icon)}
                   <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
                 <span>{groupName}</span>
@@ -1080,7 +1080,7 @@
                 title={groupName}
                 aria-label={groupName}
               >
-                {#if groupConfig?.icon?.name}
+                {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
                     <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
                   </span>
@@ -1307,7 +1307,7 @@
             style="pointer-events: {isCollapsed ? 'none' : 'auto'};"
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-              {#if groupConfig?.icon?.name}
+              {#if hasIcon(groupConfig?.icon)}
                 <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
               {:else if groupConfig?.color}
                 <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
@@ -1321,7 +1321,7 @@
               {/if}
             </div>
             <div class="flex items-center overflow-hidden flex-1 min-w-0" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
-              {#if groupConfig?.icon?.name || groupConfig?.color}
+              {#if hasIcon(groupConfig?.icon) || groupConfig?.color}
                 <svg
                   class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} me-1 flex-shrink-0"
                   fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -1732,7 +1732,7 @@
             style="pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-              {#if groupConfig?.icon?.name}
+              {#if hasIcon(groupConfig?.icon)}
                 <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
               {:else if groupConfig?.color}
                 <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
@@ -1746,7 +1746,7 @@
               {/if}
             </div>
             <div class="flex items-center overflow-hidden flex-1 min-w-0" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
-              {#if groupConfig?.icon?.name || groupConfig?.color}
+              {#if hasIcon(groupConfig?.icon) || groupConfig?.color}
                 <svg
                   class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} me-1 flex-shrink-0"
                   fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -2137,7 +2137,7 @@
                 style={hasActiveApp && config.navigation.show_app_colors ? `border-top: 2px solid ${groupConfig?.color || currentApp?.color || 'var(--accent-primary)'}` : ''}
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
-                {#if groupConfig?.icon?.name}
+                {#if hasIcon(groupConfig?.icon)}
                   <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
                 <span>{groupName}</span>
@@ -2208,7 +2208,7 @@
                 title={groupName}
                 aria-label={groupName}
               >
-                {#if groupConfig?.icon?.name}
+                {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
                     <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
                   </span>
@@ -2373,7 +2373,7 @@
                 onclick={() => toggleGroup(groupName)}
               >
                 <div class="flex-shrink-0 flex items-center justify-center w-6">
-                  {#if groupConfig?.icon?.name}
+                  {#if hasIcon(groupConfig?.icon)}
                     <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
                   {:else if groupConfig?.color}
                     <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
@@ -2387,7 +2387,7 @@
                   {/if}
                 </div>
                 <div class="flex items-center flex-1 min-w-0 ms-1">
-                  {#if groupConfig?.icon?.name || groupConfig?.color}
+                  {#if hasIcon(groupConfig?.icon) || groupConfig?.color}
                     <svg
                       class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} me-1 flex-shrink-0"
                       fill="none" viewBox="0 0 24 24" stroke="currentColor"

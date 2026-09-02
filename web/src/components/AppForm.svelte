@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { iconLabel } from '$lib/iconUrl';
   import type { App, Group } from '$lib/types';
   import { openModes, IFRAME_PERMISSIONS } from '$lib/constants';
   import { slugify, findSlugConflict } from '$lib/slug';
@@ -219,7 +220,7 @@
           class="btn btn-secondary btn-sm w-full text-start"
           onclick={() => onopenicon?.()}
         >
-          {app.icon?.name || m.appForm_chooseIcon()}
+          {iconLabel(app.icon) || m.appForm_chooseIcon()}
         </button>
         <p class="text-xs text-text-muted mt-1">
           {app.icon?.type === 'dashboard' ? m.appForm_iconTypeDashboard() : app.icon?.type === 'lucide' ? m.appForm_iconTypeLucide() : app.icon?.type === 'custom' ? m.appForm_iconTypeCustom() : app.icon?.type === 'url' ? m.appForm_iconTypeUrl() : m.appForm_iconTypeNone()}

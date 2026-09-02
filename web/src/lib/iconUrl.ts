@@ -39,3 +39,13 @@ export function resolveIconUrl(icon: AppIcon | undefined | null): string | null 
 export function hasIcon(icon: AppIcon | undefined | null): icon is AppIcon {
   return resolveIconUrl(icon) !== null;
 }
+
+/**
+ * Human-readable identifier for an icon config, for labels such as the
+ * "choose icon" button: the dashboard/lucide name, the custom upload's
+ * filename, or the remote URL. Null when nothing is set.
+ */
+export function iconLabel(icon: AppIcon | undefined | null): string | null {
+  if (!icon) return null;
+  return icon.name || icon.file || icon.url || null;
+}
