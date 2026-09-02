@@ -2,6 +2,17 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Custom uploads work as the overview button icon.** Selecting a custom
+  icon for the overview button in General settings appeared to do nothing:
+  the card stayed unhighlighted and the navigation kept showing the logo.
+  Custom icons are identified by `file` rather than `name`, and every
+  overview-button check tested `name`, so custom and URL icons were never
+  recognised. The checks now go through the same resolver that renders
+  icons. (#437)
+
 ## [3.3.3] - 2026-07-29
 
 A first-run release: the setup step every new install begins with was

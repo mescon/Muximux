@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { App, Config } from '$lib/types';
   import AppIcon from '../AppIcon.svelte';
+  import { hasIcon } from '$lib/iconUrl';
   import MuximuxLogo from '../MuximuxLogo.svelte';
   import LocaleSelect from '../LocaleSelect.svelte';
   import * as m from '$lib/paraglide/messages.js';
@@ -179,7 +180,7 @@
         </button>
         <!-- Muximux Logo -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.show_logo && !localConfig.navigation.home_icon?.name ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.show_logo && !hasIcon(localConfig.navigation.home_icon) ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = true; localConfig.navigation.show_logo = true; localConfig.navigation.home_icon = undefined; }}
         >
           <MuximuxLogo height="20" />
@@ -187,7 +188,7 @@
         </button>
         <!-- House Icon -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && !localConfig.navigation.show_logo && !localConfig.navigation.home_icon?.name ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && !localConfig.navigation.show_logo && !hasIcon(localConfig.navigation.home_icon) ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = true; localConfig.navigation.show_logo = false; localConfig.navigation.home_icon = undefined; }}
         >
           <svg class="w-5 h-5" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -197,10 +198,10 @@
         </button>
         <!-- Custom Icon -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.home_icon?.name ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && hasIcon(localConfig.navigation.home_icon) ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = true; onopenhomeicon?.(); }}
         >
-          {#if localConfig.navigation.home_icon?.name}
+          {#if hasIcon(localConfig.navigation.home_icon)}
             <AppIcon icon={localConfig.navigation.home_icon} name={localConfig.title} color="" size="sm" showBackground={false} />
           {:else}
             <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

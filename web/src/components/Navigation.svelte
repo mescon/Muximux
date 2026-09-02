@@ -2,6 +2,7 @@
   import { onMount, untrack } from 'svelte';
   import type { App, Config, Group } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
+  import { hasIcon } from '$lib/iconUrl';
   import HealthIndicator from './HealthIndicator.svelte';
   import DockerLogo from './DockerLogo.svelte';
   import DockerStatePill from './DockerStatePill.svelte';
@@ -951,7 +952,7 @@
     >
       <!-- Logo — fixed -->
       {#if showHomeButton}
-        {#if homeIcon?.name}
+        {#if hasIcon(homeIcon)}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
             style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
@@ -1226,7 +1227,7 @@
     >
     <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
     {#if showHomeButton}
-      {#if homeIcon?.name}
+      {#if hasIcon(homeIcon)}
         <div class="border-b border-border flex items-center justify-center overflow-hidden"
              style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
           <button
@@ -1651,7 +1652,7 @@
     >
     <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
     {#if showHomeButton}
-      {#if homeIcon?.name}
+      {#if hasIcon(homeIcon)}
         <div class="border-b border-border flex items-center justify-center overflow-hidden"
              style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
           <button
@@ -2080,7 +2081,7 @@
     >
       <!-- Logo — fixed -->
       {#if showHomeButton}
-        {#if homeIcon?.name}
+        {#if hasIcon(homeIcon)}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
             style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
@@ -2447,7 +2448,7 @@
         <!-- Footer — all action buttons in one row -->
         <div class="border-t px-2 py-2 flex items-center gap-1 shrink-0" style="border-color: var(--border-subtle);">
           {#if showHomeButton}
-            {#if homeIcon?.name}
+            {#if hasIcon(homeIcon)}
               <button
                 class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
                 style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
