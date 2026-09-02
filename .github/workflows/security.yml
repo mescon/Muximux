@@ -97,7 +97,8 @@ jobs:
         run: go install golang.org/x/vuln/cmd/govulncheck@d1f380186385b4f64e00313f31743df8e4b89a77 # v1.1.4
 
       - name: Run govulncheck
-        # continue-on-error until GO-2026-4923 (disputed bbolt CVE) is
-        # invalidated upstream: https://github.com/golang/vulndb/issues/4938
-        continue-on-error: true
+        # This step gates the workflow. It was continue-on-error while
+        # GO-2026-4923 (a disputed bbolt CVE) was open; that report was
+        # withdrawn on 2026-04-08, and the exemption had since been hiding
+        # two real stdlib findings (GO-2026-6218, GO-2026-6091).
         run: govulncheck ./...
