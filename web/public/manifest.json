@@ -1,6 +1,12 @@
 {
+  "id": "./",
   "name": "Muximux",
   "short_name": "Muximux",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#09090b",
+  "background_color": "#09090b",
   "icons": [
     {
       "src": "./android-chrome-192x192.png",
@@ -20,9 +26,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "start_url": "/",
-  "theme_color": "#09090b",
-  "background_color": "#09090b",
-  "display": "standalone"
+  ]
 }
