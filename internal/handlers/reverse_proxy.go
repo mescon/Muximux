@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"html"
 	"io"
@@ -206,7 +207,92 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 	content = r.rewriteSVGHrefs(content)
 	content = r.rewriteMetaRefresh(content)
 	content = r.rewriteModuleImports(content)
+	content = r.rewriteImportMap(content)
 	return content
+}
+
+// importMapPattern matches an inline <script type="importmap"> block. Nuxt 4.5
+// boots through one ({"imports":{"#entry":"/_nuxt/<hash>.js"}}), loading the
+// entry with import("#entry"), so the browser's module loader resolves the
+// bare specifier from this map without ever consulting the runtime
+// interceptor.
+var importMapPattern = regexp.MustCompile(`(?is)(<script[^>]*\btype\s*=\s*["']importmap["'][^>]*>)(.*?)(</script>)`)
+
+// rewriteImportMap prefixes root-relative module URLs inside import maps.
+// This is the one place JSON in HTML is rewritten on purpose: an import map
+// holds nothing but module URLs for the browser's loader, which bypasses
+// fetch/XHR interception, so leaving "/_nuxt/entry.js" unprefixed sends the
+// request to the dashboard's own origin and the app never starts. Relative
+// and bare specifiers are left alone; a map that does not parse is returned
+// untouched rather than risk corrupting it.
+func (r *contentRewriter) rewriteImportMap(content []byte) []byte {
+	if !bytes.Contains(bytes.ToLower(content), []byte("importmap")) {
+		return content
+	}
+	return importMapPattern.ReplaceAllFunc(content, func(match []byte) []byte {
+		sub := importMapPattern.FindSubmatch(match)
+		if sub == nil {
+			return match
+		}
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(bytes.TrimSpace(sub[2]), &m); err != nil {
+			return match
+		}
+		changed := false
+		if raw, ok := m["imports"]; ok {
+			if out, c := r.rewriteImportMapEntries(raw); c {
+				m["imports"], changed = out, true
+			}
+		}
+		if raw, ok := m["scopes"]; ok {
+			var scopes map[string]json.RawMessage
+			if err := json.Unmarshal(raw, &scopes); err == nil {
+				scopeChanged := false
+				for k, v := range scopes {
+					if out, c := r.rewriteImportMapEntries(v); c {
+						scopes[k], scopeChanged = out, true
+					}
+				}
+				if scopeChanged {
+					if enc, err := json.Marshal(scopes); err == nil {
+						m["scopes"], changed = enc, true
+					}
+				}
+			}
+		}
+		if !changed {
+			return match
+		}
+		enc, err := json.Marshal(m)
+		if err != nil {
+			return match
+		}
+		return bytes.Join([][]byte{sub[1], enc, sub[3]}, nil)
+	})
+}
+
+// rewriteImportMapEntries prefixes the root-relative values of one
+// specifier map. It reports whether anything changed.
+func (r *contentRewriter) rewriteImportMapEntries(raw json.RawMessage) (json.RawMessage, bool) {
+	var entries map[string]string
+	if err := json.Unmarshal(raw, &entries); err != nil {
+		return raw, false
+	}
+	changed := false
+	for k, v := range entries {
+		if strings.HasPrefix(v, "/") && !strings.HasPrefix(v, "//") && !strings.HasPrefix(v, r.proxyPrefix+"/") && v != r.proxyPrefix {
+			entries[k] = r.proxyPrefix + v
+			changed = true
+		}
+	}
+	if !changed {
+		return raw, false
+	}
+	enc, err := json.Marshal(entries)
+	if err != nil {
+		return raw, false
+	}
+	return enc, true
 }
 
 // rewriteScript performs URL rewriting for JavaScript/JSON content.
@@ -902,6 +988,14 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 			setProxyHeaders(req)
 		}
 		stripSessionCookie(req, sessionCookieName)
+		// A proxied app is same-origin with the dashboard, so cookie mitigations
+		// for cross-site framing (SameSite=None, Partitioned) are unnecessary and
+		// counterproductive: Mealie 3.25 sends this hint from any frame and then
+		// asks Starlette for a partitioned cookie, which its Python 3.12 image
+		// cannot produce, so every login from a frame over HTTPS answered 500.
+		// Without the hint it issues an ordinary SameSite=Lax cookie, which is
+		// exactly right for a first-party frame.
+		req.Header.Del("X-Mealie-Embedded")
 
 		// Inject per-app custom headers (e.g., Authorization, X-Api-Key).
 		// Values may reference the authenticated user via ${user}/${role}/

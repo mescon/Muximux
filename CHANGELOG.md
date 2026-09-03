@@ -42,6 +42,23 @@ offered. Drop-in.
   Display in the app form or with `pinned: true` in `config.yaml`. (#444)
 
 ### Fixed
+- **Mealie 3.24+ (Nuxt 4.5) loads through the proxy again.** Nuxt 4.5 boots
+  its entry module from an inline import map
+  (`{"imports":{"#entry":"/_nuxt/....js"}}`) and loads it with
+  `import("#entry")`, which the browser's module loader resolves without ever
+  touching the runtime interceptor. The rewriter deliberately leaves JSON in
+  HTML alone, so the entry URL stayed root-relative, 404ed at the dashboard,
+  and the proxied page rendered blank. Import maps are now the one JSON
+  block that is rewritten: root-relative `imports` and `scopes` values get
+  the proxy prefix, everything else is left as is. (#270)
+- **Mealie 3.25 login works inside the proxied frame.** Mealie's new auth
+  sends `X-Mealie-Embedded: true` from any frame and then asks for a
+  `Partitioned` cookie, which its Python 3.12 image cannot produce, so every
+  login from a frame over HTTPS answered 500. A proxied frame is same-origin
+  with the dashboard and needs no cross-site cookie handling, so the proxy
+  now drops that hint and Mealie issues an ordinary `SameSite=Lax` cookie.
+  Loaded directly in an iframe without the proxy, the 500 is Mealie's to fix.
+  (#270)
 - **Proxied backends no longer see the client IP twice, and
   `forwarded_headers: false` now really withholds `X-Forwarded-For`.** The
   embedding proxy set `X-Forwarded-For` itself and then Go's reverse proxy
