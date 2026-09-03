@@ -811,5 +811,9 @@
   "docker_modal_body": "Lemezkép: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Telepítési token",
   "onboarding_setupTokenPlaceholder": "Illessze be a kiszolgálón megjelenített tokent",
-  "onboarding_setupTokenHint": "Az első indításkor egy egyszer használatos token került a kiszolgáló naplójába, és mentésre került ide: {file}. Illessze be ide a tulajdonjog igazolásához, mielőtt befejezi a beállítást vagy visszaállít egy biztonsági mentést."
+  "onboarding_setupTokenHint": "Az első indításkor egy egyszer használatos token került a kiszolgáló naplójába, és mentésre került ide: {file}. Illessze be ide a tulajdonjog igazolásához, mielőtt befejezi a beállítást vagy visszaállít egy biztonsági mentést.",
+  "appForm_pinned": "Rögzítés a sávra",
+  "appForm_pinnedDesc": "Az alkalmazás megjelenítése közvetlenül a felső vagy alsó sávon, a csoportmenük mellett",
+  "appForm_helpPinned": "A rögzített alkalmazások saját gombot kapnak a sávon, így egy kattintással megnyílnak. Az alkalmazás a csoportjában is szerepel marad.",
+  "nav_pinned": "Rögzítve"
 }

@@ -811,5 +811,9 @@
   "docker_modal_body": "Vedos: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Asennustunniste",
   "onboarding_setupTokenPlaceholder": "Liitä palvelimella tulostettu tunniste",
-  "onboarding_setupTokenHint": "Kertakäyttöinen tunniste tulostettiin palvelimen lokiin ensimmäisellä käynnistyksellä ja tallennettiin tiedostoon {file}. Liitä se tähän todistaaksesi omistajuuden ennen asennuksen viimeistelyä tai varmuuskopion palauttamista."
+  "onboarding_setupTokenHint": "Kertakäyttöinen tunniste tulostettiin palvelimen lokiin ensimmäisellä käynnistyksellä ja tallennettiin tiedostoon {file}. Liitä se tähän todistaaksesi omistajuuden ennen asennuksen viimeistelyä tai varmuuskopion palauttamista.",
+  "appForm_pinned": "Kiinnitä palkkiin",
+  "appForm_pinnedDesc": "Näytä tämä sovellus suoraan ylä- tai alapalkissa ryhmävalikkojen vieressä",
+  "appForm_helpPinned": "Kiinnitetyt sovellukset saavat oman painikkeen palkkiin, joten ne avautuvat yhdellä napsautuksella. Sovellus näkyy edelleen myös ryhmässään.",
+  "nav_pinned": "Kiinnitetyt"
 }

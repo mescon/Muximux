@@ -811,5 +811,9 @@
   "docker_modal_body": "Image : {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Jeton d'installation",
   "onboarding_setupTokenPlaceholder": "Collez le jeton affiché sur le serveur",
-  "onboarding_setupTokenHint": "Un jeton à usage unique a été inscrit dans le journal du serveur au premier démarrage et enregistré dans {file}. Collez-le ici pour prouver que vous êtes le propriétaire avant de terminer l'installation ou de restaurer une sauvegarde."
+  "onboarding_setupTokenHint": "Un jeton à usage unique a été inscrit dans le journal du serveur au premier démarrage et enregistré dans {file}. Collez-le ici pour prouver que vous êtes le propriétaire avant de terminer l'installation ou de restaurer une sauvegarde.",
+  "appForm_pinned": "Épingler dans la barre",
+  "appForm_pinnedDesc": "Afficher cette application directement dans la barre supérieure ou inférieure, à côté des menus de groupe",
+  "appForm_helpPinned": "Les applications épinglées ont leur propre bouton dans la barre et s'ouvrent en un clic. L'application reste aussi listée dans son groupe.",
+  "nav_pinned": "Épinglées"
 }

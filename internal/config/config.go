@@ -476,7 +476,8 @@ type AppConfig struct {
 	Order     int           `yaml:"order"`
 	Enabled   bool          `yaml:"enabled"`
 	Default   bool          `yaml:"default"`
-	OpenMode  string        `yaml:"open_mode"` // iframe, new_tab, new_window, redirect, http_action
+	Pinned    bool          `yaml:"pinned,omitempty"` // shown directly in the bar next to the group dropdowns; still listed in its group
+	OpenMode  string        `yaml:"open_mode"`        // iframe, new_tab, new_window, redirect, http_action
 	// HTTP action fields. Only consulted when OpenMode == "http_action".
 	// Clicking such an app fires an HTTP request via the server-side relay
 	// rather than navigating; see internal/handlers/http_action.go.

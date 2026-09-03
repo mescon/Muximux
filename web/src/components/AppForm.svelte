@@ -326,6 +326,19 @@
           </div>
         </label>
       {/if}
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          bind:checked={app.pinned}
+          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        />
+        <div>
+          <span class="text-sm text-text-primary">{m.appForm_pinned()}
+            {@render helpTip(m.appForm_helpPinned())}
+          </span>
+          <p class="text-xs text-text-muted">{m.appForm_pinnedDesc()}</p>
+        </div>
+      </label>
       <div>
         <label for="{prefix}-app-mode" class="block text-sm font-medium text-text-secondary mb-1">
           {m.appForm_openMode()}

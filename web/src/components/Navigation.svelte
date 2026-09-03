@@ -365,17 +365,36 @@
     for (const group of Object.keys(acc)) {
       acc[group].sort((a, b) => a.order - b.order);
     }
+    const pinned = apps.filter(a => a.enabled && a.pinned).sort((a, b) => a.order - b.order);
+    if (pinned.length > 0) acc[PINNED_GROUP] = pinned;
     return acc;
   });
 
   // Get sorted groups from config
   let sortedGroups = $derived([...config.groups].sort((a, b) => a.order - b.order));
 
+  // Apps flagged pinned render as their own buttons in the top/bottom bar,
+  // ahead of the group dropdowns, so they open in one click. They stay in
+  // their group too; pinning is a shortcut, not a move.
+  let pinnedApps = $derived(
+    apps.filter(a => a.enabled && a.pinned).sort((a, b) => a.order - b.order)
+  );
+
+  // Sidebars and the floating panel have no dropdowns, so there pinned apps
+  // form a synthetic first section keyed by PINNED_GROUP. Never a real
+  // group name: the key starts with a character group names cannot.
+  const PINNED_GROUP = '\u0000pinned';
+  function displayGroupName(name: string): string {
+    return name === PINNED_GROUP ? m.nav_pinned() : name;
+  }
+
   // Get group names in order, including 'Ungrouped' at the end
   let groupNames = $derived([
     ...sortedGroups.map(g => g.name),
     ...(groupedApps['Ungrouped'] ? ['Ungrouped'] : [])
   ].filter(name => groupedApps[name]));
+
+  let sidebarGroupNames = $derived(pinnedApps.length > 0 ? [PINNED_GROUP, ...groupNames] : groupNames);
 
   // Whether we have real groups (not just one "Ungrouped" bucket)
   let hasRealGroups = $derived(groupNames.length > 1 || (groupNames.length === 1 && groupNames[0] !== 'Ungrouped'));
@@ -394,7 +413,7 @@
       }
     }
     // Default all groups to expanded if not set
-    groupNames.forEach(name => {
+    sidebarGroupNames.forEach(name => {
       if (expandedGroups[name] === undefined) {
         expandedGroups[name] = true;
       }
@@ -824,6 +843,41 @@
   {/if}
 {/snippet}
 
+{#snippet barAppButton(app: App, edge: 'top' | 'bottom')}
+  <button
+    class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
+           {currentApp?.name === app.name
+             ? 'bg-bg-base text-text-primary'
+             : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
+           {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
+    style="border-{edge}: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
+           {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
+    onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
+    onmouseenter={() => hoveredGroup = null}
+  >
+    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+    {#if config.navigation.show_labels}
+      <span>{app.name}</span>
+    {:else}
+      <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+    {/if}
+    {#if navBadgesOn && app.docker_key}
+      {@const ds = $dockerStateStore.get(app.name)}
+      <span class="nav-docker-badge inline-flex items-center gap-1">
+        <DockerLogo size="sm" />
+        {#if ds}<DockerStatePill state={ds} compact />{/if}
+      </span>
+    {/if}
+    {#if shouldShowHealth(app)}
+      <HealthIndicator appName={app.name} size="sm" />
+    {/if}
+    {#if app.open_mode !== 'iframe'}
+      <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+    {/if}
+  </button>
+{/snippet}
+
+
 {#snippet footerFlyoutActions()}
   <button
     class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
@@ -991,6 +1045,12 @@
       {#if useGroupDropdowns}
         <!-- Grouped: dropdown buttons, no scroll needed (overflow visible for dropdowns) -->
         <div class="flex-1 min-w-0 flex items-center space-x-1" style="overflow: visible;">
+          {#each pinnedApps as app (app.name)}
+            {@render barAppButton(app, 'bottom')}
+          {/each}
+          {#if pinnedApps.length > 0 && groupNames.length > 0}
+            <div class="w-px h-5 mx-1 flex-shrink-0" style="background: var(--border-subtle);"></div>
+          {/if}
           {#each groupNames as groupName (groupName)}
             {@const groupConfig = getGroupConfig(groupName)}
             {@const groupApps = groupedApps[groupName] || []}
@@ -1096,37 +1156,7 @@
               </button>
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
-              <button
-                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
-                       {currentApp?.name === app.name
-                         ? 'bg-bg-base text-text-primary'
-                         : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
-                       {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
-                style="border-bottom: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
-                       {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
-                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
-                onmouseenter={() => hoveredGroup = null}
-              >
-                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
-                {#if config.navigation.show_labels}
-                  <span>{app.name}</span>
-                {:else}
-                  <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
-                {/if}
-                {#if navBadgesOn && app.docker_key}
-                  {@const ds = $dockerStateStore.get(app.name)}
-                  <span class="nav-docker-badge inline-flex items-center gap-1">
-                    <DockerLogo size="sm" />
-                    {#if ds}<DockerStatePill state={ds} compact />{/if}
-                  </span>
-                {/if}
-                {#if shouldShowHealth(app)}
-                  <HealthIndicator appName={app.name} size="sm" />
-                {/if}
-                {#if app.open_mode !== 'iframe'}
-                  <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
-                {/if}
-              </button>
+              {@render barAppButton(app, 'bottom')}
             {/each}
           {/each}
         </div>
@@ -1297,7 +1327,7 @@
            class="h-full overflow-y-auto overflow-x-hidden scrollbar-styled"
            onscroll={() => throttledScrollFade('left', leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown)}
            style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
-      {#each groupNames as groupName (groupName)}
+      {#each sidebarGroupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
           <!-- Group header — icon stays visible when collapsed, text fades -->
@@ -1329,7 +1359,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               {/if}
-              <span class="truncate">{groupName}</span>
+              <span class="truncate">{displayGroupName(groupName)}</span>
               <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
@@ -1722,7 +1752,7 @@
            class="h-full overflow-y-auto overflow-x-hidden scrollbar-styled"
            onscroll={() => throttledScrollFade('right', rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown)}
            style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
-      {#each groupNames as groupName (groupName)}
+      {#each sidebarGroupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
           <!-- Group header — icon stays visible when collapsed, text fades -->
@@ -1754,7 +1784,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               {/if}
-              <span class="truncate">{groupName}</span>
+              <span class="truncate">{displayGroupName(groupName)}</span>
               <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
@@ -2120,6 +2150,12 @@
       {#if useGroupDropdowns}
         <!-- Grouped: dropdown buttons (upward), overflow visible for dropdowns -->
         <div class="flex-1 min-w-0 flex items-center space-x-1" style="overflow: visible;">
+          {#each pinnedApps as app (app.name)}
+            {@render barAppButton(app, 'top')}
+          {/each}
+          {#if pinnedApps.length > 0 && groupNames.length > 0}
+            <div class="w-px h-5 mx-1 flex-shrink-0" style="background: var(--border-subtle);"></div>
+          {/if}
           {#each groupNames as groupName (groupName)}
             {@const groupConfig = getGroupConfig(groupName)}
             {@const groupApps = groupedApps[groupName] || []}
@@ -2224,37 +2260,7 @@
               </button>
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
-              <button
-                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
-                       {currentApp?.name === app.name
-                         ? 'bg-bg-base text-text-primary'
-                         : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
-                       {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
-                style="border-top: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
-                       {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
-                onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
-                onmouseenter={() => hoveredGroup = null}
-              >
-                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
-                {#if config.navigation.show_labels}
-                  <span>{app.name}</span>
-                {:else}
-                  <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
-                {/if}
-                {#if navBadgesOn && app.docker_key}
-                  {@const ds = $dockerStateStore.get(app.name)}
-                  <span class="nav-docker-badge inline-flex items-center gap-1">
-                    <DockerLogo size="sm" />
-                    {#if ds}<DockerStatePill state={ds} compact />{/if}
-                  </span>
-                {/if}
-                {#if shouldShowHealth(app)}
-                  <HealthIndicator appName={app.name} size="sm" />
-                {/if}
-                {#if app.open_mode !== 'iframe'}
-                  <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
-                {/if}
-              </button>
+              {@render barAppButton(app, 'top')}
             {/each}
           {/each}
         </div>
@@ -2364,7 +2370,7 @@
                class="overflow-y-auto scrollbar-styled flex flex-col"
                onscroll={() => throttledScrollFade('float', floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown)}
                style="padding: 0.5rem;">
-          {#each groupNames as groupName (groupName)}
+          {#each sidebarGroupNames as groupName (groupName)}
             {@const groupConfig = getGroupConfig(groupName)}
             <div class="mb-1">
               <!-- Group header -->
@@ -2395,7 +2401,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                   {/if}
-                  <span class="truncate">{groupName}</span>
+                  <span class="truncate">{displayGroupName(groupName)}</span>
                   <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
                 </div>
               </button>

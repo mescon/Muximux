@@ -811,5 +811,9 @@
   "docker_modal_body": "이미지: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "설정 토큰",
   "onboarding_setupTokenPlaceholder": "서버에 출력된 토큰을 붙여넣으세요",
-  "onboarding_setupTokenHint": "첫 부팅 시 일회용 토큰이 서버 로그에 출력되어 {file}에 저장되었습니다. 설정을 완료하거나 백업을 복원하기 전에 소유권을 증명하려면 여기에 붙여넣으세요."
+  "onboarding_setupTokenHint": "첫 부팅 시 일회용 토큰이 서버 로그에 출력되어 {file}에 저장되었습니다. 설정을 완료하거나 백업을 복원하기 전에 소유권을 증명하려면 여기에 붙여넣으세요.",
+  "appForm_pinned": "바에 고정",
+  "appForm_pinnedDesc": "이 앱을 그룹 드롭다운 옆의 상단 또는 하단 바에 바로 표시합니다",
+  "appForm_helpPinned": "고정된 앱은 바에 전용 버튼이 생겨 한 번의 클릭으로 열립니다. 앱은 해당 그룹에도 계속 표시됩니다.",
+  "nav_pinned": "고정됨"
 }

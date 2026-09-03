@@ -811,5 +811,9 @@
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "セットアップトークン",
   "onboarding_setupTokenPlaceholder": "サーバーに表示されたトークンを貼り付けてください",
-  "onboarding_setupTokenHint": "初回起動時にワンタイムトークンがサーバーログに出力され、{file} に保存されました。セットアップの完了またはバックアップの復元の前に、所有権を証明するためここに貼り付けてください。"
+  "onboarding_setupTokenHint": "初回起動時にワンタイムトークンがサーバーログに出力され、{file} に保存されました。セットアップの完了またはバックアップの復元の前に、所有権を証明するためここに貼り付けてください。",
+  "appForm_pinned": "バーにピン留め",
+  "appForm_pinnedDesc": "このアプリをグループのドロップダウンの隣、上部または下部のバーに直接表示します",
+  "appForm_helpPinned": "ピン留めしたアプリはバーに専用のボタンが表示され、1クリックで開けます。アプリはグループ内にも引き続き表示されます。",
+  "nav_pinned": "ピン留め"
 }

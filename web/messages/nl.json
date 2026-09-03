@@ -811,5 +811,9 @@
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Installatietoken",
   "onboarding_setupTokenPlaceholder": "Plak het token dat op de server is weergegeven",
-  "onboarding_setupTokenHint": "Bij de eerste start is een eenmalig token naar het serverlogboek geschreven en opgeslagen in {file}. Plak het hier om eigendom aan te tonen voordat u de installatie voltooit of een back-up herstelt."
+  "onboarding_setupTokenHint": "Bij de eerste start is een eenmalig token naar het serverlogboek geschreven en opgeslagen in {file}. Plak het hier om eigendom aan te tonen voordat u de installatie voltooit of een back-up herstelt.",
+  "appForm_pinned": "Vastmaken aan balk",
+  "appForm_pinnedDesc": "Toon deze app direct in de boven- of onderbalk, naast de groepsmenu's",
+  "appForm_helpPinned": "Vastgemaakte apps krijgen een eigen knop in de balk en openen met één klik. De app blijft ook in haar groep staan.",
+  "nav_pinned": "Vastgemaakt"
 }

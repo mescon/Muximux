@@ -9,6 +9,7 @@ export interface App {
   order: number;
   enabled: boolean;
   default: boolean;
+  pinned?: boolean;  // shown directly in the top/bottom bar next to the group dropdowns; stays in its group
   open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect' | 'http_action';
   proxy: boolean;
   health_check?: boolean;  // true = enabled, undefined/false = disabled (opt-in)

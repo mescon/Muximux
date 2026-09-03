@@ -811,5 +811,9 @@
   "docker_modal_body": "Tõmmis: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Seadistustunnus",
   "onboarding_setupTokenPlaceholder": "Kleebi serveris kuvatud tunnus",
-  "onboarding_setupTokenHint": "Esmakäivitusel kirjutati serveri logisse ühekordne tunnus ja see salvestati faili {file}. Kleebi see siia, et tõendada omandiõigust enne seadistuse lõpetamist või varukoopia taastamist."
+  "onboarding_setupTokenHint": "Esmakäivitusel kirjutati serveri logisse ühekordne tunnus ja see salvestati faili {file}. Kleebi see siia, et tõendada omandiõigust enne seadistuse lõpetamist või varukoopia taastamist.",
+  "appForm_pinned": "Kinnita ribale",
+  "appForm_pinnedDesc": "Näita seda rakendust otse üla- või alaribal rühmade rippmenüüde kõrval",
+  "appForm_helpPinned": "Kinnitatud rakendused saavad ribale oma nupu ja avanevad ühe klõpsuga. Rakendus jääb ka oma rühma nimekirja.",
+  "nav_pinned": "Kinnitatud"
 }

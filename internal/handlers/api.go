@@ -530,6 +530,7 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		Order:               c.Order,
 		Enabled:             c.Enabled,
 		Default:             c.Default,
+		Pinned:              c.Pinned,
 		OpenMode:            c.OpenMode,
 		HTTPActionMethod:    c.HTTPActionMethod,
 		HTTPActionHeaders:   c.HTTPActionHeaders,
@@ -1067,6 +1068,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		Order:               app.Order,
 		Enabled:             app.Enabled,
 		Default:             app.Default,
+		Pinned:              app.Pinned,
 		OpenMode:            app.OpenMode,
 		HTTPActionMethod:    app.HTTPActionMethod,
 		HTTPActionConfirm:   app.HTTPActionConfirm,
@@ -1135,6 +1137,7 @@ type ClientAppConfig struct {
 	Order     int                  `json:"order"`
 	Enabled   bool                 `json:"enabled"`
 	Default   bool                 `json:"default"`
+	Pinned    bool                 `json:"pinned,omitempty"`
 	OpenMode  string               `json:"open_mode"`
 	// HTTP action fields. Only meaningful when OpenMode == "http_action".
 	// Method/Confirm/ShowToast are non-sensitive and surface to every

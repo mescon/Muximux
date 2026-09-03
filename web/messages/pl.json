@@ -811,5 +811,9 @@
   "docker_modal_body": "Obraz: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Token konfiguracji",
   "onboarding_setupTokenPlaceholder": "Wklej token wyświetlony na serwerze",
-  "onboarding_setupTokenHint": "Podczas pierwszego uruchomienia jednorazowy token został zapisany w dzienniku serwera oraz w pliku {file}. Wklej go tutaj, aby potwierdzić własność przed zakończeniem konfiguracji lub przywróceniem kopii zapasowej."
+  "onboarding_setupTokenHint": "Podczas pierwszego uruchomienia jednorazowy token został zapisany w dzienniku serwera oraz w pliku {file}. Wklej go tutaj, aby potwierdzić własność przed zakończeniem konfiguracji lub przywróceniem kopii zapasowej.",
+  "appForm_pinned": "Przypnij do paska",
+  "appForm_pinnedDesc": "Pokazuj tę aplikację bezpośrednio na górnym lub dolnym pasku, obok menu grup",
+  "appForm_helpPinned": "Przypięte aplikacje mają własny przycisk na pasku i otwierają się jednym kliknięciem. Aplikacja pozostaje też w swojej grupie.",
+  "nav_pinned": "Przypięte"
 }

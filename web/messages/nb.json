@@ -811,5 +811,9 @@
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Oppsettstoken",
   "onboarding_setupTokenPlaceholder": "Lim inn token som ble skrevet ut på serveren",
-  "onboarding_setupTokenHint": "Et engangstoken ble skrevet til serverloggen ved første oppstart og lagret i {file}. Lim det inn her for å bevise eierskap før du fullfører oppsettet eller gjenoppretter en sikkerhetskopi."
+  "onboarding_setupTokenHint": "Et engangstoken ble skrevet til serverloggen ved første oppstart og lagret i {file}. Lim det inn her for å bevise eierskap før du fullfører oppsettet eller gjenoppretter en sikkerhetskopi.",
+  "appForm_pinned": "Fest til linjen",
+  "appForm_pinnedDesc": "Vis denne appen direkte i topp- eller bunnlinjen, ved siden av gruppemenyene",
+  "appForm_helpPinned": "Festede apper får sin egen knapp i linjen, slik at de åpnes med ett klikk. Appen blir også værende i gruppen sin.",
+  "nav_pinned": "Festet"
 }

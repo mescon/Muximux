@@ -811,5 +811,9 @@
   "docker_modal_body": "Slika: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Namestitveni žeton",
   "onboarding_setupTokenPlaceholder": "Prilepite žeton, izpisan na strežniku",
-  "onboarding_setupTokenHint": "Ob prvem zagonu je bil v dnevnik strežnika izpisan enkratni žeton in shranjen v {file}. Prilepite ga sem, da dokažete lastništvo, preden dokončate namestitev ali obnovite varnostno kopijo."
+  "onboarding_setupTokenHint": "Ob prvem zagonu je bil v dnevnik strežnika izpisan enkratni žeton in shranjen v {file}. Prilepite ga sem, da dokažete lastništvo, preden dokončate namestitev ali obnovite varnostno kopijo.",
+  "appForm_pinned": "Pripni v vrstico",
+  "appForm_pinnedDesc": "Prikaži to aplikacijo neposredno v zgornji ali spodnji vrstici, ob spustnih menijih skupin",
+  "appForm_helpPinned": "Pripete aplikacije imajo v vrstici svoj gumb in se odprejo z enim klikom. Aplikacija ostane navedena tudi v svoji skupini.",
+  "nav_pinned": "Pripete"
 }

@@ -811,5 +811,9 @@
   "docker_modal_body": "Imagen: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Token de configuración",
   "onboarding_setupTokenPlaceholder": "Pega el token impreso en el servidor",
-  "onboarding_setupTokenHint": "Se imprimió un token de un solo uso en el registro del servidor durante el primer arranque y se guardó en {file}. Pégalo aquí para demostrar la propiedad antes de completar la configuración o restaurar una copia de seguridad."
+  "onboarding_setupTokenHint": "Se imprimió un token de un solo uso en el registro del servidor durante el primer arranque y se guardó en {file}. Pégalo aquí para demostrar la propiedad antes de completar la configuración o restaurar una copia de seguridad.",
+  "appForm_pinned": "Fijar en la barra",
+  "appForm_pinnedDesc": "Mostrar esta aplicación directamente en la barra superior o inferior, junto a los desplegables de grupo",
+  "appForm_helpPinned": "Las aplicaciones fijadas tienen su propio botón en la barra y se abren con un clic. La aplicación sigue apareciendo también en su grupo.",
+  "nav_pinned": "Fijadas"
 }
