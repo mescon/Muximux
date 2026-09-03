@@ -104,7 +104,7 @@ offered. Drop-in.
   the proxy fuzz targets, and where to report a vulnerability.
 - Dependencies: Svelte 5.57, Vite 8.2.2, jsdom 30, `@testing-library/jest-dom`
   7, `marked` 18.0.11, `zod` 4.5.4, `svelte-sonner` 1.2.1, `grpc` 1.83.1,
-  `x/crypto` 0.55.0, `x/net` 0.57.0, `brotli` 1.2.3, and the release
+  `go-oidc` 3.21.0, `x/crypto` 0.56.0, `x/net` 0.57.0, `brotli` 1.2.3, and the release
   workflow's `attest-build-provenance` 4.2.2, `sbom-action` 0.24.2,
   `action-gh-release` 3.0.3, `setup-buildx-action` 4.3.0 and `login-action`
   4.6.0.
