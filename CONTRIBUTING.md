@@ -8,7 +8,7 @@ The primary development environment for Muximux is Claude Code with MCP servers 
 
 ## Prerequisites
 
-- **Go** 1.26+ (check with `go version`)
+- **Go** 1.27+ (check with `go version`)
 - **Node.js** 22+ with npm (check with `node --version`) -- CI and the container build both use Node 26
 - **golangci-lint v2** (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`) -- `.golangci.yml` is a v2 config and v1 cannot parse it
 

@@ -87,6 +87,7 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
         with:
           go-version-file: go.mod
+          check-latest: true
 
       - name: Install govulncheck
         # SHA-pinned to v1.1.4 (commit d1f3801) so the install is
