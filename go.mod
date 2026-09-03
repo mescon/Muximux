@@ -1,18 +1,16 @@
 module github.com/mescon/muximux/v3
 
-go 1.26.6
-
-require gopkg.in/yaml.v3 v3.0.1
-
-require github.com/gorilla/websocket v1.5.3
+go 1.27
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/andybalholm/brotli v1.2.3
 	github.com/caddyserver/caddy/v2 v2.11.4
 	github.com/coreos/go-oidc/v3 v3.20.0
+	github.com/gorilla/websocket v1.5.3
 	golang.org/x/crypto v0.55.0
 	golang.org/x/term v0.45.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
