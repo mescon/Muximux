@@ -811,5 +811,9 @@
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Mã thiết lập",
   "onboarding_setupTokenPlaceholder": "Dán mã được in trên máy chủ",
-  "onboarding_setupTokenHint": "Một mã dùng một lần đã được ghi vào nhật ký máy chủ trong lần khởi động đầu tiên và lưu tại {file}. Dán mã vào đây để chứng minh quyền sở hữu trước khi hoàn tất thiết lập hoặc khôi phục bản sao lưu."
+  "onboarding_setupTokenHint": "Một mã dùng một lần đã được ghi vào nhật ký máy chủ trong lần khởi động đầu tiên và lưu tại {file}. Dán mã vào đây để chứng minh quyền sở hữu trước khi hoàn tất thiết lập hoặc khôi phục bản sao lưu.",
+  "appForm_pinned": "Ghim vào thanh",
+  "appForm_pinnedDesc": "Hiển thị ứng dụng này trực tiếp trên thanh trên hoặc dưới, cạnh các menu nhóm",
+  "appForm_helpPinned": "Ứng dụng đã ghim có nút riêng trên thanh nên mở được bằng một lần nhấp. Ứng dụng vẫn nằm trong nhóm của nó.",
+  "nav_pinned": "Đã ghim"
 }

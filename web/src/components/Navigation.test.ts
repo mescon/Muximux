@@ -295,6 +295,50 @@ describe('Navigation', () => {
       expect(screen.getByText('Tools')).toBeInTheDocument();
     });
 
+    it('renders pinned apps as their own buttons ahead of the group dropdowns', () => {
+      const apps = [
+        makeApp({ name: 'Grafana', url: 'https://grafana.local', order: 0, group: 'Media' }),
+        makeApp({ name: 'Sonarr', url: 'https://sonarr.local', order: 1, group: 'Media', pinned: true }),
+        makeApp({ name: 'Radarr', url: 'https://radarr.local', order: 2, group: 'Tools', pinned: true }),
+      ];
+      render(Navigation, {
+        props: {
+          apps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'top', bar_style: 'grouped' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      // Pinned apps are reachable without opening a dropdown; the unpinned one is not.
+      expect(screen.getByText('Sonarr')).toBeInTheDocument();
+      expect(screen.getByText('Radarr')).toBeInTheDocument();
+      expect(screen.queryByText('Grafana')).not.toBeInTheDocument();
+      // The group dropdown buttons are still there, so pinning did not move the app out of its group.
+      expect(screen.getByText('Media')).toBeInTheDocument();
+      expect(screen.getByText('Tools')).toBeInTheDocument();
+      // Pinned buttons precede the first group button in document order.
+      const sonarr = screen.getByText('Sonarr');
+      const media = screen.getByText('Media');
+      expect(sonarr.compareDocumentPosition(media) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('skips disabled apps even when pinned', () => {
+      const apps = [
+        makeApp({ name: 'Grafana', url: 'https://grafana.local', order: 0, group: 'Media' }),
+        makeApp({ name: 'Hidden', url: 'https://hidden.local', order: 1, group: 'Media', pinned: true, enabled: false }),
+      ];
+      render(Navigation, {
+        props: {
+          apps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'top', bar_style: 'grouped' }, groups: [mediaGroup] }),
+        },
+      });
+      expect(screen.queryByText('Hidden')).not.toBeInTheDocument();
+    });
+
     it('shows action buttons: search, logs, settings', () => {
       const { container } = render(Navigation, {
         props: {
@@ -404,6 +448,22 @@ describe('Navigation', () => {
       expect(screen.getByText('AppTwo')).toBeInTheDocument();
     });
 
+    it('renders pinned apps directly in the bottom bar', () => {
+      const apps = [
+        makeApp({ name: 'Grafana', url: 'https://grafana.local', order: 0, group: 'Media' }),
+        makeApp({ name: 'Sonarr', url: 'https://sonarr.local', order: 1, group: 'Media', pinned: true }),
+      ];
+      render(Navigation, {
+        props: {
+          apps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'bottom', bar_style: 'grouped' }, groups: [mediaGroup] }),
+        },
+      });
+      expect(screen.getByText('Sonarr')).toBeInTheDocument();
+      expect(screen.queryByText('Grafana')).not.toBeInTheDocument();
+    });
+
     it('shows group dropdown buttons in grouped mode', () => {
       render(Navigation, {
         props: {
@@ -474,6 +534,36 @@ describe('Navigation', () => {
       const aside = container.querySelector('aside');
       expect(aside).toBeTruthy();
       expect(container.querySelector('.sidebar-panel.border-r')).toBeTruthy();
+    });
+
+    it('lists pinned apps in a Pinned section above the groups', () => {
+      const apps = [
+        makeApp({ name: 'Grafana', url: 'https://grafana.local', order: 0, group: 'Media' }),
+        makeApp({ name: 'Sonarr', url: 'https://sonarr.local', order: 1, group: 'Media', pinned: true }),
+      ];
+      render(Navigation, {
+        props: {
+          apps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'left' }, groups: [mediaGroup] }),
+        },
+      });
+      const pinned = screen.getByText('Pinned');
+      const media = screen.getByText('Media');
+      expect(pinned.compareDocumentPosition(media) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      // The app appears twice: once pinned, once in its group.
+      expect(screen.getAllByText('Sonarr')).toHaveLength(2);
+    });
+
+    it('has no Pinned section when nothing is pinned', () => {
+      render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'left' }, groups: [mediaGroup, toolsGroup] }),
+        },
+      });
+      expect(screen.queryByText('Pinned')).not.toBeInTheDocument();
     });
 
     it('shows group headers with app counts', () => {

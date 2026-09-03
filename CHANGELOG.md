@@ -4,6 +4,13 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Pin apps to the bar.** A pinned app gets its own button in the top or
+  bottom bar, ahead of the group dropdowns, so it opens in one click while
+  the rest of its group stays tucked away. Sidebars and the floating panel
+  show pinned apps in a Pinned section above the groups. Set it under
+  Display in the app form or with `pinned: true` in `config.yaml`. (#444)
+
 ### Fixed
 - **Custom uploads work as the overview button icon.** Selecting a custom
   icon for the overview button in General settings appeared to do nothing:

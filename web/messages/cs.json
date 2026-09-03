@@ -811,5 +811,9 @@
   "docker_modal_body": "Obraz: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Instalační token",
   "onboarding_setupTokenPlaceholder": "Vložte token vypsaný na serveru",
-  "onboarding_setupTokenHint": "Při prvním spuštění byl do protokolu serveru vypsán jednorázový token a uložen do {file}. Vložte jej sem, abyste prokázali vlastnictví před dokončením nastavení nebo obnovením zálohy."
+  "onboarding_setupTokenHint": "Při prvním spuštění byl do protokolu serveru vypsán jednorázový token a uložen do {file}. Vložte jej sem, abyste prokázali vlastnictví před dokončením nastavení nebo obnovením zálohy.",
+  "appForm_pinned": "Připnout na lištu",
+  "appForm_pinnedDesc": "Zobrazit tuto aplikaci přímo v horní nebo dolní liště vedle rozbalovacích nabídek skupin",
+  "appForm_helpPinned": "Připnuté aplikace mají na liště vlastní tlačítko a otevřou se jedním kliknutím. Aplikace zůstává uvedena i ve své skupině.",
+  "nav_pinned": "Připnuté"
 }

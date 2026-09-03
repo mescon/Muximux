@@ -811,5 +811,9 @@
   "docker_modal_body": "鏡像：{image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "設定權杖",
   "onboarding_setupTokenPlaceholder": "貼上伺服器度顯示嘅權杖",
-  "onboarding_setupTokenHint": "第一次啟動嗰陣，一次性權杖已經寫入伺服器記錄，並且儲存喺 {file}。請喺呢度貼上，以便喺完成設定或者還原備份之前證明擁有權。"
+  "onboarding_setupTokenHint": "第一次啟動嗰陣，一次性權杖已經寫入伺服器記錄，並且儲存喺 {file}。請喺呢度貼上，以便喺完成設定或者還原備份之前證明擁有權。",
+  "appForm_pinned": "釘喺欄上",
+  "appForm_pinnedDesc": "喺頂部或者底部欄直接顯示呢個應用程式，放喺群組下拉選單隔籬",
+  "appForm_helpPinned": "釘住嘅應用程式喺欄上有自己嘅掣，撳一下就開到。應用程式仍然會留喺佢嘅群組入面。",
+  "nav_pinned": "已釘住"
 }

@@ -811,5 +811,9 @@
   "docker_modal_body": "Atvaizdas: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Sąrankos prieigos raktas",
   "onboarding_setupTokenPlaceholder": "Įklijuokite serveryje išvestą prieigos raktą",
-  "onboarding_setupTokenHint": "Pirmojo paleidimo metu į serverio žurnalą buvo įrašytas vienkartinis prieigos raktas ir išsaugotas į {file}. Įklijuokite jį čia, kad įrodytumėte nuosavybę prieš užbaigdami sąranką ar atkurdami atsarginę kopiją."
+  "onboarding_setupTokenHint": "Pirmojo paleidimo metu į serverio žurnalą buvo įrašytas vienkartinis prieigos raktas ir išsaugotas į {file}. Įklijuokite jį čia, kad įrodytumėte nuosavybę prieš užbaigdami sąranką ar atkurdami atsarginę kopiją.",
+  "appForm_pinned": "Prisegti prie juostos",
+  "appForm_pinnedDesc": "Rodyti šią programą tiesiai viršutinėje arba apatinėje juostoje, šalia grupių išskleidžiamųjų meniu",
+  "appForm_helpPinned": "Prisegtos programos juostoje turi savo mygtuką, todėl atidaromos vienu spustelėjimu. Programa lieka ir savo grupėje.",
+  "nav_pinned": "Prisegtos"
 }

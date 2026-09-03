@@ -221,6 +221,23 @@ describe('AppForm', () => {
       expect(screen.getByText('Default app')).toBeInTheDocument();
     });
 
+    it('renders the pin-to-bar checkbox', () => {
+      render(AppForm, { props: { app: makeApp(), mode: 'create', groups: defaultGroups, allApps: [] } });
+      expect(screen.getByText('Pin to bar')).toBeInTheDocument();
+    });
+
+    it('binds the pin-to-bar checkbox to app.pinned', async () => {
+      const app = makeApp();
+      const { container } = render(AppForm, {
+        props: { app, mode: 'create', groups: defaultGroups, allApps: [] },
+      });
+      // checkboxes order: enabled, default, pinned, proxy, force_icon_bg, invert
+      const pinned = container.querySelectorAll('input[type="checkbox"]')[2] as HTMLInputElement;
+      expect(pinned.checked).toBe(false);
+      await fireEvent.click(pinned);
+      expect(pinned.checked).toBe(true);
+    });
+
     it('renders open mode dropdown', () => {
       render(AppForm, { props: { app: makeApp(), mode: 'create', groups: defaultGroups, allApps: [] } });
       expect(screen.getByText(/Open Mode/)).toBeInTheDocument();
@@ -238,7 +255,7 @@ describe('AppForm', () => {
       });
       // Find the default checkbox (second checkbox in the Display section)
       const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-      // checkboxes order: enabled, default, proxy, force_icon_bg, invert
+      // checkboxes order: enabled, default, pinned, proxy, force_icon_bg, invert
       await fireEvent.click(checkboxes[1]); // default
       expect(ondefaultchange).toHaveBeenCalledWith(true);
     });

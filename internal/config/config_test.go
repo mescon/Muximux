@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestLoad(t *testing.T) {
@@ -1995,5 +1997,31 @@ func TestHTTPActionMethodsMatchFrontend(t *testing.T) {
 	}
 	if strings.Join(httpActionMethods, ",") != strings.Join(frontend, ",") {
 		t.Errorf("http_action method lists have drifted -- keep them in sync\n  backend (config.httpActionMethods):        %v\n  frontend (AppForm.svelte method dropdown): %v", httpActionMethods, frontend)
+	}
+}
+
+// TestLoad_PinnedApp pins the YAML key for the navigation "pinned" flag and
+// its default: absent means false, and a false value is omitted on save so
+// existing configs do not grow a line per app.
+func TestLoad_PinnedApp(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	yamlDoc := "apps:\n  - name: Plex\n    url: http://plex.local\n    pinned: true\n  - name: Radarr\n    url: http://radarr.local\n"
+	if err := os.WriteFile(path, []byte(yamlDoc), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if len(cfg.Apps) != 2 || !cfg.Apps[0].Pinned || cfg.Apps[1].Pinned {
+		t.Fatalf("pinned not parsed as expected: %+v", cfg.Apps)
+	}
+	out, err := yaml.Marshal(cfg.Apps)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(out), "pinned:"); got != 1 {
+		t.Errorf("expected exactly one pinned: line on save (omitempty), got %d in:\n%s", got, out)
 	}
 }

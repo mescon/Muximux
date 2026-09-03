@@ -811,5 +811,9 @@
   "shortcuts_subtitle": "Keyboard, mouse and link shortcuts",
   "onboarding_setupTokenLabel": "Setup token",
   "onboarding_setupTokenPlaceholder": "Paste the token printed on the server",
-  "onboarding_setupTokenHint": "A one-time token was printed to the server log on first boot and saved to {file}. Paste it here to prove ownership before completing setup or restoring a backup."
+  "onboarding_setupTokenHint": "A one-time token was printed to the server log on first boot and saved to {file}. Paste it here to prove ownership before completing setup or restoring a backup.",
+  "appForm_pinned": "Pin to bar",
+  "appForm_pinnedDesc": "Show this app directly in the top or bottom bar, next to the group dropdowns",
+  "appForm_helpPinned": "Pinned apps get their own button in the bar so they open in one click. The app stays listed in its group as well.",
+  "nav_pinned": "Pinned"
 }

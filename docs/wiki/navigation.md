@@ -54,6 +54,26 @@ navigation:
 
 The flat style only applies to top and bottom bars. Left, right, and floating navigation always use the grouped layout with collapsible sections.
 
+## Pinned Apps
+
+Grouped top and bottom bars put every app behind a dropdown, so opening one is two steps: open the group, then pick the app. Pinning lifts an app out of that: a pinned app gets its own button in the bar, ahead of the group dropdowns, and opens in one click. The app stays listed in its group as well, so the group dropdown remains complete.
+
+```
+[ Plex ] [ Home Assistant ] | [ Media ▾ ] [ Monitoring ▾ ] [ Downloads ▾ ]
+```
+
+Pinned apps are ordered among themselves by their `order`, the same field that orders them inside their group. Left, right and floating navigation have no dropdowns, so there pinned apps appear as a **Pinned** section above the groups. The flat bar style already shows every app directly and is unchanged.
+
+Pin an app from its edit form under **Display**, or in `config.yaml`:
+
+```yaml
+apps:
+  - name: Plex
+    url: http://plex.local:32400
+    group: Media
+    pinned: true
+```
+
 ## Configuration
 
 All navigation settings are available in `config.yaml` under the `navigation` key:

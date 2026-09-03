@@ -811,5 +811,9 @@
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "设置令牌",
   "onboarding_setupTokenPlaceholder": "粘贴服务器上打印的令牌",
-  "onboarding_setupTokenHint": "首次启动时，一次性令牌已输出到服务器日志并保存到 {file}。请在此粘贴，以便在完成设置或恢复备份前证明所有权。"
+  "onboarding_setupTokenHint": "首次启动时，一次性令牌已输出到服务器日志并保存到 {file}。请在此粘贴，以便在完成设置或恢复备份前证明所有权。",
+  "appForm_pinned": "固定到栏",
+  "appForm_pinnedDesc": "在顶部或底部栏中直接显示此应用，位于分组下拉菜单旁边",
+  "appForm_helpPinned": "固定的应用在栏中拥有自己的按钮，一键即可打开。该应用仍会保留在其分组中。",
+  "nav_pinned": "已固定"
 }

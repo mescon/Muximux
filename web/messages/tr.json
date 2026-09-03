@@ -811,5 +811,9 @@
   "docker_modal_body": "İmaj: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Kurulum belirteci",
   "onboarding_setupTokenPlaceholder": "Sunucuda görüntülenen belirteci yapıştırın",
-  "onboarding_setupTokenHint": "İlk açılışta sunucu günlüğüne tek kullanımlık bir belirteç yazıldı ve {file} dosyasına kaydedildi. Kurulumu tamamlamadan veya bir yedeği geri yüklemeden önce sahipliği kanıtlamak için buraya yapıştırın."
+  "onboarding_setupTokenHint": "İlk açılışta sunucu günlüğüne tek kullanımlık bir belirteç yazıldı ve {file} dosyasına kaydedildi. Kurulumu tamamlamadan veya bir yedeği geri yüklemeden önce sahipliği kanıtlamak için buraya yapıştırın.",
+  "appForm_pinned": "Çubuğa sabitle",
+  "appForm_pinnedDesc": "Bu uygulamayı grup açılır menülerinin yanında, üst veya alt çubukta doğrudan göster",
+  "appForm_helpPinned": "Sabitlenen uygulamalar çubukta kendi düğmesini alır ve tek tıkla açılır. Uygulama grubunda da listelenmeye devam eder.",
+  "nav_pinned": "Sabitlenenler"
 }

@@ -811,5 +811,9 @@
   "docker_modal_body": "Image: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Einrichtungs-Token",
   "onboarding_setupTokenPlaceholder": "Fügen Sie das auf dem Server ausgegebene Token ein",
-  "onboarding_setupTokenHint": "Beim ersten Start wurde ein einmaliges Token im Serverprotokoll ausgegeben und in {file} gespeichert. Fügen Sie es hier ein, um den Besitz nachzuweisen, bevor Sie die Einrichtung abschließen oder ein Backup wiederherstellen."
+  "onboarding_setupTokenHint": "Beim ersten Start wurde ein einmaliges Token im Serverprotokoll ausgegeben und in {file} gespeichert. Fügen Sie es hier ein, um den Besitz nachzuweisen, bevor Sie die Einrichtung abschließen oder ein Backup wiederherstellen.",
+  "appForm_pinned": "An Leiste anheften",
+  "appForm_pinnedDesc": "Diese App direkt in der oberen oder unteren Leiste neben den Gruppenmenüs anzeigen",
+  "appForm_helpPinned": "Angeheftete Apps bekommen einen eigenen Button in der Leiste und öffnen sich mit einem Klick. Die App bleibt zusätzlich in ihrer Gruppe gelistet.",
+  "nav_pinned": "Angeheftet"
 }

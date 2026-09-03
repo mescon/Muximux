@@ -811,5 +811,9 @@
   "docker_modal_body": "Slika: {image} - {uptimeOrExit}",
   "onboarding_setupTokenLabel": "Token za postavljanje",
   "onboarding_setupTokenPlaceholder": "Zalijepite token ispisan na poslužitelju",
-  "onboarding_setupTokenHint": "Pri prvom pokretanju jednokratni token ispisan je u zapisnik poslužitelja i spremljen u {file}. Zalijepite ga ovdje kako biste dokazali vlasništvo prije dovršetka postavljanja ili vraćanja sigurnosne kopije."
+  "onboarding_setupTokenHint": "Pri prvom pokretanju jednokratni token ispisan je u zapisnik poslužitelja i spremljen u {file}. Zalijepite ga ovdje kako biste dokazali vlasništvo prije dovršetka postavljanja ili vraćanja sigurnosne kopije.",
+  "appForm_pinned": "Prikvači na traku",
+  "appForm_pinnedDesc": "Prikaži ovu aplikaciju izravno u gornjoj ili donjoj traci, uz padajuće izbornike grupa",
+  "appForm_helpPinned": "Prikvačene aplikacije imaju vlastiti gumb na traci i otvaraju se jednim klikom. Aplikacija ostaje navedena i u svojoj grupi.",
+  "nav_pinned": "Prikvačene"
 }

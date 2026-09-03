@@ -1441,6 +1441,28 @@ func TestSanitizeApp(t *testing.T) {
 	})
 }
 
+// TestPinned_SurvivesBothProjections guards the pinned flag through the read
+// projection (config -> client DTO, for admins and non-admins alike, since a
+// pinned app is a navigation fact rather than a privileged one) and the write
+// path (client DTO -> config). Either side dropping it would make the "Pin to
+// bar" checkbox appear to do nothing.
+func TestPinned_SurvivesBothProjections(t *testing.T) {
+	app := config.AppConfig{Name: "Plex", URL: "http://plex.local", Enabled: true, Pinned: true}
+	for _, admin := range []bool{true, false} {
+		if got := sanitizeAppForRole(&app, admin); !got.Pinned {
+			t.Errorf("admin=%v: sanitizeAppForRole dropped pinned", admin)
+		}
+	}
+	unpinned := config.AppConfig{Name: "Radarr", URL: "http://radarr.local", Enabled: true}
+	if got := sanitizeAppForRole(&unpinned, true); got.Pinned {
+		t.Error("sanitizeAppForRole invented pinned on an unpinned app")
+	}
+	client := &ClientAppConfig{Name: "Plex", URL: "http://plex.local", Pinned: true}
+	if out := clientAppToConfig(client); !out.Pinned {
+		t.Errorf("clientAppToConfig dropped pinned: %+v", out)
+	}
+}
+
 // Tests for save-failure error paths using an invalid configPath.
 // /dev/null/impossible is guaranteed to fail because /dev/null is a file, not a directory.
 // TestCreateApp_RejectsInvalidHTTPAction guards that the per-app create
