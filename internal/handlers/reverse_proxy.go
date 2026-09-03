@@ -267,11 +267,7 @@ func (r *contentRewriter) rewriteImportMap(content []byte) []byte {
 		if err != nil {
 			return match
 		}
-		out := make([]byte, 0, len(sub[1])+len(enc)+len(sub[3]))
-		out = append(out, sub[1]...)
-		out = append(out, enc...)
-		out = append(out, sub[3]...)
-		return out
+		return bytes.Join([][]byte{sub[1], enc, sub[3]}, nil)
 	})
 }
 
