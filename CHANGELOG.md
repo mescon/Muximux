@@ -5,6 +5,15 @@ All notable changes to Muximux are documented in this file.
 ## [Unreleased]
 
 ### Fixed
+- **Proxied backends no longer see the client IP twice, and
+  `forwarded_headers: false` now really withholds `X-Forwarded-For`.** The
+  embedding proxy set `X-Forwarded-For` itself and then Go's reverse proxy
+  appended the client address again, so backends received it duplicated;
+  with forwarding switched off the second append still happened, which is
+  exactly the header that made Traefik answer 400. The proxy now uses the
+  reverse proxy's `Rewrite` hook, which adds nothing on its own: the address
+  appears once, an upstream `X-Forwarded-Proto` is preserved, and with
+  forwarding off none of the `X-Forwarded-*` or `X-Real-IP` headers are sent.
 - **Custom uploads work as the overview button icon.** Selecting a custom
   icon for the overview button in General settings appeared to do nothing:
   the card stayed unhighlighted and the navigation kept showing the logo.

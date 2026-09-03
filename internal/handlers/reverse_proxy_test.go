@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httputil"
 	"net/url"
 	"strings"
 	"testing"
@@ -603,8 +604,11 @@ func TestDirectorPathMapping(t *testing.T) {
 			// Create a test request
 			req := httptest.NewRequest("GET", tt.requestPath, nil)
 
-			// Apply the director
-			route.proxy.Director(req) //nolint:staticcheck // production still wires Director; test exercises the same field
+			// Drive the proxy's Rewrite the way httputil.ReverseProxy does: the
+			// outbound request is a clone of the inbound one.
+			out := req.Clone(req.Context())
+			route.proxy.Rewrite(&httputil.ProxyRequest{In: req, Out: out})
+			req = out
 
 			// Verify the transformed request
 			if req.URL.Path != tt.expectedPath {
@@ -4063,5 +4067,60 @@ func TestRewriteResponseBody_LayeredEncodingPassThrough(t *testing.T) {
 	got, _ := io.ReadAll(resp.Body)
 	if string(got) != body {
 		t.Errorf("body must be forwarded byte-for-byte")
+	}
+}
+
+// TestReverseProxy_ForwardedHeadersAtBackend checks the headers a backend
+// actually receives, through the real ReverseProxy rather than the director
+// alone. The director-level test above could not see what ReverseProxy added
+// after the director returned, which is how the client IP came to be sent
+// twice and how forwarded_headers: false failed to withhold X-Forwarded-For.
+func TestReverseProxy_ForwardedHeadersAtBackend(t *testing.T) {
+	var got http.Header
+	backend := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) { got = r.Header.Clone() }))
+	defer backend.Close()
+	off := false
+	for _, tc := range []struct {
+		name       string
+		forwarded  *bool
+		inbound    map[string]string
+		wantFor    string
+		wantProto  string
+		wantAbsent bool
+	}{
+		{"on: client ip exactly once", nil, nil, "192.168.1.100", "http", false},
+		{"on: appended once to an inbound chain", nil, map[string]string{"X-Forwarded-For": "1.2.3.4"}, "1.2.3.4, 192.168.1.100", "http", false},
+		{"on: upstream proto survives", nil, map[string]string{"X-Forwarded-Proto": "https"}, "192.168.1.100", "https", false},
+		{"off: nothing forwarded, even with an inbound chain", &off, map[string]string{"X-Forwarded-For": "1.2.3.4", "X-Forwarded-Proto": "https"}, "", "", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			h := NewReverseProxyHandler([]config.AppConfig{{Name: "App", URL: backend.URL, Enabled: true, Proxy: true, ForwardedHeaders: tc.forwarded}}, "30s")
+			req := httptest.NewRequest(http.MethodGet, "/proxy/app/", nil)
+			req.RemoteAddr = "192.168.1.100:12345"
+			for k, v := range tc.inbound {
+				req.Header.Set(k, v)
+			}
+			h.ServeHTTP(httptest.NewRecorder(), req)
+			if tc.wantAbsent {
+				for _, hn := range []string{"X-Forwarded-For", "X-Forwarded-Host", "X-Forwarded-Proto", "X-Real-IP"} {
+					if v := got.Get(hn); v != "" {
+						t.Errorf("%s = %q, want absent with forwarded_headers off", hn, v)
+					}
+				}
+				return
+			}
+			if v := got.Get("X-Forwarded-For"); v != tc.wantFor {
+				t.Errorf("X-Forwarded-For = %q, want %q", v, tc.wantFor)
+			}
+			if v := got.Get("X-Forwarded-Proto"); v != tc.wantProto {
+				t.Errorf("X-Forwarded-Proto = %q, want %q", v, tc.wantProto)
+			}
+			if v := got.Get("X-Real-IP"); v != "192.168.1.100" {
+				t.Errorf("X-Real-IP = %q, want client ip", v)
+			}
+			if v := got.Get("X-Forwarded-Host"); v == "" {
+				t.Error("X-Forwarded-Host missing")
+			}
+		})
 	}
 }

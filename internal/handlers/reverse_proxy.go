@@ -764,8 +764,28 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 	rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
 
 	appName := app.Name
+	forwarded := app.ForwardedOrDefault()
+	director := buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders, sessionCookieName, forwarded)
 	proxy := &httputil.ReverseProxy{
-		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders, sessionCookieName, app.ForwardedOrDefault()),
+		// Rewrite rather than Director: with Director, ReverseProxy appended
+		// the client IP to X-Forwarded-For itself after setProxyHeaders had
+		// already done so, so backends saw the address twice, and it did so
+		// even with forwarded_headers off, so that option never actually
+		// withheld the header. Rewrite hands us an outbound request with the
+		// inbound X-Forwarded-* removed and adds nothing on its own. When
+		// forwarding is on we carry the inbound chain back over first, so
+		// setProxyHeaders appends exactly once and an upstream proxy's
+		// X-Forwarded-Proto survives; when it is off, nothing is sent.
+		Rewrite: func(pr *httputil.ProxyRequest) {
+			if forwarded {
+				for _, h := range []string{headerXForwardedFor, "X-Forwarded-Host", "X-Forwarded-Proto"} {
+					if v := pr.In.Header.Get(h); v != "" {
+						pr.Out.Header.Set(h, v)
+					}
+				}
+			}
+			director(pr.Out)
+		},
 		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter), //nolint:bodyclose // response body managed by httputil.ReverseProxy
 		Transport:      transport,
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
