@@ -2,7 +2,37 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.4.0] - 2026-09-03
+
+A security release with one feature. The 3.3.x binaries were built on a Go
+standard library with two published vulnerabilities, one of them in the URL
+path resolution the embedding proxy relies on; this release is built on a
+patched toolchain and CI's vulnerability scan gates again. Alongside it:
+apps can be pinned straight into the navigation bar, proxied backends get
+correct forwarding headers, and custom icons work everywhere they are
+offered. Drop-in.
+
+### Security
+- **Built on Go 1.27; 3.3.x shipped on a vulnerable standard library.** The
+  release binaries and images for 3.3.0 through 3.3.3 were compiled with Go
+  1.26.1, which carries CVE-2026-56860 (quadratic path resolution in
+  `net/url`, reachable through the embedding proxy) and CVE-2026-56858
+  (`html/template` JavaScript context tracking), both fixed in Go 1.26.6.
+  `go.mod` pinned that exact old patch and CI installed it verbatim, so
+  fixes never reached a build. The toolchain now floats on the newest 1.27
+  patch, and the container build uses the same major.
+- **govulncheck gates CI again.** Its step had been `continue-on-error`
+  since a disputed bbolt report that the Go vulnerability database withdrew
+  in April, and it had been reporting both CVEs above on every run since
+  13 August while the workflow stayed green. The exemption is gone and the
+  scanner is v1.7.0.
+- **A security policy and private reporting channel.** `SECURITY.md` at the
+  repository root covers supported versions, what to include, scope, and
+  artifact verification, and GitHub's private vulnerability reporting is
+  enabled so the policy points at a channel that exists.
+- `dompurify` 3.4.12 to 3.4.14, which fixes DOM clobbering via
+  `ownerDocument` and a clone-guard bypass in the sanitiser used for the
+  changelog view.
 
 ### Added
 - **Pin apps to the bar.** A pinned app gets its own button in the top or
@@ -28,6 +58,39 @@ All notable changes to Muximux are documented in this file.
   overview-button check tested `name`, so custom and URL icons were never
   recognised. The checks now go through the same resolver that renders
   icons. (#437)
+- **Custom icons render for groups too, and the pickers say what is set.**
+  The same `name` check guarded group icons in all five navigation layouts
+  and the Apps tab, so a custom upload chosen for a group never appeared;
+  and the app and group forms showed an empty label for a custom or URL
+  icon as if none had been chosen.
+- **The PWA installs under a base path.** The manifest's `start_url` was
+  the absolute `/` while everything else in it was relative, so served under
+  a `base_path` it resolved outside the manifest's scope and browsers
+  silently refused to install. `start_url`, `scope` and `id` are now all
+  relative. Install prompts still require HTTPS. (#436)
+- **The documented development build works.** A binary built without
+  `embed_web` served static files from `web/dist`, a directory Vite does not
+  write to; it now serves from `internal/server/dist`, where the build lands.
+- **Tests compile messages with the same locale strategy as the build.**
+  The paraglide script omitted `--strategy`, so `check`, `lint` and `test`
+  ran against cookie-based locale resolution while the build ships
+  localStorage, and left the generated runtime modified in the working tree.
+
+### Changed
+- CI tests on Node 26 and Go 1.27, the same versions the container build
+  uses; it had been validating on Node 20 (end of life) and an older Go
+  major than the one producing releases.
+- CodeQL's `init` and `analyze` actions are grouped for Dependabot, since
+  they share one version and cannot be bumped separately.
+- `CONTRIBUTING.md` reflects the current tree: Node and Go prerequisites,
+  the golangci-lint v2 install path, the real project structure, how to run
+  the proxy fuzz targets, and where to report a vulnerability.
+- Dependencies: Svelte 5.57, Vite 8.2.2, jsdom 30, `@testing-library/jest-dom`
+  7, `marked` 18.0.11, `zod` 4.5.4, `svelte-sonner` 1.2.1, `grpc` 1.83.1,
+  `x/crypto` 0.55.0, `x/net` 0.57.0, `brotli` 1.2.3, and the release
+  workflow's `attest-build-provenance` 4.2.2, `sbom-action` 0.24.2,
+  `action-gh-release` 3.0.3, `setup-buildx-action` 4.3.0 and `login-action`
+  4.6.0.
 
 ## [3.3.3] - 2026-07-29
 
