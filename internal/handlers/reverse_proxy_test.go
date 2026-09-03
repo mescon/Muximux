@@ -4124,3 +4124,75 @@ func TestReverseProxy_ForwardedHeadersAtBackend(t *testing.T) {
 		})
 	}
 }
+
+// TestRewriteImportMap covers the Nuxt 4.5 boot path: the entry module is
+// referenced only from an inline import map and loaded with import("#entry"),
+// which the module loader resolves without touching fetch/XHR interception.
+func TestRewriteImportMap(t *testing.T) {
+	rw := newContentRewriter("/proxy/mealie", "", "")
+	tests := []struct {
+		name, input, want string
+	}{
+		{
+			name:  "nuxt entry map is prefixed",
+			input: `<script type="importmap">{"imports":{"#entry":"/_nuxt/Df1JahhX.js"}}</script>`,
+			want:  `<script type="importmap">{"imports":{"#entry":"/proxy/mealie/_nuxt/Df1JahhX.js"}}</script>`,
+		},
+		{
+			name:  "scopes are prefixed too",
+			input: `<script type="importmap">{"imports":{"a":"/a.js"},"scopes":{"/admin/":{"b":"/b.js"}}}</script>`,
+			want:  `<script type="importmap">{"imports":{"a":"/proxy/mealie/a.js"},"scopes":{"/admin/":{"b":"/proxy/mealie/b.js"}}}</script>`,
+		},
+		{
+			name:  "relative, bare and protocol-relative specifiers are untouched",
+			input: `<script type="importmap">{"imports":{"vue":"./vue.js","lodash":"https://cdn.example/lodash.js","x":"//cdn.example/x.js","bare":"react"}}</script>`,
+			want:  `<script type="importmap">{"imports":{"vue":"./vue.js","lodash":"https://cdn.example/lodash.js","x":"//cdn.example/x.js","bare":"react"}}</script>`,
+		},
+		{
+			name:  "already prefixed values are not doubled",
+			input: `<script type="importmap">{"imports":{"#entry":"/proxy/mealie/_nuxt/e.js"}}</script>`,
+			want:  `<script type="importmap">{"imports":{"#entry":"/proxy/mealie/_nuxt/e.js"}}</script>`,
+		},
+		{
+			name:  "attributes in any order and single quotes",
+			input: `<script nonce="abc" type='importmap'>{"imports":{"#entry":"/e.js"}}</script>`,
+			want:  `<script nonce="abc" type='importmap'>{"imports":{"#entry":"/proxy/mealie/e.js"}}</script>`,
+		},
+		{
+			name:  "malformed json is left alone",
+			input: `<script type="importmap">{"imports":{"#entry":"/e.js"</script>`,
+			want:  `<script type="importmap">{"imports":{"#entry":"/e.js"</script>`,
+		},
+		{
+			name:  "ordinary inline json payloads are not rewritten",
+			input: `<script>window.__NUXT__={"path":"/recipe/1"}</script>`,
+			want:  `<script>window.__NUXT__={"path":"/recipe/1"}</script>`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := string(rw.rewrite([]byte(tt.input))); got != tt.want {
+				t.Errorf("\n got: %s\nwant: %s", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestDirector_DropsEmbeddingHint: a proxied frame is first-party, so the
+// backend must not be told it is embedded (Mealie 3.25 answers 500 to that
+// over HTTPS on its Python 3.12 image, and would otherwise issue a
+// SameSite=None cookie that is pointless for a same-origin frame).
+func TestDirector_DropsEmbeddingHint(t *testing.T) {
+	target, _ := url.Parse("http://mealie.local:9000")
+	director := buildDirector("/proxy/mealie", "", target, nil, "muximux_session", true)
+	req := httptest.NewRequest(http.MethodPost, "/proxy/mealie/api/auth/token", nil)
+	req.Header.Set("X-Mealie-Embedded", "true")
+	req.Header.Set("X-Custom-Kept", "yes")
+	director(req)
+	if v := req.Header.Get("X-Mealie-Embedded"); v != "" {
+		t.Errorf("X-Mealie-Embedded forwarded as %q, want dropped", v)
+	}
+	if v := req.Header.Get("X-Custom-Kept"); v != "yes" {
+		t.Errorf("unrelated header lost: %q", v)
+	}
+}
