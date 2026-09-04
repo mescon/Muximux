@@ -645,16 +645,30 @@ func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, http.StatusOK, h.config.Groups)
 }
 
-// GetApp returns a single app by name
+// GetApp returns a single app by name, projected for the caller's role and
+// subject to the same visibility rules as the list: an app the caller could
+// not see in /api/apps answers 404 here too, so the endpoint cannot be used
+// to probe for admin-only apps, and non-admins never receive proxy headers,
+// action headers or URL credentials (GHSA-44h2-562r-3m67).
 func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
+	userRole, userGroups := getUserRoleAndGroups(r)
+	isAdmin := isAdminRole(userRole)
 	for i := range h.config.Apps {
-		if h.config.Apps[i].Name == name {
-			sendJSON(w, http.StatusOK, sanitizeApp(&h.config.Apps[i]))
-			return
+		if h.config.Apps[i].Name != name {
+			continue
 		}
+		if !appVisibleTo(&h.config.Apps[i], userRole, userGroups) {
+			break
+		}
+		client := sanitizeAppForRole(&h.config.Apps[i], isAdmin)
+		if d, ok := gatewayDomainsByAppName(h.config.Server.GatewaySites)[name]; ok {
+			client.GatewayDomain = d
+		}
+		sendJSON(w, http.StatusOK, client)
+		return
 	}
 
 	respondError(w, r, http.StatusNotFound, errAppNotFound)
@@ -1194,38 +1208,42 @@ type ClientAppConfig struct {
 // configured gateway-sites list; any site whose AppName matches an
 // app surfaces as ClientAppConfig.GatewayDomain so the App form can
 // show the "Hosted by Muximux gateway" badge.
+// isAdminRole reports whether a role gets the administrative projection.
+// The empty role means no authenticated user (auth disabled or the setup
+// preview), which has always been treated as admin here.
+func isAdminRole(userRole string) bool {
+	return userRole == "" || userRole == auth.RoleAdmin
+}
+
+// appVisibleTo is the single visibility rule for apps, shared by the list
+// and single-app endpoints so they can never disagree about what a caller
+// may see. Admins see every app, disabled ones included, because they
+// manage them in Settings and a save that round-trips a filtered list would
+// silently delete the rest. Non-admins see enabled apps that pass the
+// app's min_role and, when it declares one, its allowed_groups list
+// (case-insensitive, matching the admin-group check elsewhere). The empty
+// role disables both gates so the setup preview sees everything.
+func appVisibleTo(app *config.AppConfig, userRole string, userGroups []string) bool {
+	isAdmin := isAdminRole(userRole)
+	if !isAdmin && !app.Enabled {
+		return false
+	}
+	if userRole != "" && app.MinRole != "" && !auth.HasMinRole(userRole, app.MinRole) {
+		return false
+	}
+	if userRole != "" && !isAdmin && len(app.AllowedGroups) > 0 && !userInAnyAllowedGroup(userGroups, app.AllowedGroups) {
+		return false
+	}
+	return true
+}
+
 func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string, gatewaySites []config.GatewaySite) []ClientAppConfig {
-	isAdmin := userRole == "" || userRole == auth.RoleAdmin
+	isAdmin := isAdminRole(userRole)
 	domains := gatewayDomainsByAppName(gatewaySites)
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
-		// Admins see all apps including disabled ones - they need to
-		// manage them in the Settings UI, and any save path that
-		// round-trips a sanitised /api/config response would otherwise
-		// silently delete every disabled app the operator configured.
-		// Non-admins only see enabled apps (disabled = hidden from
-		// their menu, matching the nav-bar's own filtering).
-		if !isAdmin && !apps[i].Enabled {
+		if !appVisibleTo(&apps[i], userRole, userGroups) {
 			continue
-		}
-		// Filter by minimum role if a user role is provided.
-		if userRole != "" && apps[i].MinRole != "" {
-			if !auth.HasMinRole(userRole, apps[i].MinRole) {
-				continue
-			}
-		}
-		// Filter by group membership when the app declares an
-		// allowed_groups list. Empty list = no group gate. Matching is
-		// case-insensitive to mirror the admin-group check elsewhere.
-		// Admins bypass the group gate the same way they bypass min_role
-		// in HasMinRole, so an operator can still see every app even
-		// from a personal account that isn't in any IdP group.
-		// userRole == "" disables the group check too so unauth setup
-		// previews still see every app, matching the role behaviour.
-		if userRole != "" && !isAdmin && len(apps[i].AllowedGroups) > 0 {
-			if !userInAnyAllowedGroup(userGroups, apps[i].AllowedGroups) {
-				continue
-			}
 		}
 		client := sanitizeAppForRole(&apps[i], isAdmin)
 		if d, ok := domains[apps[i].Name]; ok {

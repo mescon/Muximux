@@ -2997,3 +2997,82 @@ func TestExportConfig_NoRaceWithConcurrentAppMutation(t *testing.T) {
 	}
 	<-done
 }
+
+// TestGetApp_ProjectsForCallerRole is the regression test for
+// GHSA-44h2-562r-3m67: the single-app endpoint used the admin projection for
+// everyone and skipped the visibility rules, so a plain user could read proxy
+// headers, action headers, URL credentials, and admin-only apps that the list
+// endpoint correctly withheld.
+func TestGetApp_ProjectsForCallerRole(t *testing.T) {
+	cfg := &config.Config{Apps: []config.AppConfig{
+		{Name: "Sonarr", URL: "http://svc:secretpass@sonarr.local:8989", Enabled: true, Proxy: true, ProxyHeaders: map[string]string{"X-Api-Key": "sonarr-key"}}, //nolint:gosec // fixture: the leak of exactly this credential is what the test detects
+		{Name: "Webhook", URL: "http://hooks.local/fire", Enabled: true, OpenMode: "http_action", HTTPActionMethod: "POST", HTTPActionHeaders: map[string]string{"X-Webhook-Token": "whsec_abc"}},
+		{Name: "AdminOnly", URL: "http://admin-only.local", Enabled: true, MinRole: "admin"},
+		{Name: "OpsOnly", URL: "http://ops.local", Enabled: true, AllowedGroups: []string{"ops"}},
+		{Name: "Disabled", URL: "http://off.local", Enabled: false},
+	}}
+	handler := NewAPIHandler(cfg, "/dev/null/impossible", &sync.RWMutex{})
+	get := func(name string, user *auth.User) (int, ClientAppConfig) {
+		req := httptest.NewRequest(http.MethodGet, "/api/app/"+name, nil)
+		if user != nil {
+			req = req.WithContext(auth.WithUserContext(req.Context(), user))
+		}
+		w := httptest.NewRecorder()
+		handler.GetApp(w, req, name)
+		var out ClientAppConfig
+		if w.Code == http.StatusOK {
+			if err := json.Unmarshal(w.Body.Bytes(), &out); err != nil {
+				t.Fatalf("decode: %v", err)
+			}
+		}
+		return w.Code, out
+	}
+	viewer := &auth.User{Username: "viewer", Role: "user"}
+	opsUser := &auth.User{Username: "ops", Role: "user", Groups: []string{"Ops"}}
+	admin := &auth.User{Username: "admin", Role: auth.RoleAdmin}
+
+	t.Run("user gets a redacted projection", func(t *testing.T) {
+		code, app := get("Sonarr", viewer)
+		if code != http.StatusOK {
+			t.Fatalf("code = %d", code)
+		}
+		if app.URL != "http://sonarr.local:8989" {
+			t.Errorf("url leaked credentials: %q", app.URL)
+		}
+		if len(app.ProxyHeaders) != 0 {
+			t.Errorf("proxy_headers leaked: %v", app.ProxyHeaders)
+		}
+		code, app = get("Webhook", viewer)
+		if code != http.StatusOK || len(app.HTTPActionHeaders) != 0 {
+			t.Errorf("http_action_headers leaked (code %d): %v", code, app.HTTPActionHeaders)
+		}
+	})
+	t.Run("user cannot see apps the list withholds", func(t *testing.T) {
+		for _, name := range []string{"AdminOnly", "OpsOnly", "Disabled"} {
+			if code, _ := get(name, viewer); code != http.StatusNotFound {
+				t.Errorf("GET %s as user = %d, want 404", name, code)
+			}
+		}
+	})
+	t.Run("group membership opens a group-gated app", func(t *testing.T) {
+		if code, _ := get("OpsOnly", opsUser); code != http.StatusOK {
+			t.Errorf("GET OpsOnly as ops member = %d, want 200", code)
+		}
+	})
+	t.Run("admin still sees everything", func(t *testing.T) {
+		code, app := get("Sonarr", admin)
+		if code != http.StatusOK || app.ProxyHeaders["X-Api-Key"] != "sonarr-key" || app.URL != "http://svc:secretpass@sonarr.local:8989" { //nolint:gosec // fixture credential, see above
+			t.Errorf("admin projection lost fields (code %d): %+v", code, app)
+		}
+		for _, name := range []string{"AdminOnly", "OpsOnly", "Disabled"} {
+			if code, _ := get(name, admin); code != http.StatusOK {
+				t.Errorf("GET %s as admin = %d, want 200", name, code)
+			}
+		}
+	})
+	t.Run("unknown app is still 404", func(t *testing.T) {
+		if code, _ := get("Nope", viewer); code != http.StatusNotFound {
+			t.Errorf("code = %d", code)
+		}
+	})
+}

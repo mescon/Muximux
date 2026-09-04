@@ -2,6 +2,19 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Security
+- **A non-admin user could read any app's full configuration.** `GET
+  /api/app/{name}` used the administrative projection for every caller and
+  skipped the visibility rules the list endpoint applies, so any signed-in
+  user could retrieve `proxy_headers`, `http_action_headers`,
+  `docker_endpoint` and credentials embedded in an app's URL, and could
+  fetch apps hidden from them by `min_role` or `allowed_groups`. The
+  endpoint now projects for the caller's role through the same rule as
+  `/api/apps` and answers 404 for anything the caller could not list.
+  Reported privately by zjh777. (GHSA-44h2-562r-3m67)
+
 ## [3.4.0] - 2026-09-03
 
 A security release with one feature. The 3.3.x binaries were built on a Go
