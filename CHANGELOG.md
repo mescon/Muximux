@@ -2,7 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.4.1] - 2026-09-04
+
+A security release. Every 3.x install with non-admin accounts should update:
+a signed-in user could read any app's administrative fields through the
+single-app endpoint. No configuration changes; drop-in.
 
 ### Security
 - **A non-admin user could read any app's full configuration.** `GET
