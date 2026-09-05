@@ -18,6 +18,11 @@ single-app endpoint. No configuration changes; drop-in.
   endpoint now projects for the caller's role through the same rule as
   `/api/apps` and answers 404 for anything the caller could not list.
   Reported privately by zjh777. (GHSA-44h2-562r-3m67)
+- **A `base_path` beginning with `//` can no longer turn the trailing-slash
+  redirect into an open redirect.** Only an administrator could set one, so
+  this was a hardening rather than an exposure. `base_path` is now validated
+  at load (no leading `//`, backslashes, dot segments, whitespace, `?` or
+  `#`) and the normaliser collapses leading slashes regardless.
 
 ## [3.4.0] - 2026-09-03
 
