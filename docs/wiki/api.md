@@ -207,9 +207,9 @@ Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is
 
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
-| `/api/apps` | GET | Any | List all apps |
+| `/api/apps` | GET | Any | List apps visible to the caller, projected for their role (admins see everything; others see enabled apps that pass `min_role` and `allowed_groups`, with `proxy_headers`, `http_action_headers`, `docker_endpoint` and URL credentials removed) |
 | `/api/apps` | POST | Admin | Create a new app |
-| `/api/app/{name}` | GET | Any | Get app by name |
+| `/api/app/{name}` | GET | Any | Get one app, with the same visibility rule and role projection as the list; answers 404 for an app the caller could not list |
 | `/api/app/{name}` | PUT | Admin | Update app |
 | `/api/app/{name}` | DELETE | Admin | Delete app |
 | `/api/app-action/{name}` | POST | Per-app role gate | Fire the app's configured http_action HTTP request |

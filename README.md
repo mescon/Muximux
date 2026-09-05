@@ -287,7 +287,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Container Controls** | Start, stop, and restart Docker-discovered containers from the dashboard, with a status dot on each app card that stays quiet until a container is stopped, unhealthy, or restarting. Opt-in behind a read-write socket mount and role/group permissions; every action is audit-logged |
 | **HTTP Actions** | Turn an app into a button that fires an HTTP request (any method, custom headers) through a server-side relay instead of opening a page -- useful for webhooks and automations such as triggering a backup or waking a host. Optional confirmation prompt, and every fire is audit-logged |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
-| **Navigation** | 5 positions (top, left, right, bottom, floating), draggable FAB, auto-hide, customizable width |
+| **Navigation** | 5 positions (top, left, right, bottom, floating), pinned apps as one-click buttons in the bar, draggable FAB, auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Keybindings for switching apps, toggling navigation, and search |
 | **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine) with dark/light variants, plus custom themes via CSS |

@@ -160,6 +160,10 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
 
 ---
 
+## Reporting a Vulnerability
+
+Please do not open a public issue for a security problem. Report it privately through the repository's Security tab (**Report a vulnerability**), which opens an advisory visible only to you and the maintainer; [SECURITY.md](https://github.com/mescon/Muximux/blob/main/SECURITY.md) lists what to include, what is in scope, and what to expect. Confirmed issues are fixed in a release, then published as a GitHub Security Advisory with a CVE so that Dependabot and `govulncheck` flag affected versions, and the reporter is credited unless they prefer not to be. Past advisories are listed under the repository's Security tab.
+
 ## Recommendations for Deployers
 
 1. **Enable HTTPS** -- Use `tls.domain` for automatic Let's Encrypt certificates, or place Muximux behind a TLS-terminating reverse proxy.

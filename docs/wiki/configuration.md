@@ -210,11 +210,13 @@ apps:
     order: 1
     enabled: true
     default: true
+    pinned: false              # Show as a button in the top/bottom bar, ahead of the group dropdowns (stays in its group)
     open_mode: iframe          # iframe, new_tab, new_window, redirect, http_action
     proxy: false
     proxy_skip_tls_verify: true  # Skip TLS certificate verification (default: true)
     proxy_headers:               # Custom headers sent to the backend
       X-Custom-Header: value
+    forwarded_headers: true      # Send X-Forwarded-For/Host/Proto and X-Real-IP to the backend; false sends none (for backends that reject them)
     scale: 1.0
     health_check: true           # Opt-in: set true to enable health monitoring for this app
     shortcut: null               # Assign a number key (1-9) for quick switching
@@ -287,7 +289,7 @@ Most settings can be changed through the Settings panel while Muximux is running
 
 The following settings **require a restart** to take effect:
 - `server.listen` (listen address/port)
-- `server.base_path` (subpath prefix)
+- `server.base_path` (subpath prefix; must be a plain path such as `/muximux`: no leading `//`, backslashes, dot segments, whitespace, `?` or `#`)
 - `server.tls.*` (all TLS settings)
 - `server.gateway_listen` (overrides the bind port for the embedded Caddy)
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
