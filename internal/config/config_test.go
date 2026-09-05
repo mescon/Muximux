@@ -2025,3 +2025,30 @@ func TestLoad_PinnedApp(t *testing.T) {
 		t.Errorf("expected exactly one pinned: line on save (omitempty), got %d in:\n%s", got, out)
 	}
 }
+
+// TestBasePathValidation pins the base_path rules that keep the bare-path
+// redirect (basePath -> basePath + "/") from becoming an open redirect, and
+// the normaliser's defence in depth for the same case.
+func TestBasePathValidation(t *testing.T) {
+	for _, bp := range []string{"", "/muximux", "muximux", "/a/b", "/mux/"} {
+		if err := validateBasePath(bp); err != nil {
+			t.Errorf("base_path %q rejected: %v", bp, err)
+		}
+	}
+	for _, bp := range []string{"//evil.example", "///evil.example", "/mux\\x", "/a/../b", "/./a", "/a?b", "/a#b", "/a b"} {
+		if err := validateBasePath(bp); err == nil {
+			t.Errorf("base_path %q accepted, want error", bp)
+		}
+	}
+	for in, want := range map[string]string{"": "", "/muximux": "/muximux", "muximux": "/muximux", "/mux/": "/mux", "//evil.example": "/evil.example", "///x": "/x"} {
+		s := ServerConfig{BasePath: in}
+		if got := s.NormalizedBasePath(); got != want {
+			t.Errorf("NormalizedBasePath(%q) = %q, want %q", in, got, want)
+		}
+	}
+	cfg := defaultConfig()
+	cfg.Server.BasePath = "//evil.example"
+	if err := cfg.Validate(); err == nil {
+		t.Error("Validate accepted a protocol-relative base_path")
+	}
+}
