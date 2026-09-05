@@ -347,17 +347,42 @@ type ServerConfig struct {
 	SessionCookieDomain string `yaml:"session_cookie_domain,omitempty" json:"session_cookie_domain,omitempty"`
 }
 
+// validateBasePath rejects base paths that could not be served as a plain
+// URL prefix: a protocol-relative "//host" (an open redirect once the bare
+// path is redirected to its trailing-slash form), backslashes, dot segments,
+// whitespace, and query or fragment characters.
+func validateBasePath(bp string) error {
+	if bp == "" {
+		return nil
+	}
+	if strings.HasPrefix(bp, "//") {
+		return fmt.Errorf("server.base_path %q must not start with \"//\"", bp)
+	}
+	if strings.ContainsAny(bp, "\\?#") || strings.ContainsAny(bp, " \t\r\n") {
+		return fmt.Errorf("server.base_path %q must be a plain path without \\, ?, # or whitespace", bp)
+	}
+	for _, seg := range strings.Split(bp, "/") {
+		if seg == "." || seg == ".." {
+			return fmt.Errorf("server.base_path %q must not contain dot segments", bp)
+		}
+	}
+	return nil
+}
+
 // NormalizedBasePath returns the base path with a leading slash and no trailing slash.
 // Returns "" if no base path is configured.
 func (c *ServerConfig) NormalizedBasePath() string {
+	// Collapse any run of leading slashes to one: a base path of "//host"
+	// would otherwise become the protocol-relative redirect target
+	// "//host/" in the bare-base-path redirect, an open redirect to
+	// another site. validate() rejects such values up front; this keeps
+	// the redirect safe even for a config that bypassed validation.
 	p := strings.TrimRight(c.BasePath, "/")
+	p = strings.TrimLeft(p, "/")
 	if p == "" {
 		return ""
 	}
-	if !strings.HasPrefix(p, "/") {
-		p = "/" + p
-	}
-	return p
+	return "/" + p
 }
 
 // NeedsCaddy returns true if TLS, the legacy gateway file, or any
@@ -840,6 +865,9 @@ func (c *Config) Validate() error {
 
 // validate checks the configuration for contradictory or incomplete settings.
 func (c *Config) validate() error {
+	if err := validateBasePath(c.Server.BasePath); err != nil {
+		return err
+	}
 	tls := c.Server.TLS
 
 	if tls.Domain != "" && tls.Email == "" {
