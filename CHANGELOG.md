@@ -21,7 +21,8 @@ is how it went unnoticed. Drop-in.
 
 ### Changed
 - Dependencies: `grpc` 1.83.2 (clears GHSA-2v4p-qf9q-27wj, an xDS-server
-  crash that Muximux does not reach) and `dompurify` 3.4.15.
+  crash that Muximux does not reach), `x/crypto` 0.57.0, `x/term` 0.46.0,
+  `brotli` 1.2.4 and `dompurify` 3.4.15.
 
 ## [3.4.1] - 2026-09-04
 
