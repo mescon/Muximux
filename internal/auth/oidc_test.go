@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/iotest"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
@@ -1573,6 +1575,17 @@ func TestPKCE_VerifierSatisfiesRFC7636(t *testing.T) {
 		if !unreserved.MatchString(v) {
 			t.Fatalf("verifier %q contains characters outside the unreserved set", v)
 		}
+	}
+}
+
+// TestPKCE_VerifierEntropyFailure: a short or failing entropy source must
+// surface as an error, never as a shorter verifier.
+func TestPKCE_VerifierEntropyFailure(t *testing.T) {
+	if _, err := pkceVerifierFrom(strings.NewReader("too short")); err == nil {
+		t.Fatal("expected an error from a short entropy source")
+	}
+	if _, err := pkceVerifierFrom(iotest.ErrReader(errors.New("entropy exhausted"))); err == nil {
+		t.Fatal("expected the reader error to propagate")
 	}
 }
 

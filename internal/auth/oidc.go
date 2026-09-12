@@ -598,8 +598,14 @@ func pickOldestN(m map[string]stateEntry, n int) []string {
 // verifier"), while providers that skip the check accepted it, which is
 // how the shortfall went unnoticed.
 func generatePKCEVerifier() (string, error) {
+	return pkceVerifierFrom(rand.Reader)
+}
+
+// pkceVerifierFrom builds the verifier from the given entropy source; split
+// out so the read-failure path can be exercised in tests.
+func pkceVerifierFrom(entropy io.Reader) (string, error) {
 	b := make([]byte, 48)
-	if _, err := rand.Read(b); err != nil {
+	if _, err := io.ReadFull(entropy, b); err != nil {
 		return "", err
 	}
 	return base64.RawURLEncoding.EncodeToString(b), nil
