@@ -12,6 +12,8 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -1550,5 +1552,78 @@ func TestSanitizeRemoteErrorBody(t *testing.T) {
 				t.Errorf("sanitizeRemoteErrorBody(%q, %d) = %q, want %q", c.in, c.max, got, c.want)
 			}
 		})
+	}
+}
+
+// TestPKCE_VerifierSatisfiesRFC7636 pins the code_verifier rules a strict
+// provider enforces: 43 to 128 characters from the unreserved set. Keycloak
+// and Authentik reject a shorter verifier with "Invalid code verifier"; the
+// previous 32-character value passed only against providers that skip the
+// length check.
+func TestPKCE_VerifierSatisfiesRFC7636(t *testing.T) {
+	unreserved := regexp.MustCompile(`^[A-Za-z0-9\-._~]+$`)
+	for i := 0; i < 50; i++ {
+		v, err := generatePKCEVerifier()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(v) < 43 || len(v) > 128 {
+			t.Fatalf("verifier length %d, want 43..128", len(v))
+		}
+		if !unreserved.MatchString(v) {
+			t.Fatalf("verifier %q contains characters outside the unreserved set", v)
+		}
+	}
+}
+
+// TestPKCE_StrictProviderAcceptsExchange drives the real authorize-URL
+// builder against a token endpoint that validates PKCE the way Keycloak
+// does: verifier length and charset, and the challenge being the unpadded
+// base64url SHA-256 of exactly the verifier presented. It references no
+// generator directly, so it doubles as the negative control: it fails
+// against the previous 32-character verifier.
+func TestPKCE_StrictProviderAcceptsExchange(t *testing.T) {
+	unreserved := regexp.MustCompile(`^[A-Za-z0-9\-._~]+$`)
+	var challengeFromAuthorize string
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
+		base := "http://" + r.Host
+		json.NewEncoder(w).Encode(map[string]string{ //nolint:errcheck // test mock
+			"authorization_endpoint": base + "/authorize", "token_endpoint": base + "/token",
+			"userinfo_endpoint": base + "/userinfo", "jwks_uri": base + "/jwks",
+		})
+	})
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		_ = r.ParseForm()
+		v := r.PostForm.Get("code_verifier")
+		sum := sha256.Sum256([]byte(v))
+		switch {
+		case len(v) < 43 || len(v) > 128, !unreserved.MatchString(v):
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(w, `{"error":"invalid_grant","error_description":"PKCE verification failed: Invalid code verifier"}`)
+		case base64.RawURLEncoding.EncodeToString(sum[:]) != challengeFromAuthorize:
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(w, `{"error":"invalid_grant","error_description":"PKCE verification failed: challenge mismatch"}`)
+		default:
+			json.NewEncoder(w).Encode(TokenResponse{AccessToken: "ok", TokenType: "Bearer", ExpiresIn: 3600}) //nolint:errcheck,gosec // test mock; fixture token, not a credential
+		}
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	p, _ := newTestOIDCProvider(t, srv.URL)
+	authURL, err := p.GetAuthorizationURL(context.Background(), "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	q, _ := url.Parse(authURL)
+	challengeFromAuthorize = q.Query().Get("code_challenge")
+	if q.Query().Get("code_challenge_method") != "S256" || challengeFromAuthorize == "" {
+		t.Fatalf("authorize URL lacks an S256 challenge: %s", authURL)
+	}
+	p.statesMu.Lock()
+	verifier := p.states[q.Query().Get("state")].codeVerifier
+	p.statesMu.Unlock()
+	if _, err := p.exchangeCode(context.Background(), "code", verifier); err != nil {
+		t.Fatalf("a strict token endpoint rejected our PKCE exchange: %v", err)
 	}
 }

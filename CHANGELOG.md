@@ -2,6 +2,18 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **OIDC login works against providers that enforce PKCE verifier length.**
+  Keycloak, Authentik and any other provider that checks RFC 7636 rejected
+  the code exchange with `invalid_grant: Invalid code verifier`, so sign-in
+  ended in a 500 after the identity provider redirected back. The
+  `code_verifier` was 32 characters; the RFC requires 43 to 128. It is now
+  64 characters from the unreserved alphabet, and a test exchanges against
+  a token endpoint that validates length, charset and the S256 challenge
+  the way those providers do. Present since 3.0.29. (#456)
+
 ## [3.4.1] - 2026-09-04
 
 A security release. Every 3.x install with non-admin accounts should update:

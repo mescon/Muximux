@@ -190,7 +190,7 @@ func (p *OIDCProvider) GetAuthorizationURL(ctx context.Context, redirectAfterLog
 	// PKCE: generate a code verifier and derive an S256 challenge so an
 	// attacker who intercepts the authorization code cannot redeem it
 	// without also possessing the verifier we kept on the server.
-	codeVerifier, err := generateRandomString()
+	codeVerifier, err := generatePKCEVerifier()
 	if err != nil {
 		return "", fmt.Errorf("failed to generate PKCE verifier: %w", err)
 	}
@@ -588,6 +588,21 @@ func pickOldestN(m map[string]stateEntry, n int) []string {
 		out[i] = a.key
 	}
 	return out
+}
+
+// generatePKCEVerifier returns a code_verifier that satisfies RFC 7636 §4.1:
+// 43 to 128 characters drawn from [A-Za-z0-9-._~]. 48 random bytes in
+// unpadded base64url give 64 characters of exactly that alphabet. The
+// 32-character string used before was rejected by any provider that checks
+// the minimum length, which Keycloak and Authentik do ("Invalid code
+// verifier"), while providers that skip the check accepted it, which is
+// how the shortfall went unnoticed.
+func generatePKCEVerifier() (string, error) {
+	b := make([]byte, 48)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
 // generateRandomString generates a cryptographically secure random string of length 32.
