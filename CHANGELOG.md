@@ -2,7 +2,12 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.4.2] - 2026-09-12
+
+A fix release for OIDC users. Sign-in through Keycloak, Authentik and any
+other provider that enforces the PKCE verifier length has failed at the code
+exchange since 3.0.29; providers that skip the check were unaffected, which
+is how it went unnoticed. Drop-in.
 
 ### Fixed
 - **OIDC login works against providers that enforce PKCE verifier length.**
@@ -13,6 +18,10 @@ All notable changes to Muximux are documented in this file.
   64 characters from the unreserved alphabet, and a test exchanges against
   a token endpoint that validates length, charset and the S256 challenge
   the way those providers do. Present since 3.0.29. (#456)
+
+### Changed
+- Dependencies: `grpc` 1.83.2 (clears GHSA-2v4p-qf9q-27wj, an xDS-server
+  crash that Muximux does not reach) and `dompurify` 3.4.15.
 
 ## [3.4.1] - 2026-09-04
 
