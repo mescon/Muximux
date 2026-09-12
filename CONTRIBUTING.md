@@ -173,7 +173,8 @@ internal/
   websocket/          WebSocket hub for real-time events
 web/
   src/components/     Svelte components
-  src/lib/            Stores, types, helpers, generated Paraglide locales
+  src/lib/            Stores, types, helpers
+  src/lib/paraglide/  Compiled message catalogues (generated; not tracked)
   src/test/           Test setup and shared fixtures
 data/                 Runtime data directory (config, themes, icons)
 ```

@@ -8,6 +8,10 @@ node_modules/
 /build/
 /web/dist/
 /internal/server/dist/
+# Paraglide compiles the message catalogues into this directory on every
+# build, check, lint and test run; the output embeds the compiler version
+# and an absolute path, so tracking it kept the release tree dirty.
+/web/src/lib/paraglide/
 /muximux
 /muximux3
 

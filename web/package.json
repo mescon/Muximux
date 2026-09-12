@@ -14,6 +14,7 @@
     "lint": "eslint .",
     "pretest": "npm run paraglide",
     "test": "vitest run",
+    "pretest:watch": "npm run paraglide",
     "test:watch": "vitest",
     "pretest:coverage": "npm run paraglide",
     "test:coverage": "vitest run --coverage"
