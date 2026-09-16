@@ -44,9 +44,9 @@
   },
   "dependencies": {
     "dompurify": "^3.4.15",
-    "marked": "^18.0.11",
+    "marked": "^18.0.13",
     "svelte-dnd-action": "^0.9.79",
     "svelte-sonner": "^1.2.1",
-    "zod": "^4.5.4"
+    "zod": "^4.6.4"
   }
 }
