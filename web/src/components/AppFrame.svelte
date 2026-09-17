@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
+  import { FRAME_NAME_PREFIX } from '$lib/frameRescue';
   import { isSafeAppUrl } from '$lib/appUrl';
   import { resolvePermissions } from '$lib/constants';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
@@ -21,6 +22,11 @@
   }
 
   let effectiveUrl = $derived(safeIframeSrc(getEffectiveUrl(app)));
+  // The proxied frame's address is kept free of the /proxy/<slug> prefix by
+  // the interceptor, so a full reload of the frame would land on the shell.
+  // window.name outlives navigations inside the frame; the shell reads it
+  // and bounces the frame back to the proxied path (see $lib/frameRescue).
+  let frameName = $derived(app.proxyUrl ? FRAME_NAME_PREFIX + effectiveUrl.replace(/\/$/, '') : undefined);
 
   // Build the iframe allow attribute from configured permissions.
   // For proxied apps the iframe is same-origin, so 'self' is sufficient.
@@ -221,6 +227,7 @@
 
   <iframe
     data-app={app.name}
+    name={frameName}
     bind:this={iframeRef}
     src={effectiveUrl}
     title={app.name}

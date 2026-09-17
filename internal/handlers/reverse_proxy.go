@@ -1258,13 +1258,21 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// Framework routers (Vue Router, React Router) that read location.pathname
 		// during initialization would then fail to match routes ("Page not found").
 		// Fix: immediately re-strip the prefix after each pushState/replaceState
-		// so the URL stays clean throughout the entire initialization phase.
-		// The guard stays active until the window 'load' event (all resources
-		// loaded), which fires well after any framework init — covering sync,
-		// microtask (Promise/await), and macrotask (setTimeout/fetch) init paths.
+		// so the URL the app reads back is always clean. The guard stays on for
+		// the life of the document: an earlier version switched it off at the
+		// window load event and restored the prefix, on the assumption that
+		// routers only navigate during init. Apps whose first navigation waits
+		// on a network round trip (an auth check, a config fetch) navigate
+		// after load; React Router reads window.location back after its own
+		// replaceState, saw /proxy/slug/login, matched no route and redirected
+		// again, growing ?next= until the URL was megabytes (Dispatcharr).
+		// The cost is that the address at rest lacks the prefix, so a full
+		// document load of the frame (browser reload, history traversal to an
+		// evicted entry, a navigation the patches below cannot intercept)
+		// reaches the Muximux shell instead of the proxy. The shell detects
+		// that case from the iframe's window.name and bounces the frame back to
+		// /proxy/slug/<path>; see web/src/lib/frameRescue.ts.
 		`var _sR=!_pG,_skip=false;` +
-		`if(_sR){if(document.readyState==="complete")_sR=false;` +
-		`else window.addEventListener("load",function(){_sR=false},{once:true})}` +
 		`function _S(){var p=location.pathname;` +
 		`if(p===P||p.indexOf(P+"/")===0){` +
 		`_skip=true;_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash);_skip=false}}` +
@@ -1277,27 +1285,15 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`var p=location.pathname;` +
 		`if(p===P||p.indexOf(P+"/")===0){` +
 		`_skip=true;_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash);_skip=false}` +
-		`},true);` +
-		// After init completes, restore the proxy prefix in the URL so that:
-		// 1. Browser back/forward to this history entry navigates to /proxy/slug/...
-		//    instead of "/" (which would load the Muximux SPA shell inside the iframe)
-		// 2. "Reload frame" reloads the correct proxied URL from the server
-		// The popstate handler above strips the prefix on each back/forward event,
-		// so the app framework still sees clean paths.
-		// NOTE: This load listener MUST be registered after _sR's load listener
-		// (line above) so that _sR becomes false before _rP restores the prefix.
-		// If reversed, _sR would still be true and a subsequent pushState/replaceState
-		// would re-strip the restored prefix.
-		`(function _rP(){` +
-		`function _do(){var p=location.pathname;` +
-		`if(p!==P&&p.indexOf(P+"/")!==0){` +
-		`_hrs.call(history,history.state,"",P+(p==="/"?"/":p)+location.search+location.hash)}}` +
-		`if(document.readyState==="complete")_do();` +
-		`else window.addEventListener("load",function(){_do()},{once:true})})()}` +
-		// Patch location.assign/replace so programmatic navigation goes through proxy
-		`var _la=Location.prototype.assign;` +
+		`},true)}` +
+		// Patch location.assign/replace so programmatic navigation goes through
+		// the proxy. The originals are read from the instance: assign, replace
+		// and reload are unforgeable own properties of location in every
+		// engine, so Location.prototype.assign is undefined and the prototype
+		// patch below is only reached where an engine exposes them there.
+		`var _la=location.assign;` +
 		`Location.prototype.assign=function(u){return _la.call(this,R(u))};` +
-		`var _lr=Location.prototype.replace;` +
+		`var _lr=location.replace;` +
 		`Location.prototype.replace=function(u){return _lr.call(this,R(u))};` +
 		// When the href setter can't be patched (Chrome — non-configurable),
 		// location.href = "/path" navigates without the proxy prefix.
@@ -1309,11 +1305,19 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// popstate handler) which strip the proxy prefix — the Navigation API
 		// fires synchronously during replaceState and would otherwise block the
 		// URL change via preventDefault.
+		// Same-document navigations (pushState/replaceState/hash changes) are
+		// left alone: the shim's own strip calls are among them, and redirecting
+		// one would turn it into a real navigation and loop. Only cross-document
+		// loads (location.href, reload, link clicks) are redirected. Reloads
+		// keep replace semantics so the frame's history does not gain an entry.
+		// Since the address at rest has no prefix, an in-frame reload takes
+		// this path.
 		`if(!_pG&&window.navigation){window.navigation.addEventListener("navigate",function(e){` +
-		`if(_skip||!e.canIntercept||!e.cancelable||e.formData)return;` +
+		`if(_skip||e.destination.sameDocument||!e.canIntercept||!e.cancelable||e.formData)return;` +
 		`try{var u=new URL(e.destination.url);` +
 		`if(u.host===location.host&&!u.pathname.startsWith(P+"/")&&u.pathname!==P){` +
-		`e.preventDefault();_la.call(location,P+u.pathname+u.search+u.hash)}}catch(ex){}})}` +
+		`e.preventDefault();var rep=e.navigationType==="reload"||e.navigationType==="replace";` +
+		`(rep?_lr:_la).call(location,P+u.pathname+u.search+u.hash)}}catch(ex){}})}` +
 		// Patch window.open so popups/new-tab navigations go through the proxy
 		`var _wo=window.open;` +
 		`window.open=function(u){var a=[].slice.call(arguments);if(typeof a[0]==="string")a[0]=R(a[0]);return _wo.apply(this,a)};` +

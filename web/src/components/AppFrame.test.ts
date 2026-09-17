@@ -67,6 +67,22 @@ describe('AppFrame', () => {
 
   // ─── Existing tests (preserved) ───────────────────────────────────────────
 
+  describe('frame name for rescue', () => {
+    it('names a proxied frame after its proxy path, without the trailing slash', () => {
+      const { container } = render(AppFrame, {
+        props: { app: makeApp({ proxy: true, proxyUrl: '/proxy/dispatcharr/' }) },
+      });
+      expect(container.querySelector('iframe')?.getAttribute('name')).toBe('muximux-frame:/proxy/dispatcharr');
+    });
+
+    it('leaves a direct (non-proxied) frame unnamed', () => {
+      const { container } = render(AppFrame, {
+        props: { app: makeApp() },
+      });
+      expect(container.querySelector('iframe')?.hasAttribute('name')).toBe(false);
+    });
+  });
+
   describe('smoke test', () => {
     it('renders without crashing', () => {
       const { container } = render(AppFrame, {

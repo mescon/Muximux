@@ -72,8 +72,8 @@ For single-page applications (SPAs) that build URLs dynamically in JavaScript, s
 - **`setAttribute()`** - Wrapped so libraries using `el.setAttribute('src', url)` get synchronous URL rewriting
 - **`CSSStyleSheet.insertRule()`** - Rewrites `url()` references in CSS-in-JS rules (styled-components, emotion)
 - **`insertAdjacentHTML()`** - Synchronously fixes URLs in newly inserted HTML fragments
-- **`history.pushState/replaceState`** - Adds proxy prefix so frame reload hits the correct URL
-- **`location.pathname/href`** - Getters transparently strip the proxy prefix so SPA routers see clean paths
+- **`history.pushState/replaceState`** - Wrapped so the app's router always reads back the path it navigated to, without the proxy prefix. Browsers expose `location` as unforgeable, so the prefix cannot be hidden by patching getters; instead the address is kept clean for the life of the document, including navigations that happen after the page has loaded (an auth check that finishes late, for example)
+- **Full-document loads** - Because the address at rest has no prefix, a reload of the frame or a `location.href` assignment would leave the proxy. Browsers with the Navigation API (Chromium) are redirected to the prefixed path before the request is made; elsewhere the request reaches the Muximux shell, which recognises the app frame by its `window.name` and sends it back to `/proxy/<slug>/...`
 - **`location.assign/replace`, `window.open`** - Wrapped to route through the proxy
 - **`Worker`, `SharedWorker`, `Audio` constructors** - Script/source URLs routed through the proxy
 - **`MutationObserver` fallback** - Catches elements created via `innerHTML` or HTML parsing where property setters don't fire

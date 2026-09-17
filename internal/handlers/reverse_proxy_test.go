@@ -3147,22 +3147,25 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 	if !strings.Contains(script, `if(_sR)_S()`) {
 		t.Error("interceptor pushState/replaceState should call _S() during init phase")
 	}
+	// The strip must stay active for the lifetime of the document. SPAs
+	// whose first navigation waits on a network round trip (an auth check,
+	// a config fetch) navigate after the window load event; if the guard
+	// switched off at load and the prefix were restored, a router reading
+	// window.location after its own pushState would see /proxy/slug/login,
+	// match nothing, and redirect again (Dispatcharr looped on
+	// /login?next=/proxy/slug/login?next=... until the URL was megabytes).
+	if strings.Contains(script, `_sR=false`) {
+		t.Error("interceptor must not deactivate the strip guard at load; late-navigating routers read the prefixed URL and loop")
+	}
+	if strings.Contains(script, `function _rP()`) {
+		t.Error("interceptor must not restore the proxy prefix at load; the URL stays clean and the shell rescues misrouted frames via window.name")
+	}
 
 	// A popstate listener (capture phase) must strip the prefix before the
 	// SPA's own popstate handler reads location.pathname on back/forward.
 	// Wrapped in if(!_pG) since getter patches make it unnecessary.
 	if !strings.Contains(script, `if(!_pG){window.addEventListener("popstate"`) {
 		t.Error("interceptor should conditionally add popstate listener to strip prefix on back/forward")
-	}
-
-	// After init completes, the proxy prefix must be restored in the URL so
-	// browser back/forward navigates to /proxy/slug/... instead of "/",
-	// which would load the Muximux SPA shell inside the iframe.
-	if !strings.Contains(script, `function _rP()`) {
-		t.Error("interceptor should define _rP restore-prefix function")
-	}
-	if !strings.Contains(script, `function _do(){var p=location.pathname`) {
-		t.Error("interceptor restore should check current pathname before restoring prefix")
 	}
 
 	// location.assign and location.replace should be patched so programmatic
@@ -3182,6 +3185,25 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 	}
 	if !strings.Contains(script, `e.preventDefault()`) {
 		t.Error("interceptor Navigation API handler should cancel unprefixed navigations")
+	}
+	// Reloads keep replace semantics so the frame's history does not gain
+	// an entry for what the user experienced as a refresh.
+	if !strings.Contains(script, `var rep=e.navigationType==="reload"||e.navigationType==="replace";`) ||
+		!strings.Contains(script, `(rep?_lr:_la).call(location,P+u.pathname+u.search+u.hash)`) {
+		t.Error("interceptor Navigation API handler should use replace semantics for reload/replace navigations")
+	}
+	// assign/replace are unforgeable own properties of the location instance
+	// in every engine, so Location.prototype.assign is undefined and the
+	// handler used to throw (swallowed by its try/catch) after cancelling
+	// the navigation. Capture the instance methods.
+	if !strings.Contains(script, `var _la=location.assign;`) || !strings.Contains(script, `var _lr=location.replace;`) {
+		t.Error("interceptor must capture location.assign/replace from the instance, not Location.prototype")
+	}
+	// Same-document navigations (pushState/replaceState/hash) are the shim's
+	// own business and are never redirected; a working _lr would otherwise
+	// turn the initial prefix strip into a real navigation and loop.
+	if !strings.Contains(script, `if(_skip||e.destination.sameDocument||!e.canIntercept`) {
+		t.Error("interceptor Navigation API handler must ignore same-document navigations")
 	}
 
 	// window.open should be patched so popups navigate through the proxy.
@@ -3520,7 +3542,7 @@ func TestInterceptorScriptNavigationAPISkipFlag(t *testing.T) {
 	})
 
 	t.Run("Navigation API handler checks _skip", func(t *testing.T) {
-		if !strings.Contains(script, "if(_skip||!e.canIntercept") {
+		if !strings.Contains(script, "if(_skip||e.destination.sameDocument||!e.canIntercept") {
 			t.Error("Navigation API handler must check _skip flag before intercepting")
 		}
 	})
