@@ -274,10 +274,12 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
           body_path: release-notes.md
+          # The muximux-* glob already covers muximux-sbom.spdx.json; listing
+          # it again uploaded the SBOM twice and logged a spurious "asset
+          # metadata not found" error on every release.
           files: |
             artifacts/muximux-*
             artifacts/checksums.txt
-            artifacts/muximux-sbom.spdx.json
 
       - name: Create Release (auto-generated notes)
         if: steps.changelog.outputs.found != 'true'
@@ -286,7 +288,9 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
           generate_release_notes: true
+          # The muximux-* glob already covers muximux-sbom.spdx.json; listing
+          # it again uploaded the SBOM twice and logged a spurious "asset
+          # metadata not found" error on every release.
           files: |
             artifacts/muximux-*
             artifacts/checksums.txt
-            artifacts/muximux-sbom.spdx.json
