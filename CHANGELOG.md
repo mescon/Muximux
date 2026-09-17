@@ -2,7 +2,12 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.4.3] - 2026-09-17
+
+A fix release for the built-in reverse proxy. Apps whose router first
+navigates after an auth check (Dispatcharr is the reported case) looped on
+their login page and never rendered; a reload of such a frame, or an app
+assigning `location.href`, silently did nothing. Drop-in.
 
 ### Fixed
 - **Proxied apps that route after an auth check no longer loop on their login
@@ -18,9 +23,12 @@ All notable changes to Muximux are documented in this file.
   through the proxy read `assign` and `replace` from `Location.prototype`,
   where no browser defines them, so it cancelled the navigation and then
   threw. It now uses the instance methods and leaves same-document
-  navigations alone. Browsers without the
-  Navigation API get the same result from the shell, which recognises an
-  app frame by its `window.name` and sends it back to the proxied path.
+  navigations alone. Browsers without the Navigation API get the same
+  result from the shell, which recognises an app frame by its `window.name`
+  and sends it back to the proxied path.
+
+### Changed
+- Dependencies: `marked` 18.0.13 and `zod` 4.6.4.
 
 ## [3.4.2] - 2026-09-12
 
