@@ -2,6 +2,26 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Proxied apps that route after an auth check no longer loop on their login
+  page.** The runtime interceptor kept the frame's address free of the
+  `/proxy/<slug>` prefix only until the window `load` event, then restored
+  it. An app whose router first navigates after a network round trip
+  (Dispatcharr's auth check, for one) then read `/proxy/<slug>/login` back
+  from the browser, matched no route and redirected to `/login?next=...`
+  again, until the URL was megabytes long and the frame stayed blank. The
+  address now stays clean for the life of the document.
+- **Reloading a proxied frame, or an app assigning `location.href`, no longer
+  freezes the frame.** The Navigation API handler that redirects such loads
+  through the proxy read `assign` and `replace` from `Location.prototype`,
+  where no browser defines them, so it cancelled the navigation and then
+  threw. It now uses the instance methods and leaves same-document
+  navigations alone. Browsers without the
+  Navigation API get the same result from the shell, which recognises an
+  app frame by its `window.name` and sends it back to the proxied path.
+
 ## [3.4.2] - 2026-09-12
 
 A fix release for OIDC users. Sign-in through Keycloak, Authentik and any
