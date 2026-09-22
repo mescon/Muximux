@@ -126,14 +126,38 @@ func resolveIconContentType(data []byte, headerValue string) string {
 // `image/svg+xml` server header so a text/html blob cannot put on an
 // SVG hat.
 func looksLikeSVG(data []byte) bool {
-	s := data
+	s := string(data)
 	// Strip UTF-8 BOM
-	if len(s) >= 3 && s[0] == 0xEF && s[1] == 0xBB && s[2] == 0xBF {
-		s = s[3:]
+	s = strings.TrimPrefix(s, "\xEF\xBB\xBF")
+	// Editors commonly put a comment ("<!-- Generator: Adobe Illustrator
+	// -->") or a standalone "<!DOCTYPE svg ...>" ahead of the root
+	// element. Skip any run of those, but only an SVG DOCTYPE: an HTML
+	// DOCTYPE, or a comment followed by anything but an SVG root, still
+	// fails the check below.
+	for {
+		s = strings.TrimLeft(s, " \t\r\n")
+		lower := strings.ToLower(s)
+		switch {
+		case strings.HasPrefix(lower, "<!--"):
+			end := strings.Index(s, "-->")
+			if end < 0 {
+				return false
+			}
+			s = s[end+len("-->"):]
+		case strings.HasPrefix(lower, "<!doctype"):
+			rest := strings.TrimLeft(lower[len("<!doctype"):], " \t\r\n")
+			if !strings.HasPrefix(rest, "svg") {
+				return false
+			}
+			end := strings.IndexByte(s, '>')
+			if end < 0 {
+				return false
+			}
+			s = s[end+1:]
+		default:
+			return strings.HasPrefix(lower, "<?xml") || strings.HasPrefix(lower, "<svg")
+		}
 	}
-	s = []byte(strings.TrimLeft(string(s), " \t\r\n"))
-	lower := strings.ToLower(string(s))
-	return strings.HasPrefix(lower, "<?xml") || strings.HasPrefix(lower, "<svg")
 }
 
 // fetchWithSSRFSafeRedirects performs at most maxRedirects hops,
