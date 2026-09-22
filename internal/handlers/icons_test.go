@@ -882,6 +882,18 @@ func TestResolveIconContentType(t *testing.T) {
 		{"SVG header + HTML bytes rejected", htmlAsSVG, "image/svg+xml", ""},
 		{"Text bytes with no matching header", []byte("plain text"), "image/png", ""},
 		{"Text bytes with svg header but no SVG marker", []byte("plain text"), "image/svg+xml", ""},
+		// Editors commonly emit a comment or a DOCTYPE ahead of the root
+		// element (Illustrator writes "<!-- Generator: ... -->", older
+		// tools a standalone "<!DOCTYPE svg ...>"). Those are still SVG.
+		{"SVG behind a leading comment", []byte("<!-- Generator: Adobe Illustrator -->\n<svg xmlns=\"http://www.w3.org/2000/svg\"/>"), "image/svg+xml", "image/svg+xml"},
+		{"SVG behind two comments and whitespace", []byte("  <!-- a -->\n<!-- b -->\n<svg/>"), "image/svg+xml", "image/svg+xml"},
+		{"SVG behind a standalone DOCTYPE", []byte(`<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg/>`), "image/svg+xml", "image/svg+xml"},
+		{"SVG behind lowercase doctype", []byte(`<!doctype svg><svg/>`), "image/svg+xml", "image/svg+xml"},
+		// The relaxation must not let HTML through: an HTML DOCTYPE, or a
+		// comment followed by an HTML root, is still rejected.
+		{"HTML DOCTYPE rejected", []byte(`<!DOCTYPE html><svg onload="alert(1)"/>`), "image/svg+xml", ""},
+		{"Comment then HTML rejected", []byte(`<!-- x --><html><script>alert(1)</script></html>`), "image/svg+xml", ""},
+		{"Unterminated comment rejected", []byte(`<!-- never closed <svg/>`), "image/svg+xml", ""},
 	}
 
 	for _, c := range cases {
