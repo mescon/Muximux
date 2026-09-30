@@ -4,7 +4,7 @@ go 1.27
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
-	github.com/andybalholm/brotli v1.2.4
+	github.com/andybalholm/brotli v1.2.5
 	github.com/caddyserver/caddy/v2 v2.11.4
 	github.com/coreos/go-oidc/v3 v3.21.0
 	github.com/gorilla/websocket v1.5.3
