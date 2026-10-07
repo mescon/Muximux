@@ -161,13 +161,8 @@ func probeOIDCIssuer(ctx context.Context, issuer string) oidcTestResponse {
 	}
 	discovery := strings.TrimRight(u.String(), "/") + "/.well-known/openid-configuration"
 	client := &http.Client{
-		Timeout: oidcTestTimeout,
-		CheckRedirect: func(next *http.Request, _ []*http.Request) error {
-			if !strings.EqualFold(next.URL.Host, u.Host) {
-				return errors.New("redirect to another host refused")
-			}
-			return nil
-		},
+		Timeout:       oidcTestTimeout,
+		CheckRedirect: oidcRedirectPolicy(u),
 	}
 	ctx, cancel := context.WithTimeout(ctx, oidcTestTimeout)
 	defer cancel()
@@ -298,4 +293,24 @@ func (h *AuthHandler) prepareOIDCSave(r *http.Request, req *oidcSettingsRequest)
 		return next, nil, http.StatusBadRequest, err.Error()
 	}
 	return next, p, 0, ""
+}
+
+// oidcRedirectPolicy limits redirects while probing an issuer: at most 10
+// hops, http(s) only, same host, and never from https down to http.
+func oidcRedirectPolicy(origin *url.URL) func(*http.Request, []*http.Request) error {
+	return func(next *http.Request, via []*http.Request) error {
+		if len(via) >= 10 {
+			return errors.New("too many redirects")
+		}
+		if next.URL.Scheme != "http" && next.URL.Scheme != "https" {
+			return errors.New("redirect to a non-http(s) URL refused")
+		}
+		if !strings.EqualFold(next.URL.Host, origin.Host) {
+			return errors.New("redirect to another host refused")
+		}
+		if origin.Scheme == "https" && next.URL.Scheme != "https" {
+			return errors.New("redirect from https to http refused")
+		}
+		return nil
+	}
 }

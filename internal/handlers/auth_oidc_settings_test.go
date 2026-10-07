@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -219,10 +220,10 @@ func TestTestOIDCProvider_LimitsAndRedirects(t *testing.T) {
 	}))
 	defer hop.Close()
 	h := newOIDCSettingsHandler(nil, "")
-	for name, issuer := range map[string]string{"oversize": big.URL, "cross-host redirect": hop.URL} {
+	for issuer, want := range map[string]string{big.URL: "larger than 1 MB", hop.URL: "another host"} {
 		_, r := postOIDCTest(h, `{"issuer_url":"`+issuer+`"}`)
-		if r.Reachable {
-			t.Errorf("%s accepted: %+v", name, r)
+		if r.Reachable || !strings.Contains(r.Error, want) {
+			t.Errorf("%s: want error containing %q, got %+v", issuer, want, r)
 		}
 	}
 }
@@ -596,5 +597,47 @@ func TestUpdateAuthMethod_BuiltinKeepsOIDCAddon(t *testing.T) {
 	}
 	if !cfg.Auth.OIDC.Enabled || h.provider() != live {
 		t.Error("re-saving builtin turned off OIDC")
+	}
+}
+
+func TestTestOIDCProvider_RedirectLoop(t *testing.T) {
+	loop := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", r.URL.Path+"x")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer loop.Close()
+	start := time.Now()
+	_, r := postOIDCTest(newOIDCSettingsHandler(nil, ""), `{"issuer_url":"`+loop.URL+`"}`)
+	if r.Reachable || !strings.Contains(r.Error, "too many redirects") {
+		t.Errorf("loop: %+v", r)
+	}
+	if d := time.Since(start); d > 5*time.Second {
+		t.Errorf("loop took %v", d)
+	}
+}
+
+func TestOIDCRedirectPolicy(t *testing.T) {
+	mk := func(raw string) *http.Request {
+		u, _ := url.Parse(raw)
+		return &http.Request{URL: u}
+	}
+	httpsOrigin, _ := url.Parse("https://idp.example.com")
+	httpOrigin, _ := url.Parse("http://idp.example.com")
+	cases := []struct {
+		name   string
+		origin *url.URL
+		next   string
+		want   string
+	}{
+		{"downgrade", httpsOrigin, "http://idp.example.com/x", "https to http"},
+		{"ftp", httpOrigin, "ftp://idp.example.com/x", "non-http"},
+		{"upgrade ok", httpOrigin, "https://idp.example.com/x", ""},
+		{"same scheme ok", httpsOrigin, "https://idp.example.com/x", ""},
+	}
+	for _, c := range cases {
+		err := oidcRedirectPolicy(c.origin)(mk(c.next), nil)
+		if c.want == "" && err != nil || c.want != "" && (err == nil || !strings.Contains(err.Error(), c.want)) {
+			t.Errorf("%s: err=%v want %q", c.name, err, c.want)
+		}
 	}
 }
