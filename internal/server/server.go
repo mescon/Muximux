@@ -360,6 +360,15 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		})).ServeHTTP(w, r)
 	})
 
+	// OIDC settings (admin). Deliberately not under /api/auth/oidc/, which
+	// the bypass rules leave unauthenticated for login and callback.
+	mux.HandleFunc("/api/auth/settings/oidc", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(requireAdmin(authHandler.GetOIDCSettings)).ServeHTTP(w, r)
+	})
+	mux.HandleFunc("/api/auth/settings/oidc/test", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(requireAdmin(authHandler.TestOIDCProvider)).ServeHTTP(w, r)
+	})
+
 	// API key management. GET reports whether a key is configured; POST
 	// generates a new one (returning the plaintext exactly once); DELETE
 	// clears the configured key. All three are admin-only because the
