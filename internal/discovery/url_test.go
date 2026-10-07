@@ -125,6 +125,7 @@ func TestParseFixedURL(t *testing.T) {
 		{"/relative", "", false},
 		{"ftp://files.example.com", "", false},
 		{"https://", "", false},
+		{"http://:8080", "", false},
 		{"", "", false},
 		{"http://bad host/", "", false},
 	} {

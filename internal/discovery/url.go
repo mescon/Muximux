@@ -115,7 +115,7 @@ var _ = formatPort // keep available for future use
 func parseFixedURL(v string) (string, bool) {
 	v = strings.TrimSpace(v)
 	u, err := url.Parse(v)
-	if err != nil || u.Host == "" {
+	if err != nil || u.Host == "" || u.Hostname() == "" {
 		return "", false
 	}
 	switch strings.ToLower(u.Scheme) {

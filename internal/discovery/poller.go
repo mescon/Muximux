@@ -374,6 +374,9 @@ func (p *Poller) tick(ctx context.Context) {
 		if target.URL != t.currentURL {
 			batch.appURLChanges[t.name] = target.URL
 		}
+		if target.HealthManaged && target.HealthURL != t.currentHealth {
+			batch.appHealthChanges[t.name] = target.HealthURL
+		}
 	}
 	for i := range tracked.sites {
 		t := &tracked.sites[i]
@@ -658,10 +661,18 @@ func (p *Poller) resolveAppRefreshFrom(containers []ContainerSummary, key, strat
 		return refreshTarget{}, errors.New("container has no port; cannot rebuild URL")
 	}
 
-	if !isFixed {
-		return refreshTarget{URL: containerURL}, nil
-	}
 	catalog, hasCatalog := refreshCatalog(matched)
+	if !isFixed {
+		t := refreshTarget{URL: containerURL}
+		// A relative health label or catalog health path follows the
+		// container address; anything else is left to the operator.
+		relative := (labels.Health != "" && strings.HasPrefix(labels.Health, "/")) ||
+			(labels.Health == "" && hasCatalog && strings.HasPrefix(catalog.HealthURL, "/"))
+		if relative && containerURL != "" {
+			t.HealthURL, t.HealthManaged = refreshHealthTarget(containerURL, &labels, &catalog, hasCatalog)
+		}
+		return t, nil
+	}
 	t := refreshTarget{URL: fixed, Fixed: true}
 	t.HealthURL, t.HealthManaged = refreshHealthTarget(containerURL, &labels, &catalog, hasCatalog)
 	return t, nil
@@ -969,6 +980,8 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 			k := cfg.Server.GatewaySites[i].DockerKey
 			if k != "" && updatedKeys[k] && !keptSiteKeys[k] {
 				touchedGateway = true
+				logging.Info("Docker auto-import removed gateway site",
+					"source", "audit", "domain", cfg.Server.GatewaySites[i].Domain, "key", k)
 				continue // gateway domain was dropped from this entry
 			}
 			keptSites = append(keptSites, cfg.Server.GatewaySites[i])

@@ -97,6 +97,40 @@ groups:
 	}
 }
 
+// TestAutoDetach_FixedURLAppKeepsTracking covers a fixed-URL app (the
+// muximux.app.url label): URL equals DockerManagedURL, so it is not detached.
+func TestAutoDetach_FixedURLAppKeepsTracking(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(`server:
+  listen: ":8080"
+auth:
+  method: none
+apps:
+  - name: Sonarr
+    url: https://sonarr.example.com
+    color: "#fff"
+    group: Media
+    docker_key: "label:sonarr"
+    docker_endpoint: unix:///var/run/docker.sock
+    docker_strategy: container_ip
+    docker_managed_url: https://sonarr.example.com
+groups:
+  - name: Media
+    color: "#fff"
+`), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	app := cfg.Apps[0]
+	if app.DockerKey != "label:sonarr" || app.DockerManagedURL != "https://sonarr.example.com" {
+		t.Errorf("fixed-URL app was detached: key=%q managed=%q", app.DockerKey, app.DockerManagedURL)
+	}
+}
+
 // TestAutoDetach_AppGrandfathersEmptyManagedURL covers the upgrade
 // path from a pre-detach build: existing tracked apps have no
 // docker_managed_url recorded yet. Load() must not detach those;

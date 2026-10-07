@@ -323,7 +323,9 @@ services:
 
 Sonarr opens at `https://sonarr.example.com`. The health check calls `http://<container IP>:8989/ping`, and the poller keeps that address current when the container's IP changes (logging "Docker health address refreshed"); the app URL is never rewritten. A relative health label is resolved against the container; an absolute URL label is kept as written and never rewritten. Without a health label the check goes to the container's URL, including `muximux.app.path`. Health checks are still enabled per app in its settings.
 
-Removing `muximux.app.url` later returns the app to its container URL on the next refresh tick. Editing the URL by hand in Settings detaches the app, as with any tracked app. Known limitation: for an app imported manually, its health address keeps the container address it had; set it in the app's settings if needed. Auto-imported apps get it reset by auto-import.
+The poller owns the health address of such an app: it rewrites `health_url` on every refresh, so an edit made in Settings is overwritten. To pin it, set `muximux.app.health` to an absolute URL, which is kept as written.
+
+Removing `muximux.app.url` later returns the app to its container URL on the next refresh tick. Editing the URL by hand in Settings detaches the app, as with any tracked app. Known limitation: after removing the `muximux.app.url` label, an app imported manually keeps the container address it had as its health address; set it in the app's settings if needed. Auto-imported apps get it reset by auto-import.
 
 #### Finding an icon slug
 
@@ -440,6 +442,8 @@ In `update` and `sync`, re-sync compares both the **app** fields and the **gatew
 
 Only the explicit `muximux.app.gateway.domain` label makes auto-import create a gateway site. With `server.tls.domain` set, the derived `<name>.<dashboard domain>` default is only a pre-fill in the import dialog. An update changes only label-managed fields: health check, auth bypass, access, scale, pinned, proxy headers and other per-app settings are kept.
 
+**Upgrade note:** earlier versions created a gateway site `<name>.<your domain>` for every labelled container when `server.tls.domain` was set. If you relied on those derived subdomains, add `muximux.app.gateway.domain=<name>.<your domain>` to those containers before upgrading; otherwise the first refresh removes the sites and points the apps at their container URLs.
+
 Removing the `muximux.app.gateway.domain` label from an already-imported container reverts its app to the direct container URL and drops the now-orphaned gateway site on the next tick.
 
 ---
@@ -504,7 +508,7 @@ The sanctioned forget path is the **Detach** button in Settings → Discovery (o
 
 Tracking itself belongs to Muximux, not to the save payload: `docker_key`, `docker_endpoint`, `docker_strategy` and `docker_managed_url` in a SaveConfig or per-app PUT are ignored and the stored values kept. A save can detach an app by changing its URL, but it cannot attach one, re-attach a detached one, or switch it to another container. Only Discover, auto-import and **Re-link** create or change tracking.
 
-Apps with a fixed `muximux.app.url` are not rewritten by the poller; their `docker_managed_url` equals the label URL.
+Apps with a fixed `muximux.app.url` are not rewritten by the poller; their `docker_managed_url` equals the label URL. Their `health_url` is refreshed from the container on every tick, so a health address edited in Settings is overwritten unless `muximux.app.health` is an absolute URL.
 
 ### docker_managed_url (internal)
 

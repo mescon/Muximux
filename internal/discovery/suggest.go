@@ -319,6 +319,7 @@ func applyFixedURL(s *Suggestion, labels *AppLabels) {
 	}
 	s.URL = fixed
 	s.FixedURL = true
+	// RequiresInput is only set by port/URL resolution, which the fixed URL supersedes.
 	s.RequiresInput = false
 	// The fixed URL makes the missing-port and URL-build failures moot.
 	kept := s.Notes[:0]

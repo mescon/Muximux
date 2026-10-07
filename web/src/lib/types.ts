@@ -409,6 +409,8 @@ export interface DiscoverySuggestion {
   group?: string;
   url: string;
   backend_url?: string;
+  fixed_url?: boolean;
+  gateway_requested?: boolean;
   health_url?: string;
   effective_strategy: string;
   container_id: string;

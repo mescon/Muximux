@@ -14,7 +14,10 @@ All notable changes to Muximux are documented in this file.
 - **Auto-import no longer publishes every container on a gateway
   subdomain** when `server.tls.domain` is set. Only containers with
   `muximux.app.gateway.domain` get a gateway site; the derived default
-  only pre-fills the import modal.
+  only pre-fills the import modal. If you relied on those
+  derived subdomains, add `muximux.app.gateway.domain=<name>.<your domain>`
+  to those containers before upgrading -- otherwise the sites are removed
+  on the first refresh and the apps point at their container URLs.
 - **Auto-import updates keep per-app settings.** A label change or
   container IP change under the `update`/`sync` modes replaced the whole
   app, dropping health check, auth bypass, access, scale, pinned and proxy
