@@ -9,9 +9,9 @@
   } from '$lib/api';
   import DiscoveryTrackedEntries from './DiscoveryTrackedEntries.svelte';
 
-  // Forwarded from the tracked-entries list so Settings can update its copy
-  // of the config when an app is detached.
-  let { ondetached } = $props<{ ondetached?: (key: string) => void }>();
+  // Forwarded from the tracked-entries list so Settings can refresh its copy
+  // of the config after a detach or re-link.
+  let { ontrackingchanged } = $props<{ ontrackingchanged?: () => void }>();
 
   // Bumped after a save so the tracked-entries panel reloads (a
   // newly-changed endpoint may strand existing tracking and we want
@@ -249,7 +249,7 @@
          array though, so showing it on disabled is also fine. We
          show it always so an operator can detach orphaned tracking
          even after disabling discovery. -->
-    <DiscoveryTrackedEntries refreshKey={trackedRefreshKey} {ondetached} />
+    <DiscoveryTrackedEntries refreshKey={trackedRefreshKey} {ontrackingchanged} />
 
     <!-- Form -->
     <div class="space-y-4">

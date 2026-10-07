@@ -1,24 +1,44 @@
 import { describe, it, expect } from 'vitest';
-import { clearDockerTracking, withoutDockerTracking } from './dockerTracking';
+import { vi } from 'vitest';
+import { refreshDockerTracking, syncDockerTracking, withoutDockerTracking } from './dockerTracking';
+import type { Config } from './types';
 import type { App } from './types';
 
-const app = (name: string, key?: string): App =>
-  ({ name, url: 'http://x', docker_key: key, docker_endpoint: key ? 'unix:///d.sock' : undefined, docker_strategy: key ? 'container_ip' : undefined }) as App;
+const app = (name: string, key?: string, endpoint = 'unix:///d.sock'): App =>
+  ({ name, url: 'http://x', docker_key: key, docker_endpoint: key ? endpoint : undefined, docker_strategy: key ? 'container_ip' : undefined }) as App;
 
-describe('clearDockerTracking', () => {
-  it('clears every tracking field on apps tracked under the key', () => {
-    const apps = [app('Sonarr', 'label:sonarr'), app('Radarr', 'label:radarr'), app('Manual')];
-    expect(clearDockerTracking(apps, 'label:sonarr')).toBe(1);
-    expect(apps[0]).toMatchObject({ docker_key: undefined, docker_endpoint: undefined, docker_strategy: undefined });
-    expect(apps[1].docker_key).toBe('label:radarr');
-    expect(apps[2].docker_key).toBeUndefined();
+describe('syncDockerTracking', () => {
+  it('clears tracking the server dropped (detach)', () => {
+    const local = [app('Sonarr', 'label:sonarr'), app('Radarr', 'label:radarr')];
+    expect(syncDockerTracking(local, [app('Sonarr'), app('Radarr', 'label:radarr')])).toBe(1);
+    expect(local[0]).toMatchObject({ docker_key: undefined, docker_endpoint: undefined, docker_strategy: undefined });
+    expect(local[1].docker_key).toBe('label:radarr');
   });
 
-  it('does nothing for an unknown or empty key', () => {
-    const apps = [app('Sonarr', 'label:sonarr')];
-    expect(clearDockerTracking(apps, 'label:other')).toBe(0);
-    expect(clearDockerTracking(apps, '')).toBe(0);
-    expect(apps[0].docker_key).toBe('label:sonarr');
+  it('picks up a new key after a re-link, so a later detach still matches', () => {
+    const local = [app('Sonarr', 'label:sonarr-old')];
+    expect(syncDockerTracking(local, [app('Sonarr', 'label:sonarr-new')])).toBe(1);
+    expect(local[0].docker_key).toBe('label:sonarr-new');
+  });
+
+  it('only follows the server, so an app on another endpoint keeps its tracking', () => {
+    // The server detaches by key on the current endpoint only; the same key
+    // under a different endpoint stays tracked there and here.
+    const local = [app('A', 'name:web', 'unix:///d.sock'), app('B', 'name:web', 'tcp://other:2375')];
+    syncDockerTracking(local, [app('A'), app('B', 'name:web', 'tcp://other:2375')]);
+    expect(local[0].docker_key).toBeUndefined();
+    expect(local[1]).toMatchObject({ docker_key: 'name:web', docker_endpoint: 'tcp://other:2375' });
+  });
+
+  it('leaves unknown apps and unchanged apps alone', () => {
+    const local = [app('Local only', 'label:x'), app('Same', 'label:same')];
+    expect(syncDockerTracking(local, [app('Same', 'label:same')])).toBe(0);
+    expect(local[0].docker_key).toBe('label:x');
+  });
+
+  it('treats empty strings and missing fields as the same untracked state', () => {
+    const local = [{ name: 'Manual', url: 'http://x', docker_key: '' } as App];
+    expect(syncDockerTracking(local, [app('Manual')])).toBe(0);
   });
 });
 
@@ -28,5 +48,29 @@ describe('withoutDockerTracking', () => {
     const detached = app('Sonarr');
     expect(JSON.stringify(tracked, withoutDockerTracking)).toBe(JSON.stringify(detached, withoutDockerTracking));
     expect(JSON.stringify(tracked, withoutDockerTracking)).toContain('"name":"Sonarr"');
+  });
+});
+
+describe('refreshDockerTracking', () => {
+  it('syncs every list from one fetch of the server config', async () => {
+    const localApps = [app('Sonarr', 'label:sonarr')];
+    const editing = [app('Sonarr', 'label:sonarr')];
+    const fetchConfig = vi.fn().mockResolvedValue({ apps: [app('Sonarr')] } as unknown as Config);
+    expect(await refreshDockerTracking([localApps, editing], fetchConfig)).toBe(true);
+    expect(fetchConfig).toHaveBeenCalledTimes(1);
+    expect(localApps[0].docker_key).toBeUndefined();
+    expect(editing[0].docker_key).toBeUndefined();
+  });
+
+  it('leaves the local copies untouched when the fetch fails', async () => {
+    const localApps = [app('Sonarr', 'label:sonarr')];
+    expect(await refreshDockerTracking([localApps], () => Promise.reject(new Error('offline')))).toBe(false);
+    expect(localApps[0].docker_key).toBe('label:sonarr');
+  });
+
+  it('copes with a config that has no apps list', async () => {
+    const localApps = [app('Sonarr', 'label:sonarr')];
+    expect(await refreshDockerTracking([localApps], () => Promise.resolve({} as Config))).toBe(true);
+    expect(localApps[0].docker_key).toBe('label:sonarr');
   });
 });

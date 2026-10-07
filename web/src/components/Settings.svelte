@@ -3,7 +3,7 @@
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
-  import { clearDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
+  import { refreshDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
   import { focusTrap } from '$lib/focusTrap';
@@ -213,11 +213,11 @@
     localApps = [...otherApps, ...items];
   }
 
-  // An app detached under Discovery is no longer Docker-managed: drop its
-  // tracking here too, so its URL unlocks without reopening Settings.
-  function handleDockerDetached(key: string) {
-    clearDockerTracking(localApps, key);
-    if (editingApp) clearDockerTracking([editingApp], key);
+  // Detach and Re-link under Discovery change tracking on the server. Copy
+  // the server's tracking onto the local apps so a detached app's URL unlocks
+  // without reopening Settings.
+  function handleDockerTrackingChanged() {
+    void refreshDockerTracking(editingApp ? [localApps, [editingApp]] : [localApps], fetchConfig);
   }
 
   function handleSave() {
@@ -645,7 +645,7 @@
 
       <!-- Discovery (Docker auto-discovery) -->
       {:else if activeTab === 'discovery'}
-        <DiscoveryTab ondetached={handleDockerDetached} />
+        <DiscoveryTab ontrackingchanged={handleDockerTrackingChanged} />
 
       <!-- About -->
       {:else if activeTab === 'about'}

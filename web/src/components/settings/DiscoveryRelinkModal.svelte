@@ -3,7 +3,7 @@
   import { probeDockerRelink, confirmDockerRelink, detachDockerTracked } from '$lib/api';
   import { focusTrap } from '$lib/focusTrap';
 
-  let { trackingKey, onClose, onDetached } = $props<{ trackingKey: string; onClose: () => void; onDetached?: (key: string) => void }>();
+  let { trackingKey, onClose } = $props<{ trackingKey: string; onClose: () => void }>();
 
   let probing = $state(true);
   let probeResult = $state<DiscoveryRelinkProbeResult | null>(null);
@@ -50,7 +50,6 @@
     confirmError = null;
     try {
       await detachDockerTracked(trackingKey);
-      onDetached?.(trackingKey);
       onClose();
     } catch (e) {
       confirmError = e instanceof Error ? e.message : 'Detach failed';

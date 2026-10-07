@@ -69,20 +69,18 @@ describe('DiscoveryRelinkModal probe outcomes', () => {
     expect(screen.getByTestId('relink-detach-btn')).toBeInTheDocument();
   });
 
-  it('reports a detach-instead to the parent before closing', async () => {
+  it('detaches instead and closes when the operator gives up on re-linking', async () => {
     mockApi.probeDockerRelink.mockResolvedValue({ found: false, candidates: [] });
     mockApi.detachDockerTracked.mockResolvedValue(undefined);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const onClose = vi.fn();
-    const onDetached = vi.fn();
 
-    render(DiscoveryRelinkModal, { trackingKey: 'name:absent', onClose, onDetached });
+    render(DiscoveryRelinkModal, { trackingKey: 'name:absent', onClose });
     await waitFor(() => expect(screen.getByTestId('relink-detach-btn')).toBeInTheDocument());
     await fireEvent.click(screen.getByTestId('relink-detach-btn'));
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('name:absent');
-    expect(onDetached).toHaveBeenCalledWith('name:absent');
   });
 
   it('fires confirmDockerRelink with the right old_key when the operator confirms a found match', async () => {
