@@ -245,3 +245,43 @@ func TestEndSessions_EmptyIdentifiersDeleteNothing(t *testing.T) {
 		t.Errorf("empty identifiers deleted sessions: n=%d", n)
 	}
 }
+
+func TestConfig_OmitsClientSecret(t *testing.T) {
+	p := newTestProvider(t, "https://unused.example.com", func(c *config.OIDCConfig) {
+		c.ClientSecret = "s3cret"
+		c.DisableLocalLogin = true
+	})
+	got := p.Config()
+	if got.ClientSecret != "" {
+		t.Error("Config() exposed the client secret")
+	}
+	if !got.DisableLocalLogin || got.ClientID != "muximux" || got.UsernameClaim == "" {
+		t.Errorf("Config() lost settings or defaults: %+v", got)
+	}
+}
+
+func TestPostLogoutRedirect_Fallbacks(t *testing.T) {
+	cases := []struct {
+		name, redirectURL, want string
+	}{
+		{"host-less redirect_url", "/api/auth/oidc/callback", "/mx/login?logged_out=1"},
+		{"unparsable redirect_url", "http://bad host/%zz", "/mx/login?logged_out=1"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			p := newTestProvider(t, "https://unused.example.com", func(c *config.OIDCConfig) { c.RedirectURL = tc.redirectURL })
+			if got := p.postLogoutRedirect(); got != tc.want {
+				t.Errorf("postLogoutRedirect() = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestEndSessions_UnknownSidEndsNothing(t *testing.T) {
+	p := newTestProvider(t, "https://unused.example.com", nil)
+	s, _ := p.sessionStore.CreateWithData("alice", "alice", "user", map[string]interface{}{"oidc_sub": "alice"})
+	// No session carries this sid; matching by sid must not fall back to sub.
+	if n := p.EndSessions("alice", "sid-unknown"); n != 0 || p.sessionStore.Get(s.ID) == nil {
+		t.Errorf("unknown sid ended sessions: n=%d", n)
+	}
+}

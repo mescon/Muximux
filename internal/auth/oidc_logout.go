@@ -12,6 +12,7 @@ import (
 	gooidc "github.com/coreos/go-oidc/v3/oidc"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // Discover loads the provider's discovery document. Used to validate new
@@ -21,8 +22,12 @@ func (p *OIDCProvider) Discover(ctx context.Context) error {
 }
 
 // Config returns a copy of the provider's settings with defaults applied.
+// The client secret is left out; no caller needs it and the copy may end
+// up in a response or a log.
 func (p *OIDCProvider) Config() config.OIDCConfig {
-	return p.config
+	cfg := p.config
+	cfg.ClientSecret = ""
+	return cfg
 }
 
 // Capabilities reports what the discovery document advertised.
@@ -184,7 +189,7 @@ func (p *OIDCProvider) EndSessions(sub, sid string) int {
 	if sub == "" && sid == "" {
 		return 0
 	}
-	return p.sessionStore.DeleteMatching(func(s *Session) bool {
+	n := p.sessionStore.DeleteMatching(func(s *Session) bool {
 		if sid != "" {
 			v, _ := s.Data["oidc_sid"].(string)
 			return v == sid
@@ -192,4 +197,12 @@ func (p *OIDCProvider) EndSessions(sub, sid string) int {
 		v, _ := s.Data["oidc_sub"].(string)
 		return v == sub
 	})
+	if sid != "" && n == 0 {
+		// Matching by sid is what the provider asked for, so this does not
+		// fall back to sub. A provider that leaves sid out of ID tokens but
+		// puts it in logout tokens ends nothing; say so.
+		logging.Warn("OIDC back-channel logout: sid matched no session; the provider may not include sid in ID tokens",
+			"source", "auth", "sub", sub, "sid", sid)
+	}
+	return n
 }
