@@ -86,7 +86,9 @@ func (p *OIDCProvider) postLogoutRedirect() string {
 }
 
 const (
-	backchannelEventKey = "http://schemas.openid.net/event/backchannel-logout"
+	// The event identifier defined by OpenID Back-Channel Logout 1.0; an
+	// identifier, never fetched, and it must match the spec byte for byte.
+	backchannelEventKey = "http://schemas.openid.net/event/backchannel-logout" // NOSONAR
 	logoutTokenMaxAge   = 10 * time.Minute
 	logoutTokenSkew     = 2 * time.Minute
 	maxSeenJTI          = 10000
