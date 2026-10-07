@@ -16,6 +16,8 @@ import (
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
+const oidcDiscoveryTimeout = 15 * time.Second
+
 // AuthHandler handles authentication endpoints
 type AuthHandler struct {
 	sessionStore          *auth.SessionStore
@@ -113,27 +115,45 @@ func (h *AuthHandler) SetOIDCProvider(provider *auth.OIDCProvider) {
 	h.oidcMu.Unlock()
 }
 
+// prepareOIDCProvider builds a provider from cfg and checks the identity
+// provider answers discovery. It does not install it. Returns nil, nil
+// for a disabled cfg.
+func (h *AuthHandler) prepareOIDCProvider(ctx context.Context, cfg *config.OIDCConfig, basePath string) (*auth.OIDCProvider, error) {
+	if !cfg.Enabled {
+		return nil, nil
+	}
+	p := auth.NewOIDCProvider(cfg, basePath, h.sessionStore, h.userStore)
+	timeoutCtx, cancel := context.WithTimeout(ctx, oidcDiscoveryTimeout)
+	defer cancel()
+	if err := p.Discover(timeoutCtx); err != nil {
+		_ = p.Close()
+		return nil, fmt.Errorf("OIDC discovery failed: %w", err)
+	}
+	return p, nil
+}
+
+// swapOIDCProvider installs next and closes the previous provider.
+func (h *AuthHandler) swapOIDCProvider(next *auth.OIDCProvider) {
+	h.oidcMu.Lock()
+	old := h.oidcProvider
+	h.oidcProvider = next
+	h.oidcMu.Unlock()
+	if old != nil && old != next {
+		_ = old.Close()
+	}
+}
+
 // ReplaceOIDCProvider builds a provider from cfg, checks the identity
 // provider is reachable, and swaps it in, closing the old one. A failed
 // check changes nothing. A disabled cfg removes the provider. Existing
 // sessions stay valid; logins in flight on the old provider fail with the
 // usual invalid-state error.
 func (h *AuthHandler) ReplaceOIDCProvider(ctx context.Context, cfg *config.OIDCConfig, basePath string) error {
-	var next *auth.OIDCProvider
-	if cfg.Enabled {
-		next = auth.NewOIDCProvider(cfg, basePath, h.sessionStore, h.userStore)
-		if err := next.Discover(ctx); err != nil {
-			_ = next.Close()
-			return fmt.Errorf("OIDC discovery failed: %w", err)
-		}
+	next, err := h.prepareOIDCProvider(ctx, cfg, basePath)
+	if err != nil {
+		return err
 	}
-	h.oidcMu.Lock()
-	old := h.oidcProvider
-	h.oidcProvider = next
-	h.oidcMu.Unlock()
-	if old != nil {
-		_ = old.Close()
-	}
+	h.swapOIDCProvider(next)
 	return nil
 }
 
