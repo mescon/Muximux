@@ -111,3 +111,56 @@ func TestPrimaryContainerIP_DeterministicAcrossCalls(t *testing.T) {
 		}
 	}
 }
+
+func TestParseFixedURL(t *testing.T) {
+	for _, tc := range []struct {
+		in   string
+		want string
+		ok   bool
+	}{
+		{"https://sonarr.example.com", "https://sonarr.example.com", true},
+		{"  http://10.0.0.5:8989/web  ", "http://10.0.0.5:8989/web", true},
+		{"HTTPS://Sonarr.Example.com/", "HTTPS://Sonarr.Example.com/", true},
+		{"sonarr.example.com", "", false},
+		{"/relative", "", false},
+		{"ftp://files.example.com", "", false},
+		{"https://", "", false},
+		{"", "", false},
+		{"http://bad host/", "", false},
+	} {
+		got, ok := parseFixedURL(tc.in)
+		if ok != tc.ok || got != tc.want {
+			t.Errorf("parseFixedURL(%q) = %q, %v; want %q, %v", tc.in, got, ok, tc.want, tc.ok)
+		}
+	}
+}
+
+func TestWithPath(t *testing.T) {
+	for _, tc := range []struct{ base, path, want string }{
+		{"http://10.0.0.5:80", "", "http://10.0.0.5:80"},
+		{"http://10.0.0.5:80", "/", "http://10.0.0.5:80"},
+		{"http://10.0.0.5:80", "/admin", "http://10.0.0.5:80/admin"},
+		{"http://10.0.0.5:80", "admin/", "http://10.0.0.5:80/admin/"},
+		{"http://10.0.0.5:80/", "/admin", "http://10.0.0.5:80/admin"},
+		{"http://10.0.0.5:80", "  /web  ", "http://10.0.0.5:80/web"},
+	} {
+		if got := withPath(tc.base, tc.path); got != tc.want {
+			t.Errorf("withPath(%q, %q) = %q, want %q", tc.base, tc.path, got, tc.want)
+		}
+	}
+}
+
+func TestResolveHealth(t *testing.T) {
+	for _, tc := range []struct{ base, health, want string }{
+		{"http://10.0.0.5:8989", "", ""},
+		{"http://10.0.0.5:8989", "/api/v3/health", "http://10.0.0.5:8989/api/v3/health"},
+		{"http://10.0.0.5:80/admin", "/ping", "http://10.0.0.5:80/ping"},
+		{"http://10.0.0.5:8989", "https://status.example.com/sonarr", "https://status.example.com/sonarr"},
+		{"", "/api/health", "/api/health"},
+		{"http://10.0.0.5:8989", "health", "health"},
+	} {
+		if got := resolveHealth(tc.base, tc.health); got != tc.want {
+			t.Errorf("resolveHealth(%q, %q) = %q, want %q", tc.base, tc.health, got, tc.want)
+		}
+	}
+}

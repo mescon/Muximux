@@ -2,7 +2,9 @@ package discovery
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -107,3 +109,52 @@ func hostBindingForPort(c *ContainerSummary, containerPort int) int {
 func formatPort(port int) string { return strconv.Itoa(port) }
 
 var _ = formatPort // keep available for future use
+
+// parseFixedURL validates a muximux.app.url value: an absolute http or
+// https URL with a host. Returns the trimmed value as written.
+func parseFixedURL(v string) (string, bool) {
+	v = strings.TrimSpace(v)
+	u, err := url.Parse(v)
+	if err != nil || u.Host == "" {
+		return "", false
+	}
+	switch strings.ToLower(u.Scheme) {
+	case "http", "https":
+		return v, true
+	}
+	return "", false
+}
+
+// withPath appends a muximux.app.path / catalog path to a
+// container-derived URL. "" and "/" mean no path.
+func withPath(base, path string) string {
+	p := strings.TrimSpace(path)
+	if p == "" || p == "/" {
+		return base
+	}
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return strings.TrimRight(base, "/") + p
+}
+
+// resolveHealth turns a muximux.app.health value into a usable health
+// address. A root-relative value ("/api/v3/health") is resolved against
+// the container's origin; an absolute http(s) URL is kept; anything else
+// is returned unchanged.
+func resolveHealth(containerURL, health string) string {
+	if health == "" {
+		return ""
+	}
+	if _, ok := parseFixedURL(health); ok {
+		return health
+	}
+	if !strings.HasPrefix(health, "/") {
+		return health
+	}
+	base, err := url.Parse(containerURL)
+	if err != nil || base.Host == "" {
+		return health
+	}
+	return base.Scheme + "://" + base.Host + health
+}
