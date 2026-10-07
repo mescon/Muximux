@@ -94,6 +94,32 @@ func TestBuildDesired_NilProxyIsDirect(t *testing.T) {
 	}
 }
 
+// TestBuildDesired_DefaultDomainStaysDirect: a derived default domain
+// (server.tls.domain set) only pre-fills the import modal. Auto-import
+// must not turn every labelled container into a gateway site.
+func TestBuildDesired_DefaultDomainStaysDirect(t *testing.T) {
+	sug := Suggestion{
+		Key: "label:sonarr", Name: "Sonarr", URL: "http://10.0.0.5:8989",
+		SuggestedDomain: "sonarr.dash.example.com",
+	}
+	d := BuildDesired(&sug, "e")
+	if d.Site != nil || d.App.URL != "http://10.0.0.5:8989" {
+		t.Errorf("site=%v url=%q; want a direct app", d.Site != nil, d.App.URL)
+	}
+}
+
+func TestBuildDesired_FixedURL(t *testing.T) {
+	sug := Suggestion{
+		Key: "label:sonarr", Name: "Sonarr", URL: "https://sonarr.example.com",
+		HealthURL: "http://10.0.0.5:8989", FixedURL: true,
+	}
+	d := BuildDesired(&sug, "e")
+	a := d.App
+	if a.URL != "https://sonarr.example.com" || a.DockerManagedURL != a.URL || a.HealthURL != "http://10.0.0.5:8989" || a.HealthCheck != nil {
+		t.Errorf("app = %+v", a)
+	}
+}
+
 // TestBuildDesired_GatewaySite: a SuggestedDomain plus a gateway label
 // set must produce a GatewaySite mirroring ImportDocker: BackendURL is
 // the container URL, App.URL becomes the public domain, App.Proxy is
@@ -106,6 +132,7 @@ func TestBuildDesired_GatewaySite(t *testing.T) {
 		Key: "label:sonarr", Name: "Sonarr", URL: "http://10.0.0.5:8989",
 		EffectiveStrategy: config.StrategyContainerIP,
 		SuggestedDomain:   "sonarr.example.com",
+		GatewayRequested:  true,
 		SuggestedGateway: &SuggestedGatewayConfig{
 			TLS:                "auto",
 			Streaming:          &yes,
@@ -176,6 +203,7 @@ func TestBuildDesired_GatewayTLSNone(t *testing.T) {
 	sug := Suggestion{
 		Key: "label:x", Name: "X", URL: "http://h:1",
 		SuggestedDomain:  "x.example.com",
+		GatewayRequested: true,
 		SuggestedGateway: &SuggestedGatewayConfig{TLS: "none"},
 	}
 	d := BuildDesired(&sug, "e")
@@ -196,7 +224,8 @@ func TestBuildDesired_GatewayTLSNone(t *testing.T) {
 func TestBuildDesired_GatewayNilConfig(t *testing.T) {
 	sug := Suggestion{
 		Key: "label:y", Name: "Y", URL: "http://h:2",
-		SuggestedDomain: "y.example.com",
+		SuggestedDomain:  "y.example.com",
+		GatewayRequested: true,
 	}
 	d := BuildDesired(&sug, "e")
 	if d.Site == nil {
@@ -397,6 +426,7 @@ func gwDesire(k string, requireAuth bool, minRole string) Desired {
 		Key: k, Name: k, URL: "http://h:1",
 		EffectiveStrategy: config.StrategyContainerIP,
 		SuggestedDomain:   k + ".example.com",
+		GatewayRequested:  true,
 		SuggestedGateway: &SuggestedGatewayConfig{
 			TLS: "auto", RequireAuth: &ra, MinRole: minRole,
 		},

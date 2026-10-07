@@ -19,7 +19,7 @@ type Desired struct {
 // optional GatewaySite) that auto-import should materialize, deriving
 // routing from labels:
 //
-//   - SuggestedDomain set -> a gateway site fronts the container. The
+//   - muximux.app.gateway.domain set -> a gateway site fronts the container. The
 //     App.URL becomes the public domain (https unless tls=none), the
 //     App is NOT proxy-routed, and the GatewaySite forwards to the
 //     container URL. This mirrors handlers.ImportDocker's RoutingGateway
@@ -85,7 +85,10 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 	app.HTTPActionShowToast = sug.HTTPActionShowToast
 
 	d := Desired{}
-	if sug.SuggestedDomain != "" {
+	// Only an explicit muximux.app.gateway.domain label asks for a gateway
+	// site. SuggestedDomain alone may be the derived default
+	// (<name>.<dashboard domain>) that pre-fills the import modal.
+	if sug.GatewayRequested && sug.SuggestedDomain != "" {
 		d.Site = buildGatewaySite(sug, endpoint)
 		// Gateway routing: the menu loads via the public hostname, so
 		// App.URL is the domain and the app is not proxy-routed. The
