@@ -815,5 +815,6 @@
   "appForm_pinned": "Fixar na barra",
   "appForm_pinnedDesc": "Mostrar esta aplicação diretamente na barra superior ou inferior, ao lado dos menus de grupo",
   "appForm_helpPinned": "As aplicações fixadas têm o seu próprio botão na barra e abrem com um clique. A aplicação continua listada no seu grupo.",
-  "nav_pinned": "Fixadas"
+  "nav_pinned": "Fixadas",
+  "login_localDisabled": "O início de sessão com nome de utilizador e palavra-passe está desativado. Use o início de sessão único."
 }

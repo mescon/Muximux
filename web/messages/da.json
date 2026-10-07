@@ -815,5 +815,6 @@
   "appForm_pinned": "Fastgør til linjen",
   "appForm_pinnedDesc": "Vis denne app direkte i top- eller bundlinjen ved siden af gruppemenuerne",
   "appForm_helpPinned": "Fastgjorte apps får deres egen knap i linjen, så de åbner med ét klik. Appen bliver også stående i sin gruppe.",
-  "nav_pinned": "Fastgjort"
+  "nav_pinned": "Fastgjort",
+  "login_localDisabled": "Log ind med brugernavn og adgangskode er slået fra. Brug single sign-on."
 }

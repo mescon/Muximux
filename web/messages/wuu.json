@@ -815,5 +815,6 @@
   "appForm_pinned": "钉到栏上",
   "appForm_pinnedDesc": "勒顶部或者底部栏里直接显示该应用，摆勒分组下拉菜单旁边",
   "appForm_helpPinned": "钉牢个应用勒栏里有自家个按钮，点一记就好打开。应用还是留勒伊个分组里向。",
-  "nav_pinned": "已钉牢"
+  "nav_pinned": "已钉牢",
+  "login_localDisabled": "用户名搭密码登录已经关脱了。请用单点登录。"
 }

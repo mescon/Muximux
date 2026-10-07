@@ -815,5 +815,6 @@
   "appForm_pinned": "釘喺欄上",
   "appForm_pinnedDesc": "喺頂部或者底部欄直接顯示呢個應用程式，放喺群組下拉選單隔籬",
   "appForm_helpPinned": "釘住嘅應用程式喺欄上有自己嘅掣，撳一下就開到。應用程式仍然會留喺佢嘅群組入面。",
-  "nav_pinned": "已釘住"
+  "nav_pinned": "已釘住",
+  "login_localDisabled": "用戶名同密碼登入已經關閉。請用單一登入。"
 }

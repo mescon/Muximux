@@ -194,20 +194,34 @@ export async function login(username: string, password: string, rememberMe: bool
   }
 }
 
+let justLoggedOut = false;
+
+/** True once after an in-app logout, so the login page does not start SSO
+ * again straight away when auto-redirect is on. */
+export function consumeJustLoggedOut(): boolean {
+  const v = justLoggedOut;
+  justLoggedOut = false;
+  return v;
+}
+
 // Logout
 export async function logout(): Promise<void> {
   // Capture logout URL before clearing state
-  const logoutUrl = get(authState).logoutUrl;
+  const statusLogoutUrl = get(authState).logoutUrl;
+  let providerRedirect: string | null = null;
 
   try {
-    await fetch(`${API_BASE}/logout`, {
+    const res = await fetch(`${API_BASE}/logout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
+    const data = (await parseJSONSafely(res)) as { redirect?: string } | null;
+    providerRedirect = data?.redirect || null;
   } catch (e) {
     console.error('Logout error:', e);
   }
 
+  justLoggedOut = true;
   authState.set({
     authenticated: false,
     user: null,
@@ -217,15 +231,15 @@ export async function logout(): Promise<void> {
     logoutUrl: null,
   });
 
-  // Redirect to external auth provider's logout page (e.g. Authelia,
-  // Authentik) but only if the URL is http(s) (findings.md H23). Any
-  // vector that influenced this field (forward-auth misconfig,
-  // compromised upstream) would otherwise accept `javascript:` or
-  // `data:` and fire at logout.
-  if (logoutUrl && isSafeExternalURL(logoutUrl)) {
-    globalThis.location.href = logoutUrl;
-  } else if (logoutUrl) {
-    console.warn('[auth] ignored logout_url with unsafe scheme', logoutUrl);
+  // Redirect to the identity provider's sign-out page (OIDC end-session, or
+  // the forward-auth logout URL such as Authelia/Authentik) but only if the
+  // URL is http(s) (findings.md H23). Any vector that influenced this value
+  // would otherwise accept `javascript:` or `data:` and fire at logout.
+  const target = providerRedirect || statusLogoutUrl;
+  if (target && isSafeExternalURL(target)) {
+    globalThis.location.href = target;
+  } else if (target) {
+    console.warn('[auth] ignored logout redirect with unsafe scheme', target);
   }
 }
 

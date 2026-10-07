@@ -815,5 +815,6 @@
   "appForm_pinned": "Ghim vào thanh",
   "appForm_pinnedDesc": "Hiển thị ứng dụng này trực tiếp trên thanh trên hoặc dưới, cạnh các menu nhóm",
   "appForm_helpPinned": "Ứng dụng đã ghim có nút riêng trên thanh nên mở được bằng một lần nhấp. Ứng dụng vẫn nằm trong nhóm của nó.",
-  "nav_pinned": "Đã ghim"
+  "nav_pinned": "Đã ghim",
+  "login_localDisabled": "Đăng nhập bằng tên người dùng và mật khẩu đã bị tắt. Hãy dùng đăng nhập một lần (SSO)."
 }

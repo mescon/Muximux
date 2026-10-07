@@ -815,5 +815,6 @@
   "appForm_pinned": "固定到栏",
   "appForm_pinnedDesc": "在顶部或底部栏中直接显示此应用，位于分组下拉菜单旁边",
   "appForm_helpPinned": "固定的应用在栏中拥有自己的按钮，一键即可打开。该应用仍会保留在其分组中。",
-  "nav_pinned": "已固定"
+  "nav_pinned": "已固定",
+  "login_localDisabled": "已关闭用户名和密码登录。请使用单点登录。"
 }

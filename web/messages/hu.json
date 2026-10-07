@@ -815,5 +815,6 @@
   "appForm_pinned": "Rögzítés a sávra",
   "appForm_pinnedDesc": "Az alkalmazás megjelenítése közvetlenül a felső vagy alsó sávon, a csoportmenük mellett",
   "appForm_helpPinned": "A rögzített alkalmazások saját gombot kapnak a sávon, így egy kattintással megnyílnak. Az alkalmazás a csoportjában is szerepel marad.",
-  "nav_pinned": "Rögzítve"
+  "nav_pinned": "Rögzítve",
+  "login_localDisabled": "A felhasználónévvel és jelszóval történő bejelentkezés ki van kapcsolva. Használd az egyszeri bejelentkezést."
 }

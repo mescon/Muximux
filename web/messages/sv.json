@@ -815,5 +815,6 @@
   "appForm_pinned": "Fäst i fältet",
   "appForm_pinnedDesc": "Visa denna app direkt i det övre eller nedre fältet, bredvid gruppmenyerna",
   "appForm_helpPinned": "Fästa appar får en egen knapp i fältet så att de öppnas med ett klick. Appen finns kvar i sin grupp också.",
-  "nav_pinned": "Fästa"
+  "nav_pinned": "Fästa",
+  "login_localDisabled": "Inloggning med användarnamn och lösenord är avstängd. Använd enkel inloggning (SSO)."
 }

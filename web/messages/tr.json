@@ -815,5 +815,6 @@
   "appForm_pinned": "Çubuğa sabitle",
   "appForm_pinnedDesc": "Bu uygulamayı grup açılır menülerinin yanında, üst veya alt çubukta doğrudan göster",
   "appForm_helpPinned": "Sabitlenen uygulamalar çubukta kendi düğmesini alır ve tek tıkla açılır. Uygulama grubunda da listelenmeye devam eder.",
-  "nav_pinned": "Sabitlenenler"
+  "nav_pinned": "Sabitlenenler",
+  "login_localDisabled": "Kullanıcı adı ve parola ile oturum açma kapalı. Tek oturum açmayı (SSO) kullanın."
 }

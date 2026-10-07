@@ -815,5 +815,6 @@
   "appForm_pinned": "Pripnúť na lištu",
   "appForm_pinnedDesc": "Zobraziť túto aplikáciu priamo v hornej alebo dolnej lište vedľa rozbaľovacích ponúk skupín",
   "appForm_helpPinned": "Pripnuté aplikácie majú na lište vlastné tlačidlo a otvoria sa jedným kliknutím. Aplikácia zostáva uvedená aj vo svojej skupine.",
-  "nav_pinned": "Pripnuté"
+  "nav_pinned": "Pripnuté",
+  "login_localDisabled": "Prihlásenie pomocou používateľského mena a hesla je vypnuté. Použite jednotné prihlásenie (SSO)."
 }

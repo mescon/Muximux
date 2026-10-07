@@ -815,5 +815,6 @@
   "appForm_pinned": "Vastmaken aan balk",
   "appForm_pinnedDesc": "Toon deze app direct in de boven- of onderbalk, naast de groepsmenu's",
   "appForm_helpPinned": "Vastgemaakte apps krijgen een eigen knop in de balk en openen met één klik. De app blijft ook in haar groep staan.",
-  "nav_pinned": "Vastgemaakt"
+  "nav_pinned": "Vastgemaakt",
+  "login_localDisabled": "Inloggen met gebruikersnaam en wachtwoord is uitgeschakeld. Gebruik single sign-on."
 }

@@ -815,5 +815,6 @@
   "appForm_pinned": "Piespraust joslā",
   "appForm_pinnedDesc": "Rādīt šo lietotni tieši augšējā vai apakšējā joslā blakus grupu nolaižamajām izvēlnēm",
   "appForm_helpPinned": "Piespraustajām lietotnēm joslā ir sava poga, tāpēc tās atveras ar vienu klikšķi. Lietotne paliek arī savā grupā.",
-  "nav_pinned": "Piespraustās"
+  "nav_pinned": "Piespraustās",
+  "login_localDisabled": "Pieteikšanās ar lietotājvārdu un paroli ir izslēgta. Izmantojiet vienoto pieteikšanos."
 }

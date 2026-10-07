@@ -9,6 +9,7 @@ import {
   checkAuthStatus,
   login,
   logout,
+  consumeJustLoggedOut,
   changePassword,
   getUser,
   hasRole,
@@ -264,6 +265,63 @@ describe('authStore', () => {
 
       // Restore
       Object.defineProperty(window, 'location', originalDescriptor);
+    });
+
+    function mockLocation() {
+      const hrefSetter = vi.fn();
+      const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'location')!;
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, set href(v: string) { hrefSetter(v); } },
+        writable: true,
+        configurable: true,
+      });
+      return { hrefSetter, restore: () => Object.defineProperty(window, 'location', originalDescriptor) };
+    }
+
+    it('follows the provider redirect from the logout response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () => Promise.resolve({ success: true, redirect: 'https://idp/logout?x' }),
+      });
+      const loc = mockLocation();
+      await logout();
+      expect(loc.hrefSetter).toHaveBeenCalledWith('https://idp/logout?x');
+      loc.restore();
+    });
+
+    it('falls back to logoutUrl when the response has no redirect', async () => {
+      authState.set({
+        authenticated: true,
+        user: { username: 'testuser', role: 'user' },
+        loading: false,
+        error: null,
+        setupRequired: false,
+        logoutUrl: 'https://fwd/logout',
+      });
+      mockFetch.mockResolvedValueOnce({ json: () => Promise.resolve({ success: true }) });
+      const loc = mockLocation();
+      await logout();
+      expect(loc.hrefSetter).toHaveBeenCalledWith('https://fwd/logout');
+      loc.restore();
+    });
+
+    it('ignores an unsafe redirect', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () => Promise.resolve({ success: true, redirect: 'javascript:alert(1)' }),
+      });
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const loc = mockLocation();
+      await logout();
+      expect(loc.hrefSetter).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalled();
+      warn.mockRestore();
+      loc.restore();
+    });
+
+    it('consumeJustLoggedOut is true once after logout', async () => {
+      mockFetch.mockResolvedValueOnce({});
+      await logout();
+      expect(consumeJustLoggedOut()).toBe(true);
+      expect(consumeJustLoggedOut()).toBe(false);
     });
 
     it('should not redirect when logoutUrl is null', async () => {

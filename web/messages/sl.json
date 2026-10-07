@@ -815,5 +815,6 @@
   "appForm_pinned": "Pripni v vrstico",
   "appForm_pinnedDesc": "Prikaži to aplikacijo neposredno v zgornji ali spodnji vrstici, ob spustnih menijih skupin",
   "appForm_helpPinned": "Pripete aplikacije imajo v vrstici svoj gumb in se odprejo z enim klikom. Aplikacija ostane navedena tudi v svoji skupini.",
-  "nav_pinned": "Pripete"
+  "nav_pinned": "Pripete",
+  "login_localDisabled": "Prijava z uporabniškim imenom in geslom je izklopljena. Uporabite enotno prijavo (SSO)."
 }
