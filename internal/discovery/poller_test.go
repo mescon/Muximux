@@ -90,6 +90,12 @@ func TestRefreshBatch_EmptyAndTouchesGateway(t *testing.T) {
 		t.Errorf("batch with only app changes should not touch gateway")
 	}
 
+	b2 := newRefreshBatch()
+	b2.appHealthChanges["app"] = "http://1.2.3.4:8080"
+	if b2.empty() {
+		t.Errorf("batch with only a health change should not be empty")
+	}
+
 	b.siteURLChanges["x.example.com"] = "http://1.2.3.5:8080"
 	if !b.touchesGateway() {
 		t.Errorf("batch with site change should touch gateway")
@@ -2012,5 +2018,100 @@ func TestApplyReconcile_UpdateKeepsHealthCheck(t *testing.T) {
 	a := cfg.Apps[0]
 	if a.URL != "http://10.0.0.9:8989" || a.HealthCheck == nil || !*a.HealthCheck {
 		t.Errorf("app after update = %+v", a)
+	}
+}
+
+func pollerForApps(t *testing.T, containers []ContainerSummary, apps []config.AppConfig) (*Poller, *config.Config, *int) {
+	t.Helper()
+	socket, cleanup := fakeDaemonForPoller(t, containers)
+	t.Cleanup(cleanup)
+	dockerCfg := &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: "container_ip"}
+	for i := range apps {
+		apps[i].DockerEndpoint = "unix://" + socket
+		apps[i].DockerStrategy = "container_ip"
+	}
+	cfg := &config.Config{Discovery: config.DiscoveryConfig{Docker: *dockerCfg}, Apps: apps}
+	var mu sync.RWMutex
+	saves := 0
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(dockerCfg), OnSave: func() error { saves++; return nil }})
+	return p, cfg, &saves
+}
+
+func sonarrAt(ip string, labels map[string]string) ContainerSummary {
+	l := map[string]string{LabelDiscoveryID: "sonarr-stable"}
+	for k, v := range labels {
+		l[k] = v
+	}
+	return ContainerSummary{
+		ID: "a1", Names: []string{"/sonarr"}, Image: "linuxserver/sonarr", Labels: l,
+		NetworkSettings: ContainerNetworks{Networks: map[string]ContainerNetwork{"media": {IPAddress: ip}}},
+		Ports:           []ContainerPort{{PrivatePort: 8989, Type: "tcp"}},
+	}
+}
+
+func TestPoller_Tick_FixedURLRefreshesHealthOnly(t *testing.T) {
+	p, cfg, saves := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.42", map[string]string{LabelAppURL: "https://sonarr.example.com"})},
+		[]config.AppConfig{{Name: "sonarr", URL: "https://sonarr.example.com", HealthURL: "http://10.0.0.1:8989",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "https://sonarr.example.com"}})
+	p.tick(context.Background())
+	a := cfg.Apps[0]
+	if a.URL != "https://sonarr.example.com" || a.DockerManagedURL != "https://sonarr.example.com" {
+		t.Errorf("fixed URL rewritten: %+v", a)
+	}
+	if a.HealthURL != "http://10.0.0.42:8989" {
+		t.Errorf("HealthURL = %q, want the new container address", a.HealthURL)
+	}
+	if *saves != 1 {
+		t.Errorf("saves = %d", *saves)
+	}
+	p.tick(context.Background())
+	if *saves != 1 {
+		t.Errorf("second tick saved again (%d); refresh must be stable", *saves)
+	}
+}
+
+func TestPoller_Tick_FixedURLAbsoluteHealthUntouched(t *testing.T) {
+	p, cfg, saves := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.42", map[string]string{LabelAppURL: "https://sonarr.example.com", LabelAppHealth: "https://status.example.com/s"})},
+		[]config.AppConfig{{Name: "sonarr", URL: "https://sonarr.example.com", HealthURL: "https://status.example.com/s",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "https://sonarr.example.com"}})
+	p.tick(context.Background())
+	if cfg.Apps[0].HealthURL != "https://status.example.com/s" || *saves != 0 {
+		t.Errorf("health=%q saves=%d", cfg.Apps[0].HealthURL, *saves)
+	}
+}
+
+func TestPoller_Tick_LabelRemovedReturnsToContainerURL(t *testing.T) {
+	p, cfg, _ := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.42", nil)},
+		[]config.AppConfig{{Name: "sonarr", URL: "https://sonarr.example.com",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "https://sonarr.example.com"}})
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.42:8989" {
+		t.Errorf("URL = %q", cfg.Apps[0].URL)
+	}
+}
+
+func TestPoller_Tick_PathAppliedOnceAndStable(t *testing.T) {
+	p, cfg, saves := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.42", map[string]string{LabelAppPath: "/web"})},
+		[]config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.42:8989",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "http://10.0.0.42:8989"}})
+	p.tick(context.Background())
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.42:8989/web" || *saves != 1 {
+		t.Errorf("URL=%q saves=%d", cfg.Apps[0].URL, *saves)
+	}
+}
+
+func TestPoller_Tick_PlainAppFollowsContainerIP(t *testing.T) {
+	p, cfg, _ := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.77", nil)},
+		[]config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.42:8989",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "http://10.0.0.42:8989"}})
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.77:8989" {
+		t.Errorf("URL = %q", cfg.Apps[0].URL)
 	}
 }

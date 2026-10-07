@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -348,7 +349,7 @@ func (p *Poller) tick(ctx context.Context) {
 		if gatewaySiteKeys[t.key] {
 			continue
 		}
-		newURL, err := p.resolveURLFrom(containers, t.key, t.strategy, hostIP)
+		target, err := p.resolveAppRefreshFrom(containers, t.key, t.strategy, hostIP)
 		if errors.Is(err, ErrContainerNotFound) {
 			logging.Warn("Tracked docker container not found",
 				"source", "discovery", "kind", "app", "name", t.name, "key", t.key)
@@ -364,8 +365,14 @@ func (p *Poller) tick(ctx context.Context) {
 			continue
 		}
 		svc.RecordSeen(t.key)
-		if newURL != t.currentURL {
-			batch.appURLChanges[t.name] = newURL
+		if target.Fixed {
+			if target.HealthManaged && target.HealthURL != t.currentHealth {
+				batch.appHealthChanges[t.name] = target.HealthURL
+			}
+			continue
+		}
+		if target.URL != t.currentURL {
+			batch.appURLChanges[t.name] = target.URL
 		}
 	}
 	for i := range tracked.sites {
@@ -463,6 +470,9 @@ type trackedAppEntry struct {
 	endpoint   string
 	strategy   string
 	currentURL string
+	// currentHealth is the app's HealthURL, compared against the
+	// refreshed health address of fixed-URL apps.
+	currentHealth string
 }
 type trackedSiteEntry struct {
 	domain     string
@@ -493,6 +503,8 @@ func (p *Poller) collectTracked() trackedSet {
 			endpoint:   a.DockerEndpoint,
 			strategy:   a.DockerStrategy,
 			currentURL: a.URL,
+
+			currentHealth: a.HealthURL,
 		})
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -569,12 +581,79 @@ func containerSchemeForRefresh(c *ContainerSummary) string {
 	return "http"
 }
 
+// refreshTarget is what a tracked app should look like after a refresh.
+// Fixed: URL comes from muximux.app.url and must not be rewritten.
+// HealthManaged: HealthURL is derived from the container and should be
+// kept current (no health label, or a relative one).
+type refreshTarget struct {
+	URL           string
+	HealthURL     string
+	Fixed         bool
+	HealthManaged bool
+}
+
+// containerPathForRefresh mirrors resolveSuggestionPath: label > catalog.
+func containerPathForRefresh(c *ContainerSummary) string {
+	labels := ParseAppLabels(c.Labels)
+	if labels.Path != "" {
+		return labels.Path
+	}
+	if entry, ok := MatchImage(c.Image); ok {
+		return entry.Path
+	}
+	return ""
+}
+
+// resolveAppRefreshFrom resolves a tracked app's container and returns
+// its refresh target. For a fixed-URL app the container address becomes
+// the health address; otherwise it is the app URL (with the label path).
+func (p *Poller) resolveAppRefreshFrom(containers []ContainerSummary, key, strategy, hostIP string) (refreshTarget, error) {
+	tk, err := ParseTrackingKey(key)
+	if err != nil {
+		return refreshTarget{}, err
+	}
+	matched := tk.FindContainer(containers)
+	if matched == nil {
+		return refreshTarget{}, ErrContainerNotFound
+	}
+	labels := ParseAppLabels(matched.Labels)
+	fixed, isFixed := parseFixedURL(labels.URL)
+	isFixed = isFixed && labels.GatewayDomain == ""
+
+	containerURL := ""
+	if port := containerPortForRefresh(matched); port != 0 {
+		base, buildErr := buildURLForSuggestion(strategy, matched, port, containerSchemeForRefresh(matched), hostIP)
+		if buildErr != nil {
+			if !isFixed {
+				return refreshTarget{}, buildErr
+			}
+		} else {
+			containerURL = withPath(base, containerPathForRefresh(matched))
+		}
+	} else if !isFixed {
+		return refreshTarget{}, errors.New("container has no port; cannot rebuild URL")
+	}
+
+	if !isFixed {
+		return refreshTarget{URL: containerURL}, nil
+	}
+	t := refreshTarget{URL: fixed, Fixed: true}
+	switch {
+	case labels.Health == "":
+		t.HealthURL, t.HealthManaged = containerURL, containerURL != ""
+	case strings.HasPrefix(labels.Health, "/"):
+		t.HealthURL, t.HealthManaged = resolveHealth(containerURL, labels.Health), containerURL != ""
+	}
+	return t, nil
+}
+
 // refreshBatch accumulates URL changes for one tick, plus the
 // auto-import reconcile output so both commit through the same atomic
 // SaveConfig + rollback in applyRefreshBatch.
 type refreshBatch struct {
-	appURLChanges  map[string]string // app name -> new URL
-	siteURLChanges map[string]string // gateway domain -> new BackendURL
+	appURLChanges    map[string]string // app name -> new URL
+	appHealthChanges map[string]string // app name -> new HealthURL (fixed-URL apps)
+	siteURLChanges   map[string]string // gateway domain -> new BackendURL
 
 	// Auto-import reconcile output, folded into the same transaction as
 	// the URL refresh. addApps/updateApps carry their own URL (gateway
@@ -589,13 +668,14 @@ type refreshBatch struct {
 
 func newRefreshBatch() *refreshBatch {
 	return &refreshBatch{
-		appURLChanges:  map[string]string{},
-		siteURLChanges: map[string]string{},
+		appURLChanges:    map[string]string{},
+		appHealthChanges: map[string]string{},
+		siteURLChanges:   map[string]string{},
 	}
 }
 
 func (b *refreshBatch) empty() bool {
-	return len(b.appURLChanges) == 0 && len(b.siteURLChanges) == 0 &&
+	return len(b.appURLChanges) == 0 && len(b.appHealthChanges) == 0 && len(b.siteURLChanges) == 0 &&
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
 		len(b.removeKeys) == 0
@@ -638,6 +718,9 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 			// URL as the baseline so the next operator edit is
 			// detectable.
 			a.DockerManagedURL = a.URL
+		}
+		if h, ok := batch.appHealthChanges[a.Name]; ok {
+			a.HealthURL = h
 		}
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -746,7 +829,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// silent IP shift would otherwise leave the proxy hitting the
 	// stale address. Skip when no apps changed (gateway-only batches
 	// don't touch the route table).
-	if (len(batch.appURLChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
+	if (len(batch.appURLChanges) > 0 || len(batch.appHealthChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
 		p.deps.OnConfigSaved()
 	}
 	for name, url := range batch.appURLChanges {
