@@ -34,6 +34,7 @@ const (
 	LabelAppAllowNotifications = "muximux.app.allow_notifications" // "true" to enable notification bridge
 	LabelAppShortcut           = "muximux.app.shortcut"            // keyboard digit 1..9
 	LabelAppGatewayDomain      = "muximux.app.gateway.domain"      // suggest as gateway site
+	LabelAppURL                = "muximux.app.url"                 // absolute URL the app opens at; health still follows the container
 
 	LabelAppHTTPActionMethod    = "muximux.app.http_action_method"     // GET | POST | PUT | DELETE | PATCH
 	LabelAppHTTPActionHeaders   = "muximux.app.http_action_headers"    // Key=Value,Key2=Value2 (CSV)
@@ -78,6 +79,11 @@ type AppLabels struct {
 	AllowNotifications *bool
 	Shortcut           int // 0 = unset
 	GatewayDomain      string
+
+	// URL is the trimmed muximux.app.url value. Validated where it is
+	// used (suggest.go applyFixedURL) so an invalid value can produce a
+	// scan note instead of vanishing silently.
+	URL string
 
 	HTTPActionMethod    string
 	HTTPActionHeaders   map[string]string
@@ -162,6 +168,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 		}
 	},
 	LabelAppGatewayDomain: func(out *AppLabels, v string) { out.GatewayDomain = v },
+	LabelAppURL:           func(out *AppLabels, v string) { out.URL = strings.TrimSpace(v) },
 	LabelAppHTTPActionMethod: func(out *AppLabels, v string) {
 		uv := strings.ToUpper(strings.TrimSpace(v))
 		switch uv {
@@ -191,6 +198,7 @@ var knownNonAppLabels = map[string]struct{}{
 	LabelGatewayStreaming:          {},
 	LabelGatewayStripFrameBlockers: {},
 	LabelGatewayForwardedHeaders:   {},
+	LabelGatewaySkipTLSVerify:      {},
 	LabelGatewayRequireAuth:        {},
 	LabelGatewayMinRole:            {},
 	LabelGatewayAllowedGroups:      {},

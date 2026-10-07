@@ -191,7 +191,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v2m0 4h.01M5 11V7a7 7 0 0114 0v4M5 11h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
         </svg>
         <span>
-          Docker-managed: the URL refreshes from container <code class="font-mono text-text-secondary">{app.docker_key}</code>. Detach via Settings → Discovery → Currently tracked to take manual control.
+          Docker-managed: the URL refreshes from container <code class="font-mono text-text-secondary">{app.docker_key}</code>, and the health URL may be refreshed from it too. Detach via Settings → Discovery → Currently tracked to take manual control.
         </span>
       </p>
     {/if}

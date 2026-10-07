@@ -19,7 +19,7 @@ type Desired struct {
 // optional GatewaySite) that auto-import should materialize, deriving
 // routing from labels:
 //
-//   - SuggestedDomain set -> a gateway site fronts the container. The
+//   - muximux.app.gateway.domain set -> a gateway site fronts the container. The
 //     App.URL becomes the public domain (https unless tls=none), the
 //     App is NOT proxy-routed, and the GatewaySite forwards to the
 //     container URL. This mirrors handlers.ImportDocker's RoutingGateway
@@ -85,7 +85,10 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 	app.HTTPActionShowToast = sug.HTTPActionShowToast
 
 	d := Desired{}
-	if sug.SuggestedDomain != "" {
+	// Only an explicit muximux.app.gateway.domain label asks for a gateway
+	// site. SuggestedDomain alone may be the derived default
+	// (<name>.<dashboard domain>) that pre-fills the import modal.
+	if sug.GatewayRequested && sug.SuggestedDomain != "" {
 		d.Site = buildGatewaySite(sug, endpoint)
 		// Gateway routing: the menu loads via the public hostname, so
 		// App.URL is the domain and the app is not proxy-routed. The
@@ -107,15 +110,20 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 // pointing at the container URL, the muximux.gateway.* fields copied
 // through, and the tracking + clean-detach baseline stamped.
 func buildGatewaySite(sug *Suggestion, endpoint string) *config.GatewaySite {
+	// The label/catalog path applies to the app URL only, never the backend.
+	backend := sug.URL
+	if sug.BackendURL != "" {
+		backend = sug.BackendURL
+	}
 	site := config.GatewaySite{
 		Domain:     sug.SuggestedDomain,
-		BackendURL: sug.URL,
+		BackendURL: backend,
 		// Tracking. BackendURL is the URL the reconciler refreshes, so
 		// it is also the clean-detach baseline.
 		DockerKey:        sug.Key,
 		DockerEndpoint:   endpoint,
 		DockerStrategy:   string(sug.EffectiveStrategy),
-		DockerManagedURL: sug.URL,
+		DockerManagedURL: backend,
 	}
 	if gw := sug.SuggestedGateway; gw != nil {
 		site.TLS = config.TLSMode(gw.TLS)
@@ -257,6 +265,42 @@ func sameManagedFields(a, b *config.AppConfig) bool {
 		reflect.DeepEqual(a.AllowedGroups, b.AllowedGroups) &&
 		reflect.DeepEqual(a.Permissions, b.Permissions) &&
 		reflect.DeepEqual(a.HTTPActionHeaders, b.HTTPActionHeaders)
+}
+
+// mergeManagedFields returns cur with every field auto-import owns (the
+// ones BuildDesired sets, compared by sameManagedFields, plus the
+// tracking bookkeeping) taken from desired. Everything else, such as
+// health_check, auth_bypass, access, scale, pinned and proxy_headers, is
+// operator state and is kept. Replacing the whole app used to drop it.
+func mergeManagedFields(cur, desired *config.AppConfig) config.AppConfig {
+	out := *cur
+	out.Name = desired.Name
+	out.URL = desired.URL
+	out.HealthURL = desired.HealthURL
+	out.Icon = desired.Icon
+	out.Color = desired.Color
+	out.Group = desired.Group
+	out.Order = desired.Order
+	out.Enabled = desired.Enabled
+	out.Default = desired.Default
+	out.OpenMode = desired.OpenMode
+	out.Proxy = desired.Proxy
+	out.ProxySkipTLSVerify = desired.ProxySkipTLSVerify
+	out.MinRole = desired.MinRole
+	out.AllowedGroups = desired.AllowedGroups
+	out.Permissions = desired.Permissions
+	out.AllowNotifications = desired.AllowNotifications
+	out.Shortcut = desired.Shortcut
+	out.HTTPActionMethod = desired.HTTPActionMethod
+	out.HTTPActionHeaders = desired.HTTPActionHeaders
+	out.HTTPActionConfirm = desired.HTTPActionConfirm
+	out.HTTPActionShowToast = desired.HTTPActionShowToast
+	out.DockerKey = desired.DockerKey
+	out.DockerEndpoint = desired.DockerEndpoint
+	out.DockerStrategy = desired.DockerStrategy
+	out.DockerManagedURL = desired.DockerManagedURL
+	out.DockerAutoImported = desired.DockerAutoImported
+	return out
 }
 
 // gatewaySiteChanged reports whether the desired gateway site for a key

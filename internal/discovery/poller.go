@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -348,7 +349,7 @@ func (p *Poller) tick(ctx context.Context) {
 		if gatewaySiteKeys[t.key] {
 			continue
 		}
-		newURL, err := p.resolveURLFrom(containers, t.key, t.strategy, hostIP)
+		target, err := p.resolveAppRefreshFrom(containers, t.key, t.strategy, hostIP)
 		if errors.Is(err, ErrContainerNotFound) {
 			logging.Warn("Tracked docker container not found",
 				"source", "discovery", "kind", "app", "name", t.name, "key", t.key)
@@ -364,8 +365,17 @@ func (p *Poller) tick(ctx context.Context) {
 			continue
 		}
 		svc.RecordSeen(t.key)
-		if newURL != t.currentURL {
-			batch.appURLChanges[t.name] = newURL
+		if target.Fixed {
+			if target.HealthManaged && target.HealthURL != t.currentHealth {
+				batch.appHealthChanges[t.name] = target.HealthURL
+			}
+			continue
+		}
+		if target.URL != t.currentURL {
+			batch.appURLChanges[t.name] = target.URL
+		}
+		if target.HealthManaged && target.HealthURL != t.currentHealth {
+			batch.appHealthChanges[t.name] = target.HealthURL
 		}
 	}
 	for i := range tracked.sites {
@@ -463,6 +473,9 @@ type trackedAppEntry struct {
 	endpoint   string
 	strategy   string
 	currentURL string
+	// currentHealth is the app's HealthURL, compared against the
+	// refreshed health address of fixed-URL apps.
+	currentHealth string
 }
 type trackedSiteEntry struct {
 	domain     string
@@ -488,11 +501,12 @@ func (p *Poller) collectTracked() trackedSet {
 			continue
 		}
 		out.apps = append(out.apps, trackedAppEntry{
-			name:       a.Name,
-			key:        a.DockerKey,
-			endpoint:   a.DockerEndpoint,
-			strategy:   a.DockerStrategy,
-			currentURL: a.URL,
+			name:          a.Name,
+			key:           a.DockerKey,
+			endpoint:      a.DockerEndpoint,
+			strategy:      a.DockerStrategy,
+			currentURL:    a.URL,
+			currentHealth: a.HealthURL,
 		})
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -550,7 +564,7 @@ func containerPortForRefresh(c *ContainerSummary) int {
 	if labels.Port != 0 {
 		return labels.Port
 	}
-	if entry, ok := MatchImage(c.Image); ok && entry.Port != 0 && containerExposesPort(c, entry.Port) {
+	if entry, ok := refreshCatalog(c); ok && entry.Port != 0 && containerExposesPort(c, entry.Port) {
 		return entry.Port
 	}
 	return pickFirstExposedPort(c)
@@ -563,18 +577,114 @@ func containerSchemeForRefresh(c *ContainerSummary) string {
 	if labels.Scheme != "" {
 		return labels.Scheme
 	}
-	if entry, ok := MatchImage(c.Image); ok && entry.Scheme != "" {
+	if entry, ok := refreshCatalog(c); ok && entry.Scheme != "" {
 		return entry.Scheme
 	}
 	return "http"
+}
+
+// refreshTarget is what a tracked app should look like after a refresh.
+// Fixed: URL comes from muximux.app.url and must not be rewritten.
+// HealthManaged: HealthURL is derived from the container and should be
+// kept current (no health label, or a relative one).
+type refreshTarget struct {
+	URL           string
+	HealthURL     string
+	Fixed         bool
+	HealthManaged bool
+}
+
+// refreshCatalog matches a container to the catalog the same way
+// suggestForContainer does: by image, then by container name.
+func refreshCatalog(c *ContainerSummary) (CatalogEntry, bool) {
+	if entry, ok := MatchImage(c.Image); ok {
+		return entry, true
+	}
+	return MatchByContainerName(c.PrimaryName())
+}
+
+// refreshHealthTarget decides the health address of a fixed-URL app and
+// whether it is derived from the container (and so kept current). It
+// mirrors resolveSuggestionHealthURL plus the container-URL default.
+func refreshHealthTarget(containerURL string, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) (string, bool) {
+	switch {
+	case labels.Health != "":
+		if !strings.HasPrefix(labels.Health, "/") {
+			return "", false
+		}
+		return resolveHealth(containerURL, labels.Health), containerURL != ""
+	case hasCatalog && catalog.HealthURL != "":
+		return resolveHealth(containerURL, catalog.HealthURL), containerURL != ""
+	}
+	return containerURL, containerURL != ""
+}
+
+// containerPathForRefresh mirrors resolveSuggestionPath: label > catalog.
+func containerPathForRefresh(c *ContainerSummary) string {
+	labels := ParseAppLabels(c.Labels)
+	if labels.Path != "" {
+		return labels.Path
+	}
+	if entry, ok := refreshCatalog(c); ok {
+		return entry.Path
+	}
+	return ""
+}
+
+// resolveAppRefreshFrom resolves a tracked app's container and returns
+// its refresh target. For a fixed-URL app the container address becomes
+// the health address; otherwise it is the app URL (with the label path).
+func (p *Poller) resolveAppRefreshFrom(containers []ContainerSummary, key, strategy, hostIP string) (refreshTarget, error) {
+	tk, err := ParseTrackingKey(key)
+	if err != nil {
+		return refreshTarget{}, err
+	}
+	matched := tk.FindContainer(containers)
+	if matched == nil {
+		return refreshTarget{}, ErrContainerNotFound
+	}
+	labels := ParseAppLabels(matched.Labels)
+	fixed, isFixed := parseFixedURL(labels.URL)
+	isFixed = isFixed && labels.GatewayDomain == ""
+
+	containerURL := ""
+	if port := containerPortForRefresh(matched); port != 0 {
+		base, buildErr := buildURLForSuggestion(strategy, matched, port, containerSchemeForRefresh(matched), hostIP)
+		if buildErr != nil {
+			if !isFixed {
+				return refreshTarget{}, buildErr
+			}
+		} else {
+			containerURL = withPath(base, containerPathForRefresh(matched))
+		}
+	} else if !isFixed {
+		return refreshTarget{}, errors.New("container has no port; cannot rebuild URL")
+	}
+
+	catalog, hasCatalog := refreshCatalog(matched)
+	if !isFixed {
+		t := refreshTarget{URL: containerURL}
+		// A relative health label or catalog health path follows the
+		// container address; anything else is left to the operator.
+		relative := (labels.Health != "" && strings.HasPrefix(labels.Health, "/")) ||
+			(labels.Health == "" && hasCatalog && strings.HasPrefix(catalog.HealthURL, "/"))
+		if relative && containerURL != "" {
+			t.HealthURL, t.HealthManaged = refreshHealthTarget(containerURL, &labels, &catalog, hasCatalog)
+		}
+		return t, nil
+	}
+	t := refreshTarget{URL: fixed, Fixed: true}
+	t.HealthURL, t.HealthManaged = refreshHealthTarget(containerURL, &labels, &catalog, hasCatalog)
+	return t, nil
 }
 
 // refreshBatch accumulates URL changes for one tick, plus the
 // auto-import reconcile output so both commit through the same atomic
 // SaveConfig + rollback in applyRefreshBatch.
 type refreshBatch struct {
-	appURLChanges  map[string]string // app name -> new URL
-	siteURLChanges map[string]string // gateway domain -> new BackendURL
+	appURLChanges    map[string]string // app name -> new URL
+	appHealthChanges map[string]string // app name -> new HealthURL (fixed-URL apps)
+	siteURLChanges   map[string]string // gateway domain -> new BackendURL
 
 	// Auto-import reconcile output, folded into the same transaction as
 	// the URL refresh. addApps/updateApps carry their own URL (gateway
@@ -589,13 +699,14 @@ type refreshBatch struct {
 
 func newRefreshBatch() *refreshBatch {
 	return &refreshBatch{
-		appURLChanges:  map[string]string{},
-		siteURLChanges: map[string]string{},
+		appURLChanges:    map[string]string{},
+		appHealthChanges: map[string]string{},
+		siteURLChanges:   map[string]string{},
 	}
 }
 
 func (b *refreshBatch) empty() bool {
-	return len(b.appURLChanges) == 0 && len(b.siteURLChanges) == 0 &&
+	return len(b.appURLChanges) == 0 && len(b.appHealthChanges) == 0 && len(b.siteURLChanges) == 0 &&
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
 		len(b.removeKeys) == 0
@@ -638,6 +749,9 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 			// URL as the baseline so the next operator edit is
 			// detectable.
 			a.DockerManagedURL = a.URL
+		}
+		if h, ok := batch.appHealthChanges[a.Name]; ok {
+			a.HealthURL = h
 		}
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -746,12 +860,16 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// silent IP shift would otherwise leave the proxy hitting the
 	// stale address. Skip when no apps changed (gateway-only batches
 	// don't touch the route table).
-	if (len(batch.appURLChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
+	if (len(batch.appURLChanges) > 0 || len(batch.appHealthChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
 		p.deps.OnConfigSaved()
 	}
 	for name, url := range batch.appURLChanges {
 		logging.Info("Docker app URL refreshed",
 			"source", "discovery", "app", name, "new_url", url)
+	}
+	for name, url := range batch.appHealthChanges {
+		logging.Info("Docker health address refreshed",
+			"source", "discovery", "app", name, "health_url", url)
 	}
 	for domain, url := range batch.siteURLChanges {
 		logging.Info("Docker gateway-site URL refreshed",
@@ -811,10 +929,10 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 	// site with no current match is inserted (a label that newly added a
 	// gateway domain to an already-tracked app).
 	for i := range batch.updateApps {
-		na := batch.updateApps[i]
+		na := &batch.updateApps[i]
 		for j := range cfg.Apps {
 			if cfg.Apps[j].DockerKey == na.DockerKey {
-				cfg.Apps[j] = na
+				cfg.Apps[j] = mergeManagedFields(&cfg.Apps[j], na)
 				break
 			}
 		}
@@ -862,6 +980,8 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 			k := cfg.Server.GatewaySites[i].DockerKey
 			if k != "" && updatedKeys[k] && !keptSiteKeys[k] {
 				touchedGateway = true
+				logging.Info("Docker auto-import removed gateway site",
+					"source", "audit", "domain", cfg.Server.GatewaySites[i].Domain, "key", k)
 				continue // gateway domain was dropped from this entry
 			}
 			keptSites = append(keptSites, cfg.Server.GatewaySites[i])

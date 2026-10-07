@@ -4,7 +4,29 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **`muximux.app.url` Docker label** -- open a discovered app at a fixed
+  URL, such as its public name behind your own reverse proxy, without the
+  built-in gateway. The app stays tracked and its health check follows the
+  container as its IP changes. (#479)
+
 ### Fixed
+- **Auto-import no longer publishes every container on a gateway
+  subdomain** when `server.tls.domain` is set. Only containers with
+  `muximux.app.gateway.domain` get a gateway site; the derived default
+  only pre-fills the import modal. If you relied on those
+  derived subdomains, add `muximux.app.gateway.domain=<name>.<your domain>`
+  to those containers before upgrading -- otherwise the sites are removed
+  on the first refresh and the apps point at their container URLs.
+- **Auto-import updates keep per-app settings.** A label change or
+  container IP change under the `update`/`sync` modes replaced the whole
+  app, dropping health check, auth bypass, access, scale, pinned and proxy
+  headers. Only label-managed fields change now.
+- **`muximux.app.path` is applied** to discovered app URLs, and a relative
+  `muximux.app.health` such as `/api/v3/health` is resolved against the
+  container. Both were parsed but never used.
+- `muximux.gateway.skip_tls_verify` is no longer reported as an unknown
+  label.
 - **Requests made from Web Workers in a proxied app now reach that app.**
   The runtime interceptor only ran in the app's pages, so a worker's
   `fetch`, XHR, WebSocket or `importScripts` went to the Muximux origin
