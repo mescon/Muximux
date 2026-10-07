@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/auth"
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 type oidcSettingsResponse struct {
@@ -46,6 +47,26 @@ type oidcTestResponse struct {
 	JWKS                 bool   `json:"jwks"`
 	EndSession           bool   `json:"end_session"`
 	BackchannelSupported bool   `json:"backchannel_supported"`
+}
+
+// oidcSettingsRequest is the "oidc" object of PUT /api/auth/method. A nil
+// field keeps the stored value.
+type oidcSettingsRequest struct {
+	IssuerURL             *string  `json:"issuer_url"`
+	ClientID              *string  `json:"client_id"`
+	ClientSecret          *string  `json:"client_secret"` // nil or "" keeps the stored secret
+	RedirectURL           *string  `json:"redirect_url"`
+	Scopes                []string `json:"scopes"`
+	UsernameClaim         *string  `json:"username_claim"`
+	EmailClaim            *string  `json:"email_claim"`
+	GroupsClaim           *string  `json:"groups_claim"`
+	DisplayNameClaim      *string  `json:"display_name_claim"`
+	AdminGroups           []string `json:"admin_groups"`
+	ProviderLogout        *bool    `json:"provider_logout"`
+	PostLogoutRedirectURL *string  `json:"post_logout_redirect_url"`
+	LogoutURL             *string  `json:"logout_url"`
+	AutoRedirect          *bool    `json:"auto_redirect"`
+	DisableLocalLogin     *bool    `json:"disable_local_login"`
 }
 
 var oidcEnvFieldNames = []string{"issuer_url", "client_id", "client_secret", "redirect_url", "post_logout_redirect_url", "logout_url"}
@@ -184,4 +205,97 @@ func probeOIDCIssuer(ctx context.Context, issuer string) oidcTestResponse {
 		Userinfo: doc.UserinfoEndpoint != "", JWKS: doc.JwksURI != "",
 		EndSession: doc.EndSessionEndpoint != "", BackchannelSupported: doc.BackchannelLogoutSupported,
 	}
+}
+
+// applyOIDCSettings returns cur with the request's fields applied and
+// Enabled set. Nil request fields and env-locked fields keep their
+// current value; an empty client secret keeps the stored one.
+func applyOIDCSettings(cur *config.OIDCConfig, req *oidcSettingsRequest, envLocked map[string]bool) config.OIDCConfig {
+	out := *cur
+	out.Enabled = true
+	setStr := func(field string, dst, v *string) {
+		if v != nil && !envLocked[field] {
+			*dst = strings.TrimSpace(*v)
+		}
+	}
+	setStr("issuer_url", &out.IssuerURL, req.IssuerURL)
+	setStr("client_id", &out.ClientID, req.ClientID)
+	if req.ClientSecret != nil && *req.ClientSecret != "" && !envLocked["client_secret"] {
+		out.ClientSecret = *req.ClientSecret
+	}
+	setStr("redirect_url", &out.RedirectURL, req.RedirectURL)
+	setStr("username_claim", &out.UsernameClaim, req.UsernameClaim)
+	setStr("email_claim", &out.EmailClaim, req.EmailClaim)
+	setStr("groups_claim", &out.GroupsClaim, req.GroupsClaim)
+	setStr("display_name_claim", &out.DisplayNameClaim, req.DisplayNameClaim)
+	setStr("post_logout_redirect_url", &out.PostLogoutRedirectURL, req.PostLogoutRedirectURL)
+	setStr("logout_url", &out.LogoutURL, req.LogoutURL)
+	if req.Scopes != nil {
+		out.Scopes = append([]string(nil), req.Scopes...)
+	}
+	if req.AdminGroups != nil {
+		out.AdminGroups = append([]string(nil), req.AdminGroups...)
+	}
+	if req.ProviderLogout != nil {
+		out.ProviderLogout = *req.ProviderLogout
+	}
+	if req.AutoRedirect != nil {
+		out.AutoRedirect = *req.AutoRedirect
+	}
+	if req.DisableLocalLogin != nil {
+		out.DisableLocalLogin = *req.DisableLocalLogin
+	}
+	return out
+}
+
+// copyOIDCConfig returns a copy of o that shares no slices with it.
+func copyOIDCConfig(o *config.OIDCConfig) config.OIDCConfig {
+	out := *o
+	out.Scopes = append([]string(nil), o.Scopes...)
+	out.AdminGroups = append([]string(nil), o.AdminGroups...)
+	return out
+}
+
+// prepareOIDCSave builds the OIDC settings a save would install and a
+// provider for them that has answered discovery. It runs without the
+// config write lock, since discovery can take seconds. On failure it
+// returns the HTTP status and message to send; the message never
+// contains the client secret.
+func (h *AuthHandler) prepareOIDCSave(r *http.Request, req *oidcSettingsRequest) (next config.OIDCConfig, p *auth.OIDCProvider, status int, msg string) {
+	if req == nil {
+		return next, nil, http.StatusBadRequest, "oidc settings are required"
+	}
+	h.configMu.RLock()
+	cur := copyOIDCConfig(&h.config.Auth.OIDC)
+	base := h.config.Server.NormalizedBasePath()
+	locked := map[string]bool{}
+	for _, f := range oidcEnvFieldNames {
+		if _, ok := h.config.EnvRefVar("auth", "oidc", f); ok {
+			locked[f] = true
+		}
+	}
+	h.configMu.RUnlock()
+
+	next = applyOIDCSettings(&cur, req, locked)
+	if next.IssuerURL == "" || next.ClientID == "" {
+		return next, nil, http.StatusBadRequest, "issuer URL and client ID are required"
+	}
+	if next.RedirectURL == "" {
+		next.RedirectURL = publicOrigin(r) + base + "/api/auth/oidc/callback"
+	}
+	if err := config.ValidateOIDC(&next); err != nil {
+		return next, nil, http.StatusBadRequest, err.Error()
+	}
+	// Turning off local login from a password session would lock the
+	// caller out if SSO turns out not to work for them. Only the change
+	// from on to off is guarded; re-saving an already SSO-only setup is not.
+	localLoginWasOff := cur.Enabled && cur.DisableLocalLogin
+	if next.DisableLocalLogin && !localLoginWasOff && !requestIsOIDCSession(h.sessionStore, r) {
+		return next, nil, http.StatusConflict, "sign in with SSO once before turning off local login"
+	}
+	p, err := h.prepareOIDCProvider(r.Context(), &next, base)
+	if err != nil {
+		return next, nil, http.StatusBadRequest, err.Error()
+	}
+	return next, p, 0, ""
 }

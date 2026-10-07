@@ -912,11 +912,12 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // UpdateAuthMethod handles PUT /api/auth/method
 func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Method                 string            `json:"method"`
-		TrustedProxies         []string          `json:"trusted_proxies"`
-		Headers                map[string]string `json:"headers"`
-		LogoutURL              string            `json:"logout_url"`
-		ForwardAuthAdminGroups []string          `json:"forward_auth_admin_groups"`
+		Method                 string               `json:"method"`
+		TrustedProxies         []string             `json:"trusted_proxies"`
+		Headers                map[string]string    `json:"headers"`
+		LogoutURL              string               `json:"logout_url"`
+		ForwardAuthAdminGroups []string             `json:"forward_auth_admin_groups"`
+		OIDC                   *oidcSettingsRequest `json:"oidc"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
@@ -945,6 +946,9 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
 		}
 
+	case "oidc":
+		authCfg = auth.AuthConfig{Method: auth.AuthMethodOIDC}
+
 	case "none":
 		authCfg = auth.AuthConfig{Method: auth.AuthMethodNone}
 
@@ -954,6 +958,20 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authCfg.BypassRules = h.bypassRules
+
+	// Validate the OIDC settings and discover the provider before taking
+	// the write lock: discovery can take seconds.
+	var nextOIDC config.OIDCConfig
+	var preparedOIDC *auth.OIDCProvider
+	if req.Method == "oidc" {
+		var status int
+		var msg string
+		nextOIDC, preparedOIDC, status, msg = h.prepareOIDCSave(r, req.OIDC)
+		if status != 0 {
+			respondError(w, r, status, msg)
+			return
+		}
+	}
 
 	// Mutate, save, then push to middleware - all under one lock
 	// scope. Two bugs the old ordering had:
@@ -977,6 +995,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		priorHeaders := h.config.Auth.Headers
 		priorLogoutURL := h.config.Auth.LogoutURL
 		priorFwAdminGroups := append([]string(nil), h.config.Auth.ForwardAuthAdminGroups...)
+		priorOIDC := copyOIDCConfig(&h.config.Auth.OIDC)
 
 		// Reads of APIKeyHash and BasePath happen here, under the
 		// lock, so a concurrent rotation can't slip a stale hash
@@ -1000,6 +1019,12 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			h.config.Auth.LogoutURL = ""
 			h.config.Auth.ForwardAuthAdminGroups = nil
 		}
+		leavingOIDC := req.Method != "oidc" && priorMethod == "oidc" && priorOIDC.Enabled
+		if req.Method == "oidc" {
+			h.config.Auth.OIDC = nextOIDC
+		} else if leavingOIDC {
+			h.config.Auth.OIDC.Enabled = false
+		}
 
 		// Persist BEFORE pushing to middleware. If Save fails the
 		// running auth method has not changed yet.
@@ -1009,7 +1034,19 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			h.config.Auth.Headers = priorHeaders
 			h.config.Auth.LogoutURL = priorLogoutURL
 			h.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+			h.config.Auth.OIDC = priorOIDC
+			if preparedOIDC != nil {
+				_ = preparedOIDC.Close()
+			}
 			return err
+		}
+		// Swap the provider while still holding the lock, so the file,
+		// the live provider and the middleware always agree. This is what
+		// startup does: a provider exists exactly when oidc.enabled is set.
+		if req.Method == "oidc" {
+			h.swapOIDCProvider(preparedOIDC)
+		} else if leavingOIDC {
+			h.swapOIDCProvider(nil)
 		}
 		h.authMiddleware.UpdateConfig(&authCfg)
 		return nil
@@ -1018,7 +1055,12 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.From(r.Context()).Info("Auth method changed", "source", "audit", "method", req.Method)
+	auditAttrs := []any{"source", "audit", "method", req.Method}
+	if req.Method == "oidc" {
+		auditAttrs = append(auditAttrs, "oidc_options", fmt.Sprintf("provider_logout=%v auto_redirect=%v disable_local_login=%v",
+			nextOIDC.ProviderLogout, nextOIDC.AutoRedirect, nextOIDC.DisableLocalLogin))
+	}
+	logging.From(r.Context()).Info("Auth method changed", auditAttrs...)
 	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"method":  req.Method,

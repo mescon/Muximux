@@ -1252,7 +1252,13 @@ func TestUpdateConfig_SwitchMethod(t *testing.T) {
 	us.LoadFromConfig([]UserConfig{{Username: "alice", PasswordHash: hash, Role: RoleAdmin}})
 	session, _ := ss.Create("alice", "alice", RoleAdmin)
 
+	if m.Method() != AuthMethodNone {
+		t.Fatalf("Method() = %q before update", m.Method())
+	}
 	m.UpdateConfig(&AuthConfig{Method: AuthMethodBuiltin})
+	if m.Method() != AuthMethodBuiltin {
+		t.Fatalf("Method() = %q after update", m.Method())
+	}
 
 	// Now without a session, should get 401
 	captured = nil
