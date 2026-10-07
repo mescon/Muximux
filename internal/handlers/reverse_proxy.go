@@ -1353,9 +1353,28 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(reg.scope.indexOf(P)!==-1)reg.unregister()})})}catch(e){}}` +
 		// Patch Worker/SharedWorker constructors so worker scripts load through the
 		// proxy. Without this, new Worker('/worker.js') loads from the Muximux origin.
+		// Workers do not run this interceptor: the proxy prepends the worker
+		// prelude to worker scripts it serves (Sec-Fetch-Dest: worker), but a
+		// worker started from a blob: URL never passes through the proxy. Read
+		// the blob's source (a synchronous same-document read of local data)
+		// and start the worker from a new blob with the prelude in front,
+		// restating "use strict" when the source's directive prologue has it
+		// (_us, the same scanner the proxy uses server-side). Any failure
+		// (revoked blob, unexpected status) falls back to the original blob,
+		// and a replacement blob whose worker failed to start is revoked.
+		// SharedWorker blobs are left alone: a fresh blob URL per construction
+		// would stop instances sharing one worker.
+		`var WP=` + r.workerPreludeJSLiteral() + `;` +
+		`var _us=` + jsUseStrictScanner + `;` +
 		`var _Wk=window.Worker;` +
-		`if(_Wk){window.Worker=function(u,o){` +
-		`if(typeof u==="string")u=R(u);else if(u instanceof URL)u=R(u.href);` +
+		`if(_Wk){var _wb=function(u,o){var b;try{var x=new XMLHttpRequest();_X.call(x,"GET",u,false);x.send();` +
+		`if(x.status!==200)return null;var s=x.responseText;` +
+		`var d=_us(s)?'"use strict";':"";` +
+		`b=URL.createObjectURL(new Blob([d,WP,"\n",s],{type:"text/javascript"}));` +
+		`var w=o!==void 0?new _Wk(b,o):new _Wk(b);setTimeout(function(){URL.revokeObjectURL(b)},60000);return w}` +
+		`catch(e){if(b)URL.revokeObjectURL(b);return null}};` +
+		`window.Worker=function(u,o){if(u instanceof URL)u=u.href;` +
+		`if(typeof u==="string"){if(u.slice(0,5)==="blob:"){var w=_wb(u,o);if(w)return w}else u=R(u)}` +
 		`return o!==void 0?new _Wk(u,o):new _Wk(u)};` +
 		`window.Worker.prototype=_Wk.prototype}` +
 		`var _SW=window.SharedWorker;` +
@@ -1614,13 +1633,7 @@ func (r *contentRewriter) injectInterceptor(content []byte, docPath string) []by
 			baseTag = []byte(`<base href="` + html.EscapeString(r.proxyPrefix+documentDir(docPath)) + `">`)
 		}
 
-		script := r.interceptorScript()
-		result := make([]byte, 0, len(content)+len(baseTag)+len(script))
-		result = append(result, content[:insertPos]...)
-		result = append(result, baseTag...)
-		result = append(result, script...)
-		result = append(result, content[insertPos:]...)
-		return result
+		return bytes.Join([][]byte{content[:insertPos], baseTag, r.interceptorScript(), content[insertPos:]}, nil)
 	}
 }
 
@@ -1799,6 +1812,15 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		rewritten = rewriter.rewrite(body)
 	} else {
 		rewritten = rewriter.rewriteScript(body)
+		if strings.Contains(lowerContentType, "javascript") {
+			// The same script URL can be loaded as a page script and as a
+			// worker; only the worker copy gets the prelude, so caches must
+			// keep the two apart.
+			resp.Header.Add("Vary", "Sec-Fetch-Dest")
+			if isWorkerScriptRequest(resp.Request) {
+				rewritten = rewriter.prependWorkerPrelude(rewritten)
+			}
+		}
 	}
 
 	// Inject runtime URL interceptor for HTML responses so SPAs that construct
