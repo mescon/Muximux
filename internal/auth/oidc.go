@@ -56,7 +56,8 @@ type OIDCProvider struct {
 	// Cleanup goroutine lifecycle. Close signals done so Close()
 	// actually stops the cleanup ticker instead of leaking the
 	// goroutine past a provider reload (findings.md M13).
-	done chan struct{}
+	done      chan struct{}
+	closeOnce sync.Once
 
 	// Cached go-oidc provider (keyset) for ID and logout token checks.
 	verifierMu sync.Mutex
@@ -781,14 +782,10 @@ func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 // Close signals the cleanup goroutine to exit. Safe to call multiple
-// times (findings.md M13).
+// times, including concurrently (findings.md M13): a shutdown that
+// overlaps a provider replacement must not close the channel twice.
 func (p *OIDCProvider) Close() error {
-	select {
-	case <-p.done:
-		// already closed
-	default:
-		close(p.done)
-	}
+	p.closeOnce.Do(func() { close(p.done) })
 	return nil
 }
 

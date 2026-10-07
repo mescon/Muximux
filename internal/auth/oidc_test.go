@@ -1023,6 +1023,24 @@ func TestClose(t *testing.T) {
 	}
 }
 
+func TestClose_Concurrent(t *testing.T) {
+	p := &OIDCProvider{done: make(chan struct{})}
+	var wg sync.WaitGroup
+	for i := 0; i < 16; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_ = p.Close()
+		}()
+	}
+	wg.Wait()
+	select {
+	case <-p.done:
+	default:
+		t.Error("done channel not closed")
+	}
+}
+
 // --- getStringClaim ---
 
 func TestGetStringClaim(t *testing.T) {
