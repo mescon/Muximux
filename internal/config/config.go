@@ -439,6 +439,20 @@ type OIDCConfig struct {
 	GroupsClaim      string   `yaml:"groups_claim"`
 	DisplayNameClaim string   `yaml:"display_name_claim"`
 	AdminGroups      []string `yaml:"admin_groups"`
+	// ProviderLogout also signs the user out at the identity provider
+	// (RP-initiated logout via end_session_endpoint or LogoutURL).
+	ProviderLogout bool `yaml:"provider_logout,omitempty"`
+	// PostLogoutRedirectURL is where the provider sends the browser after
+	// sign-out. Empty: origin of RedirectURL + base path + /login?logged_out=1.
+	// Must be registered at the provider.
+	PostLogoutRedirectURL string `yaml:"post_logout_redirect_url,omitempty"`
+	// LogoutURL overrides the discovered end_session_endpoint.
+	LogoutURL string `yaml:"logout_url,omitempty"`
+	// AutoRedirect sends the login page straight to SSO.
+	AutoRedirect bool `yaml:"auto_redirect,omitempty"`
+	// DisableLocalLogin refuses username/password sign-in while OIDC is
+	// enabled. Recovery when the provider is down: set it false here.
+	DisableLocalLogin bool `yaml:"disable_local_login,omitempty"`
 }
 
 // NavigationConfig holds navigation layout settings
@@ -857,6 +871,25 @@ func expandBracedEnv(s string) (string, []string) {
 
 // Validate is the public entry point for the same invariant
 // checks Load runs at startup. SaveConfig calls it so a bad
+// ValidateOIDC checks the OIDC logout addresses: when set they must be
+// absolute http(s) URLs, since the browser is sent to them. Exported for
+// the settings endpoint, which validates before saving.
+func ValidateOIDC(o *OIDCConfig) error {
+	for name, v := range map[string]string{
+		"auth.oidc.post_logout_redirect_url": o.PostLogoutRedirectURL,
+		"auth.oidc.logout_url":               o.LogoutURL,
+	} {
+		if v == "" {
+			continue
+		}
+		u, err := url.Parse(v)
+		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
+			return fmt.Errorf("%s must be an absolute http(s) URL", name)
+		}
+	}
+	return nil
+}
+
 // runtime mutation is rejected with a 400 before being persisted
 // rather than silently breaking the next boot.
 func (c *Config) Validate() error {
@@ -866,6 +899,9 @@ func (c *Config) Validate() error {
 // validate checks the configuration for contradictory or incomplete settings.
 func (c *Config) validate() error {
 	if err := validateBasePath(c.Server.BasePath); err != nil {
+		return err
+	}
+	if err := ValidateOIDC(&c.Auth.OIDC); err != nil {
 		return err
 	}
 	tls := c.Server.TLS
