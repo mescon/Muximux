@@ -440,15 +440,18 @@ func TestUpdateAuthMethod_OIDCLocalLoginGuard(t *testing.T) {
 	settings := map[string]interface{}{"issuer_url": idp.URL, "client_id": "c", "disable_local_login": true}
 	body := map[string]interface{}{"method": "oidc", "oidc": settings}
 
+	// OIDC configured next to builtin, SSO-only off, same identity as the request.
+	addon := fmt.Sprintf("auth:\n  method: builtin\n  oidc:\n    enabled: true\n    issuer_url: %s\n    client_id: c\n", idp.URL)
+
 	t.Run("password session turning it on", func(t *testing.T) {
-		cfg, path := loadConfigWithEnv(t, "auth:\n  method: builtin\n", nil)
+		cfg, path := loadConfigWithEnv(t, addon, nil)
 		h, _ := newOIDCSaveHandler(t, cfg, path)
 		sess, _ := h.sessionStore.Create("admin", "admin", "admin")
 		rec := putAuthMethod(h, body, sess)
 		if rec.Code != http.StatusConflict || !strings.Contains(rec.Body.String(), "sign in with SSO once before turning off local login") {
 			t.Fatalf("code=%d body=%s", rec.Code, rec.Body.String())
 		}
-		if cfg.Auth.Method != "builtin" || h.provider() != nil {
+		if cfg.Auth.Method != "builtin" || cfg.Auth.OIDC.DisableLocalLogin || h.provider() != nil {
 			t.Error("refused save changed state")
 		}
 	})
@@ -465,7 +468,7 @@ func TestUpdateAuthMethod_OIDCLocalLoginGuard(t *testing.T) {
 	})
 
 	t.Run("OIDC session turning it on", func(t *testing.T) {
-		cfg, path := loadConfigWithEnv(t, "auth:\n  method: builtin\n", nil)
+		cfg, path := loadConfigWithEnv(t, addon, nil)
 		h, _ := newOIDCSaveHandler(t, cfg, path)
 		sess, _ := h.sessionStore.CreateWithData("sso-1", "alice", "admin", map[string]interface{}{"oidc_id_token": "x"})
 		rec := putAuthMethod(h, body, sess)
@@ -639,5 +642,106 @@ func TestOIDCRedirectPolicy(t *testing.T) {
 		if c.want == "" && err != nil || c.want != "" && (err == nil || !strings.Contains(err.Error(), c.want)) {
 			t.Errorf("%s: err=%v want %q", c.name, err, c.want)
 		}
+	}
+}
+
+func TestUpdateAuthMethod_OIDCIdentityGuard(t *testing.T) {
+	idp := mockOIDCDiscoveryServer(t)
+	other := mockOIDCDiscoveryServer(t)
+	const identityMsg = "turn off SSO-only sign-in before changing the identity provider"
+	ssoOnly := fmt.Sprintf("auth:\n  method: oidc\n  oidc:\n    enabled: true\n    issuer_url: %s\n    client_id: c\n    client_secret: old\n    disable_local_login: true\n", idp.URL)
+	ssoOff := fmt.Sprintf("auth:\n  method: oidc\n  oidc:\n    enabled: true\n    issuer_url: %s\n    client_id: c\n    client_secret: old\n", idp.URL)
+	newSecret := "new"
+	cases := []struct {
+		name     string
+		yaml     string
+		settings map[string]interface{}
+		code     int
+	}{
+		{"enabling SSO-only with a new issuer", ssoOff, map[string]interface{}{"issuer_url": other.URL, "disable_local_login": true}, http.StatusConflict},
+		{"SSO-only on, client id changed", ssoOnly, map[string]interface{}{"client_id": "c2"}, http.StatusConflict},
+		{"SSO-only on, issuer changed", ssoOnly, map[string]interface{}{"issuer_url": other.URL}, http.StatusConflict},
+		{"SSO-only on, only the secret changed", ssoOnly, map[string]interface{}{"client_secret": newSecret}, http.StatusConflict},
+		{"SSO-only on, same secret retyped", ssoOnly, map[string]interface{}{"client_secret": "old", "issuer_url": " " + idp.URL + " "}, http.StatusOK},
+		{"SSO-only on, only scopes changed", ssoOnly, map[string]interface{}{"scopes": []string{"openid", "groups"}}, http.StatusOK},
+		{"SSO-only off, issuer changed", ssoOff, map[string]interface{}{"issuer_url": other.URL}, http.StatusOK},
+		{"turning SSO-only off with a new issuer", ssoOnly, map[string]interface{}{"issuer_url": other.URL, "disable_local_login": false}, http.StatusOK},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg, path := loadConfigWithEnv(t, tc.yaml, nil)
+			h, _ := newOIDCSaveHandler(t, cfg, path)
+			// Even a session that signed in through the current provider
+			// cannot vouch for a different one.
+			sess, _ := h.sessionStore.CreateWithData("sso-1", "alice", "admin", map[string]interface{}{"oidc_id_token": "x"})
+			before := readFile(t, path)
+			rec := putAuthMethod(h, map[string]interface{}{"method": "oidc", "oidc": tc.settings}, sess)
+			if rec.Code != tc.code {
+				t.Fatalf("code=%d body=%s", rec.Code, rec.Body.String())
+			}
+			if tc.code == http.StatusConflict {
+				if !strings.Contains(rec.Body.String(), identityMsg) {
+					t.Errorf("body=%s", rec.Body.String())
+				}
+				if readFile(t, path) != before || h.provider() != nil {
+					t.Error("refused save changed state")
+				}
+			}
+		})
+	}
+}
+
+func TestUpdateAuthMethod_OIDCRedirectURL(t *testing.T) {
+	idp := mockOIDCDiscoveryServer(t)
+
+	t.Run("relative callback rejected", func(t *testing.T) {
+		cfg, path := loadConfigWithEnv(t, "auth:\n  method: none\n", nil)
+		h, _ := newOIDCSaveHandler(t, cfg, path)
+		rec := putAuthMethod(h, map[string]interface{}{"method": "oidc", "oidc": map[string]string{
+			"issuer_url": idp.URL, "client_id": "c", "redirect_url": "auth/callback",
+		}}, nil)
+		if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "auth.oidc.redirect_url must be an absolute http(s) URL") {
+			t.Fatalf("code=%d body=%s", rec.Code, rec.Body.String())
+		}
+	})
+
+	t.Run("env-locked callback keeps its reference", func(t *testing.T) {
+		for _, val := range []string{"", "https://dash.example.com/api/auth/oidc/callback"} {
+			cfg, path := loadConfigWithEnv(t, fmt.Sprintf("auth:\n  method: oidc\n  oidc:\n    enabled: true\n    issuer_url: %s\n    client_id: c\n    redirect_url: ${OIDC_REDIRECT}\n", idp.URL),
+				map[string]string{"OIDC_REDIRECT": val})
+			h, _ := newOIDCSaveHandler(t, cfg, path)
+			rec := putAuthMethod(h, map[string]interface{}{"method": "oidc", "oidc": map[string]interface{}{
+				"redirect_url": "https://typed.example.com/cb", "scopes": []string{"openid"},
+			}}, nil)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("value %q: code=%d body=%s", val, rec.Code, rec.Body.String())
+			}
+			file := readFile(t, path)
+			if !strings.Contains(file, "${OIDC_REDIRECT}") || strings.Contains(file, "typed.example.com") || strings.Contains(file, "/api/auth/oidc/callback") {
+				t.Errorf("value %q: file lost the reference:\n%s", val, file)
+			}
+			if cfg.Auth.OIDC.RedirectURL != val {
+				t.Errorf("value %q: in-memory redirect = %q", val, cfg.Auth.OIDC.RedirectURL)
+			}
+		}
+	})
+}
+
+func TestOIDCChangedFields(t *testing.T) {
+	prev := config.OIDCConfig{IssuerURL: "https://a", ClientID: "c", ClientSecret: "s", Scopes: []string{"openid"}}
+	if got := oidcChangedFields(&prev, &prev); len(got) != 0 {
+		t.Errorf("no change: %v", got)
+	}
+	next := config.OIDCConfig{
+		Enabled: true, IssuerURL: "https://b", ClientID: "d", ClientSecret: "t", RedirectURL: "https://r",
+		Scopes: []string{"openid", "email"}, UsernameClaim: "u", EmailClaim: "e", GroupsClaim: "g", DisplayNameClaim: "n",
+		AdminGroups: []string{"ops"}, ProviderLogout: true, PostLogoutRedirectURL: "https://p", LogoutURL: "https://l",
+		AutoRedirect: true, DisableLocalLogin: true,
+	}
+	got := strings.Join(oidcChangedFields(&prev, &next), ",")
+	want := "enabled,issuer_url,client_id,client_secret,redirect_url,scopes,username_claim,email_claim,groups_claim," +
+		"display_name_claim,admin_groups,provider_logout,post_logout_redirect_url,logout_url,auto_redirect,disable_local_login"
+	if got != want {
+		t.Errorf("got  %s\nwant %s", got, want)
 	}
 }

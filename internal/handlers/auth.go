@@ -973,6 +973,8 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var oidcChanged []string // OIDC setting names changed by this save, for the audit log
+
 	// Mutate, save, then push to middleware - all under one lock
 	// scope. Two bugs the old ordering had:
 	//   - APIKeyHash and BasePath were read off h.config *outside*
@@ -1048,6 +1050,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		} else if leavingOIDC {
 			h.swapOIDCProvider(nil)
 		}
+		oidcChanged = oidcChangedFields(&priorOIDC, &h.config.Auth.OIDC)
 		h.authMiddleware.UpdateConfig(&authCfg)
 		return nil
 	}(); err != nil {
@@ -1059,6 +1062,9 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	if req.Method == "oidc" {
 		auditAttrs = append(auditAttrs, "oidc_options", fmt.Sprintf("provider_logout=%v auto_redirect=%v disable_local_login=%v",
 			nextOIDC.ProviderLogout, nextOIDC.AutoRedirect, nextOIDC.DisableLocalLogin))
+	}
+	if len(oidcChanged) > 0 {
+		auditAttrs = append(auditAttrs, "oidc_changed", strings.Join(oidcChanged, ","))
 	}
 	logging.From(r.Context()).Info("Auth method changed", auditAttrs...)
 	sendJSON(w, http.StatusOK, map[string]interface{}{

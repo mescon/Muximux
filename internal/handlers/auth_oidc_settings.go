@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -275,24 +276,76 @@ func (h *AuthHandler) prepareOIDCSave(r *http.Request, req *oidcSettingsRequest)
 	if next.IssuerURL == "" || next.ClientID == "" {
 		return next, nil, http.StatusBadRequest, "issuer URL and client ID are required"
 	}
-	if next.RedirectURL == "" {
+	// An env-locked redirect URL keeps its value, even an empty one, so
+	// Save can write the ${VAR} reference back.
+	if next.RedirectURL == "" && !locked["redirect_url"] {
 		next.RedirectURL = publicOrigin(r) + base + "/api/auth/oidc/callback"
 	}
 	if err := config.ValidateOIDC(&next); err != nil {
 		return next, nil, http.StatusBadRequest, err.Error()
 	}
-	// Turning off local login from a password session would lock the
-	// caller out if SSO turns out not to work for them. Only the change
-	// from on to off is guarded; re-saving an already SSO-only setup is not.
-	localLoginWasOff := cur.Enabled && cur.DisableLocalLogin
-	if next.DisableLocalLogin && !localLoginWasOff && !requestIsOIDCSession(h.sessionStore, r) {
-		return next, nil, http.StatusConflict, "sign in with SSO once before turning off local login"
+	if msg := h.localLoginGuard(r, &cur, &next); msg != "" {
+		return next, nil, http.StatusConflict, msg
 	}
 	p, err := h.prepareOIDCProvider(r.Context(), &next, base)
 	if err != nil {
 		return next, nil, http.StatusBadRequest, err.Error()
 	}
 	return next, p, 0, ""
+}
+
+// localLoginGuard refuses OIDC saves that could leave nobody able to sign
+// in. It returns the refusal message, or "" to allow the save.
+//
+// With SSO-only sign-in on afterwards, a change of issuer, client ID or
+// client secret is refused whatever the session: nothing proves a
+// provider that is not live yet works (discovery does not check the
+// client credentials). Otherwise, turning SSO-only on needs a session
+// that signed in through OIDC; re-saving while it is already on does not.
+func (h *AuthHandler) localLoginGuard(r *http.Request, cur, next *config.OIDCConfig) string {
+	ssoOnlyAfter := next.Enabled && next.DisableLocalLogin
+	if !ssoOnlyAfter {
+		return ""
+	}
+	identityChanged := strings.TrimSpace(next.IssuerURL) != strings.TrimSpace(cur.IssuerURL) ||
+		strings.TrimSpace(next.ClientID) != strings.TrimSpace(cur.ClientID) ||
+		next.ClientSecret != cur.ClientSecret
+	if identityChanged {
+		return "turn off SSO-only sign-in before changing the identity provider"
+	}
+	ssoOnlyBefore := cur.Enabled && cur.DisableLocalLogin
+	if !ssoOnlyBefore && !requestIsOIDCSession(h.sessionStore, r) {
+		return "sign in with SSO once before turning off local login"
+	}
+	return ""
+}
+
+// oidcChangedFields names the OIDC settings that differ between prev and
+// next, for the audit log. It never includes values.
+func oidcChangedFields(prev, next *config.OIDCConfig) []string {
+	var changed []string
+	add := func(name string, differs bool) {
+		if differs {
+			changed = append(changed, name)
+		}
+	}
+	add("enabled", prev.Enabled != next.Enabled)
+	add("issuer_url", prev.IssuerURL != next.IssuerURL)
+	add("client_id", prev.ClientID != next.ClientID)
+	add("client_secret", prev.ClientSecret != next.ClientSecret)
+	add("redirect_url", prev.RedirectURL != next.RedirectURL)
+	add("scopes", !slices.Equal(prev.Scopes, next.Scopes))
+	add("username_claim", prev.UsernameClaim != next.UsernameClaim)
+	add("email_claim", prev.EmailClaim != next.EmailClaim)
+	add("groups_claim", prev.GroupsClaim != next.GroupsClaim)
+	add("display_name_claim", prev.DisplayNameClaim != next.DisplayNameClaim)
+	add("admin_groups", !slices.Equal(prev.AdminGroups, next.AdminGroups))
+	add("provider_logout", prev.ProviderLogout != next.ProviderLogout)
+	add("post_logout_redirect_url", prev.PostLogoutRedirectURL != next.PostLogoutRedirectURL)
+	add("logout_url", prev.LogoutURL != next.LogoutURL)
+	add("auto_redirect", prev.AutoRedirect != next.AutoRedirect)
+	add("disable_local_login", prev.DisableLocalLogin != next.DisableLocalLogin)
+	return changed
 }
 
 // oidcRedirectPolicy limits redirects while probing an issuer: at most 10
