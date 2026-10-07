@@ -269,6 +269,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if p := h.provider(); p != nil && p.Enabled() && p.Config().DisableLocalLogin {
+		logging.From(r.Context()).Warn("Local login refused: disabled while OIDC is enabled", "source", "audit")
+		sendJSON(w, http.StatusForbidden, LoginResponse{Success: false, Message: "local login is disabled"})
+		return
+	}
+
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		sendJSON(w, http.StatusBadRequest, LoginResponse{
@@ -355,16 +361,26 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	// Get current session
 	session := h.sessionStore.GetFromRequest(r)
 	username := "unknown"
+	redirect := ""
 	if session != nil {
 		username = session.Username
+		if p := h.provider(); p != nil && p.Enabled() {
+			if u, ok := p.EndSessionURL(session); ok {
+				redirect = u
+			}
+		}
 		h.sessionStore.Delete(session.ID)
 	}
 
 	// Clear cookie
 	h.sessionStore.ClearCookie(w)
-	logging.From(r.Context()).Info("User logged out", "source", "audit", "user", username)
+	logging.From(r.Context()).Info("User logged out", "source", "audit", "user", username, "provider_logout", redirect != "")
 
-	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
+	resp := map[string]interface{}{"success": true}
+	if redirect != "" {
+		resp["redirect"] = redirect
+	}
+	sendJSON(w, http.StatusOK, resp)
 }
 
 // Me handles GET /api/auth/me - returns current user info
@@ -513,10 +529,13 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oidc := h.provider()
+	oidcOn := oidc != nil && oidc.Enabled()
 	response := map[string]interface{}{
-		"authenticated": user != nil,
-		"oidc_enabled":  oidc != nil && oidc.Enabled(),
-		"auth_method":   authMethod,
+		"authenticated":      user != nil,
+		"oidc_enabled":       oidcOn,
+		"oidc_auto_redirect": oidcOn && oidc.Config().AutoRedirect,
+		"local_login":        !oidcOn || !oidc.Config().DisableLocalLogin,
+		"auth_method":        authMethod,
 	}
 
 	if authMethod == "forward_auth" && logoutURL != "" {

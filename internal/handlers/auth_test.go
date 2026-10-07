@@ -2504,3 +2504,125 @@ func TestOIDCBackchannelLogout(t *testing.T) {
 		t.Errorf("GET: got %d, want 405", rec.Code)
 	}
 }
+
+// oidcHandlerWithDiscovery returns an AuthHandler whose OIDC provider has run
+// discovery against the mock server, plus the session store and the endpoint.
+func oidcHandlerWithDiscovery(t *testing.T, mutate func(*config.OIDCConfig)) (*AuthHandler, *auth.SessionStore, string) {
+	t.Helper()
+	store := auth.NewSessionStore("muximux_session", time.Hour, false)
+	userStore := auth.NewUserStore()
+	hash, err := auth.HashPassword("testpass123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	userStore.LoadFromConfig([]auth.UserConfig{{Username: "admin", PasswordHash: hash, Role: "admin"}})
+	h := NewAuthHandler(store, userStore, nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	if mutate != nil {
+		mutate(&cfg)
+	}
+	p := auth.NewOIDCProvider(&cfg, "", store, userStore)
+	if err := p.Discover(context.Background()); err != nil {
+		t.Fatalf("discover: %v", err)
+	}
+	h.SetOIDCProvider(p)
+	return h, store, srv.URL + "/logout"
+}
+
+func TestLogout_ProviderRedirect(t *testing.T) {
+	logout := func(t *testing.T, h *AuthHandler, store *auth.SessionStore, oidcSession bool) (map[string]interface{}, *httptest.ResponseRecorder, string) {
+		t.Helper()
+		s, err := store.Create("admin", "admin", "admin")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if oidcSession {
+			s.Data["oidc_id_token"] = "tok"
+		}
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/logout", nil)
+		req.AddCookie(&http.Cookie{Name: "muximux_session", Value: s.ID})
+		w := httptest.NewRecorder()
+		h.Logout(w, req)
+		var body map[string]interface{}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		return body, w, s.ID
+	}
+
+	t.Run("provider logout on", func(t *testing.T) {
+		h, store, endpoint := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.ProviderLogout = true })
+		body, w, id := logout(t, h, store, true)
+		red, _ := body["redirect"].(string)
+		if !strings.HasPrefix(red, endpoint) {
+			t.Errorf("redirect %q does not start with %q", red, endpoint)
+		}
+		if store.Get(id) != nil {
+			t.Error("session should be deleted")
+		}
+		if c := w.Result().Cookies(); len(c) == 0 || c[0].MaxAge >= 0 {
+			t.Error("cookie should be cleared")
+		}
+	})
+	t.Run("provider logout off", func(t *testing.T) {
+		h, store, _ := oidcHandlerWithDiscovery(t, nil)
+		body, _, id := logout(t, h, store, true)
+		if _, ok := body["redirect"]; ok {
+			t.Error("unexpected redirect")
+		}
+		if store.Get(id) != nil {
+			t.Error("session should be deleted")
+		}
+	})
+	t.Run("local session", func(t *testing.T) {
+		h, store, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.ProviderLogout = true })
+		body, _, _ := logout(t, h, store, false)
+		if _, ok := body["redirect"]; ok {
+			t.Error("unexpected redirect")
+		}
+	})
+}
+
+func TestAuthStatus_OIDCFlags(t *testing.T) {
+	get := func(h *AuthHandler) map[string]interface{} {
+		w := httptest.NewRecorder()
+		h.AuthStatus(w, httptest.NewRequest(http.MethodGet, "/api/auth/status", nil))
+		var body map[string]interface{}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		return body
+	}
+	h, _, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.AutoRedirect = true; c.DisableLocalLogin = true })
+	b := get(h)
+	if b["oidc_auto_redirect"] != true || b["local_login"] != false {
+		t.Errorf("enabled: %v", b)
+	}
+	h2, _ := setupAuthTest(t)
+	b = get(h2)
+	if b["oidc_auto_redirect"] != false || b["local_login"] != true {
+		t.Errorf("disabled: %v", b)
+	}
+}
+
+func TestLogin_LocalLoginDisabled(t *testing.T) {
+	login := func(h *AuthHandler) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", strings.NewReader(`{"username":"admin","password":"testpass123"}`))
+		w := httptest.NewRecorder()
+		h.Login(w, req)
+		return w
+	}
+	h, store, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.DisableLocalLogin = true })
+	w := login(h)
+	if w.Code != http.StatusForbidden || !strings.Contains(w.Body.String(), "local login is disabled") {
+		t.Errorf("got %d %s", w.Code, w.Body.String())
+	}
+	if len(w.Result().Cookies()) != 0 || store.Count() != 0 {
+		t.Error("no session should be created")
+	}
+	h2, _, _ := oidcHandlerWithDiscovery(t, nil)
+	if w := login(h2); w.Code != http.StatusOK {
+		t.Errorf("allowed: got %d %s", w.Code, w.Body.String())
+	}
+}
