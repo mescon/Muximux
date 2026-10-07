@@ -238,7 +238,8 @@ func TestSave_SwappedItemsDoNotCrossAssignReferences(t *testing.T) {
 	sonarr := strings.Index(s, "name: Sonarr")
 	rKey := strings.Index(s, "${RADARR_KEY}")
 	sKey := strings.Index(s, "${SONARR_KEY}")
-	if radarr < 0 || sonarr < 0 || rKey < 0 || sKey < 0 || !(radarr < rKey && rKey < sonarr && sonarr < sKey) {
+	inOrder := radarr >= 0 && radarr < rKey && rKey < sonarr && sonarr < sKey
+	if !inOrder {
 		t.Errorf("references not attached to their own items:\n%s", s)
 	}
 
