@@ -61,7 +61,7 @@ type Server struct {
 	userStore        *auth.UserStore
 	authMiddleware   *auth.Middleware
 	proxyServer      *proxy.Proxy
-	oidcProvider     *auth.OIDCProvider
+	authHandler      *handlers.AuthHandler
 	discoveryService *discovery.Service
 	discoveryPoller  *discovery.Poller
 	// rebuildProxyRoutes is the shared closure that asks the
@@ -137,10 +137,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Set up OIDC provider if configured
 	if cfg.Auth.OIDC.Enabled {
-		oidcProvider := setupOIDC(cfg, sessionStore, userStore)
-		authHandler.SetOIDCProvider(oidcProvider)
-		s.oidcProvider = oidcProvider
+		authHandler.SetOIDCProvider(setupOIDC(cfg, sessionStore, userStore))
 	}
+	s.authHandler = authHandler
 
 	// requireAdmin checks that the authenticated user has admin role.
 	// Used to protect state-changing API endpoints.
@@ -1820,8 +1819,8 @@ func (s *Server) Stop() error {
 	if s.wsHub != nil {
 		s.wsHub.Close()
 	}
-	if s.oidcProvider != nil {
-		if err := s.oidcProvider.Close(); err != nil {
+	if s.authHandler != nil {
+		if err := s.authHandler.CloseOIDC(); err != nil {
 			logging.Warn("Failed to close OIDC provider", "source", "server", "error", err)
 		}
 	}

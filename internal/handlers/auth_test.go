@@ -763,7 +763,7 @@ func TestSetOIDCProvider(t *testing.T) {
 	handler := NewAuthHandler(ss, us, nil, "", nil, &sync.RWMutex{})
 
 	// Initially nil
-	if handler.oidcProvider != nil {
+	if handler.provider() != nil {
 		t.Error("expected nil oidcProvider initially")
 	}
 
@@ -771,7 +771,7 @@ func TestSetOIDCProvider(t *testing.T) {
 	provider := &auth.OIDCProvider{}
 	handler.SetOIDCProvider(provider)
 
-	if handler.oidcProvider != provider {
+	if handler.provider() != provider {
 		t.Error("expected oidcProvider to be set")
 	}
 }
@@ -2311,4 +2311,68 @@ func TestMe_JSONExposesLifecycleFlag(t *testing.T) {
 	if v != true {
 		t.Fatalf("can_use_docker_lifecycle = %v, want true", v)
 	}
+}
+
+func mockOIDCDiscoveryServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/.well-known/openid-configuration" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"issuer": srv.URL, "authorization_endpoint": srv.URL + "/authorize",
+			"token_endpoint": srv.URL + "/token", "userinfo_endpoint": srv.URL + "/userinfo",
+			"jwks_uri": srv.URL + "/jwks", "end_session_endpoint": srv.URL + "/logout",
+		})
+	}))
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestReplaceOIDCProvider(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	good := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: good.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	if err := h.ReplaceOIDCProvider(context.Background(), &cfg, ""); err != nil {
+		t.Fatal(err)
+	}
+	first := h.provider()
+
+	bad := cfg
+	bad.IssuerURL = "http://127.0.0.1:1"
+	if err := h.ReplaceOIDCProvider(context.Background(), &bad, ""); err == nil {
+		t.Fatal("unreachable issuer accepted")
+	}
+	if h.provider() != first {
+		t.Error("failed replacement changed the provider")
+	}
+
+	off := config.OIDCConfig{Enabled: false}
+	if err := h.ReplaceOIDCProvider(context.Background(), &off, ""); err != nil || h.provider() != nil {
+		t.Errorf("disable: err=%v provider=%v", err, h.provider())
+	}
+	if err := h.CloseOIDC(); err != nil {
+		t.Errorf("CloseOIDC with no provider: %v", err)
+	}
+}
+
+func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	var wg sync.WaitGroup
+	for i := 0; i < 8; i++ {
+		wg.Add(2)
+		go func() { defer wg.Done(); _ = h.ReplaceOIDCProvider(context.Background(), &cfg, "") }()
+		go func() {
+			defer wg.Done()
+			rec := httptest.NewRecorder()
+			h.AuthStatus(rec, httptest.NewRequest(http.MethodGet, "/api/auth/status", nil))
+		}()
+	}
+	wg.Wait()
+	_ = h.CloseOIDC()
 }

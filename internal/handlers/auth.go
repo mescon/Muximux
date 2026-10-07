@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -18,6 +20,7 @@ import (
 type AuthHandler struct {
 	sessionStore          *auth.SessionStore
 	userStore             *auth.UserStore
+	oidcMu                sync.RWMutex
 	oidcProvider          *auth.OIDCProvider
 	setupChecker          func() bool
 	config                *config.Config
@@ -96,9 +99,50 @@ func (h *AuthHandler) SetBypassRules(rules []auth.BypassRule) {
 	h.bypassRules = rules
 }
 
-// SetOIDCProvider sets the OIDC provider for OIDC authentication
+// provider returns the current OIDC provider, or nil.
+func (h *AuthHandler) provider() *auth.OIDCProvider {
+	h.oidcMu.RLock()
+	defer h.oidcMu.RUnlock()
+	return h.oidcProvider
+}
+
+// SetOIDCProvider sets the OIDC provider for OIDC authentication.
 func (h *AuthHandler) SetOIDCProvider(provider *auth.OIDCProvider) {
+	h.oidcMu.Lock()
 	h.oidcProvider = provider
+	h.oidcMu.Unlock()
+}
+
+// ReplaceOIDCProvider builds a provider from cfg, checks the identity
+// provider is reachable, and swaps it in, closing the old one. A failed
+// check changes nothing. A disabled cfg removes the provider. Existing
+// sessions stay valid; logins in flight on the old provider fail with the
+// usual invalid-state error.
+func (h *AuthHandler) ReplaceOIDCProvider(ctx context.Context, cfg *config.OIDCConfig, basePath string) error {
+	var next *auth.OIDCProvider
+	if cfg.Enabled {
+		next = auth.NewOIDCProvider(cfg, basePath, h.sessionStore, h.userStore)
+		if err := next.Discover(ctx); err != nil {
+			_ = next.Close()
+			return fmt.Errorf("OIDC discovery failed: %w", err)
+		}
+	}
+	h.oidcMu.Lock()
+	old := h.oidcProvider
+	h.oidcProvider = next
+	h.oidcMu.Unlock()
+	if old != nil {
+		_ = old.Close()
+	}
+	return nil
+}
+
+// CloseOIDC stops the current provider's background work (shutdown).
+func (h *AuthHandler) CloseOIDC() error {
+	if p := h.provider(); p != nil {
+		return p.Close()
+	}
+	return nil
 }
 
 // SetSetupChecker sets the function used to check if setup is required.
@@ -468,9 +512,10 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		h.configMu.RUnlock()
 	}
 
+	oidc := h.provider()
 	response := map[string]interface{}{
 		"authenticated": user != nil,
-		"oidc_enabled":  h.oidcProvider != nil && h.oidcProvider.Enabled(),
+		"oidc_enabled":  oidc != nil && oidc.Enabled(),
 		"auth_method":   authMethod,
 	}
 
@@ -491,22 +536,24 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 // OIDCLogin handles GET /api/auth/oidc/login - redirects to OIDC provider
 func (h *AuthHandler) OIDCLogin(w http.ResponseWriter, r *http.Request) {
-	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
+	p := h.provider()
+	if p == nil || !p.Enabled() {
 		respondError(w, r, http.StatusNotFound, "OIDC not configured")
 		return
 	}
 
-	h.oidcProvider.HandleLogin(w, r)
+	p.HandleLogin(w, r)
 }
 
 // OIDCCallback handles GET /api/auth/oidc/callback - OIDC callback
 func (h *AuthHandler) OIDCCallback(w http.ResponseWriter, r *http.Request) {
-	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
+	p := h.provider()
+	if p == nil || !p.Enabled() {
 		respondError(w, r, http.StatusNotFound, "OIDC not configured")
 		return
 	}
 
-	h.oidcProvider.HandleCallback(w, r)
+	p.HandleCallback(w, r)
 }
 
 // syncUsersToConfig persists the current user store to the config file.
