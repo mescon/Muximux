@@ -107,12 +107,15 @@ describe('DiscoveryTrackedEntries', () => {
       .mockResolvedValueOnce({ entries: [], current_endpoint: 'unix:///var/run/docker.sock' });
     mockApi.detachDockerTracked.mockResolvedValue(undefined);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const ontrackingchanged = vi.fn();
 
-    render(DiscoveryTrackedEntries);
+    render(DiscoveryTrackedEntries, { ontrackingchanged });
     await waitFor(() => expect(screen.getByText('plex')).toBeInTheDocument());
     await fireEvent.click(screen.getByTestId('tracked-detach-btn'));
 
     await waitFor(() => expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('label:plex'));
+    // The parent (Settings) is told, so its copy of the app unlocks (#479).
+    expect(ontrackingchanged).toHaveBeenCalled();
     // After detach, the second listDockerTracked call drives the
     // empty-state render.
     await waitFor(() =>
@@ -134,8 +137,9 @@ describe('DiscoveryTrackedEntries', () => {
     mockApi.detachDockerTracked.mockRejectedValue(new mockApi.ApiError('Not Found', 404));
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const ontrackingchanged = vi.fn();
 
-    render(DiscoveryTrackedEntries);
+    render(DiscoveryTrackedEntries, { ontrackingchanged });
     await waitFor(() => expect(screen.getByText('plex')).toBeInTheDocument());
     await fireEvent.click(screen.getByTestId('tracked-detach-btn'));
 
@@ -143,6 +147,7 @@ describe('DiscoveryTrackedEntries', () => {
       expect(screen.getByText(/No apps or gateway sites are linked to Docker yet/i)).toBeInTheDocument(),
     );
     expect(alertSpy).not.toHaveBeenCalled();
+    expect(ontrackingchanged).toHaveBeenCalled();
     alertSpy.mockRestore();
   });
 
@@ -163,14 +168,16 @@ describe('DiscoveryTrackedEntries', () => {
     mockApi.detachDockerTracked.mockRejectedValue(new mockApi.ApiError('Internal Server Error', 500));
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const ontrackingchanged = vi.fn();
 
-    render(DiscoveryTrackedEntries);
+    render(DiscoveryTrackedEntries, { ontrackingchanged });
     await waitFor(() => expect(screen.getByText('plex')).toBeInTheDocument());
     await fireEvent.click(screen.getByTestId('tracked-detach-btn'));
 
     await waitFor(() =>
       expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/Detach failed: Internal Server Error/i)),
     );
+    expect(ontrackingchanged).not.toHaveBeenCalled();
     alertSpy.mockRestore();
   });
 

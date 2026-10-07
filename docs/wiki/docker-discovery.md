@@ -472,11 +472,13 @@ Use when: you want a public subdomain that survives container moves, and a click
 
 When an App or GatewaySite is tracked, the URL field is **read-only** in the editor with an amber lock badge. Muximux protects your edits across all three ways you might change the URL:
 
-1. **In Settings**, the URL field is locked. To change it, click **Detach** first.
+1. **In Settings**, the URL field is locked. To change it, click **Detach** under Settings → Discovery → Currently tracked. The app's URL unlocks right away in the same Settings session; saving afterwards keeps it detached.
 2. **Through the API**, if a SaveConfig request changes the URL of a tracked entry, Muximux treats that as a deliberate takeover, drops the tracking, and writes an audit log entry.
 3. **In `config.yaml` by hand**, the same thing happens at next boot: Muximux notices your URL differs from the one the poller last wrote, drops the tracking, and notes it in the log. Your edit survives the next refresh tick.
 
 The sanctioned forget path is the **Detach** button in Settings → Discovery (or `DELETE /api/discovery/docker/track/<key>` from a script).
+
+Tracking itself belongs to Muximux, not to the save payload: `docker_key`, `docker_endpoint`, `docker_strategy` and `docker_managed_url` in a SaveConfig or per-app PUT are ignored and the stored values kept. A save can detach an app by changing its URL, but it cannot attach one, re-attach a detached one, or switch it to another container. Only Discover, auto-import and **Re-link** create or change tracking.
 
 ### docker_managed_url (internal)
 

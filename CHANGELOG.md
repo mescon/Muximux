@@ -14,6 +14,13 @@ All notable changes to Muximux are documented in this file.
   forever. Workers now run a small prelude that applies the same routing --
   prepended by the proxy to worker scripts, and injected into `blob:`
   workers by the page interceptor.
+- **Detaching a Docker-tracked app now sticks.** Detach under Settings ->
+  Discovery is a server-side change, but the open Settings dialog kept its
+  own copy of the app with the old `docker_key`, and saving wrote that key
+  back -- the app was tracked again and its URL stayed locked. Saves now
+  never create or restore tracking (only Discover, auto-import and Re-link
+  do), and the dialog unlocks the app's URL as soon as it is detached.
+  (#479)
 - **Custom SVG icons that open with a comment or an SVG DOCTYPE upload.**
   Illustrator and older tools write a comment or `<!DOCTYPE svg ...>`
   ahead of the root element, and the upload sniff rejected those files as

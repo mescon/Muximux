@@ -3076,3 +3076,89 @@ func TestGetApp_ProjectsForCallerRole(t *testing.T) {
 		}
 	})
 }
+
+// saveAppsForTest PUTs a full config with the given apps through SaveConfig.
+func saveAppsForTest(t *testing.T, cfg *config.Config, apps []ClientAppConfig) {
+	t.Helper()
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+	body, _ := json.Marshal(ClientConfigUpdate{Title: "Same", Navigation: cfg.Navigation, Groups: cfg.Groups, Apps: apps})
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body)))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+}
+
+// TestSaveConfig_StaleTrackingDoesNotReattach reproduces #479: the operator
+// detaches an app under Settings -> Discovery (a server-side write), then
+// presses Save in the same Settings session. The dialog still holds the
+// app with its old docker_key, and the save used to write that key back,
+// so the app was tracked again and its URL stayed locked.
+func TestSaveConfig_StaleTrackingDoesNotReattach(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].URL = "http://10.0.0.1:8989" // detached: no tracking fields on the server
+
+	saveAppsForTest(t, cfg, []ClientAppConfig{
+		{Name: "App1", URL: "http://10.0.0.1:8989", Group: "Media", Enabled: true,
+			DockerKey: "label:sonarr", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip",
+			DockerManagedURL: "http://10.0.0.1:8989"},
+		{Name: "App2", URL: "http://localhost:8081", Group: "Tools", Enabled: true, Proxy: true},
+		{Name: "DisabledApp", URL: "http://localhost:8082", Group: "Media"},
+	})
+
+	a := cfg.Apps[0]
+	if a.DockerKey != "" || a.DockerEndpoint != "" || a.DockerStrategy != "" || a.DockerManagedURL != "" || a.DockerAutoImported {
+		t.Errorf("a stale docker_key in the save payload re-attached the detached app: %+v", a)
+	}
+}
+
+// TestSaveConfig_StaleKeyDoesNotOverrideRelink: tracking fields belong to
+// the server. A re-link that happened while the dialog was open must not be
+// undone by the dialog's older key.
+func TestSaveConfig_StaleKeyDoesNotOverrideRelink(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].URL = "http://10.0.0.1:8989"
+	cfg.Apps[0].DockerKey = "label:sonarr-new"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+	cfg.Apps[0].DockerManagedURL = "http://10.0.0.1:8989"
+
+	saveAppsForTest(t, cfg, []ClientAppConfig{
+		{Name: "App1", URL: "http://10.0.0.1:8989", Group: "Media", Enabled: true, Color: "#123456",
+			DockerKey: "label:sonarr-old", DockerEndpoint: "tcp://old:2375", DockerStrategy: "host_port"},
+		{Name: "App2", URL: "http://localhost:8081", Group: "Tools", Enabled: true, Proxy: true},
+		{Name: "DisabledApp", URL: "http://localhost:8082", Group: "Media"},
+	})
+
+	a := cfg.Apps[0]
+	if a.DockerKey != "label:sonarr-new" || a.DockerEndpoint != "unix:///var/run/docker.sock" || a.DockerStrategy != "container_ip" {
+		t.Errorf("stale client tracking overwrote the server's: %+v", a)
+	}
+	if a.Color != "#123456" {
+		t.Errorf("non-tracking edit was not applied: %+v", a)
+	}
+}
+
+// TestUpdateApp_StaleTrackingDoesNotReattach covers the per-app PUT path.
+func TestUpdateApp_StaleTrackingDoesNotReattach(t *testing.T) {
+	cfg := createTestConfig()
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+	body, _ := json.Marshal(ClientAppConfig{Name: "App1", URL: cfg.Apps[0].URL, Group: "Media", Enabled: true,
+		DockerKey: "label:sonarr", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"})
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, httptest.NewRequest(http.MethodPut, "/api/app/App1", bytes.NewReader(body)), "App1")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Apps[0].DockerKey != "" {
+		t.Errorf("per-app PUT attached an untracked app: %+v", cfg.Apps[0])
+	}
+}

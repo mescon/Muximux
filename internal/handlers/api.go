@@ -573,58 +573,47 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 }
 
 // applyDockerTrackingPreservation reconciles tracking fields between
-// an incoming PUT payload and the previously-stored app, preventing
-// silent detach via two safety nets:
+// an incoming PUT payload and the previously-stored app.
 //
-//  1. **Empty-payload preservation**: when the incoming payload
-//     omits DockerKey entirely (clientApp.DockerKey == ""), copy the
-//     existing tracking fields back. This stops a buggy frontend or
-//     scripted PUT that doesn't echo the read-only tracking fields
-//     from accidentally wiping them. The only sanctioned forget path
-//     is DELETE /api/discovery/docker/track/{key}.
+// Tracking is owned by the server. It is created only by Discovery
+// (import, auto-import, re-link) and removed by DELETE
+// /api/discovery/docker/track/{key}; a config or per-app save never
+// creates, changes or restores it. The incoming tracking fields are
+// therefore ignored and the stored ones copied over, which also covers:
 //
-//  2. **URL-change auto-detach**: when the existing app was tracked
-//     AND the incoming URL differs from existing.URL, clear all three
-//     tracking fields. The operator explicitly took manual control of
-//     the URL, so further refresh-poller writes would clobber that
-//     change every tick. The plan v4 "Manual URL edit on a docker-
-//     tracked app via SaveConfig is rejected or auto-detaches (pick:
-//     auto-detach, document)" line motivates this branch. Returns a
-//     non-empty reason string so the caller can emit one audit log
-//     entry per detached app.
+//   - a payload that omits the read-only tracking fields (a scripted
+//     PUT, or an older frontend) cannot silently detach the app, and
+//   - a payload carrying stale tracking cannot re-attach an app that was
+//     detached, or undo a re-link, while the Settings dialog was open
+//     (#479: Detach under Settings -> Discovery, then Save, re-attached
+//     the app every time).
 //
-// Other tracking fields (Strategy / Endpoint) being changed without
-// a URL change still go through, since the frontend's Re-link flow
-// is allowed to swap those without detaching.
+// The one change a save can make is the URL-change auto-detach: when the
+// stored app is tracked and the incoming URL differs from it, the
+// operator has taken manual control of the URL, so all tracking fields
+// are cleared rather than letting the refresh poller overwrite the edit
+// on its next tick. The returned reason (the former key) lets the caller
+// emit one audit entry per detached app; "" when nothing was detached.
 func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config.AppConfig) string {
-	if updated.DockerKey == "" {
-		updated.DockerKey = existing.DockerKey
-		updated.DockerEndpoint = existing.DockerEndpoint
-		updated.DockerStrategy = existing.DockerStrategy
-		updated.DockerManagedURL = existing.DockerManagedURL
-		updated.DockerAutoImported = existing.DockerAutoImported
+	updated.DockerKey = existing.DockerKey
+	updated.DockerEndpoint = existing.DockerEndpoint
+	updated.DockerStrategy = existing.DockerStrategy
+	updated.DockerManagedURL = existing.DockerManagedURL
+	updated.DockerAutoImported = existing.DockerAutoImported
+	if existing.DockerKey == "" {
 		return ""
 	}
-	if existing.DockerKey != "" && existing.URL != "" && updated.URL != existing.URL {
-		reason := existing.DockerKey
+	if existing.URL != "" && updated.URL != existing.URL {
 		updated.DockerKey = ""
 		updated.DockerEndpoint = ""
 		updated.DockerStrategy = ""
 		updated.DockerManagedURL = ""
 		updated.DockerAutoImported = false
-		return reason
+		return existing.DockerKey
 	}
-	// Tracking stays; keep DockerManagedURL in sync with the
-	// stored URL so a re-link or no-op save doesn't accidentally
-	// stale the baseline Load() compares against.
+	// Tracking stays; keep DockerManagedURL in sync with the stored URL
+	// so a no-op save doesn't stale the baseline Load() compares against.
 	updated.DockerManagedURL = updated.URL
-	// A non-URL edit keeps the app auto-managed: ClientAppConfig has no
-	// docker_auto field, so updated.DockerAutoImported arrives false on a
-	// normal UI save. Preserve the marker to mirror the YAML path, where
-	// Load() only detaches on a URL change. Managed fields are re-synced
-	// from labels under update/sync; change the URL or remove the
-	// container labels to detach.
-	updated.DockerAutoImported = existing.DockerAutoImported
 	return ""
 }
 

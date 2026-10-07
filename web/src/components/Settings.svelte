@@ -3,6 +3,7 @@
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
+  import { refreshDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
   import { focusTrap } from '$lib/focusTrap';
@@ -152,16 +153,18 @@
   untrack(() => localConfig).groups.forEach(stampGroupId);
 
   // Snapshot taken AFTER id fields are added, so hasChanges starts as false
-  const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig));
-  const initialAppsSnapshot = untrack(() => JSON.stringify(localApps));
+  // Docker tracking fields are left out: the server owns them, so a detach
+  // made while this dialog is open is not an unsaved change.
+  const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig, withoutDockerTracking));
+  const initialAppsSnapshot = untrack(() => JSON.stringify(localApps, withoutDockerTracking));
 
   // Snapshot theme so we can revert on close without save
   const initialFamily = untrack(() => get(selectedFamily));
   const initialVariant = untrack(() => get(variantMode));
 
   // Track if changes have been made
-  let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
-                  JSON.stringify(localApps) !== initialAppsSnapshot ||
+  let hasChanges = $derived(JSON.stringify(localConfig, withoutDockerTracking) !== initialConfigSnapshot ||
+                  JSON.stringify(localApps, withoutDockerTracking) !== initialAppsSnapshot ||
                   keybindingsChanged ||
                   $selectedFamily !== initialFamily ||
                   $variantMode !== initialVariant);
@@ -208,6 +211,13 @@
     // Sync a single group's apps back to localApps
     const otherApps = localApps.filter(a => (a.group || '') !== groupName && !items.find(n => n.name === a.name));
     localApps = [...otherApps, ...items];
+  }
+
+  // Detach and Re-link under Discovery change tracking on the server. Copy
+  // the server's tracking onto the local apps so a detached app's URL unlocks
+  // without reopening Settings.
+  function handleDockerTrackingChanged() {
+    void refreshDockerTracking(editingApp ? [localApps, [editingApp]] : [localApps], fetchConfig);
   }
 
   function handleSave() {
@@ -635,7 +645,7 @@
 
       <!-- Discovery (Docker auto-discovery) -->
       {:else if activeTab === 'discovery'}
-        <DiscoveryTab />
+        <DiscoveryTab ontrackingchanged={handleDockerTrackingChanged} />
 
       <!-- About -->
       {:else if activeTab === 'about'}

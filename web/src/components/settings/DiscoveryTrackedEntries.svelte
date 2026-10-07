@@ -6,7 +6,9 @@
 
   // Refresh signal: parent bumps refreshKey to force a reload after a
   // detach / re-link from elsewhere. Defaults to 0; any change reloads.
-  let { refreshKey = 0 } = $props<{ refreshKey?: number }>();
+  // ontrackingchanged tells the parent that tracking may have changed on the
+  // server (detach, re-link) so the Settings dialog can refresh its own copy.
+  let { refreshKey = 0, ontrackingchanged } = $props<{ refreshKey?: number; ontrackingchanged?: () => void }>();
 
   let result = $state<DiscoveryTrackedListResult | null>(null);
   let loading = $state(true);
@@ -40,6 +42,7 @@
     detachInFlight = entry.key;
     try {
       await detachDockerTracked(entry.key);
+      ontrackingchanged?.();
       await load();
     } catch (e) {
       // Treat 404 (already detached by a concurrent caller) as
@@ -49,6 +52,7 @@
       // backend rewrites the error copy.
       if (e instanceof ApiError && e.status === 404) {
         // idempotent re-detach; reload to refresh the panel
+        ontrackingchanged?.();
         await load();
       } else {
         alert(`Detach failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -65,6 +69,9 @@
 
   function closeRelink() {
     relinkKey = null;
+    // The modal re-links or detaches server-side; either way the parent's
+    // copy may be stale.
+    ontrackingchanged?.();
     void load(); // refresh in case re-link succeeded
   }
 
