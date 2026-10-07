@@ -340,3 +340,24 @@ func TestKeyForContainer_NameDetectsCompose(t *testing.T) {
 		})
 	}
 }
+
+func TestParseAppLabels_URL(t *testing.T) {
+	got := ParseAppLabels(map[string]string{LabelAppURL: "  https://sonarr.example.com/  "})
+	if got.URL != "https://sonarr.example.com/" {
+		t.Errorf("URL = %q, want trimmed value", got.URL)
+	}
+	for _, u := range got.Unknown {
+		if u == LabelAppURL {
+			t.Error("muximux.app.url reported as unknown")
+		}
+	}
+}
+
+func TestParseAppLabels_GatewaySkipTLSVerifyIsKnown(t *testing.T) {
+	got := ParseAppLabels(map[string]string{LabelGatewaySkipTLSVerify: "true"})
+	for _, u := range got.Unknown {
+		if u == LabelGatewaySkipTLSVerify {
+			t.Error("muximux.gateway.skip_tls_verify reported as unknown")
+		}
+	}
+}
