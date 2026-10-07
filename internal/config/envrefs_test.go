@@ -114,4 +114,67 @@ func TestSave_NoRefsForProgrammaticConfig(t *testing.T) {
 	if err := cfg.Save(path); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := Load(path); err != nil {
+		t.Fatalf("saved file does not reload: %v", err)
+	}
+}
+
+func TestLoad_FlowCollectionWithEnvRef(t *testing.T) {
+	cfg, path := loadWithEnv(t, "auth:\n  oidc: {client_secret: ${FS}}\n", map[string]string{"FS": "flowsecret"})
+	if cfg.Auth.OIDC.ClientSecret != "flowsecret" {
+		t.Fatalf("not expanded: %q", cfg.Auth.OIDC.ClientSecret)
+	}
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSave_EnvRefInItemName(t *testing.T) {
+	cfg, path := loadWithEnv(t, `apps:
+  - name: ${APP_NAME}
+    url: http://a
+    proxy_headers:
+      X-Key: ${APP_KEY}
+`, map[string]string{"APP_NAME": "Sonarr", "APP_KEY": "plainkey"})
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	out, _ := os.ReadFile(path)
+	if !strings.Contains(string(out), "${APP_KEY}") || strings.Contains(string(out), "plainkey") {
+		t.Errorf("secret reference lost:\n%s", out)
+	}
+}
+
+func TestSave_EnvRefInNonStringField(t *testing.T) {
+	cfg, path := loadWithEnv(t, "auth:\n  oidc:\n    enabled: ${OIDC_ON}\n", map[string]string{"OIDC_ON": "true"})
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	out, _ := os.ReadFile(path)
+	if !strings.Contains(string(out), "enabled: ${OIDC_ON}") || strings.Contains(string(out), "!!") {
+		t.Errorf("typed reference not clean:\n%s", out)
+	}
+}
+
+func TestSave_IdentityPlaceholderAndMissingVarStable(t *testing.T) {
+	cfg, path := loadWithEnv(t, `apps:
+  - name: A
+    url: http://a
+    proxy_headers:
+      X-User: ${user}
+      X-Missing: ${NOT_SET_ANYWHERE_XYZ}
+`, nil)
+	for i := 0; i < 2; i++ {
+		if err := cfg.Save(path); err != nil {
+			t.Fatal(err)
+		}
+		out, _ := os.ReadFile(path)
+		if !strings.Contains(string(out), "${user}") || !strings.Contains(string(out), "${NOT_SET_ANYWHERE_XYZ}") {
+			t.Fatalf("value changed on save %d:\n%s", i, out)
+		}
+		var err error
+		if cfg, err = Load(path); err != nil {
+			t.Fatal(err)
+		}
+	}
 }

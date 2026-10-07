@@ -41,7 +41,7 @@ func recordEnvRefs(raw []byte) ([]envRef, error) {
 			}
 		case yaml.SequenceNode:
 			for i, c := range n.Content {
-				walk(c, append(append([]string(nil), path...), seqKey(c, i)))
+				walk(c, append(append([]string(nil), path...), seqKey(c, i, true)))
 			}
 		case yaml.ScalarNode:
 			if strings.Contains(n.Value, "${") {
@@ -56,12 +56,17 @@ func recordEnvRefs(raw []byte) ([]envRef, error) {
 
 // seqKey names a sequence item by its identifying field so a reordered
 // list still matches.
-func seqKey(item *yaml.Node, i int) string {
+func seqKey(item *yaml.Node, i int, expand bool) string {
 	if item.Kind == yaml.MappingNode {
 		for j := 0; j+1 < len(item.Content); j += 2 {
 			switch item.Content[j].Value {
 			case "name", "username", "domain":
-				return "[" + item.Content[j].Value + "=" + item.Content[j+1].Value + "]"
+				v := item.Content[j+1].Value
+				if expand {
+					// The encoded node at save time holds expanded values.
+					v, _ = expandBracedEnv(v)
+				}
+				return "[" + item.Content[j].Value + "=" + v + "]"
 			}
 		}
 	}
@@ -91,7 +96,7 @@ func findPath(root *yaml.Node, path []string) *yaml.Node {
 		case yaml.SequenceNode:
 			var next *yaml.Node
 			for i, c := range n.Content {
-				if seqKey(c, i) == seg {
+				if seqKey(c, i, false) == seg {
 					next = c
 					break
 				}
@@ -120,10 +125,19 @@ func (c *Config) marshalWithEnvRefs() ([]byte, error) {
 	if err := root.Encode(c); err != nil {
 		return nil, err
 	}
-	for _, r := range c.envRefs {
+	// Resolve every node before rewriting any, since restoring a reference
+	// in an item's name would break the name-based matching of its siblings.
+	nodes := make([]*yaml.Node, len(c.envRefs))
+	for i, r := range c.envRefs {
 		if n := findPath(&root, r.path); n != nil && n.Value == r.expanded {
-			n.Value = r.raw
+			nodes[i] = n
+		}
+	}
+	for i, n := range nodes {
+		if n != nil {
+			n.Value = c.envRefs[i].raw
 			n.Style = 0
+			n.Tag = ""
 		}
 	}
 	return yaml.Marshal(&root)

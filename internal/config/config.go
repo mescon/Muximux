@@ -644,9 +644,11 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	// A failure here (e.g. ${VAR} inside a flow collection, which only
+	// parses after expansion) just means no references are remembered.
 	refs, err := recordEnvRefs(data)
 	if err != nil {
-		return nil, err
+		refs = nil
 	}
 
 	// Expand only ${VAR} (braced) environment variables — bare $VAR is NOT
