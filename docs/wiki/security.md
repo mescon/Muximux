@@ -66,7 +66,8 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applica
   - OIDC authentication events
   - API key authentication failures
 - **Centralized error logging** -- All HTTP error responses are logged at appropriate severity: 5xx at ERROR, 401/403 at WARN, other 4xx at DEBUG. No silent errors.
-- **OIDC back-channel logout** -- `/api/auth/oidc/backchannel-logout` accepts a provider's logout token only after checking its signature, issuer, audience, event claim, absence of a nonce, freshness (at most 10 minutes old) and a one-time `jti`, then ends the matching sessions. `${VAR}` references in `config.yaml` are kept when Settings saves the file, so secrets held in the environment are not written back in plain text.
+- **OIDC back-channel logout** -- `/api/auth/oidc/backchannel-logout` accepts a provider's logout token only after checking its signature, issuer, audience, event claim, absence of a nonce, freshness (at most 10 minutes old) and a one-time `jti`, then ends the matching sessions.
+- **Environment references kept on save** -- `${VAR}` references in `config.yaml` are kept when Settings saves the file, so secrets held in the environment are not written back in plain text. This holds when a list item (an app, user or gateway site) is renamed or reordered; only a value you change in Settings replaces its reference.
 - **Real-time log streaming** -- The built-in log viewer supports WebSocket-based live streaming with source-based filtering, so you can monitor audit events in real time.
 - **File logging** -- Logs are written to both stdout and `data/muximux.log` for persistence.
 
