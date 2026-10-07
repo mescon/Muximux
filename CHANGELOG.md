@@ -21,6 +21,9 @@ All notable changes to Muximux are documented in this file.
 - **`${VAR}` references in `config.yaml` survive saving from Settings.**
   They were written back as their expanded values, putting secrets kept in
   the environment into the file in plain text.
+- **No false "client_secret is stored in plaintext" warning** at startup
+  when `auth.oidc.client_secret` is written as `${VAR}`. The check looked
+  at the already-expanded value, so it fired for every configured secret.
 - **Auto-import no longer publishes every container on a gateway
   subdomain** when `server.tls.domain` is set. Only containers with
   `muximux.app.gateway.domain` get a gateway site; the derived default

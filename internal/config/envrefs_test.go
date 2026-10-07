@@ -277,3 +277,27 @@ func TestSave_DuplicateItemNamesKeepTheirOwnReferences(t *testing.T) {
 		t.Errorf("duplicate-name references misplaced:\n%s", s)
 	}
 }
+
+func TestOIDCClientSecretInPlaintext(t *testing.T) {
+	cases := []struct {
+		name string
+		yaml string
+		env  map[string]string
+		want bool
+	}{
+		{"env reference", "auth:\n  oidc:\n    enabled: true\n    client_secret: ${OIDC_CLIENT_SECRET}\n",
+			map[string]string{"OIDC_CLIENT_SECRET": "from-env"}, false},
+		{"literal secret", "auth:\n  oidc:\n    enabled: true\n    client_secret: literal-secret\n", nil, true},
+		{"unresolved reference", "auth:\n  oidc:\n    enabled: true\n    client_secret: ${MUXIMUX_TEST_UNSET_SECRET}\n", nil, false},
+		{"oidc disabled", "auth:\n  oidc:\n    enabled: false\n    client_secret: literal-secret\n", nil, false},
+		{"no secret", "auth:\n  oidc:\n    enabled: true\n", nil, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg, _ := loadWithEnv(t, tc.yaml, tc.env)
+			if got := cfg.OIDCClientSecretInPlaintext(); got != tc.want {
+				t.Errorf("OIDCClientSecretInPlaintext() = %v, want %v (secret %q)", got, tc.want, cfg.Auth.OIDC.ClientSecret)
+			}
+		})
+	}
+}

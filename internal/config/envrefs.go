@@ -186,3 +186,19 @@ func (c *Config) EnvRefVar(path ...string) (string, bool) {
 	}
 	return "", false
 }
+
+// OIDCClientSecretInPlaintext reports whether OIDC is enabled with a client
+// secret written literally in the loaded file. A secret written as exactly
+// "${VAR}" is recorded as a reference at load (the field itself already
+// holds the expanded value), and an unresolved "${VAR}" is left as-is, so
+// neither counts as plaintext.
+func (c *Config) OIDCClientSecretInPlaintext() bool {
+	o := &c.Auth.OIDC
+	if !o.Enabled || o.ClientSecret == "" {
+		return false
+	}
+	if _, ok := c.EnvRefVar("auth", "oidc", "client_secret"); ok {
+		return false
+	}
+	return !IsBracedEnvRef(o.ClientSecret)
+}
