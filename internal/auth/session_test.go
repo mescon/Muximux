@@ -293,6 +293,23 @@ func TestDeleteByUserID_NoExcept(t *testing.T) {
 	}
 }
 
+func TestDeleteMatching(t *testing.T) {
+	store := NewSessionStore("muximux_session", time.Hour, false)
+	defer store.Close()
+	a, _ := store.Create("alice", "alice", "user")
+	a2, _ := store.Create("alice", "alice", "user")
+	b, _ := store.Create("bob", "bob", "user")
+	for _, s := range []*Session{a, a2} {
+		s.Data["oidc_sub"] = "sub-alice"
+	}
+	b.Data["oidc_sub"] = "sub-bob"
+
+	n := store.DeleteMatching(func(s *Session) bool { return s.Data["oidc_sub"] == "sub-alice" })
+	if n != 2 || store.Get(a.ID) != nil || store.Get(a2.ID) != nil || store.Get(b.ID) == nil {
+		t.Errorf("deleted %d; alice=%v,%v bob=%v", n, store.Get(a.ID), store.Get(a2.ID), store.Get(b.ID))
+	}
+}
+
 // --- GetFromRequest ---
 
 func TestGetFromRequest(t *testing.T) {

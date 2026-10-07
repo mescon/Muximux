@@ -149,6 +149,22 @@ func (s *SessionStore) DeleteByUserID(userID string, exceptSessionID string) {
 	}
 }
 
+// DeleteMatching removes every session for which match returns true and
+// reports how many were removed. match runs under the store's lock and
+// must not call back into the store.
+func (s *SessionStore) DeleteMatching(match func(*Session) bool) int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	n := 0
+	for id, session := range s.sessions {
+		if match(session) {
+			delete(s.sessions, id)
+			n++
+		}
+	}
+	return n
+}
+
 // Refresh extends the session expiration. The extension is capped by the
 // store's absolute maximum lifetime (CreatedAt + absoluteMaxAge), so an
 // attacker who steals an active cookie cannot keep it alive forever just
