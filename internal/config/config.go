@@ -44,6 +44,10 @@ type Config struct {
 	// is initialised) surface the list via Warn so a missing env var
 	// doesn't silently leave a literal ${VAR} in a config field.
 	MissingEnvVars []string `yaml:"-" json:"-"`
+
+	// envRefs records scalars written as ${VAR} references in the loaded
+	// file so Save can write them back. Unexported, so YAML ignores it.
+	envRefs []envRef
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -640,6 +644,11 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	refs, err := recordEnvRefs(data)
+	if err != nil {
+		return nil, err
+	}
+
 	// Expand only ${VAR} (braced) environment variables — bare $VAR is NOT
 	// expanded because bcrypt hashes like $2a$10$... would be corrupted.
 	// The list of unresolved names is surfaced through MissingEnvVars
@@ -659,6 +668,7 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 	cfg.MissingEnvVars = missingEnv
+	cfg.envRefs = refs
 
 	// Normalize zero-value fields that have non-zero defaults
 	if cfg.Navigation.IconScale <= 0 {
@@ -1620,7 +1630,7 @@ func (c *Config) Save(path string) error {
 			return err
 		}
 	}
-	data, err := yaml.Marshal(c)
+	data, err := c.marshalWithEnvRefs()
 	if err != nil {
 		return err
 	}
