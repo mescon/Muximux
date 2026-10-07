@@ -563,3 +563,15 @@ func TestSameManagedFields(t *testing.T) {
 
 func boolPtr(b bool) *bool { return &b }
 func intPtr(i int) *int    { return &i }
+
+func TestBuildDesired_GatewayBackendExcludesPath(t *testing.T) {
+	sug := Suggestion{
+		Key: "label:x", Name: "X", URL: "http://h:1/web", BackendURL: "http://h:1",
+		SuggestedDomain: "x.example.com", GatewayRequested: true,
+		EffectiveStrategy: config.StrategyContainerIP,
+	}
+	d := BuildDesired(&sug, "unix:///var/run/docker.sock")
+	if d.Site == nil || d.Site.BackendURL != "http://h:1" || d.Site.DockerManagedURL != "http://h:1" {
+		t.Errorf("site = %+v", d.Site)
+	}
+}

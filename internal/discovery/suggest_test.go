@@ -358,6 +358,11 @@ func TestSuggest_FixedURL_NoPortStillUsable(t *testing.T) {
 	if s.URL != "https://x.example.com" || s.RequiresInput || s.HealthURL != "" {
 		t.Errorf("URL=%q requiresInput=%v health=%q", s.URL, s.RequiresInput, s.HealthURL)
 	}
+	for _, n := range s.Notes {
+		if n == noteNoPort || strings.HasPrefix(n, noteCannotBuildURL) {
+			t.Errorf("stale note remains: %q", n)
+		}
+	}
 }
 
 func TestSuggest_PathAppliedToContainerURL(t *testing.T) {
@@ -402,4 +407,33 @@ func containsNote(notes []string, want string) bool {
 		}
 	}
 	return false
+}
+
+func TestSuggest_PathKeptOutOfBackendURL(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppPath: "/web"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.URL != "http://10.0.0.5:8989/web" || s.BackendURL != "http://10.0.0.5:8989" {
+		t.Errorf("URL=%q backend=%q", s.URL, s.BackendURL)
+	}
+}
+
+func TestSuggest_CatalogPathApplied(t *testing.T) {
+	c := sonarrContainer()
+	c.Image = "pihole/pihole"
+	c.Ports = []ContainerPort{{PrivatePort: 80, Type: "tcp"}}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.URL != "http://10.0.0.5:80/admin" {
+		t.Errorf("URL = %q", s.URL)
+	}
+}
+
+func TestApplyFixedURL_KeepsCatalogHealth(t *testing.T) {
+	s := Suggestion{URL: "http://10.0.0.5:8989"}
+	catalog := CatalogEntry{HealthURL: "/ping"}
+	resolveSuggestionHealthURL(&s, &AppLabels{}, &catalog, true)
+	applyFixedURL(&s, &AppLabels{URL: "https://x.example.com"})
+	if s.HealthURL != "http://10.0.0.5:8989/ping" || s.URL != "https://x.example.com" {
+		t.Errorf("URL=%q health=%q", s.URL, s.HealthURL)
+	}
 }

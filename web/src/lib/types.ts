@@ -408,6 +408,7 @@ export interface DiscoverySuggestion {
   icon?: string;
   group?: string;
   url: string;
+  backend_url?: string;
   health_url?: string;
   effective_strategy: string;
   container_id: string;

@@ -90,7 +90,15 @@ type Suggestion struct {
 	// default meant to pre-fill the import modal; auto-import must not
 	// treat that as a request for a gateway site.
 	GatewayRequested bool `json:"gateway_requested,omitempty"`
+	// BackendURL is the container URL without any sub-path. Gateway sites
+	// forward to it; the path only applies to the app URL.
+	BackendURL string `json:"backend_url,omitempty"`
 }
+
+const (
+	noteNoPort         = "No port exposed and no muximux.app.port label set"
+	noteCannotBuildURL = "Cannot build URL: "
+)
 
 // SuggestedGatewayConfig carries muximux.gateway.* label values
 // through the scan/import flow. Present only when at least one
@@ -213,7 +221,7 @@ func resolveSuggestionPort(s *Suggestion, labels *AppLabels, catalog *CatalogEnt
 	}
 	if port == 0 {
 		s.RequiresInput = true
-		s.Notes = append(s.Notes, "No port exposed and no muximux.app.port label set")
+		s.Notes = append(s.Notes, noteNoPort)
 	}
 	return port
 }
@@ -258,9 +266,10 @@ func buildSuggestionURL(s *Suggestion, c *ContainerSummary, port int, strategy, 
 	urlStr, err := buildURLForSuggestion(strategy, c, port, scheme, hostIP)
 	if err != nil {
 		s.RequiresInput = true
-		s.Notes = append(s.Notes, fmt.Sprintf("Cannot build URL: %s", err.Error()))
+		s.Notes = append(s.Notes, noteCannotBuildURL+err.Error())
 		return
 	}
+	s.BackendURL = urlStr
 	s.URL = withPath(urlStr, path)
 }
 
@@ -311,6 +320,15 @@ func applyFixedURL(s *Suggestion, labels *AppLabels) {
 	s.URL = fixed
 	s.FixedURL = true
 	s.RequiresInput = false
+	// The fixed URL makes the missing-port and URL-build failures moot.
+	kept := s.Notes[:0]
+	for _, n := range s.Notes {
+		if n == noteNoPort || strings.HasPrefix(n, noteCannotBuildURL) {
+			continue
+		}
+		kept = append(kept, n)
+	}
+	s.Notes = kept
 }
 
 // applyLabelOverrides copies every label-derived AppLabels field

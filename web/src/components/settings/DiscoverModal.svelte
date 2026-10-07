@@ -192,7 +192,7 @@
             // any muximux.gateway.* labels the operator set.
             const gw: GatewaySite = {
               domain: r.gatewayDomain.trim(),
-              backend_url: r.s.url,
+              backend_url: r.s.backend_url || r.s.url,
               tls: r.s.suggested_gateway?.tls ?? 'auto',
             };
             const sg = r.s.suggested_gateway;

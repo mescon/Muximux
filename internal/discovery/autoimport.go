@@ -107,15 +107,20 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 // pointing at the container URL, the muximux.gateway.* fields copied
 // through, and the tracking + clean-detach baseline stamped.
 func buildGatewaySite(sug *Suggestion, endpoint string) *config.GatewaySite {
+	// The label/catalog path applies to the app URL only, never the backend.
+	backend := sug.URL
+	if sug.BackendURL != "" {
+		backend = sug.BackendURL
+	}
 	site := config.GatewaySite{
 		Domain:     sug.SuggestedDomain,
-		BackendURL: sug.URL,
+		BackendURL: backend,
 		// Tracking. BackendURL is the URL the reconciler refreshes, so
 		// it is also the clean-detach baseline.
 		DockerKey:        sug.Key,
 		DockerEndpoint:   endpoint,
 		DockerStrategy:   string(sug.EffectiveStrategy),
-		DockerManagedURL: sug.URL,
+		DockerManagedURL: backend,
 	}
 	if gw := sug.SuggestedGateway; gw != nil {
 		site.TLS = config.TLSMode(gw.TLS)
