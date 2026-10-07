@@ -81,6 +81,15 @@ type Suggestion struct {
 	// muximux.gateway.* namespace.
 	SuggestedDomain  string                  `json:"suggested_domain,omitempty"`
 	SuggestedGateway *SuggestedGatewayConfig `json:"suggested_gateway,omitempty"`
+
+	// FixedURL is true when URL came from muximux.app.url rather than
+	// from the container. HealthURL then carries the container address.
+	FixedURL bool `json:"fixed_url,omitempty"`
+	// GatewayRequested is true only when the container carries
+	// muximux.app.gateway.domain. SuggestedDomain may also hold a derived
+	// default meant to pre-fill the import modal; auto-import must not
+	// treat that as a request for a gateway site.
+	GatewayRequested bool `json:"gateway_requested,omitempty"`
 }
 
 // SuggestedGatewayConfig carries muximux.gateway.* label values
@@ -137,9 +146,11 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	scheme := resolveSuggestionScheme(&labels, &catalog, hasCatalog)
 	strategy := resolveSuggestionStrategy(&s, globalStrategy, &catalog, hasCatalog)
 	s.EffectiveStrategy = strategy
-	buildSuggestionURL(&s, c, port, string(strategy), scheme, hostIP)
+	path := resolveSuggestionPath(&labels, &catalog, hasCatalog)
+	buildSuggestionURL(&s, c, port, string(strategy), scheme, hostIP, path)
 	resolveSuggestionHealthURL(&s, &labels, &catalog, hasCatalog)
 	resolveSuggestionGatewayDomain(&s, &labels, dashboardDomain, c)
+	applyFixedURL(&s, &labels)
 	applyLabelOverrides(&s, &labels)
 	attachGatewayLabels(&s, c.Labels)
 	surfaceUnknownLabels(&s, &labels)
@@ -225,10 +236,22 @@ func resolveSuggestionStrategy(s *Suggestion, globalStrategy config.NetworkStrat
 	return globalStrategy
 }
 
+// resolveSuggestionPath picks the sub-path for the container URL:
+// label > catalog > none.
+func resolveSuggestionPath(labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) string {
+	if labels.Path != "" {
+		return labels.Path
+	}
+	if hasCatalog {
+		return catalog.Path
+	}
+	return ""
+}
+
 // buildSuggestionURL writes s.URL when a usable URL can be built and
 // records a diagnostic note in the failure case. No-op when port is 0
 // (the port resolver already wrote RequiresInput in that case).
-func buildSuggestionURL(s *Suggestion, c *ContainerSummary, port int, strategy, scheme, hostIP string) {
+func buildSuggestionURL(s *Suggestion, c *ContainerSummary, port int, strategy, scheme, hostIP, path string) {
 	if port == 0 {
 		return
 	}
@@ -238,15 +261,15 @@ func buildSuggestionURL(s *Suggestion, c *ContainerSummary, port int, strategy, 
 		s.Notes = append(s.Notes, fmt.Sprintf("Cannot build URL: %s", err.Error()))
 		return
 	}
-	s.URL = urlStr
+	s.URL = withPath(urlStr, path)
 }
 
 func resolveSuggestionHealthURL(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) {
 	switch {
 	case labels.Health != "":
-		s.HealthURL = labels.Health
+		s.HealthURL = resolveHealth(s.URL, labels.Health)
 	case hasCatalog && catalog.HealthURL != "":
-		s.HealthURL = catalog.HealthURL
+		s.HealthURL = resolveHealth(s.URL, catalog.HealthURL)
 	}
 }
 
@@ -258,9 +281,36 @@ func resolveSuggestionGatewayDomain(s *Suggestion, labels *AppLabels, dashboardD
 	switch {
 	case labels.GatewayDomain != "":
 		s.SuggestedDomain = labels.GatewayDomain
+		s.GatewayRequested = true
 	case dashboardDomain != "" && c.PrimaryName() != "":
 		s.SuggestedDomain = sanitiseSubdomain(c.PrimaryName()) + "." + dashboardDomain
 	}
+}
+
+// applyFixedURL applies muximux.app.url. Runs after the container URL
+// and health address are built: the container URL becomes the default
+// health address, and the label URL becomes the app URL. A gateway label
+// wins (the gateway site fronts the container URL), and an invalid value
+// is ignored with a note.
+func applyFixedURL(s *Suggestion, labels *AppLabels) {
+	if labels.URL == "" {
+		return
+	}
+	fixed, ok := parseFixedURL(labels.URL)
+	if !ok {
+		s.Notes = append(s.Notes, "muximux.app.url ignored: must be an absolute http(s) URL")
+		return
+	}
+	if labels.GatewayDomain != "" {
+		s.Notes = append(s.Notes, "muximux.app.url ignored because muximux.app.gateway.domain is set")
+		return
+	}
+	if labels.Health == "" && s.HealthURL == "" {
+		s.HealthURL = s.URL
+	}
+	s.URL = fixed
+	s.FixedURL = true
+	s.RequiresInput = false
 }
 
 // applyLabelOverrides copies every label-derived AppLabels field

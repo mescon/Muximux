@@ -294,3 +294,112 @@ func TestSuggest_ContainerNameFallback_DoesNotOverrideImageMatch(t *testing.T) {
 		t.Errorf("Name = %q, want Sonarr (image wins over name)", s.Name)
 	}
 }
+
+func TestSuggest_FixedURL(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppURL: "https://sonarr.example.com"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.URL != "https://sonarr.example.com" || !s.FixedURL {
+		t.Fatalf("URL = %q fixed=%v, want the label URL", s.URL, s.FixedURL)
+	}
+	if s.HealthURL != "http://10.0.0.5:8989" {
+		t.Errorf("HealthURL = %q, want the container URL", s.HealthURL)
+	}
+}
+
+func TestSuggest_FixedURL_RelativeHealthResolvedAgainstContainer(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppURL: "https://sonarr.example.com", LabelAppHealth: "/ping"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.HealthURL != "http://10.0.0.5:8989/ping" {
+		t.Errorf("HealthURL = %q", s.HealthURL)
+	}
+}
+
+func TestSuggest_FixedURL_AbsoluteHealthKept(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppURL: "https://sonarr.example.com", LabelAppHealth: "https://status.example.com/s"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.HealthURL != "https://status.example.com/s" {
+		t.Errorf("HealthURL = %q", s.HealthURL)
+	}
+}
+
+func TestSuggest_FixedURL_Invalid(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppURL: "sonarr.example.com"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.FixedURL || s.URL != "http://10.0.0.5:8989" {
+		t.Errorf("invalid label must be ignored: URL=%q fixed=%v", s.URL, s.FixedURL)
+	}
+	if !containsNote(s.Notes, "muximux.app.url ignored: must be an absolute http(s) URL") {
+		t.Errorf("notes = %q", s.Notes)
+	}
+}
+
+func TestSuggest_FixedURL_GatewayWins(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppURL: "https://sonarr.example.com", LabelAppGatewayDomain: "sonarr.dash.example.com"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.FixedURL || s.URL != "http://10.0.0.5:8989" || !s.GatewayRequested {
+		t.Errorf("gateway must win: URL=%q fixed=%v gateway=%v", s.URL, s.FixedURL, s.GatewayRequested)
+	}
+	if !containsNote(s.Notes, "muximux.app.url ignored because muximux.app.gateway.domain is set") {
+		t.Errorf("notes = %q", s.Notes)
+	}
+}
+
+func TestSuggest_FixedURL_NoPortStillUsable(t *testing.T) {
+	c := sonarrContainer()
+	c.Image = "example/unknown"
+	c.Ports = nil
+	c.Labels = map[string]string{LabelAppEnabled: "true", LabelAppURL: "https://x.example.com"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.URL != "https://x.example.com" || s.RequiresInput || s.HealthURL != "" {
+		t.Errorf("URL=%q requiresInput=%v health=%q", s.URL, s.RequiresInput, s.HealthURL)
+	}
+}
+
+func TestSuggest_PathAppliedToContainerURL(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppPath: "/web"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.URL != "http://10.0.0.5:8989/web" {
+		t.Errorf("URL = %q", s.URL)
+	}
+}
+
+func TestSuggest_PathNotAppliedToFixedURL(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppPath: "/web", LabelAppURL: "https://sonarr.example.com"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.URL != "https://sonarr.example.com" || s.HealthURL != "http://10.0.0.5:8989/web" {
+		t.Errorf("URL=%q health=%q", s.URL, s.HealthURL)
+	}
+}
+
+func TestSuggest_RelativeHealthResolved(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{LabelAppHealth: "/api/v3/health"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.HealthURL != "http://10.0.0.5:8989/api/v3/health" {
+		t.Errorf("HealthURL = %q", s.HealthURL)
+	}
+}
+
+func TestSuggest_DefaultDomainIsNotAGatewayRequest(t *testing.T) {
+	c := sonarrContainer()
+	s := suggestForContainer(&c, "container_ip", "", "dash.example.com")
+	if s.SuggestedDomain != "sonarr.dash.example.com" || s.GatewayRequested {
+		t.Errorf("domain=%q requested=%v; default domain only pre-fills the modal", s.SuggestedDomain, s.GatewayRequested)
+	}
+}
+
+func containsNote(notes []string, want string) bool {
+	for _, n := range notes {
+		if n == want {
+			return true
+		}
+	}
+	return false
+}
