@@ -513,3 +513,29 @@ func TestRefresh_CappedByAbsoluteMaxAge(t *testing.T) {
 		t.Errorf("refresh exceeded absolute cap: ttl=%v", ttl)
 	}
 }
+
+func TestSessionStore_CreateWithData(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+	defer store.Close()
+
+	in := map[string]interface{}{"oidc_sub": "alice", "groups": []string{"a"}}
+	s, err := store.CreateWithData("alice", "alice", RoleUser, in)
+	if err != nil {
+		t.Fatalf("CreateWithData: %v", err)
+	}
+	got := store.Get(s.ID)
+	if got == nil || got.Data["oidc_sub"] != "alice" {
+		t.Fatalf("stored data = %v", got)
+	}
+	// The caller's map is copied, so later writes to it do not reach
+	// the published session.
+	in["oidc_sub"] = "mallory"
+	if store.Get(s.ID).Data["oidc_sub"] != "alice" {
+		t.Error("session data shares the caller's map")
+	}
+
+	empty, err := store.CreateWithData("bob", "bob", RoleUser, nil)
+	if err != nil || empty.Data == nil || len(empty.Data) != 0 {
+		t.Errorf("nil data: session=%+v err=%v", empty, err)
+	}
+}

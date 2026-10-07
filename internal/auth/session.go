@@ -94,9 +94,23 @@ func generateSessionID() (string, error) {
 
 // Create creates a new session for a user
 func (s *SessionStore) Create(userID, username, role string) (*Session, error) {
+	return s.CreateWithData(userID, username, role, nil)
+}
+
+// CreateWithData creates a new session whose Data already holds the given
+// entries. The map is copied before the session is published, so other
+// goroutines that walk the store (DeleteMatching) never see a session
+// whose Data is still being filled in. Callers must not write to the
+// returned session's Data afterwards.
+func (s *SessionStore) CreateWithData(userID, username, role string, data map[string]interface{}) (*Session, error) {
 	id, err := generateSessionID()
 	if err != nil {
 		return nil, err
+	}
+
+	sessionData := make(map[string]interface{}, len(data))
+	for k, v := range data {
+		sessionData[k] = v
 	}
 
 	session := &Session{
@@ -106,7 +120,7 @@ func (s *SessionStore) Create(userID, username, role string) (*Session, error) {
 		Role:      role,
 		CreatedAt: time.Now(),
 		ExpiresAt: time.Now().Add(s.maxAge),
-		Data:      make(map[string]interface{}),
+		Data:      sessionData,
 	}
 
 	s.mu.Lock()

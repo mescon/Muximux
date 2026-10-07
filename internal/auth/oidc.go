@@ -396,31 +396,35 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		Groups:      groups,
 	}
 
-	// Create session
-	session, err := p.sessionStore.Create(user.ID, user.Username, user.Role)
-	if err != nil {
-		logging.From(r.Context()).Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
-		http.Error(w, "Failed to create session", http.StatusInternalServerError)
-		return
+	// OIDC claims live in session data so the auth middleware can
+	// reconstruct the full User without a UserStore lookup (OIDC users
+	// are session-only, not persisted to the config-based store). The
+	// map is complete before the session is published so a concurrent
+	// back-channel sweep never reads it mid-write.
+	data := map[string]interface{}{
+		"email":        email,
+		"display_name": displayName,
+		// Kept server-side for RP-initiated logout (id_token_hint) and
+		// for matching back-channel logout tokens. Never sent to the client.
+		"oidc_id_token": tokens.IDToken,
+		"oidc_sub":      idToken.Subject,
+		"oidc_iss":      idToken.Issuer,
 	}
-
-	// Store OIDC claims in session data so the auth middleware can
-	// reconstruct the full User without a UserStore lookup (OIDC
-	// users are session-only, not persisted to the config-based store).
-	session.Data["email"] = email
-	session.Data["display_name"] = displayName
-	// Kept server-side for RP-initiated logout (id_token_hint) and for
-	// matching back-channel logout tokens. Never sent to the client.
-	session.Data["oidc_id_token"] = tokens.IDToken
-	session.Data["oidc_sub"] = idToken.Subject
-	session.Data["oidc_iss"] = idToken.Issuer
 	if sid := getStringClaim(idClaims, "sid"); sid != "" {
-		session.Data["oidc_sid"] = sid
+		data["oidc_sid"] = sid
 	}
 	if len(groups) > 0 {
 		// Stored as a slice on the session map; the middleware reads it
 		// back into User.Groups so per-app allowed_groups checks work.
-		session.Data["groups"] = groups
+		data["groups"] = groups
+	}
+
+	// Create session
+	session, err := p.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
+	if err != nil {
+		logging.From(r.Context()).Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
+		http.Error(w, "Failed to create session", http.StatusInternalServerError)
+		return
 	}
 
 	// Set session cookie

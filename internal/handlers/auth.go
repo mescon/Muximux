@@ -320,8 +320,20 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Carry the user's group memberships on the session so gateway sites
+	// with an allowed_groups gate accept builtin users. The gateway
+	// forward-auth check (sessionInAllowedGroups) reads groups from
+	// session.Data, which the OIDC path populates too; without this a
+	// builtin member of an allowed group is denied at a require_auth gate.
+	// The data goes in at creation so the session is never published
+	// half-built.
+	var data map[string]interface{}
+	if len(user.Groups) > 0 {
+		data = map[string]interface{}{"groups": user.Groups}
+	}
+
 	// Create session
-	session, err := h.sessionStore.Create(user.ID, user.Username, user.Role)
+	session, err := h.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
 		sendJSON(w, http.StatusInternalServerError, LoginResponse{
@@ -329,15 +341,6 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Message: "Failed to create session",
 		})
 		return
-	}
-
-	// Carry the user's group memberships on the session so gateway sites
-	// with an allowed_groups gate accept builtin users. The gateway
-	// forward-auth check (sessionInAllowedGroups) reads groups from
-	// session.Data, which the OIDC path populates too; without this a
-	// builtin member of an allowed group is denied at a require_auth gate.
-	if len(user.Groups) > 0 {
-		session.Data["groups"] = user.Groups
 	}
 
 	// Set session cookie

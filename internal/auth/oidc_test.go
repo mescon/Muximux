@@ -684,7 +684,7 @@ func TestHandleCallback_Success(t *testing.T) {
 		"name":               "OIDC User",
 		"groups":             []interface{}{"users", "admin-group"},
 	}
-	srv := mockOIDCServer(t, userinfo)
+	srv := mockOIDCServerWithIDClaims(t, userinfo, map[string]interface{}{"sid": "idp-session-1"})
 	defer srv.Close()
 
 	p, ss := newTestOIDCProvider(t, srv.URL)
@@ -749,6 +749,12 @@ func TestHandleCallback_Success(t *testing.T) {
 	}
 	if tok, _ := sess.Data["oidc_id_token"].(string); tok == "" {
 		t.Error("expected oidc_id_token to be stored")
+	}
+	if sess.Data["oidc_sid"] != "idp-session-1" {
+		t.Errorf("oidc_sid = %v, want idp-session-1", sess.Data["oidc_sid"])
+	}
+	if sess.Data["email"] != "oidc@example.com" || sess.Data["display_name"] != "OIDC User" {
+		t.Errorf("profile data = %v / %v", sess.Data["email"], sess.Data["display_name"])
 	}
 
 	// State should be consumed
@@ -1662,4 +1668,65 @@ func requestWithCookies(cookies []*http.Cookie) *http.Request {
 		r.AddCookie(c)
 	}
 	return r
+}
+
+// TestHandleCallback_ConcurrentBackchannelNoRace runs callback logins
+// while a back-channel sweep reads every session's Data. A session must
+// be complete before the store publishes it, or -race reports the
+// callback's Data writes against DeleteMatching's reads.
+func TestHandleCallback_ConcurrentBackchannelNoRace(t *testing.T) {
+	userinfo := map[string]interface{}{
+		"sub":                "user-race",
+		"preferred_username": "raceuser",
+		"groups":             []interface{}{"users"},
+	}
+	srv := mockOIDCServer(t, userinfo)
+	defer srv.Close()
+
+	p, ss := newTestOIDCProvider(t, srv.URL)
+	if err := p.loadDiscovery(context.Background()); err != nil {
+		t.Fatalf("loadDiscovery failed: %v", err)
+	}
+
+	const logins = 20
+	p.statesMu.Lock()
+	for i := 0; i < logins; i++ {
+		p.states[fmt.Sprintf("race-state-%d", i)] = stateEntry{createdAt: time.Now(), redirectURL: "/"}
+	}
+	p.statesMu.Unlock()
+
+	stop := make(chan struct{})
+	swept := make(chan struct{})
+	go func() {
+		defer close(swept)
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+				p.EndSessions("nobody", "")
+			}
+		}
+	}()
+
+	var wg sync.WaitGroup
+	for i := 0; i < logins; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/auth/oidc/callback?code=c&state=race-state-%d", i), nil)
+			rec := httptest.NewRecorder()
+			p.HandleCallback(rec, req)
+			if rec.Code != http.StatusFound {
+				t.Errorf("callback %d: status %d: %s", i, rec.Code, rec.Body.String())
+			}
+		}(i)
+	}
+	wg.Wait()
+	close(stop)
+	<-swept
+
+	if n := ss.Count(); n != logins {
+		t.Errorf("sessions = %d, want %d", n, logins)
+	}
 }
