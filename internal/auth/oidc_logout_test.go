@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -45,7 +48,7 @@ func newTestProvider(t *testing.T, issuer string, mutate func(*config.OIDCConfig
 	if mutate != nil {
 		mutate(&cfg)
 	}
-	p := NewOIDCProvider(&cfg, "/mx", NewSessionStore("muximux_session", 0, false), nil)
+	p := NewOIDCProvider(&cfg, "/mx", NewSessionStore("muximux_session", time.Hour, false), nil)
 	t.Cleanup(func() { _ = p.Close() })
 	return p
 }
@@ -121,4 +124,107 @@ func TestEndSessionURL(t *testing.T) {
 			t.Error("no endpoint must mean no redirect")
 		}
 	})
+}
+
+const backchannelEvent = "http://schemas.openid.net/event/backchannel-logout"
+
+func logoutClaims(iss string) map[string]interface{} {
+	return map[string]interface{}{
+		"iss": iss, "aud": "muximux", "iat": time.Now().Unix(), "jti": randomJTI(),
+		"sub": "u1", "sid": "sid-1",
+		"events": map[string]interface{}{backchannelEvent: map[string]interface{}{}},
+	}
+}
+
+var jtiCounter int64
+
+func randomJTI() string { return "jti-" + strconv.FormatInt(atomic.AddInt64(&jtiCounter, 1), 10) }
+
+func TestVerifyLogoutToken(t *testing.T) {
+	idp := mockIDP(t, nil)
+	p := newTestProvider(t, idp.URL, nil)
+	ctx := context.Background()
+
+	sub, sid, err := p.VerifyLogoutToken(ctx, signTestIDToken(t, logoutClaims(idp.URL)))
+	if err != nil || sub != "u1" || sid != "sid-1" {
+		t.Fatalf("valid token: %q %q %v", sub, sid, err)
+	}
+
+	bad := map[string]func(c map[string]interface{}){
+		"wrong issuer":   func(c map[string]interface{}) { c["iss"] = "https://other" },
+		"wrong audience": func(c map[string]interface{}) { c["aud"] = "someone-else" },
+		"missing event":  func(c map[string]interface{}) { c["events"] = map[string]interface{}{} },
+		"nonce present":  func(c map[string]interface{}) { c["nonce"] = "n" },
+		"no sub or sid":  func(c map[string]interface{}) { delete(c, "sub"); delete(c, "sid") },
+		"no jti":         func(c map[string]interface{}) { delete(c, "jti") },
+		"no iat":         func(c map[string]interface{}) { delete(c, "iat") },
+		"stale iat":      func(c map[string]interface{}) { c["iat"] = time.Now().Add(-11 * time.Minute).Unix() },
+		"future iat":     func(c map[string]interface{}) { c["iat"] = time.Now().Add(3 * time.Minute).Unix() },
+	}
+	for name, mutate := range bad {
+		c := logoutClaims(idp.URL)
+		mutate(c)
+		if _, _, err := p.VerifyLogoutToken(ctx, signTestIDToken(t, c)); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+
+	if _, _, err := p.VerifyLogoutToken(ctx, "not-a-jwt"); err == nil {
+		t.Error("garbage accepted")
+	}
+
+	replay := signTestIDToken(t, logoutClaims(idp.URL))
+	if _, _, err := p.VerifyLogoutToken(ctx, replay); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := p.VerifyLogoutToken(ctx, replay); err == nil {
+		t.Error("replayed jti accepted")
+	}
+}
+
+func TestRememberJTI_Bounded(t *testing.T) {
+	p := newTestProvider(t, "https://unused.example.com", nil)
+	now := time.Now()
+	for i := 0; i < maxSeenJTI+50; i++ {
+		if !p.rememberJTI("j"+strconv.Itoa(i), now.Add(time.Duration(i)*time.Millisecond)) {
+			t.Fatalf("jti %d rejected", i)
+		}
+	}
+	if len(p.seenJTI) > maxSeenJTI {
+		t.Errorf("cache size %d exceeds cap", len(p.seenJTI))
+	}
+	// Old entries are pruned once past the window.
+	if !p.rememberJTI("late", now.Add(time.Hour)) || len(p.seenJTI) != 1 {
+		t.Errorf("expired entries not pruned: %d", len(p.seenJTI))
+	}
+}
+
+func TestLogoutTokenVerifierHook(t *testing.T) {
+	restore := SetLogoutTokenVerifierForTest(func(raw string) (string, string, error) { return raw, "s", nil })
+	p := &OIDCProvider{}
+	sub, sid, err := p.VerifyLogoutToken(context.Background(), "x")
+	restore()
+	if sub != "x" || sid != "s" || err != nil {
+		t.Errorf("hook not used: %q %q %v", sub, sid, err)
+	}
+}
+
+func TestEndSessions(t *testing.T) {
+	idp := mockIDP(t, nil)
+	p := newTestProvider(t, idp.URL, nil)
+	mk := func(sub, sid string) *Session {
+		s, _ := p.sessionStore.Create(sub, sub, "user")
+		s.Data["oidc_sub"] = sub
+		if sid != "" {
+			s.Data["oidc_sid"] = sid
+		}
+		return s
+	}
+	a1, a2, b := mk("alice", "sid-a1"), mk("alice", "sid-a2"), mk("bob", "sid-b")
+	if n := p.EndSessions("alice", "sid-a1"); n != 1 || p.sessionStore.Get(a1.ID) != nil || p.sessionStore.Get(a2.ID) == nil {
+		t.Errorf("by sid: n=%d", n)
+	}
+	if n := p.EndSessions("alice", ""); n != 1 || p.sessionStore.Get(a2.ID) != nil || p.sessionStore.Get(b.ID) == nil {
+		t.Errorf("by sub: n=%d", n)
+	}
 }

@@ -57,6 +57,14 @@ type OIDCProvider struct {
 	// actually stops the cleanup ticker instead of leaking the
 	// goroutine past a provider reload (findings.md M13).
 	done chan struct{}
+
+	// Cached go-oidc provider (keyset) for ID and logout token checks.
+	verifierMu sync.Mutex
+	verifier   *gooidc.Provider
+
+	// Back-channel jti replay cache.
+	jtiMu   sync.Mutex
+	seenJTI map[string]time.Time
 }
 
 type stateEntry struct {
@@ -75,6 +83,7 @@ func NewOIDCProvider(cfg *config.OIDCConfig, basePath string, sessionStore *Sess
 		sessionStore: sessionStore,
 		userStore:    userStore,
 		states:       make(map[string]stateEntry),
+		seenJTI:      make(map[string]time.Time),
 		done:         make(chan struct{}),
 	}
 
@@ -321,7 +330,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}
-	provider, err := gooidc.NewProvider(ctx, p.config.IssuerURL)
+	provider, err := p.goOIDCProvider(ctx)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)

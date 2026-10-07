@@ -556,6 +556,31 @@ func (h *AuthHandler) OIDCCallback(w http.ResponseWriter, r *http.Request) {
 	p.HandleCallback(w, r)
 }
 
+// OIDCBackchannelLogout handles POST /api/auth/oidc/backchannel-logout
+// (OpenID Connect Back-Channel Logout 1.0). The provider calls it
+// server-to-server with a signed logout token.
+func (h *AuthHandler) OIDCBackchannelLogout(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	if r.Method != http.MethodPost {
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+		return
+	}
+	p := h.provider()
+	if p == nil || !p.Enabled() {
+		respondError(w, r, http.StatusNotFound, "OIDC not configured")
+		return
+	}
+	sub, sid, err := p.VerifyLogoutToken(r.Context(), r.PostFormValue("logout_token"))
+	if err != nil {
+		logging.From(r.Context()).Warn("OIDC back-channel logout rejected", "source", "audit", "error", err.Error())
+		sendJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid_request"})
+		return
+	}
+	n := p.EndSessions(sub, sid)
+	logging.From(r.Context()).Info("OIDC back-channel logout", "source", "audit", "sub", sub, "sid", sid, "sessions", n)
+	w.WriteHeader(http.StatusOK)
+}
+
 // syncUsersToConfig persists the current user store to the config file.
 func (h *AuthHandler) syncUsersToConfig() error {
 	if h.config == nil {

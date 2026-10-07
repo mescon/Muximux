@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -2375,4 +2377,57 @@ func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
 	}
 	wg.Wait()
 	_ = h.CloseOIDC()
+}
+
+func TestOIDCBackchannelLogout(t *testing.T) {
+	restore := auth.SetLogoutTokenVerifierForTest(func(raw string) (string, string, error) {
+		if raw == "good" {
+			return "u1", "sid-1", nil
+		}
+		return "", "", errors.New("bad token")
+	})
+	defer restore()
+
+	store := auth.NewSessionStore("muximux_session", time.Hour, false)
+	h := NewAuthHandler(store, auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	form := func(method, token string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(method, "/api/auth/oidc/backchannel-logout", strings.NewReader(url.Values{"logout_token": {token}}.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		h.OIDCBackchannelLogout(rec, req)
+		return rec
+	}
+
+	if rec := form(http.MethodPost, "good"); rec.Code != http.StatusNotFound {
+		t.Errorf("OIDC disabled: got %d, want 404", rec.Code)
+	}
+
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	h.SetOIDCProvider(auth.NewOIDCProvider(&cfg, "", store, nil))
+
+	mk := func(sub, sid string) *auth.Session {
+		s, _ := store.Create(sub, sub, "user")
+		s.Data["oidc_sub"] = sub
+		s.Data["oidc_sid"] = sid
+		return s
+	}
+	target, other := mk("u1", "sid-1"), mk("u2", "sid-2")
+
+	rec := form(http.MethodPost, "good")
+	if rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-store" {
+		t.Errorf("valid: code=%d cache=%q", rec.Code, rec.Header().Get("Cache-Control"))
+	}
+	if store.Get(target.ID) != nil || store.Get(other.ID) == nil {
+		t.Error("expected only the matching session to be removed")
+	}
+
+	rec = form(http.MethodPost, "bad")
+	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), `"error":"invalid_request"`) {
+		t.Errorf("invalid: code=%d body=%s", rec.Code, rec.Body.String())
+	}
+
+	if rec = form(http.MethodGet, "good"); rec.Code != http.StatusMethodNotAllowed {
+		t.Errorf("GET: got %d, want 405", rec.Code)
+	}
 }

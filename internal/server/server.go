@@ -595,6 +595,10 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	// the discovery fetch the first hit triggers.
 	mux.HandleFunc("/api/auth/oidc/login", loginLimiter.wrap(authHandler.OIDCLogin))
 	mux.HandleFunc("/api/auth/oidc/callback", authHandler.OIDCCallback)
+	// A provider may send many logout notices from one address, so this
+	// route gets its own, looser limiter.
+	backchannelLimiter := newRateLimiter(120, 1*time.Minute, authMiddleware.GetClientIP)
+	mux.HandleFunc(backchannelLogoutPath, backchannelLimiter.wrap(authHandler.OIDCBackchannelLogout))
 
 	// WebSocket endpoint. The top-level RequireAuth middleware guarantees a
 	// user is in context; we read the role here so the hub can filter
@@ -2504,9 +2508,17 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 // classic cross-origin browser-form vector. The same-origin
 // trade-off is documented in docs/wiki/security.md as part of the
 // proxy mount design.
+const backchannelLogoutPath = "/api/auth/oidc/backchannel-logout"
+
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !strings.HasPrefix(r.URL.Path, "/api/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// The identity provider posts the logout token form-encoded,
+		// server to server; it has no browser session to forge.
+		if r.URL.Path == backchannelLogoutPath {
 			next.ServeHTTP(w, r)
 			return
 		}
