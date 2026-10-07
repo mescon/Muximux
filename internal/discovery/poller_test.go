@@ -1993,3 +1993,24 @@ func TestService_ReconfigureConcurrentWithReaders(t *testing.T) {
 		}
 	}
 }
+
+func TestApplyReconcile_UpdateKeepsHealthCheck(t *testing.T) {
+	on := true
+	cfg := &config.Config{Apps: []config.AppConfig{{
+		Name: "Sonarr", URL: "http://10.0.0.5:8989", HealthCheck: &on, DockerKey: "label:sonarr", DockerAutoImported: true,
+	}}}
+	var mu sync.RWMutex
+	p := &Poller{deps: PollerDeps{
+		Config:   cfg,
+		ConfigMu: &mu,
+		Service:  NewService(&config.DiscoveryDockerConfig{}),
+		OnSave:   func() error { return nil },
+	}}
+	batch := newRefreshBatch()
+	batch.updateApps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.9:8989", DockerKey: "label:sonarr", DockerAutoImported: true}}
+	p.applyRefreshBatch(batch)
+	a := cfg.Apps[0]
+	if a.URL != "http://10.0.0.9:8989" || a.HealthCheck == nil || !*a.HealthCheck {
+		t.Errorf("app after update = %+v", a)
+	}
+}

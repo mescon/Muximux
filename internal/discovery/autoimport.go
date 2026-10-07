@@ -267,6 +267,42 @@ func sameManagedFields(a, b *config.AppConfig) bool {
 		reflect.DeepEqual(a.HTTPActionHeaders, b.HTTPActionHeaders)
 }
 
+// mergeManagedFields returns cur with every field auto-import owns (the
+// ones BuildDesired sets, compared by sameManagedFields, plus the
+// tracking bookkeeping) taken from desired. Everything else, such as
+// health_check, auth_bypass, access, scale, pinned and proxy_headers, is
+// operator state and is kept. Replacing the whole app used to drop it.
+func mergeManagedFields(cur, desired *config.AppConfig) config.AppConfig {
+	out := *cur
+	out.Name = desired.Name
+	out.URL = desired.URL
+	out.HealthURL = desired.HealthURL
+	out.Icon = desired.Icon
+	out.Color = desired.Color
+	out.Group = desired.Group
+	out.Order = desired.Order
+	out.Enabled = desired.Enabled
+	out.Default = desired.Default
+	out.OpenMode = desired.OpenMode
+	out.Proxy = desired.Proxy
+	out.ProxySkipTLSVerify = desired.ProxySkipTLSVerify
+	out.MinRole = desired.MinRole
+	out.AllowedGroups = desired.AllowedGroups
+	out.Permissions = desired.Permissions
+	out.AllowNotifications = desired.AllowNotifications
+	out.Shortcut = desired.Shortcut
+	out.HTTPActionMethod = desired.HTTPActionMethod
+	out.HTTPActionHeaders = desired.HTTPActionHeaders
+	out.HTTPActionConfirm = desired.HTTPActionConfirm
+	out.HTTPActionShowToast = desired.HTTPActionShowToast
+	out.DockerKey = desired.DockerKey
+	out.DockerEndpoint = desired.DockerEndpoint
+	out.DockerStrategy = desired.DockerStrategy
+	out.DockerManagedURL = desired.DockerManagedURL
+	out.DockerAutoImported = desired.DockerAutoImported
+	return out
+}
+
 // gatewaySiteChanged reports whether the desired gateway site for a key
 // differs from the current one. It also fires on presence changes: a
 // gateway domain newly added to (or dropped from) an already-tracked

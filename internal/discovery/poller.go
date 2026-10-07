@@ -811,10 +811,10 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 	// site with no current match is inserted (a label that newly added a
 	// gateway domain to an already-tracked app).
 	for i := range batch.updateApps {
-		na := batch.updateApps[i]
+		na := &batch.updateApps[i]
 		for j := range cfg.Apps {
 			if cfg.Apps[j].DockerKey == na.DockerKey {
-				cfg.Apps[j] = na
+				cfg.Apps[j] = mergeManagedFields(&cfg.Apps[j], na)
 				break
 			}
 		}

@@ -605,3 +605,32 @@ func TestBuildDesired_GatewayBackendExcludesPath(t *testing.T) {
 		t.Errorf("site = %+v", d.Site)
 	}
 }
+
+func TestMergeManagedFields_KeepsOperatorFields(t *testing.T) {
+	on := true
+	scale := 0.9
+	cur := config.AppConfig{
+		Name: "Sonarr", URL: "http://10.0.0.5:8989", HealthURL: "http://10.0.0.5:8989",
+		HealthCheck: &on, Scale: scale, Pinned: true, ForceIconBackground: true,
+		AuthBypass:   []config.AuthBypassRule{{Path: "/api/*"}},
+		Access:       config.AppAccessConfig{Roles: []string{"admin"}},
+		ProxyHeaders: map[string]string{"X-A": "1"},
+		DockerKey:    "label:sonarr",
+	}
+	desired := config.AppConfig{
+		Name: "Sonarr", URL: "https://sonarr.example.com", HealthURL: "http://10.0.0.9:8989",
+		Group: "Media", DockerKey: "label:sonarr", DockerManagedURL: "https://sonarr.example.com",
+		DockerAutoImported: true,
+	}
+	got := mergeManagedFields(&cur, &desired)
+	if !sameManagedFields(&got, &desired) {
+		t.Errorf("managed fields not taken from desired: %+v", got)
+	}
+	if got.HealthCheck == nil || !*got.HealthCheck || got.Scale != scale || !got.Pinned || !got.ForceIconBackground ||
+		len(got.AuthBypass) != 1 || len(got.Access.Roles) != 1 || got.ProxyHeaders["X-A"] != "1" {
+		t.Errorf("operator fields lost: %+v", got)
+	}
+	if got.DockerManagedURL != desired.DockerManagedURL || !got.DockerAutoImported {
+		t.Errorf("tracking fields not taken from desired: %+v", got)
+	}
+}
