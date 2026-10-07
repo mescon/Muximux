@@ -302,3 +302,36 @@ func TestOIDCClientSecretInPlaintext(t *testing.T) {
 		})
 	}
 }
+
+// A rename followed, in a later save, by a reorder or a removal must not
+// leak: the references are re-recorded on every save, so the second save
+// matches by the renamed item's current name, not its name at load.
+func TestSave_RenameThenLaterReorderOrRemoveKeepsReferences(t *testing.T) {
+	env := map[string]string{"SONARR_KEY": "sonarr-secret", "RADARR_KEY": "radarr-secret"}
+	t.Run("reorder", func(t *testing.T) {
+		cfg, path := loadWithEnv(t, twoKeyedApps, env)
+		cfg.Apps[0].Name = "Sonarr 4K"
+		saveAndRead(t, cfg, path)
+		cfg.Apps[0], cfg.Apps[1] = cfg.Apps[1], cfg.Apps[0]
+		s := saveAndRead(t, cfg, path)
+		if strings.Contains(s, "sonarr-secret") || strings.Contains(s, "radarr-secret") {
+			t.Errorf("leaked an expanded secret:\n%s", s)
+		}
+		if !strings.Contains(s, "${SONARR_KEY}") || !strings.Contains(s, "${RADARR_KEY}") {
+			t.Errorf("lost a reference:\n%s", s)
+		}
+	})
+	t.Run("remove above", func(t *testing.T) {
+		cfg, path := loadWithEnv(t, twoKeyedApps, env)
+		cfg.Apps[1].Name = "Radarr 4K"
+		saveAndRead(t, cfg, path)
+		cfg.Apps = cfg.Apps[1:]
+		s := saveAndRead(t, cfg, path)
+		if strings.Contains(s, "radarr-secret") {
+			t.Errorf("leaked an expanded secret:\n%s", s)
+		}
+		if !strings.Contains(s, "${RADARR_KEY}") {
+			t.Errorf("lost the reference:\n%s", s)
+		}
+	})
+}

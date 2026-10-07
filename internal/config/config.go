@@ -1664,6 +1664,12 @@ func (c *Config) Save(path string) error {
 		os.Remove(tmpName) // don't leave the temp file behind on a failed rename
 		return err
 	}
+	// Re-record the references from what was just written, so the next
+	// save matches items by their current names and positions rather than
+	// the ones they had when the file was loaded.
+	if refs, err := recordEnvRefs(data); err == nil {
+		c.envRefs = refs
+	}
 	// fsync the parent directory so the rename hits stable storage
 	// before Save returns. Without this, a power loss between rename
 	// and the directory's eventual writeback can leave the filesystem
