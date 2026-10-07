@@ -1629,13 +1629,7 @@ func (r *contentRewriter) injectInterceptor(content []byte, docPath string) []by
 			baseTag = []byte(`<base href="` + html.EscapeString(r.proxyPrefix+documentDir(docPath)) + `">`)
 		}
 
-		script := r.interceptorScript()
-		result := make([]byte, 0, len(content)+len(baseTag)+len(script))
-		result = append(result, content[:insertPos]...)
-		result = append(result, baseTag...)
-		result = append(result, script...)
-		result = append(result, content[insertPos:]...)
-		return result
+		return bytes.Join([][]byte{content[:insertPos], baseTag, r.interceptorScript(), content[insertPos:]}, nil)
 	}
 }
 
