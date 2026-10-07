@@ -871,29 +871,33 @@ func expandBracedEnv(s string) (string, []string) {
 
 // Validate is the public entry point for the same invariant
 // checks Load runs at startup. SaveConfig calls it so a bad
-// ValidateOIDC checks the OIDC logout addresses: when set they must be
-// absolute http(s) URLs, since the browser is sent to them. Exported for
-// the settings endpoint, which validates before saving.
-func ValidateOIDC(o *OIDCConfig) error {
-	for name, v := range map[string]string{
-		"auth.oidc.post_logout_redirect_url": o.PostLogoutRedirectURL,
-		"auth.oidc.logout_url":               o.LogoutURL,
-	} {
-		if v == "" {
-			continue
-		}
-		u, err := url.Parse(v)
-		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
-			return fmt.Errorf("%s must be an absolute http(s) URL", name)
-		}
-	}
-	return nil
-}
-
 // runtime mutation is rejected with a 400 before being persisted
 // rather than silently breaking the next boot.
 func (c *Config) Validate() error {
 	return c.validate()
+}
+
+// ValidateOIDC checks the OIDC logout addresses: when set they must be
+// absolute http(s) URLs, since the browser is sent to them. Exported for
+// the settings endpoint, which validates before saving.
+func ValidateOIDC(o *OIDCConfig) error {
+	checks := []struct {
+		name  string
+		value string
+	}{
+		{"auth.oidc.post_logout_redirect_url", o.PostLogoutRedirectURL},
+		{"auth.oidc.logout_url", o.LogoutURL},
+	}
+	for _, check := range checks {
+		if check.value == "" {
+			continue
+		}
+		u, err := url.Parse(check.value)
+		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
+			return fmt.Errorf("%s must be an absolute http(s) URL", check.name)
+		}
+	}
+	return nil
 }
 
 // validate checks the configuration for contradictory or incomplete settings.

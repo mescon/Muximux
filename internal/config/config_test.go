@@ -2071,6 +2071,9 @@ func TestValidateOIDC_LogoutURLs(t *testing.T) {
 		{"relative return address", OIDCConfig{PostLogoutRedirectURL: "/login"}, false},
 		{"absolute logout url", OIDCConfig{LogoutURL: "https://idp.example.com/logout"}, true},
 		{"javascript logout url", OIDCConfig{LogoutURL: "javascript:alert(1)"}, false},
+		{"ftp logout url", OIDCConfig{LogoutURL: "ftp://idp.example.com/logout"}, false},
+		{"https with no host", OIDCConfig{LogoutURL: "https:///x"}, false},
+		{"only invalid logout_url set", OIDCConfig{LogoutURL: "not-a-url"}, false},
 	} {
 		err := ValidateOIDC(&tc.o)
 		if (err == nil) != tc.ok {
@@ -2100,5 +2103,22 @@ func TestLoad_OIDCLogoutFields(t *testing.T) {
 	o := cfg.Auth.OIDC
 	if !o.ProviderLogout || !o.AutoRedirect || !o.DisableLocalLogin || o.PostLogoutRedirectURL != "https://dash.example.com/bye" {
 		t.Errorf("fields not loaded: %+v", o)
+	}
+}
+
+func TestLoad_RejectsInvalidOIDCLogoutURL(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	writeFile(t, path, `auth:
+  method: oidc
+  oidc:
+    enabled: true
+    issuer_url: https://idp.example.com
+    client_id: muximux
+    redirect_url: https://dash.example.com/api/auth/oidc/callback
+    logout_url: ftp://idp.example.com/logout
+`)
+	_, err := Load(path)
+	if err == nil {
+		t.Error("Load accepted ftp:// logout_url, want error")
 	}
 }
