@@ -46,6 +46,8 @@ type OIDCProvider struct {
 	tokenEndpoint         string
 	userinfoEndpoint      string
 	jwksURI               string
+	endSessionEndpoint    string
+	backchannelSupported  bool
 
 	// State storage (for CSRF protection)
 	states   map[string]stateEntry
@@ -145,6 +147,9 @@ func (p *OIDCProvider) loadDiscovery(ctx context.Context) error {
 		TokenEndpoint         string `json:"token_endpoint"`
 		UserinfoEndpoint      string `json:"userinfo_endpoint"`
 		JwksURI               string `json:"jwks_uri"`
+
+		EndSessionEndpoint         string `json:"end_session_endpoint"`
+		BackchannelLogoutSupported bool   `json:"backchannel_logout_supported"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&doc); err != nil {
@@ -162,6 +167,8 @@ func (p *OIDCProvider) loadDiscovery(ctx context.Context) error {
 	p.tokenEndpoint = doc.TokenEndpoint
 	p.userinfoEndpoint = doc.UserinfoEndpoint
 	p.jwksURI = doc.JwksURI
+	p.endSessionEndpoint = doc.EndSessionEndpoint
+	p.backchannelSupported = doc.BackchannelLogoutSupported
 	p.discoveryLoaded = true
 	logging.Debug("OIDC discovery loaded", "source", "auth", "issuer", p.config.IssuerURL)
 
@@ -393,6 +400,14 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// users are session-only, not persisted to the config-based store).
 	session.Data["email"] = email
 	session.Data["display_name"] = displayName
+	// Kept server-side for RP-initiated logout (id_token_hint) and for
+	// matching back-channel logout tokens. Never sent to the client.
+	session.Data["oidc_id_token"] = tokens.IDToken
+	session.Data["oidc_sub"] = idToken.Subject
+	session.Data["oidc_iss"] = idToken.Issuer
+	if sid := getStringClaim(idClaims, "sid"); sid != "" {
+		session.Data["oidc_sid"] = sid
+	}
 	if len(groups) > 0 {
 		// Stored as a slice on the session map; the middleware reads it
 		// back into User.Groups so per-app allowed_groups checks work.

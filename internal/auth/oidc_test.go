@@ -736,6 +736,21 @@ func TestHandleCallback_Success(t *testing.T) {
 		t.Error("expected at least one session to be created")
 	}
 
+	// OIDC session data is kept for provider sign-out
+	sess := ss.GetFromRequest(requestWithCookies(cookies))
+	if sess == nil {
+		t.Fatal("expected session from callback cookie")
+	}
+	if sess.Data["oidc_sub"] != "user-123" {
+		t.Errorf("oidc_sub = %v, want user-123", sess.Data["oidc_sub"])
+	}
+	if sess.Data["oidc_iss"] != srv.URL {
+		t.Errorf("oidc_iss = %v, want %s", sess.Data["oidc_iss"], srv.URL)
+	}
+	if tok, _ := sess.Data["oidc_id_token"].(string); tok == "" {
+		t.Error("expected oidc_id_token to be stored")
+	}
+
 	// State should be consumed
 	p.statesMu.Lock()
 	if _, exists := p.states[testState]; exists {
@@ -1639,4 +1654,12 @@ func TestPKCE_StrictProviderAcceptsExchange(t *testing.T) {
 	if _, err := p.exchangeCode(context.Background(), "code", verifier); err != nil {
 		t.Fatalf("a strict token endpoint rejected our PKCE exchange: %v", err)
 	}
+}
+
+func requestWithCookies(cookies []*http.Cookie) *http.Request {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	for _, c := range cookies {
+		r.AddCookie(c)
+	}
+	return r
 }
