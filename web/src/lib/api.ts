@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult, DockerState } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult, DockerState } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -158,6 +158,14 @@ export async function deleteUserAccount(username: string): Promise<void> {
 
 export async function changeAuthMethod(data: ChangeAuthMethodRequest): Promise<{ success: boolean; method?: string; message?: string }> {
   return putJSON<ChangeAuthMethodRequest, { success: boolean; method?: string; message?: string }>('/auth/method', data);
+}
+
+export async function getOIDCSettings(): Promise<OIDCSettings> {
+  return fetchJSON<OIDCSettings>('/auth/settings/oidc');
+}
+
+export async function testOIDCProvider(issuer_url: string): Promise<OIDCTestResult> {
+  return postJSON<{ issuer_url: string }, OIDCTestResult>('/auth/settings/oidc/test', { issuer_url });
 }
 
 // API key management. Status reports whether a key is configured;
