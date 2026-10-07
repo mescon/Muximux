@@ -255,8 +255,10 @@ auth:
 
 ### SSO-only sign-in
 
-- `auto_redirect: true` makes the login page go straight to the provider. It does not do so right after logout (`?logged_out=1`), after a callback error, or when you open `/login?local=1`, which reaches the local form when local login is allowed.
-- `disable_local_login: true` refuses password sign-in (HTTP 403) and hides the form on the login page. API keys keep working, and `?local=1` does not bypass it.
+- `auto_redirect: true` makes the login page go straight to the provider. It does not do so right after logout (`?logged_out=1`), after a failed sign-in (`?error=...`), or when you open `/login?local=1`, which reaches the local form when local login is allowed.
+- `disable_local_login: true` refuses password sign-in (HTTP 403) and hides the form on the login page. API keys keep working, and `?local=1` does not bypass it. It applies only while OIDC is enabled: with OIDC turned off, the username and password form works as before.
+
+If sign-in at the provider fails or is cancelled, Muximux sends the browser back to the login page with a short code and shows a message: `oidc_denied` when the user cancelled at the provider, `oidc_state` when the sign-in request expired or was already used (for example after pressing Back), and `oidc_failed` for anything else. The details are in the Muximux log, not in the URL.
 
 If the provider is down and you are locked out, set `disable_local_login: false` in `config.yaml` and restart Muximux.
 

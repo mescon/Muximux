@@ -281,7 +281,11 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		errDesc := r.URL.Query().Get("error_description")
 		logging.From(r.Context()).Warn("OIDC authentication error", "source", "auth", "error", errParam, "description", errDesc)
-		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		code := callbackErrFailed
+		if errParam == "access_denied" {
+			code = callbackErrDenied
+		}
+		p.failCallback(w, r, code)
 		return
 	}
 
@@ -296,14 +300,15 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		logging.From(r.Context()).Warn("OIDC callback: invalid state parameter", "source", "auth")
-		http.Error(w, "Invalid state parameter", http.StatusBadRequest)
+		p.failCallback(w, r, callbackErrState)
 		return
 	}
 
 	// Get authorization code
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		http.Error(w, "Missing authorization code", http.StatusBadRequest)
+		logging.From(r.Context()).Warn("OIDC callback: missing authorization code", "source", "auth")
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 
@@ -316,7 +321,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	tokens, err := p.exchangeCode(ctx, code, entry.codeVerifier)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC code exchange failed", "source", "auth", "error", err)
-		http.Error(w, errAuthFailed, http.StatusInternalServerError)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 
@@ -327,13 +332,13 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// id_token (misconfig, bug, MITM) must be rejected outright.
 	if tokens.IDToken == "" {
 		logging.From(r.Context()).Warn("OIDC: token endpoint returned no id_token; rejecting login", "source", "audit")
-		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 	provider, err := p.goOIDCProvider(ctx)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
-		http.Error(w, errAuthFailed, http.StatusInternalServerError)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 	verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
@@ -342,14 +347,14 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		// Warn so monitoring set to warn-and-up notices an IdP that's
 		// been misconfigured or an attacker replaying expired tokens.
 		logging.From(r.Context()).Warn("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
-		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 	if idToken.Nonce != entry.nonce {
 		// Warn — nonce mismatch is a CSRF / replay signal worth
 		// surfacing even at warn-only logging levels.
 		logging.From(r.Context()).Warn("OIDC: nonce mismatch", "source", "audit")
-		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 
@@ -357,7 +362,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	userInfo, err := p.getUserInfo(ctx, tokens.AccessToken)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC user info retrieval failed", "source", "auth", "error", err)
-		http.Error(w, errAuthFailed, http.StatusInternalServerError)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 
@@ -423,7 +428,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	session, err := p.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
-		http.Error(w, "Failed to create session", http.StatusInternalServerError)
+		p.failCallback(w, r, callbackErrFailed)
 		return
 	}
 
@@ -434,6 +439,23 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Redirect to original destination or home
 	redirectURL := sanitizeRedirectURL(entry.redirectURL, p.basePath)
 	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
+
+// Fixed codes the callback puts in /login?error=. Provider-supplied text
+// is never reflected into the URL; the details go to the server log.
+const (
+	callbackErrFailed = "oidc_failed"
+	callbackErrDenied = "oidc_denied"
+	callbackErrState  = "oidc_state"
+)
+
+// failCallback sends the browser back to the login page with a short
+// error code, so the user sees a message and a way to retry instead of a
+// bare text page. The login page does not auto-redirect while ?error is
+// present, so a failing provider cannot cause a redirect loop.
+func (p *OIDCProvider) failCallback(w http.ResponseWriter, r *http.Request, code string) {
+	target := strings.TrimRight(p.basePath, "/") + "/login?error=" + url.QueryEscape(code)
+	http.Redirect(w, r, target, http.StatusFound)
 }
 
 // TokenResponse represents the token endpoint response

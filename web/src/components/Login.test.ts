@@ -179,6 +179,38 @@ describe('Login', () => {
       expect(hrefSetter).not.toHaveBeenCalled();
     });
 
+    it.each([
+      ['?error=oidc_failed', 'Single sign-on failed. Please try again.'],
+      ['?error=oidc_denied', 'Sign-in was cancelled at the identity provider.'],
+      ['?error=oidc_state', 'The sign-in request expired or was already used. Please try again.'],
+      ['?error=%3Cb%3Eprovider%20text%3C%2Fb%3E', 'Single sign-on failed. Please try again.'],
+    ])('shows a translated message for %s and does not auto-redirect', async (search, text) => {
+      setup(search, { oidc_auto_redirect: true });
+      render(Login);
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(text);
+      });
+      expect(screen.queryByText(/provider text/)).not.toBeInTheDocument();
+      expect(hrefSetter).not.toHaveBeenCalled();
+    });
+
+    it('shows the SSO error even when local login is off', async () => {
+      setup('?error=oidc_denied', { local_login: false });
+      render(Login);
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Sign-in was cancelled at the identity provider.');
+      });
+    });
+
+    it('shows no SSO error without ?error', async () => {
+      setup('', {});
+      render(Login);
+      await waitFor(() => {
+        expect(screen.getByLabelText('Username')).toBeInTheDocument();
+      });
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
     it('hides the local form when local login is off', async () => {
       setup('?local=1', { local_login: false });
       render(Login);

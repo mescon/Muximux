@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Näytä tämä sovellus suoraan ylä- tai alapalkissa ryhmävalikkojen vieressä",
   "appForm_helpPinned": "Kiinnitetyt sovellukset saavat oman painikkeen palkkiin, joten ne avautuvat yhdellä napsautuksella. Sovellus näkyy edelleen myös ryhmässään.",
   "nav_pinned": "Kiinnitetyt",
-  "login_localDisabled": "Kirjautuminen käyttäjätunnuksella ja salasanalla on poistettu käytöstä. Käytä kertakirjautumista."
+  "login_localDisabled": "Kirjautuminen käyttäjätunnuksella ja salasanalla on poistettu käytöstä. Käytä kertakirjautumista.",
+  "login_oidcFailed": "Kertakirjautuminen epäonnistui. Yritä uudelleen.",
+  "login_oidcDenied": "Kirjautuminen peruutettiin tunnistautumispalvelussa.",
+  "login_oidcState": "Kirjautumispyyntö on vanhentunut tai jo käytetty. Yritä uudelleen."
 }

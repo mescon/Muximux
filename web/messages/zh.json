@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "在顶部或底部栏中直接显示此应用，位于分组下拉菜单旁边",
   "appForm_helpPinned": "固定的应用在栏中拥有自己的按钮，一键即可打开。该应用仍会保留在其分组中。",
   "nav_pinned": "已固定",
-  "login_localDisabled": "已关闭用户名和密码登录。请使用单点登录。"
+  "login_localDisabled": "已关闭用户名和密码登录。请使用单点登录。",
+  "login_oidcFailed": "单点登录失败。请重试。",
+  "login_oidcDenied": "已在身份提供方取消登录。",
+  "login_oidcState": "登录请求已过期或已被使用。请重试。"
 }

@@ -1,9 +1,6 @@
 package auth
 
-const (
-	errUserNotFound = "user not found"
-	errAuthFailed   = "Authentication failed. Please try again."
-)
+const errUserNotFound = "user not found"
 
 // ForwardAuthHeadersFromMap creates ForwardAuthHeaders from a string map.
 func ForwardAuthHeadersFromMap(m map[string]string) ForwardAuthHeaders {

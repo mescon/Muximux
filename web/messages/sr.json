@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Прикажи ову апликацију директно у горњој или доњој траци, поред падајућих менија група",
   "appForm_helpPinned": "Закачене апликације имају своје дугме на траци и отварају се једним кликом. Апликација остаје наведена и у својој групи.",
   "nav_pinned": "Закачене",
-  "login_localDisabled": "Prijava korisničkim imenom i lozinkom je isključena. Koristite jedinstvenu prijavu (SSO)."
+  "login_localDisabled": "Prijava korisničkim imenom i lozinkom je isključena. Koristite jedinstvenu prijavu (SSO).",
+  "login_oidcFailed": "Jedinstvena prijava (SSO) nije uspela. Pokušajte ponovo.",
+  "login_oidcDenied": "Prijava je otkazana kod dobavljača identiteta.",
+  "login_oidcState": "Zahtev za prijavu je istekao ili je već iskorišćen. Pokušajte ponovo."
 }

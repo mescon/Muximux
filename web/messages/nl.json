@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Toon deze app direct in de boven- of onderbalk, naast de groepsmenu's",
   "appForm_helpPinned": "Vastgemaakte apps krijgen een eigen knop in de balk en openen met één klik. De app blijft ook in haar groep staan.",
   "nav_pinned": "Vastgemaakt",
-  "login_localDisabled": "Inloggen met gebruikersnaam en wachtwoord is uitgeschakeld. Gebruik single sign-on."
+  "login_localDisabled": "Inloggen met gebruikersnaam en wachtwoord is uitgeschakeld. Gebruik single sign-on.",
+  "login_oidcFailed": "Single sign-on is mislukt. Probeer het opnieuw.",
+  "login_oidcDenied": "Het aanmelden is geannuleerd bij de identiteitsprovider.",
+  "login_oidcState": "Het aanmeldverzoek is verlopen of al gebruikt. Probeer het opnieuw."
 }

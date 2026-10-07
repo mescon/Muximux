@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Rodyti šią programą tiesiai viršutinėje arba apatinėje juostoje, šalia grupių išskleidžiamųjų meniu",
   "appForm_helpPinned": "Prisegtos programos juostoje turi savo mygtuką, todėl atidaromos vienu spustelėjimu. Programa lieka ir savo grupėje.",
   "nav_pinned": "Prisegtos",
-  "login_localDisabled": "Prisijungimas naudotojo vardu ir slaptažodžiu išjungtas. Naudokite vieningą prisijungimą."
+  "login_localDisabled": "Prisijungimas naudotojo vardu ir slaptažodžiu išjungtas. Naudokite vieningą prisijungimą.",
+  "login_oidcFailed": "Vieningas prisijungimas nepavyko. Bandykite dar kartą.",
+  "login_oidcDenied": "Prisijungimas atšauktas tapatybės teikėjo pusėje.",
+  "login_oidcState": "Prisijungimo užklausa nebegalioja arba jau buvo panaudota. Bandykite dar kartą."
 }

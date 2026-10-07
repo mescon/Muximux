@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Bu uygulamayı grup açılır menülerinin yanında, üst veya alt çubukta doğrudan göster",
   "appForm_helpPinned": "Sabitlenen uygulamalar çubukta kendi düğmesini alır ve tek tıkla açılır. Uygulama grubunda da listelenmeye devam eder.",
   "nav_pinned": "Sabitlenenler",
-  "login_localDisabled": "Kullanıcı adı ve parola ile oturum açma kapalı. Tek oturum açmayı (SSO) kullanın."
+  "login_localDisabled": "Kullanıcı adı ve parola ile oturum açma kapalı. Tek oturum açmayı (SSO) kullanın.",
+  "login_oidcFailed": "Tek oturum açma (SSO) başarısız oldu. Lütfen tekrar deneyin.",
+  "login_oidcDenied": "Oturum açma, kimlik sağlayıcıda iptal edildi.",
+  "login_oidcState": "Oturum açma isteğinin süresi doldu veya zaten kullanıldı. Lütfen tekrar deneyin."
 }

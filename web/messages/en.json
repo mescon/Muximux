@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Show this app directly in the top or bottom bar, next to the group dropdowns",
   "appForm_helpPinned": "Pinned apps get their own button in the bar so they open in one click. The app stays listed in its group as well.",
   "nav_pinned": "Pinned",
-  "login_localDisabled": "Sign-in with a username and password is turned off. Use single sign-on."
+  "login_localDisabled": "Sign-in with a username and password is turned off. Use single sign-on.",
+  "login_oidcFailed": "Single sign-on failed. Please try again.",
+  "login_oidcDenied": "Sign-in was cancelled at the identity provider.",
+  "login_oidcState": "The sign-in request expired or was already used. Please try again."
 }

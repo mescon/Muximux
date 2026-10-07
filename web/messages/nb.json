@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Vis denne appen direkte i topp- eller bunnlinjen, ved siden av gruppemenyene",
   "appForm_helpPinned": "Festede apper får sin egen knapp i linjen, slik at de åpnes med ett klikk. Appen blir også værende i gruppen sin.",
   "nav_pinned": "Festet",
-  "login_localDisabled": "Innlogging med brukernavn og passord er slått av. Bruk enkel pålogging (SSO)."
+  "login_localDisabled": "Innlogging med brukernavn og passord er slått av. Bruk enkel pålogging (SSO).",
+  "login_oidcFailed": "Enkel pålogging (SSO) mislyktes. Prøv igjen.",
+  "login_oidcDenied": "Innloggingen ble avbrutt hos identitetsleverandøren.",
+  "login_oidcState": "Innloggingsforespørselen har utløpt eller er allerede brukt. Prøv igjen."
 }

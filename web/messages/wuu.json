@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "勒顶部或者底部栏里直接显示该应用，摆勒分组下拉菜单旁边",
   "appForm_helpPinned": "钉牢个应用勒栏里有自家个按钮，点一记就好打开。应用还是留勒伊个分组里向。",
   "nav_pinned": "已钉牢",
-  "login_localDisabled": "用户名搭密码登录已经关脱了。请用单点登录。"
+  "login_localDisabled": "用户名搭密码登录已经关脱了。请用单点登录。",
+  "login_oidcFailed": "单点登录失败了。请再试一趟。",
+  "login_oidcDenied": "登录拨身份提供方取消脱了。",
+  "login_oidcState": "登录请求已经过期或者已经用过了。请再试一趟。"
 }

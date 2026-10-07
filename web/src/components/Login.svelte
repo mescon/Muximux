@@ -14,9 +14,28 @@
   let oidcEnabled = $state(false);
   let authMethod = $state('');
   let localLogin = $state(true);
+  // Set from ?error=<code> when the OIDC callback sends the browser back
+  // here. Only the fixed codes the server emits are mapped; anything else
+  // gets the generic message, so URL text is never shown to the user.
+  let ssoError = $state<string | null>(null);
+
+  function ssoErrorMessage(code: string): string {
+    switch (code) {
+      case 'oidc_denied':
+        return m.login_oidcDenied();
+      case 'oidc_state':
+        return m.login_oidcState();
+      default:
+        return m.login_oidcFailed();
+    }
+  }
 
   onMount(async () => {
     const justOut = consumeJustLoggedOut();
+    const errCode = new URLSearchParams(window.location.search).get('error');
+    if (errCode !== null) {
+      ssoError = ssoErrorMessage(errCode);
+    }
     try {
       const res = await fetch(`${getBase()}/api/auth/status`);
       if (res.ok) {
@@ -101,6 +120,11 @@
           </p>
         </div>
       {:else}
+        {#if ssoError}
+          <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm" role="alert">
+            {ssoError}
+          </div>
+        {/if}
         {#if oidcEnabled}
           <!-- OIDC Login Button -->
           <button

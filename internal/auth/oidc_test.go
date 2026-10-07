@@ -589,9 +589,7 @@ func TestHandleCallback_RejectsMissingIDToken(t *testing.T) {
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("expected 401 without id_token, got %d: %s", rec.Code, rec.Body.String())
-	}
+	assertCallbackFailed(t, rec, callbackErrFailed)
 }
 
 // --- exchangeCode ---
@@ -777,9 +775,7 @@ func TestHandleCallback_InvalidState(t *testing.T) {
 
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("expected 400 for invalid state, got %d", rec.Code)
-	}
+	assertCallbackFailed(t, rec, callbackErrState)
 }
 
 func TestHandleCallback_MissingCode(t *testing.T) {
@@ -798,9 +794,7 @@ func TestHandleCallback_MissingCode(t *testing.T) {
 
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("expected 400 for missing code, got %d", rec.Code)
-	}
+	assertCallbackFailed(t, rec, callbackErrFailed)
 }
 
 func TestHandleCallback_ProviderError(t *testing.T) {
@@ -811,8 +805,42 @@ func TestHandleCallback_ProviderError(t *testing.T) {
 
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("expected 401 for provider error, got %d", rec.Code)
+	// The exact Location match also proves error_description is not reflected.
+	assertCallbackFailed(t, rec, callbackErrDenied)
+}
+
+func TestHandleCallback_ProviderErrorOtherThanDenied(t *testing.T) {
+	p, _ := newTestOIDCProvider(t, "http://unused")
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/callback?error=%3Cscript%3E&error_description=evil", nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+	assertCallbackFailed(t, rec, callbackErrFailed)
+}
+
+func TestHandleCallback_FailureRedirectHonoursBasePath(t *testing.T) {
+	p := newTestProvider(t, "https://unused.example.com", nil)
+	req := httptest.NewRequest(http.MethodGet, "/mx/api/auth/oidc/callback?state=unknown&code=x", nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+	if loc := rec.Header().Get("Location"); rec.Code != http.StatusFound || loc != "/mx/login?error="+callbackErrState {
+		t.Errorf("status = %d, Location = %q", rec.Code, loc)
+	}
+}
+
+// assertCallbackFailed checks that a failed callback sent the browser to
+// the login page with the given fixed error code and issued no session.
+func assertCallbackFailed(t *testing.T, rec *httptest.ResponseRecorder, code string) {
+	t.Helper()
+	if rec.Code != http.StatusFound {
+		t.Errorf("status = %d, want 302: %s", rec.Code, rec.Body.String())
+	}
+	if loc := rec.Header().Get("Location"); loc != "/login?error="+code {
+		t.Errorf("Location = %q, want /login?error=%s", loc, code)
+	}
+	for _, c := range rec.Result().Cookies() {
+		if c.Value != "" && c.MaxAge >= 0 {
+			t.Errorf("failed callback set cookie %s", c.Name)
+		}
 	}
 }
 

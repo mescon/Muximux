@@ -816,5 +816,8 @@
   "appForm_pinnedDesc": "Prikaži to aplikacijo neposredno v zgornji ali spodnji vrstici, ob spustnih menijih skupin",
   "appForm_helpPinned": "Pripete aplikacije imajo v vrstici svoj gumb in se odprejo z enim klikom. Aplikacija ostane navedena tudi v svoji skupini.",
   "nav_pinned": "Pripete",
-  "login_localDisabled": "Prijava z uporabniškim imenom in geslom je izklopljena. Uporabite enotno prijavo (SSO)."
+  "login_localDisabled": "Prijava z uporabniškim imenom in geslom je izklopljena. Uporabite enotno prijavo (SSO).",
+  "login_oidcFailed": "Enotna prijava (SSO) ni uspela. Poskusite znova.",
+  "login_oidcDenied": "Prijava je bila preklicana pri ponudniku identitete.",
+  "login_oidcState": "Zahteva za prijavo je potekla ali je bila že uporabljena. Poskusite znova."
 }
