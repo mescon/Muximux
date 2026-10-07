@@ -6,7 +6,9 @@
 
   // Refresh signal: parent bumps refreshKey to force a reload after a
   // detach / re-link from elsewhere. Defaults to 0; any change reloads.
-  let { refreshKey = 0 } = $props<{ refreshKey?: number }>();
+  // ondetached tells the parent which tracking key was dropped so the
+  // Settings dialog can update its own copy of the config.
+  let { refreshKey = 0, ondetached } = $props<{ refreshKey?: number; ondetached?: (key: string) => void }>();
 
   let result = $state<DiscoveryTrackedListResult | null>(null);
   let loading = $state(true);
@@ -40,6 +42,7 @@
     detachInFlight = entry.key;
     try {
       await detachDockerTracked(entry.key);
+      ondetached?.(entry.key);
       await load();
     } catch (e) {
       // Treat 404 (already detached by a concurrent caller) as
@@ -49,6 +52,7 @@
       // backend rewrites the error copy.
       if (e instanceof ApiError && e.status === 404) {
         // idempotent re-detach; reload to refresh the panel
+        ondetached?.(entry.key);
         await load();
       } else {
         alert(`Detach failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -145,5 +149,5 @@
 </section>
 
 {#if relinkKey}
-  <DiscoveryRelinkModal trackingKey={relinkKey} onClose={closeRelink} />
+  <DiscoveryRelinkModal trackingKey={relinkKey} onClose={closeRelink} onDetached={ondetached} />
 {/if}
