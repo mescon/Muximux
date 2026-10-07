@@ -178,3 +178,102 @@ func TestSave_IdentityPlaceholderAndMissingVarStable(t *testing.T) {
 		}
 	}
 }
+
+func saveAndRead(t *testing.T, cfg *Config, path string) string {
+	t.Helper()
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	out, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(out)
+}
+
+const twoKeyedApps = `apps:
+  - name: Sonarr
+    url: http://sonarr
+    proxy_headers:
+      X-Api-Key: ${SONARR_KEY}
+  - name: Radarr
+    url: http://radarr
+    proxy_headers:
+      X-Api-Key: ${RADARR_KEY}
+`
+
+func TestSave_RenamedItemKeepsReference(t *testing.T) {
+	cfg, path := loadWithEnv(t, twoKeyedApps, map[string]string{"SONARR_KEY": "sonarr-secret", "RADARR_KEY": "radarr-secret"})
+	cfg.Apps[0].Name = "Sonarr 4K"
+	s := saveAndRead(t, cfg, path)
+	if !strings.Contains(s, "${SONARR_KEY}") || !strings.Contains(s, "${RADARR_KEY}") {
+		t.Errorf("rename lost a reference:\n%s", s)
+	}
+	if strings.Contains(s, "sonarr-secret") || strings.Contains(s, "radarr-secret") {
+		t.Errorf("rename leaked an expanded secret:\n%s", s)
+	}
+}
+
+func TestSave_RenamedItemWithNewValueWritesValue(t *testing.T) {
+	cfg, path := loadWithEnv(t, twoKeyedApps, map[string]string{"SONARR_KEY": "sonarr-secret", "RADARR_KEY": "radarr-secret"})
+	cfg.Apps[0].Name = "Sonarr 4K"
+	cfg.Apps[0].ProxyHeaders["X-Api-Key"] = "typed-in-ui"
+	s := saveAndRead(t, cfg, path)
+	if !strings.Contains(s, "typed-in-ui") || strings.Contains(s, "${SONARR_KEY}") {
+		t.Errorf("changed value should replace the reference:\n%s", s)
+	}
+	if !strings.Contains(s, "${RADARR_KEY}") {
+		t.Errorf("untouched sibling lost its reference:\n%s", s)
+	}
+}
+
+func TestSave_SwappedItemsDoNotCrossAssignReferences(t *testing.T) {
+	cfg, path := loadWithEnv(t, twoKeyedApps, map[string]string{"SONARR_KEY": "sonarr-secret", "RADARR_KEY": "radarr-secret"})
+	cfg.Apps[0], cfg.Apps[1] = cfg.Apps[1], cfg.Apps[0]
+	s := saveAndRead(t, cfg, path)
+	if strings.Contains(s, "sonarr-secret") || strings.Contains(s, "radarr-secret") {
+		t.Errorf("reorder leaked an expanded secret:\n%s", s)
+	}
+	radarr := strings.Index(s, "name: Radarr")
+	sonarr := strings.Index(s, "name: Sonarr")
+	rKey := strings.Index(s, "${RADARR_KEY}")
+	sKey := strings.Index(s, "${SONARR_KEY}")
+	if radarr < 0 || sonarr < 0 || rKey < 0 || sKey < 0 || !(radarr < rKey && rKey < sonarr && sonarr < sKey) {
+		t.Errorf("references not attached to their own items:\n%s", s)
+	}
+
+	// Swapped and renamed: the positional fallback lands on the other
+	// item, whose value differs, so neither reference is misapplied.
+	cfg2, path2 := loadWithEnv(t, twoKeyedApps, map[string]string{"SONARR_KEY": "sonarr-secret", "RADARR_KEY": "radarr-secret"})
+	cfg2.Apps[0], cfg2.Apps[1] = cfg2.Apps[1], cfg2.Apps[0]
+	cfg2.Apps[0].Name = "Radarr HD"
+	cfg2.Apps[1].Name = "Sonarr HD"
+	s2 := saveAndRead(t, cfg2, path2)
+	if strings.Contains(s2, "${SONARR_KEY}") || strings.Contains(s2, "${RADARR_KEY}") {
+		// Cross-assigned references would expand to the wrong secret.
+		t.Errorf("reference applied to a different item's value:\n%s", s2)
+	}
+}
+
+func TestSave_DuplicateItemNamesKeepTheirOwnReferences(t *testing.T) {
+	cfg, path := loadWithEnv(t, `apps:
+  - name: Media
+    url: http://one
+    proxy_headers:
+      X-Api-Key: ${ONE_KEY}
+  - name: Media
+    url: http://two
+    proxy_headers:
+      X-Api-Key: ${TWO_KEY}
+`, map[string]string{"ONE_KEY": "one-secret", "TWO_KEY": "two-secret"})
+	cfg.Server.Title = "Changed"
+	s := saveAndRead(t, cfg, path)
+	if strings.Contains(s, "one-secret") || strings.Contains(s, "two-secret") {
+		t.Errorf("duplicate names leaked an expanded secret:\n%s", s)
+	}
+	one := strings.Index(s, "${ONE_KEY}")
+	two := strings.Index(s, "${TWO_KEY}")
+	if one < 0 || two < 0 || one > two {
+		t.Errorf("duplicate-name references misplaced:\n%s", s)
+	}
+}

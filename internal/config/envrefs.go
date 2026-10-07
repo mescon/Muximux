@@ -12,8 +12,12 @@ import (
 // file, so Save can write the reference back instead of the secret it
 // expanded to. path is a list of mapping keys; sequence items are
 // "[name=X]" when the item has a name/username/domain key, else "[i]".
+// posPath is the same location with every sequence item named by its
+// index, used when the named path no longer resolves (the item was
+// renamed) or resolves to a different item (duplicate names).
 type envRef struct {
 	path     []string
+	posPath  []string
 	raw      string
 	expanded string
 }
@@ -28,30 +32,41 @@ func recordEnvRefs(raw []byte) ([]envRef, error) {
 		return nil, err
 	}
 	var refs []envRef
-	var walk func(n *yaml.Node, path []string)
-	walk = func(n *yaml.Node, path []string) {
+	var walk func(n *yaml.Node, path, posPath []string)
+	walk = func(n *yaml.Node, path, posPath []string) {
 		switch n.Kind {
 		case yaml.DocumentNode:
 			for _, c := range n.Content {
-				walk(c, path)
+				walk(c, path, posPath)
 			}
 		case yaml.MappingNode:
 			for i := 0; i+1 < len(n.Content); i += 2 {
-				walk(n.Content[i+1], append(append([]string(nil), path...), n.Content[i].Value))
+				k := n.Content[i].Value
+				walk(n.Content[i+1], appendSeg(path, k), appendSeg(posPath, k))
 			}
 		case yaml.SequenceNode:
 			for i, c := range n.Content {
-				walk(c, append(append([]string(nil), path...), seqKey(c, i, true)))
+				walk(c, appendSeg(path, seqKey(c, i, true)), appendSeg(posPath, indexSeg(i)))
 			}
 		case yaml.ScalarNode:
 			if strings.Contains(n.Value, "${") {
 				expanded, _ := expandBracedEnv(n.Value)
-				refs = append(refs, envRef{path: path, raw: n.Value, expanded: expanded})
+				refs = append(refs, envRef{path: path, posPath: posPath, raw: n.Value, expanded: expanded})
 			}
 		}
 	}
-	walk(&doc, nil)
+	walk(&doc, nil, nil)
 	return refs, nil
+}
+
+// appendSeg returns a copy of path with seg appended.
+func appendSeg(path []string, seg string) []string {
+	return append(append([]string(nil), path...), seg)
+}
+
+// indexSeg is the positional path segment for sequence item i.
+func indexSeg(i int) string {
+	return "[" + strconv.Itoa(i) + "]"
 }
 
 // seqKey names a sequence item by its identifying field so a reordered
@@ -70,10 +85,12 @@ func seqKey(item *yaml.Node, i int, expand bool) string {
 			}
 		}
 	}
-	return "[" + strconv.Itoa(i) + "]"
+	return indexSeg(i)
 }
 
-// findPath returns the scalar node at path under root, or nil.
+// findPath returns the scalar node at path under root, or nil. A
+// sequence segment matches an item by its seqKey, or by position when the
+// segment is a positional "[i]".
 func findPath(root *yaml.Node, path []string) *yaml.Node {
 	n := root
 	if n.Kind == yaml.DocumentNode && len(n.Content) == 1 {
@@ -96,7 +113,7 @@ func findPath(root *yaml.Node, path []string) *yaml.Node {
 		case yaml.SequenceNode:
 			var next *yaml.Node
 			for i, c := range n.Content {
-				if seqKey(c, i, false) == seg {
+				if seqKey(c, i, false) == seg || indexSeg(i) == seg {
 					next = c
 					break
 				}
@@ -128,10 +145,8 @@ func (c *Config) marshalWithEnvRefs() ([]byte, error) {
 	// Resolve every node before rewriting any, since restoring a reference
 	// in an item's name would break the name-based matching of its siblings.
 	nodes := make([]*yaml.Node, len(c.envRefs))
-	for i, r := range c.envRefs {
-		if n := findPath(&root, r.path); n != nil && n.Value == r.expanded {
-			nodes[i] = n
-		}
+	for i := range c.envRefs {
+		nodes[i] = c.envRefs[i].resolve(&root)
 	}
 	for i, n := range nodes {
 		if n != nil {
@@ -141,6 +156,21 @@ func (c *Config) marshalWithEnvRefs() ([]byte, error) {
 		}
 	}
 	return yaml.Marshal(&root)
+}
+
+// resolve finds the node a recorded reference should be written back to:
+// the item named in path first, then the item at the same position (a
+// renamed item, or the second of two items sharing a name). Either way the
+// reference is restored only over a value identical to what it expanded
+// to, so the fallback cannot attach a reference to a different secret.
+func (r *envRef) resolve(root *yaml.Node) *yaml.Node {
+	if n := findPath(root, r.path); n != nil && n.Value == r.expanded {
+		return n
+	}
+	if n := findPath(root, r.posPath); n != nil && n.Value == r.expanded {
+		return n
+	}
+	return nil
 }
 
 // EnvRefVar reports the variable a field's whole value comes from, for a
