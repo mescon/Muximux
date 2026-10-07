@@ -62,6 +62,8 @@ All notable changes to Muximux are documented in this file.
   an unsupported type. HTML in an SVG label is still refused.
 
 ### Changed
+- A failed or cancelled OIDC sign-in now returns to the login page with a
+  message instead of a plain "Authentication failed" page. (#480)
 - Dependencies: OpenTelemetry modules moved to the 1.45 and 0.21 trains
   (GHSA-8wmf-6v46-5gfg, GHSA-w34q-cm8f-9c5x; reached only through the
   embedded Caddy and not called by Muximux), plus routine frontend and
