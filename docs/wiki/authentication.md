@@ -202,6 +202,11 @@ auth:
     admin_groups:                             # Groups that grant admin role
       - admins
       - muximux-admins
+    # provider_logout: false                  # End the session at the provider on logout
+    # post_logout_redirect_url: ""            # Where the provider sends the browser after logout
+    # logout_url: ""                          # End-session URL for providers without one in discovery
+    # auto_redirect: false                    # Skip the login page and go straight to SSO
+    # disable_local_login: false              # Refuse username/password sign-in
 ```
 
 ### How It Works
@@ -231,6 +236,42 @@ For step-by-step instructions tailored to a specific provider, including how to 
 - **[Authelia](forward-auth-authelia)** (forward auth or OIDC)
 - **[Cloudflare Access](forward-auth-cloudflare-access)** -- Cloudflare Zero Trust as forward auth
 
+### Signing out at the provider
+
+By default, logging out of Muximux ends only the Muximux session. The provider's own session stays open, so clicking "Login with SSO" again signs the user straight back in. Set `provider_logout: true` to also end the session at the provider:
+
+```yaml
+auth:
+  oidc:
+    provider_logout: true
+    post_logout_redirect_url: https://muximux.example.com/login?logged_out=1   # Optional
+    # logout_url: https://auth.example.com/logout                              # Optional
+```
+
+- On logout, a session created through OIDC sends the browser to the provider's end-session endpoint with `id_token_hint`, `client_id`, `post_logout_redirect_uri` and `state`. A local (username/password) session never does this.
+- `post_logout_redirect_url` is where the provider returns the browser. The default is the origin of `redirect_url`, plus the base path, plus `/login?logged_out=1`, for example `https://muximux.example.com/login?logged_out=1`. **Register this address at your provider**, or it will refuse the return. It must be an absolute `http` or `https` URL.
+- `logout_url` overrides the end-session address for providers that do not list an `end_session_endpoint` in their discovery document. It must be an absolute `http` or `https` URL.
+- If no end-session address is known, logout stays local.
+
+### SSO-only sign-in
+
+- `auto_redirect: true` makes the login page go straight to the provider. It does not do so right after logout (`?logged_out=1`), after a callback error, or when you open `/login?local=1`, which reaches the local form when local login is allowed.
+- `disable_local_login: true` refuses password sign-in (HTTP 403) and hides the form on the login page. API keys keep working, and `?local=1` does not bypass it.
+
+If the provider is down and you are locked out, set `disable_local_login: false` in `config.yaml` and restart Muximux.
+
+### Back-channel logout
+
+When a user signs out at the provider, the provider can tell Muximux so their sessions end there too. Enter this address as the back-channel logout URL in your provider:
+
+```
+https://muximux.example.com/api/auth/oidc/backchannel-logout
+```
+
+(Include your base path if Muximux is served under one.) The endpoint is always on when OIDC is enabled; there is nothing to configure in Muximux. It accepts a POST with a `logout_token` form field and checks the signature (against the provider's JWKS), issuer, audience, the back-channel logout event claim, that no nonce is present, that the token was issued at most 10 minutes ago, and that its `jti` has not been seen before. Sessions are matched by the token's `sid`, or by `sub` when there is no `sid`. Sessions are held in memory, so a restart signs everyone out.
+
+Each provider guide has a **Sign-out** section with the provider's field names.
+
 ### Environment Variables
 
 Use `${VAR_NAME}` syntax in `config.yaml` to reference environment variables. This is useful for secrets:
@@ -238,6 +279,8 @@ Use `${VAR_NAME}` syntax in `config.yaml` to reference environment variables. Th
 ```yaml
 client_secret: ${OIDC_CLIENT_SECRET}
 ```
+
+References stay in the file when you save from Settings, so secrets kept in the environment are not written out in plain text. A value you change in Settings replaces its reference. If a value with a reference sits inside a flow-style list or map such as `[a, ${B}]`, references in that file cannot be tracked and saves expand them as before.
 
 ---
 

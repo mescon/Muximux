@@ -109,6 +109,15 @@ Set `ZITADEL_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ---
 
+## Sign-out
+
+Zitadel supports RP-initiated logout at `/oidc/v1/end_session` (listed as `end_session_endpoint` in discovery) and OIDC back-channel logout.
+
+- **Return address.** The `post_logout_redirect_uri` must match one of the post-logout URIs registered on the application exactly. Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the application's post-logout redirect URIs (the **Redirect Settings** section of the application in Console), and set `provider_logout: true`.
+- **Back-channel logout.** Register `https://muximux.example.com/api/auth/oidc/backchannel-logout` as the application's back-channel logout URI (`backchannel_logout_uri`). The label of this field in Console could not be confirmed from the documentation consulted; check your Zitadel version's application settings. Once set, Zitadel notifies Muximux for sessions started after the setting was saved.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

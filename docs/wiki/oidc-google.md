@@ -94,6 +94,14 @@ For a Workspace-only deployment, **Internal** + manual role assignment in Muximu
 
 ---
 
+## Sign-out
+
+Google does not publish an `end_session_endpoint` in its discovery document and does not offer OIDC back-channel logout. Provider sign-out is not available: `provider_logout` has nothing to call, so logging out of Muximux only ends the Muximux session, and `logout_url` cannot replace the missing endpoint in any useful way. The user stays signed in to their Google account, which is usually what you want.
+
+If you want Muximux to be SSO-only, `auto_redirect` and `disable_local_login` still work with Google; see [Authentication](authentication#sso-only-sign-in).
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

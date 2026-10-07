@@ -117,6 +117,11 @@ auth:
     groups_claim: groups
     display_name_claim: name
     admin_groups: []           # Groups that grant admin role
+    provider_logout: false     # End the session at the provider on logout
+    post_logout_redirect_url: "" # Default: <origin of redirect_url>/login?logged_out=1; register it at the provider
+    logout_url: ""             # End-session URL for providers without one in discovery
+    auto_redirect: false       # Login page goes straight to SSO (except after logout, ?local=1 or an error)
+    disable_local_login: false # Refuse password sign-in (API keys still work)
 
 # ─── Theme ─────────────────────────────────────
 theme:

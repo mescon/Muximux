@@ -5,12 +5,22 @@ All notable changes to Muximux are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **OIDC sign-out at the identity provider.** With `auth.oidc.provider_logout`
+  on, logging out of Muximux also ends the session at the provider through
+  its end-session endpoint, with a configurable return address. (#480)
+- **SSO-only sign-in.** `auth.oidc.auto_redirect` skips the login page and
+  `auth.oidc.disable_local_login` refuses username/password sign-in. (#480)
+- **OIDC back-channel logout** at `/api/auth/oidc/backchannel-logout`:
+  signing out at the provider ends the user's Muximux sessions. (#480)
 - **`muximux.app.url` Docker label** -- open a discovered app at a fixed
   URL, such as its public name behind your own reverse proxy, without the
   built-in gateway. The app stays tracked and its health check follows the
   container as its IP changes. (#479)
 
 ### Fixed
+- **`${VAR}` references in `config.yaml` survive saving from Settings.**
+  They were written back as their expanded values, putting secrets kept in
+  the environment into the file in plain text.
 - **Auto-import no longer publishes every container on a gateway
   subdomain** when `server.tls.domain` is set. Only containers with
   `muximux.app.gateway.domain` get a gateway site; the derived default
