@@ -100,6 +100,15 @@ Restart Muximux. The `Login with SSO` button on `/login` now sends the user to E
 
 ---
 
+## Sign-out
+
+Entra ID offers RP-initiated logout through the `end_session_endpoint` in its discovery document, so `provider_logout: true` works without setting `logout_url`. Entra ID does not offer OIDC back-channel logout; it offers **front-channel** logout, which Muximux does not implement. Signing out at Microsoft therefore does not end the Muximux session.
+
+- **Return address.** Microsoft requires the `post_logout_redirect_uri` to match a redirect URI registered on the app. In the app registration, open **Authentication** and add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) under **Redirect URIs**.
+- **Front-channel logout URL.** Leave the **Front-channel logout URL** field empty; Muximux has no endpoint for it.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

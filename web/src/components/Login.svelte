@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { login } from '$lib/authStore';
+  import { login, consumeJustLoggedOut } from '$lib/authStore';
   import { getBase } from '$lib/api';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -13,14 +13,41 @@
   let loading = $state(false);
   let oidcEnabled = $state(false);
   let authMethod = $state('');
+  let localLogin = $state(true);
+  // Set from ?error=<code> when the OIDC callback sends the browser back
+  // here. Only the fixed codes the server emits are mapped; anything else
+  // gets the generic message, so URL text is never shown to the user.
+  let ssoError = $state<string | null>(null);
+
+  function ssoErrorMessage(code: string): string {
+    switch (code) {
+      case 'oidc_denied':
+        return m.login_oidcDenied();
+      case 'oidc_state':
+        return m.login_oidcState();
+      default:
+        return m.login_oidcFailed();
+    }
+  }
 
   onMount(async () => {
+    const justOut = consumeJustLoggedOut();
+    const errCode = new URLSearchParams(window.location.search).get('error');
+    if (errCode !== null) {
+      ssoError = ssoErrorMessage(errCode);
+    }
     try {
       const res = await fetch(`${getBase()}/api/auth/status`);
       if (res.ok) {
         const data = await res.json();
         oidcEnabled = data.oidc_enabled || false;
         authMethod = data.auth_method || '';
+        localLogin = data.local_login !== false;
+        const q = new URLSearchParams(window.location.search);
+        const skip = justOut || q.has('logged_out') || q.has('local') || q.has('error');
+        if (oidcEnabled && data.oidc_auto_redirect && !skip) {
+          handleOIDCLogin();
+        }
       }
     } catch {
       // Ignore errors
@@ -93,6 +120,11 @@
           </p>
         </div>
       {:else}
+        {#if ssoError}
+          <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm" role="alert">
+            {ssoError}
+          </div>
+        {/if}
         {#if oidcEnabled}
           <!-- OIDC Login Button -->
           <button
@@ -108,6 +140,7 @@
             {m.login_sso()}
           </button>
 
+          {#if localLogin}
           <!-- Divider -->
           <div class="relative mb-6">
             <div class="absolute inset-0 flex items-center">
@@ -117,8 +150,10 @@
               <span class="login-divider-text px-2">{m.login_orContinueWith()}</span>
             </div>
           </div>
+          {/if}
         {/if}
 
+      {#if localLogin}
       <form onsubmit={handleSubmit}>
         {#if error}
           <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm">
@@ -192,6 +227,9 @@
           {/if}
         </button>
       </form>
+      {:else}
+        <p class="text-sm text-text-muted text-center">{m.login_localDisabled()}</p>
+      {/if}
       {/if}
     </div>
   </div>

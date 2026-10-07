@@ -815,5 +815,9 @@
   "appForm_pinned": "Fixează în bară",
   "appForm_pinnedDesc": "Afișează această aplicație direct în bara de sus sau de jos, lângă meniurile grupurilor",
   "appForm_helpPinned": "Aplicațiile fixate au propriul buton în bară și se deschid cu un clic. Aplicația rămâne listată și în grupul ei.",
-  "nav_pinned": "Fixate"
+  "nav_pinned": "Fixate",
+  "login_localDisabled": "Autentificarea cu nume de utilizator și parolă este dezactivată. Folosește autentificarea unică (SSO).",
+  "login_oidcFailed": "Autentificarea unică (SSO) a eșuat. Încearcă din nou.",
+  "login_oidcDenied": "Autentificarea a fost anulată la furnizorul de identitate.",
+  "login_oidcState": "Cererea de autentificare a expirat sau a fost deja folosită. Încearcă din nou."
 }

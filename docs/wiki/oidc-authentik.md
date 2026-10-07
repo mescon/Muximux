@@ -116,6 +116,17 @@ Set `AUTHENTIK_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ---
 
+## Sign-out
+
+authentik supports RP-initiated logout (its OIDC discovery document lists an `end_session_endpoint`) and OIDC back-channel logout.
+
+- **Back-channel logout.** Edit the OAuth2/OpenID provider (**Applications > Providers**), enter `https://muximux.example.com/api/auth/oidc/backchannel-logout` in the **Logout URI** field and choose **Back-channel** as the **Logout Method**. The authentik documentation lists this feature as available from authentik 2025.8.
+- **Post-logout redirect.** authentik added `post_logout_redirect_uri` support for OAuth2 providers in release 2026.5, where the provider's redirect URIs can be given a logout type. On older releases, or if you cannot find the setting, check the authentik documentation for your version; the exact label could not be confirmed here. Register `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) there. If no post-logout redirect URIs are saved on the provider, authentik skips the matching.
+
+See [Authentication](authentication#oidc-openid-connect) for what each Muximux option does.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

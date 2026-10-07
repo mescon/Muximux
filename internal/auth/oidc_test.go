@@ -589,9 +589,7 @@ func TestHandleCallback_RejectsMissingIDToken(t *testing.T) {
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("expected 401 without id_token, got %d: %s", rec.Code, rec.Body.String())
-	}
+	assertCallbackFailed(t, rec, callbackErrFailed)
 }
 
 // --- exchangeCode ---
@@ -684,7 +682,7 @@ func TestHandleCallback_Success(t *testing.T) {
 		"name":               "OIDC User",
 		"groups":             []interface{}{"users", "admin-group"},
 	}
-	srv := mockOIDCServer(t, userinfo)
+	srv := mockOIDCServerWithIDClaims(t, userinfo, map[string]interface{}{"sid": "idp-session-1"})
 	defer srv.Close()
 
 	p, ss := newTestOIDCProvider(t, srv.URL)
@@ -736,6 +734,27 @@ func TestHandleCallback_Success(t *testing.T) {
 		t.Error("expected at least one session to be created")
 	}
 
+	// OIDC session data is kept for provider sign-out
+	sess := ss.GetFromRequest(requestWithCookies(cookies))
+	if sess == nil {
+		t.Fatal("expected session from callback cookie")
+	}
+	if sess.Data["oidc_sub"] != "user-123" {
+		t.Errorf("oidc_sub = %v, want user-123", sess.Data["oidc_sub"])
+	}
+	if sess.Data["oidc_iss"] != srv.URL {
+		t.Errorf("oidc_iss = %v, want %s", sess.Data["oidc_iss"], srv.URL)
+	}
+	if tok, _ := sess.Data["oidc_id_token"].(string); tok == "" {
+		t.Error("expected oidc_id_token to be stored")
+	}
+	if sess.Data["oidc_sid"] != "idp-session-1" {
+		t.Errorf("oidc_sid = %v, want idp-session-1", sess.Data["oidc_sid"])
+	}
+	if sess.Data["email"] != "oidc@example.com" || sess.Data["display_name"] != "OIDC User" {
+		t.Errorf("profile data = %v / %v", sess.Data["email"], sess.Data["display_name"])
+	}
+
 	// State should be consumed
 	p.statesMu.Lock()
 	if _, exists := p.states[testState]; exists {
@@ -756,9 +775,7 @@ func TestHandleCallback_InvalidState(t *testing.T) {
 
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("expected 400 for invalid state, got %d", rec.Code)
-	}
+	assertCallbackFailed(t, rec, callbackErrState)
 }
 
 func TestHandleCallback_MissingCode(t *testing.T) {
@@ -777,9 +794,7 @@ func TestHandleCallback_MissingCode(t *testing.T) {
 
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("expected 400 for missing code, got %d", rec.Code)
-	}
+	assertCallbackFailed(t, rec, callbackErrFailed)
 }
 
 func TestHandleCallback_ProviderError(t *testing.T) {
@@ -790,8 +805,42 @@ func TestHandleCallback_ProviderError(t *testing.T) {
 
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("expected 401 for provider error, got %d", rec.Code)
+	// The exact Location match also proves error_description is not reflected.
+	assertCallbackFailed(t, rec, callbackErrDenied)
+}
+
+func TestHandleCallback_ProviderErrorOtherThanDenied(t *testing.T) {
+	p, _ := newTestOIDCProvider(t, "http://unused")
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/callback?error=%3Cscript%3E&error_description=evil", nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+	assertCallbackFailed(t, rec, callbackErrFailed)
+}
+
+func TestHandleCallback_FailureRedirectHonoursBasePath(t *testing.T) {
+	p := newTestProvider(t, "https://unused.example.com", nil)
+	req := httptest.NewRequest(http.MethodGet, "/mx/api/auth/oidc/callback?state=unknown&code=x", nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+	if loc := rec.Header().Get("Location"); rec.Code != http.StatusFound || loc != "/mx/login?error="+callbackErrState {
+		t.Errorf("status = %d, Location = %q", rec.Code, loc)
+	}
+}
+
+// assertCallbackFailed checks that a failed callback sent the browser to
+// the login page with the given fixed error code and issued no session.
+func assertCallbackFailed(t *testing.T, rec *httptest.ResponseRecorder, code string) {
+	t.Helper()
+	if rec.Code != http.StatusFound {
+		t.Errorf("status = %d, want 302: %s", rec.Code, rec.Body.String())
+	}
+	if loc := rec.Header().Get("Location"); loc != "/login?error="+code {
+		t.Errorf("Location = %q, want /login?error=%s", loc, code)
+	}
+	for _, c := range rec.Result().Cookies() {
+		if c.Value != "" && c.MaxAge >= 0 {
+			t.Errorf("failed callback set cookie %s", c.Name)
+		}
 	}
 }
 
@@ -971,6 +1020,24 @@ func TestClose(t *testing.T) {
 	// Second Close must not panic or double-close.
 	if err := p.Close(); err != nil {
 		t.Errorf("second Close returned error: %v", err)
+	}
+}
+
+func TestClose_Concurrent(t *testing.T) {
+	p := &OIDCProvider{done: make(chan struct{})}
+	var wg sync.WaitGroup
+	for i := 0; i < 16; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_ = p.Close()
+		}()
+	}
+	wg.Wait()
+	select {
+	case <-p.done:
+	default:
+		t.Error("done channel not closed")
 	}
 }
 
@@ -1638,5 +1705,74 @@ func TestPKCE_StrictProviderAcceptsExchange(t *testing.T) {
 	p.statesMu.Unlock()
 	if _, err := p.exchangeCode(context.Background(), "code", verifier); err != nil {
 		t.Fatalf("a strict token endpoint rejected our PKCE exchange: %v", err)
+	}
+}
+
+func requestWithCookies(cookies []*http.Cookie) *http.Request {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	for _, c := range cookies {
+		r.AddCookie(c)
+	}
+	return r
+}
+
+// TestHandleCallback_ConcurrentBackchannelNoRace runs callback logins
+// while a back-channel sweep reads every session's Data. A session must
+// be complete before the store publishes it, or -race reports the
+// callback's Data writes against DeleteMatching's reads.
+func TestHandleCallback_ConcurrentBackchannelNoRace(t *testing.T) {
+	userinfo := map[string]interface{}{
+		"sub":                "user-race",
+		"preferred_username": "raceuser",
+		"groups":             []interface{}{"users"},
+	}
+	srv := mockOIDCServer(t, userinfo)
+	defer srv.Close()
+
+	p, ss := newTestOIDCProvider(t, srv.URL)
+	if err := p.loadDiscovery(context.Background()); err != nil {
+		t.Fatalf("loadDiscovery failed: %v", err)
+	}
+
+	const logins = 20
+	p.statesMu.Lock()
+	for i := 0; i < logins; i++ {
+		p.states[fmt.Sprintf("race-state-%d", i)] = stateEntry{createdAt: time.Now(), redirectURL: "/"}
+	}
+	p.statesMu.Unlock()
+
+	stop := make(chan struct{})
+	swept := make(chan struct{})
+	go func() {
+		defer close(swept)
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+				p.EndSessions("nobody", "")
+			}
+		}
+	}()
+
+	var wg sync.WaitGroup
+	for i := 0; i < logins; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/auth/oidc/callback?code=c&state=race-state-%d", i), nil)
+			rec := httptest.NewRecorder()
+			p.HandleCallback(rec, req)
+			if rec.Code != http.StatusFound {
+				t.Errorf("callback %d: status %d: %s", i, rec.Code, rec.Body.String())
+			}
+		}(i)
+	}
+	wg.Wait()
+	close(stop)
+	<-swept
+
+	if n := ss.Count(); n != logins {
+		t.Errorf("sessions = %d, want %d", n, logins)
 	}
 }

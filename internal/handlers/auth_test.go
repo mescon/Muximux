@@ -3,9 +3,17 @@ package handlers
 import (
 	"bytes"
 	"context"
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -763,7 +771,7 @@ func TestSetOIDCProvider(t *testing.T) {
 	handler := NewAuthHandler(ss, us, nil, "", nil, &sync.RWMutex{})
 
 	// Initially nil
-	if handler.oidcProvider != nil {
+	if handler.provider() != nil {
 		t.Error("expected nil oidcProvider initially")
 	}
 
@@ -771,7 +779,7 @@ func TestSetOIDCProvider(t *testing.T) {
 	provider := &auth.OIDCProvider{}
 	handler.SetOIDCProvider(provider)
 
-	if handler.oidcProvider != provider {
+	if handler.provider() != provider {
 		t.Error("expected oidcProvider to be set")
 	}
 }
@@ -2310,5 +2318,311 @@ func TestMe_JSONExposesLifecycleFlag(t *testing.T) {
 	}
 	if v != true {
 		t.Fatalf("can_use_docker_lifecycle = %v, want true", v)
+	}
+}
+
+func mockOIDCDiscoveryServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/.well-known/openid-configuration" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"issuer": srv.URL, "authorization_endpoint": srv.URL + "/authorize",
+			"token_endpoint": srv.URL + "/token", "userinfo_endpoint": srv.URL + "/userinfo",
+			"jwks_uri": srv.URL + "/jwks", "end_session_endpoint": srv.URL + "/logout",
+		})
+	}))
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestReplaceOIDCProvider(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	good := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: good.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	if err := h.ReplaceOIDCProvider(context.Background(), &cfg, ""); err != nil {
+		t.Fatal(err)
+	}
+	first := h.provider()
+
+	bad := cfg
+	bad.IssuerURL = "http://127.0.0.1:1"
+	if err := h.ReplaceOIDCProvider(context.Background(), &bad, ""); err == nil {
+		t.Fatal("unreachable issuer accepted")
+	}
+	if h.provider() != first {
+		t.Error("failed replacement changed the provider")
+	}
+
+	off := config.OIDCConfig{Enabled: false}
+	if err := h.ReplaceOIDCProvider(context.Background(), &off, ""); err != nil || h.provider() != nil {
+		t.Errorf("disable: err=%v provider=%v", err, h.provider())
+	}
+	if err := h.CloseOIDC(); err != nil {
+		t.Errorf("CloseOIDC with no provider: %v", err)
+	}
+}
+
+func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	var wg sync.WaitGroup
+	for i := 0; i < 8; i++ {
+		wg.Add(2)
+		go func() { defer wg.Done(); _ = h.ReplaceOIDCProvider(context.Background(), &cfg, "") }()
+		go func() {
+			defer wg.Done()
+			rec := httptest.NewRecorder()
+			h.AuthStatus(rec, httptest.NewRequest(http.MethodGet, "/api/auth/status", nil))
+		}()
+	}
+	wg.Wait()
+	_ = h.CloseOIDC()
+}
+
+var (
+	handlersKeyOnce sync.Once
+	handlersKey     *rsa.PrivateKey
+)
+
+func handlersTestKey(t *testing.T) *rsa.PrivateKey {
+	t.Helper()
+	handlersKeyOnce.Do(func() {
+		k, err := rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			t.Fatalf("generate RSA key: %v", err)
+		}
+		handlersKey = k
+	})
+	return handlersKey
+}
+
+// signLogoutToken signs claims as an RS256 JWT with the handlers test key.
+func signLogoutToken(t *testing.T, claims map[string]interface{}) string {
+	t.Helper()
+	hdr, _ := json.Marshal(map[string]string{"alg": "RS256", "typ": "JWT", "kid": "hk"})
+	body, err := json.Marshal(claims)
+	if err != nil {
+		t.Fatal(err)
+	}
+	in := base64.RawURLEncoding.EncodeToString(hdr) + "." + base64.RawURLEncoding.EncodeToString(body)
+	sum := sha256.Sum256([]byte(in))
+	sig, err := rsa.SignPKCS1v15(rand.Reader, handlersTestKey(t), crypto.SHA256, sum[:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	return in + "." + base64.RawURLEncoding.EncodeToString(sig)
+}
+
+// mockOIDCSigningServer serves discovery plus a JWKS with the public half
+// of the handlers test key.
+func mockOIDCSigningServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	pub := handlersTestKey(t).PublicKey
+	var srv *httptest.Server
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"issuer": srv.URL, "authorization_endpoint": srv.URL + "/authorize",
+			"token_endpoint": srv.URL + "/token", "jwks_uri": srv.URL + "/jwks",
+		})
+	})
+	mux.HandleFunc("/jwks", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"keys": []map[string]string{{
+			"kty": "RSA", "alg": "RS256", "use": "sig", "kid": "hk",
+			"n": base64.RawURLEncoding.EncodeToString(pub.N.Bytes()),
+			"e": base64.RawURLEncoding.EncodeToString(big.NewInt(int64(pub.E)).Bytes()),
+		}}})
+	})
+	srv = httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestOIDCBackchannelLogout(t *testing.T) {
+	store := auth.NewSessionStore("muximux_session", time.Hour, false)
+	h := NewAuthHandler(store, auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCSigningServer(t)
+
+	token := func(mutate func(map[string]interface{})) string {
+		c := map[string]interface{}{
+			"iss": srv.URL, "aud": "c", "iat": time.Now().Unix(),
+			"jti": fmt.Sprintf("jti-%d", time.Now().UnixNano()),
+			"sub": "u1", "sid": "sid-1",
+			"events": map[string]interface{}{"http://schemas.openid.net/event/backchannel-logout": map[string]interface{}{}},
+		}
+		if mutate != nil {
+			mutate(c)
+		}
+		return signLogoutToken(t, c)
+	}
+	form := func(method, tok string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(method, "/api/auth/oidc/backchannel-logout", strings.NewReader(url.Values{"logout_token": {tok}}.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		h.OIDCBackchannelLogout(rec, req)
+		return rec
+	}
+
+	if rec := form(http.MethodPost, token(nil)); rec.Code != http.StatusNotFound {
+		t.Errorf("OIDC disabled: got %d, want 404", rec.Code)
+	}
+
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	h.SetOIDCProvider(auth.NewOIDCProvider(&cfg, "", store, nil))
+
+	mk := func(sub, sid string) *auth.Session {
+		s, _ := store.Create(sub, sub, "user")
+		s.Data["oidc_sub"] = sub
+		s.Data["oidc_sid"] = sid
+		return s
+	}
+	target, other := mk("u1", "sid-1"), mk("u2", "sid-2")
+
+	rec := form(http.MethodPost, token(nil))
+	if rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-store" {
+		t.Errorf("valid: code=%d cache=%q body=%s", rec.Code, rec.Header().Get("Cache-Control"), rec.Body.String())
+	}
+	if store.Get(target.ID) != nil || store.Get(other.ID) == nil {
+		t.Error("expected only the matching session to be removed")
+	}
+
+	rec = form(http.MethodPost, token(func(c map[string]interface{}) { c["aud"] = "someone-else" }))
+	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), `"error":"invalid_request"`) {
+		t.Errorf("invalid: code=%d body=%s", rec.Code, rec.Body.String())
+	}
+	if rec = form(http.MethodPost, "garbage"); rec.Code != http.StatusBadRequest {
+		t.Errorf("garbage: got %d", rec.Code)
+	}
+
+	if rec = form(http.MethodGet, token(nil)); rec.Code != http.StatusMethodNotAllowed {
+		t.Errorf("GET: got %d, want 405", rec.Code)
+	}
+}
+
+// oidcHandlerWithDiscovery returns an AuthHandler whose OIDC provider has run
+// discovery against the mock server, plus the session store and the endpoint.
+func oidcHandlerWithDiscovery(t *testing.T, mutate func(*config.OIDCConfig)) (*AuthHandler, *auth.SessionStore, string) {
+	t.Helper()
+	store := auth.NewSessionStore("muximux_session", time.Hour, false)
+	userStore := auth.NewUserStore()
+	hash, err := auth.HashPassword("testpass123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	userStore.LoadFromConfig([]auth.UserConfig{{Username: "admin", PasswordHash: hash, Role: "admin"}})
+	h := NewAuthHandler(store, userStore, nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	if mutate != nil {
+		mutate(&cfg)
+	}
+	p := auth.NewOIDCProvider(&cfg, "", store, userStore)
+	if err := p.Discover(context.Background()); err != nil {
+		t.Fatalf("discover: %v", err)
+	}
+	h.SetOIDCProvider(p)
+	return h, store, srv.URL + "/logout"
+}
+
+func TestLogout_ProviderRedirect(t *testing.T) {
+	logout := func(t *testing.T, h *AuthHandler, store *auth.SessionStore, oidcSession bool) (map[string]interface{}, *httptest.ResponseRecorder, string) {
+		t.Helper()
+		s, err := store.Create("admin", "admin", "admin")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if oidcSession {
+			s.Data["oidc_id_token"] = "tok"
+		}
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/logout", nil)
+		req.AddCookie(&http.Cookie{Name: "muximux_session", Value: s.ID})
+		w := httptest.NewRecorder()
+		h.Logout(w, req)
+		var body map[string]interface{}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		return body, w, s.ID
+	}
+
+	t.Run("provider logout on", func(t *testing.T) {
+		h, store, endpoint := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.ProviderLogout = true })
+		body, w, id := logout(t, h, store, true)
+		red, _ := body["redirect"].(string)
+		if !strings.HasPrefix(red, endpoint) {
+			t.Errorf("redirect %q does not start with %q", red, endpoint)
+		}
+		if store.Get(id) != nil {
+			t.Error("session should be deleted")
+		}
+		if c := w.Result().Cookies(); len(c) == 0 || c[0].MaxAge >= 0 {
+			t.Error("cookie should be cleared")
+		}
+	})
+	t.Run("provider logout off", func(t *testing.T) {
+		h, store, _ := oidcHandlerWithDiscovery(t, nil)
+		body, _, id := logout(t, h, store, true)
+		if _, ok := body["redirect"]; ok {
+			t.Error("unexpected redirect")
+		}
+		if store.Get(id) != nil {
+			t.Error("session should be deleted")
+		}
+	})
+	t.Run("local session", func(t *testing.T) {
+		h, store, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.ProviderLogout = true })
+		body, _, _ := logout(t, h, store, false)
+		if _, ok := body["redirect"]; ok {
+			t.Error("unexpected redirect")
+		}
+	})
+}
+
+func TestAuthStatus_OIDCFlags(t *testing.T) {
+	get := func(h *AuthHandler) map[string]interface{} {
+		w := httptest.NewRecorder()
+		h.AuthStatus(w, httptest.NewRequest(http.MethodGet, "/api/auth/status", nil))
+		var body map[string]interface{}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		return body
+	}
+	h, _, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.AutoRedirect = true; c.DisableLocalLogin = true })
+	b := get(h)
+	if b["oidc_auto_redirect"] != true || b["local_login"] != false {
+		t.Errorf("enabled: %v", b)
+	}
+	h2, _ := setupAuthTest(t)
+	b = get(h2)
+	if b["oidc_auto_redirect"] != false || b["local_login"] != true {
+		t.Errorf("disabled: %v", b)
+	}
+}
+
+func TestLogin_LocalLoginDisabled(t *testing.T) {
+	login := func(h *AuthHandler) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", strings.NewReader(`{"username":"admin","password":"testpass123"}`))
+		w := httptest.NewRecorder()
+		h.Login(w, req)
+		return w
+	}
+	h, store, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.DisableLocalLogin = true })
+	w := login(h)
+	if w.Code != http.StatusForbidden || !strings.Contains(w.Body.String(), "local login is disabled") {
+		t.Errorf("got %d %s", w.Code, w.Body.String())
+	}
+	if len(w.Result().Cookies()) != 0 || store.Count() != 0 {
+		t.Error("no session should be created")
+	}
+	h2, _, _ := oidcHandlerWithDiscovery(t, nil)
+	if w := login(h2); w.Code != http.StatusOK {
+		t.Errorf("allowed: got %d %s", w.Code, w.Body.String())
 	}
 }

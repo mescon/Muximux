@@ -2052,3 +2052,73 @@ func TestBasePathValidation(t *testing.T) {
 		t.Error("Validate accepted a protocol-relative base_path")
 	}
 }
+
+func writeFile(t *testing.T, path, s string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(s), 0600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestValidateOIDC_LogoutURLs(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		o    OIDCConfig
+		ok   bool
+	}{
+		{"empty is fine", OIDCConfig{}, true},
+		{"absolute return address", OIDCConfig{PostLogoutRedirectURL: "https://dash.example.com/login"}, true},
+		{"relative return address", OIDCConfig{PostLogoutRedirectURL: "/login"}, false},
+		{"absolute logout url", OIDCConfig{LogoutURL: "https://idp.example.com/logout"}, true},
+		{"javascript logout url", OIDCConfig{LogoutURL: "javascript:alert(1)"}, false},
+		{"ftp logout url", OIDCConfig{LogoutURL: "ftp://idp.example.com/logout"}, false},
+		{"https with no host", OIDCConfig{LogoutURL: "https:///x"}, false},
+		{"only invalid logout_url set", OIDCConfig{LogoutURL: "not-a-url"}, false},
+	} {
+		err := ValidateOIDC(&tc.o)
+		if (err == nil) != tc.ok {
+			t.Errorf("%s: err = %v", tc.name, err)
+		}
+	}
+}
+
+func TestLoad_OIDCLogoutFields(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	writeFile(t, path, `auth:
+  method: oidc
+  oidc:
+    enabled: true
+    issuer_url: https://idp.example.com
+    client_id: muximux
+    redirect_url: https://dash.example.com/api/auth/oidc/callback
+    provider_logout: true
+    auto_redirect: true
+    disable_local_login: true
+    post_logout_redirect_url: https://dash.example.com/bye
+`)
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := cfg.Auth.OIDC
+	if !o.ProviderLogout || !o.AutoRedirect || !o.DisableLocalLogin || o.PostLogoutRedirectURL != "https://dash.example.com/bye" {
+		t.Errorf("fields not loaded: %+v", o)
+	}
+}
+
+func TestLoad_RejectsInvalidOIDCLogoutURL(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	writeFile(t, path, `auth:
+  method: oidc
+  oidc:
+    enabled: true
+    issuer_url: https://idp.example.com
+    client_id: muximux
+    redirect_url: https://dash.example.com/api/auth/oidc/callback
+    logout_url: ftp://idp.example.com/logout
+`)
+	_, err := Load(path)
+	if err == nil {
+		t.Error("Load accepted ftp:// logout_url, want error")
+	}
+}

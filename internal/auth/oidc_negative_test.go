@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -220,8 +221,8 @@ func TestHandleCallback_RejectsInvalidIDTokens(t *testing.T) {
 			rec := httptest.NewRecorder()
 			p.HandleCallback(rec, req)
 
-			if rec.Code != http.StatusUnauthorized {
-				t.Errorf("status = %d, want 401 (%s)\n  body: %s", rec.Code, tc.why, rec.Body.String())
+			if loc := rec.Header().Get("Location"); rec.Code != http.StatusFound || loc != "/login?error="+callbackErrFailed {
+				t.Errorf("status = %d, Location = %q, want 302 to the login error page (%s)", rec.Code, loc, tc.why)
 			}
 			// A rejected login must not leave a usable session behind.
 			for _, c := range rec.Result().Cookies() {
@@ -268,7 +269,7 @@ func TestHandleCallback_AcceptsValidIDToken(t *testing.T) {
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, req)
 
-	if rec.Code == http.StatusUnauthorized {
+	if strings.Contains(rec.Header().Get("Location"), "error=") {
 		t.Fatalf("a fully valid token was rejected, so the rejection table above "+
 			"proves nothing: status=%d body=%s", rec.Code, rec.Body.String())
 	}

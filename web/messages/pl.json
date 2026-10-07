@@ -815,5 +815,9 @@
   "appForm_pinned": "Przypnij do paska",
   "appForm_pinnedDesc": "Pokazuj tę aplikację bezpośrednio na górnym lub dolnym pasku, obok menu grup",
   "appForm_helpPinned": "Przypięte aplikacje mają własny przycisk na pasku i otwierają się jednym kliknięciem. Aplikacja pozostaje też w swojej grupie.",
-  "nav_pinned": "Przypięte"
+  "nav_pinned": "Przypięte",
+  "login_localDisabled": "Logowanie nazwą użytkownika i hasłem jest wyłączone. Użyj logowania jednokrotnego (SSO).",
+  "login_oidcFailed": "Logowanie jednokrotne (SSO) nie powiodło się. Spróbuj ponownie.",
+  "login_oidcDenied": "Logowanie zostało anulowane u dostawcy tożsamości.",
+  "login_oidcState": "Żądanie logowania wygasło lub zostało już użyte. Spróbuj ponownie."
 }

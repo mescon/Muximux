@@ -44,6 +44,10 @@ type Config struct {
 	// is initialised) surface the list via Warn so a missing env var
 	// doesn't silently leave a literal ${VAR} in a config field.
 	MissingEnvVars []string `yaml:"-" json:"-"`
+
+	// envRefs records scalars written as ${VAR} references in the loaded
+	// file so Save can write them back. Unexported, so YAML ignores it.
+	envRefs []envRef
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -439,6 +443,20 @@ type OIDCConfig struct {
 	GroupsClaim      string   `yaml:"groups_claim"`
 	DisplayNameClaim string   `yaml:"display_name_claim"`
 	AdminGroups      []string `yaml:"admin_groups"`
+	// ProviderLogout also signs the user out at the identity provider
+	// (RP-initiated logout via end_session_endpoint or LogoutURL).
+	ProviderLogout bool `yaml:"provider_logout,omitempty"`
+	// PostLogoutRedirectURL is where the provider sends the browser after
+	// sign-out. Empty: origin of RedirectURL + base path + /login?logged_out=1.
+	// Must be registered at the provider.
+	PostLogoutRedirectURL string `yaml:"post_logout_redirect_url,omitempty"`
+	// LogoutURL overrides the discovered end_session_endpoint.
+	LogoutURL string `yaml:"logout_url,omitempty"`
+	// AutoRedirect sends the login page straight to SSO.
+	AutoRedirect bool `yaml:"auto_redirect,omitempty"`
+	// DisableLocalLogin refuses username/password sign-in while OIDC is
+	// enabled. Recovery when the provider is down: set it false here.
+	DisableLocalLogin bool `yaml:"disable_local_login,omitempty"`
 }
 
 // NavigationConfig holds navigation layout settings
@@ -626,6 +644,13 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	// A failure here (e.g. ${VAR} inside a flow collection, which only
+	// parses after expansion) just means no references are remembered.
+	refs, err := recordEnvRefs(data)
+	if err != nil {
+		refs = nil
+	}
+
 	// Expand only ${VAR} (braced) environment variables — bare $VAR is NOT
 	// expanded because bcrypt hashes like $2a$10$... would be corrupted.
 	// The list of unresolved names is surfaced through MissingEnvVars
@@ -645,6 +670,7 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 	cfg.MissingEnvVars = missingEnv
+	cfg.envRefs = refs
 
 	// Normalize zero-value fields that have non-zero defaults
 	if cfg.Navigation.IconScale <= 0 {
@@ -863,9 +889,35 @@ func (c *Config) Validate() error {
 	return c.validate()
 }
 
+// ValidateOIDC checks the OIDC logout addresses: when set they must be
+// absolute http(s) URLs, since the browser is sent to them. Exported for
+// the settings endpoint, which validates before saving.
+func ValidateOIDC(o *OIDCConfig) error {
+	checks := []struct {
+		name  string
+		value string
+	}{
+		{"auth.oidc.post_logout_redirect_url", o.PostLogoutRedirectURL},
+		{"auth.oidc.logout_url", o.LogoutURL},
+	}
+	for _, check := range checks {
+		if check.value == "" {
+			continue
+		}
+		u, err := url.Parse(check.value)
+		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
+			return fmt.Errorf("%s must be an absolute http(s) URL", check.name)
+		}
+	}
+	return nil
+}
+
 // validate checks the configuration for contradictory or incomplete settings.
 func (c *Config) validate() error {
 	if err := validateBasePath(c.Server.BasePath); err != nil {
+		return err
+	}
+	if err := ValidateOIDC(&c.Auth.OIDC); err != nil {
 		return err
 	}
 	tls := c.Server.TLS
@@ -1580,7 +1632,7 @@ func (c *Config) Save(path string) error {
 			return err
 		}
 	}
-	data, err := yaml.Marshal(c)
+	data, err := c.marshalWithEnvRefs()
 	if err != nil {
 		return err
 	}
@@ -1611,6 +1663,12 @@ func (c *Config) Save(path string) error {
 	if err := os.Rename(tmpName, path); err != nil {
 		os.Remove(tmpName) // don't leave the temp file behind on a failed rename
 		return err
+	}
+	// Re-record the references from what was just written, so the next
+	// save matches items by their current names and positions rather than
+	// the ones they had when the file was loaded.
+	if refs, err := recordEnvRefs(data); err == nil {
+		c.envRefs = refs
 	}
 	// fsync the parent directory so the rename hits stable storage
 	// before Save returns. Without this, a power loss between rename

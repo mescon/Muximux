@@ -815,5 +815,9 @@
   "appForm_pinned": "Kinnita ribale",
   "appForm_pinnedDesc": "Näita seda rakendust otse üla- või alaribal rühmade rippmenüüde kõrval",
   "appForm_helpPinned": "Kinnitatud rakendused saavad ribale oma nupu ja avanevad ühe klõpsuga. Rakendus jääb ka oma rühma nimekirja.",
-  "nav_pinned": "Kinnitatud"
+  "nav_pinned": "Kinnitatud",
+  "login_localDisabled": "Kasutajanime ja parooliga sisselogimine on välja lülitatud. Kasuta ühekordset sisselogimist.",
+  "login_oidcFailed": "Ühekordne sisselogimine ebaõnnestus. Proovi uuesti.",
+  "login_oidcDenied": "Sisselogimine tühistati identiteedipakkuja juures.",
+  "login_oidcState": "Sisselogimise päring aegus või on juba kasutatud. Proovi uuesti."
 }

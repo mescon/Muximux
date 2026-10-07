@@ -465,6 +465,8 @@ func TestCSRFMiddleware(t *testing.T) {
 		{"PATCH API without marker blocked", "PATCH", "/api/app/test", "", "", http.StatusForbidden},
 		{"PATCH API with X-Requested-With passes", "PATCH", "/api/app/test", "", "XMLHttpRequest", http.StatusOK},
 		{"POST non-API passes", "POST", "/login", "", "", http.StatusOK},
+		{"back-channel logout form POST passes", "POST", backchannelLogoutPath, "application/x-www-form-urlencoded", "", http.StatusOK},
+		{"other API form POST still blocked", "POST", "/api/apps", "application/x-www-form-urlencoded", "", http.StatusForbidden},
 	}
 
 	for _, tt := range tests {

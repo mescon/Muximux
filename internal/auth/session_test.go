@@ -293,6 +293,23 @@ func TestDeleteByUserID_NoExcept(t *testing.T) {
 	}
 }
 
+func TestDeleteMatching(t *testing.T) {
+	store := NewSessionStore("muximux_session", time.Hour, false)
+	defer store.Close()
+	a, _ := store.Create("alice", "alice", "user")
+	a2, _ := store.Create("alice", "alice", "user")
+	b, _ := store.Create("bob", "bob", "user")
+	for _, s := range []*Session{a, a2} {
+		s.Data["oidc_sub"] = "sub-alice"
+	}
+	b.Data["oidc_sub"] = "sub-bob"
+
+	n := store.DeleteMatching(func(s *Session) bool { return s.Data["oidc_sub"] == "sub-alice" })
+	if n != 2 || store.Get(a.ID) != nil || store.Get(a2.ID) != nil || store.Get(b.ID) == nil {
+		t.Errorf("deleted %d; alice=%v,%v bob=%v", n, store.Get(a.ID), store.Get(a2.ID), store.Get(b.ID))
+	}
+}
+
 // --- GetFromRequest ---
 
 func TestGetFromRequest(t *testing.T) {
@@ -494,5 +511,31 @@ func TestRefresh_CappedByAbsoluteMaxAge(t *testing.T) {
 	// the absolute cap, not the configured 10m rolling window.
 	if ttl > 50*time.Millisecond {
 		t.Errorf("refresh exceeded absolute cap: ttl=%v", ttl)
+	}
+}
+
+func TestSessionStore_CreateWithData(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+	defer store.Close()
+
+	in := map[string]interface{}{"oidc_sub": "alice", "groups": []string{"a"}}
+	s, err := store.CreateWithData("alice", "alice", RoleUser, in)
+	if err != nil {
+		t.Fatalf("CreateWithData: %v", err)
+	}
+	got := store.Get(s.ID)
+	if got == nil || got.Data["oidc_sub"] != "alice" {
+		t.Fatalf("stored data = %v", got)
+	}
+	// The caller's map is copied, so later writes to it do not reach
+	// the published session.
+	in["oidc_sub"] = "mallory"
+	if store.Get(s.ID).Data["oidc_sub"] != "alice" {
+		t.Error("session data shares the caller's map")
+	}
+
+	empty, err := store.CreateWithData("bob", "bob", RoleUser, nil)
+	if err != nil || empty.Data == nil || len(empty.Data) != 0 {
+		t.Errorf("nil data: session=%+v err=%v", empty, err)
 	}
 }

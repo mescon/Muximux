@@ -384,9 +384,7 @@ func TestOIDC_StateOneTimeUse(t *testing.T) {
 	rec2 := httptest.NewRecorder()
 	p.HandleCallback(rec2, req2)
 
-	if rec2.Code != http.StatusBadRequest {
-		t.Errorf("replay: expected 400 for reused state, got %d", rec2.Code)
-	}
+	assertCallbackFailed(t, rec2, callbackErrState)
 }
 
 // TestOIDC_ProviderErrorCodes verifies handling of standard OIDC error
@@ -417,8 +415,15 @@ func TestOIDC_ProviderErrorCodes(t *testing.T) {
 
 			p.HandleCallback(rec, req)
 
-			if rec.Code != http.StatusUnauthorized {
-				t.Errorf("expected 401 for error %q, got %d", tt.error, rec.Code)
+			want := callbackErrFailed
+			if tt.error == "access_denied" {
+				want = callbackErrDenied
+			}
+			assertCallbackFailed(t, rec, want)
+			// error_description is provider-supplied text and must not
+			// be reflected into the redirect.
+			if tt.desc != "" && strings.Contains(rec.Header().Get("Location"), url.QueryEscape(tt.desc)) {
+				t.Errorf("provider text reflected into Location: %s", rec.Header().Get("Location"))
 			}
 		})
 	}
@@ -625,9 +630,7 @@ func TestOIDC_TokenEndpointError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("expected 500 for failed token exchange, got %d", rec.Code)
-	}
+	assertCallbackFailed(t, rec, callbackErrFailed)
 
 	// Response should not contain internal error details
 	body := rec.Body.String()
@@ -666,9 +669,7 @@ func TestOIDC_UserinfoEndpointError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, req)
 
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("expected 500 for failed userinfo, got %d", rec.Code)
-	}
+	assertCallbackFailed(t, rec, callbackErrFailed)
 }
 
 // failingUserinfoHandler returns a mux mirroring mockOIDCServer but where

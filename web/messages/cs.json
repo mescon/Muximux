@@ -815,5 +815,9 @@
   "appForm_pinned": "Připnout na lištu",
   "appForm_pinnedDesc": "Zobrazit tuto aplikaci přímo v horní nebo dolní liště vedle rozbalovacích nabídek skupin",
   "appForm_helpPinned": "Připnuté aplikace mají na liště vlastní tlačítko a otevřou se jedním kliknutím. Aplikace zůstává uvedena i ve své skupině.",
-  "nav_pinned": "Připnuté"
+  "nav_pinned": "Připnuté",
+  "login_localDisabled": "Přihlášení pomocí uživatelského jména a hesla je vypnuto. Použijte jednotné přihlášení (SSO).",
+  "login_oidcFailed": "Jednotné přihlášení (SSO) selhalo. Zkuste to znovu.",
+  "login_oidcDenied": "Přihlášení bylo zrušeno u poskytovatele identity.",
+  "login_oidcState": "Požadavek na přihlášení vypršel nebo již byl použit. Zkuste to znovu."
 }

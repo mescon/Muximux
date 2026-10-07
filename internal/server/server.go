@@ -61,7 +61,7 @@ type Server struct {
 	userStore        *auth.UserStore
 	authMiddleware   *auth.Middleware
 	proxyServer      *proxy.Proxy
-	oidcProvider     *auth.OIDCProvider
+	authHandler      *handlers.AuthHandler
 	discoveryService *discovery.Service
 	discoveryPoller  *discovery.Poller
 	// rebuildProxyRoutes is the shared closure that asks the
@@ -75,6 +75,7 @@ type Server struct {
 	setupToken         string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
 	loginLimiter       *rateLimiter
 	setupLimiter       *rateLimiter
+	backchannelLimiter *rateLimiter
 	lifecycleLimiter   *rateLimiter
 	logCh              chan logging.LogEntry
 	cleanupDone        chan struct{}
@@ -137,10 +138,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Set up OIDC provider if configured
 	if cfg.Auth.OIDC.Enabled {
-		oidcProvider := setupOIDC(cfg, sessionStore, userStore)
-		authHandler.SetOIDCProvider(oidcProvider)
-		s.oidcProvider = oidcProvider
+		authHandler.SetOIDCProvider(setupOIDC(cfg, sessionStore, userStore))
 	}
+	s.authHandler = authHandler
 
 	// requireAdmin checks that the authenticated user has admin role.
 	// Used to protect state-changing API endpoints.
@@ -160,6 +160,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	})
 
 	s.loginLimiter = registerAuthRoutes(mux, authHandler, wsHub, authMiddleware)
+
+	// A provider may send many logout notices from one address, so this
+	// route gets its own, looser limiter.
+	s.backchannelLimiter = newRateLimiter(120, 1*time.Minute, authMiddleware.GetClientIP)
+	mux.HandleFunc(backchannelLogoutPath, s.backchannelLimiter.wrap(authHandler.OIDCBackchannelLogout))
 
 	s.setupLimiter = newRateLimiter(5, 1*time.Minute, authMiddleware.GetClientIP)
 	mux.HandleFunc("/api/auth/setup", s.setupLimiter.wrap(s.handleSetup))
@@ -1799,6 +1804,9 @@ func (s *Server) Stop() error {
 	if s.setupLimiter != nil {
 		s.setupLimiter.stop()
 	}
+	if s.backchannelLimiter != nil {
+		s.backchannelLimiter.stop()
+	}
 	if s.lifecycleLimiter != nil {
 		s.lifecycleLimiter.stop()
 	}
@@ -1820,8 +1828,8 @@ func (s *Server) Stop() error {
 	if s.wsHub != nil {
 		s.wsHub.Close()
 	}
-	if s.oidcProvider != nil {
-		if err := s.oidcProvider.Close(); err != nil {
+	if s.authHandler != nil {
+		if err := s.authHandler.CloseOIDC(); err != nil {
 			logging.Warn("Failed to close OIDC provider", "source", "server", "error", err)
 		}
 	}
@@ -2505,9 +2513,17 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 // classic cross-origin browser-form vector. The same-origin
 // trade-off is documented in docs/wiki/security.md as part of the
 // proxy mount design.
+const backchannelLogoutPath = "/api/auth/oidc/backchannel-logout"
+
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !strings.HasPrefix(r.URL.Path, "/api/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// The identity provider posts the logout token form-encoded,
+		// server to server; it has no browser session to forge.
+		if r.URL.Path == backchannelLogoutPath {
 			next.ServeHTTP(w, r)
 			return
 		}

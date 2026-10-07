@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -18,6 +20,7 @@ import (
 type AuthHandler struct {
 	sessionStore          *auth.SessionStore
 	userStore             *auth.UserStore
+	oidcMu                sync.RWMutex
 	oidcProvider          *auth.OIDCProvider
 	setupChecker          func() bool
 	config                *config.Config
@@ -96,9 +99,50 @@ func (h *AuthHandler) SetBypassRules(rules []auth.BypassRule) {
 	h.bypassRules = rules
 }
 
-// SetOIDCProvider sets the OIDC provider for OIDC authentication
+// provider returns the current OIDC provider, or nil.
+func (h *AuthHandler) provider() *auth.OIDCProvider {
+	h.oidcMu.RLock()
+	defer h.oidcMu.RUnlock()
+	return h.oidcProvider
+}
+
+// SetOIDCProvider sets the OIDC provider for OIDC authentication.
 func (h *AuthHandler) SetOIDCProvider(provider *auth.OIDCProvider) {
+	h.oidcMu.Lock()
 	h.oidcProvider = provider
+	h.oidcMu.Unlock()
+}
+
+// ReplaceOIDCProvider builds a provider from cfg, checks the identity
+// provider is reachable, and swaps it in, closing the old one. A failed
+// check changes nothing. A disabled cfg removes the provider. Existing
+// sessions stay valid; logins in flight on the old provider fail with the
+// usual invalid-state error.
+func (h *AuthHandler) ReplaceOIDCProvider(ctx context.Context, cfg *config.OIDCConfig, basePath string) error {
+	var next *auth.OIDCProvider
+	if cfg.Enabled {
+		next = auth.NewOIDCProvider(cfg, basePath, h.sessionStore, h.userStore)
+		if err := next.Discover(ctx); err != nil {
+			_ = next.Close()
+			return fmt.Errorf("OIDC discovery failed: %w", err)
+		}
+	}
+	h.oidcMu.Lock()
+	old := h.oidcProvider
+	h.oidcProvider = next
+	h.oidcMu.Unlock()
+	if old != nil {
+		_ = old.Close()
+	}
+	return nil
+}
+
+// CloseOIDC stops the current provider's background work (shutdown).
+func (h *AuthHandler) CloseOIDC() error {
+	if p := h.provider(); p != nil {
+		return p.Close()
+	}
+	return nil
 }
 
 // SetSetupChecker sets the function used to check if setup is required.
@@ -225,6 +269,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if p := h.provider(); p != nil && p.Enabled() && p.Config().DisableLocalLogin {
+		logging.From(r.Context()).Warn("Local login refused: disabled while OIDC is enabled", "source", "audit")
+		sendJSON(w, http.StatusForbidden, LoginResponse{Success: false, Message: "local login is disabled"})
+		return
+	}
+
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		sendJSON(w, http.StatusBadRequest, LoginResponse{
@@ -270,8 +320,20 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Carry the user's group memberships on the session so gateway sites
+	// with an allowed_groups gate accept builtin users. The gateway
+	// forward-auth check (sessionInAllowedGroups) reads groups from
+	// session.Data, which the OIDC path populates too; without this a
+	// builtin member of an allowed group is denied at a require_auth gate.
+	// The data goes in at creation so the session is never published
+	// half-built.
+	var data map[string]interface{}
+	if len(user.Groups) > 0 {
+		data = map[string]interface{}{"groups": user.Groups}
+	}
+
 	// Create session
-	session, err := h.sessionStore.Create(user.ID, user.Username, user.Role)
+	session, err := h.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
 		sendJSON(w, http.StatusInternalServerError, LoginResponse{
@@ -279,15 +341,6 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Message: "Failed to create session",
 		})
 		return
-	}
-
-	// Carry the user's group memberships on the session so gateway sites
-	// with an allowed_groups gate accept builtin users. The gateway
-	// forward-auth check (sessionInAllowedGroups) reads groups from
-	// session.Data, which the OIDC path populates too; without this a
-	// builtin member of an allowed group is denied at a require_auth gate.
-	if len(user.Groups) > 0 {
-		session.Data["groups"] = user.Groups
 	}
 
 	// Set session cookie
@@ -311,16 +364,26 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	// Get current session
 	session := h.sessionStore.GetFromRequest(r)
 	username := "unknown"
+	redirect := ""
 	if session != nil {
 		username = session.Username
+		if p := h.provider(); p != nil && p.Enabled() {
+			if u, ok := p.EndSessionURL(session); ok {
+				redirect = u
+			}
+		}
 		h.sessionStore.Delete(session.ID)
 	}
 
 	// Clear cookie
 	h.sessionStore.ClearCookie(w)
-	logging.From(r.Context()).Info("User logged out", "source", "audit", "user", username)
+	logging.From(r.Context()).Info("User logged out", "source", "audit", "user", username, "provider_logout", redirect != "")
 
-	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
+	resp := map[string]interface{}{"success": true}
+	if redirect != "" {
+		resp["redirect"] = redirect
+	}
+	sendJSON(w, http.StatusOK, resp)
 }
 
 // Me handles GET /api/auth/me - returns current user info
@@ -468,10 +531,14 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		h.configMu.RUnlock()
 	}
 
+	oidc := h.provider()
+	oidcOn := oidc != nil && oidc.Enabled()
 	response := map[string]interface{}{
-		"authenticated": user != nil,
-		"oidc_enabled":  h.oidcProvider != nil && h.oidcProvider.Enabled(),
-		"auth_method":   authMethod,
+		"authenticated":      user != nil,
+		"oidc_enabled":       oidcOn,
+		"oidc_auto_redirect": oidcOn && oidc.Config().AutoRedirect,
+		"local_login":        !oidcOn || !oidc.Config().DisableLocalLogin,
+		"auth_method":        authMethod,
 	}
 
 	if authMethod == "forward_auth" && logoutURL != "" {
@@ -491,22 +558,49 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 // OIDCLogin handles GET /api/auth/oidc/login - redirects to OIDC provider
 func (h *AuthHandler) OIDCLogin(w http.ResponseWriter, r *http.Request) {
-	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
+	p := h.provider()
+	if p == nil || !p.Enabled() {
 		respondError(w, r, http.StatusNotFound, "OIDC not configured")
 		return
 	}
 
-	h.oidcProvider.HandleLogin(w, r)
+	p.HandleLogin(w, r)
 }
 
 // OIDCCallback handles GET /api/auth/oidc/callback - OIDC callback
 func (h *AuthHandler) OIDCCallback(w http.ResponseWriter, r *http.Request) {
-	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
+	p := h.provider()
+	if p == nil || !p.Enabled() {
 		respondError(w, r, http.StatusNotFound, "OIDC not configured")
 		return
 	}
 
-	h.oidcProvider.HandleCallback(w, r)
+	p.HandleCallback(w, r)
+}
+
+// OIDCBackchannelLogout handles POST /api/auth/oidc/backchannel-logout
+// (OpenID Connect Back-Channel Logout 1.0). The provider calls it
+// server-to-server with a signed logout token.
+func (h *AuthHandler) OIDCBackchannelLogout(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	if r.Method != http.MethodPost {
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+		return
+	}
+	p := h.provider()
+	if p == nil || !p.Enabled() {
+		respondError(w, r, http.StatusNotFound, "OIDC not configured")
+		return
+	}
+	sub, sid, err := p.VerifyLogoutToken(r.Context(), r.PostFormValue("logout_token"))
+	if err != nil {
+		logging.From(r.Context()).Warn("OIDC back-channel logout rejected", "source", "audit", "error", err.Error())
+		sendJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid_request"})
+		return
+	}
+	n := p.EndSessions(sub, sid)
+	logging.From(r.Context()).Info("OIDC back-channel logout", "source", "audit", "sub", sub, "sid", sid, "sessions", n)
+	w.WriteHeader(http.StatusOK)
 }
 
 // syncUsersToConfig persists the current user store to the config file.

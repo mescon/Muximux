@@ -815,5 +815,9 @@
   "appForm_pinned": "Épingler dans la barre",
   "appForm_pinnedDesc": "Afficher cette application directement dans la barre supérieure ou inférieure, à côté des menus de groupe",
   "appForm_helpPinned": "Les applications épinglées ont leur propre bouton dans la barre et s'ouvrent en un clic. L'application reste aussi listée dans son groupe.",
-  "nav_pinned": "Épinglées"
+  "nav_pinned": "Épinglées",
+  "login_localDisabled": "La connexion par nom d'utilisateur et mot de passe est désactivée. Utilisez l'authentification unique.",
+  "login_oidcFailed": "L'authentification unique a échoué. Veuillez réessayer.",
+  "login_oidcDenied": "La connexion a été annulée auprès du fournisseur d'identité.",
+  "login_oidcState": "La demande de connexion a expiré ou a déjà été utilisée. Veuillez réessayer."
 }

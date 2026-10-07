@@ -103,6 +103,17 @@ Set `KEYCLOAK_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ---
 
+## Sign-out
+
+Keycloak supports RP-initiated logout (its discovery document lists an `end_session_endpoint`) and OIDC back-channel logout.
+
+- **Sign out at Keycloak from Muximux.** Set `provider_logout: true` under `auth.oidc`. In the client's settings, add Muximux's return address (`https://muximux.example.com/login?logged_out=1`, or your `post_logout_redirect_url`) to **Valid post logout redirect URIs**. A value of `+` reuses the **Valid redirect URIs** list, but that list holds only the callback URL, so add the return address explicitly.
+- **Sign out of Muximux when the user signs out at Keycloak.** In the client's settings, under the logout settings, set **Backchannel logout URL** to `https://muximux.example.com/api/auth/oidc/backchannel-logout` and turn **Backchannel logout session required** on, so Keycloak includes the session ID (`sid`) in the logout token. Leave **Front channel logout** off: Keycloak uses the back-channel URL only when front-channel logout is off.
+
+See [Authentication](authentication#oidc-openid-connect) for what each option does.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

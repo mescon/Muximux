@@ -815,5 +815,9 @@
   "appForm_pinned": "Prikvači na traku",
   "appForm_pinnedDesc": "Prikaži ovu aplikaciju izravno u gornjoj ili donjoj traci, uz padajuće izbornike grupa",
   "appForm_helpPinned": "Prikvačene aplikacije imaju vlastiti gumb na traci i otvaraju se jednim klikom. Aplikacija ostaje navedena i u svojoj grupi.",
-  "nav_pinned": "Prikvačene"
+  "nav_pinned": "Prikvačene",
+  "login_localDisabled": "Prijava korisničkim imenom i lozinkom je isključena. Koristite jedinstvenu prijavu (SSO).",
+  "login_oidcFailed": "Jedinstvena prijava (SSO) nije uspjela. Pokušajte ponovno.",
+  "login_oidcDenied": "Prijava je otkazana kod pružatelja identiteta.",
+  "login_oidcState": "Zahtjev za prijavu je istekao ili je već iskorišten. Pokušajte ponovno."
 }

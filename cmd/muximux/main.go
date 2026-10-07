@@ -174,8 +174,8 @@ func main() {
 	applyOverrides(cfg, *listenAddr, *basePath)
 
 	// Warn if OIDC client_secret is stored as plaintext in config
-	if cfg.Auth.OIDC.Enabled && cfg.Auth.OIDC.ClientSecret != "" && !config.IsBracedEnvRef(cfg.Auth.OIDC.ClientSecret) {
-		logging.Warn("OIDC client_secret is stored in plaintext config — consider using ${ENV_VAR} syntax", "source", "config")
+	if cfg.OIDCClientSecretInPlaintext() {
+		logging.Warn("OIDC client_secret is stored in plaintext config: consider using ${ENV_VAR} syntax", "source", "config")
 	}
 
 	// Warn about ${VAR} references the loader couldn't resolve. Without
