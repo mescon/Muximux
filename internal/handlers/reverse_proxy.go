@@ -1358,17 +1358,21 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// worker started from a blob: URL never passes through the proxy. Read
 		// the blob's source (a synchronous same-document read of local data)
 		// and start the worker from a new blob with the prelude in front,
-		// restating "use strict" when the source opens with it. Any failure
-		// (revoked blob, unexpected status) falls back to the original blob.
+		// restating "use strict" when the source's directive prologue has it
+		// (_us, the same scanner the proxy uses server-side). Any failure
+		// (revoked blob, unexpected status) falls back to the original blob,
+		// and a replacement blob whose worker failed to start is revoked.
 		// SharedWorker blobs are left alone: a fresh blob URL per construction
 		// would stop instances sharing one worker.
 		`var WP=` + r.workerPreludeJSLiteral() + `;` +
+		`var _us=` + jsUseStrictScanner + `;` +
 		`var _Wk=window.Worker;` +
-		`if(_Wk){var _wb=function(u,o){try{var x=new XMLHttpRequest();_X.call(x,"GET",u,false);x.send();` +
+		`if(_Wk){var _wb=function(u,o){var b;try{var x=new XMLHttpRequest();_X.call(x,"GET",u,false);x.send();` +
 		`if(x.status!==200)return null;var s=x.responseText;` +
-		`var d=/^\s*(?:(?:\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)\s*)*(?:'use strict'|"use strict")/.test(s)?'"use strict";':"";` +
-		`var b=URL.createObjectURL(new Blob([d,WP,"\n",s],{type:"text/javascript"}));` +
-		`var w=o!==void 0?new _Wk(b,o):new _Wk(b);setTimeout(function(){URL.revokeObjectURL(b)},60000);return w}catch(e){return null}};` +
+		`var d=_us(s)?'"use strict";':"";` +
+		`b=URL.createObjectURL(new Blob([d,WP,"\n",s],{type:"text/javascript"}));` +
+		`var w=o!==void 0?new _Wk(b,o):new _Wk(b);setTimeout(function(){URL.revokeObjectURL(b)},60000);return w}` +
+		`catch(e){if(b)URL.revokeObjectURL(b);return null}};` +
 		`window.Worker=function(u,o){if(u instanceof URL)u=u.href;` +
 		`if(typeof u==="string"){if(u.slice(0,5)==="blob:"){var w=_wb(u,o);if(w)return w}else u=R(u)}` +
 		`return o!==void 0?new _Wk(u,o):new _Wk(u)};` +

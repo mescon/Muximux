@@ -3217,6 +3217,14 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 	if !strings.Contains(script, `u.slice(0,5)==="blob:"`) || !strings.Contains(script, `new Blob([d,WP,"\n",s]`) {
 		t.Error("interceptor should rebuild blob: workers with the prelude in front")
 	}
+	// A replacement blob whose worker fails to start is revoked at once
+	// rather than held until the document unloads.
+	if !strings.Contains(script, `catch(e){if(b)URL.revokeObjectURL(b);return null}`) {
+		t.Error("interceptor should revoke the replacement blob when the worker fails to start")
+	}
+	if !strings.Contains(script, `var _us=`+jsUseStrictScanner+`;`) || !strings.Contains(script, `var d=_us(s)?`) {
+		t.Error("interceptor should detect a use strict directive with the shared prologue scanner")
+	}
 	if n := strings.Count(script, `</script`); n != 1 {
 		t.Errorf("interceptor contains %d closing script tags, want only its own; the embedded worker prelude must not terminate it", n)
 	}

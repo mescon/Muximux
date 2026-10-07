@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os/exec"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -117,6 +118,68 @@ func TestWorkerPrelude_RunsOnce(t *testing.T) {
 	seen := runPreludeInNode(t, prelude+"\n"+prelude, "blob:http://h.example/u", `fetch("/x");`)
 	if len(seen) != 1 || seen[0] != "fetch http://h.example/proxy/app/x" {
 		t.Errorf("seen = %q, want a single prefixed fetch", seen)
+	}
+}
+
+// useStrictCases is shared by the Go scanner and the JavaScript scanner the
+// page interceptor uses for blob workers, so the two cannot drift apart.
+var useStrictCases = []struct {
+	name string
+	src  string
+	want bool
+}{
+	{"single quotes", "'use strict';x()", true},
+	{"double quotes, newline terminated", "\"use strict\"\nx()", true},
+	{"after comments", "/* banner */\n// more\n'use strict';", true},
+	{"after another directive", "'use asm';'use strict';", true},
+	{"directives terminated by newlines", "'use asm'\n'use strict'\n", true},
+	{"at end of input", "'use strict'", true},
+	{"after a byte order mark", "\ufeff'use strict';", true},
+	{"followed by a closing brace", "'use strict'}", true},
+	{"member access on the string", "'use strict'.length", false},
+	{"member access on the next line", "'use strict'\n.length", false},
+	{"string used in an expression", "'use strict' + x", false},
+	{"after a statement", "x();'use strict';", false},
+	{"after a non-directive statement", "'a';\nfoo();\n'use strict';", false},
+	{"escaped text is not the directive", "'use\\x20strict';", false},
+	{"inside a block", "{ 'use strict'; }", false},
+	{"unterminated string", "'use strict", false},
+	{"line break inside the string", "'use\nstrict';", false},
+	{"unterminated comment", "/* 'use strict';", false},
+	{"empty", "", false},
+	{"only a line comment", "// nothing else", false},
+	{"directive with a trailing line comment", "'use strict' // why\nx()", true},
+	{"directive with a block comment spanning lines", "'use strict' /* a\nb */ x()", true},
+}
+
+func TestHasUseStrictDirective(t *testing.T) {
+	for _, tc := range useStrictCases {
+		if got := hasUseStrictDirective([]byte(tc.src)); got != tc.want {
+			t.Errorf("%s: hasUseStrictDirective(%q) = %v, want %v", tc.name, tc.src, got, tc.want)
+		}
+	}
+}
+
+// TestJSUseStrictScanner runs the interceptor's JavaScript copy of the
+// scanner over the same cases.
+func TestJSUseStrictScanner(t *testing.T) {
+	srcs := make([]string, len(useStrictCases))
+	for i, tc := range useStrictCases {
+		srcs[i] = tc.src
+	}
+	in, _ := json.Marshal(srcs)
+	seen := runPreludeInNode(t, "", "http://h.example/", `
+const us = (`+jsUseStrictScanner+`);
+for (const s of `+string(in)+`) seen.push(String(us(s)));
+`)
+	for i, tc := range useStrictCases {
+		if i >= len(seen) || seen[i] != strconv.FormatBool(tc.want) {
+			got := "missing"
+			if i < len(seen) {
+				got = seen[i]
+			}
+			t.Errorf("%s: JS scanner(%q) = %s, want %v", tc.name, tc.src, got, tc.want)
+		}
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"regexp"
+	"strings"
 )
 
 // The page interceptor (interceptorScript) only runs in the proxied app's
@@ -66,10 +66,105 @@ func (r *contentRewriter) workerPreludeJSLiteral() string {
 	return string(b)
 }
 
-// strictDirective matches a leading "use strict" directive, after any
-// comments. Prepending the prelude would otherwise push the directive out
-// of the directive prologue and silently run a strict worker in sloppy mode.
-var strictDirective = regexp.MustCompile(`^\s*(?:(?://[^\n]*\n|/\*[\s\S]*?\*/)\s*)*(?:'use strict'|"use strict")`)
+// hasUseStrictDirective reports whether src opens with a directive
+// prologue containing "use strict". Prepending the prelude pushes the
+// original prologue away from the start of the script, so a strict worker
+// would silently run in sloppy mode unless the directive is restated first.
+//
+// The prologue is the run of string-literal statements at the start of the
+// script, each ended by ";", "}", the end of input, or a line break that
+// does not continue the expression. Only an unescaped "use strict" counts,
+// as in the language. jsUseStrictScanner is the same algorithm for the page
+// interceptor; both are checked against one table of cases.
+func hasUseStrictDirective(src []byte) bool {
+	s := strings.TrimPrefix(string(src), "\ufeff")
+	i := 0
+	for {
+		i, _ = skipSpaceAndComments(s, i)
+		if i >= len(s) || (s[i] != '\'' && s[i] != '"') {
+			return false
+		}
+		quote := s[i]
+		j := i + 1
+		for j < len(s) && s[j] != quote {
+			switch s[j] {
+			case '\\':
+				j++
+			case '\n', '\r':
+				return false
+			}
+			j++
+		}
+		if j >= len(s) {
+			return false
+		}
+		literal := s[i+1 : j]
+		var newline bool
+		i, newline = skipSpaceAndComments(s, j+1)
+		ended := i >= len(s) || s[i] == ';' || s[i] == '}' ||
+			(newline && !strings.ContainsRune(".([+-*/%,?=<>&|^`", rune(s[i])))
+		if !ended {
+			return false
+		}
+		if literal == "use strict" {
+			return true
+		}
+		if i < len(s) && s[i] == ';' {
+			i++
+		}
+	}
+}
+
+// skipSpaceAndComments advances past whitespace and comments from i and
+// reports whether a line break was crossed. An unterminated block comment
+// consumes the rest of the input.
+func skipSpaceAndComments(s string, i int) (int, bool) {
+	newline := false
+	for i < len(s) {
+		switch {
+		case s[i] == '\n' || s[i] == '\r':
+			newline = true
+			i++
+		case s[i] == ' ' || s[i] == '\t' || s[i] == '\v' || s[i] == '\f':
+			i++
+		case strings.HasPrefix(s[i:], "//"):
+			end := strings.IndexByte(s[i:], '\n')
+			if end < 0 {
+				return len(s), newline
+			}
+			i += end
+		case strings.HasPrefix(s[i:], "/*"):
+			end := strings.Index(s[i+2:], "*/")
+			if end < 0 {
+				return len(s), newline
+			}
+			if strings.ContainsAny(s[i:i+2+end], "\n\r") {
+				newline = true
+			}
+			i += 2 + end + 2
+		default:
+			return i, newline
+		}
+	}
+	return i, newline
+}
+
+// jsUseStrictScanner is hasUseStrictDirective in JavaScript, embedded in the
+// page interceptor to rebuild blob workers. Kept to the same algorithm and
+// tested against the same cases; \x60 is a backtick, which the Go raw
+// string cannot contain.
+const jsUseStrictScanner = `function(s){if(s.charCodeAt(0)===0xfeff)s=s.slice(1);var i=0,n=s.length,nl;` +
+	`function sk(){nl=false;while(i<n){var c=s[i];` +
+	`if(c==="\n"||c==="\r"){nl=true;i++}` +
+	`else if(c===" "||c==="\t"||c==="\v"||c==="\f")i++;` +
+	`else if(c==="/"&&s[i+1]==="/"){var e=s.indexOf("\n",i);if(e<0){i=n;return}i=e}` +
+	`else if(c==="/"&&s[i+1]==="*"){var f=s.indexOf("*/",i+2);if(f<0){i=n;return}if(/[\n\r]/.test(s.slice(i,f)))nl=true;i=f+2}` +
+	`else return}}` +
+	`for(;;){sk();if(i>=n)return false;var q=s[i];if(q!=="'"&&q!=='"')return false;` +
+	`var j=i+1;for(;j<n&&s[j]!==q;j++){if(s[j]==="\\")j++;else if(s[j]==="\n"||s[j]==="\r")return false}` +
+	`if(j>=n)return false;var l=s.slice(i+1,j);i=j+1;sk();var c=s[i];` +
+	`if(!(i>=n||c===";"||c==="}"||(nl&&".([+-*/%,?=<>&|^\x60".indexOf(c)<0)))return false;` +
+	`if(l==="use strict")return true;if(c===";")i++}}`
 
 // prependWorkerPrelude returns src with the worker prelude in front,
 // restating "use strict" first when src opens with that directive.
@@ -77,7 +172,7 @@ func (r *contentRewriter) prependWorkerPrelude(src []byte) []byte {
 	prelude := r.workerPrelude()
 	var out bytes.Buffer
 	out.Grow(len(prelude) + len(src) + 16)
-	if strictDirective.Match(src) {
+	if hasUseStrictDirective(src) {
 		out.WriteString(`"use strict";`)
 	}
 	out.Write(prelude)
