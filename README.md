@@ -269,6 +269,8 @@ services:
 
 `muximux.app.*` labels cover the whole app entry (icon, group, open mode, health check, access control, ...), and `muximux.gateway.*` can additionally publish the container on its own gateway subdomain. A background poller keeps imported URLs current as container IPs change across restarts. Full label reference: [Docker Discovery](docs/wiki/docker-discovery.md).
 
+Already behind your own reverse proxy? Add `muximux.app.url=https://sonarr.example.com` and the app opens at its public name while health checks keep going to the container.
+
 For the full configuration reference, authentication options, TLS setup, and more, see the **[Wiki](docs/wiki/README.md)**.
 
 ---

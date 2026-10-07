@@ -304,6 +304,27 @@ services:
       - muximux.app.allowed_groups=ops
 ```
 
+#### Running behind your own reverse proxy
+
+Your apps already have public names behind Traefik, Authentik, NPM or another proxy, and Muximux should open those names rather than container IPs:
+
+```yaml
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    labels:
+      - muximux.app.name=Sonarr
+      - muximux.app.group=Media
+      - muximux.app.icon=sonarr
+      - muximux.app.port=8989
+      - muximux.app.url=https://sonarr.example.com
+      - muximux.app.health=/ping
+```
+
+Sonarr opens at `https://sonarr.example.com`. The health check calls `http://<container IP>:8989/ping`, and the poller keeps that address current when the container's IP changes (logging "Docker health address refreshed"); the app URL is never rewritten. A relative health label is resolved against the container; an absolute URL label is kept as written and never rewritten. Without a health label the check goes to the container's URL, including `muximux.app.path`. Health checks are still enabled per app in its settings.
+
+Removing `muximux.app.url` later returns the app to its container URL on the next refresh tick. Editing the URL by hand in Settings detaches the app, as with any tracked app. Known limitation: for an app imported manually, its health address keeps the container address it had; set it in the app's settings if needed. Auto-imported apps get it reset by auto-import.
+
 #### Finding an icon slug
 
 The `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug -- the icon filename without its extension (`sonarr.svg` becomes `sonarr`). Because the label flow has no GUI in front of you, here is where to look one up:
@@ -331,9 +352,10 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | `muximux.app.icon` | string | catalog icon or `""` | Any `dashboard-icons` slug (e.g. `sonarr`, `plex`, `qbittorrent`). |
 | `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist. |
 | `muximux.app.port` | int 1-65535 | catalog port or first exposed | Which container port the app listens on. |
+| `muximux.app.url` | absolute `http(s)` URL | unset | Open the app at this URL instead of the container address, e.g. its public name behind your own reverse proxy. Health checks still go to the container. Ignored (with a scan note) when `muximux.app.gateway.domain` is set, and invalid values are ignored with a note. See [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy). |
 | `muximux.app.scheme` | `http` \| `https` | `http` | Scheme for the constructed URL. |
-| `muximux.app.path` | string | `/` | Sub-path appended to the URL (useful for apps behind a path prefix). |
-| `muximux.app.health` | string | catalog default | Backend health-check endpoint. |
+| `muximux.app.path` | string | `/` | Sub-path appended to the container URL (e.g. `/admin`). Not applied to `muximux.app.url` or to a gateway site's backend. |
+| `muximux.app.health` | string | catalog default | Health-check address: a full URL, or a path such as `/api/v3/health` resolved against the container. |
 | `muximux.app.color` | `#rrggbb` | unset | Accent color in the dashboard. |
 | `muximux.app.order` | int 0-9999 | unset | Sort order within the group. |
 | `muximux.app.default` | bool | `false` | Load this app automatically when the dashboard opens. |
@@ -349,7 +371,7 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | `muximux.app.permissions` | csv | unset | Iframe feature delegations (`camera`, `microphone`, `geolocation`, `clipboard-read`, `clipboard-write`, `fullscreen`, ...). |
 | `muximux.app.allow_notifications` | bool | `false` | Enable the cross-iframe Notifications API bridge for this app. |
 | `muximux.app.shortcut` | int 1-9 | unset | Keyboard shortcut slot. |
-| `muximux.app.gateway.domain` | string | unset | When set, the import modal also offers a gateway-site entry for this subdomain. Pairs with the `muximux.gateway.*` labels below. |
+| `muximux.app.gateway.domain` | string | unset | Required for auto-import to create a gateway site; the derived `<name>.<dashboard domain>` default only pre-fills the import modal. When set, the import modal also offers a gateway-site entry for this subdomain. Pairs with the `muximux.gateway.*` labels below. |
 
 ##### Gateway-site fields (only consulted when `muximux.app.gateway.domain` is set)
 
@@ -416,6 +438,8 @@ Other managed-field edits (name, icon, group, and similar) do **not** detach. Un
 
 In `update` and `sync`, re-sync compares both the **app** fields and the **gateway site** built from labels against what is stored. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- and gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.allowed_groups`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, `muximux.gateway.forwarded_headers`, and `muximux.gateway.skip_tls_verify` -- all propagate on the next tick. Toggling `muximux.gateway.require_auth` on a running container, for example, is re-synced without any app-field change.
 
+Only the explicit `muximux.app.gateway.domain` label makes auto-import create a gateway site. With `server.tls.domain` set, the derived `<name>.<dashboard domain>` default is only a pre-fill in the import dialog. An update changes only label-managed fields: health check, auth bypass, access, scale, pinned, proxy headers and other per-app settings are kept.
+
 Removing the `muximux.app.gateway.domain` label from an already-imported container reverts its app to the direct container URL and drops the now-orphaned gateway site on the next tick.
 
 ---
@@ -480,6 +504,8 @@ The sanctioned forget path is the **Detach** button in Settings → Discovery (o
 
 Tracking itself belongs to Muximux, not to the save payload: `docker_key`, `docker_endpoint`, `docker_strategy` and `docker_managed_url` in a SaveConfig or per-app PUT are ignored and the stored values kept. A save can detach an app by changing its URL, but it cannot attach one, re-attach a detached one, or switch it to another container. Only Discover, auto-import and **Re-link** create or change tracking.
 
+Apps with a fixed `muximux.app.url` are not rewritten by the poller; their `docker_managed_url` equals the label URL.
+
 ### docker_managed_url (internal)
 
 You'll see a `docker_managed_url` field appear next to `docker_key` for tracked entries. Muximux writes it from the import flow and updates it on every poller tick. You don't need to touch it. If you do hand-author a tracked entry from scratch, just set `docker_managed_url` to the same value as `url` (or `backend_url` for a gateway site) so the file-edit detach mechanism has a baseline to compare against.
@@ -510,6 +536,8 @@ server:
 
 See [TLS and Gateway → Running Behind Another Reverse Proxy](tls-and-gateway.md#running-behind-another-reverse-proxy-gateway_listen) for the full topology guide.
 
+To have the dashboard open your proxy's public names instead of container addresses, see [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy).
+
 ---
 
 ## Troubleshooting
@@ -520,7 +548,7 @@ See [TLS and Gateway → Running Behind Another Reverse Proxy](tls-and-gateway.m
 | Banner: "Daemon unreachable: dial unix … no such file or directory" | The `endpoint` path is wrong, or the socket isn't bind-mounted into Muximux's container. |
 | Banner: "Daemon unreachable: connect: permission denied" | The socket is mounted but the entrypoint's auto-detection didn't fire (e.g. unusual mount path, docker-socket-proxy sidecar). Override with `DOCKER_GID` set to the docker group GID the socket is owned by, or `DOCKER_SOCKET` to point the detection at a non-default path. See [Make the daemon socket reachable](#make-the-daemon-socket-reachable-from-muximux). |
 | Discover modal shows containers but no auto-fill | The image isn't in Muximux's catalog. Add `muximux.app.*` labels to the container, or fill the fields manually before importing. |
-| Imported app's URL doesn't update when container restarts | Check `refresh_interval` isn't set to 1h. Check the audit log for `Docker app URL refreshed`. Check the container hasn't been renamed (breaks `name:` tracking keys). |
+| Imported app's URL doesn't update when container restarts | Check `refresh_interval` isn't set to 1h. Check the audit log for `Docker app URL refreshed` (and `Docker health address refreshed` for health addresses). Check the container hasn't been renamed (breaks `name:` tracking keys). |
 | Gateway site doesn't serve after import | If you set `server.gateway_listen`, your upstream proxy needs to forward the host header to that port. Try `curl -H 'Host: site.example.com' http://muximux-host:8443/` to bypass the upstream. |
 | Divergence banner is red and won't clear | Inspect the most recent `Docker refresh divergence` audit log line for the candidate + rollback errors. Most often a Caddyfile parse-OK but listener-collide situation. Restart Muximux to recover. |
 

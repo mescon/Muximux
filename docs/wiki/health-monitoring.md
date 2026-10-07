@@ -36,6 +36,8 @@ apps:
 
 If `health_url` is not set, the main `url` is used for health checks.
 
+Docker-discovered apps with a `muximux.app.url` label get their health address from the container automatically and keep it current as the container's IP changes. See [Docker Discovery](docker-discovery.md#running-behind-your-own-reverse-proxy).
+
 **Tip:** Many self-hosted apps expose endpoints like `/api/health`, `/ping`, `/status`, or `/identity` that are fast and don't require login. Check your app's documentation for available endpoints.
 
 ## Per-App Health Check Toggle
