@@ -87,17 +87,6 @@ const (
 	maxSeenJTI          = 10000
 )
 
-var logoutTokenVerifierForTest func(raw string) (sub, sid string, err error)
-
-// SetLogoutTokenVerifierForTest replaces logout-token verification for
-// handler tests in other packages and returns a restore function. Not
-// for production use.
-func SetLogoutTokenVerifierForTest(f func(raw string) (string, string, error)) (restore func()) {
-	prev := logoutTokenVerifierForTest
-	logoutTokenVerifierForTest = f
-	return func() { logoutTokenVerifierForTest = prev }
-}
-
 // goOIDCProvider returns the cached go-oidc provider (discovery + keyset),
 // creating it on first use.
 func (p *OIDCProvider) goOIDCProvider(ctx context.Context) (*gooidc.Provider, error) {
@@ -117,9 +106,6 @@ func (p *OIDCProvider) goOIDCProvider(ctx context.Context) (*gooidc.Provider, er
 // VerifyLogoutToken validates an OpenID Connect Back-Channel Logout token
 // and returns its subject and session id.
 func (p *OIDCProvider) VerifyLogoutToken(ctx context.Context, raw string) (string, string, error) {
-	if logoutTokenVerifierForTest != nil {
-		return logoutTokenVerifierForTest(raw)
-	}
 	prov, err := p.goOIDCProvider(ctx)
 	if err != nil {
 		return "", "", fmt.Errorf("provider: %w", err)
@@ -132,7 +118,7 @@ func (p *OIDCProvider) VerifyLogoutToken(ctx context.Context, raw string) (strin
 	var c struct {
 		Sid    string                     `json:"sid"`
 		JTI    string                     `json:"jti"`
-		Nonce  *string                    `json:"nonce"`
+		Nonce  json.RawMessage            `json:"nonce"`
 		Iat    *int64                     `json:"iat"`
 		Events map[string]json.RawMessage `json:"events"`
 	}
@@ -142,7 +128,7 @@ func (p *OIDCProvider) VerifyLogoutToken(ctx context.Context, raw string) (strin
 	if _, ok := c.Events[backchannelEventKey]; !ok {
 		return "", "", errors.New("missing back-channel logout event")
 	}
-	if c.Nonce != nil {
+	if c.Nonce != nil { // present, even as null
 		return "", "", errors.New("logout token must not carry a nonce")
 	}
 	if tok.Subject == "" && c.Sid == "" {
@@ -195,6 +181,9 @@ func (p *OIDCProvider) rememberJTI(jti string, now time.Time) bool {
 // EndSessions ends the Muximux sessions a logout token names: by sid when
 // present, otherwise every session of the subject.
 func (p *OIDCProvider) EndSessions(sub, sid string) int {
+	if sub == "" && sid == "" {
+		return 0
+	}
 	return p.sessionStore.DeleteMatching(func(s *Session) bool {
 		if sid != "" {
 			v, _ := s.Data["oidc_sid"].(string)

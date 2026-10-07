@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -155,6 +156,7 @@ func TestVerifyLogoutToken(t *testing.T) {
 		"wrong audience": func(c map[string]interface{}) { c["aud"] = "someone-else" },
 		"missing event":  func(c map[string]interface{}) { c["events"] = map[string]interface{}{} },
 		"nonce present":  func(c map[string]interface{}) { c["nonce"] = "n" },
+		"nonce null":     func(c map[string]interface{}) { c["nonce"] = nil },
 		"no sub or sid":  func(c map[string]interface{}) { delete(c, "sub"); delete(c, "sid") },
 		"no jti":         func(c map[string]interface{}) { delete(c, "jti") },
 		"no iat":         func(c map[string]interface{}) { delete(c, "iat") },
@@ -199,13 +201,18 @@ func TestRememberJTI_Bounded(t *testing.T) {
 	}
 }
 
-func TestLogoutTokenVerifierHook(t *testing.T) {
-	restore := SetLogoutTokenVerifierForTest(func(raw string) (string, string, error) { return raw, "s", nil })
-	p := &OIDCProvider{}
-	sub, sid, err := p.VerifyLogoutToken(context.Background(), "x")
-	restore()
-	if sub != "x" || sid != "s" || err != nil {
-		t.Errorf("hook not used: %q %q %v", sub, sid, err)
+func TestVerifyLogoutToken_ProviderAndClaimsErrors(t *testing.T) {
+	dead := newTestProvider(t, "http://127.0.0.1:1", nil)
+	if _, _, err := dead.VerifyLogoutToken(context.Background(), "x"); err == nil || !strings.Contains(err.Error(), "provider:") {
+		t.Errorf("unreachable issuer: %v", err)
+	}
+
+	idp := mockIDP(t, nil)
+	p := newTestProvider(t, idp.URL, nil)
+	c := logoutClaims(idp.URL)
+	c["events"] = "not-an-object"
+	if _, _, err := p.VerifyLogoutToken(context.Background(), signTestIDToken(t, c)); err == nil || !strings.Contains(err.Error(), "claims:") {
+		t.Errorf("malformed events: %v", err)
 	}
 }
 
@@ -226,5 +233,15 @@ func TestEndSessions(t *testing.T) {
 	}
 	if n := p.EndSessions("alice", ""); n != 1 || p.sessionStore.Get(a2.ID) != nil || p.sessionStore.Get(b.ID) == nil {
 		t.Errorf("by sub: n=%d", n)
+	}
+}
+
+func TestEndSessions_EmptyIdentifiersDeleteNothing(t *testing.T) {
+	p := newTestProvider(t, "https://unused.example.com", nil)
+	local, _ := p.sessionStore.Create("local", "local", "user")
+	oidc, _ := p.sessionStore.Create("alice", "alice", "user")
+	oidc.Data["oidc_sub"] = "alice"
+	if n := p.EndSessions("", ""); n != 0 || p.sessionStore.Get(local.ID) == nil || p.sessionStore.Get(oidc.ID) == nil {
+		t.Errorf("empty identifiers deleted sessions: n=%d", n)
 	}
 }

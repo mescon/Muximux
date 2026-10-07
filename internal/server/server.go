@@ -75,6 +75,7 @@ type Server struct {
 	setupToken         string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
 	loginLimiter       *rateLimiter
 	setupLimiter       *rateLimiter
+	backchannelLimiter *rateLimiter
 	lifecycleLimiter   *rateLimiter
 	logCh              chan logging.LogEntry
 	cleanupDone        chan struct{}
@@ -159,6 +160,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	})
 
 	s.loginLimiter = registerAuthRoutes(mux, authHandler, wsHub, authMiddleware)
+
+	// A provider may send many logout notices from one address, so this
+	// route gets its own, looser limiter.
+	s.backchannelLimiter = newRateLimiter(120, 1*time.Minute, authMiddleware.GetClientIP)
+	mux.HandleFunc(backchannelLogoutPath, s.backchannelLimiter.wrap(authHandler.OIDCBackchannelLogout))
 
 	s.setupLimiter = newRateLimiter(5, 1*time.Minute, authMiddleware.GetClientIP)
 	mux.HandleFunc("/api/auth/setup", s.setupLimiter.wrap(s.handleSetup))
@@ -595,10 +601,6 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	// the discovery fetch the first hit triggers.
 	mux.HandleFunc("/api/auth/oidc/login", loginLimiter.wrap(authHandler.OIDCLogin))
 	mux.HandleFunc("/api/auth/oidc/callback", authHandler.OIDCCallback)
-	// A provider may send many logout notices from one address, so this
-	// route gets its own, looser limiter.
-	backchannelLimiter := newRateLimiter(120, 1*time.Minute, authMiddleware.GetClientIP)
-	mux.HandleFunc(backchannelLogoutPath, backchannelLimiter.wrap(authHandler.OIDCBackchannelLogout))
 
 	// WebSocket endpoint. The top-level RequireAuth middleware guarantees a
 	// user is in context; we read the role here so the hub can filter
@@ -1801,6 +1803,9 @@ func (s *Server) Stop() error {
 	}
 	if s.setupLimiter != nil {
 		s.setupLimiter.stop()
+	}
+	if s.backchannelLimiter != nil {
+		s.backchannelLimiter.stop()
 	}
 	if s.lifecycleLimiter != nil {
 		s.lifecycleLimiter.stop()

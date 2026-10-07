@@ -3,8 +3,14 @@ package handlers
 import (
 	"bytes"
 	"context"
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
-	"errors"
+	"fmt"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -2379,30 +2385,94 @@ func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
 	_ = h.CloseOIDC()
 }
 
-func TestOIDCBackchannelLogout(t *testing.T) {
-	restore := auth.SetLogoutTokenVerifierForTest(func(raw string) (string, string, error) {
-		if raw == "good" {
-			return "u1", "sid-1", nil
-		}
-		return "", "", errors.New("bad token")
-	})
-	defer restore()
+var (
+	handlersKeyOnce sync.Once
+	handlersKey     *rsa.PrivateKey
+)
 
+func handlersTestKey(t *testing.T) *rsa.PrivateKey {
+	t.Helper()
+	handlersKeyOnce.Do(func() {
+		k, err := rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			t.Fatalf("generate RSA key: %v", err)
+		}
+		handlersKey = k
+	})
+	return handlersKey
+}
+
+// signLogoutToken signs claims as an RS256 JWT with the handlers test key.
+func signLogoutToken(t *testing.T, claims map[string]interface{}) string {
+	t.Helper()
+	hdr, _ := json.Marshal(map[string]string{"alg": "RS256", "typ": "JWT", "kid": "hk"})
+	body, err := json.Marshal(claims)
+	if err != nil {
+		t.Fatal(err)
+	}
+	in := base64.RawURLEncoding.EncodeToString(hdr) + "." + base64.RawURLEncoding.EncodeToString(body)
+	sum := sha256.Sum256([]byte(in))
+	sig, err := rsa.SignPKCS1v15(rand.Reader, handlersTestKey(t), crypto.SHA256, sum[:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	return in + "." + base64.RawURLEncoding.EncodeToString(sig)
+}
+
+// mockOIDCSigningServer serves discovery plus a JWKS with the public half
+// of the handlers test key.
+func mockOIDCSigningServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	pub := handlersTestKey(t).PublicKey
+	var srv *httptest.Server
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"issuer": srv.URL, "authorization_endpoint": srv.URL + "/authorize",
+			"token_endpoint": srv.URL + "/token", "jwks_uri": srv.URL + "/jwks",
+		})
+	})
+	mux.HandleFunc("/jwks", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"keys": []map[string]string{{
+			"kty": "RSA", "alg": "RS256", "use": "sig", "kid": "hk",
+			"n": base64.RawURLEncoding.EncodeToString(pub.N.Bytes()),
+			"e": base64.RawURLEncoding.EncodeToString(big.NewInt(int64(pub.E)).Bytes()),
+		}}})
+	})
+	srv = httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestOIDCBackchannelLogout(t *testing.T) {
 	store := auth.NewSessionStore("muximux_session", time.Hour, false)
 	h := NewAuthHandler(store, auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
-	form := func(method, token string) *httptest.ResponseRecorder {
-		req := httptest.NewRequest(method, "/api/auth/oidc/backchannel-logout", strings.NewReader(url.Values{"logout_token": {token}}.Encode()))
+	srv := mockOIDCSigningServer(t)
+
+	token := func(mutate func(map[string]interface{})) string {
+		c := map[string]interface{}{
+			"iss": srv.URL, "aud": "c", "iat": time.Now().Unix(),
+			"jti": fmt.Sprintf("jti-%d", time.Now().UnixNano()),
+			"sub": "u1", "sid": "sid-1",
+			"events": map[string]interface{}{"http://schemas.openid.net/event/backchannel-logout": map[string]interface{}{}},
+		}
+		if mutate != nil {
+			mutate(c)
+		}
+		return signLogoutToken(t, c)
+	}
+	form := func(method, tok string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(method, "/api/auth/oidc/backchannel-logout", strings.NewReader(url.Values{"logout_token": {tok}}.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		rec := httptest.NewRecorder()
 		h.OIDCBackchannelLogout(rec, req)
 		return rec
 	}
 
-	if rec := form(http.MethodPost, "good"); rec.Code != http.StatusNotFound {
+	if rec := form(http.MethodPost, token(nil)); rec.Code != http.StatusNotFound {
 		t.Errorf("OIDC disabled: got %d, want 404", rec.Code)
 	}
 
-	srv := mockOIDCDiscoveryServer(t)
 	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
 	h.SetOIDCProvider(auth.NewOIDCProvider(&cfg, "", store, nil))
 
@@ -2414,20 +2484,23 @@ func TestOIDCBackchannelLogout(t *testing.T) {
 	}
 	target, other := mk("u1", "sid-1"), mk("u2", "sid-2")
 
-	rec := form(http.MethodPost, "good")
+	rec := form(http.MethodPost, token(nil))
 	if rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-store" {
-		t.Errorf("valid: code=%d cache=%q", rec.Code, rec.Header().Get("Cache-Control"))
+		t.Errorf("valid: code=%d cache=%q body=%s", rec.Code, rec.Header().Get("Cache-Control"), rec.Body.String())
 	}
 	if store.Get(target.ID) != nil || store.Get(other.ID) == nil {
 		t.Error("expected only the matching session to be removed")
 	}
 
-	rec = form(http.MethodPost, "bad")
+	rec = form(http.MethodPost, token(func(c map[string]interface{}) { c["aud"] = "someone-else" }))
 	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), `"error":"invalid_request"`) {
 		t.Errorf("invalid: code=%d body=%s", rec.Code, rec.Body.String())
 	}
+	if rec = form(http.MethodPost, "garbage"); rec.Code != http.StatusBadRequest {
+		t.Errorf("garbage: got %d", rec.Code)
+	}
 
-	if rec = form(http.MethodGet, "good"); rec.Code != http.StatusMethodNotAllowed {
+	if rec = form(http.MethodGet, token(nil)); rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("GET: got %d, want 405", rec.Code)
 	}
 }
