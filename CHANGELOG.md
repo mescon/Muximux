@@ -2,6 +2,30 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Requests made from Web Workers in a proxied app now reach that app.**
+  The runtime interceptor only ran in the app's pages, so a worker's
+  `fetch`, XHR, WebSocket or `importScripts` went to the Muximux origin
+  without the `/proxy/<slug>` prefix. Dispatcharr's built-in player hit
+  this: mpegts.js loads `/proxy/ts/stream/<uuid>` from a `blob:` worker,
+  Muximux read `ts` as an app slug and answered 404, and the player retried
+  forever. Workers now run a small prelude that applies the same routing --
+  prepended by the proxy to worker scripts, and injected into `blob:`
+  workers by the page interceptor.
+- **Custom SVG icons that open with a comment or an SVG DOCTYPE upload.**
+  Illustrator and older tools write a comment or `<!DOCTYPE svg ...>`
+  ahead of the root element, and the upload sniff rejected those files as
+  an unsupported type. HTML in an SVG label is still refused.
+
+### Changed
+- Dependencies: OpenTelemetry modules moved to the 1.45 and 0.21 trains
+  (GHSA-8wmf-6v46-5gfg, GHSA-w34q-cm8f-9c5x; reached only through the
+  embedded Caddy and not called by Muximux), plus routine frontend and
+  GitHub Actions updates.
+- The release workflow uploads the SBOM once instead of twice.
+
 ## [3.4.3] - 2026-09-17
 
 A fix release for the built-in reverse proxy. Apps whose router first

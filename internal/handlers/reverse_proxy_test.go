@@ -3206,6 +3206,21 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 		t.Error("interceptor Navigation API handler must ignore same-document navigations")
 	}
 
+	// Workers do not run the page interceptor. A worker started from a
+	// blob: URL (mpegts.js, webworkify bundles) is restarted from a new
+	// blob carrying the worker prelude, so its fetch/XHR/WebSocket calls
+	// reach the app (Dispatcharr's player fetched /proxy/ts/stream/<id>
+	// from such a worker and got Muximux's 404).
+	if !strings.Contains(script, `var WP="`) {
+		t.Error("interceptor should embed the worker prelude")
+	}
+	if !strings.Contains(script, `u.slice(0,5)==="blob:"`) || !strings.Contains(script, `new Blob([d,WP,"\n",s]`) {
+		t.Error("interceptor should rebuild blob: workers with the prelude in front")
+	}
+	if n := strings.Count(script, `</script`); n != 1 {
+		t.Errorf("interceptor contains %d closing script tags, want only its own; the embedded worker prelude must not terminate it", n)
+	}
+
 	// window.open should be patched so popups navigate through the proxy.
 	if !strings.Contains(script, `window.open=function`) {
 		t.Error("interceptor should patch window.open")
