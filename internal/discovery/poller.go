@@ -498,12 +498,11 @@ func (p *Poller) collectTracked() trackedSet {
 			continue
 		}
 		out.apps = append(out.apps, trackedAppEntry{
-			name:       a.Name,
-			key:        a.DockerKey,
-			endpoint:   a.DockerEndpoint,
-			strategy:   a.DockerStrategy,
-			currentURL: a.URL,
-
+			name:          a.Name,
+			key:           a.DockerKey,
+			endpoint:      a.DockerEndpoint,
+			strategy:      a.DockerStrategy,
+			currentURL:    a.URL,
 			currentHealth: a.HealthURL,
 		})
 	}
@@ -562,7 +561,7 @@ func containerPortForRefresh(c *ContainerSummary) int {
 	if labels.Port != 0 {
 		return labels.Port
 	}
-	if entry, ok := MatchImage(c.Image); ok && entry.Port != 0 && containerExposesPort(c, entry.Port) {
+	if entry, ok := refreshCatalog(c); ok && entry.Port != 0 && containerExposesPort(c, entry.Port) {
 		return entry.Port
 	}
 	return pickFirstExposedPort(c)
@@ -575,7 +574,7 @@ func containerSchemeForRefresh(c *ContainerSummary) string {
 	if labels.Scheme != "" {
 		return labels.Scheme
 	}
-	if entry, ok := MatchImage(c.Image); ok && entry.Scheme != "" {
+	if entry, ok := refreshCatalog(c); ok && entry.Scheme != "" {
 		return entry.Scheme
 	}
 	return "http"
@@ -592,13 +591,38 @@ type refreshTarget struct {
 	HealthManaged bool
 }
 
+// refreshCatalog matches a container to the catalog the same way
+// suggestForContainer does: by image, then by container name.
+func refreshCatalog(c *ContainerSummary) (CatalogEntry, bool) {
+	if entry, ok := MatchImage(c.Image); ok {
+		return entry, true
+	}
+	return MatchByContainerName(c.PrimaryName())
+}
+
+// refreshHealthTarget decides the health address of a fixed-URL app and
+// whether it is derived from the container (and so kept current). It
+// mirrors resolveSuggestionHealthURL plus the container-URL default.
+func refreshHealthTarget(containerURL string, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) (string, bool) {
+	switch {
+	case labels.Health != "":
+		if !strings.HasPrefix(labels.Health, "/") {
+			return "", false
+		}
+		return resolveHealth(containerURL, labels.Health), containerURL != ""
+	case hasCatalog && catalog.HealthURL != "":
+		return resolveHealth(containerURL, catalog.HealthURL), containerURL != ""
+	}
+	return containerURL, containerURL != ""
+}
+
 // containerPathForRefresh mirrors resolveSuggestionPath: label > catalog.
 func containerPathForRefresh(c *ContainerSummary) string {
 	labels := ParseAppLabels(c.Labels)
 	if labels.Path != "" {
 		return labels.Path
 	}
-	if entry, ok := MatchImage(c.Image); ok {
+	if entry, ok := refreshCatalog(c); ok {
 		return entry.Path
 	}
 	return ""
@@ -637,13 +661,9 @@ func (p *Poller) resolveAppRefreshFrom(containers []ContainerSummary, key, strat
 	if !isFixed {
 		return refreshTarget{URL: containerURL}, nil
 	}
+	catalog, hasCatalog := refreshCatalog(matched)
 	t := refreshTarget{URL: fixed, Fixed: true}
-	switch {
-	case labels.Health == "":
-		t.HealthURL, t.HealthManaged = containerURL, containerURL != ""
-	case strings.HasPrefix(labels.Health, "/"):
-		t.HealthURL, t.HealthManaged = resolveHealth(containerURL, labels.Health), containerURL != ""
-	}
+	t.HealthURL, t.HealthManaged = refreshHealthTarget(containerURL, &labels, &catalog, hasCatalog)
 	return t, nil
 }
 
@@ -835,6 +855,10 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	for name, url := range batch.appURLChanges {
 		logging.Info("Docker app URL refreshed",
 			"source", "discovery", "app", name, "new_url", url)
+	}
+	for name, url := range batch.appHealthChanges {
+		logging.Info("Docker health address refreshed",
+			"source", "discovery", "app", name, "health_url", url)
 	}
 	for domain, url := range batch.siteURLChanges {
 		logging.Info("Docker gateway-site URL refreshed",

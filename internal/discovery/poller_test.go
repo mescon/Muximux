@@ -2115,3 +2115,106 @@ func TestPoller_Tick_PlainAppFollowsContainerIP(t *testing.T) {
 		t.Errorf("URL = %q", cfg.Apps[0].URL)
 	}
 }
+
+func piholeByName(labels map[string]string) ContainerSummary {
+	l := map[string]string{LabelDiscoveryID: "pihole-stable"}
+	for k, v := range labels {
+		l[k] = v
+	}
+	return ContainerSummary{
+		ID: "p1", Names: []string{"/pihole"}, Image: "example/unknown-dns", Labels: l,
+		NetworkSettings: ContainerNetworks{Networks: map[string]ContainerNetwork{"net": {IPAddress: "10.0.0.9"}}},
+		Ports:           []ContainerPort{{PrivatePort: 80, Type: "tcp"}},
+	}
+}
+
+func TestPoller_Tick_NameCatalogFallbackStable(t *testing.T) {
+	p, cfg, saves := pollerForApps(t,
+		[]ContainerSummary{piholeByName(nil)},
+		[]config.AppConfig{{Name: "pihole", URL: "http://10.0.0.9:80/admin",
+			DockerKey: "label:pihole-stable", DockerManagedURL: "http://10.0.0.9:80/admin"}})
+	p.tick(context.Background())
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.9:80/admin" || *saves != 0 {
+		t.Errorf("URL=%q saves=%d", cfg.Apps[0].URL, *saves)
+	}
+}
+
+func TestResolveAppRefreshFrom_MatchesSuggestion(t *testing.T) {
+	c := piholeByName(nil)
+	sug := suggestForContainer(&c, config.NetworkStrategy("container_ip"), "", "")
+	p := &Poller{}
+	got, err := p.resolveAppRefreshFrom([]ContainerSummary{c}, "label:pihole-stable", "container_ip", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.URL != sug.URL {
+		t.Errorf("refresh URL %q != suggestion URL %q", got.URL, sug.URL)
+	}
+}
+
+func TestRefreshHealthTarget(t *testing.T) {
+	cat := CatalogEntry{HealthURL: "/status"}
+	cases := []struct {
+		name       string
+		labels     AppLabels
+		catalog    *CatalogEntry
+		want       string
+		wantManage bool
+	}{
+		{"default container url", AppLabels{}, &CatalogEntry{}, "http://h:80/x", true},
+		{"catalog health", AppLabels{}, &cat, "http://h:80/status", true},
+		{"relative label wins", AppLabels{Health: "/ping"}, &cat, "http://h:80/ping", true},
+		{"absolute label unmanaged", AppLabels{Health: "https://s.example/h"}, &cat, "", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, managed := refreshHealthTarget("http://h:80/x", &tc.labels, tc.catalog, true)
+			if got != tc.want || managed != tc.wantManage {
+				t.Errorf("got (%q,%v) want (%q,%v)", got, managed, tc.want, tc.wantManage)
+			}
+		})
+	}
+	if got, managed := refreshHealthTarget("", &AppLabels{}, &CatalogEntry{}, false); got != "" || managed {
+		t.Errorf("empty container url: (%q,%v)", got, managed)
+	}
+}
+
+func TestPoller_Tick_FixedURLRelativeHealth(t *testing.T) {
+	p, cfg, _ := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.50", map[string]string{LabelAppURL: "https://sonarr.example.com", LabelAppHealth: "/ping"})},
+		[]config.AppConfig{{Name: "sonarr", URL: "https://sonarr.example.com", HealthURL: "http://10.0.0.42:8989/ping",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "https://sonarr.example.com"}})
+	p.tick(context.Background())
+	if cfg.Apps[0].HealthURL != "http://10.0.0.50:8989/ping" || cfg.Apps[0].URL != "https://sonarr.example.com" {
+		t.Errorf("app = %+v", cfg.Apps[0])
+	}
+}
+
+func TestPoller_Tick_FixedURLNoPort(t *testing.T) {
+	c := sonarrAt("10.0.0.42", map[string]string{LabelAppURL: "https://sonarr.example.com"})
+	c.Image = "example/unknown"
+	c.Names = []string{"/thing"}
+	c.Ports = nil
+	p, cfg, saves := pollerForApps(t, []ContainerSummary{c},
+		[]config.AppConfig{{Name: "thing", URL: "https://sonarr.example.com", HealthURL: "http://old:1",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "https://sonarr.example.com"}})
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "https://sonarr.example.com" || cfg.Apps[0].HealthURL != "http://old:1" || *saves != 0 {
+		t.Errorf("app=%+v saves=%d", cfg.Apps[0], *saves)
+	}
+	if p.deps.Service.LastSeen("label:sonarr-stable").IsZero() {
+		t.Errorf("RecordSeen not called for fixed no-port container")
+	}
+}
+
+func TestPoller_Tick_FixedURLWithGatewayIsNotFixed(t *testing.T) {
+	p, cfg, _ := pollerForApps(t,
+		[]ContainerSummary{sonarrAt("10.0.0.42", map[string]string{LabelAppURL: "https://sonarr.example.com", LabelAppGatewayDomain: "s.example.com"})},
+		[]config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.1:8989",
+			DockerKey: "label:sonarr-stable", DockerManagedURL: "http://10.0.0.1:8989"}})
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.42:8989" {
+		t.Errorf("URL = %q", cfg.Apps[0].URL)
+	}
+}
