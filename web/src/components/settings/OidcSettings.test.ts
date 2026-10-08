@@ -69,6 +69,11 @@ describe('OidcSettings', () => {
     expect(el('oidc-username-claim').value).toBe('');
   });
 
+  it('does not repeat the card heading', () => {
+    render(OidcSettings, { settings: base(), onchange });
+    expect(screen.queryByText('Single sign-on (OIDC)')).toBeNull();
+  });
+
   it('shows the custom redirect URL in the callback row and handles null lists', () => {
     render(OidcSettings, { settings: base({ redirect_url: 'https://x.example.com/cb', scopes: null, admin_groups: null }), onchange });
     expect(el('oidc-callback').value).toBe('https://x.example.com/cb');

@@ -160,11 +160,6 @@
 
 <div class="space-y-4" data-testid="oidc-settings">
   <div>
-    <h3 class="text-sm font-medium text-text-primary">{m.oidc_card_title()}</h3>
-    <p class="text-xs text-text-disabled mt-1">{m.oidc_card_desc()}</p>
-  </div>
-
-  <div>
     <label for="oidc-issuer" class="block text-sm text-text-muted mb-1">{m.oidc_issuer()}</label>
     <input id="oidc-issuer" type="url" bind:value={issuerUrl} readonly={fromEnv('issuer_url') || identityLocked}
       class={inputClass} placeholder="https://auth.example.com/realms/main" />

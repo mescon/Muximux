@@ -16,6 +16,9 @@ import (
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
+// oidcDiscoveryTimeout caps the OIDC discovery an auth method save runs
+// before taking the config lock, so a slow or unreachable issuer cannot
+// hold the request (and the admin's Settings form) open indefinitely.
 const oidcDiscoveryTimeout = 15 * time.Second
 
 // AuthHandler handles authentication endpoints
