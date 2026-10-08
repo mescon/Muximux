@@ -92,6 +92,11 @@ auth:
 
 Set `KEYCLOAK_CLIENT_SECRET` in the environment. Restart Muximux.
 
+
+### Using Settings
+
+Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the realm URL (`https://auth.example.com/realms/homelab`) as the issuer URL, the client ID from Step 1, the client secret from the client's Credentials tab, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL** and **Back-channel logout URL** rows into the provider, press **Test connection**, then apply. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+
 ---
 
 ## Step 5: Validate

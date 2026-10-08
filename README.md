@@ -113,7 +113,7 @@ Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mes
 - **Go backend** with the frontend embedded in the binary - no PHP, no web server, no runtime dependencies
 - **Built-in embedding proxy** that rewrites HTML, CSS, JS, and headers so apps actually work inside iframes (distinct from the optional gateway below)
 - **Real-time health monitoring** via WebSocket - see which apps are up or down without refreshing
-- **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC
+- **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC (configurable in Settings)
 - **Optional TLS and gateway** - an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
 - **Guided onboarding** - a setup wizard walks you through security setup and adding your first apps
 - **Split view** - display two apps side by side or stacked with a draggable divider
@@ -282,7 +282,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip, and isolates `window.parent`/`window.top` - makes apps work in iframes that normally refuse. Per-app TLS settings, custom headers, and configurable timeout |
 | **Health Monitoring** | Periodic health checks with real-time WebSocket updates and colored status indicators |
 | **Real-Time Log Viewer** | In-app log viewer with level/source filtering, search, auto-scroll, pause/resume, and download. Debug level exposes detailed request tracing |
-| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
+| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC (set up in Settings) - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Reverse proxy other sites and services on your network on their own subdomains -- declarative YAML `gateway_sites` with per-site TLS modes (automatic Let's Encrypt, none, or custom certs), header forwarding, iframe-blocker stripping, and streaming-safe backends. Edit visually in Settings -> Gateway or by hand. Optionally gate each subdomain behind the Muximux login (`require_auth`) so one sign-in covers your whole homelab |
 | **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Prefer GitOps? Opt into automatic import (`discovery.docker.auto_import`) and Muximux picks up `muximux.*`-labeled containers on its own -- declare an app in your compose file and it appears, no clicks. Off by default |

@@ -5,6 +5,10 @@ All notable changes to Muximux are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **OIDC in Settings.** Single sign-on can be set up and changed in
+  Settings -> Security, with a connection test and copyable callback and
+  back-channel URLs. The client secret is never shown, and values that
+  come from environment variables stay in the environment. (#480)
 - **OIDC sign-out at the identity provider.** With `auth.oidc.provider_logout`
   on, logging out of Muximux also ends the session at the provider through
   its end-session endpoint, with a configurable return address. (#480)
@@ -62,6 +66,9 @@ All notable changes to Muximux are documented in this file.
   an unsupported type. HTML in an SVG label is still refused.
 
 ### Changed
+- **Upgrade note:** with OIDC enabled, `auth.oidc.redirect_url` must now be
+  empty or an absolute http(s) URL. Otherwise Muximux refuses to start with
+  a clear error. A disabled OIDC block is not checked. (#480)
 - A failed or cancelled OIDC sign-in now returns to the login page with a
   message instead of a plain "Authentication failed" page. (#480)
 - Dependencies: OpenTelemetry modules moved to the 1.45 and 0.21 trains
