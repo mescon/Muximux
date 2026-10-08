@@ -12,7 +12,8 @@ const mockValidateGatewaySite = vi.fn();
 const mockFetchApps = vi.fn();
 const mockFetchConfig = vi.fn();
 
-vi.mock('$lib/api', () => ({
+vi.mock('$lib/api', async (importOriginal) => ({
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
   listGatewaySites: (...args: unknown[]) => mockListGatewaySites(...args),
   createGatewaySite: (...args: unknown[]) => mockCreateGatewaySite(...args),
   updateGatewaySite: (...args: unknown[]) => mockUpdateGatewaySite(...args),

@@ -98,6 +98,10 @@ The unusual scope (`urn:zitadel:iam:org:project:id:zitadel:aud`) tells Zitadel t
 
 Set `ZITADEL_CLIENT_SECRET` in the environment. Restart Muximux.
 
+### Using Settings
+
+Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the base URL of your Zitadel instance as the issuer URL, the client ID from Step 3, the extra audience scope shown above added to the scopes, `urn:zitadel:iam:org:project:roles` as the groups claim, and your role key (for example `muximux-admin`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+
 ---
 
 ## Step 6: Validate

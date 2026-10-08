@@ -299,11 +299,52 @@ export interface UpdateUserRequest {
   groups?: string[];  // omit to leave existing groups untouched; pass [] to clear
 }
 
+export interface OIDCSettings {
+  enabled: boolean;
+  issuer_url: string;
+  client_id: string;
+  client_secret_set: boolean;
+  redirect_url: string;
+  scopes: string[] | null;
+  username_claim: string;
+  email_claim: string;
+  groups_claim: string;
+  display_name_claim: string;
+  admin_groups: string[] | null;
+  provider_logout: boolean;
+  post_logout_redirect_url: string;
+  logout_url: string;
+  auto_redirect: boolean;
+  disable_local_login: boolean;
+  env_fields: Record<string, string>;
+  default_callback_url: string;
+  backchannel_url: string;
+  current_session_is_oidc: boolean;
+}
+
+export interface OIDCTestResult {
+  reachable: boolean;
+  error?: string;
+  issuer?: string;
+  authorization: boolean;
+  token: boolean;
+  userinfo: boolean;
+  jwks: boolean;
+  end_session: boolean;
+  backchannel_supported: boolean;
+}
+
+export type OIDCSettingsUpdate = Partial<Omit<OIDCSettings,
+  'enabled' | 'client_secret_set' | 'env_fields' | 'default_callback_url' | 'backchannel_url' | 'current_session_is_oidc'>> & {
+  client_secret?: string;
+};
+
 export interface ChangeAuthMethodRequest {
-  method: 'builtin' | 'forward_auth' | 'none';
+  method: 'builtin' | 'forward_auth' | 'oidc' | 'none';
   trusted_proxies?: string[];
   headers?: Record<string, string>;
   logout_url?: string;
+  oidc?: OIDCSettingsUpdate;
 }
 
 export interface SystemInfo {

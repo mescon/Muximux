@@ -1,19 +1,23 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
-  import type { Config, UserInfo, ChangeAuthMethodRequest } from '$lib/types';
-  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getAPIKeyStatus, generateAPIKey, deleteAPIKey } from '$lib/api';
+  import type { Config, UserInfo, ChangeAuthMethodRequest, OIDCSettings, OIDCSettingsUpdate } from '$lib/types';
+  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getOIDCSettings, getAPIKeyStatus, generateAPIKey, deleteAPIKey, errorText } from '$lib/api';
   import { changePassword, login, isAdmin, currentUser } from '$lib/authStore';
   import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
+  import OidcSettingsForm from './OidcSettings.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { localConfig }: { localConfig: Config } = $props();
+  let { localConfig, onmethodapplied }: {
+    localConfig: Config;
+    /** Called after the server accepted an auth method change. */
+    onmethodapplied?: () => void;
+  } = $props();
 
   // Security tab state
   let securityUsers = $state<UserInfo[]>([]);
   let securityLoading = $state(false);
   let securityError = $state<string | null>(null);
-  let securitySuccess = $state<string | null>(null);
 
   // Change password
   let cpCurrent = $state('');
@@ -36,10 +40,38 @@
   let confirmDeleteUser = $state<string | null>(null);
 
   // Auth method switching
-  let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'none'>('none');
+  let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'oidc' | 'none'>('none');
   let methodTrustedProxies = $state('');
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
+  let methodSuccess = $state<string | null>(null);
+
+  // OIDC (single sign-on) settings, loaded once when the card is first selected
+  let oidcSettings = $state<OIDCSettings | null>(null);
+  let oidcLoading = $state(false);
+  let oidcLoadError = $state<string | null>(null);
+  let oidcFormKey = $state(0);
+  let oidcUpdate = $state<OIDCSettingsUpdate>({});
+  let oidcValid = $state(false);
+
+  async function loadOidcSettings(force = false) {
+    if (oidcLoading || (oidcSettings && !force)) return;
+    oidcLoading = true;
+    oidcLoadError = null;
+    try {
+      oidcSettings = await getOIDCSettings();
+      oidcFormKey += 1;
+    } catch (e) {
+      oidcLoadError = errorText(e, m.error_failedLoad());
+    } finally {
+      oidcLoading = false;
+    }
+  }
+
+  function selectOidc() {
+    selectedAuthMethod = 'oidc';
+    void loadOidcSettings();
+  }
 
   // API key management
   let apiKeyConfigured = $state<boolean | null>(null); // null until first status fetch
@@ -55,7 +87,7 @@
       const status = await getAPIKeyStatus();
       apiKeyConfigured = status.configured;
     } catch (e) {
-      apiKeyError = e instanceof Error ? e.message : 'Failed to load API key status';
+      apiKeyError = errorText(e, 'Failed to load API key status');
     }
   }
 
@@ -73,7 +105,7 @@
         apiKeyError = result.message || 'Failed to generate API key';
       }
     } catch (e) {
-      apiKeyError = e instanceof Error ? e.message : 'Failed to generate API key';
+      apiKeyError = errorText(e, 'Failed to generate API key');
     } finally {
       apiKeyLoading = false;
     }
@@ -88,7 +120,7 @@
       apiKeyPlaintext = null;
       confirmDeleteApiKey = false;
     } catch (e) {
-      apiKeyError = e instanceof Error ? e.message : 'Failed to delete API key';
+      apiKeyError = errorText(e, 'Failed to delete API key');
     } finally {
       apiKeyLoading = false;
     }
@@ -136,7 +168,7 @@
     try {
       securityUsers = (await listUsers()) ?? [];
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedLoadUsers();
+      securityError = errorText(e, m.error_failedLoadUsers());
     } finally {
       securityLoading = false;
     }
@@ -178,7 +210,7 @@
         addUserError = result.message || m.error_failedCreateUser();
       }
     } catch (e) {
-      addUserError = e instanceof Error ? e.message : m.error_failedCreateUser();
+      addUserError = errorText(e, m.error_failedCreateUser());
     } finally {
       addUserLoading = false;
     }
@@ -189,7 +221,7 @@
       await updateUser(username, { role });
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedUpdateUser();
+      securityError = errorText(e, m.error_failedUpdateUser());
     }
   }
 
@@ -201,7 +233,7 @@
       await updateUser(username, { groups });
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedUpdateUser();
+      securityError = errorText(e, m.error_failedUpdateUser());
     }
   }
 
@@ -211,15 +243,19 @@
       confirmDeleteUser = null;
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedDeleteUser();
+      securityError = errorText(e, m.error_failedDeleteUser());
     }
   }
 
   async function handleChangeAuthMethod() {
     methodLoading = true;
     methodError = null;
+    methodSuccess = null;
     const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
+    if (selectedAuthMethod === 'oidc') {
+      req.oidc = oidcUpdate;
+    }
     if (selectedAuthMethod === 'forward_auth') {
       Object.assign(req, buildForwardAuthRequest(
         methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
@@ -236,13 +272,17 @@
           localConfig.auth.headers = req.headers;
           localConfig.auth.logout_url = req.logout_url;
         }
+        // The server owns the auth block (PUT /api/config ignores it), so
+        // the change above is already saved: let the dialog know it is not
+        // an unsaved change.
+        onmethodapplied?.();
 
         // Switching FROM "none" to an auth method — the virtual admin session is now invalid.
         if (previousMethod === 'none' && selectedAuthMethod !== 'none') {
           if (selectedAuthMethod === 'forward_auth') {
             // Don't reload — the user is accessing directly (not through their proxy),
             // so a reload would lock them out. Show a persistent message instead.
-            securitySuccess = m.common_forwardAuthEnabled();
+            methodSuccess = m.common_forwardAuthEnabled();
           } else {
             // For builtin auth, reload so the user can log in with credentials.
             sessionStorage.setItem('muximux_return_to', 'security');
@@ -250,14 +290,18 @@
             return;
           }
         } else {
-          securitySuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
-          setTimeout(() => securitySuccess = null, 3000);
+          if (selectedAuthMethod === 'oidc') {
+            // The secret flag and the SSO-only state may have changed.
+            await loadOidcSettings(true);
+          }
+          methodSuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
+          setTimeout(() => methodSuccess = null, 3000);
         }
       } else {
         methodError = result.message || m.error_failedChangeMethod();
       }
     } catch (e) {
-      methodError = e instanceof Error ? e.message : m.error_failedChangeMethod();
+      methodError = errorText(e, m.error_failedChangeMethod());
     } finally {
       methodLoading = false;
     }
@@ -274,7 +318,15 @@
     faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name') ||
     faLogoutUrl !== (localConfig.auth?.logout_url || '')
   ));
-  let showUpdateBtn = $derived(methodChanged || faFieldsChanged);
+  let oidcFormShown = $derived(selectedAuthMethod === 'oidc' && oidcSettings !== null);
+  let showUpdateBtn = $derived(methodChanged || faFieldsChanged || oidcFormShown);
+  // Local accounts are usable unless OIDC is on with local login disabled.
+  // GET /api/config carries no OIDC block, so this reads the settings the
+  // tab loads on mount; until they arrive the user list stays hidden.
+  let localLoginAllowed = $derived(
+    oidcSettings !== null && !(oidcSettings.enabled && oidcSettings.disable_local_login)
+  );
+  let showUserManagement = $derived(currentMethod === 'builtin' || (currentMethod === 'oidc' && localLoginAllowed));
 
   // Load security users and initialize auth fields on mount
   onMount(() => {
@@ -284,6 +336,7 @@
     }
 
     selectedAuthMethod = (localConfig.auth?.method || 'none') as typeof selectedAuthMethod;
+    if (selectedAuthMethod === 'oidc') void loadOidcSettings();
     // Pre-fill forward auth fields from existing config
     const proxies = localConfig.auth?.trusted_proxies;
     methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
@@ -300,12 +353,6 @@
 </script>
 
 <div class="space-y-8">
-  {#if securitySuccess}
-    <div class="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
-      {securitySuccess}
-    </div>
-  {/if}
-
   <!-- Authentication Method -->
   <div>
     <h3 class="text-lg font-semibold text-text-primary mb-1">{m.security_authMethod()}</h3>
@@ -457,7 +504,7 @@
                             return;
                           }
                         } catch (e) {
-                          methodError = e instanceof Error ? e.message : m.error_failedEnableAuth();
+                          methodError = errorText(e, m.error_failedEnableAuth());
                           return;
                         } finally {
                           methodLoading = false;
@@ -593,6 +640,46 @@
         {/if}
       </div>
 
+      <!-- Single sign-on (OIDC) card -->
+      <div
+        class="rounded-xl border text-start transition-all overflow-hidden
+               {selectedAuthMethod === 'oidc' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+      >
+        <button class="w-full p-4 flex items-start gap-4" onclick={selectOidc}>
+          <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+          </div>
+          <div class="flex-1 text-start">
+            <div class="flex items-center gap-2">
+              <h3 class="font-semibold text-text-primary">{m.oidc_card_title()}</h3>
+              {#if currentMethod === 'oidc'}
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
+              {/if}
+            </div>
+            <p class="text-sm text-text-muted mt-1">{m.oidc_card_desc()}</p>
+          </div>
+        </button>
+        {#if selectedAuthMethod === 'oidc'}
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+            <div class="border-t border-border pt-4">
+              {#if oidcLoadError}
+                <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm" data-testid="oidc-load-error">
+                  {oidcLoadError}
+                </div>
+              {:else if oidcSettings}
+                {#key oidcFormKey}
+                  <OidcSettingsForm settings={oidcSettings} onchange={(u, v) => { oidcUpdate = u; oidcValid = v; }} />
+                {/key}
+              {/if}
+            </div>
+          </div>
+        {/if}
+      </div>
+
       <!-- No authentication card -->
       <div
         class="rounded-xl border text-start transition-all overflow-hidden
@@ -643,10 +730,16 @@
       </div>
     {/if}
 
+    {#if methodSuccess}
+      <div class="p-3 mt-4 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm" data-testid="method-success">
+        {methodSuccess}
+      </div>
+    {/if}
+
     {#if showUpdateBtn}
       <button
         class="btn btn-primary btn-sm mt-4 disabled:opacity-50 flex items-center gap-2"
-        disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim())}
+        disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim()) || (selectedAuthMethod === 'oidc' && !oidcValid)}
         onclick={handleChangeAuthMethod}
       >
         {#if methodLoading}
@@ -802,8 +895,8 @@
     </div>
   {/if}
 
-  <!-- User Management (visible when builtin + admin) -->
-  {#if currentMethod === 'builtin' && $isAdmin}
+  <!-- User Management (admin; builtin, or oidc with local login allowed) -->
+  {#if showUserManagement && $isAdmin}
     <div>
       <div class="flex items-center justify-between mb-4">
         <div>

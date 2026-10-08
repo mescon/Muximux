@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DiscoveryRelinkProbeResult, DiscoveryRelinkCandidate } from '$lib/types';
-  import { probeDockerRelink, confirmDockerRelink, detachDockerTracked } from '$lib/api';
+  import { probeDockerRelink, confirmDockerRelink, detachDockerTracked, errorText } from '$lib/api';
   import { focusTrap } from '$lib/focusTrap';
 
   let { trackingKey, onClose } = $props<{ trackingKey: string; onClose: () => void }>();
@@ -25,7 +25,7 @@
     try {
       probeResult = await probeDockerRelink(trackingKey);
     } catch (e) {
-      probeError = e instanceof Error ? e.message : 'Probe failed';
+      probeError = errorText(e, 'Probe failed');
     } finally {
       probing = false;
     }
@@ -38,7 +38,7 @@
       await confirmDockerRelink({ old_key: trackingKey, new_key: c.key });
       onClose();
     } catch (e) {
-      confirmError = e instanceof Error ? e.message : 'Re-link failed';
+      confirmError = errorText(e, 'Re-link failed');
     } finally {
       confirmInFlight = false;
     }
@@ -52,7 +52,7 @@
       await detachDockerTracked(trackingKey);
       onClose();
     } catch (e) {
-      confirmError = e instanceof Error ? e.message : 'Detach failed';
+      confirmError = errorText(e, 'Detach failed');
     } finally {
       confirmInFlight = false;
     }

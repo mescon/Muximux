@@ -2074,6 +2074,11 @@ func TestValidateOIDC_LogoutURLs(t *testing.T) {
 		{"ftp logout url", OIDCConfig{LogoutURL: "ftp://idp.example.com/logout"}, false},
 		{"https with no host", OIDCConfig{LogoutURL: "https:///x"}, false},
 		{"only invalid logout_url set", OIDCConfig{LogoutURL: "not-a-url"}, false},
+		{"absolute callback", OIDCConfig{Enabled: true, RedirectURL: "https://dash.example.com/api/auth/oidc/callback"}, true},
+		{"relative callback", OIDCConfig{Enabled: true, RedirectURL: "auth/callback"}, false},
+		{"callback with no host", OIDCConfig{Enabled: true, RedirectURL: "http:///api/auth/oidc/callback"}, false},
+		{"relative callback while disabled", OIDCConfig{RedirectURL: "auth/callback"}, true},
+		{"bad logout url while disabled", OIDCConfig{LogoutURL: "not-a-url"}, false},
 	} {
 		err := ValidateOIDC(&tc.o)
 		if (err == nil) != tc.ok {
@@ -2120,5 +2125,22 @@ func TestLoad_RejectsInvalidOIDCLogoutURL(t *testing.T) {
 	_, err := Load(path)
 	if err == nil {
 		t.Error("Load accepted ftp:// logout_url, want error")
+	}
+}
+
+func TestLoad_OIDCRedirectURL(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	writeFile(t, path, "auth:\n  method: builtin\n  oidc:\n    enabled: true\n    issuer_url: https://idp.example.com\n    client_id: c\n")
+	if _, err := Load(path); err != nil {
+		t.Fatalf("empty redirect_url rejected at load: %v", err)
+	}
+	// A stale value in a disabled block must not stop startup.
+	writeFile(t, path, "auth:\n  method: builtin\n  oidc:\n    enabled: false\n    redirect_url: auth/callback\n")
+	if _, err := Load(path); err != nil {
+		t.Fatalf("disabled OIDC with relative redirect_url rejected at load: %v", err)
+	}
+	writeFile(t, path, "auth:\n  method: builtin\n  oidc:\n    enabled: true\n    redirect_url: auth/callback\n")
+	if _, err := Load(path); err == nil || !strings.Contains(err.Error(), "auth.oidc.redirect_url") {
+		t.Fatalf("relative redirect_url accepted at load: %v", err)
 	}
 }

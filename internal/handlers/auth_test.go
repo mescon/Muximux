@@ -2385,6 +2385,24 @@ func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
 	_ = h.CloseOIDC()
 }
 
+func TestPrepareOIDCProvider_DoesNotSwap(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	p, err := h.prepareOIDCProvider(context.Background(), &cfg, "")
+	if err != nil || p == nil {
+		t.Fatalf("prepare: %v %v", p, err)
+	}
+	defer p.Close()
+	if h.provider() != nil {
+		t.Error("prepare must not install the provider")
+	}
+	h.swapOIDCProvider(p)
+	if h.provider() != p {
+		t.Error("swap did not install the provider")
+	}
+}
+
 var (
 	handlersKeyOnce sync.Once
 	handlersKey     *rsa.PrivateKey

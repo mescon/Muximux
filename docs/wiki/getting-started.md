@@ -30,7 +30,7 @@ On a fresh install where no authentication has been configured, the wizard inclu
 - **Forward Auth** -- Use an external authentication proxy (Authelia, Authentik, etc.). You'll need to provide at least one trusted proxy CIDR range.
 - **None** -- Disable authentication entirely. Anyone who can reach Muximux has full access.
 
-This step only appears during initial setup. After setup is complete, authentication settings can be changed in Settings.
+This step only appears during initial setup. After setup is complete, authentication settings can be changed in Settings, including single sign-on (OIDC), which is set up under Settings > Security. See [Authentication](authentication#setting-up-oidc-in-settings).
 
 ### Step 3: Apps & Groups
 

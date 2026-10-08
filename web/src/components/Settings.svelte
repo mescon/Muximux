@@ -35,6 +35,7 @@
     initialEditAppName,
     onclose,
     onsave,
+    onauthchange,
   }: {
     config: Config;
     apps: App[];
@@ -42,6 +43,8 @@
     initialEditAppName?: string | null;
     onclose?: () => void;
     onsave?: (config: Config) => void;
+    /** Called with the new auth block after the Security tab changed the auth method. */
+    onauthchange?: (auth: NonNullable<Config['auth']>) => void;
   } = $props();
 
   // Exported: returns true if Escape was consumed by closing an inner sub-modal.
@@ -155,7 +158,7 @@
   // Snapshot taken AFTER id fields are added, so hasChanges starts as false
   // Docker tracking fields are left out: the server owns them, so a detach
   // made while this dialog is open is not an unsaved change.
-  const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig, withoutDockerTracking));
+  let initialConfigSnapshot = $state(untrack(() => JSON.stringify(localConfig, withoutDockerTracking)));
   const initialAppsSnapshot = untrack(() => JSON.stringify(localApps, withoutDockerTracking));
 
   // Snapshot theme so we can revert on close without save
@@ -168,6 +171,20 @@
                   keybindingsChanged ||
                   $selectedFamily !== initialFamily ||
                   $variantMode !== initialVariant);
+
+  // The Security tab applies an auth method change straight to the server
+  // (PUT /api/auth/method) and mirrors it into localConfig.auth. The server
+  // already has it and PUT /api/config ignores the auth block, so move it
+  // into the saved snapshot; any other unsaved edits stay unsaved. The app
+  // shell is told too, so reopening Settings shows the new method.
+  function handleAuthMethodApplied() {
+    if (!localConfig.auth) return;
+    const auth = $state.snapshot(localConfig.auth);
+    const saved = JSON.parse(initialConfigSnapshot) as Config;
+    saved.auth = auth;
+    initialConfigSnapshot = JSON.stringify(saved, withoutDockerTracking);
+    onauthchange?.(auth);
+  }
 
   // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
   let dndGroups = $state<Group[]>([...untrack(() => localConfig).groups].sort((a, b) => a.order - b.order));
@@ -634,7 +651,7 @@
 
       <!-- Security Settings -->
       {:else if activeTab === 'security'}
-        <SecurityTab {localConfig} />
+        <SecurityTab {localConfig} onmethodapplied={handleAuthMethodApplied} />
 
       <!-- Gateway sites -->
       {:else if activeTab === 'gateway'}

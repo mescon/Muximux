@@ -35,7 +35,10 @@ const mockApi = vi.hoisted(() => ({
   fetchCustomIconFromUrl: vi.fn(),
   deleteCustomIcon: vi.fn(),
 }));
-vi.mock('$lib/api', () => mockApi);
+vi.mock('$lib/api', async (importOriginal) => ({
+  ...mockApi,
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
+}));
 
 import DiscoverModal from './DiscoverModal.svelte';
 

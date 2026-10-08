@@ -166,6 +166,11 @@ func (m *Middleware) snapshot() *authSnapshot {
 	return m.snap.Load()
 }
 
+// Method returns the auth method the middleware is currently enforcing.
+func (m *Middleware) Method() AuthMethod {
+	return m.snapshot().config.Method
+}
+
 // ResolveClientIP returns middleware that stores the real client IP and the
 // client-facing scheme (http/https) in the request context. It must be
 // chained OUTSIDE the logging middleware so that log entries see the

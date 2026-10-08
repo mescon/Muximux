@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { DiscoveryTrackedEntry, DiscoveryTrackedListResult } from '$lib/types';
-  import { listDockerTracked, detachDockerTracked, ApiError } from '$lib/api';
+  import { listDockerTracked, detachDockerTracked, ApiError, errorText } from '$lib/api';
   import DiscoveryRelinkModal from './DiscoveryRelinkModal.svelte';
 
   // Refresh signal: parent bumps refreshKey to force a reload after a
@@ -31,7 +31,7 @@
     try {
       result = await listDockerTracked();
     } catch (e) {
-      loadError = e instanceof Error ? e.message : 'Failed to load tracked entries';
+      loadError = errorText(e, 'Failed to load tracked entries');
     } finally {
       loading = false;
     }
@@ -55,7 +55,7 @@
         ontrackingchanged?.();
         await load();
       } else {
-        alert(`Detach failed: ${e instanceof Error ? e.message : String(e)}`);
+        alert(`Detach failed: ${errorText(e, String(e))}`);
         await load();
       }
     } finally {

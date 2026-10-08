@@ -186,3 +186,96 @@ func TestNew_AuthMethodNone(t *testing.T) {
 		t.Fatalf("GET /api/apps with auth none = %d, want 200 (body %q)", rec.Code, rec.Body.String()[:min(80, rec.Body.Len())])
 	}
 }
+
+// loginCookies signs in through the real handler chain, sending what the SPA
+// sends (JSON body plus X-Requested-With), and returns the session cookies.
+func loginCookies(t *testing.T, s *Server, username, password string) []*http.Cookie {
+	t.Helper()
+	body := `{"username":"` + username + `","password":"` + password + `"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/login", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
+	rec := httptest.NewRecorder()
+	s.httpServer.Handler.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("login %s = %d %s", username, rec.Code, rec.Body.String())
+	}
+	return rec.Result().Cookies()
+}
+
+func doJSON(s *Server, method, path, body string, cookies []*http.Cookie, csrf bool) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	if csrf {
+		req.Header.Set("X-Requested-With", "XMLHttpRequest")
+	}
+	for _, c := range cookies {
+		req.AddCookie(c)
+	}
+	rec := httptest.NewRecorder()
+	s.httpServer.Handler.ServeHTTP(rec, req)
+	return rec
+}
+
+func TestOIDCSettingsRoutes_RequireAdmin(t *testing.T) {
+	const secret = "super-secret-client-value"
+	hash, err := bcrypt.GenerateFromPassword([]byte("pw-user"), bcrypt.MinCost)
+	if err != nil {
+		t.Fatalf("bcrypt: %v", err)
+	}
+	setup := completeSetup(t)
+	s := newServerForTest(t, func(cfg *config.Config) {
+		setup(cfg)
+		cfg.Auth.Users = append(cfg.Auth.Users, config.UserConfig{Username: "bob", PasswordHash: string(hash), Role: "user"})
+		cfg.Auth.OIDC.ClientSecret = secret
+	})
+
+	paths := []struct{ method, path string }{
+		{http.MethodGet, "/api/auth/settings/oidc"},
+		{http.MethodPost, "/api/auth/settings/oidc/test"},
+	}
+
+	t.Run("anonymous callers get 401", func(t *testing.T) {
+		for _, tc := range paths {
+			if rec := doJSON(s, tc.method, tc.path, `{}`, nil, true); rec.Code != http.StatusUnauthorized {
+				t.Errorf("%s %s anonymous = %d, want 401", tc.method, tc.path, rec.Code)
+			}
+		}
+	})
+
+	t.Run("non-admin sessions get 403", func(t *testing.T) {
+		cookies := loginCookies(t, s, "bob", "pw-user")
+		cases := append([]struct{ method, path string }{}, paths...)
+		cases = append(cases, struct{ method, path string }{http.MethodPut, "/api/auth/method"})
+		for _, tc := range cases {
+			if rec := doJSON(s, tc.method, tc.path, `{}`, cookies, true); rec.Code != http.StatusForbidden {
+				t.Errorf("%s %s as user = %d, want 403", tc.method, tc.path, rec.Code)
+			}
+		}
+	})
+
+	t.Run("admin reads settings without the secret", func(t *testing.T) {
+		cookies := loginCookies(t, s, "admin", "correct horse")
+		rec := doJSON(s, http.MethodGet, "/api/auth/settings/oidc", "", cookies, false)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("admin GET = %d %s", rec.Code, rec.Body.String())
+		}
+		if strings.Contains(rec.Body.String(), secret) {
+			t.Errorf("response leaks the client secret: %s", rec.Body.String())
+		}
+	})
+
+	t.Run("the test endpoint keeps CSRF protection", func(t *testing.T) {
+		cookies := loginCookies(t, s, "admin", "correct horse")
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/settings/oidc/test", strings.NewReader("a=b"))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		for _, c := range cookies {
+			req.AddCookie(c)
+		}
+		rec := httptest.NewRecorder()
+		s.httpServer.Handler.ServeHTTP(rec, req)
+		if rec.Code != http.StatusForbidden {
+			t.Errorf("form POST without CSRF marker = %d, want 403", rec.Code)
+		}
+	})
+}

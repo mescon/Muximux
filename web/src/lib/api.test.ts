@@ -32,6 +32,8 @@ import {
   updateUser,
   deleteUserAccount,
   changeAuthMethod,
+  getOIDCSettings,
+  testOIDCProvider,
   getAPIKeyStatus,
   generateAPIKey,
   deleteAPIKey,
@@ -41,8 +43,10 @@ import {
   detachDockerTracked,
   probeDockerRelink,
   confirmDockerRelink,
+  ApiError,
+  errorText,
 } from './api';
-import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest } from './types';
+import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult } from './types';
 
 // --- Helpers ---
 function mockFetchOk(data: unknown) {
@@ -670,6 +674,91 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     });
   });
 
+  describe('getOIDCSettings', () => {
+    it('GETs /auth/settings/oidc and returns settings', async () => {
+      const settings: OIDCSettings = {
+        enabled: true,
+        issuer_url: 'https://idp.example.com',
+        client_id: 'my-client',
+        client_secret_set: true,
+        redirect_url: 'http://localhost:8080/api/auth/oidc/callback',
+        scopes: ['openid', 'profile', 'email'],
+        username_claim: 'preferred_username',
+        email_claim: 'email',
+        groups_claim: 'groups',
+        display_name_claim: 'name',
+        admin_groups: ['admins'],
+        provider_logout: true,
+        post_logout_redirect_url: 'http://localhost:8080',
+        logout_url: 'https://idp.example.com/logout',
+        auto_redirect: false,
+        disable_local_login: false,
+        env_fields: {},
+        default_callback_url: 'http://localhost:8080/api/auth/oidc/callback',
+        backchannel_url: 'http://localhost:8080/api/auth/oidc/backchannel-logout',
+        current_session_is_oidc: false,
+      };
+      globalThis.fetch = mockFetchOk(settings);
+      const result = await getOIDCSettings();
+      expect(result).toEqual(settings);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/settings/oidc', { method: 'GET' });
+    });
+
+    it('throws on non-OK response', async () => {
+      globalThis.fetch = mockFetchError(403, 'Forbidden', 'admin only');
+      await expect(getOIDCSettings()).rejects.toThrow('API error: 403 admin only');
+    });
+  });
+
+  describe('testOIDCProvider', () => {
+    it('POSTs issuer_url to /auth/settings/oidc/test and returns test result', async () => {
+      const result_data: OIDCTestResult = {
+        reachable: true,
+        issuer: 'https://idp.example.com',
+        authorization: true,
+        token: true,
+        userinfo: true,
+        jwks: true,
+        end_session: true,
+        backchannel_supported: false,
+      };
+      globalThis.fetch = mockFetchOk(result_data);
+      const result = await testOIDCProvider('https://idp.example.com');
+      expect(result).toEqual(result_data);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/settings/oidc/test', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issuer_url: 'https://idp.example.com' }),
+      });
+    });
+
+    it('returns error result when issuer is unreachable', async () => {
+      const result_data: OIDCTestResult = {
+        reachable: false,
+        error: 'connection refused',
+        authorization: false,
+        token: false,
+        userinfo: false,
+        jwks: false,
+        end_session: false,
+        backchannel_supported: false,
+      };
+      globalThis.fetch = mockFetchOk(result_data);
+      const result = await testOIDCProvider('https://invalid.example.com');
+      expect(result).toEqual(result_data);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/settings/oidc/test', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issuer_url: 'https://invalid.example.com' }),
+      });
+    });
+
+    it('throws on non-OK response', async () => {
+      globalThis.fetch = mockFetchError(500, 'Internal Server Error', 'server error');
+      await expect(testOIDCProvider('https://idp.example.com')).rejects.toThrow('API error: 500 server error');
+    });
+  });
+
   describe('getAPIKeyStatus', () => {
     it('GETs /auth/api-key and returns the status payload', async () => {
       globalThis.fetch = mockFetchOk({ configured: true });
@@ -890,5 +979,32 @@ describe('Docker lifecycle API', () => {
     const { dockerStart } = await import('./api');
     const res = await dockerStart('sonarr');
     expect(res.error).toBe('Port already in use');
+  });
+});
+
+describe('ApiError detail and errorText', () => {
+  const originalFetch = globalThis.fetch;
+  afterEach(() => { globalThis.fetch = originalFetch; });
+
+  it('keeps the status prefix in message and the plain server text in detail', async () => {
+    globalThis.fetch = mockFetchError(400, 'Bad Request', 'OIDC discovery failed: no such host\n');
+    const err = await changeAuthMethod({ method: 'oidc' }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).message).toBe('API error: 400 OIDC discovery failed: no such host');
+    expect((err as ApiError).detail).toBe('OIDC discovery failed: no such host');
+    expect(errorText(err, 'fallback')).toBe('OIDC discovery failed: no such host');
+  });
+
+  it('falls back to the prefixed message when the body has nothing readable', async () => {
+    globalThis.fetch = mockFetchError(502, 'Bad Gateway', '<html><body>502</body></html>');
+    const err = await fetchConfig().catch((e: unknown) => e);
+    expect((err as ApiError).detail).toBe('API error: 502');
+    expect(errorText(err, 'fallback')).toBe('API error: 502');
+  });
+
+  it('uses the message of other errors and the fallback for non-errors', () => {
+    expect(errorText(new Error('boom'), 'fallback')).toBe('boom');
+    expect(errorText('nope', 'fallback')).toBe('fallback');
+    expect(errorText(new ApiError(409, 'API error: 409 x'), 'fallback')).toBe('API error: 409 x');
   });
 });

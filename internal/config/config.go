@@ -889,17 +889,24 @@ func (c *Config) Validate() error {
 	return c.validate()
 }
 
-// ValidateOIDC checks the OIDC logout addresses: when set they must be
-// absolute http(s) URLs, since the browser is sent to them. Exported for
+// ValidateOIDC checks the OIDC callback and logout addresses: when set
+// they must be absolute http(s) URLs, since the provider and the browser
+// are sent to them. The callback is only checked while OIDC is enabled,
+// so a stale value in a disabled block never stops startup. Exported for
 // the settings endpoint, which validates before saving.
 func ValidateOIDC(o *OIDCConfig) error {
-	checks := []struct {
+	type check struct {
 		name  string
 		value string
-	}{
-		{"auth.oidc.post_logout_redirect_url", o.PostLogoutRedirectURL},
-		{"auth.oidc.logout_url", o.LogoutURL},
 	}
+	var checks []check
+	if o.Enabled {
+		checks = append(checks, check{"auth.oidc.redirect_url", o.RedirectURL})
+	}
+	checks = append(checks,
+		check{"auth.oidc.post_logout_redirect_url", o.PostLogoutRedirectURL},
+		check{"auth.oidc.logout_url", o.LogoutURL},
+	)
 	for _, check := range checks {
 		if check.value == "" {
 			continue

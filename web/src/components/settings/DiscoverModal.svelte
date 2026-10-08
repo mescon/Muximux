@@ -1,7 +1,7 @@
 <script lang="ts">
   import { focusTrap } from '$lib/focusTrap';
   import type { App, DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, GatewaySite, AppIcon as AppIconType } from '$lib/types';
-  import { scanDockerContainers, importDockerSuggestions } from '$lib/api';
+  import { scanDockerContainers, importDockerSuggestions, errorText } from '$lib/api';
   import AppIcon from '../AppIcon.svelte';
   import IconBrowser from '../IconBrowser.svelte';
 
@@ -82,7 +82,7 @@
         routing: 'direct' as const,
       }));
     } catch (e) {
-      scanError = e instanceof Error ? e.message : 'Scan failed';
+      scanError = errorText(e, 'Scan failed');
     } finally {
       scanning = false;
     }
@@ -217,7 +217,7 @@
         onimported?.();
       }
     } catch (e) {
-      importTopError = e instanceof Error ? e.message : 'Import failed';
+      importTopError = errorText(e, 'Import failed');
     } finally {
       importing = false;
     }

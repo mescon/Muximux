@@ -16,6 +16,11 @@ import (
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
+// oidcDiscoveryTimeout caps the OIDC discovery an auth method save runs
+// before taking the config lock, so a slow or unreachable issuer cannot
+// hold the request (and the admin's Settings form) open indefinitely.
+const oidcDiscoveryTimeout = 15 * time.Second
+
 // AuthHandler handles authentication endpoints
 type AuthHandler struct {
 	sessionStore          *auth.SessionStore
@@ -113,27 +118,45 @@ func (h *AuthHandler) SetOIDCProvider(provider *auth.OIDCProvider) {
 	h.oidcMu.Unlock()
 }
 
+// prepareOIDCProvider builds a provider from cfg and checks the identity
+// provider answers discovery. It does not install it. Returns nil, nil
+// for a disabled cfg.
+func (h *AuthHandler) prepareOIDCProvider(ctx context.Context, cfg *config.OIDCConfig, basePath string) (*auth.OIDCProvider, error) {
+	if !cfg.Enabled {
+		return nil, nil
+	}
+	p := auth.NewOIDCProvider(cfg, basePath, h.sessionStore, h.userStore)
+	timeoutCtx, cancel := context.WithTimeout(ctx, oidcDiscoveryTimeout)
+	defer cancel()
+	if err := p.Discover(timeoutCtx); err != nil {
+		_ = p.Close()
+		return nil, fmt.Errorf("OIDC discovery failed: %w", err)
+	}
+	return p, nil
+}
+
+// swapOIDCProvider installs next and closes the previous provider.
+func (h *AuthHandler) swapOIDCProvider(next *auth.OIDCProvider) {
+	h.oidcMu.Lock()
+	old := h.oidcProvider
+	h.oidcProvider = next
+	h.oidcMu.Unlock()
+	if old != nil && old != next {
+		_ = old.Close()
+	}
+}
+
 // ReplaceOIDCProvider builds a provider from cfg, checks the identity
 // provider is reachable, and swaps it in, closing the old one. A failed
 // check changes nothing. A disabled cfg removes the provider. Existing
 // sessions stay valid; logins in flight on the old provider fail with the
 // usual invalid-state error.
 func (h *AuthHandler) ReplaceOIDCProvider(ctx context.Context, cfg *config.OIDCConfig, basePath string) error {
-	var next *auth.OIDCProvider
-	if cfg.Enabled {
-		next = auth.NewOIDCProvider(cfg, basePath, h.sessionStore, h.userStore)
-		if err := next.Discover(ctx); err != nil {
-			_ = next.Close()
-			return fmt.Errorf("OIDC discovery failed: %w", err)
-		}
+	next, err := h.prepareOIDCProvider(ctx, cfg, basePath)
+	if err != nil {
+		return err
 	}
-	h.oidcMu.Lock()
-	old := h.oidcProvider
-	h.oidcProvider = next
-	h.oidcMu.Unlock()
-	if old != nil {
-		_ = old.Close()
-	}
+	h.swapOIDCProvider(next)
 	return nil
 }
 
@@ -892,11 +915,12 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // UpdateAuthMethod handles PUT /api/auth/method
 func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Method                 string            `json:"method"`
-		TrustedProxies         []string          `json:"trusted_proxies"`
-		Headers                map[string]string `json:"headers"`
-		LogoutURL              string            `json:"logout_url"`
-		ForwardAuthAdminGroups []string          `json:"forward_auth_admin_groups"`
+		Method                 string               `json:"method"`
+		TrustedProxies         []string             `json:"trusted_proxies"`
+		Headers                map[string]string    `json:"headers"`
+		LogoutURL              string               `json:"logout_url"`
+		ForwardAuthAdminGroups []string             `json:"forward_auth_admin_groups"`
+		OIDC                   *oidcSettingsRequest `json:"oidc"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
@@ -925,6 +949,9 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
 		}
 
+	case "oidc":
+		authCfg = auth.AuthConfig{Method: auth.AuthMethodOIDC}
+
 	case "none":
 		authCfg = auth.AuthConfig{Method: auth.AuthMethodNone}
 
@@ -934,6 +961,22 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authCfg.BypassRules = h.bypassRules
+
+	// Validate the OIDC settings and discover the provider before taking
+	// the write lock: discovery can take seconds.
+	var nextOIDC config.OIDCConfig
+	var preparedOIDC *auth.OIDCProvider
+	if req.Method == "oidc" {
+		var status int
+		var msg string
+		nextOIDC, preparedOIDC, status, msg = h.prepareOIDCSave(r, req.OIDC)
+		if status != 0 {
+			respondError(w, r, status, msg)
+			return
+		}
+	}
+
+	var oidcChanged []string // OIDC setting names changed by this save, for the audit log
 
 	// Mutate, save, then push to middleware - all under one lock
 	// scope. Two bugs the old ordering had:
@@ -957,6 +1000,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		priorHeaders := h.config.Auth.Headers
 		priorLogoutURL := h.config.Auth.LogoutURL
 		priorFwAdminGroups := append([]string(nil), h.config.Auth.ForwardAuthAdminGroups...)
+		priorOIDC := copyOIDCConfig(&h.config.Auth.OIDC)
 
 		// Reads of APIKeyHash and BasePath happen here, under the
 		// lock, so a concurrent rotation can't slip a stale hash
@@ -980,6 +1024,12 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			h.config.Auth.LogoutURL = ""
 			h.config.Auth.ForwardAuthAdminGroups = nil
 		}
+		leavingOIDC := req.Method != "oidc" && priorMethod == "oidc" && priorOIDC.Enabled
+		if req.Method == "oidc" {
+			h.config.Auth.OIDC = nextOIDC
+		} else if leavingOIDC {
+			h.config.Auth.OIDC.Enabled = false
+		}
 
 		// Persist BEFORE pushing to middleware. If Save fails the
 		// running auth method has not changed yet.
@@ -989,8 +1039,21 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			h.config.Auth.Headers = priorHeaders
 			h.config.Auth.LogoutURL = priorLogoutURL
 			h.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+			h.config.Auth.OIDC = priorOIDC
+			if preparedOIDC != nil {
+				_ = preparedOIDC.Close()
+			}
 			return err
 		}
+		// Swap the provider while still holding the lock, so the file,
+		// the live provider and the middleware always agree. This is what
+		// startup does: a provider exists exactly when oidc.enabled is set.
+		if req.Method == "oidc" {
+			h.swapOIDCProvider(preparedOIDC)
+		} else if leavingOIDC {
+			h.swapOIDCProvider(nil)
+		}
+		oidcChanged = oidcChangedFields(&priorOIDC, &h.config.Auth.OIDC)
 		h.authMiddleware.UpdateConfig(&authCfg)
 		return nil
 	}(); err != nil {
@@ -998,7 +1061,15 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.From(r.Context()).Info("Auth method changed", "source", "audit", "method", req.Method)
+	auditAttrs := []any{"source", "audit", "method", req.Method}
+	if req.Method == "oidc" {
+		auditAttrs = append(auditAttrs, "oidc_options", fmt.Sprintf("provider_logout=%v auto_redirect=%v disable_local_login=%v",
+			nextOIDC.ProviderLogout, nextOIDC.AutoRedirect, nextOIDC.DisableLocalLogin))
+	}
+	if len(oidcChanged) > 0 {
+		auditAttrs = append(auditAttrs, "oidc_changed", strings.Join(oidcChanged, ","))
+	}
+	logging.From(r.Context()).Info("Auth method changed", auditAttrs...)
 	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"method":  req.Method,

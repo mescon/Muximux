@@ -71,6 +71,10 @@ auth:
 
 Set `POCKETID_CLIENT_SECRET` in the environment. Restart Muximux.
 
+### Using Settings
+
+Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the public URL of Pocket ID (for example `https://id.example.com`, no trailing path) as the issuer URL, the client ID and secret from Step 1, `groups` added to the scopes, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+
 ---
 
 ## Step 4: Validate

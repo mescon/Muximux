@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import SecurityTab from './SecurityTab.svelte';
-import type { Config } from '$lib/types';
+import type { Config, OIDCSettings } from '$lib/types';
+import { ApiError } from '$lib/api';
 
 // Mock API module
 const mockListUsers = vi.fn().mockResolvedValue([]);
@@ -12,8 +13,11 @@ const mockChangeAuthMethod = vi.fn().mockResolvedValue({ success: true });
 const mockGetAPIKeyStatus = vi.fn().mockResolvedValue({ configured: false });
 const mockGenerateAPIKey = vi.fn().mockResolvedValue({ success: true, key: 'muximux_test123', warning: 'shown once', rotated: false, configured: true });
 const mockDeleteAPIKey = vi.fn().mockResolvedValue(undefined);
+const mockGetOIDCSettings = vi.fn();
 
-vi.mock('$lib/api', () => ({
+vi.mock('$lib/api', async (importOriginal) => ({
+  ApiError: (await importOriginal<typeof import('$lib/api')>()).ApiError,
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
   listUsers: (...args: unknown[]) => mockListUsers(...args),
   createUser: (...args: unknown[]) => mockCreateUser(...args),
   updateUser: (...args: unknown[]) => mockUpdateUser(...args),
@@ -22,6 +26,8 @@ vi.mock('$lib/api', () => ({
   getAPIKeyStatus: (...args: unknown[]) => mockGetAPIKeyStatus(...args),
   generateAPIKey: (...args: unknown[]) => mockGenerateAPIKey(...args),
   deleteAPIKey: (...args: unknown[]) => mockDeleteAPIKey(...args),
+  getOIDCSettings: (...args: unknown[]) => mockGetOIDCSettings(...args),
+  testOIDCProvider: vi.fn(),
 }));
 
 // Mock authStore
@@ -88,9 +94,36 @@ function makeBuiltinConfig(): Config {
   return makeConfig({ method: 'builtin' });
 }
 
+function makeOidcSettings(over: Partial<OIDCSettings> = {}): OIDCSettings {
+  return {
+    enabled: true,
+    issuer_url: 'https://auth.example.com',
+    client_id: 'muximux',
+    client_secret_set: true,
+    redirect_url: '',
+    scopes: ['openid', 'profile'],
+    username_claim: 'preferred_username',
+    email_claim: 'email',
+    groups_claim: 'groups',
+    display_name_claim: 'name',
+    admin_groups: [],
+    provider_logout: false,
+    post_logout_redirect_url: '',
+    logout_url: '',
+    auto_redirect: false,
+    disable_local_login: false,
+    env_fields: {},
+    default_callback_url: 'https://mux.example.com/api/auth/oidc/callback',
+    backchannel_url: 'https://mux.example.com/api/auth/oidc/backchannel-logout',
+    current_session_is_oidc: true,
+    ...over,
+  };
+}
+
 describe('SecurityTab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetOIDCSettings.mockResolvedValue(makeOidcSettings());
     mockListUsers.mockResolvedValue([]);
     mockCreateUser.mockResolvedValue({ success: true });
     mockChangeAuthMethod.mockResolvedValue({ success: true });
@@ -1172,5 +1205,181 @@ describe('SecurityTab', () => {
       });
     });
 
+  });
+  // ─── Single sign-on (OIDC) ────────────────────────────────────────────────
+
+  describe('single sign-on (OIDC)', () => {
+    const applyBtn = () => screen.getByRole('button', { name: /update/i });
+
+    it('renders the card and loads the settings when it is selected', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }) } });
+      expect(screen.getAllByText('Single sign-on (OIDC)')[0]).toBeInTheDocument();
+      expect(mockGetOIDCSettings).not.toHaveBeenCalled();
+
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+      expect(mockGetOIDCSettings).toHaveBeenCalledTimes(1);
+
+      // Re-selecting does not reload
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+      expect(mockGetOIDCSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('loads on mount and shows the current badge when oidc is active', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+      const card = screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!;
+      expect(card).toHaveTextContent(/current/i);
+    });
+
+    it('shows the load error inline instead of the form', async () => {
+      mockGetOIDCSettings.mockRejectedValueOnce(new Error('boom'));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }) } });
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+      await waitFor(() => expect(screen.getByTestId('oidc-load-error')).toHaveTextContent('boom'));
+      expect(screen.queryByTestId('oidc-settings')).not.toBeInTheDocument();
+    });
+
+    it('falls back to a generic load error for non-Error rejections', async () => {
+      mockGetOIDCSettings.mockRejectedValueOnce('nope');
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }) } });
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+      await waitFor(() => expect(screen.getByTestId('oidc-load-error')).toBeInTheDocument());
+    });
+
+    it('sends the oidc payload on apply and re-fetches the settings', async () => {
+      const config = makeConfig({ method: 'oidc' });
+      render(SecurityTab, { props: { localConfig: config } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.input(document.getElementById('oidc-client-id')!, { target: { value: 'other' } });
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(mockChangeAuthMethod).toHaveBeenCalledTimes(1));
+      const req = mockChangeAuthMethod.mock.calls[0][0];
+      expect(req.method).toBe('oidc');
+      expect(req.oidc).toEqual(expect.objectContaining({
+        issuer_url: 'https://auth.example.com',
+        client_id: 'other',
+        disable_local_login: false,
+      }));
+      await waitFor(() => expect(mockGetOIDCSettings).toHaveBeenCalledTimes(2));
+      expect(config.auth.method).toBe('oidc');
+      expect(config.auth).not.toHaveProperty('oidc');
+    });
+
+    it('shows the confirmation next to the Update Method button', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(screen.getByTestId('method-success')).toHaveTextContent(/changed to oidc/));
+      // Right above the button, not at the top of the tall tab.
+      expect(screen.getByTestId('method-success').nextElementSibling).toBe(applyBtn());
+    });
+
+    it('tells the dialog about a successful apply', async () => {
+      const onmethodapplied = vi.fn();
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }), onmethodapplied } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(onmethodapplied).toHaveBeenCalledTimes(1));
+    });
+
+    it('does not tell the dialog about a refused apply', async () => {
+      mockChangeAuthMethod.mockRejectedValueOnce(new ApiError(400, 'API error: 400 bad', 'bad'));
+      const onmethodapplied = vi.fn();
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }), onmethodapplied } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(screen.getByText('bad')).toBeInTheDocument());
+      expect(onmethodapplied).not.toHaveBeenCalled();
+    });
+
+    it('shows a 400 message inline and keeps the current method', async () => {
+      // The server answers with a plain-text body via http.Error.
+      mockChangeAuthMethod.mockRejectedValueOnce(
+        new ApiError(400, 'API error: 400 OIDC discovery failed: no such host', 'OIDC discovery failed: no such host'),
+      );
+      const config = makeConfig({ method: 'builtin' });
+      render(SecurityTab, { props: { localConfig: config } });
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(screen.getByText('OIDC discovery failed: no such host')).toBeInTheDocument());
+      expect(screen.queryByText(/API error/)).not.toBeInTheDocument();
+      expect(config.auth.method).toBe('builtin');
+      expect(mockGetOIDCSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows a 409 message inline without the status prefix and keeps the current method', async () => {
+      mockChangeAuthMethod.mockRejectedValueOnce(new ApiError(
+        409,
+        'API error: 409 sign in with SSO once before turning off local login',
+        'sign in with SSO once before turning off local login',
+      ));
+      const config = makeConfig({ method: 'builtin' });
+      render(SecurityTab, { props: { localConfig: config } });
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(screen.getByText('sign in with SSO once before turning off local login')).toBeInTheDocument());
+      expect(screen.queryByText(/API error/)).not.toBeInTheDocument();
+      expect(config.auth.method).toBe('builtin');
+    });
+
+    it('disables apply while the form is invalid', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'builtin' }) } });
+      await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+      expect(applyBtn()).not.toBeDisabled();
+
+      await fireEvent.input(document.getElementById('oidc-issuer')!, { target: { value: 'not a url' } });
+      await waitFor(() => expect(applyBtn()).toBeDisabled());
+    });
+
+    it('shows user management on a fresh mount when the settings allow local login', async () => {
+      mockGetOIDCSettings.mockResolvedValue(makeOidcSettings({ enabled: true, disable_local_login: false }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      expect(screen.queryByText('User Management')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
+      expect(mockGetOIDCSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('hides user management on a fresh mount when the settings report SSO-only', async () => {
+      mockGetOIDCSettings.mockResolvedValue(makeOidcSettings({ enabled: true, disable_local_login: true }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+      expect(screen.queryByText('User Management')).not.toBeInTheDocument();
+    });
+
+    it('shows user management when local login is disabled but OIDC is not enabled', async () => {
+      mockGetOIDCSettings.mockResolvedValue(makeOidcSettings({ enabled: false, disable_local_login: true }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
+    });
+
+    it('hides user management after an apply turns on SSO-only', async () => {
+      mockGetOIDCSettings
+        .mockResolvedValueOnce(makeOidcSettings({ disable_local_login: false }))
+        .mockResolvedValueOnce(makeOidcSettings({ disable_local_login: true }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(mockGetOIDCSettings).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(screen.queryByText('User Management')).not.toBeInTheDocument());
+    });
   });
 });
