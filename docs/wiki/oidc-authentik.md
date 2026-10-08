@@ -105,10 +105,9 @@ The Authentik `issuer_url` is application-scoped, hence the `/application/o/<app
 
 Set `AUTHENTIK_CLIENT_SECRET` in the environment. Restart Muximux.
 
-
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the application-scoped **OpenID Configuration Issuer** value (`https://authentik.example.com/application/o/muximux/`, trailing slash included) as the issuer URL, the client ID and secret from the provider, `groups` added to the scopes, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL** and **Back-channel logout URL** rows into the provider, press **Test connection**, then apply. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the application-scoped **OpenID Configuration Issuer** value (`https://authentik.example.com/application/o/muximux/`, trailing slash included) as the issuer URL, the client ID and secret from the provider, `groups` added to the scopes, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 

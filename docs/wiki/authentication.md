@@ -184,26 +184,26 @@ Direct integration with identity providers like Authentik, Keycloak, Auth0, Okta
 
 ### Setting up OIDC in Settings
 
-You can configure single sign-on from the UI instead of editing `config.yaml`. Open **Settings > Security** and choose the fourth card, **Single sign-on (OIDC)**.
+You can configure single sign-on from the UI instead of editing `config.yaml`. Open **Settings > Security** and choose the **Single sign-on (OIDC)** card.
 
 [![OIDC settings with a successful connection test](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/19-security-oidc.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/19-security-oidc.png)
 
 1. Enter the **issuer URL**, **client ID** and **client secret**. Adjust the **scopes** (space-separated) if your provider needs more than the defaults.
 2. Set the claims Muximux reads: username, email, display name and groups. Enter **admin groups** as a comma-separated list.
-3. Copy the two read-only rows into your provider with their **Copy** buttons. **Callback URL** is the redirect URL to register (your override if you set one, otherwise `<origin><base path>/api/auth/oidc/callback`). **Back-channel logout URL** is where the provider sends logout notifications. The optional callback URL override is for setups where Muximux cannot work out its public address.
+3. Copy the two read-only rows into your provider with their **Copy** buttons. **Callback URL (register at the provider)** is the redirect URL to register (your override if you set one, otherwise `<origin><base path>/api/auth/oidc/callback`). **Back-channel logout URL** is where the provider sends logout notifications. The optional callback URL override is for setups where Muximux cannot work out its public address.
 4. Press **Test connection**. Muximux fetches the issuer's discovery document and reports whether the provider is reachable and which of these it offers: authorization, token, userinfo and JWKS endpoints, sign-out at the provider (`end_session_endpoint`), and back-channel logout. The test only follows `http` and `https`, times out after 10 seconds, reads at most 1 MB, and follows redirects only within the same host (at most 10). Private and LAN addresses are allowed.
-5. Press **Apply**. Muximux checks the provider through discovery before saving anything. If that fails, nothing changes and the error is shown. On success the settings are written to `config.yaml` and take effect immediately, without a restart.
+5. Press **Update Method**. Muximux checks the provider through discovery before saving anything. If that fails, nothing changes and the error is shown. On success the settings are written to `config.yaml` and take effect immediately, without a restart. Once it succeeds the change is already saved.
 
 The sign-out options are the same as in the YAML: also sign out at the provider, the return address after provider sign-out, and a provider logout URL override. **Skip the login page** sets `auto_redirect` and **Allow only SSO sign-in** sets `disable_local_login`.
 
 **Client secret.** The secret is never shown. Leave the field empty to keep the stored secret; type a value to replace it.
 
-**Fields from environment variables.** A field whose `config.yaml` value is exactly `${VAR}` is shown read-only as "From VAR" and is never overwritten from Settings. The secret's value stays hidden even then. Change those values in the environment.
+**Fields from environment variables.** A field whose `config.yaml` value is exactly `${VAR}` is shown read-only as "From VAR" and is never overwritten from Settings. The secret's value stays hidden even then. Change those values in the environment. Only these fields can come from `${VAR}` and be locked: issuer URL, client ID, client secret, callback URL override, return address after provider sign-out, and provider logout URL. Scopes, claims and admin groups are always editable.
 
 **Allow only SSO sign-in.** This has two guards so you cannot lock yourself out:
 
 - It can only be turned on from a session that signed in through SSO. The checkbox is disabled otherwise, and the server answers 409 "sign in with SSO once before turning off local login".
-- While it is on, the issuer, client ID and secret are locked, and the server answers 409 "turn off SSO-only sign-in before changing the identity provider". To change providers: turn SSO-only off and apply, change the provider and apply, sign in with SSO, then turn SSO-only on again.
+- While it is on, the issuer, client ID and secret are locked, and the server answers 409 "turn off SSO-only sign-in before changing the identity provider". To change providers: turn SSO-only off and press **Update Method**, change the provider and press it again, sign in with SSO, then turn SSO-only on again.
 
 If the provider is down and you are locked out, recover by editing `config.yaml` as described under [SSO-only sign-in](#sso-only-sign-in).
 

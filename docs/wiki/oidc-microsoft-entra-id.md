@@ -90,10 +90,9 @@ Replace `<TENANT_ID>` and `<APPLICATION_CLIENT_ID>` with the values from Step 1.
 
 Restart Muximux. The `Login with SSO` button on `/login` now sends the user to Entra.
 
-
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter `https://login.microsoftonline.com/<TENANT_ID>/v2.0` as the issuer URL, the application (client) ID as the client ID, the client secret value from Step 2, `groups` as the groups claim, and the group name or GUID from Step 3 under admin groups. Copy the **Callback URL** and **Back-channel logout URL** rows into the provider, press **Test connection**, then apply. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter `https://login.microsoftonline.com/<TENANT_ID>/v2.0` as the issuer URL, the application (client) ID as the client ID, the client secret value from Step 2, `groups` as the groups claim, and the group name or GUID from Step 3 under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 

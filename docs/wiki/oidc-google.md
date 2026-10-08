@@ -84,10 +84,9 @@ If your Google Cloud project has User type **Internal**, only members of your Wo
 
 For a Workspace-only deployment, **Internal** + manual role assignment in Muximux is the simplest pattern.
 
-
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter `https://accounts.google.com` as the issuer URL, the client ID and secret from Step 2, and `email` as the username claim. Leave admin groups empty, because Google does not send groups. Copy the **Callback URL** and **Back-channel logout URL** rows into the provider, press **Test connection**, then apply. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter `https://accounts.google.com` as the issuer URL, the client ID and secret from Step 2, and `email` as the username claim. Leave admin groups empty, because Google does not send groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 

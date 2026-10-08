@@ -68,7 +68,7 @@ All notable changes to Muximux are documented in this file.
 ### Changed
 - **Upgrade note:** with OIDC enabled, `auth.oidc.redirect_url` must now be
   empty or an absolute http(s) URL. Otherwise Muximux refuses to start with
-  a clear error. A disabled OIDC block is not checked. (#480)
+  a clear error. `redirect_url` is not checked while OIDC is disabled. (#480)
 - A failed or cancelled OIDC sign-in now returns to the login page with a
   message instead of a plain "Authentication failed" page. (#480)
 - Dependencies: OpenTelemetry modules moved to the 1.45 and 0.21 trains
