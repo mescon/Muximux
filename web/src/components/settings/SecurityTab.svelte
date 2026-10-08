@@ -8,7 +8,11 @@
   import OidcSettingsForm from './OidcSettings.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { localConfig }: { localConfig: Config } = $props();
+  let { localConfig, onmethodapplied }: {
+    localConfig: Config;
+    /** Called after the server accepted an auth method change. */
+    onmethodapplied?: () => void;
+  } = $props();
 
   // Security tab state
   let securityUsers = $state<UserInfo[]>([]);
@@ -267,6 +271,10 @@
           localConfig.auth.headers = req.headers;
           localConfig.auth.logout_url = req.logout_url;
         }
+        // The server owns the auth block (PUT /api/config ignores it), so
+        // the change above is already saved: let the dialog know it is not
+        // an unsaved change.
+        onmethodapplied?.();
 
         // Switching FROM "none" to an auth method — the virtual admin session is now invalid.
         if (previousMethod === 'none' && selectedAuthMethod !== 'none') {
@@ -283,7 +291,6 @@
         } else {
           if (selectedAuthMethod === 'oidc') {
             // The secret flag and the SSO-only state may have changed.
-            localConfig.auth.oidc = { enabled: true, disable_local_login: oidcUpdate.disable_local_login === true };
             await loadOidcSettings(true);
           }
           securitySuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
@@ -312,6 +319,13 @@
   ));
   let oidcFormShown = $derived(selectedAuthMethod === 'oidc' && oidcSettings !== null);
   let showUpdateBtn = $derived(methodChanged || faFieldsChanged || oidcFormShown);
+  // Local accounts are usable unless OIDC is on with local login disabled.
+  // GET /api/config carries no OIDC block, so this reads the settings the
+  // tab loads on mount; until they arrive the user list stays hidden.
+  let localLoginAllowed = $derived(
+    oidcSettings !== null && !(oidcSettings.enabled && oidcSettings.disable_local_login)
+  );
+  let showUserManagement = $derived(currentMethod === 'builtin' || (currentMethod === 'oidc' && localLoginAllowed));
 
   // Load security users and initialize auth fields on mount
   onMount(() => {
@@ -880,8 +894,8 @@
     </div>
   {/if}
 
-  <!-- User Management (visible when builtin + admin) -->
-  {#if (currentMethod === 'builtin' || (currentMethod === 'oidc' && !localConfig.auth?.oidc?.disable_local_login)) && $isAdmin}
+  <!-- User Management (admin; builtin, or oidc with local login allowed) -->
+  {#if showUserManagement && $isAdmin}
     <div>
       <div class="flex items-center justify-between mb-4">
         <div>

@@ -443,7 +443,35 @@ function makeMockAppForm(...args: unknown[]) {
 vi.mock('./AppForm.svelte', () => ({ default: makeMockAppForm }));
 
 vi.mock('./settings/AboutTab.svelte', () => ({ default: noopComponent }));
-vi.mock('./settings/SecurityTab.svelte', () => ({ default: noopComponent }));
+// Stands in for SecurityTab: mirrors a server-accepted auth method change into
+// localConfig the way the real tab does, then reports it to the dialog.
+function makeMockSecurityTab(...args: unknown[]) {
+  const { target, props } = resolveArgs(args);
+  if (!target) return { $destroy() {} };
+  const div = document.createElement('div');
+  div.dataset.testid = 'mock-security-tab';
+  const localConfig = props.localConfig as Config;
+  const onmethodapplied = props.onmethodapplied as (() => void) | undefined;
+  const add = (testid: string, onclick: () => void) => {
+    const btn = document.createElement('button');
+    btn.textContent = testid;
+    btn.dataset.testid = testid;
+    btn.onclick = onclick;
+    div.appendChild(btn);
+  };
+  add('trigger-method-applied', () => {
+    localConfig.auth = { method: 'forward_auth', trusted_proxies: ['10.0.0.0/8'] };
+    onmethodapplied?.();
+  });
+  add('trigger-title-edit', () => { localConfig.title = 'Edited title'; });
+  add('trigger-applied-without-auth', () => {
+    delete localConfig.auth;
+    onmethodapplied?.();
+  });
+  target.appendChild(div);
+  return { $destroy() { div.remove(); } };
+}
+vi.mock('./settings/SecurityTab.svelte', () => ({ default: makeMockSecurityTab }));
 vi.mock('./settings/ThemeTab.svelte', () => ({ default: noopComponent }));
 
 import Settings from './Settings.svelte';
@@ -535,6 +563,7 @@ function renderSettings(overrides: {
   initialEditAppName?: string;
   onclose?: () => void;
   onsave?: (config: Config) => void;
+  onauthchange?: (auth: Config['auth']) => void;
 } = {}) {
   const config = makeConfig(overrides.config);
   const apps = overrides.apps ?? sampleApps;
@@ -546,6 +575,7 @@ function renderSettings(overrides: {
       ...(overrides.initialEditAppName ? { initialEditAppName: overrides.initialEditAppName } : {}),
       ...(overrides.onclose ? { onclose: overrides.onclose } : {}),
       ...(overrides.onsave ? { onsave: overrides.onsave } : {}),
+      ...(overrides.onauthchange ? { onauthchange: overrides.onauthchange } : {}),
     },
   });
 }
@@ -1367,6 +1397,40 @@ describe('Settings', () => {
     it('does not show "Unsaved changes" text initially', () => {
       renderSettings();
       expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+    });
+
+    it('stays clean after the Security tab applies an auth method change', async () => {
+      const onauthchange = vi.fn();
+      const onclose = vi.fn();
+      const { container } = renderSettings({ initialTab: 'security', onauthchange, onclose });
+
+      await fireEvent.click(screen.getByTestId('trigger-method-applied'));
+
+      expect(onauthchange).toHaveBeenCalledWith({ method: 'forward_auth', trusted_proxies: ['10.0.0.0/8'] });
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+      expect(screen.getByText('Save Changes')).toBeDisabled();
+      await fireEvent.click(container.querySelector('[aria-label="Close settings"]')!);
+      expect(onclose).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps other unsaved edits after an auth method change', async () => {
+      renderSettings({ initialTab: 'security' });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+      await fireEvent.click(screen.getByTestId('trigger-method-applied'));
+
+      expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+      expect(screen.getByText('Save Changes')).not.toBeDisabled();
+    });
+
+    it('ignores an applied notice when there is no auth block', async () => {
+      const onauthchange = vi.fn();
+      renderSettings({ initialTab: 'security', onauthchange });
+
+      await fireEvent.click(screen.getByTestId('trigger-applied-without-auth'));
+
+      expect(onauthchange).not.toHaveBeenCalled();
     });
 
     it('shows Save enabled and unsaved indicator when theme changes', async () => {

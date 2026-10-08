@@ -1200,6 +1200,7 @@
       initialEditAppName={settingsEditAppName}
       onclose={() => { showSettings = false; settingsInitialTab = 'general'; settingsEditAppName = null; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
       onsave={(newConfig: Config) => handleSaveConfig(newConfig)}
+      onauthchange={(auth: Config['auth']) => { if (config) config.auth = auth; }}
     />
   {/if}
 

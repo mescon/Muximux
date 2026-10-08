@@ -1266,7 +1266,29 @@ describe('SecurityTab', () => {
       }));
       await waitFor(() => expect(mockGetOIDCSettings).toHaveBeenCalledTimes(2));
       expect(config.auth.method).toBe('oidc');
-      expect(config.auth.oidc).toEqual({ enabled: true, disable_local_login: false });
+      expect(config.auth).not.toHaveProperty('oidc');
+    });
+
+    it('tells the dialog about a successful apply', async () => {
+      const onmethodapplied = vi.fn();
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }), onmethodapplied } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(onmethodapplied).toHaveBeenCalledTimes(1));
+    });
+
+    it('does not tell the dialog about a refused apply', async () => {
+      mockChangeAuthMethod.mockRejectedValueOnce(new ApiError(400, 'API error: 400 bad', 'bad'));
+      const onmethodapplied = vi.fn();
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }), onmethodapplied } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(screen.getByText('bad')).toBeInTheDocument());
+      expect(onmethodapplied).not.toHaveBeenCalled();
     });
 
     it('shows a 400 message inline and keeps the current method', async () => {
@@ -1315,18 +1337,38 @@ describe('SecurityTab', () => {
       await waitFor(() => expect(applyBtn()).toBeDisabled());
     });
 
-    it('shows user management for oidc unless local login is disabled', async () => {
-      const { unmount } = render(SecurityTab, {
-        props: { localConfig: makeConfig({ method: 'oidc', oidc: { enabled: true, disable_local_login: false } }) },
-      });
-      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
-      unmount();
-
-      render(SecurityTab, {
-        props: { localConfig: makeConfig({ method: 'oidc', oidc: { enabled: true, disable_local_login: true } }) },
-      });
-      await waitFor(() => expect(mockGetOIDCSettings).toHaveBeenCalled());
+    it('shows user management on a fresh mount when the settings allow local login', async () => {
+      mockGetOIDCSettings.mockResolvedValue(makeOidcSettings({ enabled: true, disable_local_login: false }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
       expect(screen.queryByText('User Management')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
+      expect(mockGetOIDCSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('hides user management on a fresh mount when the settings report SSO-only', async () => {
+      mockGetOIDCSettings.mockResolvedValue(makeOidcSettings({ enabled: true, disable_local_login: true }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+      expect(screen.queryByText('User Management')).not.toBeInTheDocument();
+    });
+
+    it('shows user management when local login is disabled but OIDC is not enabled', async () => {
+      mockGetOIDCSettings.mockResolvedValue(makeOidcSettings({ enabled: false, disable_local_login: true }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
+    });
+
+    it('hides user management after an apply turns on SSO-only', async () => {
+      mockGetOIDCSettings
+        .mockResolvedValueOnce(makeOidcSettings({ disable_local_login: false }))
+        .mockResolvedValueOnce(makeOidcSettings({ disable_local_login: true }));
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByText('User Management')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(mockGetOIDCSettings).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(screen.queryByText('User Management')).not.toBeInTheDocument());
     });
   });
 });
