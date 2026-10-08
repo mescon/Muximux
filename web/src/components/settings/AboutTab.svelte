@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { SystemInfo, UpdateInfo } from '$lib/types';
-  import { fetchSystemInfo, checkForUpdates } from '$lib/api';
+  import { fetchSystemInfo, checkForUpdates, errorText } from '$lib/api';
   import { renderChangelog } from '$lib/changelog';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -42,7 +42,7 @@
       }
       if (updInfo?.update_available) updateInstructionsExpanded = true;
     } catch (e) {
-      aboutError = e instanceof Error ? e.message : m.error_failedLoad();
+      aboutError = errorText(e, m.error_failedLoad());
     } finally {
       aboutLoading = false;
     }

@@ -43,6 +43,8 @@ import {
   detachDockerTracked,
   probeDockerRelink,
   confirmDockerRelink,
+  ApiError,
+  errorText,
 } from './api';
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult } from './types';
 
@@ -977,5 +979,32 @@ describe('Docker lifecycle API', () => {
     const { dockerStart } = await import('./api');
     const res = await dockerStart('sonarr');
     expect(res.error).toBe('Port already in use');
+  });
+});
+
+describe('ApiError detail and errorText', () => {
+  const originalFetch = globalThis.fetch;
+  afterEach(() => { globalThis.fetch = originalFetch; });
+
+  it('keeps the status prefix in message and the plain server text in detail', async () => {
+    globalThis.fetch = mockFetchError(400, 'Bad Request', 'OIDC discovery failed: no such host\n');
+    const err = await changeAuthMethod({ method: 'oidc' }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).message).toBe('API error: 400 OIDC discovery failed: no such host');
+    expect((err as ApiError).detail).toBe('OIDC discovery failed: no such host');
+    expect(errorText(err, 'fallback')).toBe('OIDC discovery failed: no such host');
+  });
+
+  it('falls back to the prefixed message when the body has nothing readable', async () => {
+    globalThis.fetch = mockFetchError(502, 'Bad Gateway', '<html><body>502</body></html>');
+    const err = await fetchConfig().catch((e: unknown) => e);
+    expect((err as ApiError).detail).toBe('API error: 502');
+    expect(errorText(err, 'fallback')).toBe('API error: 502');
+  });
+
+  it('uses the message of other errors and the fallback for non-errors', () => {
+    expect(errorText(new Error('boom'), 'fallback')).toBe('boom');
+    expect(errorText('nope', 'fallback')).toBe('fallback');
+    expect(errorText(new ApiError(409, 'API error: 409 x'), 'fallback')).toBe('API error: 409 x');
   });
 });

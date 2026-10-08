@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import type { OIDCSettings, OIDCSettingsUpdate, OIDCTestResult } from '$lib/types';
-  import { testOIDCProvider } from '$lib/api';
+  import { testOIDCProvider, errorText } from '$lib/api';
   import * as m from '$lib/paraglide/messages.js';
 
   let { settings, onchange }: {
@@ -111,7 +111,7 @@
       testResult = await testOIDCProvider(issuerUrl.trim());
     } catch (e) {
       testResult = {
-        reachable: false, error: e instanceof Error ? e.message : String(e),
+        reachable: false, error: errorText(e, String(e)),
         authorization: false, token: false, userinfo: false, jwks: false, end_session: false, backchannel_supported: false,
       };
     } finally {

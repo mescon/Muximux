@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import SecurityTab from './SecurityTab.svelte';
 import type { Config, OIDCSettings } from '$lib/types';
+import { ApiError } from '$lib/api';
 
 // Mock API module
 const mockListUsers = vi.fn().mockResolvedValue([]);
@@ -14,7 +15,9 @@ const mockGenerateAPIKey = vi.fn().mockResolvedValue({ success: true, key: 'muxi
 const mockDeleteAPIKey = vi.fn().mockResolvedValue(undefined);
 const mockGetOIDCSettings = vi.fn();
 
-vi.mock('$lib/api', () => ({
+vi.mock('$lib/api', async (importOriginal) => ({
+  ApiError: (await importOriginal<typeof import('$lib/api')>()).ApiError,
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
   listUsers: (...args: unknown[]) => mockListUsers(...args),
   createUser: (...args: unknown[]) => mockCreateUser(...args),
   updateUser: (...args: unknown[]) => mockUpdateUser(...args),
@@ -1267,7 +1270,10 @@ describe('SecurityTab', () => {
     });
 
     it('shows a 400 message inline and keeps the current method', async () => {
-      mockChangeAuthMethod.mockRejectedValueOnce(new Error('OIDC discovery failed: no such host'));
+      // The server answers with a plain-text body via http.Error.
+      mockChangeAuthMethod.mockRejectedValueOnce(
+        new ApiError(400, 'API error: 400 OIDC discovery failed: no such host', 'OIDC discovery failed: no such host'),
+      );
       const config = makeConfig({ method: 'builtin' });
       render(SecurityTab, { props: { localConfig: config } });
       await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
@@ -1276,15 +1282,17 @@ describe('SecurityTab', () => {
       await fireEvent.click(applyBtn());
 
       await waitFor(() => expect(screen.getByText('OIDC discovery failed: no such host')).toBeInTheDocument());
+      expect(screen.queryByText(/API error/)).not.toBeInTheDocument();
       expect(config.auth.method).toBe('builtin');
       expect(mockGetOIDCSettings).toHaveBeenCalledTimes(1);
     });
 
-    it('shows a 409 message returned in the result and keeps the current method', async () => {
-      mockChangeAuthMethod.mockResolvedValueOnce({
-        success: false,
-        message: 'sign in with SSO once before turning off local login',
-      });
+    it('shows a 409 message inline without the status prefix and keeps the current method', async () => {
+      mockChangeAuthMethod.mockRejectedValueOnce(new ApiError(
+        409,
+        'API error: 409 sign in with SSO once before turning off local login',
+        'sign in with SSO once before turning off local login',
+      ));
       const config = makeConfig({ method: 'builtin' });
       render(SecurityTab, { props: { localConfig: config } });
       await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
@@ -1293,6 +1301,7 @@ describe('SecurityTab', () => {
       await fireEvent.click(applyBtn());
 
       await waitFor(() => expect(screen.getByText('sign in with SSO once before turning off local login')).toBeInTheDocument());
+      expect(screen.queryByText(/API error/)).not.toBeInTheDocument();
       expect(config.auth.method).toBe('builtin');
     });
 

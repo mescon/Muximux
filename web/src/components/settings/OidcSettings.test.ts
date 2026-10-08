@@ -2,9 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import OidcSettings from './OidcSettings.svelte';
 import type { OIDCSettings, OIDCTestResult } from '$lib/types';
+import { ApiError } from '$lib/api';
 
 const mockTest = vi.fn();
-vi.mock('$lib/api', () => ({
+vi.mock('$lib/api', async (importOriginal) => ({
+  ApiError: (await importOriginal<typeof import('$lib/api')>()).ApiError,
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
   testOIDCProvider: (...args: unknown[]) => mockTest(...args),
 }));
 
@@ -250,6 +253,14 @@ describe('OidcSettings', () => {
       render(OidcSettings, { settings: base(), onchange });
       await fireEvent.click(screen.getByText('Test connection'));
       await waitFor(() => expect(screen.getByText('Provider not reachable: network down')).toBeTruthy());
+    });
+
+    it('shows the server message without the status prefix for API errors', async () => {
+      mockTest.mockRejectedValue(new ApiError(400, 'API error: 400 issuer URL must be http(s)', 'issuer URL must be http(s)'));
+      render(OidcSettings, { settings: base(), onchange });
+      await fireEvent.click(screen.getByText('Test connection'));
+      await waitFor(() => expect(screen.getByText('Provider not reachable: issuer URL must be http(s)')).toBeTruthy());
+      expect(screen.queryByText(/API error/)).toBeNull();
     });
 
     it('stringifies non-Error rejections', async () => {

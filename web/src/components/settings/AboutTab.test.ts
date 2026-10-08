@@ -9,7 +9,8 @@ const mockApi = vi.hoisted(() => ({
 }));
 
 // Mock $lib/api
-vi.mock('$lib/api', () => ({
+vi.mock('$lib/api', async (importOriginal) => ({
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
   fetchSystemInfo: mockApi.fetchSystemInfo,
   checkForUpdates: mockApi.checkForUpdates,
 }));

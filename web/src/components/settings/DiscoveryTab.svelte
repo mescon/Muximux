@@ -6,6 +6,7 @@
     updateDiscoveryDockerConfig,
     testDiscoveryDockerConfig,
     listDockerNetworks,
+    errorText,
   } from '$lib/api';
   import DiscoveryTrackedEntries from './DiscoveryTrackedEntries.svelte';
 
@@ -71,7 +72,7 @@
       // silenced -- the form still works without the chip strip.
       void refreshAvailableNetworks();
     } catch (e) {
-      topLevelError = e instanceof Error ? e.message : 'Failed to load discovery status';
+      topLevelError = errorText(e, 'Failed to load discovery status');
     } finally {
       loading = false;
     }
@@ -113,7 +114,7 @@
       trackedRefreshKey += 1;
       void refreshAvailableNetworks();
     } catch (e) {
-      lastSaveError = e instanceof Error ? e.message : 'Save failed';
+      lastSaveError = errorText(e, 'Save failed');
     } finally {
       submitting = false;
     }
@@ -129,7 +130,7 @@
         configured: form.enabled,
         reachable: false,
         strategy_ok: false,
-        last_error: e instanceof Error ? e.message : 'Test failed',
+        last_error: errorText(e, 'Test failed'),
       };
     } finally {
       testInFlight = false;

@@ -13,6 +13,7 @@
     saveConfig,
     createApp,
     fetchDiscoveryDockerStatus,
+    errorText,
   } from '$lib/api';
   import { isAdmin } from '$lib/authStore';
 
@@ -110,7 +111,7 @@
       apps = appList;
       sessionCookieDomain = cfg?.session_cookie_domain ?? '';
     } catch (e) {
-      topLevelError = e instanceof Error ? e.message : 'Failed to load gateway sites';
+      topLevelError = errorText(e, 'Failed to load gateway sites');
     } finally {
       loading = false;
     }
@@ -138,7 +139,7 @@
       cookieScopeSaved = true;
       cookieScopeDraft = '';
     } catch (e) {
-      cookieScopeError = e instanceof Error ? e.message : 'Failed to save cookie scope';
+      cookieScopeError = errorText(e, 'Failed to save cookie scope');
     } finally {
       cookieScopeSaving = false;
     }
@@ -157,7 +158,7 @@
       appsLoadError = null;
       return list;
     } catch (e) {
-      appsLoadError = e instanceof Error ? e.message : 'Failed to load apps list';
+      appsLoadError = errorText(e, 'Failed to load apps list');
       return [];
     }
   }
@@ -242,7 +243,7 @@
       const result = await validateGatewaySite(candidate);
       validationError = result.valid ? null : (result.error ?? 'Invalid site configuration');
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Could not reach validator';
+      const message = errorText(e, 'Could not reach validator');
       validationError = `${message} - your save will still be checked server-side.`;
     }
   }
@@ -314,7 +315,7 @@
       editing = null;
       await load();
     } catch (e) {
-      formError = e instanceof Error ? e.message : 'Save failed';
+      formError = errorText(e, 'Save failed');
     } finally {
       formSubmitting = false;
     }
@@ -326,7 +327,7 @@
       confirmDelete = null;
       await load();
     } catch (e) {
-      topLevelError = e instanceof Error ? e.message : 'Delete failed';
+      topLevelError = errorText(e, 'Delete failed');
     }
   }
 

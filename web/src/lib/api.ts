@@ -14,11 +14,29 @@ export const API_BASE = getBase() + '/api';
  */
 export class ApiError extends Error {
   public readonly status: number;
-  constructor(status: number, message: string) {
+  /**
+   * The server's own message, without the "API error: <status>" prefix
+   * that `message` carries for toasts and logs. Falls back to `message`
+   * when the server sent nothing readable.
+   */
+  public readonly detail: string;
+  constructor(status: number, message: string, detail?: string) {
     super(message);
     this.status = status;
     this.name = 'ApiError';
+    this.detail = detail || message;
   }
+}
+
+/**
+ * Returns the text to show inline for a caught error: the server's own
+ * message for an ApiError, the message of any other Error, or `fallback`
+ * for anything else.
+ */
+export function errorText(e: unknown, fallback: string): string {
+  if (e instanceof ApiError) return e.detail;
+  if (e instanceof Error) return e.message;
+  return fallback;
 }
 
 async function request<R>(method: string, path: string, data?: unknown): Promise<R> {
@@ -53,7 +71,7 @@ async function request<R>(method: string, path: string, data?: unknown): Promise
     const message = friendly
       ? `API error: ${response.status} ${friendly}`
       : `API error: ${response.status}`;
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, message, friendly);
   }
   if (response.status === 204 || method === 'DELETE') return undefined as R;
   return response.json();

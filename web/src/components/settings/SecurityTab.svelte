@@ -2,7 +2,7 @@
   import { onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
   import type { Config, UserInfo, ChangeAuthMethodRequest, OIDCSettings, OIDCSettingsUpdate } from '$lib/types';
-  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getOIDCSettings, getAPIKeyStatus, generateAPIKey, deleteAPIKey } from '$lib/api';
+  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getOIDCSettings, getAPIKeyStatus, generateAPIKey, deleteAPIKey, errorText } from '$lib/api';
   import { changePassword, login, isAdmin, currentUser } from '$lib/authStore';
   import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
   import OidcSettingsForm from './OidcSettings.svelte';
@@ -58,7 +58,7 @@
       oidcSettings = await getOIDCSettings();
       oidcFormKey += 1;
     } catch (e) {
-      oidcLoadError = e instanceof Error ? e.message : m.error_failedLoad();
+      oidcLoadError = errorText(e, m.error_failedLoad());
     } finally {
       oidcLoading = false;
     }
@@ -83,7 +83,7 @@
       const status = await getAPIKeyStatus();
       apiKeyConfigured = status.configured;
     } catch (e) {
-      apiKeyError = e instanceof Error ? e.message : 'Failed to load API key status';
+      apiKeyError = errorText(e, 'Failed to load API key status');
     }
   }
 
@@ -101,7 +101,7 @@
         apiKeyError = result.message || 'Failed to generate API key';
       }
     } catch (e) {
-      apiKeyError = e instanceof Error ? e.message : 'Failed to generate API key';
+      apiKeyError = errorText(e, 'Failed to generate API key');
     } finally {
       apiKeyLoading = false;
     }
@@ -116,7 +116,7 @@
       apiKeyPlaintext = null;
       confirmDeleteApiKey = false;
     } catch (e) {
-      apiKeyError = e instanceof Error ? e.message : 'Failed to delete API key';
+      apiKeyError = errorText(e, 'Failed to delete API key');
     } finally {
       apiKeyLoading = false;
     }
@@ -164,7 +164,7 @@
     try {
       securityUsers = (await listUsers()) ?? [];
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedLoadUsers();
+      securityError = errorText(e, m.error_failedLoadUsers());
     } finally {
       securityLoading = false;
     }
@@ -206,7 +206,7 @@
         addUserError = result.message || m.error_failedCreateUser();
       }
     } catch (e) {
-      addUserError = e instanceof Error ? e.message : m.error_failedCreateUser();
+      addUserError = errorText(e, m.error_failedCreateUser());
     } finally {
       addUserLoading = false;
     }
@@ -217,7 +217,7 @@
       await updateUser(username, { role });
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedUpdateUser();
+      securityError = errorText(e, m.error_failedUpdateUser());
     }
   }
 
@@ -229,7 +229,7 @@
       await updateUser(username, { groups });
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedUpdateUser();
+      securityError = errorText(e, m.error_failedUpdateUser());
     }
   }
 
@@ -239,7 +239,7 @@
       confirmDeleteUser = null;
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : m.error_failedDeleteUser();
+      securityError = errorText(e, m.error_failedDeleteUser());
     }
   }
 
@@ -293,7 +293,7 @@
         methodError = result.message || m.error_failedChangeMethod();
       }
     } catch (e) {
-      methodError = e instanceof Error ? e.message : m.error_failedChangeMethod();
+      methodError = errorText(e, m.error_failedChangeMethod());
     } finally {
       methodLoading = false;
     }
@@ -495,7 +495,7 @@
                             return;
                           }
                         } catch (e) {
-                          methodError = e instanceof Error ? e.message : m.error_failedEnableAuth();
+                          methodError = errorText(e, m.error_failedEnableAuth());
                           return;
                         } finally {
                           methodLoading = false;
