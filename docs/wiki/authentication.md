@@ -186,6 +186,8 @@ Direct integration with identity providers like Authentik, Keycloak, Auth0, Okta
 
 You can configure single sign-on from the UI instead of editing `config.yaml`. Open **Settings > Security** and choose the fourth card, **Single sign-on (OIDC)**.
 
+[![OIDC settings with a successful connection test](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/19-security-oidc.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/19-security-oidc.png)
+
 1. Enter the **issuer URL**, **client ID** and **client secret**. Adjust the **scopes** (space-separated) if your provider needs more than the defaults.
 2. Set the claims Muximux reads: username, email, display name and groups. Enter **admin groups** as a comma-separated list.
 3. Copy the two read-only rows into your provider with their **Copy** buttons. **Callback URL** is the redirect URL to register (your override if you set one, otherwise `<origin><base path>/api/auth/oidc/callback`). **Back-channel logout URL** is where the provider sends logout notifications. The optional callback URL override is for setups where Muximux cannot work out its public address.
