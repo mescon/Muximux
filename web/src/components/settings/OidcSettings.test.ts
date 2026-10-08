@@ -59,6 +59,16 @@ describe('OidcSettings', () => {
     expect(payload.client_secret).toBeUndefined();
   });
 
+  it('shows the server defaults as placeholders on the scopes and claim inputs', () => {
+    render(OidcSettings, { settings: base({ scopes: [], username_claim: '', email_claim: '', display_name_claim: '', groups_claim: '' }), onchange });
+    expect(el('oidc-scopes').placeholder).toBe('openid profile email');
+    expect(el('oidc-username-claim').placeholder).toBe('preferred_username');
+    expect(el('oidc-email-claim').placeholder).toBe('email');
+    expect(el('oidc-display-name-claim').placeholder).toBe('name');
+    expect(el('oidc-groups-claim').placeholder).toBe('groups');
+    expect(el('oidc-username-claim').value).toBe('');
+  });
+
   it('shows the custom redirect URL in the callback row and handles null lists', () => {
     render(OidcSettings, { settings: base({ redirect_url: 'https://x.example.com/cb', scopes: null, admin_groups: null }), onchange });
     expect(el('oidc-callback').value).toBe('https://x.example.com/cb');

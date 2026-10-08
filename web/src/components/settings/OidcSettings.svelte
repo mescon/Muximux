@@ -209,25 +209,26 @@
 
   <div class="space-y-3">
     <h4 class="text-sm font-medium text-text-primary">{m.oidc_claims()}</h4>
+    <!-- Placeholders are the defaults NewOIDCProvider (internal/auth/oidc.go) uses for an empty value. -->
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label for="oidc-username-claim" class="block text-xs text-text-muted mb-1">{m.oidc_username_claim()}</label>
-        <input id="oidc-username-claim" type="text" bind:value={usernameClaim} readonly={fromEnv('username_claim')} class={inputClass} />
+        <input id="oidc-username-claim" type="text" bind:value={usernameClaim} placeholder="preferred_username" readonly={fromEnv('username_claim')} class={inputClass} />
         {@render envNote('username_claim')}
       </div>
       <div>
         <label for="oidc-email-claim" class="block text-xs text-text-muted mb-1">{m.oidc_email_claim()}</label>
-        <input id="oidc-email-claim" type="text" bind:value={emailClaim} readonly={fromEnv('email_claim')} class={inputClass} />
+        <input id="oidc-email-claim" type="text" bind:value={emailClaim} placeholder="email" readonly={fromEnv('email_claim')} class={inputClass} />
         {@render envNote('email_claim')}
       </div>
       <div>
         <label for="oidc-display-name-claim" class="block text-xs text-text-muted mb-1">{m.oidc_display_name_claim()}</label>
-        <input id="oidc-display-name-claim" type="text" bind:value={displayNameClaim} readonly={fromEnv('display_name_claim')} class={inputClass} />
+        <input id="oidc-display-name-claim" type="text" bind:value={displayNameClaim} placeholder="name" readonly={fromEnv('display_name_claim')} class={inputClass} />
         {@render envNote('display_name_claim')}
       </div>
       <div>
         <label for="oidc-groups-claim" class="block text-xs text-text-muted mb-1">{m.oidc_groups_claim()}</label>
-        <input id="oidc-groups-claim" type="text" bind:value={groupsClaim} readonly={fromEnv('groups_claim')} class={inputClass} />
+        <input id="oidc-groups-claim" type="text" bind:value={groupsClaim} placeholder="groups" readonly={fromEnv('groups_claim')} class={inputClass} />
         {@render envNote('groups_claim')}
       </div>
     </div>
