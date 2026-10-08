@@ -190,6 +190,14 @@ describe('OidcSettings', () => {
     expect(last(onchange)[1]).toBe(true);
   });
 
+  it('treats a stored SSO-only flag with OIDC off as newly turned on', async () => {
+    render(OidcSettings, { settings: base({ enabled: false, disable_local_login: true }), onchange });
+    expect(el('oidc-issuer').readOnly).toBe(false);
+    await fireEvent.input(el('oidc-issuer'), { target: { value: 'https://other.example.com' } });
+    expect(last(onchange)[1]).toBe(false);
+    expect(screen.getByText('Apply the new provider and sign in with it first.')).toBeTruthy();
+  });
+
   it('reports invalid initially when the loaded issuer is empty', () => {
     render(OidcSettings, { settings: base({ issuer_url: '' }), onchange });
     expect(onchange.mock.calls[0][1]).toBe(false);

@@ -44,7 +44,7 @@
   const needsSso = $derived(!settings.current_session_is_oidc);
   const disableLocalDisabled = $derived(!disableLocal && (needsSso || identityChanged));
   // SSO-only newly ticked together with a provider change would be refused by the server.
-  const newSsoOnlyWithChange = $derived(disableLocal && !settings.disable_local_login && identityChanged);
+  const newSsoOnlyWithChange = $derived(disableLocal && !identityLocked && identityChanged);
   const disableLocalHint = $derived(
     disableLocalDisabled || newSsoOnlyWithChange
       ? (needsSso ? m.oidc_disable_local_needs_sso() : m.oidc_disable_local_after_change())
