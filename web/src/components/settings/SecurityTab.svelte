@@ -18,7 +18,6 @@
   let securityUsers = $state<UserInfo[]>([]);
   let securityLoading = $state(false);
   let securityError = $state<string | null>(null);
-  let securitySuccess = $state<string | null>(null);
 
   // Change password
   let cpCurrent = $state('');
@@ -45,6 +44,7 @@
   let methodTrustedProxies = $state('');
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
+  let methodSuccess = $state<string | null>(null);
 
   // OIDC (single sign-on) settings, loaded once when the card is first selected
   let oidcSettings = $state<OIDCSettings | null>(null);
@@ -250,6 +250,7 @@
   async function handleChangeAuthMethod() {
     methodLoading = true;
     methodError = null;
+    methodSuccess = null;
     const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
     if (selectedAuthMethod === 'oidc') {
@@ -281,7 +282,7 @@
           if (selectedAuthMethod === 'forward_auth') {
             // Don't reload — the user is accessing directly (not through their proxy),
             // so a reload would lock them out. Show a persistent message instead.
-            securitySuccess = m.common_forwardAuthEnabled();
+            methodSuccess = m.common_forwardAuthEnabled();
           } else {
             // For builtin auth, reload so the user can log in with credentials.
             sessionStorage.setItem('muximux_return_to', 'security');
@@ -293,8 +294,8 @@
             // The secret flag and the SSO-only state may have changed.
             await loadOidcSettings(true);
           }
-          securitySuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
-          setTimeout(() => securitySuccess = null, 3000);
+          methodSuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
+          setTimeout(() => methodSuccess = null, 3000);
         }
       } else {
         methodError = result.message || m.error_failedChangeMethod();
@@ -352,12 +353,6 @@
 </script>
 
 <div class="space-y-8">
-  {#if securitySuccess}
-    <div class="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
-      {securitySuccess}
-    </div>
-  {/if}
-
   <!-- Authentication Method -->
   <div>
     <h3 class="text-lg font-semibold text-text-primary mb-1">{m.security_authMethod()}</h3>
@@ -732,6 +727,12 @@
     {#if methodError}
       <div class="p-3 mt-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
         {methodError}
+      </div>
+    {/if}
+
+    {#if methodSuccess}
+      <div class="p-3 mt-4 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm" data-testid="method-success">
+        {methodSuccess}
       </div>
     {/if}
 

@@ -1269,6 +1269,17 @@ describe('SecurityTab', () => {
       expect(config.auth).not.toHaveProperty('oidc');
     });
 
+    it('shows the confirmation next to the Update Method button', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }) } });
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+
+      await fireEvent.click(applyBtn());
+
+      await waitFor(() => expect(screen.getByTestId('method-success')).toHaveTextContent(/changed to oidc/));
+      // Right above the button, not at the top of the tall tab.
+      expect(screen.getByTestId('method-success').nextElementSibling).toBe(applyBtn());
+    });
+
     it('tells the dialog about a successful apply', async () => {
       const onmethodapplied = vi.fn();
       render(SecurityTab, { props: { localConfig: makeConfig({ method: 'oidc' }), onmethodapplied } });
