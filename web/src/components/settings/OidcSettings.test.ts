@@ -178,6 +178,34 @@ describe('OidcSettings', () => {
     expect(el('oidc-disable-local').disabled).toBe(true);
   });
 
+  it('is invalid when SSO-only is ticked first and the provider is changed afterwards', async () => {
+    render(OidcSettings, { settings: base(), onchange });
+    await fireEvent.click(el('oidc-disable-local'));
+    expect(last(onchange)[1]).toBe(true);
+    await fireEvent.input(el('oidc-issuer'), { target: { value: 'https://other.example.com' } });
+    expect(last(onchange)[1]).toBe(false);
+    expect(last(onchange)[0].disable_local_login).toBe(true);
+    expect(screen.getByText('Apply the new provider and sign in with it first.')).toBeTruthy();
+    await fireEvent.click(el('oidc-disable-local'));
+    expect(last(onchange)[1]).toBe(true);
+  });
+
+  it('reports invalid initially when the loaded issuer is empty', () => {
+    render(OidcSettings, { settings: base({ issuer_url: '' }), onchange });
+    expect(onchange.mock.calls[0][1]).toBe(false);
+  });
+
+  it('skips URL validation for env-locked URL fields', () => {
+    render(OidcSettings, {
+      settings: base({
+        redirect_url: 'bad', post_logout_redirect_url: 'bad', logout_url: 'bad',
+        env_fields: { redirect_url: 'A', post_logout_redirect_url: 'B', logout_url: 'C' },
+      }),
+      onchange,
+    });
+    expect(last(onchange)[1]).toBe(true);
+  });
+
   it('shows only the needs-SSO hint when both rules apply', async () => {
     render(OidcSettings, { settings: base({ current_session_is_oidc: false }), onchange });
     await fireEvent.input(el('oidc-client-id'), { target: { value: 'other' } });

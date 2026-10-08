@@ -43,8 +43,12 @@
   );
   const needsSso = $derived(!settings.current_session_is_oidc);
   const disableLocalDisabled = $derived(!disableLocal && (needsSso || identityChanged));
+  // SSO-only newly ticked together with a provider change would be refused by the server.
+  const newSsoOnlyWithChange = $derived(disableLocal && !settings.disable_local_login && identityChanged);
   const disableLocalHint = $derived(
-    !disableLocalDisabled ? '' : needsSso ? m.oidc_disable_local_needs_sso() : m.oidc_disable_local_after_change()
+    disableLocalDisabled || newSsoOnlyWithChange
+      ? (needsSso ? m.oidc_disable_local_needs_sso() : m.oidc_disable_local_after_change())
+      : ''
   );
   const callbackUrl = $derived(redirectUrl.trim() || settings.default_callback_url);
 
@@ -88,7 +92,10 @@
   const valid = $derived(
     (fromEnv('issuer_url') || isAbsoluteHttpUrl(issuerUrl.trim())) &&
     (fromEnv('client_id') || clientId.trim() !== '') &&
-    optionalUrlOk(redirectUrl) && optionalUrlOk(postLogoutUrl) && optionalUrlOk(logoutUrl)
+    (fromEnv('redirect_url') || optionalUrlOk(redirectUrl)) &&
+    (fromEnv('post_logout_redirect_url') || optionalUrlOk(postLogoutUrl)) &&
+    (fromEnv('logout_url') || optionalUrlOk(logoutUrl)) &&
+    !newSsoOnlyWithChange
   );
 
   $effect(() => {
