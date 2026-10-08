@@ -604,8 +604,8 @@ func TestUpdateAuthMethod_BuiltinKeepsOIDCAddon(t *testing.T) {
 }
 
 func TestTestOIDCProvider_RedirectLoop(t *testing.T) {
-	loop := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Location", r.URL.Path+"x")
+	loop := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Location", "/loop")
 		w.WriteHeader(http.StatusFound)
 	}))
 	defer loop.Close()
