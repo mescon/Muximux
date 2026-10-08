@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
-  import type { Config, UserInfo, ChangeAuthMethodRequest } from '$lib/types';
-  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getAPIKeyStatus, generateAPIKey, deleteAPIKey } from '$lib/api';
+  import type { Config, UserInfo, ChangeAuthMethodRequest, OIDCSettings, OIDCSettingsUpdate } from '$lib/types';
+  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getOIDCSettings, getAPIKeyStatus, generateAPIKey, deleteAPIKey } from '$lib/api';
   import { changePassword, login, isAdmin, currentUser } from '$lib/authStore';
   import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
+  import OidcSettingsForm from './OidcSettings.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
   let { localConfig }: { localConfig: Config } = $props();
@@ -36,10 +37,37 @@
   let confirmDeleteUser = $state<string | null>(null);
 
   // Auth method switching
-  let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'none'>('none');
+  let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'oidc' | 'none'>('none');
   let methodTrustedProxies = $state('');
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
+
+  // OIDC (single sign-on) settings, loaded once when the card is first selected
+  let oidcSettings = $state<OIDCSettings | null>(null);
+  let oidcLoading = $state(false);
+  let oidcLoadError = $state<string | null>(null);
+  let oidcFormKey = $state(0);
+  let oidcUpdate = $state<OIDCSettingsUpdate>({});
+  let oidcValid = $state(false);
+
+  async function loadOidcSettings(force = false) {
+    if (oidcLoading || (oidcSettings && !force)) return;
+    oidcLoading = true;
+    oidcLoadError = null;
+    try {
+      oidcSettings = await getOIDCSettings();
+      oidcFormKey += 1;
+    } catch (e) {
+      oidcLoadError = e instanceof Error ? e.message : m.error_failedLoad();
+    } finally {
+      oidcLoading = false;
+    }
+  }
+
+  function selectOidc() {
+    selectedAuthMethod = 'oidc';
+    void loadOidcSettings();
+  }
 
   // API key management
   let apiKeyConfigured = $state<boolean | null>(null); // null until first status fetch
@@ -220,6 +248,9 @@
     methodError = null;
     const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
+    if (selectedAuthMethod === 'oidc') {
+      req.oidc = oidcUpdate;
+    }
     if (selectedAuthMethod === 'forward_auth') {
       Object.assign(req, buildForwardAuthRequest(
         methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
@@ -250,6 +281,11 @@
             return;
           }
         } else {
+          if (selectedAuthMethod === 'oidc') {
+            // The secret flag and the SSO-only state may have changed.
+            localConfig.auth.oidc = { enabled: true, disable_local_login: oidcUpdate.disable_local_login === true };
+            await loadOidcSettings(true);
+          }
           securitySuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
           setTimeout(() => securitySuccess = null, 3000);
         }
@@ -274,7 +310,8 @@
     faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name') ||
     faLogoutUrl !== (localConfig.auth?.logout_url || '')
   ));
-  let showUpdateBtn = $derived(methodChanged || faFieldsChanged);
+  let oidcFormShown = $derived(selectedAuthMethod === 'oidc' && oidcSettings !== null);
+  let showUpdateBtn = $derived(methodChanged || faFieldsChanged || oidcFormShown);
 
   // Load security users and initialize auth fields on mount
   onMount(() => {
@@ -284,6 +321,7 @@
     }
 
     selectedAuthMethod = (localConfig.auth?.method || 'none') as typeof selectedAuthMethod;
+    if (selectedAuthMethod === 'oidc') void loadOidcSettings();
     // Pre-fill forward auth fields from existing config
     const proxies = localConfig.auth?.trusted_proxies;
     methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
@@ -593,6 +631,46 @@
         {/if}
       </div>
 
+      <!-- Single sign-on (OIDC) card -->
+      <div
+        class="rounded-xl border text-start transition-all overflow-hidden
+               {selectedAuthMethod === 'oidc' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+      >
+        <button class="w-full p-4 flex items-start gap-4" onclick={selectOidc}>
+          <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+          </div>
+          <div class="flex-1 text-start">
+            <div class="flex items-center gap-2">
+              <h3 class="font-semibold text-text-primary">{m.oidc_card_title()}</h3>
+              {#if currentMethod === 'oidc'}
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
+              {/if}
+            </div>
+            <p class="text-sm text-text-muted mt-1">{m.oidc_card_desc()}</p>
+          </div>
+        </button>
+        {#if selectedAuthMethod === 'oidc'}
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+            <div class="border-t border-border pt-4">
+              {#if oidcLoadError}
+                <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm" data-testid="oidc-load-error">
+                  {oidcLoadError}
+                </div>
+              {:else if oidcSettings}
+                {#key oidcFormKey}
+                  <OidcSettingsForm settings={oidcSettings} onchange={(u, v) => { oidcUpdate = u; oidcValid = v; }} />
+                {/key}
+              {/if}
+            </div>
+          </div>
+        {/if}
+      </div>
+
       <!-- No authentication card -->
       <div
         class="rounded-xl border text-start transition-all overflow-hidden
@@ -646,7 +724,7 @@
     {#if showUpdateBtn}
       <button
         class="btn btn-primary btn-sm mt-4 disabled:opacity-50 flex items-center gap-2"
-        disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim())}
+        disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim()) || (selectedAuthMethod === 'oidc' && !oidcValid)}
         onclick={handleChangeAuthMethod}
       >
         {#if methodLoading}
@@ -803,7 +881,7 @@
   {/if}
 
   <!-- User Management (visible when builtin + admin) -->
-  {#if currentMethod === 'builtin' && $isAdmin}
+  {#if (currentMethod === 'builtin' || (currentMethod === 'oidc' && !localConfig.auth?.oidc?.disable_local_login)) && $isAdmin}
     <div>
       <div class="flex items-center justify-between mb-4">
         <div>

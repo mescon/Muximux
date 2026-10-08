@@ -139,6 +139,7 @@ export interface AuthConfig {
   trusted_proxies?: string[];
   headers?: Record<string, string>;
   logout_url?: string;
+  oidc?: { enabled?: boolean; disable_local_login?: boolean };
 }
 
 export interface TLSConfig {
