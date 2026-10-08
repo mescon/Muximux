@@ -4,6 +4,18 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-10-08
+
+Single sign-on grows up: OIDC can be set up from Settings -> Security,
+logging out can end the session at the identity provider, sign-in can be
+SSO-only, and providers can end Muximux sessions through back-channel
+logout. Docker discovery gains a `muximux.app.url` label for apps behind
+your own reverse proxy. Proxied apps that fetch from Web Workers, such as
+Dispatcharr's live stream player, work again, and `${VAR}` secrets are no
+longer written to `config.yaml` in plain text. Two upgrade notes: OIDC
+with an invalid `redirect_url` now refuses to start, and auto-import only
+creates gateway sites for containers that ask for one (see below).
+
 ### Added
 - **OIDC in Settings.** Single sign-on can be set up and changed in
   Settings -> Security, with a connection test and copyable callback and
@@ -64,6 +76,10 @@ All notable changes to Muximux are documented in this file.
   Illustrator and older tools write a comment or `<!DOCTYPE svg ...>`
   ahead of the root element, and the upload sniff rejected those files as
   an unsupported type. HTML in an SVG label is still refused.
+- Changing the sign-in method in Settings no longer leaves the dialog
+  showing unsaved changes, and the confirmation now appears next to the
+  Update Method button. Errors in the Security tab show the server's
+  message without an "API error: 400" prefix.
 
 ### Changed
 - **Upgrade note:** with OIDC enabled, `auth.oidc.redirect_url` must now be
@@ -73,8 +89,9 @@ All notable changes to Muximux are documented in this file.
   message instead of a plain "Authentication failed" page. (#480)
 - Dependencies: OpenTelemetry modules moved to the 1.45 and 0.21 trains
   (GHSA-8wmf-6v46-5gfg, GHSA-w34q-cm8f-9c5x; reached only through the
-  embedded Caddy and not called by Muximux), plus routine frontend and
-  GitHub Actions updates.
+  embedded Caddy and not called by Muximux); Svelte 5.57.2, Vite 8.3.3,
+  `marked` 18.1.0 and Paraglide 2.26; plus routine frontend and GitHub
+  Actions updates.
 - The release workflow uploads the SBOM once instead of twice.
 
 ## [3.4.3] - 2026-09-17
