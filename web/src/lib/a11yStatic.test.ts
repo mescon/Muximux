@@ -119,7 +119,7 @@ const rel = (f: string) => path.relative(SRC, f);
 const lineOf = (src: string, idx: number) => src.slice(0, idx).split('\n').length;
 
 type Finding = string;
-const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], focusRing: [], noOpHover: [], unlabeled: [], unnamedButtons: [] };
+const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], focusRing: [], noOpHover: [], unlabeled: [], unnamedButtons: [], nestedInteractive: [] };
 
 // Class rules over .ts files: a class map or a class string built in a store or helper.
 for (const f of tsFiles) {
@@ -133,6 +133,24 @@ for (const f of tsFiles) {
   for (const [idx, text] of noOpHovers(src)) add('noOpHover', idx, text);
 }
 const parseFailures: string[] = [];
+
+// An element a user can focus or activate. Mirrors axe's nested-interactive: such an element
+// must not contain another one (the inner control is unreachable or unnamed for screen readers).
+const INTERACTIVE_ROLES = /^(?:button|link|checkbox|radio|switch|tab|menuitem|menuitemcheckbox|menuitemradio|option|slider|spinbutton|textbox|combobox|searchbox)$/;
+// Pure so the rule can be unit tested on snippets. `attr` returns the attribute node or undefined.
+function interactiveElement(
+  n: { name: string },
+  attr: (name: string) => unknown,
+  attrText: (a: never) => string,
+): boolean {
+  const text = (name: string) => attrText(attr(name) as never);
+  if (n.name === 'button' || n.name === 'select' || n.name === 'textarea' || n.name === 'summary') return true;
+  if (n.name === 'a') return !!attr('href');
+  if (n.name === 'input') return !/^hidden$/.test(text('type'));
+  const role = text('role');
+  if (INTERACTIVE_ROLES.test(role)) return true;
+  return false;
+}
 
 type Obj = Record<string, unknown>;
 type WithAttrs = AST.RegularElement | AST.Component;
@@ -160,7 +178,8 @@ for (const f of files) {
   try { ast = parse(src, { modern: true }); } catch (e) { parseFailures.push(`${rel(f)}: ${(e as Error).message}`); continue; }
   const attr = (n: WithAttrs, name: string): AST.Attribute | undefined =>
     n.attributes.find((a): a is AST.Attribute => a.type === 'Attribute' && a.name === name);
-  const hasSpread = (n: WithAttrs) => n.attributes.some((a) => a.type === 'SpreadAttribute');
+  const isInteractive = (n: AST.RegularElement): boolean => interactiveElement(n, (name) => attr(n, name), attrText);
+const hasSpread = (n: WithAttrs) => n.attributes.some((a) => a.type === 'SpreadAttribute');
   const attrText = (a: AST.Attribute | undefined) => (a ? src.slice(a.start, a.end).replace(/^[\w-]+=/, '').replace(/["']/g, '') : '');
   const labelFor = new Set<string>();
   const inputs: Array<{ n: AST.RegularElement; inLabel: boolean }> = [];
@@ -194,6 +213,10 @@ for (const f of files) {
       if (el.name === 'label' && attr(el, 'for')) labelFor.add(attrText(attr(el, 'for')));
       if (['input', 'select', 'textarea'].includes(el.name) && !/hidden|submit|button/.test(attrText(attr(el, 'type')))) inputs.push({ n: el, inLabel: anc.some((a) => a.name === 'label') });
       if (el.name === 'button' && !attr(el, 'aria-label') && !attr(el, 'aria-labelledby') && !hasSpread(el) && textOf(el) === '') findings.unnamedButtons.push(`${rel(f)}:${lineOf(src, el.start)} <button>${attr(el, 'title') ? ' (title only)' : ''}`);
+      if (isInteractive(el)) {
+        const outer = anc.find(isInteractive);
+        if (outer) findings.nestedInteractive.push(`${rel(f)}:${lineOf(src, el.start)} <${el.name}> inside <${outer.name}> at line ${lineOf(src, outer.start)}`);
+      }
       next = [...anc, el];
     }
     for (const k of Object.keys(n)) {
@@ -292,6 +315,38 @@ describe('a11y static guard', () => {
       // The reported index points at the hover token.
       const src = 'a\n<a class="text-x hover:text-x">';
       expect(lineOf(src, noOpHovers(src)[0][0])).toBe(2);
+    });
+    it('nestedInteractive flags a control inside a button, link or role=button, not siblings or presentation wrappers', () => {
+      const nested = (markup: string): string[] => {
+        const out: string[] = [];
+        const walkNode = (n: unknown, anc: string[]): void => {
+          if (!isObj(n)) return;
+          let next = anc;
+          if (n.type === 'RegularElement') {
+            const el = n as unknown as AST.RegularElement;
+            const a = (name: string) => el.attributes.find((x) => x.type === 'Attribute' && x.name === name);
+            const t = (x: unknown) => { const at = x as AST.Attribute | undefined; return at ? markup.slice(at.start, at.end).replace(/^[\w-]+=/, '').replace(/["']/g, '') : ''; };
+            if (interactiveElement(el, a, t as (x: never) => string)) {
+              if (anc.length) out.push(`${el.name} in ${anc[0]}`);
+              next = [...anc, el.name];
+            }
+          }
+          for (const k of Object.keys(n)) {
+            if (k === 'parent' || k === 'metadata') continue;
+            const v = n[k];
+            if (Array.isArray(v)) v.forEach((c) => walkNode(c, next));
+            else if (isObj(v)) { if (v.type) walkNode(v, next); else if (Array.isArray(v.nodes)) v.nodes.forEach((c) => walkNode(c, next)); }
+          }
+        };
+        walkNode(parse(markup, { modern: true }).fragment, []);
+        return out;
+      };
+      expect(nested('<div role="button" tabindex="0"><button>x</button></div>')).toEqual(['button in div']);
+      expect(nested('<button><input type="checkbox" /></button>')).toEqual(['input in button']);
+      expect(nested('<a href="/x"><button>x</button></a>')).toEqual(['button in a']);
+      expect(nested('<div class="card"><button>pick</button><button>delete</button></div>')).toEqual([]);
+      expect(nested('<div role="presentation"><button>x</button></div><a name="x"><button>y</button></a>')).toEqual([]);
+      expect(nested('<button><input type="hidden" /></button>')).toEqual([]);
     });
     it('blankStyle keeps line numbers', () => {
       const css = '/* a\n b */\n.x { color: #fff; }';

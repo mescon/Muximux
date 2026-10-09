@@ -1071,22 +1071,18 @@ describe('OnboardingWizard', () => {
       });
     });
 
-    it('toggles app via keyboard Enter', async () => {
+    it('app card is one native button (keyboard activation is native), with no control nested in it', async () => {
       renderWizard();
       const plexCard = screen.getByRole('checkbox', { name: /Plex/i });
-      await fireEvent.keyDown(plexCard, { key: 'Enter' });
+      expect(plexCard.tagName).toBe('BUTTON');
+      expect(plexCard.querySelector('button, a[href], input, select, textarea, [role="button"], [tabindex]')).toBeNull();
+      await fireEvent.click(plexCard);
       await waitFor(() => {
         expect(plexCard).toHaveAttribute('aria-checked', 'true');
       });
-    });
-
-    it('toggles app via keyboard Space', async () => {
-      renderWizard();
-      const plexCard = screen.getByRole('checkbox', { name: /Plex/i });
-      await fireEvent.keyDown(plexCard, { key: ' ' });
-      await waitFor(() => {
-        expect(plexCard).toHaveAttribute('aria-checked', 'true');
-      });
+      // The add-instance control appears beside the card, not inside it.
+      const add = screen.getByRole('button', { name: 'Add another Plex' });
+      expect(plexCard.contains(add)).toBe(false);
     });
 
     it('shows custom app label', () => {
