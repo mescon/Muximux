@@ -88,6 +88,9 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   map) explains how to convert it instead of reporting invalid YAML. (#494)
 
 ### Security
+- **`golang.org/x/net` v0.60.0** -- fixes GO-2026-6603, GO-2026-6610,
+  GO-2026-6611, GO-2026-6612 and GO-2026-6617 in the HTTP/2 code reached by
+  the reverse proxy.
 - **Restore drops all sessions and refuses racing logins.** Restoring a
   backup reloads users and auth immediately, ends every session, and refuses
   a login that was in progress during the restore, so credentials from before
