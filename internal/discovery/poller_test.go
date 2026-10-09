@@ -2252,3 +2252,33 @@ func TestPoller_Tick_NonFixedHandSetHealthKept(t *testing.T) {
 		t.Errorf("hand-set HealthURL changed: %q", a.HealthURL)
 	}
 }
+
+func TestDedupeDesiredNames_BySlug(t *testing.T) { // F-10
+	current := []config.AppConfig{{Name: "Home Assistant", URL: "http://ha:8123", Enabled: true}}
+	desired := []Desired{
+		{App: config.AppConfig{Name: "Home-Assistant", DockerKey: "label:ha"}},
+		{App: config.AppConfig{Name: "sonarr", DockerKey: "label:s1"}},
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:s2"}},
+	}
+	got := dedupeDesiredNames(desired, current)
+	if len(got) != 1 || got[0].App.DockerKey != "label:s1" {
+		t.Fatalf("got %+v", got)
+	}
+	// The config the survivors produce passes the slug validator.
+	apps := make([]config.AppConfig, len(current)+1)
+	copy(apps, current)
+	apps[len(current)] = got[0].App
+	apps[1].Enabled = true
+	if err := config.ValidateUniqueAppSlugs(apps); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNameKey(t *testing.T) {
+	if nameKey("Home Assistant") != nameKey("home-assistant") {
+		t.Fatal("slug forms differ")
+	}
+	if nameKey("  !!! ") != "!!!" {
+		t.Fatalf("empty slug must fall back to the trimmed lower-cased name, got %q", nameKey("  !!! "))
+	}
+}

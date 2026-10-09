@@ -78,6 +78,16 @@ type Poller struct {
 // 60s refresh interval this is roughly a 2-minute grace.
 const syncRemovalGraceTicks = 3
 
+// nameKey converts an app name to a deduplication key using config.Slugify,
+// falling back to the trimmed, lowercased name when the slug is empty.
+func nameKey(name string) string {
+	slug := config.Slugify(name)
+	if slug != "" {
+		return slug
+	}
+	return strings.ToLower(strings.TrimSpace(name))
+}
+
 // dedupeDesiredNames drops desired entries whose app Name collides with
 // another desired entry OR with a currently-configured app under a
 // different DockerKey, so auto-import never writes a duplicate app name.
@@ -94,7 +104,7 @@ func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) []Des
 	// must not reuse the name.
 	taken := make(map[string]string, len(currentApps))
 	for i := range currentApps {
-		taken[currentApps[i].Name] = currentApps[i].DockerKey
+		taken[nameKey(currentApps[i].Name)] = currentApps[i].DockerKey
 	}
 	sort.SliceStable(desired, func(i, j int) bool {
 		return desired[i].App.DockerKey < desired[j].App.DockerKey
@@ -104,17 +114,18 @@ func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) []Des
 	for i := range desired {
 		name := desired[i].App.Name
 		key := desired[i].App.DockerKey
-		if owner, held := taken[name]; held && owner != key {
+		slug := nameKey(name)
+		if owner, held := taken[slug]; held && owner != key {
 			logging.Warn("Discovery auto-import: app name already in use; skipping container",
 				"source", "discovery", "name", name, "owner_key", owner, "skipped_key", key)
 			continue
 		}
-		if winner, dup := seen[name]; dup {
+		if winner, dup := seen[slug]; dup {
 			logging.Warn("Discovery auto-import: duplicate app name; skipping the second container",
 				"source", "discovery", "name", name, "kept_key", winner, "skipped_key", key)
 			continue
 		}
-		seen[name] = key
+		seen[slug] = key
 		out = append(out, desired[i])
 	}
 	return out
