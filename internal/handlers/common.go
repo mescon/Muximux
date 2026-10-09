@@ -89,6 +89,7 @@ const (
 	errFailedSaveConfig   = "Failed to save configuration"
 	errAppNotFound        = "App not found"
 	errGroupNotFound      = "Group not found"
+	errGroupNameRequired  = "Group name is required"
 	errIconNameRequired   = "Icon name required"
 	errInvalidBody        = "Invalid request body"
 	errInvalidJSON        = "Invalid JSON: "

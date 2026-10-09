@@ -1020,7 +1020,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	group.OriginalName = ""
 
 	if group.Name == "" {
-		respondError(w, r, http.StatusBadRequest, "Group name is required")
+		respondError(w, r, http.StatusBadRequest, errGroupNameRequired)
 		return
 	}
 
@@ -1058,6 +1058,12 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 	}
 	// OriginalName is transport-only for PUT /api/config; never accept it here.
 	group.OriginalName = ""
+	// An empty name would leave the group unaddressable and its apps
+	// pointing at "" (ungrouped), as CreateGroup already refuses.
+	if group.Name == "" {
+		respondError(w, r, http.StatusBadRequest, errGroupNameRequired)
+		return
+	}
 
 	h.mu.Lock()
 	defer h.mu.Unlock()

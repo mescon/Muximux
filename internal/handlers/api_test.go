@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -3681,8 +3682,21 @@ func TestSaveConfig_ProxyTimeoutCanBeCleared(t *testing.T) {
 		t.Errorf("file still has the old timeout:\n%s", data)
 	}
 	// The proxy falls back to its 30s default for an empty value.
-	if NewReverseProxyHandler(nil, "") == nil {
-		t.Error("proxy handler not constructed with empty timeout")
+	if got := NewReverseProxyHandler(nil, "").timeout; got != 30*time.Second {
+		t.Errorf("proxy timeout for an empty value = %v, want 30s", got)
+	}
+}
+
+func TestUpdateGroup_RejectsEmptyName(t *testing.T) {
+	cfg := createTestConfig()
+	handler := newGroupTestHandler(t, cfg)
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, httptest.NewRequest(http.MethodPut, "/api/group/Media", strings.NewReader(`{"name":"","color":"#fff"}`)), "Media")
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d, want 400: %s", w.Code, w.Body.String())
+	}
+	if cfg.Groups[0].Name != "Media" || cfg.Apps[0].Group != "Media" {
+		t.Errorf("group or app changed: %+v %+v", cfg.Groups[0], cfg.Apps[0])
 	}
 }
 
