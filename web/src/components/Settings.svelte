@@ -3,7 +3,7 @@
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { type App, type Config, type Group, type KeybindingsConfig, makeApp, makeGroup, stampUniqueIds } from '$lib/types';
-  import { rebaseConfig, stampOriginalNames, type MergeConflict } from '$lib/configMerge';
+  import { normaliseBase, rebaseConfig, stampOriginalNames, type MergeConflict } from '$lib/configMerge';
   import { refreshDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
@@ -111,10 +111,13 @@
   let localConfig = $state(loaded.config);
   let localApps = $state(loaded.apps);
 
-  // The server config this dialog's edits are based on, in raw wire shape.
-  // Sent as the save's base so the server merges three-way, and replaced on
-  // every rebase. Apps come from the apps prop, which localApps started from.
-  let baseConfig = $state<Config>(untrack(() => ({ ...clone(config), apps: clone(apps) })));
+  // The server config this dialog's edits are based on. Sent as the save's
+  // base so the server merges three-way, and replaced on every rebase. Apps
+  // come from the apps prop, which localApps started from. Apps and groups
+  // go through the same factories as the payload: a default the factory
+  // fills in (an absent scale becomes 1) must not read as an edit on the
+  // server, or an untouched app the server removed would be saved back.
+  let baseConfig = $state<Config>(untrack(() => normaliseBase(config, apps)));
 
   // Bumped on every rebase; GatewayTab reloads its sites when it changes.
   let configRevision = $state(0);
@@ -328,7 +331,7 @@
     stampUniqueIds(mergedApps);
     stampUniqueIds(merged.groups);
     const fresh = prepare(theirs, theirs.apps ?? []);
-    baseConfig = theirs;
+    baseConfig = normaliseBase(theirs, theirs.apps ?? []);
     localConfig = { ...merged, apps: clone(mergedApps) };
     localApps = mergedApps;
     initialConfigSnapshot = configKey(fresh.config);

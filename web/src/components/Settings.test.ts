@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
+import { normaliseBase } from '$lib/configMerge';
 
 // --- Hoisted store values and mock fns ---
 const {
@@ -1849,7 +1850,9 @@ describe('Settings', () => {
       expect(onsave).toHaveBeenCalledTimes(1);
       const [saved, base] = onsave.mock.calls[0] as [Config, Config];
       expect(saved.title).toBe('Edited title');
-      expect(base).toEqual(config);
+      // The server config, with apps and groups normalised like the payload.
+      expect(base).toEqual(normaliseBase(config, config.apps));
+      expect(base.title).toBe(config.title);
     });
 
     it('stays open and shows the error when the save fails', async () => {
@@ -2332,6 +2335,64 @@ describe('Settings', () => {
         await fireEvent.click(container.querySelector('[aria-label="Close settings"]')!);
         expect(screen.queryByText('You have unsaved changes. Discard?')).not.toBeInTheDocument();
         expect(onclose).toHaveBeenCalledTimes(1);
+      });
+
+      // I-1 (S-05): the base goes through the same factories as the
+      // payload, so the server never reads a filled-in default (an absent
+      // scale becomes 1) as an edit and saves a removed app back.
+      it('sends a base normalised like the payload for an untouched sparse app', async () => {
+        const config = sparseConfig();
+        config.apps = [...config.apps, {
+          name: 'Whoami', url: 'http://10.0.0.5:8080',
+          icon: { type: 'dashboard', name: 'whoami', color: '', background: '' },
+          color: '#22c55e', group: '', order: 1, enabled: true, default: false,
+          open_mode: 'iframe', proxy: false, docker_key: 'name:whoami',
+        } as unknown as App];
+        const onsave = vi.fn().mockResolvedValue(undefined);
+        render(Settings, { props: { config, apps: config.apps, initialTab: 'security', onsave } });
+        expect(screen.getByText('Save Changes')).toBeDisabled();
+
+        await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+        await fireEvent.click(screen.getByText('Save Changes'));
+        await waitFor(() => expect(onsave).toHaveBeenCalledTimes(1));
+
+        const [saved, base] = onsave.mock.calls[0] as [Config, Config];
+        const strip = (a: App) => { const { original_name: _o, ...rest } = a; return rest; };
+        for (const name of ['Plex', 'Sonarr', 'Whoami']) {
+          const sent = saved.apps.find(a => a.name === name)!;
+          const from = base.apps.find(a => a.name === name)!;
+          expect(strip(sent)).toEqual(from);
+        }
+        expect(base.apps.find(a => a.name === 'Whoami')!.scale).toBe(1);
+        expect(saved.groups.map(g => { const { original_name: _o, ...rest } = g; return rest; })).toEqual(base.groups);
+      });
+
+      it('a push that removes an untouched sparse app drops it from the payload and the base', async () => {
+        const withWhoami = (): Config => {
+          const c = sparseConfig();
+          c.apps = [...c.apps, {
+            name: 'Whoami', url: 'http://10.0.0.5:8080',
+            icon: { type: 'dashboard', name: 'whoami', color: '', background: '' },
+            color: '#22c55e', group: '', order: 1, enabled: true, default: false,
+            open_mode: 'iframe', proxy: false, docker_key: 'name:whoami',
+          } as unknown as App];
+          return c;
+        };
+        const onsave = vi.fn().mockResolvedValue(undefined);
+        const config = withWhoami();
+        const { rerender } = render(Settings, { props: { config, apps: config.apps, initialTab: 'security', onsave } });
+        await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+
+        const theirs = sparseConfig();
+        await rerender({ config: theirs, apps: theirs.apps });
+        await fireEvent.click(screen.getByText('Save Changes'));
+        await waitFor(() => expect(onsave).toHaveBeenCalledTimes(1));
+
+        const [saved, base] = onsave.mock.calls[0] as [Config, Config];
+        expect(saved.title).toBe('Edited title');
+        expect(saved.apps.map(a => a.name).sort()).toEqual(['Plex', 'Sonarr']);
+        expect(base.apps.map(a => a.name).sort()).toEqual(['Plex', 'Sonarr']);
+        expect(base.apps.every(a => a.scale === 1 && a.force_icon_background === false)).toBe(true);
       });
     });
 

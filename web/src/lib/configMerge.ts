@@ -138,6 +138,19 @@ export function normaliseGroup(group: Group): Group {
   return dropKeys(makeGroup(clone(group)), CLIENT_ONLY_KEYS);
 }
 
+/**
+ * The base a Settings save sends: the server config with its apps and groups
+ * normalised exactly like the payload's, so a default the factories fill in
+ * never reads as an edit in the server's three-way merge.
+ */
+export function normaliseBase(config: Config, apps: App[]): Config {
+  return {
+    ...clone(config),
+    apps: (apps ?? []).map(normaliseApp),
+    groups: (config.groups ?? []).map(normaliseGroup),
+  };
+}
+
 /** Records each item's current name as its rename identity. */
 export function stampOriginalNames(apps: App[], groups: Group[]): void {
   for (const a of apps) a.original_name = a.name;

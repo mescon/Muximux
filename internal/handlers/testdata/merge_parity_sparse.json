@@ -1,0 +1,58 @@
+{
+  "_comment": "Shared by config_merge_parity_test.go and web/src/lib/configMerge.parity.test.ts. base_server is a sparse server config (Whoami has no scale, Lab no color); base_sent is what Settings sends as the save's base (normaliseBase of base_server); mine is the save payload after a title edit only; theirs is the server after auto-import sync removed Whoami and Lab was deleted. Both merges must drop Whoami and Lab.",
+  "base_server": {
+    "title": "Home",
+    "navigation": {"position": "top"},
+    "theme": {"family": "default", "variant": "dark"},
+    "groups": [
+      {"name": "Media", "icon": {"type": "dashboard", "color": "", "background": ""}, "color": "#3498db", "order": 0, "expanded": true},
+      {"name": "Lab", "icon": {"type": "dashboard", "color": "", "background": ""}, "order": 1}
+    ],
+    "apps": [
+      {"name": "Plex", "url": "http://plex:32400", "icon": {"type": "dashboard", "name": "plex", "color": "", "background": ""}, "color": "#E5A00D", "group": "Media", "order": 0, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "scale": 1},
+      {"name": "Whoami", "url": "http://10.0.0.5:8080", "icon": {"type": "dashboard", "name": "whoami", "color": "", "background": ""}, "color": "#22c55e", "group": "", "order": 1, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "docker_key": "name:whoami"}
+    ]
+  },
+  "base_sent": {
+    "title": "Home",
+    "navigation": {"position": "top"},
+    "theme": {"family": "default", "variant": "dark"},
+    "groups": [
+      {"name": "Media", "icon": {"type": "dashboard", "name": "", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#3498db", "order": 0, "expanded": true},
+      {"name": "Lab", "icon": {"type": "dashboard", "name": "", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#3498db", "order": 1, "expanded": true}
+    ],
+    "apps": [
+      {"name": "Plex", "url": "http://plex:32400", "icon": {"type": "dashboard", "name": "plex", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#E5A00D", "group": "Media", "order": 0, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "scale": 1, "force_icon_background": false, "min_role": ""},
+      {"name": "Whoami", "url": "http://10.0.0.5:8080", "icon": {"type": "dashboard", "name": "whoami", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#22c55e", "group": "", "order": 1, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "scale": 1, "force_icon_background": false, "min_role": "", "docker_key": "name:whoami"}
+    ]
+  },
+  "mine": {
+    "title": "Home edited",
+    "navigation": {"position": "top"},
+    "theme": {"family": "default", "variant": "dark"},
+    "groups": [
+      {"name": "Media", "original_name": "Media", "icon": {"type": "dashboard", "name": "", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#3498db", "order": 0, "expanded": true},
+      {"name": "Lab", "original_name": "Lab", "icon": {"type": "dashboard", "name": "", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#3498db", "order": 1, "expanded": true}
+    ],
+    "apps": [
+      {"name": "Plex", "original_name": "Plex", "url": "http://plex:32400", "icon": {"type": "dashboard", "name": "plex", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#E5A00D", "group": "Media", "order": 0, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "scale": 1, "force_icon_background": false, "min_role": ""},
+      {"name": "Whoami", "original_name": "Whoami", "url": "http://10.0.0.5:8080", "icon": {"type": "dashboard", "name": "whoami", "file": "", "url": "", "variant": "", "color": "", "background": "", "invert": false}, "color": "#22c55e", "group": "", "order": 1, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "scale": 1, "force_icon_background": false, "min_role": "", "docker_key": "name:whoami"}
+    ]
+  },
+  "theirs": {
+    "title": "Home",
+    "navigation": {"position": "top"},
+    "theme": {"family": "default", "variant": "dark"},
+    "groups": [
+      {"name": "Media", "icon": {"type": "dashboard", "color": "", "background": ""}, "color": "#3498db", "order": 0, "expanded": true}
+    ],
+    "apps": [
+      {"name": "Plex", "url": "http://plex:32400", "icon": {"type": "dashboard", "name": "plex", "color": "", "background": ""}, "color": "#E5A00D", "group": "Media", "order": 0, "enabled": true, "default": false, "open_mode": "iframe", "proxy": false, "scale": 1}
+    ]
+  },
+  "expected": {
+    "title": "Home edited",
+    "apps": ["Plex"],
+    "groups": ["Media"]
+  }
+}
