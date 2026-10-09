@@ -609,8 +609,10 @@ type AppConfig struct {
 	// reconciler last applied; nil when the label is unset. Server-owned.
 	DockerManagedHealthCheck *bool `yaml:"docker_managed_health_check,omitempty" json:"docker_managed_health_check,omitempty"`
 	// DockerAutoImported marks an app the discovery reconciler created.
-	// Only such apps are updated or removed by auto-import; manually
-	// imported apps (DockerKey set, this false) are never touched.
+	// Only such apps are updated or removed by auto-import. Manually
+	// imported apps (DockerKey set, this false) are never added, removed
+	// or rewritten by auto-import; the poller only refreshes their URL
+	// and re-syncs the name, icon, group and order labels that are set.
 	DockerAutoImported bool `yaml:"docker_auto,omitempty" json:"docker_auto,omitempty"`
 }
 

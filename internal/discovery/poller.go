@@ -83,6 +83,11 @@ type Poller struct {
 	// ERROR to one line per distinct error. Only touched under the
 	// config write lock in applyRefreshBatch.
 	candidateInvalid string
+	// labelHeld records, per tracking key, the last logged reason a set
+	// label could not be re-synced onto a tracked app (a name another app
+	// already uses, a group that does not exist), so it is logged once per
+	// transition. Pruned to the tracked set. Only touched from tick().
+	labelHeld map[string]string
 }
 
 // syncRemovalGraceTicks is how many consecutive successful scans a
@@ -318,6 +323,11 @@ func (p *Poller) pruneTrackedState(svc *Service, tracked *trackedSet) {
 			delete(p.resolveFailed, k)
 		}
 	}
+	for k := range p.labelHeld {
+		if !keep[k] {
+			delete(p.labelHeld, k)
+		}
+	}
 	svc.pruneUntracked(keep)
 }
 
@@ -484,6 +494,9 @@ func (p *Poller) tick(ctx context.Context) {
 	// Taken whatever the auto-import mode: the re-key plan must never
 	// target a key a quarantined entry holds.
 	quarantinedEntries := p.deps.Config.Quarantined()
+	// Taken whatever the auto-import mode: label re-sync of tracked apps
+	// runs with auto-import off too, and checks names and groups.
+	labelCtx := snapshotLabelSyncContext(p.deps.Config)
 	p.deps.ConfigMu.RUnlock()
 
 	if !enabled {
@@ -682,6 +695,13 @@ func (p *Poller) tick(ctx context.Context) {
 		}
 	}
 
+	// Label re-sync of tracked apps Reconcile does not own (manual
+	// imports, and apps detached from auto-import that are still tracked).
+	// Runs whatever the auto-import mode and only updates: it never adds
+	// or removes an entry. Planned after Reconcile so a name an
+	// auto-import add or update claims this tick is not reused.
+	batch.labelSyncs = p.planLabelSync(tracked.apps, containers, endpoint, &labelCtx, batch)
+
 	if batch.empty() {
 		svc.RecordRefreshTickSuccess()
 	} else {
@@ -703,6 +723,12 @@ type trackedAppEntry struct {
 	// currentHealth is the app's HealthURL, compared against the
 	// refreshed health address of fixed-URL apps.
 	currentHealth string
+	// The label-owned display fields and the auto-import marker, for the
+	// label re-sync of tracked apps Reconcile does not own.
+	autoImported bool
+	icon         config.AppIconConfig
+	group        string
+	order        int
 }
 type trackedSiteEntry struct {
 	domain     string
@@ -734,6 +760,10 @@ func (p *Poller) collectTracked() trackedSet {
 			strategy:      a.DockerStrategy,
 			currentURL:    a.URL,
 			currentHealth: a.HealthURL,
+			autoImported:  a.DockerAutoImported,
+			icon:          a.Icon,
+			group:         a.Group,
+			order:         a.Order,
 		})
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -934,6 +964,10 @@ type refreshBatch struct {
 	// change in the batch is keyed by the new key.
 	rekeys   map[string]string
 	endpoint string
+	// labelSyncs re-syncs the label-owned display fields (name, icon,
+	// group, order) of tracked apps that auto-import does not own, keyed
+	// by DockerKey. Only labels that are set appear here.
+	labelSyncs map[string]labelSync
 }
 
 // Removal reasons for the audit line of a sync removal.
@@ -966,14 +1000,16 @@ func (b *refreshBatch) empty() bool {
 	return len(b.appURLChanges) == 0 && len(b.appHealthChanges) == 0 && len(b.siteURLChanges) == 0 &&
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
-		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0
+		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0 &&
+		len(b.labelSyncs) == 0
 }
 
 // reconcileChangesApps reports whether the auto-import plan touches any
 // app (added, updated, removed, detached or re-keyed). Used to fire the
 // route-table rebuild hook the same way an app URL change does.
 func (b *refreshBatch) reconcileChangesApps() bool {
-	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0 || len(b.rekeys) > 0
+	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0 || len(b.rekeys) > 0 ||
+		len(b.labelSyncs) > 0
 }
 
 func (b *refreshBatch) touchesGateway() bool {
@@ -1072,6 +1108,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// so this only fires on a cross-entry conflict it cannot see. On
 	// failure the whole candidate (URL refresh, apps, sites, quarantine)
 	// is rolled back and nothing is saved this tick.
+	labelSynced := applyLabelSyncs(p.deps.Config, batch.labelSyncs)
 	reconcileTouchedGateway, rec := p.applyReconcile(batch)
 	if err := p.deps.Config.Validate(); err != nil {
 		rollback()
@@ -1196,6 +1233,11 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	for i := range batch.updateApps {
 		logging.Info("Docker auto-imported app re-synced",
 			"source", "audit", "app", batch.updateApps[i].Name, "key", batch.updateApps[i].DockerKey)
+	}
+	for i := range labelSynced {
+		logging.Info("Docker tracked app re-synced from labels",
+			"source", "audit", "app", labelSynced[i].name, "key", labelSynced[i].key,
+			"fields", strings.Join(labelSynced[i].fields, ","))
 	}
 	for _, k := range batch.removeKeys {
 		reason := batch.removeReasons[k]
@@ -1389,7 +1431,8 @@ func buildDockerStateCache(
 	prev map[string]DockerState,
 ) map[string]DockerState {
 	next := make(map[string]DockerState, len(tracked))
-	for _, t := range tracked {
+	for i := range tracked {
+		t := &tracked[i]
 		id, ok := resolved[t.name]
 		if !ok || id == "" {
 			next[t.name] = DockerState{Status: StatusMissing}

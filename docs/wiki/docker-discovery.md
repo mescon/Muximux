@@ -352,8 +352,8 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | Label | Type | Default | What it does |
 |---|---|---|---|
 | `muximux.app.enabled` | bool | `true` | Opt-out via `false`. With `require_explicit_enable` (or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`) only `true` opts in. See [Explicit opt-in](#explicit-opt-in). |
-| `muximux.app.name` | string | catalog name or container name | Display name in the menu. |
-| `muximux.app.icon` | string | catalog icon or `""` | Any `dashboard-icons` slug (e.g. `sonarr`, `plex`, `qbittorrent`). |
+| `muximux.app.name` | string | catalog name or container name | Display name in the menu. Surrounding spaces are ignored. Re-synced while the app is tracked; see [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps). |
+| `muximux.app.icon` | string | catalog icon or `""` | Any `dashboard-icons` slug (e.g. `sonarr`, `plex`, `qbittorrent`). Surrounding spaces are ignored and the slug is lowercased. |
 | `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist. |
 | `muximux.app.port` | int 1-65535 | catalog port or first exposed | Which container port the app listens on. |
 | `muximux.app.url` | absolute `http(s)` URL | unset | Open the app at this URL instead of the container address, e.g. its public name behind your own reverse proxy. Health checks still go to the container. Ignored (with a scan note) when `muximux.app.gateway.domain` is set, and invalid values are ignored with a note. See [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy). |
@@ -454,13 +454,35 @@ A container with no usable URL is never imported. The Discover modal shows a **N
 
 ### Containers that lose their labels
 
-When a container loses all its `muximux.*` labels, its auto-imported app is detached from auto-import: it is kept, its URL is still refreshed, and `sync` never removes it. The same happens on upgrade to an auto-imported app whose container has no labels, and when explicit opt-in is turned on for containers without `enabled=true`.
+When a container loses all its `muximux.*` labels, its auto-imported app is detached from auto-import: it is kept, its URL is still refreshed, and `sync` never removes it. It is still tracked, so the [label re-sync](#label-re-sync-for-tracked-apps) applies to it if labels come back. The same happens on upgrade to an auto-imported app whose container has no labels, and when explicit opt-in is turned on for containers without `enabled=true`.
 
 ### Edit-wins (URL edits detach)
 
-Auto-import never silently clobbers a URL you took manual control of. **Changing an auto-imported app's URL** -- in Settings, through the API, or in `config.yaml` directly -- detaches that app from auto-management. Removing the container's `muximux.*` labels also detaches it (see above). From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
+Auto-import never silently clobbers a URL you took manual control of. **Changing an auto-imported app's URL** -- in Settings, through the API, or in `config.yaml` directly -- detaches that app from auto-management. Removing the container's `muximux.*` labels also detaches it from auto-import (see above). From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
 
 Other managed-field edits (name, icon, group, and similar) do **not** detach. The same applies to the health check: when `muximux.app.health_check` is set, Muximux records a server-owned `docker_managed_health_check` marker on the app, re-syncs the value under `update`/`sync`, and the app form shows the toggle locked. Remove the label to unlock it. Under `update`/`sync` they are re-synced from the labels on the next tick, so the labels remain the source of truth; under `add` they stick, because `add` never re-syncs an already-imported app.
+
+### Label re-sync for tracked apps
+
+**While an app is tracked, labels that are set win; detach to take control.**
+
+This holds for every tracked app, including apps you imported by hand through the Discover dialog, and it works with `auto_import: off`. On each refresh tick, for every tracked app whose container is present, Muximux applies these labels when they are set on the container:
+
+| Label | Applied as |
+|---|---|
+| `muximux.app.name` | The app name. A gateway site linked to the app follows the rename. |
+| `muximux.app.icon` | A dashboard icon with that slug (as on import). Icon colour, background, variant and invert are kept. |
+| `muximux.app.group` | The group, matched to an existing group by name, ignoring case and spacing (`infra` finds `Infra`). |
+| `muximux.app.order` | The order within the group. |
+
+The URL and health address keep following the container as before.
+
+- A label that is **not set** never changes anything: your own name, icon, group or order stays.
+- If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). A detached app, or one you added by hand, is never touched.
+- The re-sync only updates apps that are already tracked. It never imports a container or removes an app, whatever the `auto_import` mode.
+- Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `add`), so no field is written twice.
+- A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), the name is over 100 characters, or the group does not exist yet. The app keeps its current value until the conflict is resolved.
+- If saving the config fails, the whole tick is rolled back and retried on the next tick.
 
 ### Gateway labels and `update`/`sync`
 

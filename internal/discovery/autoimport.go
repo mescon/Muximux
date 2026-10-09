@@ -201,6 +201,8 @@ type ReconcilePlan struct {
 //     (update/sync only, never add mode).
 //   - desired key whose current app exists but is not auto-imported
 //     (manual or detached): left untouched; it still suppresses the Add.
+//     Its set display labels are re-synced by the poller's label pass
+//     (labelsync.go), never here, so no field has two writers.
 //   - update/sync: an auto-imported app whose container is present but
 //     unlabeled or not enabled is detached (DetachKeys).
 //   - sync only: an auto-imported app whose container is gone, or is

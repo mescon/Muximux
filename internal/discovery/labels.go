@@ -127,9 +127,13 @@ type GatewayLabels struct {
 // makes adding a new label a single-line entry.
 var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppEnabled: func(out *AppLabels, v string) { b := boolish(v); out.Enabled = &b },
-	LabelAppName:    func(out *AppLabels, v string) { out.Name = v },
-	LabelAppIcon:    func(out *AppLabels, v string) { out.Icon = v },
-	LabelAppGroup:   func(out *AppLabels, v string) { out.Group = v },
+	// Name, icon and group are trimmed so a stray space in a compose file
+	// neither renames the app nor points at a missing icon or group. Icon
+	// slugs are lowercase in the dashboard-icons set, so the icon is
+	// lowercased too.
+	LabelAppName:  func(out *AppLabels, v string) { out.Name = strings.TrimSpace(v) },
+	LabelAppIcon:  func(out *AppLabels, v string) { out.Icon = strings.ToLower(strings.TrimSpace(v)) },
+	LabelAppGroup: func(out *AppLabels, v string) { out.Group = strings.TrimSpace(v) },
 	LabelAppPort: func(out *AppLabels, v string) {
 		if p, err := strconv.Atoi(v); err == nil && p >= 1 && p <= 65535 {
 			out.Port = p
@@ -149,7 +153,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 		}
 	},
 	LabelAppOrder: func(out *AppLabels, v string) {
-		if n, err := strconv.Atoi(v); err == nil && n >= 0 && n <= 9999 {
+		if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil && n >= 0 && n <= 9999 {
 			out.Order = n
 		}
 	},
