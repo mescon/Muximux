@@ -470,6 +470,7 @@ describe('OnboardingWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Invalid config format')).toBeInTheDocument();
       });
+      expect(screen.getByRole('alert')).toHaveTextContent('Invalid config format');
     });
 
     it('shows generic error when restore response has no JSON body', async () => {
@@ -621,6 +622,7 @@ describe('OnboardingWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
       });
+      expect(screen.getByRole('alert')).toHaveTextContent('Password must be at least 8 characters');
     });
 
     it('shows password mismatch error when passwords differ', async () => {
@@ -636,6 +638,7 @@ describe('OnboardingWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
       });
+      expect(screen.getByRole('alert')).toHaveTextContent('Passwords do not match');
     });
 
     it('Continue is enabled when builtin form is valid', async () => {
@@ -734,6 +737,16 @@ describe('OnboardingWizard', () => {
         expect(screen.getByText('Security warning')).toBeInTheDocument();
         expect(screen.getByText(/understand the risks/)).toBeInTheDocument();
       });
+    });
+
+    it('the "no authentication" choice shows a warning notice', async () => {
+      renderWizard({ needsSetup: true });
+      await fireEvent.click(screen.getByText('No authentication'));
+      await waitFor(() => {
+        expect(screen.getByText('Security warning')).toBeInTheDocument();
+      });
+      const card = screen.getByText('Security warning').closest('.notice')!;
+      expect(card.className).toContain('notice-warning');
     });
 
     it('Continue is disabled on no-auth until risk acknowledged', async () => {
