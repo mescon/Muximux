@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -134,6 +135,10 @@ func (h *AuthHandler) prepareOIDCProvider(ctx context.Context, cfg *config.OIDCC
 	}
 	return p, nil
 }
+
+// loginCredentialsChecked runs in Login right after the password check. A
+// no-op; tests replace it to reset the session store at that exact point.
+var loginCredentialsChecked = func() {}
 
 // closeOIDCProvider stops a provider that was swapped out. A variable so
 // tests can observe which provider was closed.
@@ -327,8 +332,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Capture the session generation before checking the password: a
+	// restore that swaps the users while bcrypt runs bumps it, and the
+	// session below is then refused instead of outliving the restore.
+	gen := h.sessionStore.Generation()
+
 	// Authenticate
 	user, rehashed, err := h.userStore.Authenticate(req.Username, req.Password)
+	loginCredentialsChecked()
 	if err != nil {
 		// Warn (not Info) so default-warn production logging
 		// captures every failed attempt, which is the only signal
@@ -366,8 +377,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		data = map[string]interface{}{"groups": user.Groups}
 	}
 
-	// Create session
-	session, err := h.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
+	// Create session, unless the store was reset since gen was taken.
+	session, err := h.sessionStore.CreateWithDataAt(gen, user.ID, user.Username, user.Role, data)
+	if errors.Is(err, auth.ErrSessionGenerationChanged) {
+		logging.From(r.Context()).Warn("Login refused: users were replaced while it was in progress", "source", "audit", "user", req.Username)
+		sendJSON(w, http.StatusUnauthorized, LoginResponse{
+			Success: false,
+			Message: "Invalid username or password",
+		})
+		return
+	}
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
 		sendJSON(w, http.StatusInternalServerError, LoginResponse{

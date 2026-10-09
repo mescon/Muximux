@@ -53,6 +53,39 @@ func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore) {
 	return handler, sessionStore
 }
 
+// A restore that resets the session store while a login is checking the
+// password must win: the login publishes no session and answers 401 with
+// the generic message.
+func TestLogin_SessionStoreResetMidFlightIs401(t *testing.T) {
+	handler, sessionStore := setupAuthTest(t)
+	prev := loginCredentialsChecked
+	loginCredentialsChecked = func() { sessionStore.InvalidateAll() }
+	t.Cleanup(func() { loginCredentialsChecked = prev })
+
+	body := `{"username":"admin","password":"testpass123"}`
+	w := httptest.NewRecorder()
+	handler.Login(w, httptest.NewRequest(http.MethodPost, "/api/auth/login", strings.NewReader(body)))
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("login = %d %s, want 401", w.Code, w.Body.String())
+	}
+	var resp LoginResponse
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if resp.Success || resp.Message != "Invalid username or password" {
+		t.Errorf("response = %+v, want the generic failure", resp)
+	}
+	if n := sessionStore.Count(); n != 0 {
+		t.Errorf("%d sessions published after the reset", n)
+	}
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "muximux_session" && c.Value != "" {
+			t.Error("session cookie set on a refused login")
+		}
+	}
+}
+
 // TestLogin_PopulatesSessionGroups guards the gateway group gate against
 // fail-closed denial of builtin users. sessionInAllowedGroups reads a
 // user's groups from session.Data["groups"], which OIDC populates but the

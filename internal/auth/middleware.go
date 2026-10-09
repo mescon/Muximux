@@ -166,6 +166,12 @@ func (m *Middleware) snapshot() *authSnapshot {
 	return m.snap.Load()
 }
 
+// Config returns a copy of the auth configuration the middleware is
+// currently enforcing.
+func (m *Middleware) Config() AuthConfig {
+	return m.snapshot().config
+}
+
 // Method returns the auth method the middleware is currently enforcing.
 func (m *Middleware) Method() AuthMethod {
 	return m.snapshot().config.Method

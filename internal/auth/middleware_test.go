@@ -1344,3 +1344,14 @@ func TestVerifyAPIKey(t *testing.T) {
 		t.Error("empty stored must not verify")
 	}
 }
+
+func TestMiddleware_ConfigReturnsCurrentSnapshot(t *testing.T) {
+	m := NewMiddleware(&AuthConfig{Method: AuthMethodNone, BasePath: "/a"}, NewSessionStore("t", time.Hour, false), NewUserStore())
+	if c := m.Config(); c.Method != AuthMethodNone || c.BasePath != "/a" {
+		t.Fatalf("Config = %+v", c)
+	}
+	m.UpdateConfig(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: "sha256:x", TrustedProxies: []string{"10.0.0.0/8"}})
+	if c := m.Config(); c.Method != AuthMethodBuiltin || c.APIKeyHash != "sha256:x" || len(c.TrustedProxies) != 1 || c.BasePath != "" {
+		t.Errorf("Config after update = %+v", c)
+	}
+}

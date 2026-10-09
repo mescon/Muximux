@@ -1580,14 +1580,15 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 }
 
 // applyAuthStateLocked switches the security-relevant runtime state to the
-// live config, as a restart would: it drops every session (they belong to
-// the instance that was replaced), sets the session cookie domain, reloads
-// the user store, updates the auth middleware and removes the OIDC provider
-// built from the previous config. reinitRuntimeFromConfig installs the new
+// live config, as a restart would. It drops every session and bumps the
+// session generation, so a login still checking a password against the
+// replaced users cannot publish a session afterwards. It sets the session
+// cookie domain, reloads the user store, updates the auth middleware and
+// removes the OIDC provider built from the previous config. reinitRuntimeFromConfig installs the new
 // provider afterwards; until then OIDC login is unavailable. The caller
 // holds configMu for writing.
 func (s *Server) applyAuthStateLocked() {
-	s.sessionStore.DeleteMatching(func(*auth.Session) bool { return true })
+	s.sessionStore.InvalidateAll()
 	s.sessionStore.SetCookieDomain(s.config.Server.SessionCookieDomain)
 	s.userStore.LoadFromConfig(usersFromConfig(s.config.Auth.Users))
 	s.authMiddleware.UpdateConfig(authConfigFromConfig(s.config))
@@ -1662,24 +1663,13 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) (*auth.S
 			Role:         "admin",
 		},
 	}
+	users := usersFromConfig(s.config.Auth.Users)
+	authCfg := authConfigFromConfig(s.config)
 	s.configMu.Unlock()
 
-	// Update live user store
-	s.userStore.LoadFromConfig([]auth.UserConfig{
-		{
-			Username:     req.Username,
-			PasswordHash: hash,
-			Role:         "admin",
-		},
-	})
-
-	// Update auth middleware
-	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
-		Method:      auth.AuthMethodBuiltin,
-		BypassRules: defaultBypassRules,
-		APIKeyHash:  s.config.Auth.APIKeyHash,
-		BasePath:    s.config.Server.NormalizedBasePath(),
-	})
+	// Update the live user store and auth middleware
+	s.userStore.LoadFromConfig(users)
+	s.authMiddleware.UpdateConfig(authCfg)
 
 	logging.Audit("Admin user created", "user", req.Username)
 
@@ -1714,18 +1704,10 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 	// silently demoted to RoleUser until they re-save through
 	// Settings (review fix H3).
 	s.config.Auth.ForwardAuthAdminGroups = req.ForwardAuthAdminGroups
-	apiKeyHash := s.config.Auth.APIKeyHash
+	authCfg := authConfigFromConfig(s.config)
 	s.configMu.Unlock()
 
-	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
-		Method:                 auth.AuthMethodForwardAuth,
-		TrustedProxies:         req.TrustedProxies,
-		Headers:                auth.ForwardAuthHeadersFromMap(req.Headers),
-		ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
-		BypassRules:            defaultBypassRules,
-		APIKeyHash:             apiKeyHash,
-		BasePath:               s.config.Server.NormalizedBasePath(),
-	})
+	s.authMiddleware.UpdateConfig(authCfg)
 
 	logging.Info("Forward auth configured", "source", "auth", "proxies", strings.Join(req.TrustedProxies, ","))
 

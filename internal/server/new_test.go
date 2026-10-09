@@ -806,34 +806,99 @@ func TestSetupAuth_UsesConfigHelpers(t *testing.T) {
 }
 
 // The setup rollback rebuilds the user store and the middleware snapshot
-// through the shared helpers when the config cannot be saved.
+// through the shared helpers when the config cannot be saved. The prior
+// state carries forward-auth fields, an API key hash and a base path, so
+// both arms show every field coming back.
 func TestHandleSetup_RollbackOnSaveFailure(t *testing.T) {
+	arms := []struct{ name, body string }{
+		{"builtin", `{"method":"builtin","username":"owner","password":"long-enough-pw"}`},
+		{"forward_auth", `{"method":"forward_auth","trusted_proxies":["192.168.0.0/16"],` +
+			`"headers":{"user":"X-New-User"},"forward_auth_admin_groups":["new-admins"]}`},
+	}
+	for _, arm := range arms {
+		t.Run(arm.name, func(t *testing.T) {
+			s := newServerForTest(t, func(cfg *config.Config) {
+				// Method stays none so setup is pending; the
+				// forward-auth fields are leftovers the rollback
+				// must still put back.
+				cfg.Auth.TrustedProxies = []string{"10.0.0.0/8"}
+				cfg.Auth.Headers = map[string]string{"user": "X-Prior-User"}
+				cfg.Auth.ForwardAuthAdminGroups = []string{"prior-admins"}
+				cfg.Auth.APIKeyHash = "sha256:prior"
+				cfg.Server.BasePath = "/prior"
+			})
+			want := s.authMiddleware.Config()
+			if want.BasePath != "/prior" || want.APIKeyHash != "sha256:prior" {
+				t.Fatalf("fixture snapshot = %+v", want)
+			}
+			s.configPath = t.TempDir() // a directory: Save cannot rename over it
+
+			req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(arm.body))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set(setupTokenHeader, s.setupToken)
+			rec := httptest.NewRecorder()
+			s.handleSetup(rec, req)
+
+			if rec.Code != http.StatusInternalServerError {
+				t.Fatalf("setup = %d %s, want 500", rec.Code, rec.Body.String())
+			}
+			if got := s.authMiddleware.Config(); !reflect.DeepEqual(got, want) {
+				t.Errorf("middleware after rollback = %+v\nwant %+v", got, want)
+			}
+			if n := len(s.userStore.List()); n != 0 {
+				t.Errorf("user store holds %d users after rollback", n)
+			}
+			a := s.config.Auth
+			if a.Method != "none" || len(a.Users) != 0 ||
+				!reflect.DeepEqual(a.TrustedProxies, []string{"10.0.0.0/8"}) ||
+				!reflect.DeepEqual(a.ForwardAuthAdminGroups, []string{"prior-admins"}) ||
+				a.Headers["user"] != "X-Prior-User" {
+				t.Errorf("config not rolled back: %+v", a)
+			}
+			if s.sessionStore.Count() != 0 {
+				t.Error("setup session kept after rollback")
+			}
+			if !s.needsSetup.Load() {
+				t.Error("setup no longer pending after a failed save")
+			}
+		})
+	}
+}
+
+// A restore whose save fails leaves every piece of live auth state alone:
+// sessions, users, the middleware and the OIDC provider.
+func TestHandleConfigRestore_SaveFailure(t *testing.T) {
 	s := newServerForTest(t, nil)
+	idp := oidcDiscoveryServer(t)
+	prior := config.OIDCConfig{Enabled: true, IssuerURL: idp.URL, ClientID: "old", RedirectURL: "http://localhost:8080/api/auth/oidc/callback"}
+	if err := s.authHandler.ReplaceOIDCProvider(context.Background(), &prior, ""); err != nil {
+		t.Fatalf("install provider: %v", err)
+	}
+	t.Cleanup(func() { _ = s.authHandler.CloseOIDC() })
+	sess, err := s.sessionStore.Create("someone", "someone", "user")
+	if err != nil {
+		t.Fatal(err)
+	}
+	gen := s.sessionStore.Generation()
+	wantAuth := s.authMiddleware.Config()
 	s.configPath = t.TempDir() // a directory: Save cannot rename over it
 
-	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup",
-		strings.NewReader(`{"method":"builtin","username":"owner","password":"long-enough-pw"}`))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(setupTokenHeader, s.setupToken)
-	rec := httptest.NewRecorder()
-	s.httpServer.Handler.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusInternalServerError {
-		t.Fatalf("setup = %d %s, want 500", rec.Code, rec.Body.String())
+	if rec := postRestore(s, builtinBackup(t, "")); rec.Code != http.StatusInternalServerError {
+		t.Fatalf("restore = %d %s, want 500", rec.Code, rec.Body.String())
 	}
-	if m := s.authMiddleware.Method(); m != auth.AuthMethodNone {
-		t.Errorf("middleware method = %q, want none after rollback", m)
+	if s.sessionStore.Get(sess.ID) == nil || s.sessionStore.Generation() != gen {
+		t.Error("sessions touched by a failed restore")
 	}
 	if n := len(s.userStore.List()); n != 0 {
-		t.Errorf("user store holds %d users after rollback", n)
+		t.Errorf("user store holds %d users after a failed restore", n)
 	}
-	if s.config.Auth.Method != "none" || len(s.config.Auth.Users) != 0 {
-		t.Errorf("config not rolled back: method %q users %d", s.config.Auth.Method, len(s.config.Auth.Users))
+	if got := s.authMiddleware.Config(); !reflect.DeepEqual(got, wantAuth) || got.Method != auth.AuthMethodNone {
+		t.Errorf("middleware changed by a failed restore: %+v", got)
 	}
-	if s.sessionStore.Count() != 0 {
-		t.Error("setup session kept after rollback")
+	if rec := get(t, s, "/api/auth/oidc/login"); rec.Code != http.StatusFound {
+		t.Errorf("OIDC login = %d after a failed restore, want the old provider's 302", rec.Code)
 	}
 	if !s.needsSetup.Load() {
-		t.Error("setup no longer pending after a failed save")
+		t.Error("setup no longer pending after a failed restore")
 	}
 }
