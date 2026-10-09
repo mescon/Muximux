@@ -185,16 +185,14 @@ func renamedFrom(orig, name string) string {
 // already claimed gets nil and is treated as brand new.
 func claimMatches[T any](mine []T, orig func(*T) string, name func(*T) string,
 	lookupBase, lookupTheirs func(string) *T) (bases, theirs []*T) {
-	bases = make([]*T, len(mine))
-	theirs = make([]*T, len(mine))
-	claimed := map[*T]bool{}
-	claim := func(p *T) *T {
-		if p == nil || claimed[p] {
-			return nil
-		}
-		claimed[p] = true
-		return p
-	}
+	return claimEach(mine, orig, name, lookupBase), claimEach(mine, orig, name, lookupTheirs)
+}
+
+// claimEach pairs each mine item with one counterpart from lookup, using
+// the claim order claimMatches documents.
+func claimEach[M, S any](mine []M, orig func(*M) string, name func(*M) string, lookup func(string) *S) []*S {
+	out := make([]*S, len(mine))
+	claimed := map[*S]bool{}
 	for pass := 0; pass < 2; pass++ {
 		for i := range mine {
 			o := orig(&mine[i])
@@ -205,11 +203,13 @@ func claimMatches[T any](mine []T, orig func(*T) string, name func(*T) string,
 			if id == "" {
 				id = name(&mine[i])
 			}
-			bases[i] = claim(lookupBase(id))
-			theirs[i] = claim(lookupTheirs(id))
+			if p := lookup(id); p != nil && !claimed[p] {
+				claimed[p] = true
+				out[i] = p
+			}
 		}
 	}
-	return bases, theirs
+	return out
 }
 
 // checkUniqueNames returns a MergeConflictError for the first name that
@@ -408,18 +408,28 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig,
 
 // cascadeGroupRenames re-points apps that still carry a renamed group's old
 // name. The one place this rule lives; mergeConfigUpdate calls it once for
-// both the two-way and the three-way path.
-func cascadeGroupRenames(groups []config.GroupConfig, apps []ClientAppConfig) {
+// both the two-way and the three-way path. wasIn(i, g) reports whether
+// apps[i] was in group g before this save (in base or on the server).
+// When the payload also adds a new group under the old name, only apps that
+// were in the old group move, so an app the payload placed in the new group
+// stays there. When no group bears the old name any more, every app still
+// carrying it moves, so none is left pointing at a missing group.
+func cascadeGroupRenames(groups []config.GroupConfig, apps []ClientAppConfig, wasIn func(i int, group string) bool) {
 	renamed := map[string]string{}
+	present := make(map[string]bool, len(groups))
 	for i := range groups {
+		present[groups[i].Name] = true
 		if groups[i].OriginalName != "" && groups[i].OriginalName != groups[i].Name {
 			renamed[groups[i].OriginalName] = groups[i].Name
 		}
 	}
 	for i := range apps {
-		if n, ok := renamed[apps[i].Group]; ok {
-			apps[i].Group = n
+		old := apps[i].Group
+		n, ok := renamed[old]
+		if !ok || (present[old] && !wasIn(i, old)) {
+			continue
 		}
+		apps[i].Group = n
 	}
 }
 

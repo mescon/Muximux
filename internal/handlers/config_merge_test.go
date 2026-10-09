@@ -157,7 +157,7 @@ func TestCascadeGroupRenames_RepointsApps(t *testing.T) {
 	apps := []ClientAppConfig{testApp("A", "u"), testApp("B", "u")}
 	apps[0].Group = "Media"
 	apps[1].Group = "Other"
-	cascadeGroupRenames(groups, apps)
+	cascadeGroupRenames(groups, apps, neverIn)
 	if apps[0].Group != "Video" || apps[1].Group != "Other" {
 		t.Errorf("apps = %+v", apps)
 	}
@@ -365,7 +365,7 @@ func TestCascadeGroupRenames_IgnoresUnrenamed(t *testing.T) {
 	groups := []config.GroupConfig{{Name: "Same", OriginalName: "Same"}, {Name: "Plain"}}
 	apps := []ClientAppConfig{testApp("A", "u")}
 	apps[0].Group = "Same"
-	cascadeGroupRenames(groups, apps)
+	cascadeGroupRenames(groups, apps, neverIn)
 	if apps[0].Group != "Same" {
 		t.Errorf("apps = %+v", apps)
 	}
@@ -646,6 +646,23 @@ func TestUngroupDeletedGroups_RenamedOrRecreatedGroupKeepsApps(t *testing.T) {
 	apps[1].Group = "Re"  // a group of that name survives the merge
 	ungroupDeletedGroups(base, mine, merged, apps)
 	if apps[0].Group != "Old" || apps[1].Group != "Re" {
+		t.Errorf("apps = %+v", apps)
+	}
+}
+
+// neverIn is a cascadeGroupRenames wasIn that knows no prior placement.
+func neverIn(int, string) bool { return false }
+
+func TestCascadeGroupRenames_NewGroupReusingOldNameKeepsItsApps(t *testing.T) {
+	// The payload renames X to Y and adds a new group X.
+	groups := []config.GroupConfig{{Name: "Y", OriginalName: "X"}, {Name: "X"}}
+	apps := []ClientAppConfig{testApp("Placed", "u"), testApp("Stored", "u"), testApp("Moved", "u")}
+	apps[0].Group = "X" // the user put it in the new X
+	apps[1].Group = "X" // was in the old X before this save
+	apps[2].Group = "Y"
+	wasIn := func(i int, g string) bool { return i == 1 && g == "X" }
+	cascadeGroupRenames(groups, apps, wasIn)
+	if apps[0].Group != "X" || apps[1].Group != "Y" || apps[2].Group != "Y" {
 		t.Errorf("apps = %+v", apps)
 	}
 }

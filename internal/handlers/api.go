@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -386,6 +387,23 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	// With a base the payload is merged per field against what the
+	// browser loaded and what the server holds now, so a stale dialog
+	// cannot revert server-side changes made while it was open. Without
+	// one the payload replaces the config as before (scripts, older
+	// frontends).
+	var baseApps []ClientAppConfig
+	if update.Base != nil {
+		baseApps = update.Base.Apps
+		resp := buildClientConfigResponse(h.config, auth.RoleAdmin, nil)
+		merged, err := mergeThreeWay(update.Base, &update, updateFromResponse(&resp))
+		if err != nil {
+			respondError(w, r, mergeErrorStatus(err), err.Error())
+			return
+		}
+		update = *merged
+	}
+
 	// Snapshot every field mergeConfigUpdate mutates so we can restore
 	// the in-memory config if the disk Save fails. Without this the
 	// live process would see the new shape (next GET returns it) while
@@ -396,7 +414,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	// Invariant: rollback works because mergeConfigUpdate *replaces*
 	// each field wholesale rather than mutating it in place
 	// (cfg.Navigation = update.Navigation, cfg.Apps = newApps,
-	// cfg.Keybindings = *update.Keybindings, etc.). Snapshot copies
+	// cfg.Keybindings = *update.Keybindings, etc.). The one exception is
+	// the gateway sites, whose app_name references cascadeAppRenames
+	// rewrites in place, so that slice is copied. Snapshot copies
 	// here are shallow struct copies; for fields that contain maps
 	// (Keybindings.Bindings, Theme.Colors when present) the snapshot
 	// shares the underlying map header, but the merge code never
@@ -416,8 +436,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	priorKeybindings := h.config.Keybindings
 	priorGroups := h.config.Groups
 	priorApps := h.config.Apps
+	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
 
-	mergeConfigUpdate(h.config, &update)
+	mergeConfigUpdate(h.config, &update, baseApps)
 
 	rollback := func() {
 		h.config.Server.Title = priorTitle
@@ -431,6 +452,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		h.config.Keybindings = priorKeybindings
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
+		h.config.Server.GatewaySites = priorSites
 	}
 
 	// Re-run the same invariant checks Load uses at startup, so a bad
@@ -470,9 +492,24 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin, nil))
 }
 
+// mergeErrorStatus maps a three-way merge error to its HTTP status: 409
+// for a name clash the client resolves by reloading, 400 otherwise.
+func mergeErrorStatus(err error) int {
+	var conflict *MergeConflictError
+	if errors.As(err, &conflict) {
+		return http.StatusConflict
+	}
+	return http.StatusBadRequest
+}
+
 // mergeConfigUpdate applies a client config update to the server config,
-// preserving sensitive fields (auth bypass, access rules, original proxy URLs).
-func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
+// preserving server-owned fields (auth bypass, access rules, forwarded
+// headers, Docker tracking). Each payload app updates the stored app it
+// claims by identity (original_name first, then name), so a rename keeps
+// its server-owned fields and gateway sites follow it. baseApps is the
+// browser's base on the three-way path and nil on the two-way path; it
+// tells the group-rename cascade where each app was before this save.
+func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate, baseApps []ClientAppConfig) {
 	cfg.Server.Title = update.Title
 	cfg.Server.Language = update.Language
 	cfg.Server.LogLevel = update.LogLevel
@@ -490,20 +527,34 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	if update.Health != nil {
 		cfg.Health = *update.Health
 	}
-	cfg.Groups = update.Groups
 	if update.Keybindings != nil {
 		cfg.Keybindings = *update.Keybindings
 	}
 
-	// Build lookup of existing apps by name to preserve sensitive data.
-	existingApps := make(map[string]config.AppConfig)
+	storedByName := make(map[string]*config.AppConfig, len(cfg.Apps))
 	for i := range cfg.Apps {
-		existingApps[cfg.Apps[i].Name] = cfg.Apps[i]
+		storedByName[cfg.Apps[i].Name] = &cfg.Apps[i]
 	}
+	baseByName := indexApps(baseApps)
+	stored := claimEach(update.Apps, appOriginalName, appName,
+		func(id string) *config.AppConfig { return storedByName[id] })
+	bases := claimEach(update.Apps, appOriginalName, appName,
+		func(id string) *ClientAppConfig { return baseByName[id] })
+	cascadeGroupRenames(update.Groups, update.Apps, func(i int, group string) bool {
+		return (stored[i] != nil && stored[i].Group == group) || (bases[i] != nil && bases[i].Group == group)
+	})
 
+	renamed := map[string]string{}
+	seen := make(map[string]bool, len(update.Apps))
 	newApps := make([]config.AppConfig, 0, len(update.Apps))
 	for i := range update.Apps {
-		app, detachKey := mergeClientApp(&update.Apps[i], existingApps)
+		if existing := stored[i]; existing != nil {
+			seen[existing.Name] = true
+			if existing.Name != update.Apps[i].Name {
+				renamed[existing.Name] = update.Apps[i].Name
+			}
+		}
+		app, detachKey := mergeClientApp(&update.Apps[i], stored[i])
 		if detachKey != "" {
 			// Manual URL edit on a tracked app auto-detaches: the
 			// operator took manual control of the URL, so further
@@ -518,7 +569,40 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 		}
 		newApps = append(newApps, app)
 	}
+	deleted := map[string]bool{}
+	for name := range storedByName {
+		if !seen[name] {
+			deleted[name] = true
+		}
+	}
 	cfg.Apps = newApps
+	cascadeAppRenames(cfg, renamed, deleted)
+
+	// OriginalName is transport-only identity (yaml:"-"); clear it so the
+	// live config never carries it into a later GET or merge.
+	groups := make([]config.GroupConfig, len(update.Groups))
+	for i := range update.Groups {
+		groups[i] = update.Groups[i]
+		groups[i].OriginalName = ""
+	}
+	cfg.Groups = groups
+}
+
+// cascadeAppRenames keeps gateway sites pointing at their app across a
+// config save: a site whose app_name was renamed follows the new name, and
+// one whose app was deleted is cleared (the same cascade DeleteApp runs),
+// so the gateway-sites validator never sees a dangling reference. A name
+// in both maps is a rename (the old name freed and reused by a new app is
+// not a deletion), so renamed is checked first.
+func cascadeAppRenames(cfg *config.Config, renamed map[string]string, deleted map[string]bool) {
+	for i := range cfg.Server.GatewaySites {
+		site := &cfg.Server.GatewaySites[i]
+		if n, ok := renamed[site.AppName]; ok {
+			site.AppName = n
+		} else if deleted[site.AppName] {
+			site.AppName = ""
+		}
+	}
 }
 
 // clientAppToConfig converts a client app payload to a full AppConfig.
@@ -558,21 +642,29 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 }
 
 // mergeClientApp converts a client app config back to a full app config,
-// preserving sensitive fields from the existing app if it was previously configured.
+// preserving server-owned fields from existing, the stored app the payload
+// app claimed (nil for a new app).
 // The second return is the detach event when the call auto-detaches a
 // previously-tracked app due to an explicit URL change (see
 // applyDockerTrackingPreservation); "" when no detach happened.
-func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) (config.AppConfig, string) {
+func mergeClientApp(clientApp *ClientAppConfig, existing *config.AppConfig) (config.AppConfig, string) {
 	app := clientAppToConfig(clientApp)
-	var detachReason string
-
-	if existing, ok := existingApps[clientApp.Name]; ok {
-		app.AuthBypass = existing.AuthBypass
-		app.Access = existing.Access
-		detachReason = applyDockerTrackingPreservation(&app, &existing)
+	if existing == nil {
+		return app, ""
 	}
+	detachKey := preserveServerOwnedAppFields(&app, existing)
+	return app, detachKey
+}
 
-	return app, detachReason
+// preserveServerOwnedAppFields copies the fields a client payload never
+// carries (auth bypass rules, access rules, forwarded headers) and the
+// Docker tracking from existing onto updated. It returns the detach key
+// from applyDockerTrackingPreservation ("" when nothing was detached).
+func preserveServerOwnedAppFields(updated, existing *config.AppConfig) string {
+	updated.AuthBypass = existing.AuthBypass
+	updated.Access = existing.Access
+	updated.ForwardedHeaders = existing.ForwardedHeaders
+	return applyDockerTrackingPreservation(updated, existing)
 }
 
 // applyDockerTrackingPreservation reconciles tracking fields between
@@ -788,9 +880,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	// Update app config, preserving sensitive fields
 	existing := h.config.Apps[idx]
 	updated := clientAppToConfig(&clientApp)
-	updated.AuthBypass = existing.AuthBypass
-	updated.Access = existing.Access
-	detachKey := applyDockerTrackingPreservation(&updated, &existing)
+	detachKey := preserveServerOwnedAppFields(&updated, &existing)
 	if detachKey != "" {
 		logging.Audit("Docker tracking auto-detached on URL change",
 			"kind", "app", "name", updated.Name,

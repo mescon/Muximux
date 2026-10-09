@@ -3,6 +3,8 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -870,7 +872,7 @@ func TestMergeConfigUpdate(t *testing.T) {
 			},
 		}
 
-		mergeConfigUpdate(cfg, update)
+		mergeConfigUpdate(cfg, update, nil)
 
 		if cfg.Server.Title != "New Title" {
 			t.Errorf("expected title 'New Title', got %q", cfg.Server.Title)
@@ -904,7 +906,7 @@ func TestMergeConfigUpdate(t *testing.T) {
 			},
 		}
 
-		mergeConfigUpdate(cfg, update)
+		mergeConfigUpdate(cfg, update, nil)
 
 		// Frontend sends real URL (not proxy path), so it should be saved
 		if len(cfg.Apps) != 1 {
@@ -929,7 +931,7 @@ func TestMergeConfigUpdate(t *testing.T) {
 			},
 		}
 
-		mergeConfigUpdate(cfg, update)
+		mergeConfigUpdate(cfg, update, nil)
 
 		if len(cfg.Apps) != 2 {
 			t.Fatalf("expected 2 apps, got %d", len(cfg.Apps))
@@ -959,7 +961,7 @@ func TestMergeConfigUpdate(t *testing.T) {
 			Apps:        []ClientAppConfig{},
 		}
 
-		mergeConfigUpdate(cfg, update)
+		mergeConfigUpdate(cfg, update, nil)
 
 		if cfg.Keybindings.Bindings == nil {
 			t.Fatal("expected keybindings to be set")
@@ -972,7 +974,7 @@ func TestMergeConfigUpdate(t *testing.T) {
 
 func TestMergeClientApp(t *testing.T) {
 	t.Run("new app", func(t *testing.T) {
-		existing := map[string]config.AppConfig{}
+		var existing *config.AppConfig
 		clientApp := ClientAppConfig{
 			Name:    "NewApp",
 			URL:     "http://localhost:9000",
@@ -991,15 +993,13 @@ func TestMergeClientApp(t *testing.T) {
 	})
 
 	t.Run("existing proxied app updates URL", func(t *testing.T) {
-		existing := map[string]config.AppConfig{
-			"ProxiedApp": {
-				Name:    "ProxiedApp",
-				URL:     "http://internal:8080",
-				Proxy:   true,
-				Enabled: true,
-				AuthBypass: []config.AuthBypassRule{
-					{Path: "/api/*"},
-				},
+		existing := &config.AppConfig{
+			Name:    "ProxiedApp",
+			URL:     "http://internal:8080",
+			Proxy:   true,
+			Enabled: true,
+			AuthBypass: []config.AuthBypassRule{
+				{Path: "/api/*"},
 			},
 		}
 		clientApp := ClientAppConfig{
@@ -1022,13 +1022,11 @@ func TestMergeClientApp(t *testing.T) {
 	})
 
 	t.Run("existing non-proxied app updates URL", func(t *testing.T) {
-		existing := map[string]config.AppConfig{
-			"App": {
-				Name:    "App",
-				URL:     "http://old:8080",
-				Proxy:   false,
-				Enabled: true,
-			},
+		existing := &config.AppConfig{
+			Name:    "App",
+			URL:     "http://old:8080",
+			Proxy:   false,
+			Enabled: true,
 		}
 		clientApp := ClientAppConfig{
 			Name:    "App",
@@ -1206,7 +1204,7 @@ func TestSaveConfig_PreservesSessionCookieDomainThroughRoundTrip(t *testing.T) {
 
 	// 3. Apply the update via the merge function the SaveConfig
 	// handler uses. The original cfg's value must survive.
-	mergeConfigUpdate(cfg, &update)
+	mergeConfigUpdate(cfg, &update, nil)
 	if cfg.Server.SessionCookieDomain != ".example.com" {
 		t.Errorf("after mergeConfigUpdate, cfg.Server.SessionCookieDomain = %q, want %q",
 			cfg.Server.SessionCookieDomain, ".example.com")
@@ -3160,5 +3158,390 @@ func TestUpdateApp_StaleTrackingDoesNotReattach(t *testing.T) {
 	}
 	if cfg.Apps[0].DockerKey != "" {
 		t.Errorf("per-app PUT attached an untracked app: %+v", cfg.Apps[0])
+	}
+}
+
+// clientSnapshot is the client-shaped config an admin browser loads,
+// round-tripped through JSON so it shares no memory with cfg.
+func clientSnapshot(t *testing.T, cfg *config.Config) ClientConfigUpdate {
+	t.Helper()
+	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil)
+	raw, err := json.Marshal(updateFromResponse(&resp))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out ClientConfigUpdate
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
+	}
+	return out
+}
+
+// putConfigForTest saves cfg to a temp file, PUTs body through SaveConfig
+// and returns the response, the handler and the path of the file.
+func putConfigForTest(t *testing.T, cfg *config.Config, body any) (*httptest.ResponseRecorder, *APIHandler, string) {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	h := NewAPIHandler(cfg, path, &sync.RWMutex{})
+	raw, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := httptest.NewRecorder()
+	h.SaveConfig(w, httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(raw)))
+	return w, h, path
+}
+
+// putConfigOK is putConfigForTest for a save that must succeed; it
+// returns the config reloaded from disk.
+func putConfigOK(t *testing.T, cfg *config.Config, body any) *config.Config {
+	t.Helper()
+	w, _, path := putConfigForTest(t, cfg, body)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	loaded, err := config.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return loaded
+}
+
+func findApp(cfg *config.Config, name string) *config.AppConfig {
+	for i := range cfg.Apps {
+		if cfg.Apps[i].Name == name {
+			return &cfg.Apps[i]
+		}
+	}
+	return nil
+}
+
+func dropClientApp(apps []ClientAppConfig, name string) []ClientAppConfig {
+	out := make([]ClientAppConfig, 0, len(apps))
+	for i := range apps {
+		if apps[i].Name != name {
+			out = append(out, apps[i])
+		}
+	}
+	return out
+}
+
+func boolPtr(b bool) *bool { return &b }
+
+// S-04: the poller refreshed a tracked app's URL while Settings was open.
+// The dialog still holds the old URL; saving an unrelated edit must keep
+// the server's URL and the tracking, not auto-detach the app.
+func TestSaveConfig_ThreeWay_StaleURLKeptAndTracked(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	base.Apps[0].URL = "http://172.17.0.2"
+	base.Apps[0].DockerKey = "k"
+	base.Apps[0].DockerManagedURL = "http://172.17.0.2"
+	cfg.Apps[0].URL = "http://172.17.0.9"
+	cfg.Apps[0].DockerKey = "k"
+	cfg.Apps[0].DockerManagedURL = "http://172.17.0.9"
+
+	mine := clientSnapshot(t, cfg)
+	mine.Apps = append([]ClientAppConfig(nil), base.Apps...)
+	mine.Title = "Renamed Dashboard"
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	a := findApp(loaded, "App1")
+	if a == nil || a.URL != "http://172.17.0.9" || a.DockerKey != "k" || a.DockerManagedURL != "http://172.17.0.9" {
+		t.Errorf("stale URL reverted or tracking lost: %+v", a)
+	}
+	if loaded.Server.Title != "Renamed Dashboard" {
+		t.Errorf("title = %q", loaded.Server.Title)
+	}
+	// The auto-detach audit line is emitted exactly when the merge hands
+	// back a detach key; the merged app keeps the stored URL, so none is.
+	if _, key := mergeClientApp(&ClientAppConfig{Name: "App1", URL: "http://172.17.0.9"}, &cfg.Apps[0]); key != "" {
+		t.Errorf("detach key = %q, want none", key)
+	}
+}
+
+// S-05, S-11: an app the server added while the dialog was open (absent
+// from base and payload) survives the save.
+func TestSaveConfig_ThreeWay_ServerAddedAppSurvives(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	base.Apps = dropClientApp(base.Apps, "App2")
+	mine := clientSnapshot(t, cfg)
+	mine.Apps = dropClientApp(mine.Apps, "App2")
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	if findApp(loaded, "App2") == nil || findApp(loaded, "App1") == nil {
+		t.Errorf("apps = %+v", loaded.Apps)
+	}
+}
+
+// S-10: the session cookie domain set on the server while the dialog was
+// open is not cleared by a dialog that never touched it.
+func TestSaveConfig_ThreeWay_CookieDomainKept(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	cfg.Server.SessionCookieDomain = ".x.org"
+	mine := base
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	if loaded.Server.SessionCookieDomain != ".x.org" {
+		t.Errorf("session_cookie_domain = %q", loaded.Server.SessionCookieDomain)
+	}
+}
+
+// S-12: a rename carries original_name, so the renamed app keeps every
+// server-owned field and its gateway site follows the new name.
+func TestSaveConfig_RenameKeepsServerOwnedFields(t *testing.T) {
+	for _, threeWay := range []bool{false, true} {
+		t.Run(fmt.Sprintf("threeWay=%v", threeWay), func(t *testing.T) {
+			cfg := createTestConfig()
+			old := &cfg.Apps[0]
+			old.Name = "Old"
+			old.AuthBypass = []config.AuthBypassRule{{Path: "/api/*"}}
+			old.Access = config.AppAccessConfig{Roles: []string{"admin"}}
+			old.ForwardedHeaders = boolPtr(false)
+			old.DockerAutoImported = true
+			old.DockerKey = "k"
+			old.DockerManagedURL = old.URL
+			cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "old.example.com", BackendURL: "http://backend:80", AppName: "Old"}}
+
+			base := clientSnapshot(t, cfg)
+			mine := clientSnapshot(t, cfg)
+			mine.Apps[0].Name = "New"
+			mine.Apps[0].OriginalName = "Old"
+			if threeWay {
+				mine.Base = &base
+			}
+
+			loaded := putConfigOK(t, cfg, &mine)
+			if findApp(loaded, "Old") != nil {
+				t.Fatalf("old name still present: %+v", loaded.Apps)
+			}
+			a := findApp(loaded, "New")
+			if a == nil {
+				t.Fatalf("renamed app missing: %+v", loaded.Apps)
+			}
+			if len(a.AuthBypass) != 1 || len(a.Access.Roles) != 1 || a.ForwardedHeaders == nil || *a.ForwardedHeaders {
+				t.Errorf("server-owned fields lost: %+v", a)
+			}
+			if !a.DockerAutoImported || a.DockerKey != "k" {
+				t.Errorf("tracking lost: %+v", a)
+			}
+			if got := loaded.Server.GatewaySites[0].AppName; got != "New" {
+				t.Errorf("gateway app_name = %q, want New", got)
+			}
+		})
+	}
+}
+
+// S-09: forwarded_headers is not in the client payload, so a two-way save
+// of an unchanged app must keep the stored value.
+func TestSaveConfig_ForwardedHeadersPreservedByName(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].ForwardedHeaders = boolPtr(false)
+	w, _, path := putConfigForTest(t, cfg, clientSnapshot(t, cfg))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), "forwarded_headers: false") {
+		t.Errorf("forwarded_headers lost from file:\n%s", raw)
+	}
+}
+
+func TestSaveConfig_DeletedAppClearsGatewayAppName(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "app2.example.com", BackendURL: "http://backend:80", AppName: "App2"}}
+	update := clientSnapshot(t, cfg)
+	update.Apps = dropClientApp(update.Apps, "App2")
+
+	loaded := putConfigOK(t, cfg, &update)
+	if got := loaded.Server.GatewaySites[0].AppName; got != "" {
+		t.Errorf("gateway app_name = %q, want cleared", got)
+	}
+}
+
+func TestSaveConfig_GroupRenameRepointsApps(t *testing.T) {
+	cfg := createTestConfig()
+	update := clientSnapshot(t, cfg)
+	update.Groups[0].Name = "Video"
+	update.Groups[0].OriginalName = "Media"
+
+	w, h, path := putConfigForTest(t, cfg, &update)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	loaded, err := config.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a := findApp(loaded, "App1"); a == nil || a.Group != "Video" {
+		t.Errorf("App1 = %+v", a)
+	}
+	for i := range h.config.Groups {
+		if h.config.Groups[i].OriginalName != "" {
+			t.Errorf("live group kept original_name: %+v", h.config.Groups[i])
+		}
+	}
+	raw, _ := os.ReadFile(path)
+	if strings.Contains(string(raw), "original_name") {
+		t.Errorf("original_name written to file:\n%s", raw)
+	}
+}
+
+func TestSaveConfig_ThreeWay_GroupRenameRepointsServerAddedApp(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	cfg.Apps = append(cfg.Apps, config.AppConfig{Name: "B", URL: "http://b:1", Group: "Media", Enabled: true})
+	mine := clientSnapshot(t, cfg)
+	mine.Apps = dropClientApp(mine.Apps, "B")
+	mine.Groups[0].Name = "Video"
+	mine.Groups[0].OriginalName = "Media"
+	mine.Apps[0].Group = "Video" // the Apps tab re-points its own apps
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	for _, name := range []string{"App1", "B"} {
+		if a := findApp(loaded, name); a == nil || a.Group != "Video" {
+			t.Errorf("%s = %+v", name, a)
+		}
+	}
+}
+
+// Ruling: the payload renames Media to Video and adds a new group named
+// Media. Apps that were in the old Media (base or server-added) move to
+// Video; an app the user put in the new Media stays there.
+func TestSaveConfig_GroupRenamePlusNewGroupOfOldName(t *testing.T) {
+	for _, threeWay := range []bool{false, true} {
+		t.Run(fmt.Sprintf("threeWay=%v", threeWay), func(t *testing.T) {
+			cfg := createTestConfig()
+			base := clientSnapshot(t, cfg)
+			if threeWay {
+				cfg.Apps = append(cfg.Apps, config.AppConfig{Name: "B", URL: "http://b:1", Group: "Media", Enabled: true})
+			}
+			mine := clientSnapshot(t, cfg)
+			mine.Apps = dropClientApp(mine.Apps, "B")
+			mine.Groups[0].Name = "Video"
+			mine.Groups[0].OriginalName = "Media"
+			mine.Groups = append(mine.Groups, config.GroupConfig{Name: "Media", Color: "#abcdef", Order: 2})
+			mine.Apps = append(mine.Apps, ClientAppConfig{Name: "Fresh", URL: "http://fresh:1", Group: "Media", Enabled: true})
+			if threeWay {
+				mine.Base = &base
+			}
+
+			loaded := putConfigOK(t, cfg, &mine)
+			want := map[string]string{"App1": "Video", "Fresh": "Media"}
+			if threeWay {
+				want["B"] = "Video"
+			}
+			for name, group := range want {
+				if a := findApp(loaded, name); a == nil || a.Group != group {
+					t.Errorf("%s = %+v, want group %q", name, a, group)
+				}
+			}
+		})
+	}
+}
+
+// Review Focus 5: a PUT without base replaces the app list as in 3.5.0.
+func TestSaveConfig_WithoutBaseIsTwoWay(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].AuthBypass = []config.AuthBypassRule{{Path: "/api/*"}}
+	update := clientSnapshot(t, cfg)
+	update.Apps = dropClientApp(update.Apps, "App2")
+
+	loaded := putConfigOK(t, cfg, &update)
+	if findApp(loaded, "App2") != nil {
+		t.Errorf("two-way save kept an app the payload omitted: %+v", loaded.Apps)
+	}
+	if a := findApp(loaded, "App1"); a == nil || len(a.AuthBypass) != 1 {
+		t.Errorf("App1 = %+v", a)
+	}
+}
+
+func TestSaveConfig_ThreeWay_NameClashIs409(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	cfg.Apps = append(cfg.Apps, config.AppConfig{Name: "X", URL: "http://server:1", Enabled: true})
+	mine := base
+	mine.Apps = append(append([]ClientAppConfig(nil), base.Apps...), ClientAppConfig{Name: "X", URL: "http://mine:1", Enabled: true})
+	mine.Base = &base
+
+	w, h, _ := putConfigForTest(t, cfg, &mine)
+	if w.Code != http.StatusConflict {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), `an app named "X" was added on the server`) {
+		t.Errorf("body = %q", w.Body.String())
+	}
+	if a := findApp(h.config, "X"); a == nil || a.URL != "http://server:1" {
+		t.Errorf("config changed on conflict: %+v", a)
+	}
+}
+
+func TestMergeErrorStatus(t *testing.T) {
+	if got := mergeErrorStatus(&MergeConflictError{Kind: "app", Name: "X"}); got != http.StatusConflict {
+		t.Errorf("conflict = %d", got)
+	}
+	if got := mergeErrorStatus(fmt.Errorf("wrapped: %w", &MergeConflictError{Kind: "group", Name: "G"})); got != http.StatusConflict {
+		t.Errorf("wrapped conflict = %d", got)
+	}
+	if got := mergeErrorStatus(errors.New("other")); got != http.StatusBadRequest {
+		t.Errorf("other = %d", got)
+	}
+}
+
+// A save rejected by validation rolls back the gateway-site cascade too.
+func TestSaveConfig_RollbackRestoresGatewaySites(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "app2.example.com", BackendURL: "http://backend:80", AppName: "App2"}}
+	update := clientSnapshot(t, cfg)
+	update.Apps = dropClientApp(update.Apps, "App2")
+	// Two apps sharing a slug fail Validate after the cascade ran.
+	update.Apps = append(update.Apps, ClientAppConfig{Name: "Dup App", URL: "http://a:1", Enabled: true}, ClientAppConfig{Name: "dup-app", URL: "http://b:1", Enabled: true})
+
+	w, h, _ := putConfigForTest(t, cfg, &update)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if got := h.config.Server.GatewaySites[0].AppName; got != "App2" {
+		t.Errorf("gateway app_name after rollback = %q, want App2", got)
+	}
+	if findApp(h.config, "App2") == nil {
+		t.Errorf("apps not rolled back: %+v", h.config.Apps)
+	}
+}
+
+// S-09 for PUT /api/app/{name}.
+func TestUpdateApp_PreservesForwardedHeaders(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].ForwardedHeaders = boolPtr(false)
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	h := NewAPIHandler(cfg, path, &sync.RWMutex{})
+	body, _ := json.Marshal(ClientAppConfig{Name: "App1", URL: "http://localhost:8080", Group: "Media", Enabled: true, Color: "#abcdef"})
+	w := httptest.NewRecorder()
+	h.UpdateApp(w, httptest.NewRequest(http.MethodPut, "/api/app/App1", bytes.NewReader(body)), "App1")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	loaded, err := config.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := findApp(loaded, "App1")
+	if a == nil || a.ForwardedHeaders == nil || *a.ForwardedHeaders || a.Color != "#abcdef" {
+		t.Errorf("App1 = %+v", a)
 	}
 }
