@@ -814,7 +814,15 @@ func autoDetachEditedDockerEntries(cfg *Config) {
 // discovery.docker.* fields. Pulled out of Load() so the validation
 // tests can exercise the default rules without touching disk.
 func applyDiscoveryDefaults(cfg *Config) {
-	d := &cfg.Discovery.Docker
+	ApplyDiscoveryDockerDefaults(&cfg.Discovery.Docker)
+}
+
+// ApplyDiscoveryDockerDefaults applies the load-time defaults and
+// normalisation to a discovery.docker block: endpoint, network strategy
+// and refresh interval when enabled, lifecycle min role, badge placement
+// and the auto-import mode. The discovery config PUT calls it so a saved
+// config runs with the same values a restart would load.
+func ApplyDiscoveryDockerDefaults(d *DiscoveryDockerConfig) {
 	if d.Enabled {
 		if d.Endpoint == "" {
 			d.Endpoint = defaultDockerEndpoint()

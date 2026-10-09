@@ -439,3 +439,36 @@ func TestHandleConfigRestore_KeepsSaveHook(t *testing.T) {
 		t.Fatalf("save after restore: got %d config_updated, want 1", got)
 	}
 }
+
+func TestDiscoveryDockerConfigRoute_GetRequiresAdmin(t *testing.T) {
+	hash, err := bcrypt.GenerateFromPassword([]byte("pw-user"), bcrypt.MinCost)
+	if err != nil {
+		t.Fatalf("bcrypt: %v", err)
+	}
+	setup := completeSetup(t)
+	s := newServerForTest(t, func(cfg *config.Config) {
+		setup(cfg)
+		cfg.Auth.Users = append(cfg.Auth.Users, config.UserConfig{Username: "bob", PasswordHash: string(hash), Role: "user"})
+	})
+	const path = "/api/discovery/docker/config"
+
+	if rec := doJSON(s, http.MethodGet, path, "", nil, false); rec.Code != http.StatusUnauthorized {
+		t.Errorf("anonymous GET = %d, want 401", rec.Code)
+	}
+	if rec := doJSON(s, http.MethodGet, path, "", loginCookies(t, s, "bob", "pw-user"), false); rec.Code != http.StatusForbidden {
+		t.Errorf("non-admin GET = %d, want 403", rec.Code)
+	}
+	rec := doJSON(s, http.MethodGet, path, "", loginCookies(t, s, "admin", "correct horse"), false)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("admin GET = %d %s", rec.Code, rec.Body.String())
+	}
+	var body struct {
+		Config map[string]any `json:"config"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if _, ok := body.Config["enabled"]; !ok {
+		t.Errorf("config.enabled missing from %s", rec.Body.String())
+	}
+}

@@ -291,7 +291,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	discoveryHandler.SetOnConfigSave(s.rebuildProxyRoutes)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
 	mux.HandleFunc("/api/discovery/docker/networks", requireAdmin(discoveryHandler.ListDockerNetworks))
-	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.UpdateDockerConfig))
+	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.DockerConfig))
 	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/scan", requireAdmin(discoveryHandler.ScanDocker))
 	mux.HandleFunc("/api/discovery/docker/import", requireAdmin(discoveryHandler.ImportDocker))

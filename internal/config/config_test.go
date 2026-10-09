@@ -1918,6 +1918,36 @@ func TestDefaults_LifecycleMinRole_DefaultsToAdminWhenLifecycleEnabled(t *testin
 	}
 }
 
+func TestApplyDiscoveryDockerDefaults(t *testing.T) {
+	d := DiscoveryDockerConfig{Enabled: true, AutoImport: "SYNC"}
+	ApplyDiscoveryDockerDefaults(&d)
+	if d.Endpoint != defaultDockerEndpoint() {
+		t.Errorf("endpoint = %q, want %q", d.Endpoint, defaultDockerEndpoint())
+	}
+	if d.NetworkStrategy != StrategyContainerIP {
+		t.Errorf("network_strategy = %q, want container_ip", d.NetworkStrategy)
+	}
+	if d.RefreshInterval != "60s" {
+		t.Errorf("refresh_interval = %q, want 60s", d.RefreshInterval)
+	}
+	if d.HealthBadgePlacement != "overview" {
+		t.Errorf("health_badge_placement = %q, want overview", d.HealthBadgePlacement)
+	}
+	if d.AutoImport != AutoImportSync {
+		t.Errorf("auto_import = %q, want sync", d.AutoImport)
+	}
+
+	// Disabled: the daemon fields stay as they are.
+	off := DiscoveryDockerConfig{}
+	ApplyDiscoveryDockerDefaults(&off)
+	if off.Endpoint != "" || off.NetworkStrategy != "" || off.RefreshInterval != "" {
+		t.Errorf("disabled config got daemon defaults: %+v", off)
+	}
+	if off.AutoImport != AutoImportOff {
+		t.Errorf("auto_import = %q, want off", off.AutoImport)
+	}
+}
+
 func TestNormalizeAutoImport(t *testing.T) {
 	cases := map[AutoImportMode]AutoImportMode{
 		"":        AutoImportOff, // absent defaults to off

@@ -348,6 +348,222 @@ func TestUpdateDockerConfig_NormalizesGarbageAutoImportToOff(t *testing.T) {
 	}
 }
 
+// storedDockerConfig is the config the S-08 reproduction started from.
+func storedDockerConfig() *config.DiscoveryDockerConfig {
+	return &config.DiscoveryDockerConfig{
+		Enabled:              true,
+		Endpoint:             "unix:///tmp/never-exists.sock",
+		NetworkStrategy:      config.StrategyHostPort,
+		HostIP:               "127.0.0.1",
+		NetworkFilter:        "bridge",
+		RefreshInterval:      "30s",
+		AutoImport:           config.AutoImportAdd,
+		HealthBadgePlacement: "overview_and_nav",
+	}
+}
+
+func putDockerConfig(t *testing.T, h *DiscoveryHandler, body string) *httptest.ResponseRecorder {
+	t.Helper()
+	req := adminCtxRequest(http.MethodPut, "/api/discovery/docker/config")
+	req.Body = httpBody([]byte(body))
+	w := httptest.NewRecorder()
+	h.DockerConfig(w, req)
+	return w
+}
+
+func getDockerConfig(t *testing.T, h *DiscoveryHandler) dockerConfigResponse {
+	t.Helper()
+	w := httptest.NewRecorder()
+	h.DockerConfig(w, adminCtxRequest(http.MethodGet, "/api/discovery/docker/config"))
+	if w.Code != http.StatusOK {
+		t.Fatalf("GET status = %d, body = %q", w.Code, w.Body.String())
+	}
+	var got dockerConfigResponse
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	return got
+}
+
+func TestGetDockerConfig_ReturnsStoredConfig(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+	got := getDockerConfig(t, h)
+	c := got.Config
+	if c.HostIP != "127.0.0.1" || c.NetworkFilter != "bridge" || c.AutoImport != config.AutoImportAdd ||
+		c.RefreshInterval != "30s" || c.HealthBadgePlacement != "overview_and_nav" || !c.Enabled {
+		t.Errorf("config = %+v, want the stored values", c)
+	}
+	if got.EnvOverrides != nil {
+		t.Errorf("env_overrides = %v, want none", got.EnvOverrides)
+	}
+}
+
+func TestGetDockerConfig_ReportsAutoImportOverride(t *testing.T) {
+	h, cfg, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+	config.ApplyAutoImportEnv(cfg, func(string) (string, bool) { return "sync", true })
+	got := getDockerConfig(t, h)
+	if got.EnvOverrides["auto_import"] != config.EnvAutoImport {
+		t.Errorf("env_overrides = %v, want auto_import -> %s", got.EnvOverrides, config.EnvAutoImport)
+	}
+	if got.Config.AutoImport != config.AutoImportSync {
+		t.Errorf("auto_import = %q, want the live value sync", got.Config.AutoImport)
+	}
+}
+
+func TestGetDockerConfig_RejectsNonGet(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, nil)
+	w := httptest.NewRecorder()
+	h.GetDockerConfig(w, adminCtxRequest(http.MethodPost, "/api/discovery/docker/config"))
+	if w.Code != http.StatusMethodNotAllowed {
+		t.Errorf("status = %d, want 405", w.Code)
+	}
+}
+
+func TestDockerConfig_RejectsOtherMethods(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, nil)
+	w := httptest.NewRecorder()
+	h.DockerConfig(w, adminCtxRequest(http.MethodDelete, "/api/discovery/docker/config"))
+	if w.Code != http.StatusMethodNotAllowed {
+		t.Errorf("status = %d, want 405", w.Code)
+	}
+}
+
+func TestUpdateDockerConfig_MergesOntoStored(t *testing.T) {
+	h, cfg, configPath := newTestDiscoveryHandler(t, storedDockerConfig())
+	// The body the Discovery tab sent in the reproduction: no auto_import,
+	// no host_ip (hidden by the strategy), no TLS paths.
+	w := putDockerConfig(t, h, `{
+		"enabled": true,
+		"endpoint": "unix:///tmp/never-exists.sock",
+		"tls": {"enabled": false},
+		"network_strategy": "container_ip",
+		"network_filter": "host",
+		"refresh_interval": "60s",
+		"health_badge_placement": "off"
+	}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	d := cfg.Discovery.Docker
+	if d.AutoImport != config.AutoImportAdd {
+		t.Errorf("auto_import = %q, want add (kept)", d.AutoImport)
+	}
+	if d.HostIP != "127.0.0.1" {
+		t.Errorf("host_ip = %q, want 127.0.0.1 (kept)", d.HostIP)
+	}
+	if d.NetworkFilter != "host" || d.HealthBadgePlacement != "off" || d.RefreshInterval != "60s" {
+		t.Errorf("sent fields not applied: %+v", d)
+	}
+	persisted, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if persisted.Discovery.Docker.AutoImport != config.AutoImportAdd || persisted.Discovery.Docker.HostIP != "127.0.0.1" {
+		t.Errorf("persisted = %+v, want auto_import add and host_ip kept", persisted.Discovery.Docker)
+	}
+}
+
+func TestUpdateDockerConfig_AppliesLoadDefaults(t *testing.T) {
+	h, cfg, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+	w := putDockerConfig(t, h, `{
+		"enabled": true,
+		"endpoint": "unix:///tmp/never-exists.sock",
+		"network_strategy": "",
+		"refresh_interval": ""
+	}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	d := cfg.Discovery.Docker
+	if d.NetworkStrategy != config.StrategyContainerIP || d.RefreshInterval != "60s" {
+		t.Errorf("stored = %+v, want container_ip and 60s", d)
+	}
+	if d.HealthBadgePlacement != "overview" || d.AutoImport != config.AutoImportOff {
+		t.Errorf("stored = %+v, want placement overview and auto_import off", d)
+	}
+	// The response is the reconfigured service's status, so its strategy
+	// shows what svc.Reconfigure received.
+	var st discovery.StatusResult
+	if err := json.NewDecoder(w.Body).Decode(&st); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if st.Strategy != config.StrategyContainerIP {
+		t.Errorf("service strategy = %q, want container_ip", st.Strategy)
+	}
+}
+
+func TestUpdateDockerConfig_TrimsLifecycleGroups(t *testing.T) {
+	initial := storedDockerConfig()
+	initial.LifecycleAllowedGroups = []string{" ops "}
+	h, _, _ := newTestDiscoveryHandler(t, initial)
+	prior := h.config.Discovery.Docker.LifecycleAllowedGroups
+	w := putDockerConfig(t, h, `{"lifecycle_allowed_groups": [" ops "]}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	got := h.config.Discovery.Docker.LifecycleAllowedGroups
+	if len(got) != 1 || got[0] != "ops" {
+		t.Errorf("stored groups = %q, want [ops]", got)
+	}
+	if prior[0] != " ops " {
+		t.Errorf("prior[0] = %q: the decode or trim wrote into the stored slice", prior[0])
+	}
+}
+
+func TestUpdateDockerConfig_AcceptsNpipe(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+	w := putDockerConfig(t, h, `{"enabled": true, "endpoint": "npipe:////./pipe/docker_engine"}`)
+	if w.Code == http.StatusBadRequest {
+		t.Fatalf("status = 400, body = %q", w.Body.String())
+	}
+	if bytes.Contains(w.Body.Bytes(), []byte("must start with")) {
+		t.Errorf("body carries the scheme error: %q", w.Body.String())
+	}
+}
+
+func TestTestDockerConfig_AcceptsNpipe(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+	req := adminCtxRequest(http.MethodPost, "/api/discovery/docker/test")
+	req.Body = httpBody([]byte(`{"enabled": true, "endpoint": "npipe:////./pipe/docker_engine", "network_strategy": "container_ip"}`))
+	w := httptest.NewRecorder()
+	h.TestDockerConfig(w, req)
+	if w.Code == http.StatusBadRequest {
+		t.Fatalf("status = 400, body = %q", w.Body.String())
+	}
+	if bytes.Contains(w.Body.Bytes(), []byte("must start with")) {
+		t.Errorf("body carries the scheme error: %q", w.Body.String())
+	}
+}
+
+func TestUpdateDockerConfig_KeepsOverriddenAutoImport(t *testing.T) {
+	h, cfg, configPath := newTestDiscoveryHandler(t, storedDockerConfig())
+	config.ApplyAutoImportEnv(cfg, func(string) (string, bool) { return "sync", true })
+	w := putDockerConfig(t, h, `{"auto_import": "off", "network_filter": "host"}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Discovery.Docker.AutoImport != config.AutoImportSync {
+		t.Errorf("live auto_import = %q, want the override sync", cfg.Discovery.Docker.AutoImport)
+	}
+	if cfg.Discovery.Docker.NetworkFilter != "host" {
+		t.Errorf("network_filter = %q, want host", cfg.Discovery.Docker.NetworkFilter)
+	}
+	persisted, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if persisted.Discovery.Docker.AutoImport != config.AutoImportAdd {
+		t.Errorf("file auto_import = %q, want its own value add", persisted.Discovery.Docker.AutoImport)
+	}
+}
+
+func TestUpdateDockerConfig_RejectsBadJSON(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+	if w := putDockerConfig(t, h, `{`); w.Code != http.StatusBadRequest {
+		t.Errorf("status = %d, want 400", w.Code)
+	}
+}
+
 func TestScanDocker_NilService(t *testing.T) {
 	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan")
