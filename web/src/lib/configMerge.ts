@@ -376,9 +376,11 @@ function ungroupDeletedGroups(base: Group[], mine: Group[], merged: Group[], app
   }
 }
 
-function mergeOptional<T extends object>(base: T | undefined, mine: T | undefined, theirs: T | undefined): T | undefined {
-  if (mine === undefined) return theirs;
-  if (base === undefined || theirs === undefined) return mine;
+// A null side (JSON null, which Go decodes as an absent pointer) reads
+// as absent.
+function mergeOptional<T extends object>(base: T | null | undefined, mine: T | null | undefined, theirs: T | null | undefined): T | undefined {
+  if (mine == null) return theirs ?? undefined;
+  if (base == null || theirs == null) return mine;
   return mergeObject(base, mine, theirs);
 }
 

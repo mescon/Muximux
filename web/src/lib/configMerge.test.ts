@@ -580,3 +580,13 @@ describe('rebaseConfig', () => {
     expect(got.conflicts).toEqual([{ kind: 'app', name: 'Dup', message: 'two apps are named "Dup"; rename one of them before saving' }]);
   });
 });
+
+describe('rebaseConfig with a null health', () => {
+  const h = { enabled: true, interval: '1m', timeout: '5s' };
+  it('reads a null side as absent instead of throwing', () => {
+    const nul = null as unknown as Config['health'];
+    expect(rebaseConfig({ base: cfg({ health: nul }), local: cfg({ health: h }), localApps: [], theirs: cfg({ health: nul }) }).config.health).toEqual(h);
+    expect(rebaseConfig({ base: cfg({ health: h }), local: cfg({ health: nul }), localApps: [], theirs: cfg({ health: h }) }).config.health).toEqual(h);
+    expect(rebaseConfig({ base: cfg(), local: cfg({ health: nul }), localApps: [], theirs: cfg({ health: nul }) }).config.health).toBeUndefined();
+  });
+});
