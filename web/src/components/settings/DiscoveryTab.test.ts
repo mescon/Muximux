@@ -540,6 +540,31 @@ describe('DiscoveryTab stored values (#494)', () => {
     expect((document.getElementById('dd-autoimport') as HTMLSelectElement).value).toBe('add');
   });
 
+  it('round-trips: what Save sends is what the reopened tab shows', async () => {
+    // A stateful server: the GET returns whatever the last PUT stored.
+    let server: DiscoveryDockerConfig = { ...stored };
+    mockApi.fetchDiscoveryDockerConfig.mockImplementation(async () => ({ config: { ...server } }));
+    mockApi.updateDiscoveryDockerConfig.mockImplementation(async (c: DiscoveryDockerConfig) => {
+      server = { ...server, ...c };
+      return makeStatus();
+    });
+    const { unmount } = render(DiscoveryTab);
+    await waitFor(() => expect((document.getElementById('dd-filter') as HTMLInputElement)?.value).toBe('bridge'));
+    await fireEvent.input(document.getElementById('dd-filter') as HTMLInputElement, { target: { value: 'host' } });
+    await fireEvent.change(document.getElementById('dd-badge') as HTMLSelectElement, { target: { value: 'off' } });
+    await fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+    await waitFor(() => expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalledTimes(1));
+    unmount();
+
+    render(DiscoveryTab);
+    await waitFor(() => expect((document.getElementById('dd-filter') as HTMLInputElement)?.value).toBe('host'));
+    expect((document.getElementById('dd-badge') as HTMLSelectElement).value).toBe('off');
+    expect((screen.getByLabelText(/Host IP/i) as HTMLInputElement).value).toBe('127.0.0.1');
+    expect((document.getElementById('dd-interval') as HTMLInputElement).value).toBe('30s');
+    expect((document.getElementById('dd-autoimport') as HTMLSelectElement).value).toBe('add');
+    expect(server).toMatchObject({ network_filter: 'host', health_badge_placement: 'off', host_ip: '127.0.0.1', auto_import: 'add' });
+  });
+
   it('locks auto_import when overridden', async () => {
     mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({
       config: stored,
