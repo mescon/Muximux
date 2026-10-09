@@ -480,7 +480,7 @@ func TestApplyRefreshBatch_AppOnlyChange_NoCaddyReload(t *testing.T) {
 		OnSave:   func() error { saveCalled++; return nil },
 	}}
 	batch := newRefreshBatch()
-	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+	batch.appURLChanges["label:alpha"] = "http://10.0.0.99:8080"
 
 	p.applyRefreshBatch(batch)
 
@@ -513,7 +513,7 @@ func TestApplyRefreshBatch_SaveFailureRollsBackInMemory(t *testing.T) {
 		OnSave:   func() error { return saveErr },
 	}}
 	batch := newRefreshBatch()
-	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+	batch.appURLChanges["label:alpha"] = "http://10.0.0.99:8080"
 
 	p.applyRefreshBatch(batch)
 
@@ -795,7 +795,7 @@ func TestApplyRefreshBatch_FiresOnConfigSavedForAppChanges(t *testing.T) {
 		OnConfigSaved: func() { fired++ },
 	}}
 	batch := newRefreshBatch()
-	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+	batch.appURLChanges["label:alpha"] = "http://10.0.0.99:8080"
 
 	p.applyRefreshBatch(batch)
 	if fired != 1 {
@@ -2280,5 +2280,29 @@ func TestNameKey(t *testing.T) {
 	}
 	if nameKey("  !!! ") != "!!!" {
 		t.Fatalf("empty slug must fall back to the trimmed lower-cased name, got %q", nameKey("  !!! "))
+	}
+}
+
+func TestApplyRefreshBatch_MatchesAppsByKey(t *testing.T) { // F-11
+	cfg := &config.Config{Apps: []config.AppConfig{
+		{Name: "Whoami", URL: "http://old-a", DockerKey: "label:a", DockerManagedURL: "http://old-a", Enabled: true},
+		{Name: "Whoami", URL: "http://old-b", DockerKey: "label:b", DockerManagedURL: "http://old-b", Enabled: false},
+		{Name: "Manual", URL: "http://manual"},
+	}}
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(&config.DiscoveryDockerConfig{}), OnSave: func() error { return nil }})
+	b := newRefreshBatch()
+	b.appURLChanges["label:b"] = "http://new-b"
+	b.appHealthChanges["label:a"] = "http://health-a"
+	b.appURLChanges[""] = "http://bogus"
+	p.applyRefreshBatch(b)
+	if cfg.Apps[0].URL != "http://old-a" || cfg.Apps[1].URL != "http://new-b" || cfg.Apps[1].DockerManagedURL != "http://new-b" {
+		t.Fatalf("apps = %+v", cfg.Apps)
+	}
+	if cfg.Apps[0].HealthURL != "http://health-a" || cfg.Apps[1].HealthURL != "" {
+		t.Fatalf("health = %+v", cfg.Apps)
+	}
+	if cfg.Apps[2].URL != "http://manual" {
+		t.Fatalf("untracked app rewritten: %+v", cfg.Apps[2])
 	}
 }

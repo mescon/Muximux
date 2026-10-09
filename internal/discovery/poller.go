@@ -378,15 +378,15 @@ func (p *Poller) tick(ctx context.Context) {
 		svc.RecordSeen(t.key)
 		if target.Fixed {
 			if target.HealthManaged && target.HealthURL != t.currentHealth {
-				batch.appHealthChanges[t.name] = target.HealthURL
+				batch.appHealthChanges[t.key] = target.HealthURL
 			}
 			continue
 		}
 		if target.URL != t.currentURL {
-			batch.appURLChanges[t.name] = target.URL
+			batch.appURLChanges[t.key] = target.URL
 		}
 		if target.HealthManaged && target.HealthURL != t.currentHealth {
-			batch.appHealthChanges[t.name] = target.HealthURL
+			batch.appHealthChanges[t.key] = target.HealthURL
 		}
 	}
 	for i := range tracked.sites {
@@ -693,8 +693,8 @@ func (p *Poller) resolveAppRefreshFrom(containers []ContainerSummary, key, strat
 // auto-import reconcile output so both commit through the same atomic
 // SaveConfig + rollback in applyRefreshBatch.
 type refreshBatch struct {
-	appURLChanges    map[string]string // app name -> new URL
-	appHealthChanges map[string]string // app name -> new HealthURL (fixed-URL apps)
+	appURLChanges    map[string]string // DockerKey -> new URL
+	appHealthChanges map[string]string // DockerKey -> new HealthURL (fixed-URL apps)
 	siteURLChanges   map[string]string // gateway domain -> new BackendURL
 
 	// Auto-import reconcile output, folded into the same transaction as
@@ -751,8 +751,14 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// holds whenever this tracking entry is poller-managed.
 	for i := range p.deps.Config.Apps {
 		a := &p.deps.Config.Apps[i]
-		if newURL, ok := batch.appURLChanges[a.Name]; ok {
+		newURL, ok := batch.appURLChanges[a.DockerKey]
+		if a.DockerKey == "" {
+			ok = false
+		}
+		if ok {
 			a.URL = newURL
+			logging.Info("Docker app URL refreshed",
+				"source", "discovery", "app", a.Name, "key", a.DockerKey, "new_url", newURL)
 			a.DockerManagedURL = newURL
 		} else if a.DockerKey != "" && a.DockerManagedURL == "" {
 			// Grandfather: tracked entry from a pre-3.1.0 build
@@ -761,8 +767,10 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 			// detectable.
 			a.DockerManagedURL = a.URL
 		}
-		if h, ok := batch.appHealthChanges[a.Name]; ok {
+		if h, ok := batch.appHealthChanges[a.DockerKey]; ok && a.DockerKey != "" {
 			a.HealthURL = h
+			logging.Info("Docker health address refreshed",
+				"source", "discovery", "app", a.Name, "key", a.DockerKey, "health_url", h)
 		}
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -873,14 +881,6 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// don't touch the route table).
 	if (len(batch.appURLChanges) > 0 || len(batch.appHealthChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
 		p.deps.OnConfigSaved()
-	}
-	for name, url := range batch.appURLChanges {
-		logging.Info("Docker app URL refreshed",
-			"source", "discovery", "app", name, "new_url", url)
-	}
-	for name, url := range batch.appHealthChanges {
-		logging.Info("Docker health address refreshed",
-			"source", "discovery", "app", name, "health_url", url)
 	}
 	for domain, url := range batch.siteURLChanges {
 		logging.Info("Docker gateway-site URL refreshed",
