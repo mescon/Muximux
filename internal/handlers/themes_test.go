@@ -688,16 +688,19 @@ func TestSaveTheme_RefusesBundledName(t *testing.T) {
 	}
 	handler, _ := NewThemeHandler(dir, bundledFS)
 
-	body := `{"name":"Nord","baseTheme":"dark","isDark":true,"variables":{}}`
-	req := httptest.NewRequest(http.MethodPost, "/api/themes", strings.NewReader(body))
-	w := httptest.NewRecorder()
-	handler.SaveTheme(w, req)
+	// Any casing maps to the bundled theme's id.
+	for _, name := range []string{"Nord", "NORD", "nord"} {
+		body := `{"name":"` + name + `","baseTheme":"dark","isDark":true,"variables":{}}`
+		req := httptest.NewRequest(http.MethodPost, "/api/themes", strings.NewReader(body))
+		w := httptest.NewRecorder()
+		handler.SaveTheme(w, req)
 
-	if w.Code != http.StatusConflict {
-		t.Fatalf("expected 409, got %d: %s", w.Code, w.Body.String())
-	}
-	if _, err := os.Stat(filepath.Join(dir, "nord.css")); !os.IsNotExist(err) {
-		t.Error("no file should have been written")
+		if w.Code != http.StatusConflict {
+			t.Fatalf("%s: expected 409, got %d: %s", name, w.Code, w.Body.String())
+		}
+		if _, err := os.Stat(filepath.Join(dir, "nord.css")); !os.IsNotExist(err) {
+			t.Errorf("%s: no file should have been written", name)
+		}
 	}
 }
 
