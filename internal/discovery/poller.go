@@ -814,7 +814,7 @@ func refreshCatalog(c *ContainerSummary) (CatalogEntry, bool) {
 	if entry, ok := MatchImage(c.Image); ok {
 		return entry, true
 	}
-	return MatchByContainerName(c.PrimaryName())
+	return MatchByContainerName(baseName(c))
 }
 
 // refreshHealthTarget decides the health address of a fixed-URL app and

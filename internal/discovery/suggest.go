@@ -176,7 +176,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 		// the image didn't map to anything. Operators routinely
 		// prefix their containers (homelab-sonarr, homelab_radarr)
 		// and shouldn't lose the catalog hint as a result.
-		catalog, hasCatalog = MatchByContainerName(c.PrimaryName())
+		catalog, hasCatalog = MatchByContainerName(baseName(c))
 	}
 	key, stability := KeyForContainer(c)
 
@@ -229,7 +229,7 @@ func resolveSuggestionName(s *Suggestion, labels *AppLabels, catalog *CatalogEnt
 		s.Confidence = ConfidenceMedium
 		s.Notes = append(s.Notes, fmt.Sprintf("Name suggested from catalog: %s", catalog.Image))
 	default:
-		s.Name = titleizeName(c.PrimaryName())
+		s.Name = titleizeName(baseName(c))
 	}
 }
 
@@ -333,15 +333,15 @@ func resolveSuggestionHealthURL(s *Suggestion, labels *AppLabels, catalog *Catal
 
 // resolveSuggestionGatewayDomain picks the gateway subdomain to seed
 // the modal's "Add gateway site" input. Priority: explicit
-// muximux.app.gateway.domain label > <container>.<dashboardDomain>
+// muximux.app.gateway.domain label > <service or container>.<dashboardDomain>
 // derived default > empty.
 func resolveSuggestionGatewayDomain(s *Suggestion, labels *AppLabels, dashboardDomain string, c *ContainerSummary) {
 	switch {
 	case labels.GatewayDomain != "":
 		s.SuggestedDomain = labels.GatewayDomain
 		s.GatewayRequested = true
-	case dashboardDomain != "" && c.PrimaryName() != "":
-		s.SuggestedDomain = sanitiseSubdomain(c.PrimaryName()) + "." + dashboardDomain
+	case dashboardDomain != "" && baseName(c) != "":
+		s.SuggestedDomain = sanitiseSubdomain(baseName(c)) + "." + dashboardDomain
 	}
 }
 

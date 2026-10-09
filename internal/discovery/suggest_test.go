@@ -490,3 +490,26 @@ func TestSuggestForContainer_LabeledAndEnabled(t *testing.T) {
 		t.Fatal("an unknown muximux.* label still counts as labelled")
 	}
 }
+
+// A Swarm task container is named "<service>.<slot>.<task id>". The
+// fallback name and the default gateway subdomain come from the
+// service name, so a hand import does not carry the task ID.
+func TestSuggest_SwarmTaskUsesServiceNameForFallbacks(t *testing.T) {
+	c := ContainerSummary{
+		ID:     strings.Repeat("c", 64),
+		Names:  []string{"/web_plain.1.j0nifhp8r8ww9ojqldr6ghlt7"},
+		Image:  "private.io/plain:1.0",
+		Labels: map[string]string{LabelSwarmServiceName: "web_plain"},
+		Ports:  []ContainerPort{{PrivatePort: 8080, Type: "tcp"}},
+	}
+	s := suggestForContainer(&c, "container_dns", "", "example.com")
+	if s.Name != "Web_plain" {
+		t.Errorf("Name = %q, want Web_plain", s.Name)
+	}
+	if s.SuggestedDomain != "web-plain.example.com" {
+		t.Errorf("SuggestedDomain = %q, want it derived from the service name", s.SuggestedDomain)
+	}
+	if s.ContainerName != "web_plain.1.j0nifhp8r8ww9ojqldr6ghlt7" {
+		t.Errorf("ContainerName = %q, want the task container name", s.ContainerName)
+	}
+}

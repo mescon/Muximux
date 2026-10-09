@@ -14,6 +14,15 @@ func swarmServiceName(c *ContainerSummary) string {
 	return strings.TrimSpace(c.Labels[LabelSwarmServiceName])
 }
 
+// baseName is the name a suggestion derives defaults from: the Swarm
+// service name for a task container, otherwise the container name.
+func baseName(c *ContainerSummary) string {
+	if svc := swarmServiceName(c); svc != "" {
+		return svc
+	}
+	return c.PrimaryName()
+}
+
 // composeIdentity returns the Compose project and service labels,
 // trimmed. Either may be empty.
 func composeIdentity(c *ContainerSummary) (project, service string) {
