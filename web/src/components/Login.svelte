@@ -121,7 +121,7 @@
         </div>
       {:else}
         {#if ssoError}
-          <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm" role="alert">
+          <div class="mb-4 notice notice-danger" role="alert">
             {ssoError}
           </div>
         {/if}
@@ -156,7 +156,7 @@
       {#if localLogin}
       <form onsubmit={handleSubmit}>
         {#if error}
-          <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm">
+          <div class="mb-4 notice notice-danger">
             {error}
           </div>
         {/if}

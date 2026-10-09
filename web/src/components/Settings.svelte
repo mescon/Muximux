@@ -783,7 +783,7 @@
       <h2 class="text-lg font-semibold text-text-primary">{m.settings_title()}</h2>
       <div class="flex items-center gap-2">
         {#if hasChanges}
-          <span class="text-xs text-yellow-400">{m.settings_unsavedChanges()}</span>
+          <span class="text-xs text-warning-text">{m.settings_unsavedChanges()}</span>
         {/if}
         <button
           class="btn btn-primary btn-sm disabled:opacity-50"
@@ -807,14 +807,14 @@
 
     <!-- Save failure: the dialog stays open with every edit -->
     {#if saveError}
-      <div class="px-4 py-2 bg-red-600/20 border-b border-red-600/40 text-sm text-red-200" role="alert">
+      <div class="px-4 py-2 bg-danger-bg border-b border-danger-border text-sm text-danger-text" role="alert">
         {m.settings_saveFailed({ error: saveError })}
       </div>
     {/if}
 
     <!-- Name conflicts a rebase kept: Save stays blocked until one is renamed -->
     {#if conflicts.length > 0}
-      <div class="px-4 py-2 bg-red-600/20 border-b border-red-600/40 text-sm text-red-200 space-y-1" role="alert" data-testid="settings-conflicts">
+      <div class="px-4 py-2 bg-danger-bg border-b border-danger-border text-sm text-danger-text space-y-1" role="alert" data-testid="settings-conflicts">
         {#each conflicts as c (`${c.kind}:${c.name}`)}
           <p title={c.message}>{c.kind === 'app' ? m.settings_conflictApp({ name: c.name }) : m.settings_conflictGroup({ name: c.name })}</p>
         {/each}
@@ -823,8 +823,8 @@
 
     <!-- Unsaved changes confirmation banner -->
     {#if confirmClose}
-      <div class="flex items-center justify-between px-4 py-2 bg-yellow-600/20 border-b border-yellow-600/40">
-        <span class="text-sm text-yellow-200">{m.settings_discardPrompt()}</span>
+      <div class="flex items-center justify-between px-4 py-2 bg-warning-bg border-b border-warning-border">
+        <span class="text-sm text-warning-text">{m.settings_discardPrompt()}</span>
         <div class="flex gap-2">
           <button
             class="btn btn-secondary btn-sm"
@@ -854,7 +854,7 @@
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
                  {activeTab === tab.id
-                   ? 'text-brand-400 border-brand-400'
+                   ? 'text-accent-text border-border-focus'
                    : 'text-text-muted border-transparent hover:text-text-secondary hover:border-border'}"
           onclick={() => activeTab = tab.id as typeof activeTab}
         >
@@ -987,7 +987,7 @@
           <!-- Custom App card -->
           {#if !addAppSearch}
             <button
-              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-start"
+              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-border-strong hover:bg-bg-hover transition-colors text-start"
               onclick={startCustomApp}
             >
               <div class="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center flex-shrink-0">
@@ -1116,10 +1116,10 @@
             type="text"
             bind:value={newGroup.name}
             oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
             placeholder={m.settings_groupNamePlaceholder()}
           />
-          {#if groupErrors.name}<p class="text-red-400 text-xs mt-1">{groupErrors.name}</p>{/if}
+          {#if groupErrors.name}<p class="text-danger-text text-xs mt-1">{groupErrors.name}</p>{/if}
         </div>
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
@@ -1266,9 +1266,9 @@
             type="text"
             bind:value={editingGroup.name}
             oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editGroupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editGroupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
           />
-          {#if editGroupErrors.name}<p class="text-red-400 text-xs mt-1">{editGroupErrors.name}</p>{/if}
+          {#if editGroupErrors.name}<p class="text-danger-text text-xs mt-1">{editGroupErrors.name}</p>{/if}
         </div>
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
@@ -1411,7 +1411,7 @@
             {m.settings_importSummary({ appCount: pendingImport.apps.length, groupCount: pendingImport.groups.length })}
           </div>
         </div>
-        <p class="text-yellow-400 text-sm flex items-center gap-2">
+        <p class="text-warning-text text-sm flex items-center gap-2">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>

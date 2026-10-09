@@ -661,34 +661,34 @@ describe('Settings', () => {
     it('defaults to General tab', () => {
       renderSettings();
       const generalTab = screen.getByText('General');
-      expect(generalTab.className).toContain('text-brand-400');
+      expect(generalTab.className).toContain('text-accent-text');
     });
 
     it('switches to Apps & Groups tab when clicked', async () => {
       renderSettings();
       const appsTab = screen.getByText('Apps & Groups');
       await fireEvent.click(appsTab);
-      expect(appsTab.className).toContain('text-brand-400');
-      expect(screen.getByText('General').className).not.toContain('text-brand-400');
+      expect(appsTab.className).toContain('text-accent-text');
+      expect(screen.getByText('General').className).not.toContain('text-accent-text');
     });
 
     it('switches to Theme tab when clicked', async () => {
       renderSettings();
       const themeTab = screen.getByText('Theme');
       await fireEvent.click(themeTab);
-      expect(themeTab.className).toContain('text-brand-400');
+      expect(themeTab.className).toContain('text-accent-text');
     });
 
     it('switches to Security tab when clicked', async () => {
       renderSettings();
       const securityTab = screen.getByText('Security');
       await fireEvent.click(securityTab);
-      expect(securityTab.className).toContain('text-brand-400');
+      expect(securityTab.className).toContain('text-accent-text');
     });
 
     it('respects initialTab prop', () => {
       renderSettings({ initialTab: 'about' });
-      expect(screen.getByText('About').className).toContain('text-brand-400');
+      expect(screen.getByText('About').className).toContain('text-accent-text');
     });
 
     it('can navigate through all tabs sequentially', async () => {
@@ -696,7 +696,7 @@ describe('Settings', () => {
       for (const label of ['General', 'Apps & Groups', 'Theme', 'Keybindings', 'Security', 'About']) {
         const tab = screen.getByText(label);
         await fireEvent.click(tab);
-        expect(tab.className).toContain('text-brand-400');
+        expect(tab.className).toContain('text-accent-text');
       }
     });
   });
@@ -1873,6 +1873,21 @@ describe('Settings', () => {
       await waitFor(() => expect(onclose).toHaveBeenCalledTimes(1));
       expect((onsave.mock.calls[1][0] as Config).title).toBe('Edited title');
       expect(screen.queryByText('Save failed: bad')).not.toBeInTheDocument();
+    });
+
+    it('save error banner is a danger notice and the unsaved label a warning', async () => {
+      const onsave = vi.fn().mockRejectedValueOnce(new Error('bad')).mockResolvedValue(undefined);
+      renderFull(serverConfig(), { initialTab: 'security', onsave });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await fireEvent.click(screen.getByText('Save Changes'));
+      await screen.findByText('Save failed: bad');
+
+      const banner = screen.getAllByRole('alert').find((el) => !el.dataset.testid)!;
+      expect(banner.className).toMatch(/bg-danger-bg/);
+      expect(banner.className).toMatch(/text-danger-text/);
+      expect(banner.className).not.toMatch(/red-/);
+      expect(screen.getByText('Unsaved changes').className).toContain('text-warning-text');
     });
 
     it('falls back to a generic message when the save rejects with a non-error', async () => {

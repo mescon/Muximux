@@ -11,7 +11,7 @@
 
   const inputClass = 'w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 read-only:opacity-70';
   const checkboxRowClass = 'flex items-center gap-3 cursor-pointer';
-  const checkboxClass = 'w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500';
+  const checkboxClass = 'w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500';
 
   // The form is initialised once from the loaded settings; later edits stay local.
   const initial = untrack(() => settings);
@@ -269,7 +269,7 @@
         <p class="text-xs text-text-disabled mt-1" data-testid="oidc-disable-local-hint">{disableLocalHint}</p>
       {/if}
       {#if disableLocal}
-        <p class="text-xs text-amber-500 mt-1" data-testid="oidc-disable-local-warning">{m.oidc_disable_local_warning()}</p>
+        <p class="text-xs text-warning-text mt-1" data-testid="oidc-disable-local-warning">{m.oidc_disable_local_warning()}</p>
       {/if}
     </div>
   </div>
@@ -285,16 +285,16 @@
     {#if testResult}
       <div data-testid="oidc-test-result" aria-live="polite">
         {#if testResult.reachable}
-          <p class="text-sm text-green-400">{m.oidc_test_ok()}</p>
+          <p class="text-sm text-success-text">{m.oidc_test_ok()}</p>
           <ul class="mt-1 space-y-0.5">
             {#each caps as c (c.key)}
-              <li class="text-xs {c.ok ? 'text-green-400' : 'text-text-disabled'}" data-testid="oidc-cap-{c.key}">
+              <li class="text-xs {c.ok ? 'text-success-text' : 'text-text-disabled'}" data-testid="oidc-cap-{c.key}">
                 <span aria-hidden="true">{c.ok ? '✓' : '✗'}</span> {c.label}
               </li>
             {/each}
           </ul>
         {:else}
-          <p class="text-sm text-red-400">{m.oidc_test_failed({ error: testResult.error ?? '' })}</p>
+          <p class="text-sm text-danger-text">{m.oidc_test_failed({ error: testResult.error ?? '' })}</p>
         {/if}
       </div>
     {/if}
