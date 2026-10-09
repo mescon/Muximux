@@ -56,6 +56,8 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
     const subtleOnSurface = over(resolve(t, '--accent-subtle'), bg('--bg-surface'));
     for (const p of PARENTS) check(t, 'accent-text', '--accent-text', accentText, p, bg(p), AA);
     check(t, 'accent-text', '--accent-text', accentText, '--bg-surface+accent-subtle', subtleOnSurface, AA);
+    // .badge-accent: accent text on the accent-muted tint.
+    check(t, 'accent-text', '--accent-text', accentText, '--bg-surface+accent-muted', over(resolve(t, '--accent-muted'), bg('--bg-surface')), AA);
     const solid = resolve(t, '--danger-solid');
     check(t, 'danger-button', '--danger-on-solid', resolve(t, '--danger-on-solid'), '--danger-solid', solid, AA);
     for (const p of PARENTS) check(t, 'danger-button', '--danger-solid', solid, p, bg(p), NON_TEXT);
