@@ -972,6 +972,13 @@
   "discovery_quarantinedRemove": "Remove",
   "discovery_quarantinedRemoveAll": "Remove all",
   "discovery_quarantinedRemoveNamed": "Remove {name} ({kind})",
-  "discovery_missingSince": "Container not found since {when}",
-  "appForm_healthCheckDockerManaged": "Docker-managed: set by label muximux.app.health_check"
+  "appForm_healthCheckDockerManaged": "Docker-managed: set by label muximux.app.health_check",
+  "discovery_missingSince": "Container missing since {time}",
+  "discovery_lastSeen": "last seen {when}",
+  "discovery_neverSeen": "never",
+  "discovery_confirmDetach": "Detach \"{name}\" from Docker auto-management? Its URL will stop refreshing automatically.",
+  "discovery_confirmRemove": "Remove \"{name}\" from config.yaml?",
+  "discovery_confirmRemoveAll": "Remove all {count} invalid auto-imported entries from config.yaml?",
+  "discovery_detachFailed": "Could not detach {name}: {error}",
+  "discovery_removeFailed": "Could not remove {name}: {error}"
 }

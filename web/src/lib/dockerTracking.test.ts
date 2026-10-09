@@ -75,7 +75,6 @@ describe('refreshDockerTracking', () => {
   });
 });
 
-
 describe('docker_managed_health_check', () => {
   it('strips docker_managed_health_check with the other tracking fields', () => {
     expect(withoutDockerTracking('docker_managed_health_check', true)).toBeUndefined();

@@ -170,18 +170,17 @@ describe('DiscoveryTrackedEntries', () => {
       });
     mockApi.detachDockerTracked.mockRejectedValue(new mockApi.ApiError('Internal Server Error', 500));
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const ontrackingchanged = vi.fn();
 
     render(DiscoveryTrackedEntries, { ontrackingchanged });
     await waitFor(() => expect(screen.getByText('plex')).toBeInTheDocument());
     await fireEvent.click(screen.getByTestId('tracked-detach-btn'));
 
-    await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/Detach failed: Internal Server Error/i)),
-    );
+    const alertEl = await screen.findByRole('alert');
+    expect(alertEl).toHaveTextContent(/Could not detach plex: Internal Server Error/i);
+    expect(screen.getByText('plex')).toBeInTheDocument();
+    expect(mockApi.listDockerTracked).toHaveBeenCalledTimes(2);
     expect(ontrackingchanged).not.toHaveBeenCalled();
-    alertSpy.mockRestore();
   });
 
   it('formats last-seen via "<n>s/m/h ago" relative-time helper, falling back to ISO past 24h', async () => {
@@ -201,7 +200,7 @@ describe('DiscoveryTrackedEntries', () => {
     // last-seen line is the unique assertion here - it carries the
     // "<n>s ago" formatting which is what we're actually pinning.
     await waitFor(() =>
-      expect(screen.getByText(/last seen \d+s ago/i)).toBeInTheDocument(),
+      expect(screen.getByText(/last seen .*seconds? ago/i)).toBeInTheDocument(),
     );
   });
 
@@ -240,16 +239,17 @@ describe('DiscoveryTrackedEntries', () => {
     mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///s',
       quarantined: [{ kind: 'app', name: 'A', key: 'label:a', reason: 'r' }] });
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     render(DiscoveryTrackedEntries);
     const btn = await screen.findByTestId('quarantined-remove-btn');
     mockApi.detachDockerTracked.mockRejectedValueOnce(new mockApi.ApiError('gone', 404));
     await fireEvent.click(btn);
     await waitFor(() => expect(mockApi.listDockerTracked).toHaveBeenCalledTimes(2));
-    expect(alertSpy).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     mockApi.detachDockerTracked.mockRejectedValueOnce(new Error('boom'));
     await fireEvent.click(await screen.findByTestId('quarantined-remove-btn'));
-    await waitFor(() => expect(alertSpy).toHaveBeenCalled());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not remove A: boom');
+    expect(screen.getByTestId('quarantined-remove-btn')).toBeInTheDocument();
+    expect(mockApi.listDockerTracked).toHaveBeenCalledTimes(3);
   });
 
   it('declining the single Remove confirm does nothing', async () => {
@@ -272,6 +272,50 @@ describe('DiscoveryTrackedEntries', () => {
       { kind: 'app', name: 'sonarr', key: 'label:sonarr', strategy: 'container_ip', endpoint: 'unix:///s',
         url: 'http://10.0.0.42:8989', endpoint_matches: true, missing_since: new Date(Date.now() - 3600_000).toISOString() }] });
     render(DiscoveryTrackedEntries);
-    expect(await screen.findByText(/Container not found since/)).toBeInTheDocument();
+    expect(await screen.findByText(/Container missing since/)).toBeInTheDocument();
+  });
+
+  it('moves focus to the next quarantined row after removal, then to the heading when none remain', async () => {
+    const q = (n: string) => ({ kind: 'app', name: n, key: 'label:' + n, reason: 'r' });
+    mockApi.listDockerTracked
+      .mockResolvedValueOnce({ entries: [], current_endpoint: 'u', quarantined: [q('a'), q('b')] })
+      .mockResolvedValueOnce({ entries: [], current_endpoint: 'u', quarantined: [q('b')] })
+      .mockResolvedValueOnce({ entries: [], current_endpoint: 'u' });
+    mockApi.detachDockerTracked.mockResolvedValue(undefined);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(DiscoveryTrackedEntries);
+    const btns = await screen.findAllByTestId('quarantined-remove-btn');
+    expect(btns[0]).toHaveAccessibleName('Remove a (app)');
+    expect(btns[1]).toHaveAccessibleName('Remove b (app)');
+    await fireEvent.click(btns[0]);
+    await waitFor(() => expect(screen.getByTestId('quarantined-remove-btn')).toHaveFocus());
+    await fireEvent.click(screen.getByTestId('quarantined-remove-btn'));
+    await waitFor(() => expect(screen.getByText('Currently tracked')).toHaveFocus());
+  });
+
+  it('focuses the previous quarantined row when the last one is removed', async () => {
+    const q = (n: string) => ({ kind: 'app', name: n, key: 'label:' + n, reason: 'r' });
+    mockApi.listDockerTracked
+      .mockResolvedValueOnce({ entries: [], current_endpoint: 'u', quarantined: [q('a'), q('b')] })
+      .mockResolvedValueOnce({ entries: [], current_endpoint: 'u', quarantined: [q('a')] });
+    mockApi.detachDockerTracked.mockResolvedValue(undefined);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(DiscoveryTrackedEntries);
+    const btns = await screen.findAllByTestId('quarantined-remove-btn');
+    await fireEvent.click(btns[1]);
+    await waitFor(() => expect(screen.getByTestId('quarantined-remove-btn')).toHaveFocus());
+  });
+
+  it('focuses the next detach button after a successful detach', async () => {
+    const e = (n: string) => ({ kind: 'app', name: n, key: 'label:' + n, strategy: 'container_ip', endpoint: 'unix:///s', url: 'http://x', endpoint_matches: true });
+    mockApi.listDockerTracked
+      .mockResolvedValueOnce({ entries: [e('a'), e('b')], current_endpoint: 'unix:///s' })
+      .mockResolvedValueOnce({ entries: [e('b')], current_endpoint: 'unix:///s' });
+    mockApi.detachDockerTracked.mockResolvedValue(undefined);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(DiscoveryTrackedEntries);
+    const btns = await screen.findAllByTestId('tracked-detach-btn');
+    await fireEvent.click(btns[0]);
+    await waitFor(() => expect(screen.getByTestId('tracked-detach-btn')).toHaveFocus());
   });
 });

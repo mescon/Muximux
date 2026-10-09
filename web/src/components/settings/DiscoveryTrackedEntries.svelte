@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { tick } from 'svelte';
   import type { DiscoveryQuarantinedEntry, DiscoveryTrackedEntry, DiscoveryTrackedListResult } from '$lib/types';
   import { listDockerTracked, detachDockerTracked, ApiError, errorText } from '$lib/api';
   import * as m from '$lib/paraglide/messages.js';
+  import { getLocale } from '$lib/paraglide/runtime.js';
   import DiscoveryRelinkModal from './DiscoveryRelinkModal.svelte';
 
   // Refresh signal: parent bumps refreshKey to force a reload after a
@@ -16,6 +17,10 @@
   let loadError = $state<string | null>(null);
   let detachInFlight = $state<string | null>(null); // key currently detaching
   let relinkKey = $state<string | null>(null); // open modal for this key
+  let actionError = $state<string | null>(null);
+  let sectionEl = $state<HTMLElement>();
+  let trackedHeading = $state<HTMLElement>();
+  let quarantinedHeading = $state<HTMLElement>();
 
   // Reload whenever the parent bumps refreshKey OR after onMount.
   // $effect re-runs whenever refreshKey changes; the initial mount
@@ -39,12 +44,16 @@
   }
 
   async function detach(entry: DiscoveryTrackedEntry) {
-    if (!confirm(`Detach "${entry.name}" from Docker auto-management? Its URL will stop refreshing automatically.`)) return;
+    if (!confirm(m.discovery_confirmDetach({ name: entry.name }))) return;
+    actionError = null;
+    const idx = result?.entries.findIndex((x) => x.key === entry.key && x.name === entry.name) ?? 0;
     detachInFlight = entry.key;
     try {
       await detachDockerTracked(entry.key);
       ontrackingchanged?.();
       await load();
+      detachInFlight = null;
+      await focusAfterRemoval('[data-testid="tracked-detach-btn"]', idx, trackedHeading);
     } catch (e) {
       // Treat 404 (already detached by a concurrent caller) as
       // success since the desired state was reached. Branch on the
@@ -56,7 +65,7 @@
         ontrackingchanged?.();
         await load();
       } else {
-        alert(`Detach failed: ${errorText(e, String(e))}`);
+        actionError = m.discovery_detachFailed({ name: entry.name, error: errorText(e, String(e)) });
         await load();
       }
     } finally {
@@ -67,7 +76,15 @@
   const quarantined = $derived(result?.quarantined ?? []);
   let removeInFlight = $state(false);
 
-  async function removeQuarantined(keys: string[]) {
+  async function focusAfterRemoval(selector: string, idx: number, heading: HTMLElement | undefined) {
+    await tick();
+    const btns = sectionEl?.querySelectorAll<HTMLElement>(selector);
+    const target = btns && btns.length > 0 ? btns[Math.min(idx, btns.length - 1)] : (heading ?? trackedHeading);
+    target?.focus();
+  }
+
+  async function removeQuarantined(keys: string[], name: string, idx: number) {
+    actionError = null;
     removeInFlight = true;
     try {
       for (const key of keys) {
@@ -76,7 +93,7 @@
         } catch (e) {
           // 404 means it is already gone, which is the state we want.
           if (!(e instanceof ApiError && e.status === 404)) {
-            alert(`Remove failed: ${errorText(e, String(e))}`);
+            actionError = m.discovery_removeFailed({ name, error: errorText(e, String(e)) });
             break;
           }
         }
@@ -86,16 +103,19 @@
     } finally {
       removeInFlight = false;
     }
+    // After the buttons are enabled again, so the target can take focus.
+    await focusAfterRemoval('[data-testid="quarantined-remove-btn"]', idx, quarantinedHeading);
   }
 
   async function removeOne(q: DiscoveryQuarantinedEntry) {
-    if (!confirm(`${m.discovery_quarantinedRemove()}: "${q.name}"?`)) return;
-    await removeQuarantined([q.key]);
+    if (!confirm(m.discovery_confirmRemove({ name: q.name }))) return;
+    await removeQuarantined([q.key], q.name, quarantined.indexOf(q));
   }
 
   async function removeAll() {
-    if (!confirm(`${m.discovery_quarantinedRemoveAll()}?`)) return;
-    await removeQuarantined([...new Set(quarantined.map((q) => q.key))]);
+    const keys = [...new Set(quarantined.map((q) => q.key))];
+    if (!confirm(m.discovery_confirmRemoveAll({ count: quarantined.length }))) return;
+    await removeQuarantined(keys, m.discovery_quarantinedTitle(), 0);
   }
 
   function startRelink(entry: DiscoveryTrackedEntry) {
@@ -110,24 +130,25 @@
     void load(); // refresh in case re-link succeeded
   }
 
-  function ago(iso: string | undefined): string {
-    if (!iso) return 'never';
+  // Localized relative time (under 24h) or an absolute date-time.
+  function when(iso: string | undefined): string {
+    if (!iso) return m.discovery_neverSeen();
     const d = new Date(iso);
     if (isNaN(d.getTime())) return iso;
-    const diffMs = Date.now() - d.getTime();
-    const sec = Math.round(diffMs / 1000);
-    if (sec < 60) return `${sec}s ago`;
+    const sec = Math.round((d.getTime() - Date.now()) / 1000);
+    const rtf = new Intl.RelativeTimeFormat(getLocale(), { numeric: 'auto' });
+    if (Math.abs(sec) < 60) return rtf.format(sec, 'second');
     const min = Math.round(sec / 60);
-    if (min < 60) return `${min}m ago`;
+    if (Math.abs(min) < 60) return rtf.format(min, 'minute');
     const hr = Math.round(min / 60);
-    if (hr < 24) return `${hr}h ago`;
-    return d.toISOString();
+    if (Math.abs(hr) < 24) return rtf.format(hr, 'hour');
+    return d.toLocaleString(getLocale());
   }
 </script>
 
-<section class="space-y-3" data-testid="tracked-entries">
+<section class="space-y-3" data-testid="tracked-entries" bind:this={sectionEl}>
   <div class="flex items-center justify-between">
-    <h3 class="text-sm font-semibold text-text-primary">Currently tracked</h3>
+    <h3 class="text-sm font-semibold text-text-primary" tabindex="-1" bind:this={trackedHeading}>Currently tracked</h3>
     <button
       type="button"
       class="text-xs text-accent-text hover:underline disabled:text-text-muted disabled:cursor-not-allowed"
@@ -138,6 +159,10 @@
       {loading ? 'Refreshing…' : 'Refresh'}
     </button>
   </div>
+
+  {#if actionError}
+    <div role="alert" class="notice notice-danger" data-testid="tracked-action-error">{actionError}</div>
+  {/if}
 
   {#if loadError}
     <div role="alert" class="notice notice-danger">{loadError}</div>
@@ -157,14 +182,14 @@
               <span class="text-text-primary font-medium truncate">{e.name}</span>
               <span class="text-xs px-1.5 py-0.5 rounded bg-bg-elevated text-text-muted uppercase tracking-wide">{e.kind}</span>
               {#if e.missing_since}
-                <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text">{m.discovery_missingSince({ when: ago(e.missing_since) })}</span>
+                <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text">{m.discovery_missingSince({ time: when(e.missing_since) })}</span>
               {/if}
               {#if !e.endpoint_matches}
                 <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text" title="DockerEndpoint differs from the current discovery endpoint">Endpoint changed</span>
               {/if}
             </div>
             <div class="text-xs text-text-muted mt-0.5 font-mono truncate">{e.key}</div>
-            <div class="text-xs text-text-muted mt-0.5 truncate">{e.url} · last seen {ago(e.last_seen_at)}</div>
+            <div class="text-xs text-text-muted mt-0.5 truncate">{e.url} · {m.discovery_lastSeen({ when: when(e.last_seen_at) })}</div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             {#if !e.endpoint_matches}
@@ -191,7 +216,7 @@
   {#if quarantined.length > 0}
     <div class="notice notice-warning space-y-2" role="status" data-testid="quarantined-entries">
       <div class="flex items-center justify-between gap-3">
-        <h4 class="text-sm font-semibold">{m.discovery_quarantinedTitle()}</h4>
+        <h4 class="text-sm font-semibold" tabindex="-1" bind:this={quarantinedHeading}>{m.discovery_quarantinedTitle()}</h4>
         <button type="button" class="btn btn-secondary btn-xs" onclick={removeAll} disabled={removeInFlight}
           data-testid="quarantined-remove-all-btn">{m.discovery_quarantinedRemoveAll()}</button>
       </div>
