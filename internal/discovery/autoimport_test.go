@@ -1,6 +1,8 @@
 package discovery
 
 import (
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/mescon/muximux/v3/internal/config"
@@ -335,7 +337,7 @@ func desire(k string) Desired {
 
 // TestReconcile_Off: off mode is a no-op regardless of inputs.
 func TestReconcile_Off(t *testing.T) {
-	p := Reconcile(config.AutoImportOff, []Desired{desire("a")}, []config.AppConfig{autoKey("gone")}, nil)
+	p := Reconcile(&ReconcileInput{Mode: config.AutoImportOff, Desired: []Desired{desire("a")}, Current: []config.AppConfig{autoKey("gone")}})
 	if len(p.Add) != 0 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
 		t.Errorf("off mode must be a no-op: %+v", p)
 	}
@@ -346,7 +348,7 @@ func TestReconcile_Off(t *testing.T) {
 func TestReconcile_Modes(t *testing.T) {
 	// add: new key with no current app -> Add, in every non-off mode
 	for _, m := range []config.AutoImportMode{config.AutoImportAdd, config.AutoImportUpdate, config.AutoImportSync} {
-		p := Reconcile(m, []Desired{desire("a")}, nil, nil)
+		p := Reconcile(&ReconcileInput{Mode: m, Desired: []Desired{desire("a")}})
 		if len(p.Add) != 1 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
 			t.Errorf("%s add: %+v", m, p)
 		}
@@ -354,24 +356,24 @@ func TestReconcile_Modes(t *testing.T) {
 
 	// vanished auto app: removed only in sync
 	cur := []config.AppConfig{autoKey("gone")}
-	if p := Reconcile(config.AutoImportAdd, nil, cur, nil); len(p.RemoveKeys) != 0 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportAdd, Current: cur}); len(p.RemoveKeys) != 0 {
 		t.Errorf("add must not remove: %+v", p)
 	}
-	if p := Reconcile(config.AutoImportUpdate, nil, cur, nil); len(p.RemoveKeys) != 0 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Current: cur}); len(p.RemoveKeys) != 0 {
 		t.Errorf("update must not remove: %+v", p)
 	}
-	if p := Reconcile(config.AutoImportSync, nil, cur, nil); len(p.RemoveKeys) != 1 || p.RemoveKeys[0] != "gone" {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Current: cur}); len(p.RemoveKeys) != 1 || p.RemoveKeys[0] != "gone" {
 		t.Errorf("sync must remove vanished auto app: %+v", p)
 	}
 
 	// manual app present for a key: never removed, never duplicated
 	man := []config.AppConfig{key("m")} // no DockerAutoImported
-	p := Reconcile(config.AutoImportSync, []Desired{desire("m")}, man, nil)
+	p := Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Desired: []Desired{desire("m")}, Current: man})
 	if len(p.Add) != 0 || len(p.Update) != 0 || len(p.RemoveKeys) != 0 {
 		t.Errorf("manual app must be untouched and block add: %+v", p)
 	}
 	// and a manual app whose container vanished is NOT removed in sync
-	p = Reconcile(config.AutoImportSync, nil, man, nil)
+	p = Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Current: man})
 	if len(p.RemoveKeys) != 0 {
 		t.Errorf("sync must not remove a manual app: %+v", p)
 	}
@@ -382,7 +384,7 @@ func TestReconcile_Modes(t *testing.T) {
 // when the desired app's label fields differ from it.
 func TestReconcile_DetachedAppNotRecreated(t *testing.T) {
 	detached := key("d") // DockerKey set, auto false; differs from desire("d")
-	p := Reconcile(config.AutoImportSync, []Desired{desire("d")}, []config.AppConfig{detached}, nil)
+	p := Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Desired: []Desired{desire("d")}, Current: []config.AppConfig{detached}})
 	if len(p.Add) != 0 {
 		t.Errorf("detached app must suppress add: %+v", p)
 	}
@@ -401,19 +403,19 @@ func TestReconcile_UpdateOnlyWhenChanged(t *testing.T) {
 	cur.DockerAutoImported = true
 	// identical desired -> no update
 	same := []Desired{{App: cur}}
-	if p := Reconcile(config.AutoImportUpdate, same, []config.AppConfig{cur}, nil); len(p.Update) != 0 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Desired: same, Current: []config.AppConfig{cur}}); len(p.Update) != 0 {
 		t.Errorf("unchanged should not update: %+v", p)
 	}
 	// changed name -> update
 	changed := BuildDesired(&Suggestion{Key: "u", Name: "U2", URL: "http://h:1"}, "e")
-	if p := Reconcile(config.AutoImportUpdate, []Desired{changed}, []config.AppConfig{cur}, nil); len(p.Update) != 1 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Desired: []Desired{changed}, Current: []config.AppConfig{cur}}); len(p.Update) != 1 {
 		t.Errorf("changed should update: %+v", p)
 	}
-	if p := Reconcile(config.AutoImportSync, []Desired{changed}, []config.AppConfig{cur}, nil); len(p.Update) != 1 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Desired: []Desired{changed}, Current: []config.AppConfig{cur}}); len(p.Update) != 1 {
 		t.Errorf("sync should update changed app: %+v", p)
 	}
 	// update suppressed in add mode even when changed
-	if p := Reconcile(config.AutoImportAdd, []Desired{changed}, []config.AppConfig{cur}, nil); len(p.Update) != 0 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportAdd, Desired: []Desired{changed}, Current: []config.AppConfig{cur}}); len(p.Update) != 0 {
 		t.Errorf("add mode must not update: %+v", p)
 	}
 }
@@ -449,16 +451,16 @@ func TestReconcile_GatewaySiteFieldChange(t *testing.T) {
 	}
 
 	for _, m := range []config.AutoImportMode{config.AutoImportUpdate, config.AutoImportSync} {
-		p := Reconcile(m, []Desired{des}, curApps, curSites)
+		p := Reconcile(&ReconcileInput{Mode: m, Desired: []Desired{des}, Current: curApps, CurrentSites: curSites})
 		if len(p.Update) != 1 {
 			t.Errorf("%s: gateway-only change must update: %+v", m, p)
 		}
 	}
-	if p := Reconcile(config.AutoImportAdd, []Desired{des}, curApps, curSites); len(p.Update) != 0 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportAdd, Desired: []Desired{des}, Current: curApps, CurrentSites: curSites}); len(p.Update) != 0 {
 		t.Errorf("add mode must not update on site change: %+v", p)
 	}
 	// Identical site -> no update.
-	if p := Reconcile(config.AutoImportUpdate, []Desired{cur}, curApps, curSites); len(p.Update) != 0 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Desired: []Desired{cur}, Current: curApps, CurrentSites: curSites}); len(p.Update) != 0 {
 		t.Errorf("identical site must not update: %+v", p)
 	}
 }
@@ -477,7 +479,7 @@ func TestReconcile_GatewayDomainDropped(t *testing.T) {
 	if direct.Site != nil {
 		t.Fatal("precondition: dropped-domain desired must have no site")
 	}
-	if p := Reconcile(config.AutoImportUpdate, []Desired{direct}, curApps, curSites); len(p.Update) != 1 {
+	if p := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Desired: []Desired{direct}, Current: curApps, CurrentSites: curSites}); len(p.Update) != 1 {
 		t.Errorf("dropping a gateway domain must update: %+v", p)
 	}
 }
@@ -662,7 +664,7 @@ func TestReconcile_HealthCheckLabelResyncs(t *testing.T) {
 		Icon: config.AppIconConfig{Type: "dashboard"}, DockerManagedHealthCheck: &tr} // operator switched HealthCheck off in Settings
 	des := cur
 	des.HealthCheck = &tr
-	plan := Reconcile(config.AutoImportUpdate, []Desired{{App: des}}, []config.AppConfig{cur}, nil)
+	plan := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Desired: []Desired{{App: des}}, Current: []config.AppConfig{cur}})
 	if len(plan.Update) != 1 {
 		t.Fatalf("label true must win over the Settings toggle: %+v", plan)
 	}
@@ -678,5 +680,75 @@ func TestReconcile_HealthCheckLabelResyncs(t *testing.T) {
 	merged = mergeManagedFields(&cur2, &des2)
 	if !healthCheckOn(&merged) || merged.DockerManagedHealthCheck != nil {
 		t.Fatalf("unset label: %+v", merged)
+	}
+}
+
+func TestReconcile_SkippedAndQuarantined(t *testing.T) {
+	cur := []config.AppConfig{
+		{Name: "A", DockerKey: "label:a", DockerAutoImported: true},
+		{Name: "B", DockerKey: "label:b", DockerAutoImported: true},
+		{Name: "C", DockerKey: "label:c", DockerAutoImported: true},
+		{Name: "D", DockerKey: "label:d", DockerAutoImported: true},
+		{Name: "M", DockerKey: "label:m"}, // manual, present but unlabeled: untouched
+	}
+	plan := Reconcile(&ReconcileInput{
+		Mode:        config.AutoImportSync,
+		Desired:     []Desired{{App: config.AppConfig{Name: "Q", URL: "http://q", DockerKey: "label:q", DockerAutoImported: true}}},
+		Skipped:     map[string]string{"label:a": SkipUnlabeled, "label:b": SkipDisabled, "label:c": SkipNoPort, "label:m": SkipUnlabeled},
+		Current:     cur,
+		Quarantined: map[string]bool{"label:q": true, "label:gone": true},
+	})
+	if strings.Join(plan.DetachKeys, ",") != "label:a" {
+		t.Fatalf("detach = %v", plan.DetachKeys)
+	}
+	sort.Strings(plan.RemoveKeys)
+	if strings.Join(plan.RemoveKeys, ",") != "label:b,label:d,label:gone" {
+		t.Fatalf("remove = %v", plan.RemoveKeys)
+	}
+	if len(plan.Add) != 1 || plan.Add[0].App.DockerKey != "label:q" || len(plan.Update) != 0 {
+		t.Fatalf("plan = %+v", plan)
+	}
+	// update mode: disabled is not removed, unlabeled is still detached.
+	plan = Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Skipped: map[string]string{"label:a": SkipUnlabeled, "label:b": SkipDisabled}, Current: cur})
+	if len(plan.RemoveKeys) != 0 || strings.Join(plan.DetachKeys, ",") != "label:a" {
+		t.Fatalf("update plan = %+v", plan)
+	}
+	// add mode: nothing is touched.
+	if plan = Reconcile(&ReconcileInput{Mode: config.AutoImportAdd, Skipped: map[string]string{"label:a": SkipUnlabeled}, Current: cur}); len(plan.DetachKeys)+len(plan.RemoveKeys) != 0 {
+		t.Fatalf("add plan = %+v", plan)
+	}
+	// off: empty plan.
+	if plan = Reconcile(&ReconcileInput{Mode: config.AutoImportOff, Desired: []Desired{{App: cur[0]}}}); len(plan.Add) != 0 {
+		t.Fatalf("off plan = %+v", plan)
+	}
+}
+
+// A quarantined key that is present but still ineligible stays quarantined
+// (not removed, not added) under sync.
+func TestReconcile_QuarantinedKeyPresentButSkippedIsKept(t *testing.T) {
+	plan := Reconcile(&ReconcileInput{Mode: config.AutoImportSync,
+		Skipped: map[string]string{"label:q": SkipNoPort}, Quarantined: map[string]bool{"label:q": true}})
+	if len(plan.RemoveKeys)+len(plan.Add) != 0 {
+		t.Fatalf("plan = %+v", plan)
+	}
+}
+
+// Ruling 2: a live app whose site is quarantined is planned as an Update
+// (the site is re-inserted), never as a second Add.
+func TestReconcile_LiveAppWithQuarantinedSiteIsUpdated(t *testing.T) {
+	cur := []config.AppConfig{{Name: "VW", URL: "https://vw.example.com", DockerKey: "label:vw", DockerAutoImported: true, Enabled: true}}
+	des := Desired{App: cur[0], Site: &config.GatewaySite{Domain: "vw.example.com", BackendURL: "http://vw:80", DockerKey: "label:vw"}}
+	plan := Reconcile(&ReconcileInput{Mode: config.AutoImportUpdate, Desired: []Desired{des}, Current: cur, Quarantined: map[string]bool{}})
+	if len(plan.Add) != 0 || len(plan.Update) != 1 {
+		t.Fatalf("plan = %+v", plan)
+	}
+}
+
+func TestMergeManagedFields_KeepsURLWhenDesiredEmpty(t *testing.T) { // F-03 second guard
+	cur := config.AppConfig{Name: "H", URL: "http://h:1", DockerManagedURL: "http://h:1", DockerKey: "label:h", DockerAutoImported: true}
+	des := cur
+	des.URL, des.DockerManagedURL = "", ""
+	if m := mergeManagedFields(&cur, &des); m.URL != "http://h:1" || m.DockerManagedURL != "http://h:1" {
+		t.Fatalf("merged = %+v", m)
 	}
 }

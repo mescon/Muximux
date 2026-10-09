@@ -167,13 +167,26 @@ func gatewayScheme(tls config.TLSMode) string {
 	return "https"
 }
 
+// ReconcileInput is everything Reconcile needs, bundled so the poller can
+// grow the inputs without changing the signature.
+type ReconcileInput struct {
+	Mode         config.AutoImportMode
+	Desired      []Desired
+	Skipped      map[string]string // key -> AutoImportSkip code for present but ineligible containers (and names dropped by dedupe)
+	Current      []config.AppConfig
+	CurrentSites []config.GatewaySite
+	Quarantined  map[string]bool // keys of quarantined APP entries only (a quarantined site of a live app is not listed)
+}
+
 // ReconcilePlan is the set of changes auto-import wants to apply this
-// tick: apps to create, auto-imported apps to refresh in place, and the
-// DockerKeys of auto-imported apps whose containers have vanished.
+// tick: apps to create, auto-imported apps to refresh in place, the
+// DockerKeys of auto-imported apps to remove, and the DockerKeys of apps
+// whose container is still present but no longer opted in.
 type ReconcilePlan struct {
 	Add        []Desired
 	Update     []Desired
-	RemoveKeys []string
+	RemoveKeys []string // vanished containers, and disabled ones under sync
+	DetachKeys []string // present but unlabeled / not enabled: clear DockerAutoImported
 }
 
 // Reconcile diffs the desired set (from currently labeled containers)
@@ -181,61 +194,80 @@ type ReconcilePlan struct {
 // no config mutation, no I/O, output depends only on its inputs.
 //
 //   - off mode: empty plan, no work.
-//   - desired key with no current app: Add (every non-off mode).
+//   - desired key with no current app, or whose app is quarantined: Add.
 //   - desired key whose current app is auto-imported and differs in a
 //     label-controlled field, OR whose gateway site differs: Update
-//     (update/sync only, never add mode). The site diff makes gateway-
-//     only label changes (require_auth, min_role, streaming, ...)
-//     propagate even when no app field changed.
+//     (update/sync only, never add mode).
 //   - desired key whose current app exists but is not auto-imported
-//     (manual or detached): left untouched; it still suppresses the Add
-//     so no duplicate app is created.
-//   - sync only: a current auto-imported app whose DockerKey is absent
-//     from the desired set has its key listed in RemoveKeys. Apps without
-//     DockerAutoImported are never updated or removed.
-func Reconcile(mode config.AutoImportMode, desired []Desired, current []config.AppConfig, currentSites []config.GatewaySite) ReconcilePlan {
+//     (manual or detached): left untouched; it still suppresses the Add.
+//   - update/sync: an auto-imported app whose container is present but
+//     unlabeled or not enabled is detached (DetachKeys).
+//   - sync only: an auto-imported app whose container is gone, or is
+//     present but disabled, is removed; quarantined keys that are neither
+//     desired nor present are removed too. Other skip codes keep the last
+//     good state.
+func Reconcile(in *ReconcileInput) ReconcilePlan {
 	var plan ReconcilePlan
-	if mode == config.AutoImportOff {
+	if in.Mode == config.AutoImportOff {
 		return plan
 	}
 
-	curByKey := make(map[string]config.AppConfig, len(current))
-	for i := range current {
-		if current[i].DockerKey != "" {
-			curByKey[current[i].DockerKey] = current[i]
+	curByKey := make(map[string]config.AppConfig, len(in.Current))
+	for i := range in.Current {
+		if in.Current[i].DockerKey != "" {
+			curByKey[in.Current[i].DockerKey] = in.Current[i]
 		}
 	}
 	// Sites are keyed by the same DockerKey as their app, so a gateway-
 	// only label change can be diffed even when the app fields are
 	// untouched.
-	curSiteByKey := make(map[string]config.GatewaySite, len(currentSites))
-	for i := range currentSites {
-		if currentSites[i].DockerKey != "" {
-			curSiteByKey[currentSites[i].DockerKey] = currentSites[i]
+	curSiteByKey := make(map[string]config.GatewaySite, len(in.CurrentSites))
+	for i := range in.CurrentSites {
+		if in.CurrentSites[i].DockerKey != "" {
+			curSiteByKey[in.CurrentSites[i].DockerKey] = in.CurrentSites[i]
 		}
 	}
-	desiredKeys := make(map[string]bool, len(desired))
+	desiredKeys := make(map[string]bool, len(in.Desired))
 
-	for i := range desired {
-		k := desired[i].App.DockerKey
+	for i := range in.Desired {
+		k := in.Desired[i].App.DockerKey
 		desiredKeys[k] = true
 		cur, exists := curByKey[k]
 		switch {
-		case !exists:
-			plan.Add = append(plan.Add, desired[i])
-		case cur.DockerAutoImported && mode != config.AutoImportAdd &&
-			(!sameManagedFields(&cur, &desired[i].App) || gatewaySiteChanged(desired[i].Site, curSiteByKey, k)):
-			plan.Update = append(plan.Update, desired[i])
+		case !exists || in.Quarantined[k]:
+			plan.Add = append(plan.Add, in.Desired[i])
+		case cur.DockerAutoImported && in.Mode != config.AutoImportAdd &&
+			(!sameManagedFields(&cur, &in.Desired[i].App) || gatewaySiteChanged(in.Desired[i].Site, curSiteByKey, k)):
+			plan.Update = append(plan.Update, in.Desired[i])
 		default:
 			// Manual/detached app, add mode, or unchanged auto app:
 			// leave the current entry as-is.
 		}
 	}
 
-	if mode == config.AutoImportSync {
-		for i := range current {
-			if current[i].DockerAutoImported && current[i].DockerKey != "" && !desiredKeys[current[i].DockerKey] {
-				plan.RemoveKeys = append(plan.RemoveKeys, current[i].DockerKey)
+	if in.Mode == config.AutoImportAdd {
+		return plan
+	}
+	for i := range in.Current {
+		c := &in.Current[i]
+		if !c.DockerAutoImported || c.DockerKey == "" || desiredKeys[c.DockerKey] {
+			continue
+		}
+		switch code, present := in.Skipped[c.DockerKey]; {
+		case present && (code == SkipUnlabeled || code == SkipNotEnabled):
+			plan.DetachKeys = append(plan.DetachKeys, c.DockerKey)
+		case present && code == SkipDisabled && in.Mode == config.AutoImportSync:
+			plan.RemoveKeys = append(plan.RemoveKeys, c.DockerKey)
+		case present:
+			// no_port, no_url, invalid (incl. dedupe-dropped): keep the last good state.
+		case in.Mode == config.AutoImportSync:
+			plan.RemoveKeys = append(plan.RemoveKeys, c.DockerKey)
+		}
+	}
+	if in.Mode == config.AutoImportSync {
+		for k := range in.Quarantined {
+			if _, present := in.Skipped[k]; !present && !desiredKeys[k] {
+				plan.RemoveKeys = append(plan.RemoveKeys, k)
 			}
 		}
 	}
@@ -290,7 +322,10 @@ func healthCheckOn(a *config.AppConfig) bool {
 func mergeManagedFields(cur, desired *config.AppConfig) config.AppConfig {
 	out := *cur
 	out.Name = desired.Name
-	out.URL = desired.URL
+	if desired.URL != "" { // never blank a working URL
+		out.URL = desired.URL
+		out.DockerManagedURL = desired.DockerManagedURL
+	}
 	out.HealthURL = desired.HealthURL
 	out.Icon = desired.Icon
 	out.Color = desired.Color
@@ -313,7 +348,6 @@ func mergeManagedFields(cur, desired *config.AppConfig) config.AppConfig {
 	out.DockerKey = desired.DockerKey
 	out.DockerEndpoint = desired.DockerEndpoint
 	out.DockerStrategy = desired.DockerStrategy
-	out.DockerManagedURL = desired.DockerManagedURL
 	// A health_check label owns the value; an unset label leaves the
 	// operator's setting alone and only clears the marker.
 	out.DockerManagedHealthCheck = desired.DockerManagedHealthCheck

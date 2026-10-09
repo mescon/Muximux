@@ -449,7 +449,7 @@ func (p *Poller) tick(ctx context.Context) {
 				desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
 			}
 			desired = dedupeDesiredNames(desired, currentApps)
-			plan := Reconcile(autoImport, desired, currentApps, currentSites)
+			plan := Reconcile(&ReconcileInput{Mode: autoImport, Desired: desired, Current: currentApps, CurrentSites: currentSites})
 			for i := range plan.Add {
 				batch.addApps = append(batch.addApps, plan.Add[i].App)
 				if plan.Add[i].Site != nil {
