@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"reflect"
+	"slices"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -265,8 +266,13 @@ func Reconcile(in *ReconcileInput) ReconcilePlan {
 		}
 	}
 	if in.Mode == config.AutoImportSync {
+		qkeys := make([]string, 0, len(in.Quarantined))
 		for k := range in.Quarantined {
-			if _, present := in.Skipped[k]; !present && !desiredKeys[k] {
+			qkeys = append(qkeys, k)
+		}
+		slices.Sort(qkeys)
+		for _, k := range qkeys {
+			if _, present := in.Skipped[k]; !present && !desiredKeys[k] && !slices.Contains(plan.RemoveKeys, k) {
 				plan.RemoveKeys = append(plan.RemoveKeys, k)
 			}
 		}

@@ -656,8 +656,6 @@ func TestBuildDesired_HealthCheckLabel(t *testing.T) {
 	}
 }
 
-// Written against the CURRENT Reconcile(mode, desired, current, sites)
-// signature; Task 8 converts the call to the ReconcileInput form.
 func TestReconcile_HealthCheckLabelResyncs(t *testing.T) {
 	tr := true
 	cur := config.AppConfig{Name: "Emby", URL: "http://emby:8096", DockerKey: "label:emby", DockerAutoImported: true, Enabled: true,
@@ -750,5 +748,45 @@ func TestMergeManagedFields_KeepsURLWhenDesiredEmpty(t *testing.T) { // F-03 sec
 	des.URL, des.DockerManagedURL = "", ""
 	if m := mergeManagedFields(&cur, &des); m.URL != "http://h:1" || m.DockerManagedURL != "http://h:1" {
 		t.Fatalf("merged = %+v", m)
+	}
+}
+
+func TestReconcile_RemainingInputCases(t *testing.T) {
+	cur := []config.AppConfig{
+		{Name: "N", DockerKey: "label:n", DockerAutoImported: true},
+		{Name: "S", DockerKey: "label:s", DockerAutoImported: true},
+	}
+	notEnabled := map[string]string{"label:n": SkipNotEnabled}
+	for _, m := range []config.AutoImportMode{config.AutoImportUpdate, config.AutoImportSync} {
+		p := Reconcile(&ReconcileInput{Mode: m, Skipped: notEnabled, Current: cur[:1]})
+		if len(p.DetachKeys) != 1 || p.DetachKeys[0] != "label:n" || len(p.RemoveKeys) != 0 {
+			t.Fatalf("%s not_enabled plan = %+v", m, p)
+		}
+	}
+	q := map[string]bool{"label:q": true, "label:gone": true}
+	for _, m := range []config.AutoImportMode{config.AutoImportAdd, config.AutoImportUpdate} {
+		p := Reconcile(&ReconcileInput{Mode: m, Quarantined: q})
+		if len(p.RemoveKeys)+len(p.Add)+len(p.Update)+len(p.DetachKeys) != 0 {
+			t.Fatalf("%s quarantine plan = %+v", m, p)
+		}
+	}
+	// A key both skipped and desired is neither added nor updated.
+	des := Desired{App: config.AppConfig{Name: "S2", URL: "http://s", DockerKey: "label:s", DockerAutoImported: true}}
+	p := Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Desired: []Desired{des},
+		Skipped: map[string]string{"label:s": SkipNoPort}, Current: cur[1:], Quarantined: map[string]bool{"label:s": true}})
+	if len(p.Update) != 0 || len(p.RemoveKeys) != 0 || len(p.DetachKeys) != 0 {
+		t.Fatalf("skipped+desired plan = %+v", p)
+	}
+	// Off with everything set: empty plan.
+	p = Reconcile(&ReconcileInput{Mode: config.AutoImportOff, Desired: []Desired{des}, Skipped: notEnabled, Current: cur, Quarantined: q})
+	if len(p.Add)+len(p.Update)+len(p.RemoveKeys)+len(p.DetachKeys) != 0 {
+		t.Fatalf("off plan = %+v", p)
+	}
+	// Quarantine removals are sorted and de-duplicated against vanished apps.
+	qa := []config.AppConfig{{Name: "Z", DockerKey: "label:z", DockerAutoImported: true}}
+	p = Reconcile(&ReconcileInput{Mode: config.AutoImportSync, Current: qa,
+		Quarantined: map[string]bool{"label:z": true, "label:b": true, "label:a": true}})
+	if strings.Join(p.RemoveKeys, ",") != "label:z,label:a,label:b" {
+		t.Fatalf("remove = %v", p.RemoveKeys)
 	}
 }
