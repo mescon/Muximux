@@ -777,6 +777,7 @@ func finishConfig(cfg *Config) error {
 	// all have consistent semantics: operator's URL edit wins,
 	// tracking is dropped.
 	autoDetachEditedDockerEntries(cfg)
+	warnStrayHTTPActionFields(cfg.Apps)
 
 	return cfg.validate()
 }
@@ -1450,11 +1451,11 @@ var httpActionAllowedMethods = func() map[string]struct{} {
 // the header line on the wire.
 var httpActionHeaderKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
-// validateApps runs the per-app invariants. Today only http_action
-// mode has validation rules; non-http_action apps pass through
-// unconditionally, but http_action fields on those apps are logged as
-// a warning so a config-load misconfiguration is visible.
-func validateApps(apps []AppConfig) error {
+// warnStrayHTTPActionFields logs http_action fields set on an app whose
+// open mode is not http_action, so a config-load misconfiguration is
+// visible. Load and Parse only: Validate also runs on every runtime save,
+// where the same warning would repeat for an unchanged app.
+func warnStrayHTTPActionFields(apps []AppConfig) {
 	for i := range apps {
 		a := &apps[i]
 		if a.OpenMode != "http_action" &&
@@ -1462,6 +1463,14 @@ func validateApps(apps []AppConfig) error {
 			logging.Warn("http_action fields set on non-http_action app, ignored",
 				"source", "config", "app", a.Name, "open_mode", a.OpenMode)
 		}
+	}
+}
+
+// validateApps runs the per-app invariants. Today only http_action
+// mode has validation rules; non-http_action apps pass through.
+func validateApps(apps []AppConfig) error {
+	for i := range apps {
+		a := &apps[i]
 		if err := ValidateApp(a); err != nil {
 			return fmt.Errorf("app %q: %w", a.Name, err)
 		}

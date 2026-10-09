@@ -1,7 +1,9 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -1564,6 +1566,36 @@ func TestValidate_HTTPActionFieldsIgnoredForOtherModes(t *testing.T) {
 	}
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("non-http_action mode should accept http_action fields, got %v", err)
+	}
+}
+
+// The stray http_action warning is a load-time notice: Validate runs on
+// every runtime save (gateway sites, settings) and must not repeat it.
+func TestStrayHTTPActionWarning_LoadOnly(t *testing.T) {
+	var buf bytes.Buffer
+	prev := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	t.Cleanup(func() { slog.SetDefault(prev) })
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	body := "apps:\n  - name: App\n    url: http://example.com\n    enabled: true\n    open_mode: iframe\n    http_action_method: POST\n"
+	if err := os.WriteFile(path, []byte(body), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := strings.Count(buf.String(), "http_action fields set"); n != 1 {
+		t.Fatalf("load warnings = %d, want 1:\n%s", n, buf.String())
+	}
+	buf.Reset()
+	if err := cfg.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(buf.String(), "http_action fields set") {
+		t.Errorf("Validate repeated the warning:\n%s", buf.String())
 	}
 }
 
