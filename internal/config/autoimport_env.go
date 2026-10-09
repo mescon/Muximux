@@ -3,6 +3,8 @@ package config
 import (
 	"strconv"
 	"strings"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // EnvAutoImport is the direct override for discovery.docker.auto_import.
@@ -26,24 +28,35 @@ func ApplyAutoImportEnv(cfg *Config, getenv func(string) (string, bool)) {
 const EnvRequireExplicitEnable = "MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE"
 
 // ApplyRequireExplicitEnableEnv overrides require_explicit_enable from the
-// environment when EnvRequireExplicitEnable is set. It is recorded as an
-// override, so Save keeps the file's own value.
+// environment when EnvRequireExplicitEnable is set to a recognised boolean.
+// It is recorded as an override, so Save keeps the file's own value. An
+// unrecognised value is ignored with a warning and the file value stays.
 func ApplyRequireExplicitEnableEnv(cfg *Config, getenv func(string) (string, bool)) {
 	if cfg == nil {
 		return
 	}
-	if v, ok := getenv(EnvRequireExplicitEnable); ok {
-		cfg.ApplyOverride(OverrideRequireExplicitEnable, EnvRequireExplicitEnable, strconv.FormatBool(envBool(v)))
+	v, ok := getenv(EnvRequireExplicitEnable)
+	if !ok {
+		return
 	}
+	val, valid := parseEnvBool(v)
+	if !valid {
+		logging.Warn("Ignoring invalid boolean in environment variable; using the config file value",
+			"source", "config", "env", EnvRequireExplicitEnable, "value", v)
+		return
+	}
+	cfg.ApplyOverride(OverrideRequireExplicitEnable, EnvRequireExplicitEnable, strconv.FormatBool(val))
 }
 
-// envBool reports whether v is true, 1, yes or on (case-insensitive,
-// trimmed). It duplicates discovery.boolish because config cannot import
-// discovery.
-func envBool(v string) bool {
+// parseEnvBool parses true/1/yes/on and false/0/no/off (case-insensitive,
+// trimmed). ok is false for anything else. It duplicates discovery.boolish
+// because config cannot import discovery.
+func parseEnvBool(v string) (val, ok bool) {
 	switch strings.ToLower(strings.TrimSpace(v)) {
 	case "true", "1", "yes", "on":
-		return true
+		return true, true
+	case "false", "0", "no", "off":
+		return false, true
 	}
-	return false
+	return false, false
 }

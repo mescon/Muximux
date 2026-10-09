@@ -318,16 +318,70 @@ func TestApplyRequireExplicitEnableEnv_FalseAndUnset(t *testing.T) {
 	}
 }
 
-func TestEnvBool(t *testing.T) {
+func TestParseEnvBool(t *testing.T) {
 	for _, v := range []string{"true", "1", "YES", " on "} {
-		if !envBool(v) {
-			t.Errorf("envBool(%q) = false", v)
+		if val, ok := parseEnvBool(v); !val || !ok {
+			t.Errorf("parseEnvBool(%q) = %v, %v", v, val, ok)
 		}
 	}
-	for _, v := range []string{"", "0", "false", "off", "nope"} {
-		if envBool(v) {
-			t.Errorf("envBool(%q) = true", v)
+	for _, v := range []string{"false", "0", "No", " OFF "} {
+		if val, ok := parseEnvBool(v); val || !ok {
+			t.Errorf("parseEnvBool(%q) = %v, %v", v, val, ok)
 		}
+	}
+	for _, v := range []string{"", "nope", "2", "tru"} {
+		if _, ok := parseEnvBool(v); ok {
+			t.Errorf("parseEnvBool(%q) ok = true", v)
+		}
+	}
+}
+
+func TestApplyRequireExplicitEnableEnv_OffAndNo(t *testing.T) {
+	for _, v := range []string{"off", "no"} {
+		cfg := defaultConfig()
+		cfg.Discovery.Docker.RequireExplicitEnable = true
+		ApplyRequireExplicitEnableEnv(cfg, func(string) (string, bool) { return v, true })
+		if cfg.Discovery.Docker.RequireExplicitEnable || !cfg.IsOverridden(OverrideRequireExplicitEnable) {
+			t.Errorf("%q: live=%v overridden=%v", v, cfg.Discovery.Docker.RequireExplicitEnable, cfg.IsOverridden(OverrideRequireExplicitEnable))
+		}
+	}
+}
+
+func TestApplyRequireExplicitEnableEnv_InvalidIgnored(t *testing.T) {
+	cfg := defaultConfig()
+	cfg.Discovery.Docker.RequireExplicitEnable = true
+	ApplyRequireExplicitEnableEnv(cfg, func(string) (string, bool) { return "maybe", true })
+	if !cfg.Discovery.Docker.RequireExplicitEnable {
+		t.Error("invalid value changed the file value")
+	}
+	if cfg.IsOverridden(OverrideRequireExplicitEnable) || cfg.EnvOverrides() != nil {
+		t.Errorf("invalid value recorded an override: %v", cfg.EnvOverrides())
+	}
+}
+
+func TestInheritRuntime_KeepsRequireExplicitEnableOverride(t *testing.T) {
+	t.Setenv(EnvRequireExplicitEnable, "true")
+	prev, err := Parse([]byte("discovery:\n  docker:\n    enabled: true\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv(EnvRequireExplicitEnable, "")
+	os.Unsetenv(EnvRequireExplicitEnable)
+	next, err := Parse([]byte("discovery:\n  docker:\n    enabled: true\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	next.InheritRuntime(prev)
+	if !next.Discovery.Docker.RequireExplicitEnable || !next.IsOverridden(OverrideRequireExplicitEnable) {
+		t.Fatalf("live=%v overridden=%v", next.Discovery.Docker.RequireExplicitEnable, next.IsOverridden(OverrideRequireExplicitEnable))
+	}
+	path := filepath.Join(t.TempDir(), "c.yaml")
+	if err := next.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(path)
+	if strings.Contains(string(raw), "require_explicit_enable: true") {
+		t.Fatalf("override written to file:\n%s", raw)
 	}
 }
 

@@ -735,7 +735,9 @@ func hasLegacyGateway(data []byte) bool {
 // Parse turns config.yaml bytes into a validated Config exactly as boot does:
 // env-ref recording, ${VAR} expansion (MissingEnvVars), strict decode onto
 // defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
-// ApplyAutoImportEnv(cfg, os.LookupEnv), ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
+// ApplyAutoImportEnv(cfg, os.LookupEnv),
+// ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv),
+// autoDetachEditedDockerEntries, validate().
 // It never runs the legacy server.gateway migration and refuses such input
 // with ErrLegacyGateway.
 func Parse(data []byte) (*Config, error) {
