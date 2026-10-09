@@ -427,6 +427,53 @@ describe('websocketStore', () => {
     });
   });
 
+  describe('onReconnect', () => {
+    it('onReconnect fires on the second connection, not the first', async () => {
+      const { connect, onReconnect } = await getModule();
+      const handler = vi.fn();
+      onReconnect(handler);
+
+      connect();
+      MockWebSocket.instances[0].simulateOpen();
+      expect(handler).not.toHaveBeenCalled();
+
+      MockWebSocket.instances[0].simulateClose();
+      vi.advanceTimersByTime(3000);
+      MockWebSocket.instances[MockWebSocket.instances.length - 1].simulateOpen();
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+
+    it('the returned function unsubscribes', async () => {
+      const { connect, onReconnect } = await getModule();
+      const handler = vi.fn();
+      const unsub = onReconnect(handler);
+
+      connect();
+      MockWebSocket.instances[0].simulateOpen();
+      unsub();
+      MockWebSocket.instances[0].simulateClose();
+      vi.advanceTimersByTime(3000);
+      MockWebSocket.instances[MockWebSocket.instances.length - 1].simulateOpen();
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it('keeps notifying other handlers when one throws', async () => {
+      const { connect, onReconnect } = await getModule();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const good = vi.fn();
+      onReconnect(() => { throw new Error('boom'); });
+      onReconnect(good);
+
+      connect();
+      MockWebSocket.instances[0].simulateOpen();
+      MockWebSocket.instances[0].simulateClose();
+      vi.advanceTimersByTime(3000);
+      MockWebSocket.instances[MockWebSocket.instances.length - 1].simulateOpen();
+      expect(good).toHaveBeenCalledTimes(1);
+      expect(consoleSpy).toHaveBeenCalledWith('Error in reconnect handler', expect.any(Error));
+    });
+  });
+
   describe('on (event handler registration)', () => {
     it('registers and invokes event handlers', async () => {
       const { connect, on } = await getModule();

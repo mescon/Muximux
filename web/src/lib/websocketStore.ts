@@ -31,6 +31,29 @@ let reconnectAttempts = 0;
 const maxReconnectAttempts = 10;
 const baseReconnectDelay = 1000;
 
+// Reconnect handlers: run on every 'connected' after the first one, so
+// state missed while the socket was down can be refetched.
+let hasConnected = false;
+const reconnectHandlers = new Set<() => void>();
+
+function notifyReconnect(): void {
+  for (const handler of reconnectHandlers) {
+    try {
+      handler();
+    } catch (e) {
+      console.error('Error in reconnect handler', e);
+    }
+  }
+}
+
+/** Registers a handler for reconnects (not the first connection). Returns an unsubscribe function. */
+export function onReconnect(handler: () => void): () => void {
+  reconnectHandlers.add(handler);
+  return () => {
+    reconnectHandlers.delete(handler);
+  };
+}
+
 // Calculate reconnect delay with exponential backoff
 function getReconnectDelay(): number {
   const delay = Math.min(baseReconnectDelay * Math.pow(2, reconnectAttempts), 30000);
@@ -62,6 +85,8 @@ export function connect(): void {
       connectionState.set('connected');
       debug('ws', 'connected');
       reconnectAttempts = 0;
+      if (hasConnected) notifyReconnect();
+      hasConnected = true;
     };
 
     ws.onclose = () => {

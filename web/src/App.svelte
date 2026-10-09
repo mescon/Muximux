@@ -14,7 +14,9 @@
   import { slugify } from './lib/slug';
   import { toasts } from './lib/toastStore';
   import { restartHealthPolling, stopHealthPolling } from './lib/healthStore';
-  import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, connectionState } from './lib/websocketStore';
+  import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, onReconnect, connectionState } from './lib/websocketStore';
+  import { refreshDockerState } from './lib/dockerStateStore';
+  import { applyConfigToShell, applyServerConfig, homeOnClearedHash, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
@@ -28,7 +30,7 @@
   import { resolveIconUrl } from './lib/iconUrl';
   import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
-  import { syncLocaleFromConfig, applyConfigLocale } from './lib/localeStore';
+  import { applyConfigLocale } from './lib/localeStore';
   import { getLocale } from '$lib/paraglide/runtime.js';
   import * as m from '$lib/paraglide/messages.js';
   import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
@@ -278,6 +280,49 @@
     minVelocity: 0.25,
   });
 
+  // Live view of the shell for configSync: getters, so a refetch that
+  // resolves later still sees the current panels and dialogs.
+  function shellState(): ShellState {
+    return {
+      get config() { return config; },
+      get apps() { return apps; },
+      get panels() { return splitState.panels; },
+      get showLogs() { return showLogs; },
+      get showSettings() { return showSettings; },
+      visited: visitedAppNames,
+    };
+  }
+  const shellActions: ShellActions = {
+    setConfig: (c) => { config = c; apps = c.apps; },
+    clearPanel: (i) => { splitState.panels[i] = null; },
+    showSplash: () => { resetSplit(); showSplash = true; },
+  };
+  const shellDeps: ApplyDeps = {
+    syncTheme: syncFromConfig,
+    initKeybindings,
+    restartHealth: restartHealthPolling,
+    applyLocale: applyConfigLocale,
+  };
+
+  function resyncConfig() {
+    void applyServerConfig(fetchConfig, shellState(), shellActions, shellDeps);
+  }
+
+  // config_updated carries no payload: refetch GET /api/config (filtered
+  // for this user's role) and apply it. A reconnect may have missed pushes
+  // and docker events, so it resyncs both. Registered once, from the mount
+  // path or after a later login.
+  let liveSyncRegistered = false;
+  function registerLiveSync() {
+    if (liveSyncRegistered) return;
+    liveSyncRegistered = true;
+    onWsEvent('config_updated', () => resyncConfig());
+    onReconnect(() => {
+      resyncConfig();
+      void refreshDockerState();
+    });
+  }
+
   onMount(async () => {
     // Safety net: if Muximux is loaded inside an iframe (e.g. browser back
     // navigated the iframe to "/" which serves the SPA shell), bail out.
@@ -333,12 +378,14 @@
         currentNavHash = location.hash;
         selectAppFromHash();
       } else {
-        // Hash cleared (e.g. navigating to /) — go home
+        // Hash cleared (e.g. navigating to /): go home, unless Settings
+        // stays open (discard prompt or a save in flight).
         currentNavHash = '';
-        closeSettings();
-        showLogs = false;
-        if (splitState.panels[0] || splitState.panels[1]) resetSplit();
-        showSplash = true;
+        homeOnClearedHash(closeSettings, () => {
+          showLogs = false;
+          if (splitState.panels[0] || splitState.panels[1]) resetSplit();
+          showSplash = true;
+        });
       }
     });
 
@@ -426,33 +473,7 @@
         }
       });
 
-      // Listen for config updates via WebSocket
-      onWsEvent('config_updated', (payload) => {
-        const newConfig = payload as Config;
-        config = newConfig;
-        apps = newConfig.apps;
-        debug('config', 'updated via ws', { apps: newConfig.apps.length });
-        // Sync theme if changed from another session
-        if (newConfig.theme) {
-          syncFromConfig(newConfig.theme);
-        }
-        // Reset panels if their apps no longer exist
-        if (splitState.panels[0] && !apps.find(a => a.name === splitState.panels[0]?.name)) {
-          splitState.panels[0] = null;
-        }
-        if (splitState.panels[1] && !apps.find(a => a.name === splitState.panels[1]?.name)) {
-          splitState.panels[1] = null;
-        }
-        if (!splitState.panels[0] && !splitState.panels[1]) {
-          resetSplit();
-          showSplash = true;
-        }
-        // Prune cached iframes for apps that no longer exist or are disabled
-        const validNames = new Set(apps.filter(a => a.enabled).map(a => a.name));
-        for (const name of visitedAppNames) {
-          if (!validNames.has(name)) visitedAppNames.delete(name);
-        }
-      });
+      registerLiveSync();
 
       loading = false;
     } catch (e) {
@@ -515,6 +536,7 @@
 
       showDefaultApp();
       startServices();
+      registerLiveSync();
     } catch (e) {
       error = e instanceof Error ? e.message : m.error_failedLoadConfig();
     }
@@ -828,31 +850,11 @@
   async function handleSaveConfig(newConfig: Config, base?: Config): Promise<void> {
     try {
       const saved = await saveConfig(newConfig, base);
-      config = saved;
-      apps = saved.apps;
-      // Reset panels if their apps no longer exist
-      if (splitState.panels[0] && !apps.find(a => a.name === splitState.panels[0]?.name)) {
-        splitState.panels[0] = null;
-      }
-      if (splitState.panels[1] && !apps.find(a => a.name === splitState.panels[1]?.name)) {
-        splitState.panels[1] = null;
-      }
-      if (!splitState.panels[0] && !splitState.panels[1]) {
-        resetSplit();
-        showSplash = true;
-      }
-      // Prune cached iframes for apps that no longer exist or are disabled
-      const validNames = new Set(apps.filter(a => a.enabled).map(a => a.name));
-      for (const name of visitedAppNames) {
-        if (!validNames.has(name)) visitedAppNames.delete(name);
-      }
+      // Settings closes right after a successful save, so it counts as
+      // closed here (the splash behaves as before). The locale reload, if
+      // any, runs last inside the apply step.
+      applyConfigToShell(saved, { ...shellState(), showSettings: false }, shellActions, shellDeps);
       toasts.success(m.toast_settingsSaved());
-
-      // If language changed, sync locale and reload
-      if (saved.language && saved.language !== getLocale()) {
-        syncLocaleFromConfig(saved.language);
-        return; // reload will happen
-      }
     } catch (e) {
       console.error('Failed to save config:', e);
       toasts.error(m.toast_failedSaveConfig());
