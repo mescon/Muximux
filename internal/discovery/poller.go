@@ -541,7 +541,12 @@ func (p *Poller) tick(ctx context.Context) {
 	// for the full tick. A daemon listing failure aborts the tick
 	// cleanly - we don't want to half-resolve and possibly mark
 	// containers as "not found" because the daemon was unreachable.
-	containers, err := client.ListContainers(ctx, ListContainersOpts{All: false})
+	//
+	// The list honours network_filter exactly as Scan does, so refresh,
+	// re-key and the auto-import scan all see one view: a container outside
+	// the filter is absent from every one of them.
+	scanCfg := svc.snapshotCfg()
+	containers, err := listFilteredContainers(ctx, client, scanCfg.NetworkFilter)
 	if err != nil {
 		if !p.daemonDown {
 			p.daemonDown = true
@@ -556,7 +561,8 @@ func (p *Poller) tick(ctx context.Context) {
 	}
 	// Fold Swarm service ports and labels into the task containers so the
 	// resolve loop below sees the same data the scan does.
-	svc.enrichSwarm(ctx, client, containers)
+	// /services is read here, once; the scan below reuses the result.
+	swarmNote := svc.enrichSwarm(ctx, client, containers)
 
 	// Migrate churning name:/id: keys to the stable label/swarm/compose
 	// key of their container. The tick works on the new keys from here on;
@@ -657,7 +663,7 @@ func (p *Poller) tick(ctx context.Context) {
 	// both resolve to the same final URL and commit in a single save, so
 	// this is not a double-write bug.
 	if autoImport != config.AutoImportOff {
-		scan := svc.Scan(ctx, dashboardDomain)
+		scan := svc.scanTick(ctx, client, &scanCfg, containers, swarmNote, dashboardDomain)
 		// A failed or blocked scan yields no suggestions. Treating that
 		// empty result as the desired set would make sync mode conclude
 		// every labeled container vanished and delete every auto-imported
