@@ -2300,6 +2300,8 @@ auth:
   method: none
 navigation:
   icon_scale: 0
+  show_home_button: false
+  show_splash_on_startup: true
 discovery:
   docker:
     enabled: true
@@ -2341,6 +2343,9 @@ func TestParse_MatchesLoad(t *testing.T) {
 	}
 	if parsed.Navigation.IconScale != 1.0 {
 		t.Errorf("icon scale = %v, want 1.0", parsed.Navigation.IconScale)
+	}
+	if parsed.Navigation.ShowSplashOnStart {
+		t.Error("splash on startup kept without a home button: splash normalisation did not run")
 	}
 	if parsed.Discovery.Docker.Endpoint == "" || parsed.Discovery.Docker.NetworkStrategy == "" {
 		t.Errorf("discovery defaults not applied: %+v", parsed.Discovery.Docker)

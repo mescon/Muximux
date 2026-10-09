@@ -1019,8 +1019,8 @@ func (c *Config) validate() error {
 		// through SaveConfig, or restoring one through Parse (which
 		// never migrates). Refuse to persist in every case.
 		return fmt.Errorf("server.gateway is no longer supported (removed in v3.1.0).\n\n"+
-			"Boot-time auto-migration would have converted this; if you see this\n"+
-			"error you are likely setting server.gateway via the API. Use\n"+
+			"Only a config.yaml loaded at startup is converted automatically; a\n"+
+			"config saved through the API or restored from a backup is not. Use\n"+
 			"server.gateway_sites: directly, or run\n\n"+
 			"  muximux migrate-gateway %s\n\n"+
 			"to convert an existing Caddyfile by hand.\n\n"+
