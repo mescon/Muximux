@@ -87,6 +87,17 @@ describe('GatewayTab', () => {
     expect(screen.getByText(/app: Sonarr/i)).toBeInTheDocument();
   });
 
+  it('closes the site form with Escape even though the dialog stops keydown propagation', async () => {
+    mockListGatewaySites.mockResolvedValue([]);
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByText(/No gateway sites yet/i)).toBeInTheDocument());
+
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+    const dialog = screen.getByRole('dialog');
+    await fireEvent.keyDown(screen.getByLabelText('Domain'), { key: 'Escape' });
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+  });
+
   it('opens the create modal and submits a new site', async () => {
     mockListGatewaySites.mockResolvedValue([]);
     mockCreateGatewaySite.mockResolvedValue({ success: true, restart_required: false });

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/focusTrap';
   import { motionMs } from '$lib/motion';
   import { onMount, tick } from 'svelte';
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
@@ -961,7 +962,7 @@
   </button>
 {/snippet}
 
-<div class="fixed inset-0 z-50 bg-bg-base overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-modal="true" aria-label="Setup wizard" tabindex="0">
+<div class="fixed inset-0 z-50 bg-bg-base overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-modal="true" aria-label="Setup wizard" tabindex="-1" use:focusTrap>
   <!-- Top bar nav preview — rendered as wizard root flex child so it sits above the stepper -->
   {#if ($currentStep === 'navigation' || $currentStep === 'theme') && $selectedNavigation === 'top'}
     <div class="flex-shrink-0" style="z-index: 20;">
@@ -1742,23 +1743,19 @@
                     {#each apps as app (app.name)}
                       {@const selection = appSelections.get(app.name)}
                       <div
-                        class="relative p-3 rounded-lg border transition-all cursor-pointer
+                        class="relative rounded-lg border transition-all
                                {selection?.selected
                                  ? 'bg-accent-subtle border-border-focus'
                                  : 'bg-bg-surface border-border hover:border-border-strong'}"
-                        onclick={() => toggleApp(app)}
-                        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleApp(app))}
-                        role="checkbox"
-                        aria-checked={selection?.selected}
-                        tabindex="0"
                       >
-                        <!-- Checkbox + Add Instance -->
-                        <div class="absolute top-2.5 end-2.5 flex items-center gap-1">
+                        <!-- Checkbox + Add Instance. The add-instance button is a sibling of the
+                             selecting button, not a child, so no control is nested in another. -->
+                        <div class="absolute top-2.5 end-2.5 z-[1] flex items-center gap-1 pointer-events-none">
                           {#if selection?.selected}
                             <button
                               aria-label={m.onboarding_addAnotherInstance({ appName: app.name })}
                               class="w-5 h-5 rounded border border-border-focus bg-accent-muted flex items-center justify-center
-                                     hover:brightness-110 transition-colors"
+                                     hover:brightness-110 transition-colors pointer-events-auto"
                               onclick={(e) => { e.stopPropagation(); addInstanceOf(app); }}
                               title={m.onboarding_addAnotherInstance({ appName: app.name })}
                             >
@@ -1767,7 +1764,7 @@
                               </svg>
                             </button>
                           {/if}
-                          <div class="w-5 h-5 rounded border flex items-center justify-center
+                          <div aria-hidden="true" class="w-5 h-5 rounded border flex items-center justify-center
                                       {selection?.selected ? 'bg-accent-primary border-border-focus' : 'border-border-subtle'}">
                             {#if selection?.selected}
                               <svg class="w-3 h-3 text-accent-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1777,18 +1774,24 @@
                           </div>
                         </div>
 
-                        <div class="flex items-start gap-3">
+                        <button
+                          type="button"
+                          role="checkbox"
+                          aria-checked={selection?.selected ?? false}
+                          class="flex w-full items-start gap-3 p-3 rounded-lg text-start cursor-pointer"
+                          onclick={() => toggleApp(app)}
+                        >
                           <AppIcon
                             icon={{ type: 'dashboard', name: app.icon, file: '', url: '', variant: 'svg' }}
                             name={app.name}
                             color={app.color}
                             size="lg"
                           />
-                          <div class="flex-1 min-w-0 pe-6">
-                            <h4 class="font-medium text-text-primary text-sm">{app.name}</h4>
-                            <p class="text-xs text-text-disabled">{app.description}</p>
-                          </div>
-                        </div>
+                          <span class="block flex-1 min-w-0 pe-6">
+                            <span class="block font-medium text-text-primary text-sm">{app.name}</span>
+                            <span class="block text-xs text-text-disabled">{app.description}</span>
+                          </span>
+                        </button>
                       </div>
                     {/each}
                   </div>
@@ -2141,7 +2144,14 @@
   {@const browserIcon = iconBrowserContext === 'app-override'
     ? appOverrides.get(iconBrowserAppName)?.icon || getAppDisplayIcon(iconBrowserAppName)
     : wizardGroups[iconBrowserContext as number]?.icon}
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Select icon"
+    tabindex="-1"
+    use:focusTrap={{ onEscape: () => { iconBrowserContext = null; } }}
+  >
     <div class="w-full max-w-4xl max-h-[80vh] bg-bg-base rounded-xl border border-border shadow-2xl overflow-hidden">
       <IconBrowser
         selectedIcon={browserIcon?.name || ''}

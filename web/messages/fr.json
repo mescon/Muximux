@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Ajoute ta première application pour commencer avec ton tableau de bord.",
   "splash_addApplication": "Ajouter une application",
   "logs_title": "Logs",
+  "logs_entriesRegion": "Entrées du journal",
   "logs_backToDashboard": "Retour au tableau de bord",
   "logs_resume": "Reprendre",
   "logs_pause": "Pause",

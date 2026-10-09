@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Legg til din første applikasjon for å komme i gang med panelet.",
   "splash_addApplication": "Legg til applikasjon",
   "logs_title": "Logger",
+  "logs_entriesRegion": "Loggoppføringer",
   "logs_backToDashboard": "Tilbake til panelet",
   "logs_resume": "Gjenoppta",
   "logs_pause": "Pause",

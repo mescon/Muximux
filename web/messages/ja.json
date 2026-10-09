@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "最初のアプリを追加してダッシュボードを始めましょう。",
   "splash_addApplication": "アプリを追加",
   "logs_title": "ログ",
+  "logs_entriesRegion": "ログエントリ",
   "logs_backToDashboard": "ダッシュボードに戻る",
   "logs_resume": "再開",
   "logs_pause": "一時停止",

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/focusTrap';
   import { onMount } from 'svelte';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -59,6 +60,8 @@
     aria-modal="true"
     aria-labelledby="docker-confirm-heading"
     aria-busy={loading}
+    tabindex="-1"
+    use:focusTrap
   >
     <h2 id="docker-confirm-heading" class="modal-heading">{heading}</h2>
     <p class="modal-body">{m.docker_modal_body({ image, uptimeOrExit })}</p>

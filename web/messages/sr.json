@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Dodajte svoju prvu aplikaciju da započnete sa kontrolnom tablom.",
   "splash_addApplication": "Dodaj aplikaciju",
   "logs_title": "Evidencija",
+  "logs_entriesRegion": "Stavke evidencije",
   "logs_backToDashboard": "Nazad na kontrolnu tablu",
   "logs_resume": "Nastavi",
   "logs_pause": "Pauziraj",

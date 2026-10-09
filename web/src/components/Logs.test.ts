@@ -869,4 +869,15 @@ describe('Logs', () => {
       expect(rule(`log-btn-${level}-active`), `button ${level}`).toEqual({ color: t.text, background: t.bg, border: t.border });
     }
   });
+
+  describe('scroll region', () => {
+    it('is a keyboard-focusable labelled region', () => {
+      const { container } = render(Logs);
+      const region = container.querySelector('.log-entries')!;
+      expect(region).toHaveAttribute('role', 'region');
+      expect(region).toHaveAttribute('tabindex', '0');
+      expect(region).toHaveAccessibleName('Log entries');
+      expect(screen.getByRole('region', { name: 'Log entries' })).toBe(region);
+    });
+  });
 });

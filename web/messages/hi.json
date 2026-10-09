@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "अपने डैशबोर्ड के साथ शुरू करने के लिए अपना पहला एप्लिकेशन जोड़ें।",
   "splash_addApplication": "एप्लिकेशन जोड़ें",
   "logs_title": "लॉग",
+  "logs_entriesRegion": "लॉग प्रविष्टियाँ",
   "logs_backToDashboard": "डैशबोर्ड पर वापस",
   "logs_resume": "पुनः शुरू",
   "logs_pause": "रोकें",

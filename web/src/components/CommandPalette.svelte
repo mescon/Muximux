@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/focusTrap';
   import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
@@ -361,6 +362,7 @@
   aria-modal="true"
   aria-label={m.command_commandPalette()}
   tabindex="-1"
+  use:focusTrap
   transition:fade={{ duration: motionMs(150) }}
 >
   <!-- Command palette modal -->

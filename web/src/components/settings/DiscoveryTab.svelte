@@ -214,7 +214,7 @@
   <header>
     <h2 class="text-lg font-semibold text-text-primary">Docker discovery</h2>
     <p class="text-sm text-text-muted mt-1">
-      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-accent-text hover:underline">the docs</a> for the full label / strategy reference.
+      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-accent-text underline underline-offset-2">the docs</a> for the full label / strategy reference.
     </p>
   </header>
 

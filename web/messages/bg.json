@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Добавете първото си приложение, за да започнете с таблото.",
   "splash_addApplication": "Добави приложение",
   "logs_title": "Журнали",
+  "logs_entriesRegion": "Записи в журнала",
   "logs_backToDashboard": "Обратно към таблото",
   "logs_resume": "Продължи",
   "logs_pause": "Пауза",

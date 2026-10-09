@@ -244,4 +244,16 @@ describe('AboutTab', () => {
     await waitFor(() => expect(screen.getByText('3.2.0')).toBeInTheDocument());
     expect(screen.getAllByText(/your platform/i).length).toBeGreaterThanOrEqual(1);
   });
+
+  it('underlines the download links that sit in running text', async () => {
+    mockApi.fetchSystemInfo.mockResolvedValue(makeSystemInfo({ environment: 'native', os: 'linux' }));
+    mockApi.checkForUpdates.mockResolvedValue(
+      makeUpdateInfo({ download_urls: { linux_amd64: 'https://example/linux', linux_arm64: 'https://example/linux-arm' } }),
+    );
+    const { container } = render(AboutTab);
+    await waitFor(() => expect(screen.getByText('3.2.0')).toBeInTheDocument());
+    const links = container.querySelectorAll('a[href^="https://example/"]');
+    expect(links.length).toBeGreaterThanOrEqual(2);
+    for (const a of links) expect(a).toHaveClass('underline');
+  });
 });

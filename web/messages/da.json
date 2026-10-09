@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Tilføj din første applikation for at komme i gang med dit panel.",
   "splash_addApplication": "Tilføj applikation",
   "logs_title": "Logfiler",
+  "logs_entriesRegion": "Logposter",
   "logs_backToDashboard": "Tilbage til panelet",
   "logs_resume": "Genoptag",
   "logs_pause": "Pause",

@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Dodajte svojo prvo aplikacijo za začetek dela z nadzorno ploščo.",
   "splash_addApplication": "Dodaj aplikacijo",
   "logs_title": "Dnevniki",
+  "logs_entriesRegion": "Vnosi dnevnika",
   "logs_backToDashboard": "Nazaj na nadzorno ploščo",
   "logs_resume": "Nadaljuj",
   "logs_pause": "Pavziraj",

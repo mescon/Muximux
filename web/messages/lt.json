@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Pridėkite pirmąją programą, kad pradėtumėte naudoti savo valdymo skydą.",
   "splash_addApplication": "Pridėti programą",
   "logs_title": "Žurnalai",
+  "logs_entriesRegion": "Žurnalo įrašai",
   "logs_backToDashboard": "Grįžti į valdymo skydą",
   "logs_resume": "Tęsti",
   "logs_pause": "Pristabdyti",

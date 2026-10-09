@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Panonuzla çalışmaya başlamak için ilk uygulamanızı ekleyin.",
   "splash_addApplication": "Uygulama Ekle",
   "logs_title": "Günlükler",
+  "logs_entriesRegion": "Günlük girdileri",
   "logs_backToDashboard": "Panoya dön",
   "logs_resume": "Devam et",
   "logs_pause": "Duraklat",

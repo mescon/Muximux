@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Добавьте своё первое приложение, чтобы начать работу с панелью.",
   "splash_addApplication": "Добавить приложение",
   "logs_title": "Логи",
+  "logs_entriesRegion": "Записи журнала",
   "logs_backToDashboard": "Вернуться к панели",
   "logs_resume": "Возобновить",
   "logs_pause": "Пауза",

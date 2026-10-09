@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Додайте перший застосунок, щоб почати роботу з панеллю керування.",
   "splash_addApplication": "Додати застосунок",
   "logs_title": "Журнали",
+  "logs_entriesRegion": "Записи журналу",
   "logs_backToDashboard": "Назад до панелі керування",
   "logs_resume": "Відновити",
   "logs_pause": "Призупинити",

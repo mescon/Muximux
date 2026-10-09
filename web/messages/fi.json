@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Lisää ensimmäinen sovelluksesi aloittaaksesi hallintapaneelisi käytön.",
   "splash_addApplication": "Lisää sovellus",
   "logs_title": "Lokit",
+  "logs_entriesRegion": "Lokimerkinnät",
   "logs_backToDashboard": "Takaisin paneeliin",
   "logs_resume": "Jatka",
   "logs_pause": "Tauko",

@@ -288,6 +288,23 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     );
   });
 
+  it('closes the icon picker with Escape while keeping the discover modal open', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [makeSuggestion({ name: 'AppOne' })],
+    });
+    const onclose = vi.fn();
+    render(DiscoverModal, { open: true, mode: 'apps', onclose });
+    await waitFor(() => expect(screen.getByDisplayValue('AppOne')).toBeInTheDocument());
+
+    await fireEvent.click(screen.getByLabelText(/Pick icon for AppOne/i));
+    const dialog = screen.getByRole('dialog', { name: /Pick icon/i });
+    await fireEvent.keyDown(dialog, { key: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: /Pick icon/i })).not.toBeInTheDocument()
+    );
+    expect(onclose).not.toHaveBeenCalled();
+  });
+
   it('closes the icon picker when the IconBrowser fires onclose', async () => {
     mockApi.scanDockerContainers.mockResolvedValue({
       suggestions: [makeSuggestion({ name: 'AppOne' })],

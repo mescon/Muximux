@@ -709,4 +709,11 @@ describe('DiscoveryTab toggle descriptions', () => {
     expect(box).toHaveAccessibleDescription(/^From ENV_A Auto-import only/);
     expect(screen.getByLabelText('Auto-import')).toHaveAccessibleDescription(/^From ENV_B Add, update/);
   });
+
+  it('underlines the docs link inside running text (not colour alone)', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    render(DiscoveryTab);
+    const link = await screen.findByRole('link', { name: 'the docs' });
+    expect(link).toHaveClass('underline');
+  });
 });

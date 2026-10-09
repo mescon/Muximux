@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Προσθέστε την πρώτη σας εφαρμογή για να ξεκινήσετε με τον πίνακα ελέγχου σας.",
   "splash_addApplication": "Προσθήκη εφαρμογής",
   "logs_title": "Αρχεία καταγραφής",
+  "logs_entriesRegion": "Καταχωρήσεις καταγραφής",
   "logs_backToDashboard": "Επιστροφή στον πίνακα ελέγχου",
   "logs_resume": "Συνέχεια",
   "logs_pause": "Παύση",

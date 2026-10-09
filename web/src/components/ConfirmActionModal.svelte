@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/focusTrap';
   import { onMount } from 'svelte';
   import type { App } from '$lib/types';
   import * as m from '$lib/paraglide/messages.js';
@@ -39,6 +40,8 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="confirm-modal-title"
+    tabindex="-1"
+    use:focusTrap
     class="bg-bg-elevated border border-border rounded-lg shadow-xl max-w-md w-full mx-4 p-6 space-y-4"
   >
     <h2 id="confirm-modal-title" class="text-lg font-semibold text-text-primary">

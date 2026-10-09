@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Añade tu primera aplicación para empezar con tu panel.",
   "splash_addApplication": "Añadir aplicación",
   "logs_title": "Logs",
+  "logs_entriesRegion": "Entradas de registro",
   "logs_backToDashboard": "Volver al panel",
   "logs_resume": "Reanudar",
   "logs_pause": "Pausar",

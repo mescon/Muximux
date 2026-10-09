@@ -659,6 +659,7 @@
   "splash_noAppsDesc": "Adja hozzá az első alkalmazását a vezérlőpult használatának megkezdéséhez.",
   "splash_addApplication": "Alkalmazás hozzáadása",
   "logs_title": "Naplók",
+  "logs_entriesRegion": "Naplóbejegyzések",
   "logs_backToDashboard": "Vissza a vezérlőpulthoz",
   "logs_resume": "Folytatás",
   "logs_pause": "Szünet",
