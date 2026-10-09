@@ -816,9 +816,12 @@
     return false;
   }
 
-  async function handleSaveConfig(newConfig: Config) {
+  // base is the config the Settings dialog loaded; the server merges the
+  // save three-way against it. Rethrows on failure so Settings stays open
+  // with the user's edits.
+  async function handleSaveConfig(newConfig: Config, base?: Config): Promise<void> {
     try {
-      const saved = await saveConfig(newConfig);
+      const saved = await saveConfig(newConfig, base);
       config = saved;
       apps = saved.apps;
       // Reset panels if their apps no longer exist
@@ -847,6 +850,7 @@
     } catch (e) {
       console.error('Failed to save config:', e);
       toasts.error(m.toast_failedSaveConfig());
+      throw e;
     }
   }
 
@@ -1199,7 +1203,7 @@
       initialTab={settingsInitialTab}
       initialEditAppName={settingsEditAppName}
       onclose={() => { showSettings = false; settingsInitialTab = 'general'; settingsEditAppName = null; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
-      onsave={(newConfig: Config) => handleSaveConfig(newConfig)}
+      onsave={(c: Config, b: Config) => handleSaveConfig(c, b)}
       onauthchange={(auth: Config['auth']) => { if (config) config.auth = auth; }}
     />
   {/if}

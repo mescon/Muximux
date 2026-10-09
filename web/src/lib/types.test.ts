@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getEffectiveUrl } from './types';
+import { getEffectiveUrl, makeApp, makeGroup, stampUniqueIds } from './types';
 import type { App, DockerState, UserInfo, DiscoveryDockerConfig, DiscoveryDockerStatus } from './types';
 
 function makeApp(overrides: Partial<App> = {}): App {
@@ -86,5 +86,24 @@ describe('Docker lifecycle type extensions', () => {
       lifecycle_enabled: false,
     };
     expect(s.socket_writable).toBe(false);
+  });
+});
+
+describe('stampUniqueIds', () => {
+  it('uses the name, suffixing repeats so every id in the list is distinct', () => {
+    const apps = [makeApp({ name: 'A' }), makeApp({ name: 'B' }), makeApp({ name: 'A' }), makeApp({ name: 'A' })];
+    stampUniqueIds(apps);
+    const ids = apps.map(a => (a as App & { id: string }).id);
+    expect(ids[0]).toBe('A');
+    expect(ids[1]).toBe('B');
+    expect(new Set(ids).size).toBe(4);
+  });
+
+  it('stamps groups too', () => {
+    const groups = [makeGroup({ name: 'G' }), makeGroup({ name: 'G' })];
+    stampUniqueIds(groups);
+    const ids = groups.map(g => (g as typeof g & { id: string }).id);
+    expect(ids[0]).toBe('G');
+    expect(ids[1]).not.toBe('G');
   });
 });

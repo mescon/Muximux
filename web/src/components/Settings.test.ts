@@ -17,6 +17,7 @@ const {
   mockExtractErrors,
   mockIsMobileViewport,
   mockTemplateToApp,
+  mockFetchConfig,
 } = vi.hoisted(() => {
   function makeStore<T>(initial: T) {
     const subs = new Set<(v: T) => void>();
@@ -51,7 +52,9 @@ const {
     mockToasts: {
       success: vi.fn(),
       error: vi.fn(),
+      info: vi.fn(),
     },
+    mockFetchConfig: vi.fn(),
     mockGetKeybindingsForConfig: vi.fn(() => ({ bindings: {} })),
     mockAppSchemaSafeParse: vi.fn(() => ({ success: true })),
     mockGroupSchemaSafeParse: vi.fn(() => ({ success: true })),
@@ -97,11 +100,13 @@ vi.mock('$lib/useSwipe', () => ({
   isTouchDevice: vi.fn(() => false),
 }));
 
-vi.mock('$lib/api', () => ({
+vi.mock('$lib/api', async (importOriginal) => ({
   getBase: vi.fn(() => ''),
   API_BASE: '',
   exportConfig: (...args: unknown[]) => mockExportConfig(...args),
   parseImportedConfig: (...args: unknown[]) => mockParseImportedConfig(...args),
+  fetchConfig: (...args: unknown[]) => mockFetchConfig(...args),
+  errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
 }));
 
 vi.mock('$lib/toastStore', () => ({
@@ -172,9 +177,16 @@ function resolveArgs(args: unknown[]): { target: Node | null; props: Record<stri
   return { target: null, props: {} };
 }
 
+// Live props of the mounted AppsTab, GatewayTab and DiscoverModal mocks.
+// Bound and plain props are getters, so reads see the dialog's current state.
+let appsTabProps: Record<string, unknown> = {};
+let gatewayTabProps: Record<string, unknown> = {};
+let discoverModalProps: Record<string, unknown> = {};
+
 function makeMockAppsTab(...args: unknown[]) {
   const { target, props } = resolveArgs(args);
   if (!target) return { $destroy() {} };
+  appsTabProps = props;
   const div = document.createElement('div');
   div.dataset.testid = 'mock-apps-tab';
 
@@ -473,6 +485,21 @@ function makeMockSecurityTab(...args: unknown[]) {
 }
 vi.mock('./settings/SecurityTab.svelte', () => ({ default: makeMockSecurityTab }));
 vi.mock('./settings/ThemeTab.svelte', () => ({ default: noopComponent }));
+
+function makeMockGatewayTab(...args: unknown[]) {
+  const { target, props } = resolveArgs(args);
+  if (!target) return { $destroy() {} };
+  gatewayTabProps = props;
+  return { $destroy() {} };
+}
+vi.mock('./settings/GatewayTab.svelte', () => ({ default: makeMockGatewayTab }));
+
+function makeMockDiscoverModal(...args: unknown[]) {
+  const { props } = resolveArgs(args);
+  discoverModalProps = props;
+  return { $destroy() {} };
+}
+vi.mock('./settings/DiscoverModal.svelte', () => ({ default: makeMockDiscoverModal }));
 
 import Settings from './Settings.svelte';
 import type { App, AppIcon as AppIconType, Config, NavigationConfig, Group } from '$lib/types';
@@ -1752,6 +1779,322 @@ describe('Settings', () => {
     it('renders with default app in list', () => {
       renderSettings({ apps: [makeApp({ name: 'DefaultApp', default: true, order: 0 }), makeApp({ name: 'OtherApp', order: 1 })] });
       expect(screen.getByText('Settings')).toBeInTheDocument();
+    });
+  });
+  // =======================================================================
+  // O. Base-aware save and rebase onto server changes (#494)
+  // =======================================================================
+  describe('Save with base and rebase', () => {
+    type Tab = 'general' | 'apps' | 'security' | 'gateway';
+
+    // As the app shell passes them: config.apps and the apps prop agree.
+    function serverConfig(apps: App[] = sampleApps, overrides: Partial<Config> = {}): Config {
+      return makeConfig({ apps, ...overrides });
+    }
+
+    function renderFull(config: Config, opts: { initialTab?: Tab; onsave?: (c: Config, b: Config) => Promise<void>; onclose?: () => void } = {}) {
+      return render(Settings, {
+        props: {
+          config,
+          apps: config.apps,
+          ...(opts.initialTab ? { initialTab: opts.initialTab } : {}),
+          ...(opts.onsave ? { onsave: opts.onsave } : {}),
+          ...(opts.onclose ? { onclose: opts.onclose } : {}),
+        },
+      });
+    }
+
+    function listed(group = ''): App[] {
+      return ((appsTabProps.dndGroupedApps as Record<string, App[]>)[group] ?? []);
+    }
+    function names(group = ''): string[] {
+      return listed(group).map(a => a.name);
+    }
+
+    const radarr = makeApp({ name: 'Radarr', order: 2 });
+
+    beforeEach(() => {
+      appsTabProps = {};
+      gatewayTabProps = {};
+      discoverModalProps = {};
+    });
+
+    it('sends base with the save', async () => {
+      const config = serverConfig();
+      const onsave = vi.fn().mockResolvedValue(undefined);
+      const onclose = vi.fn();
+      renderFull(config, { initialTab: 'security', onsave, onclose });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await fireEvent.click(screen.getByText('Save Changes'));
+
+      await waitFor(() => expect(onclose).toHaveBeenCalledTimes(1));
+      expect(onsave).toHaveBeenCalledTimes(1);
+      const [saved, base] = onsave.mock.calls[0] as [Config, Config];
+      expect(saved.title).toBe('Edited title');
+      expect(base).toEqual(config);
+    });
+
+    it('stays open and shows the error when the save fails', async () => {
+      const onsave = vi.fn().mockRejectedValueOnce(new Error('bad')).mockResolvedValue(undefined);
+      const onclose = vi.fn();
+      renderFull(serverConfig(), { initialTab: 'security', onsave, onclose });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await fireEvent.click(screen.getByText('Save Changes'));
+
+      expect(await screen.findByText('Save failed: bad')).toBeInTheDocument();
+      expect(onclose).not.toHaveBeenCalled();
+      expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+      expect(screen.getByText('Save Changes')).not.toBeDisabled();
+
+      // The edit survived: a retry sends it and then closes.
+      await fireEvent.click(screen.getByText('Save Changes'));
+      await waitFor(() => expect(onclose).toHaveBeenCalledTimes(1));
+      expect((onsave.mock.calls[1][0] as Config).title).toBe('Edited title');
+      expect(screen.queryByText('Save failed: bad')).not.toBeInTheDocument();
+    });
+
+    it('falls back to a generic message when the save rejects with a non-error', async () => {
+      const onsave = vi.fn().mockRejectedValue('nope');
+      renderFull(serverConfig(), { initialTab: 'security', onsave });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await fireEvent.click(screen.getByText('Save Changes'));
+
+      expect(await screen.findByText('Save failed: Failed to save configuration')).toBeInTheDocument();
+    });
+
+    it('shows Saving and blocks Save while the save is in flight', async () => {
+      let resolve!: () => void;
+      const onsave = vi.fn(() => new Promise<void>(r => { resolve = r; }));
+      const onclose = vi.fn();
+      renderFull(serverConfig(), { initialTab: 'security', onsave, onclose });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await fireEvent.click(screen.getByText('Save Changes'));
+
+      expect(screen.getByText('Saving...')).toBeDisabled();
+      resolve();
+      await waitFor(() => expect(onclose).toHaveBeenCalledTimes(1));
+    });
+
+    it('rebases on a new config prop and keeps unsaved edits', async () => {
+      const onsave = vi.fn().mockResolvedValue(undefined);
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'security', onsave });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      await fireEvent.click(screen.getByText('Apps & Groups'));
+      expect(names()).toEqual(['Grafana', 'Sonarr', 'Radarr']);
+      expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+      expect(mockToasts.info).toHaveBeenCalledWith('Settings were updated by the server; your unsaved edits were kept.');
+
+      await fireEvent.click(screen.getByText('Save Changes'));
+      await waitFor(() => expect(onsave).toHaveBeenCalledTimes(1));
+      const [saved, base] = onsave.mock.calls[0] as [Config, Config];
+      expect(saved.title).toBe('Edited title');
+      expect(saved.apps.map(a => a.name)).toEqual(['Grafana', 'Sonarr', 'Radarr']);
+      expect(base.apps.map(a => a.name)).toEqual(['Grafana', 'Sonarr', 'Radarr']);
+      expect(base.title).toBe('Muximux');
+    });
+
+    it('a rebase with no server change leaves the dialog clean', async () => {
+      const config = serverConfig(sampleApps, { groups: [makeGroup({ name: 'Media' })] });
+      const { rerender } = renderFull(config, { initialTab: 'apps' });
+
+      const copy = JSON.parse(JSON.stringify(config)) as Config;
+      await rerender({ config: copy, apps: copy.apps });
+
+      expect(names()).toEqual(['Grafana', 'Sonarr']);
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+      expect(screen.getByText('Save Changes')).toBeDisabled();
+      expect(mockToasts.info).not.toHaveBeenCalled();
+    });
+
+    it('a server change with no local edits stays clean and silent', async () => {
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'apps' });
+
+      const theirs = serverConfig([...sampleApps, radarr], { title: 'Renamed' });
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      expect(names()).toEqual(['Grafana', 'Sonarr', 'Radarr']);
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+      expect(mockToasts.info).not.toHaveBeenCalled();
+    });
+
+    it('import refreshes without a phantom dirty state', async () => {
+      const groups = [makeGroup({ name: 'Media', order: 0 }), makeGroup({ name: 'Tools', order: 1 })];
+      const apps = [
+        makeApp({ name: 'Plex', group: 'Media', order: 0 }),
+        makeApp({ name: 'Loose', group: '', order: 0 }),
+      ];
+      const config = serverConfig(apps, { groups });
+      const fresh = serverConfig([
+        ...apps,
+        makeApp({ name: 'Jellyfin', group: 'Media', order: 1, docker_key: 'name:jellyfin' }),
+      ], { groups });
+      mockFetchConfig.mockResolvedValue(fresh);
+      const onclose = vi.fn();
+      const { container } = renderFull(config, { initialTab: 'apps', onclose });
+
+      (appsTabProps.ondiscoveryscan as () => void)();
+      await waitFor(() => expect(discoverModalProps.open).toBe(true));
+      await (discoverModalProps.onimported as () => Promise<void>)();
+
+      await waitFor(() => expect(names('Media')).toEqual(['Plex', 'Jellyfin']));
+      expect(names('')).toEqual(['Loose']);
+      expect(names('Tools')).toEqual([]);
+      expect(discoverModalProps.open).toBe(false);
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+      expect(screen.getByText('Save Changes')).toBeDisabled();
+
+      await fireEvent.click(container.querySelector('[aria-label="Close settings"]')!);
+      expect(screen.queryByText('You have unsaved changes. Discard?')).not.toBeInTheDocument();
+      expect(onclose).toHaveBeenCalledTimes(1);
+    });
+
+    it('import keeps an unrelated unsaved edit', async () => {
+      const fresh = serverConfig([...sampleApps, radarr]);
+      mockFetchConfig.mockResolvedValue(fresh);
+      const onsave = vi.fn().mockResolvedValue(undefined);
+      renderFull(serverConfig(), { initialTab: 'security', onsave });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await (discoverModalProps.onimported as () => Promise<void>)();
+
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+      await fireEvent.click(screen.getByText('Save Changes'));
+      await waitFor(() => expect(onsave).toHaveBeenCalledTimes(1));
+      const [saved] = onsave.mock.calls[0] as [Config, Config];
+      expect(saved.title).toBe('Edited title');
+      expect(saved.apps.map(a => a.name)).toContain('Radarr');
+    });
+
+    it('closes the Discover modal and reports a failed refresh after an import', async () => {
+      mockFetchConfig.mockRejectedValue(new Error('offline'));
+      renderFull(serverConfig(), { initialTab: 'apps' });
+
+      (appsTabProps.ondiscoveryscan as () => void)();
+      await waitFor(() => expect(discoverModalProps.open).toBe(true));
+      await (discoverModalProps.onimported as () => Promise<void>)();
+
+      expect(mockToasts.error).toHaveBeenCalledWith('Failed to load configuration');
+      await waitFor(() => expect(discoverModalProps.open).toBe(false));
+      expect(names()).toEqual(['Grafana', 'Sonarr']);
+    });
+
+    it('queues a rebase while an app is being edited', async () => {
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'apps' });
+
+      const held = listed()[0];
+      (appsTabProps.onstartEditApp as (a: App) => void)(held);
+      await waitFor(() => expect(screen.getByText('Edit Grafana')).toBeInTheDocument());
+      held.url = 'https://changed.example';
+
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+      expect(names()).toEqual(['Grafana', 'Sonarr']);
+      expect(listed()[0]).toBe(held);
+
+      await fireEvent.click(screen.getByText('Cancel'));
+
+      // Cancel found the modal's object in place and restored it.
+      expect(held.url).toBe('https://example.com');
+      await waitFor(() => expect(names()).toEqual(['Grafana', 'Sonarr', 'Radarr']));
+      expect(listed()[0].url).toBe('https://example.com');
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+    });
+
+    it('queues a rebase while a save is in flight and applies it when the save fails', async () => {
+      let reject!: (e: Error) => void;
+      const onsave = vi.fn(() => new Promise<void>((_, r) => { reject = r; }));
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'apps', onsave });
+      mockSelectedFamily.set('nord');
+      await waitFor(() => expect(screen.getByText('Save Changes')).not.toBeDisabled());
+
+      await fireEvent.click(screen.getByText('Save Changes'));
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+      expect(names()).toEqual(['Grafana', 'Sonarr']);
+
+      reject(new Error('conflict'));
+      expect(await screen.findByText('Save failed: conflict')).toBeInTheDocument();
+      await waitFor(() => expect(names()).toEqual(['Grafana', 'Sonarr', 'Radarr']));
+    });
+
+    it('ignores server changes once a save succeeded', async () => {
+      const onsave = vi.fn().mockResolvedValue(undefined);
+      const onclose = vi.fn();
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'apps', onsave, onclose });
+      mockSelectedFamily.set('nord');
+      await waitFor(() => expect(screen.getByText('Save Changes')).not.toBeDisabled());
+
+      await fireEvent.click(screen.getByText('Save Changes'));
+      await waitFor(() => expect(onclose).toHaveBeenCalledTimes(1));
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      expect(names()).toEqual(['Grafana', 'Sonarr']);
+    });
+
+    it('passes configRevision to GatewayTab', async () => {
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'gateway' });
+      expect(gatewayTabProps.configRevision).toBe(0);
+
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      expect(gatewayTabProps.configRevision).toBe(1);
+    });
+
+    it('blocks the save on a name conflict until one item is renamed', async () => {
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'apps' });
+
+      // The user renames Grafana to Radarr while the server adds its own Radarr.
+      listed()[0].name = 'Radarr';
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      const banner = await screen.findByTestId('settings-conflicts');
+      expect(banner).toHaveTextContent('Two apps are named "Radarr". Rename one of them before saving.');
+      expect(screen.getByText('Save Changes')).toBeDisabled();
+      expect(names()).toEqual(['Radarr', 'Sonarr', 'Radarr']);
+      const ids = listed().map(a => (a as App & { id: string }).id);
+      expect(new Set(ids).size).toBe(ids.length);
+
+      listed()[2].name = 'Radarr 4K';
+      await waitFor(() => expect(screen.queryByTestId('settings-conflicts')).not.toBeInTheDocument());
+      expect(screen.getByText('Save Changes')).not.toBeDisabled();
+    });
+
+    it('lists one message per conflicting name', async () => {
+      const { rerender } = renderFull(serverConfig(), { initialTab: 'apps' });
+
+      listed()[0].name = 'Radarr';
+      listed()[1].name = 'Radarr';
+      const theirs = serverConfig([...sampleApps, radarr]);
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      const banner = await screen.findByTestId('settings-conflicts');
+      expect(banner.querySelectorAll('p')).toHaveLength(1);
+      const ids = listed().map(a => (a as App & { id: string }).id);
+      expect(ids).toHaveLength(3);
+      expect(new Set(ids).size).toBe(3);
+    });
+
+    it('reports a group name conflict', async () => {
+      const config = serverConfig(sampleApps, { groups: [makeGroup({ name: 'Media' })] });
+      const { rerender } = renderFull(config, { initialTab: 'apps' });
+
+      (appsTabProps.dndGroups as Group[])[0].name = 'Tools';
+      const theirs = serverConfig(sampleApps, { groups: [makeGroup({ name: 'Media' }), makeGroup({ name: 'Tools', order: 1 })] });
+      await rerender({ config: theirs, apps: theirs.apps });
+
+      expect(await screen.findByTestId('settings-conflicts')).toHaveTextContent('Two groups are named "Tools". Rename one of them before saving.');
+      expect(screen.getByText('Save Changes')).toBeDisabled();
     });
   });
 });

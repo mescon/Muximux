@@ -114,6 +114,23 @@ export function makeGroup(overrides: Partial<Group> = {}): Group {
 export function stampAppId(app: App) { (app as App & Record<string, unknown>).id = app.name; }
 export function stampGroupId(group: Group) { (group as Group & Record<string, unknown>).id = group.name; }
 
+/**
+ * Stamps every item in a list with an id unique within that list: its name,
+ * or for a second item of the same name `name` plus a NUL and a counter. Two
+ * items share a name only while a Settings rebase conflict waits for the
+ * user to rename one; keyed lists and svelte-dnd-action need distinct ids
+ * meanwhile. The id is client-only (the server ignores it), so the suffix
+ * never reaches the saved config.
+ */
+export function stampUniqueIds(items: (App | Group)[]): void {
+  const seen = new Map<string, number>();
+  for (const item of items) {
+    const n = seen.get(item.name) ?? 0;
+    seen.set(item.name, n + 1);
+    (item as (App | Group) & Record<string, unknown>).id = n === 0 ? item.name : `${item.name}\u0000${n}`;
+  }
+}
+
 export interface NavigationConfig {
   position: 'top' | 'left' | 'right' | 'bottom' | 'floating';
   width: string;

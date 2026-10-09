@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { flip } from 'svelte/animate';
-  import { type App, type Group, type DiscoveryDockerStatus, stampAppId } from '$lib/types';
+  import { type App, type Group, type DiscoveryDockerStatus, stampUniqueIds } from '$lib/types';
   import AppIcon from '../AppIcon.svelte';
   import { hasIcon } from '$lib/iconUrl';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
@@ -150,7 +150,8 @@
   }
   function handleAppDndFinalize(e: CustomEvent<DndEvent<App>>, groupName: string) {
     const newItems = e.detail.items;
-    newItems.forEach((a, i) => { a.group = groupName; a.order = i; stampAppId(a); });
+    newItems.forEach((a, i) => { a.group = groupName; a.order = i; });
+    stampUniqueIds(newItems);
     dndGroupedApps[groupName] = newItems;
     onsyncAppOrder(groupName, newItems);
   }
@@ -174,7 +175,8 @@
     const next = moveItem(list, index, direction);
     if (next === list) return;
     const moved = next[index + direction];
-    next.forEach((a, i) => { a.group = groupName; a.order = i; stampAppId(a); });
+    next.forEach((a, i) => { a.group = groupName; a.order = i; });
+    stampUniqueIds(next);
     dndGroupedApps[groupName] = next;
     onsyncAppOrder(groupName, next);
     announce(m.apps_movedTo({ name: moved.name, position: `${index + direction + 1}`, total: `${next.length}` }));

@@ -17,9 +17,9 @@
     open: boolean;
     mode?: Mode;
     onclose: () => void;
-    /** Fired after a successful import so the parent can refresh
-     *  the apps / gateway lists. */
-    onimported?: () => void;
+    /** Fired after a successful import: the parent refreshes the
+     *  apps / gateway lists and closes this modal. */
+    onimported?: () => void | Promise<void>;
   } = $props();
 
   // Scan state.
@@ -213,8 +213,10 @@
 
       const res = await importDockerSuggestions({ items });
       importResult = res;
+      // On success the parent refreshes its config and closes this modal;
+      // awaiting keeps the Import button busy until the refresh is done.
       if (res.success) {
-        onimported?.();
+        await onimported?.();
       }
     } catch (e) {
       importTopError = errorText(e, 'Import failed');
