@@ -1524,8 +1524,7 @@
                       <textarea
                         id="setup-proxies"
                         bind:value={faTrustedProxies}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
- text-sm"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                         placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                         rows="3"
                       ></textarea>
@@ -1859,9 +1858,7 @@
                                 type="text"
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
-                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border
- text-sm text-text-primary font-medium
- transition-colors"
+                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border text-sm text-text-primary font-medium transition-colors"
                               />
                             </div>
                             {@render wizardMoveButtons(

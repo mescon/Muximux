@@ -209,8 +209,7 @@
           type="submit"
           disabled={loading}
           class="login-submit w-full py-2 px-4 font-medium rounded-md
-                 transition-colors
- disabled:opacity-50 disabled:cursor-not-allowed"
+                 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {#if loading}
             <span class="inline-flex items-center">
