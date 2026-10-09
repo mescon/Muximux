@@ -902,3 +902,65 @@ func TestHandleConfigRestore_SaveFailure(t *testing.T) {
 		t.Error("setup no longer pending after a failed restore")
 	}
 }
+
+// S-53: before setup an anonymous caller without the setup token must not
+// reach the admin auth endpoints, which run as the virtual admin while auth
+// is none. The wizard's own calls still work.
+func TestPreSetup_AdminAuthEndpointsRefused(t *testing.T) {
+	s := newServerForTest(t, nil)
+	if !s.needsSetup.Load() {
+		t.Fatal("expected pre-setup state")
+	}
+	refused := []struct{ method, path, body string }{
+		{http.MethodPost, "/api/auth/users", `{"username":"mallory","password":"password123","role":"admin"}`},
+		{http.MethodPost, "/api/auth/api-key", ""},
+		{http.MethodPut, "/api/auth/method", `{"method":"none"}`},
+		{http.MethodGet, "/api/auth/settings/oidc", ""},
+		{http.MethodPut, "/api/auth/settings/oidc", `{"issuer_url":"https://evil.example"}`},
+		{http.MethodPost, "/api/auth/settings/oidc/test", `{"issuer_url":"https://evil.example"}`},
+	}
+	for _, c := range refused {
+		rec := doJSON(s, c.method, c.path, c.body, nil, true)
+		if rec.Code != http.StatusServiceUnavailable || !strings.Contains(rec.Body.String(), "setup_required") {
+			t.Errorf("%s %s: got %d %s, want 503 setup_required", c.method, c.path, rec.Code, rec.Body.String())
+		}
+	}
+	s.configMu.RLock()
+	users, keyHash := len(s.config.Auth.Users), s.config.Auth.APIKeyHash
+	s.configMu.RUnlock()
+	if users != 0 || keyHash != "" {
+		t.Fatalf("pre-setup state changed: users=%d apiKeyHash=%q", users, keyHash)
+	}
+
+	// The endpoints the login page and the wizard use are still reachable.
+	if rec := get(t, s, "/api/auth/status"); rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `"setup_required":true`) {
+		t.Errorf("status: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := get(t, s, "/api/auth/me"); rec.Code == http.StatusServiceUnavailable {
+		t.Errorf("me refused before setup: %d", rec.Code)
+	}
+	if rec := doJSON(s, http.MethodPost, "/api/auth/logout", "", nil, true); rec.Code == http.StatusServiceUnavailable {
+		t.Errorf("logout refused before setup: %d", rec.Code)
+	}
+	if rec := doJSON(s, http.MethodPost, "/api/auth/login", `{"username":"x","password":"y"}`, nil, true); rec.Code == http.StatusServiceUnavailable {
+		t.Errorf("login refused before setup: %d", rec.Code)
+	}
+	if rec := get(t, s, "/api/auth/oidc/login"); rec.Code == http.StatusServiceUnavailable {
+		t.Errorf("oidc login refused before setup: %d", rec.Code)
+	}
+
+	// Setup with the token completes, after which the admin endpoints are
+	// behind normal authentication.
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"builtin","username":"owner","password":"correct horse battery"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
+	req.Header.Set(setupTokenHeader, s.setupToken)
+	rec := httptest.NewRecorder()
+	s.httpServer.Handler.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("setup: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := doJSON(s, http.MethodPost, "/api/auth/api-key", "", nil, true); rec.Code != http.StatusUnauthorized {
+		t.Errorf("api-key after setup without a session: got %d, want 401", rec.Code)
+	}
+}

@@ -1249,6 +1249,16 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// setupAllowedAuthPaths are the /api/auth/ endpoints reachable before
+// setup completes, besides the /api/auth/oidc/ login and callback routes.
+var setupAllowedAuthPaths = map[string]bool{
+	"/api/auth/status": true,
+	"/api/auth/setup":  true,
+	"/api/auth/login":  true,
+	"/api/auth/logout": true,
+	"/api/auth/me":     true,
+}
+
 // isSetupAllowed returns true if the request should be allowed through during setup.
 func (s *Server) isSetupAllowed(r *http.Request) bool {
 	path := r.URL.Path
@@ -1258,8 +1268,12 @@ func (s *Server) isSetupAllowed(r *http.Request) bool {
 		return true
 	}
 
-	// Auth, health, and config restore endpoints are always allowed
-	if strings.HasPrefix(path, "/api/auth/") || path == "/api/health" || path == "/api/config/restore" {
+	// The auth endpoints the login page and the wizard need, health, and
+	// config restore (which checks the setup token itself). Every other
+	// /api/auth/ endpoint (users, API key, auth method, OIDC settings) runs
+	// as the virtual admin while auth is none, so it waits for setup.
+	if setupAllowedAuthPaths[path] || strings.HasPrefix(path, "/api/auth/oidc/") ||
+		path == "/api/health" || path == "/api/config/restore" {
 		return true
 	}
 

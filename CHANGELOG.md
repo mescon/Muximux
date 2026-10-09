@@ -81,6 +81,11 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   a login that was in progress during the restore, so credentials from before
   the restore cannot survive it. An unreachable OIDC provider in a backup is
   switched off instead of kept. (#494)
+- **Admin auth endpoints wait for setup.** Before setup completes, only auth
+  status, setup, login, logout, `me` and the OIDC sign-in routes answer
+  without the setup token; creating users or an API key, changing the auth
+  method and the OIDC settings return 503 `setup_required` instead of
+  running as the pre-setup admin. (#494)
 
 
 ## [3.5.0] - 2026-10-08
