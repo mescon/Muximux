@@ -461,3 +461,28 @@ describe('App cleared hash while Settings is blocked', () => {
     expect(screen.getByTestId('settings')).toBeTruthy();
   });
 });
+
+describe('App hash change to an app while Settings is open', () => {
+  it('keeps Settings and #settings when the close is blocked, and does not select the app', async () => {
+    await loggedIn();
+    setHash('#a');
+    await screen.findByTestId('frame-a');
+    await openSettings();
+    // Browser back from #settings to #a with unsaved edits.
+    g.__settingsBlockClose = true;
+    setHash('#b');
+    await new Promise(r => setTimeout(r, 0));
+    expect(location.hash).toBe('#settings');
+    expect(screen.getByTestId('settings')).toBeTruthy();
+    expect(screen.queryByTestId('frame-b')).toBeNull();
+  });
+
+  it('closes Settings and selects the app once nothing is unsaved', async () => {
+    await loggedIn();
+    await openSettings();
+    setHash('#b');
+    await screen.findByTestId('frame-b');
+    expect(screen.queryByTestId('settings')).toBeNull();
+    expect(location.hash).toBe('#b');
+  });
+});

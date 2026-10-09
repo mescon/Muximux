@@ -16,7 +16,7 @@
   import { restartHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, onReconnect, connectionState } from './lib/websocketStore';
   import { refreshDockerState } from './lib/dockerStateStore';
-  import { applyConfigToShell, applyServerConfig, homeOnClearedHash, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
+  import { applyConfigToShell, applyServerConfig, settingsAllowHashChange, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
@@ -386,25 +386,25 @@
     // Sync currentNavHash BEFORE calling selectAppFromHash so that the
     // selectApp → updateHash chain sees matching hashes and uses
     // replaceState (avoiding a duplicate pushState entry).
+    // While Settings is open, any other hash (back to an app, a cleared
+    // hash) goes through its unsaved-changes prompt first. If Settings stays
+    // open (prompt or a save in flight), nothing else changes and its hash
+    // is put back (replaceState fires no hashchange, so this does not loop).
     window.addEventListener('hashchange', () => {
+      if (!settingsAllowHashChange(location.hash, showSettings, closeSettings)) {
+        history.replaceState(null, '', '#settings');
+        currentNavHash = '#settings';
+        return;
+      }
       if (location.hash) {
         currentNavHash = location.hash;
         selectAppFromHash();
       } else {
-        // Hash cleared (e.g. navigating to /): go home, unless Settings
-        // stays open (discard prompt or a save in flight).
+        // Hash cleared (e.g. navigating to /): go home.
         currentNavHash = '';
-        const wentHome = homeOnClearedHash(closeSettings, () => {
-          showLogs = false;
-          if (splitState.panels[0] || splitState.panels[1]) resetSplit();
-          showSplash = true;
-        });
-        if (!wentHome) {
-          // Settings stayed open: put its hash back (replaceState fires no
-          // hashchange, so this does not loop).
-          history.replaceState(null, '', '#settings');
-          currentNavHash = '#settings';
-        }
+        showLogs = false;
+        if (splitState.panels[0] || splitState.panels[1]) resetSplit();
+        showSplash = true;
       }
     });
 

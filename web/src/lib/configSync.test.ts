@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { App, Config } from './types';
-import { applyConfigToShell, applyServerConfig, homeOnClearedHash, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './configSync';
+import { applyConfigToShell, applyServerConfig, settingsAllowHashChange, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './configSync';
 
 function makeApp(name: string, enabled = true): App {
   return {
@@ -222,16 +222,23 @@ describe('reapplyDeferredPrefs', () => {
   });
 });
 
-describe('homeOnClearedHash', () => {
-  it('goes home when Settings closed', () => {
-    const goHome = vi.fn();
-    expect(homeOnClearedHash(() => true, goHome)).toBe(true);
-    expect(goHome).toHaveBeenCalled();
+describe('settingsAllowHashChange', () => {
+  it('lets every hash through while Settings is closed', () => {
+    const close = vi.fn(() => false);
+    expect(settingsAllowHashChange('#plex', false, close)).toBe(true);
+    expect(settingsAllowHashChange('', false, close)).toBe(true);
+    expect(close).not.toHaveBeenCalled();
   });
 
-  it('changes nothing when the close was blocked', () => {
-    const goHome = vi.fn();
-    expect(homeOnClearedHash(() => false, goHome)).toBe(false);
-    expect(goHome).not.toHaveBeenCalled();
+  it('ignores #settings itself while Settings is open', () => {
+    const close = vi.fn(() => false);
+    expect(settingsAllowHashChange('#settings', true, close)).toBe(true);
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  it('asks Settings to close for any other hash, cleared included', () => {
+    expect(settingsAllowHashChange('#plex', true, () => true)).toBe(true);
+    expect(settingsAllowHashChange('#plex', true, () => false)).toBe(false);
+    expect(settingsAllowHashChange('', true, () => false)).toBe(false);
   });
 });

@@ -112,12 +112,12 @@ export function reapplyDeferredPrefs(config: Config, deps: ApplyDeps): boolean {
 }
 
 /**
- * The cleared-hash route (e.g. the user navigated to /). Goes home only when
- * Settings actually closed; a discard prompt or an in-flight save keeps the
- * whole view as it is. Returns whether it went home.
+ * Gates a hash change (browser back/forward, a typed URL) through Settings'
+ * close path while the dialog is open. Any hash other than #settings asks
+ * Settings to close; returns false when it stays open (a discard prompt or
+ * a save in flight), and the caller then keeps the whole view as it is.
  */
-export function homeOnClearedHash(closeSettings: () => boolean, goHome: () => void): boolean {
-  if (!closeSettings()) return false;
-  goHome();
-  return true;
+export function settingsAllowHashChange(hash: string, settingsOpen: boolean, closeSettings: () => boolean): boolean {
+  if (!settingsOpen || hash === '#settings') return true;
+  return closeSettings();
 }
