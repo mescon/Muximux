@@ -33,7 +33,7 @@ const (
 // default already.
 type Suggestion struct {
 	// Tracking
-	Key       string    `json:"key"`       // "label:foo" | "name:bar" | "id:..."
+	Key       string    `json:"key"`       // label|swarm|compose|name|id, e.g. "swarm:stack_svc"
 	Stability Stability `json:"stability"` // see Stability constants
 
 	// Display

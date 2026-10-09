@@ -350,13 +350,15 @@ func parseHTTPActionHeadersCSV(v string) map[string]string {
 
 // Stability hints surface in the Discover modal next to each
 // suggestion so the operator can see whether the tracking key will
-// survive a docker-compose --force-recreate.
+// survive a docker-compose --force-recreate or a swarm reschedule.
+// Label, swarm service and compose service keys are all stable; only
+// task-name and compose-suffixed container-name keys are fragile.
 type Stability string
 
 const (
-	StabilityStable          Stability = "stable"           // label-based or plain non-suffixed name
-	StabilityRecreateFragile Stability = "recreate-fragile" // compose-style suffix that changes on recreate
-	StabilityTaskFragile     Stability = "task-fragile"     // swarm task name with random suffix
+	StabilityStable          Stability = "stable"           // label, swarm service, compose service, or plain non-suffixed name
+	StabilityRecreateFragile Stability = "recreate-fragile" // compose-style name suffix (no compose labels) that changes on recreate
+	StabilityTaskFragile     Stability = "task-fragile"     // swarm task name with random suffix (no swarm service label)
 )
 
 // composeV1Suffix matches names like "myproject_sonarr_1" - V1 default.

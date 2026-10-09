@@ -122,3 +122,36 @@ func TestTrackingKey_ParseAndMatchSwarmCompose(t *testing.T) {
 		t.Fatal("compose:p must not match project p, service s")
 	}
 }
+
+func TestTrackingKey_ReplicasShareKeyFirstMatchWins(t *testing.T) {
+	r1 := ContainerSummary{ID: "a", Names: []string{"/s.1.aaa"}, Labels: map[string]string{LabelSwarmServiceName: "s", LabelComposeProject: "p", LabelComposeService: "svc"}}
+	r2 := ContainerSummary{ID: "b", Names: []string{"/s.2.bbb"}, Labels: map[string]string{LabelSwarmServiceName: "s", LabelComposeProject: "p", LabelComposeService: "svc"}}
+	set := []ContainerSummary{r1, r2}
+	for _, raw := range []string{"swarm:s", "compose:p:svc"} {
+		k, err := ParseTrackingKey(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := k.FindContainer(set); got == nil || got.ID != "a" {
+			t.Fatalf("%s: want first replica, got %+v", raw, got)
+		}
+	}
+}
+
+func TestParseTrackingKey_ComposeEmptyParts(t *testing.T) {
+	// These parse (non-empty value) but can never match a real
+	// container, since composeKeyValue is "" unless both labels are set.
+	c := ContainerSummary{ID: "1", Labels: map[string]string{LabelComposeProject: "p", LabelComposeService: "s"}}
+	for _, raw := range []string{"compose:p:", "compose::s"} {
+		k, err := ParseTrackingKey(raw)
+		if err != nil {
+			t.Fatalf("%s: unexpected error %v", raw, err)
+		}
+		if k.MatchContainer(&c) || k.FindContainer([]ContainerSummary{c}) != nil {
+			t.Fatalf("%s must never match", raw)
+		}
+	}
+	if _, err := ParseTrackingKey("compose:"); err == nil {
+		t.Fatal("empty value must be rejected")
+	}
+}

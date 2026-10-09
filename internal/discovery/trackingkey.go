@@ -118,7 +118,10 @@ func (k TrackingKey) MatchContainer(c *ContainerSummary) bool {
 }
 
 // FindContainer scans the slice for the first container that matches
-// this tracking key. Returns nil when no match is found.
+// this tracking key. Returns nil when no match is found. Replicas of
+// one swarm service (or a scaled compose service) share a key, so the
+// first match in slice order wins; callers get a deterministic pick
+// for a given input order.
 func (k TrackingKey) FindContainer(containers []ContainerSummary) *ContainerSummary {
 	for i := range containers {
 		if k.MatchContainer(&containers[i]) {
