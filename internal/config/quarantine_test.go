@@ -499,3 +499,65 @@ func TestDockerSiteReason(t *testing.T) {
 		}
 	}
 }
+
+func TestQuarantineUnchangedInvalidDockerApps(t *testing.T) {
+	prior := []AppConfig{
+		{Name: "Broken", URL: "", DockerKey: "label:b", DockerAutoImported: true, Enabled: true},
+		{Name: "Edited", URL: "", DockerKey: "label:e", DockerAutoImported: true, Enabled: true},
+		{Name: "Fine", URL: "http://f", DockerKey: "label:f", DockerAutoImported: true, Enabled: true},
+	}
+	cfg := defaultConfig()
+	cfg.Apps = append([]AppConfig(nil), prior...)
+	cfg.Apps[1].Color = "#fff" // the payload changed this one
+	cfg.Server.GatewaySites = []GatewaySite{
+		{Domain: "b.example.com", BackendURL: "http://b:80", DockerKey: "label:b"},
+		{Domain: "manual.example.com", BackendURL: "http://m:80", AppName: "Broken"},
+	}
+	if n := cfg.QuarantineUnchangedInvalidDockerApps(prior); n != 1 || len(cfg.Apps) != 2 || cfg.Apps[0].Name != "Edited" {
+		t.Fatalf("n=%d apps=%+v", n, cfg.Apps)
+	}
+	// The shared site rule ran: the docker site of Broken is quarantined,
+	// the manual site naming Broken lost its app_name.
+	if len(cfg.Server.GatewaySites) != 1 || cfg.Server.GatewaySites[0].AppName != "" || !cfg.HasQuarantined("label:b") {
+		t.Fatalf("sites=%+v quarantined=%+v", cfg.Server.GatewaySites, cfg.Quarantined())
+	}
+	if len(cfg.Quarantined()) != 2 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
+
+func TestQuarantineUnchangedInvalidDockerApps_SlugCollision(t *testing.T) {
+	prior := []AppConfig{
+		{Name: "Home Assistant", URL: "http://ha", Enabled: true},
+		{Name: "Home-Assistant", URL: "http://ha2", DockerKey: "label:ha", DockerAutoImported: true, Enabled: true},
+	}
+	cfg := defaultConfig()
+	cfg.Apps = append([]AppConfig(nil), prior...)
+	if n := cfg.QuarantineUnchangedInvalidDockerApps(prior); n != 1 || len(cfg.Apps) != 1 {
+		t.Fatalf("n=%d apps=%+v", n, cfg.Apps)
+	}
+}
+
+func TestSameSavedApp(t *testing.T) {
+	p := AppConfig{Name: "A", URL: "", DockerKey: "k", DockerAutoImported: true,
+		DockerManagedURL: "http://old", ProxyHeaders: map[string]string{}, HTTPActionHeaders: map[string]string{},
+		AllowedGroups: []string{}, Permissions: []string{}}
+	a := AppConfig{Name: "A", URL: "", DockerKey: "k", DockerAutoImported: true}
+	if !sameSavedApp(&a, &p) {
+		t.Fatal("merge-made differences must be ignored")
+	}
+	a.AllowedGroups = []string{"admins"}
+	if sameSavedApp(&a, &p) {
+		t.Fatal("a real edit must count as a change")
+	}
+}
+
+func TestQuarantineUnchangedInvalidDockerApps_NothingToDo(t *testing.T) {
+	prior := []AppConfig{{Name: "Manual", URL: "", Enabled: true}}
+	cfg := defaultConfig()
+	cfg.Apps = append([]AppConfig(nil), prior...)
+	cfg.Server.GatewaySites = []GatewaySite{{Domain: "m.example.com", BackendURL: "http://m:80", AppName: "Manual"}}
+	if n := cfg.QuarantineUnchangedInvalidDockerApps(prior); n != 0 || len(cfg.Apps) != 1 || cfg.Server.GatewaySites[0].AppName != "Manual" {
+		t.Fatalf("n=%d apps=%+v sites=%+v", n, cfg.Apps, cfg.Server.GatewaySites)
+	}
+}

@@ -451,6 +451,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	priorGroups := h.config.Groups
 	priorApps := h.config.Apps
 	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
+	priorQuarantine := h.config.QuarantineSnapshot()
 
 	mergeConfigUpdate(h.config, &update, baseApps)
 
@@ -467,13 +468,21 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
 		h.config.Server.GatewaySites = priorSites
+		h.config.RestoreQuarantine(priorQuarantine)
 	}
 
 	// Re-run the same invariant checks Load uses at startup, so a bad
 	// runtime mutation (e.g. a session_cookie_domain that doesn't cover
 	// a configured gateway site) is rejected with a 400 before it can
-	// be persisted and break the next boot.
-	if err := h.config.Validate(); err != nil {
+	// be persisted and break the next boot. Docker auto-imported apps
+	// that are invalid but untouched by this payload (left behind by an
+	// older poller) are quarantined instead of failing the whole save;
+	// an app the operator edited is still rejected.
+	err := h.config.Validate()
+	if err != nil && h.config.QuarantineUnchangedInvalidDockerApps(priorApps) > 0 {
+		err = h.config.Validate()
+	}
+	if err != nil {
 		rollback()
 		logging.From(r.Context()).Warn("SaveConfig rejected by validation",
 			"source", "audit",
@@ -483,7 +492,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save to file
-	if err := h.config.Save(h.configPath); err != nil {
+	if err = h.config.Save(h.configPath); err != nil {
 		rollback()
 		logging.Error("SaveConfig failed; in-memory state rolled back",
 			"source", "audit",

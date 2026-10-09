@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -275,6 +276,69 @@ func quarantineInvalidDockerEntries(cfg *Config) {
 	}
 	cfg.Apps = keptApps
 	settleQuarantinedSites(cfg)
+}
+
+// sameSavedApp reports whether a, an app after a SaveConfig merge, is the
+// stored app p unchanged. It ignores the differences the merge itself makes
+// whatever the payload says: an empty map or slice comes back nil (JSON
+// omitempty), and DockerManagedURL is reset to URL.
+func sameSavedApp(a, p *AppConfig) bool {
+	return reflect.DeepEqual(normalizedForCompare(a), normalizedForCompare(p))
+}
+
+// normalizedForCompare returns a copy of a with the merge-made differences
+// sameSavedApp ignores folded away.
+func normalizedForCompare(a *AppConfig) AppConfig {
+	n := *a
+	n.DockerManagedURL = ""
+	if len(n.HTTPActionHeaders) == 0 {
+		n.HTTPActionHeaders = nil
+	}
+	if len(n.ProxyHeaders) == 0 {
+		n.ProxyHeaders = nil
+	}
+	if len(n.AllowedGroups) == 0 {
+		n.AllowedGroups = nil
+	}
+	if len(n.Permissions) == 0 {
+		n.Permissions = nil
+	}
+	return n
+}
+
+// QuarantineUnchangedInvalidDockerApps quarantines every docker-owned app
+// that fails the load rule (quarantineReason) and is identical to the app
+// with the same DockerKey in prior, the list held before this save. An app
+// the payload changed is never quarantined, so the operator's own mistakes
+// still fail validation loudly. It then applies the shared site rule and
+// returns how many apps it quarantined.
+func (c *Config) QuarantineUnchangedInvalidDockerApps(prior []AppConfig) int {
+	priorByKey := map[string]*AppConfig{}
+	for i := range prior {
+		if isDockerOwnedApp(&prior[i]) {
+			priorByKey[prior[i].DockerKey] = &prior[i]
+		}
+	}
+	kept := make([]AppConfig, 0, len(c.Apps))
+	slugs := map[string]string{}
+	n := 0
+	for i := range c.Apps {
+		a := &c.Apps[i]
+		if p := priorByKey[a.DockerKey]; isDockerOwnedApp(a) && p != nil && sameSavedApp(a, p) {
+			if reason := quarantineReason(a, slugs); reason != "" {
+				c.QuarantineApp(a, reason)
+				n++
+				continue
+			}
+		}
+		rememberSlug(slugs, a)
+		kept = append(kept, *a)
+	}
+	c.Apps = kept
+	if n > 0 {
+		settleQuarantinedSites(c)
+	}
+	return n
 }
 
 // settleQuarantinedSites is the single source of the site rule: a

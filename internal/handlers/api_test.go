@@ -3953,3 +3953,121 @@ func TestSanitizeAppForRole_DockerManagedHealthCheckAdminOnly(t *testing.T) {
 		t.Fatal("non-admin view must not carry the marker")
 	}
 }
+
+func brokenAutoApp() config.AppConfig {
+	return config.AppConfig{Name: "Vaultwarden", URL: "", Group: "Media", Enabled: true,
+		DockerKey: "label:vw", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_dns", DockerAutoImported: true}
+}
+
+// saveRoundTripForTest PUTs cfg back through SaveConfig the way the UI does
+// (every app sanitized for an admin), with the title changed to "Renamed"
+// and edit applied to the payload apps.
+func saveRoundTripForTest(t *testing.T, cfg *config.Config, edit func([]ClientAppConfig)) (*httptest.ResponseRecorder, string) {
+	t.Helper()
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	apps := make([]ClientAppConfig, 0, len(cfg.Apps))
+	for i := range cfg.Apps {
+		apps = append(apps, sanitizeAppForRole(&cfg.Apps[i], true)) // the round trip the UI makes
+	}
+	if edit != nil {
+		edit(apps)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+	body, _ := json.Marshal(ClientConfigUpdate{Title: "Renamed", Navigation: cfg.Navigation, Groups: cfg.Groups, Apps: apps})
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body)))
+	return w, configPath
+}
+
+func TestSaveConfig_QuarantinesUnchangedBrokenAutoApp(t *testing.T) { // F-02
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp()) // injected directly, as a 3.5.0 poller left it
+	w, path := saveRoundTripForTest(t, cfg, nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Server.Title != "Renamed" {
+		t.Fatalf("title = %q", cfg.Server.Title)
+	}
+	for i := range cfg.Apps {
+		if cfg.Apps[i].Name == "Vaultwarden" {
+			t.Fatal("broken app still live")
+		}
+	}
+	if !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+	raw, _ := os.ReadFile(path)
+	if !strings.Contains(string(raw), "label:vw") {
+		t.Fatalf("quarantined app dropped from the file:\n%s", raw)
+	}
+}
+
+func TestSaveConfig_StillRejectsUserEditedBrokenApp(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp())
+	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) { apps[0].URL = "" })
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	if cfg.HasQuarantined("label:vw") {
+		t.Fatal("rollback must restore the quarantine snapshot")
+	}
+	found := false
+	for i := range cfg.Apps {
+		found = found || cfg.Apps[i].Name == "Vaultwarden"
+	}
+	if !found || cfg.Server.Title == "Renamed" {
+		t.Fatalf("rollback incomplete: title=%q apps=%+v", cfg.Server.Title, cfg.Apps)
+	}
+}
+
+// A fully populated broken app, with the empty collections and the managed
+// URL the merge normalises, must still count as unchanged.
+func TestSaveConfig_QuarantinesUnchangedBrokenAutoApp_FullRoundTrip(t *testing.T) {
+	tr, f := true, false
+	sc := 3
+	app := brokenAutoApp()
+	app.HealthURL = "http://h"
+	app.Icon = config.AppIconConfig{Type: "dashboard", Name: "vaultwarden"}
+	app.Color = "#123456"
+	app.OpenMode = "iframe"
+	app.HTTPActionHeaders = map[string]string{}
+	app.ProxyHeaders = map[string]string{}
+	app.AllowedGroups = []string{}
+	app.Permissions = []string{}
+	app.AuthBypass = []config.AuthBypassRule{}
+	app.HealthCheck = &tr
+	app.ProxySkipTLSVerify = &f
+	app.HTTPActionShowToast = &tr
+	app.Shortcut = &sc
+	app.Scale = 1
+	app.DockerManagedURL = "http://stale"
+	app.DockerManagedHealthCheck = &tr
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, app)
+	w, _ := saveRoundTripForTest(t, cfg, nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
+
+// Editing the broken auto-imported app itself (here its colour) means the
+// operator owns the mistake: the save is rejected, nothing is quarantined.
+func TestSaveConfig_RejectsEditedBrokenAutoApp(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp())
+	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) { apps[len(apps)-1].Color = "#abcdef" })
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "Vaultwarden") {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.HasQuarantined("label:vw") || len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
