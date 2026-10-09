@@ -76,6 +76,9 @@ export interface Group {
   // ignores it in a payload and clears it when the icon, color or order
   // is edited.
   docker_managed?: boolean;
+  // Set by the server (admins only) while a managed group's order comes
+  // from a muximux.group.order label; only then does a reorder release it.
+  docker_order?: boolean;
   // Transport-only rename identity, as on App.original_name.
   original_name?: string;
 }

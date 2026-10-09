@@ -22,8 +22,9 @@ func markerFixture(t *testing.T) (*APIHandler, *config.Config, ClientConfigUpdat
 	t.Helper()
 	cfg := &config.Config{
 		Groups: []config.GroupConfig{
-			{Name: "Media", Order: 0, Color: "#111111", DockerManaged: true},
+			{Name: "Media", Order: 0, Color: "#111111", DockerManaged: true, DockerOrder: true},
 			{Name: "Mine", Order: 1},
+			{Name: "Free", Order: 2, DockerManaged: true}, // no order label
 		},
 		Apps: []config.AppConfig{{Name: "Plex", URL: "http://plex:80", Enabled: true, Group: "Media"}},
 	}
@@ -283,5 +284,75 @@ func TestSaveConfig_MarkerPersisted(t *testing.T) {
 	}
 	if g := groupByName(loadedCfg, "Media"); g == nil || !g.DockerManaged {
 		t.Errorf("marker not persisted: %+v", loadedCfg.Groups)
+	}
+}
+
+// A drag renumbers groups: a managed group whose order comes from a label
+// is released, one whose order no label sets keeps the marker.
+func TestSaveConfig_ReorderReleasesOnlyLabelOrderedGroups(t *testing.T) {
+	for _, threeWay := range []bool{true, false} {
+		h, cfg, loaded := markerFixture(t)
+		base := cloneUpdate(&loaded)
+		mine := cloneUpdate(&loaded)
+		mine.Groups[0].Order, mine.Groups[2].Order = 2, 0 // Media <-> Free
+		if threeWay {
+			mine.Base = &base
+		}
+		putConfig(t, h, &mine)
+		if g := groupByName(cfg, "Media"); g.DockerManaged || g.DockerOrder {
+			t.Errorf("threeWay=%v: label-ordered group kept its markers: %+v", threeWay, g)
+		}
+		if g := groupByName(cfg, "Free"); !g.DockerManaged || g.DockerOrder || g.Order != 0 {
+			t.Errorf("threeWay=%v: freely ordered group = %+v", threeWay, g)
+		}
+	}
+}
+
+func TestDockerOrderNeverAcceptedFromClient(t *testing.T) {
+	h, cfg, loaded := markerFixture(t)
+	base := cloneUpdate(&loaded)
+	mine := cloneUpdate(&loaded)
+	for i := range mine.Groups {
+		mine.Groups[i].DockerOrder = true
+		base.Groups[i].DockerOrder = true
+	}
+	mine.Base = &base
+	putConfig(t, h, &mine)
+	if groupByName(cfg, "Free").DockerOrder || groupByName(cfg, "Mine").DockerOrder || !groupByName(cfg, "Media").DockerOrder {
+		t.Errorf("save took DockerOrder from the client: %+v", cfg.Groups)
+	}
+	// A two-way save keeps the stored flag, whatever the payload says.
+	two := cloneUpdate(&loaded)
+	two.Groups[0].DockerOrder = false
+	putConfig(t, h, &two)
+	if !groupByName(cfg, "Media").DockerOrder {
+		t.Error("two-way save dropped the stored flag")
+	}
+
+	w := httptest.NewRecorder()
+	h.CreateGroup(w, groupRequest(http.MethodPost, "/api/groups", auth.RoleAdmin, `{"name":"Y","docker_order":true}`))
+	if g := groupByName(cfg, "Y"); g == nil || g.DockerOrder {
+		t.Errorf("CreateGroup took docker_order: %+v", g)
+	}
+	w = httptest.NewRecorder()
+	h.UpdateGroup(w, groupRequest(http.MethodPut, "/api/group/Free", auth.RoleAdmin,
+		`{"name":"Free","order":2,"icon":{"type":""},"docker_order":true}`), "Free")
+	if g := groupByName(cfg, "Free"); !g.DockerManaged || g.DockerOrder {
+		t.Errorf("UpdateGroup took docker_order: %+v", g)
+	}
+
+	resp := buildClientConfigResponse(cfg, auth.RoleUser, nil)
+	for i := range resp.Groups {
+		if resp.Groups[i].DockerOrder {
+			t.Errorf("non-admin sees docker_order on %s", resp.Groups[i].Name)
+		}
+	}
+	w = httptest.NewRecorder()
+	h.GetGroup(w, groupRequest(http.MethodGet, "/api/group/Media", auth.RoleUser, ""), "Media")
+	if strings.Contains(w.Body.String(), "docker_order") {
+		t.Errorf("non-admin GetGroup = %s", w.Body.String())
+	}
+	if admin := buildClientConfigResponse(cfg, auth.RoleAdmin, nil); !admin.Groups[0].DockerOrder {
+		t.Error("admin lacks docker_order")
 	}
 }

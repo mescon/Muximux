@@ -541,6 +541,12 @@ type GroupConfig struct {
 	// group to the operator. Server-owned: never taken from a client
 	// payload, and sent to admins only.
 	DockerManaged bool `yaml:"docker_managed,omitempty" json:"docker_managed,omitempty"`
+	// DockerOrder is set while the order of a DockerManaged group comes
+	// from a muximux.group.order label. Only then does a Settings order
+	// change (a drag) release the group; without it the order is the
+	// operator's to change freely. Server-owned and admin-only, like
+	// DockerManaged.
+	DockerOrder bool `yaml:"docker_order,omitempty" json:"docker_order,omitempty"`
 	// OriginalName is the name this group had in the client's base
 	// config. Transport-only identity for renames; never stored.
 	OriginalName string `yaml:"-" json:"original_name,omitempty"`

@@ -111,7 +111,7 @@ func TestTick_ManagedGroupResyncedFromLabels(t *testing.T) {
 	f.label(LabelGroupOrder, "5")
 	f.p.tick(context.Background())
 	g := findGroup(f.cfg, "Media")
-	if g.Color != "#abcdef" || g.Order != 5 || !g.DockerManaged {
+	if g.Color != "#abcdef" || g.Order != 5 || !g.DockerManaged || !g.DockerOrder {
 		t.Fatalf("group not re-synced: %+v", g)
 	}
 	if f.saves != 1 {
@@ -122,7 +122,7 @@ func TestTick_ManagedGroupResyncedFromLabels(t *testing.T) {
 	delete(f.set[0].Labels, LabelGroupOrder)
 	f.label(LabelGroupIcon, "plex")
 	f.p.tick(context.Background())
-	if g := findGroup(f.cfg, "Media"); g.Order != 5 || g.Icon.Name != "plex" || g.Icon.Type != "dashboard" {
+	if g := findGroup(f.cfg, "Media"); g.Order != 5 || g.DockerOrder || g.Icon.Name != "plex" || g.Icon.Type != "dashboard" {
 		t.Errorf("group = %+v, want order kept and icon set", g)
 	}
 
@@ -351,7 +351,7 @@ func TestApplyGroupLabelValues(t *testing.T) {
 		"U": {color: "#000"},
 	}
 	got := applyGroupLabelValues(groups, vals)
-	if len(got) != 1 || got[0].name != "M" || strings.Join(got[0].fields, ",") != "icon,color,order" {
+	if len(got) != 1 || got[0].name != "M" || strings.Join(got[0].fields, ",") != "icon,color,order,order_source" || !groups[0].DockerOrder {
 		t.Errorf("synced = %+v", got)
 	}
 	if ic := groups[0].Icon; ic.Type != "dashboard" || ic.Name != "plex" || ic.File != "" || ic.Background != "#000" {
@@ -362,6 +362,13 @@ func TestApplyGroupLabelValues(t *testing.T) {
 	}
 	if again := applyGroupLabelValues(groups, vals); len(again) != 0 {
 		t.Errorf("second apply changed %+v", again)
+	}
+	// The order label is dropped: the order stays, the flag is cleared and
+	// that alone counts as a change.
+	vals["M"] = groupLabelValues{icon: "plex", color: "#123"}
+	if got := applyGroupLabelValues(groups, vals); len(got) != 1 || strings.Join(got[0].fields, ",") != "order_source" ||
+		groups[0].DockerOrder || groups[0].Order != 4 {
+		t.Errorf("flag change = %+v, group %+v", got, groups[0])
 	}
 }
 

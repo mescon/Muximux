@@ -163,10 +163,14 @@ func resolveGroupLabels(owners []groupOwner, lookup func(string) (GroupLabels, b
 	var conflicts []groupLabelConflict
 	for _, o := range owners {
 		gl, ok := lookup(o.key)
-		if !ok || !gl.any() {
+		if !ok {
 			continue
 		}
-		v := out[o.group]
+		v := out[o.group] // present for every group with a container found
+		if !gl.any() {
+			out[o.group] = v
+			continue
+		}
 		lose := func(label, winner string) {
 			conflicts = append(conflicts, groupLabelConflict{group: o.group, label: label, key: o.key, winner: winner})
 		}
@@ -211,6 +215,8 @@ type groupSynced struct {
 // groups (in place) and returns what it changed. A label icon is stored as
 // a dashboard icon by slug, the shape muximux.app.icon gives an app;
 // styling on the icon (variant, colour, background, invert) is kept.
+// DockerOrder is set on every pass to whether a label sets the order, and
+// a change to it counts as a change ("order_source").
 func applyGroupLabelValues(groups []config.GroupConfig, vals map[string]groupLabelValues) []groupSynced {
 	var out []groupSynced
 	for i := range groups {
@@ -231,6 +237,10 @@ func applyGroupLabelValues(groups []config.GroupConfig, vals map[string]groupLab
 		if v.order != nil && g.Order != *v.order {
 			g.Order = *v.order
 			fields = append(fields, "order")
+		}
+		if fromLabel := v.order != nil; g.DockerOrder != fromLabel {
+			g.DockerOrder = fromLabel
+			fields = append(fields, "order_source")
 		}
 		if len(fields) > 0 {
 			out = append(out, groupSynced{name: g.Name, fields: fields})

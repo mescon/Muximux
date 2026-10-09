@@ -28,7 +28,7 @@ var topLevelSkip = map[string]bool{
 // groupSkip keeps the transport-only identity and the server-owned
 // DockerManaged marker out of the per-field merge; the marker is always
 // theirs, cleared only by a user edit of the group (see mergeGroupsAliased).
-var groupSkip = map[string]bool{"OriginalName": true, "DockerManaged": true}
+var groupSkip = map[string]bool{"OriginalName": true, "DockerManaged": true, "DockerOrder": true}
 
 // appIdentity is the name an app had in base: OriginalName when the client
 // sent it, else Name.
@@ -344,14 +344,17 @@ func groupsEqual(a, b *config.GroupConfig) bool {
 	ca, cb := *a, *b
 	ca.OriginalName, cb.OriginalName = "", ""
 	ca.DockerManaged, cb.DockerManaged = false, false
+	ca.DockerOrder, cb.DockerOrder = false, false
 	return jsonEqual(&ca, &cb)
 }
 
-// stripGroupMarkers clears the server-owned DockerManaged marker on groups
-// a client sent, so a payload can neither set nor keep it.
+// stripGroupMarkers clears the server-owned DockerManaged and DockerOrder
+// markers on groups a client sent, so a payload can neither set nor keep
+// them.
 func stripGroupMarkers(groups []config.GroupConfig) {
 	for i := range groups {
 		groups[i].DockerManaged = false
+		groups[i].DockerOrder = false
 	}
 }
 
@@ -365,6 +368,7 @@ func resolveGroupMarkers(stored, groups []config.GroupConfig) {
 		g := &groups[i]
 		st := byName[groupIdentity(g)]
 		g.DockerManaged = st != nil && st.DockerManaged && !config.GroupStyleEdited(st, g)
+		g.DockerOrder = g.DockerManaged && st.DockerOrder
 	}
 }
 
@@ -431,10 +435,14 @@ func mergeGroupsAliased(base, mine, theirs []config.GroupConfig) ([]config.Group
 		default:
 			g := mergeFields(b, m, t, groupSkip)
 			g.OriginalName = t.Name
-			// Editing the icon, colour or order of a Docker-managed group
-			// takes it over: the labels stop applying to it.
-			if config.GroupStyleEdited(b, m) {
-				g.DockerManaged = false
+			// Editing the icon, colour or (label-set) order of a
+			// Docker-managed group takes it over: the labels stop applying
+			// to it. The base is client-sent, so whether the order comes
+			// from a label is taken from the server's copy.
+			ref := *b
+			ref.DockerOrder = t.DockerOrder
+			if config.GroupStyleEdited(&ref, m) {
+				g.DockerManaged, g.DockerOrder = false, false
 			}
 			out = append(out, g)
 		}

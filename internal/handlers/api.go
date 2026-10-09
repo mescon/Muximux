@@ -774,7 +774,7 @@ func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
 }
 
 // groupsForRole returns groups as a client may see them. The
-// DockerManaged marker goes to admins only, like the Docker tracking
+// DockerManaged and DockerOrder markers go to admins only, like the Docker tracking
 // fields of an app; others get copies without it.
 func groupsForRole(groups []config.GroupConfig, isAdmin bool) []config.GroupConfig {
 	if isAdmin {
@@ -1047,7 +1047,7 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 		if h.config.Groups[i].Name == name {
 			g := h.config.Groups[i]
 			if !isAdminRole(userRole) {
-				g.DockerManaged = false
+				g.DockerManaged, g.DockerOrder = false, false
 			}
 			sendJSON(w, http.StatusOK, g)
 			return
@@ -1069,6 +1069,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	// the operator's.
 	group.OriginalName = ""
 	group.DockerManaged = false
+	group.DockerOrder = false
 
 	if group.Name == "" {
 		respondError(w, r, http.StatusBadRequest, errGroupNameRequired)
@@ -1147,6 +1148,7 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 	// operator.
 	existing := &h.config.Groups[idx]
 	group.DockerManaged = existing.DockerManaged && !config.GroupStyleEdited(existing, &group)
+	group.DockerOrder = group.DockerManaged && existing.DockerOrder
 	released := existing.DockerManaged && !group.DockerManaged
 
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)

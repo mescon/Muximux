@@ -40,10 +40,11 @@ func NewAutoGroup(name string, order int) GroupConfig {
 }
 
 // GroupStyleEdited reports whether b changes the label-managed fields of
-// a: the icon, the colour or the order. A save that does releases a
-// DockerManaged group to the operator.
+// a: the icon, the colour, or the order when a's order comes from a label
+// (a.DockerOrder). A save that does releases a DockerManaged group to the
+// operator; reordering groups whose order no label sets does not.
 func GroupStyleEdited(a, b *GroupConfig) bool {
-	return a.Icon != b.Icon || a.Color != b.Color || a.Order != b.Order
+	return a.Icon != b.Icon || a.Color != b.Color || (a.DockerOrder && a.Order != b.Order)
 }
 
 // EnsureGroup returns the configured group name an app with group name

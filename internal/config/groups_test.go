@@ -53,7 +53,7 @@ func TestEnsureGroup(t *testing.T) {
 }
 
 func TestGroupStyleEdited(t *testing.T) {
-	base := GroupConfig{Name: "G", Icon: AppIconConfig{Type: "dashboard", Name: "plex"}, Color: "#111", Order: 1, DockerManaged: true}
+	base := GroupConfig{Name: "G", Icon: AppIconConfig{Type: "dashboard", Name: "plex"}, Color: "#111", Order: 1, DockerManaged: true, DockerOrder: true}
 	same := base
 	same.Name, same.Expanded, same.DockerManaged = "Renamed", true, false
 	if GroupStyleEdited(&base, &same) {
@@ -69,5 +69,13 @@ func TestGroupStyleEdited(t *testing.T) {
 		if !GroupStyleEdited(&base, &g) {
 			t.Errorf("edit %+v not detected", g)
 		}
+	}
+	// Without an order label, a reorder is not an edit.
+	free := base
+	free.DockerOrder = false
+	moved := free
+	moved.Order = 5
+	if GroupStyleEdited(&free, &moved) {
+		t.Error("reorder of a group whose order no label sets counted as an edit")
 	}
 }

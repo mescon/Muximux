@@ -521,7 +521,7 @@ services:
 ```
 
 - **Only groups Docker discovery created.** A group made by an import, auto-import or the label re-sync is marked as Docker-managed (`docker_managed: true` in `config.yaml`). The labels are applied when the group is created and re-synced on every tick while it stays managed. A group you created yourself is never touched.
-- **Edit in Settings to take control.** Changing the icon, colour or order of a managed group in Settings (including dragging groups into a new order) clears the marker. From then on the group is yours and later label changes are ignored. Renaming or expanding/collapsing the group does not count. Set `docker_managed: true` in `config.yaml` to hand a group back to the labels.
+- **Edit in Settings to take control.** Changing the icon or colour of a managed group in Settings clears the marker. Changing its order (including dragging groups into a new order) clears it only when the order comes from a `muximux.group.order` label; a managed group whose order no label sets can be reordered freely and stays managed. Once the marker is cleared the group is yours and later label changes are ignored. Renaming or expanding/collapsing the group does not count. Set `docker_managed: true` in `config.yaml` to hand a group back to the labels.
 - **A label that is not set never changes anything:** the group keeps its own value for that field.
 - **Conflicts.** When several containers in one group set different values, the container with the lowest tracking key wins, per field. The others get a scan note in the Discover dialog and a warning in the log (once until the conflict changes).
 - **Invalid values** (a colour that is not a hex colour, an order outside 0-9999) are ignored, with one warning per change and a scan note.
