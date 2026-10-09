@@ -605,6 +605,9 @@ type AppConfig struct {
 	// hand-edited config.yaml, and Load() auto-detaches tracking
 	// so the operator's edit survives the next poller tick.
 	DockerManagedURL string `yaml:"docker_managed_url,omitempty" json:"docker_managed_url,omitempty"`
+	// DockerManagedHealthCheck is the muximux.app.health_check value the
+	// reconciler last applied; nil when the label is unset. Server-owned.
+	DockerManagedHealthCheck *bool `yaml:"docker_managed_health_check,omitempty" json:"docker_managed_health_check,omitempty"`
 	// DockerAutoImported marks an app the discovery reconciler created.
 	// Only such apps are updated or removed by auto-import; manually
 	// imported apps (DockerKey set, this false) are never touched.
@@ -836,7 +839,9 @@ func finishConfig(cfg *Config) error {
 // not yet recorded" and skipped so grandfathered configs keep their
 // tracking until the poller next writes the baseline.
 func detachIfHandEdited(app *AppConfig) {
+	detachHealthCheckIfHandEdited(app)
 	if app.DockerKey == "" {
+		app.DockerManagedHealthCheck = nil
 		return
 	}
 	if app.DockerManagedURL == "" {
@@ -855,7 +860,25 @@ func detachIfHandEdited(app *AppConfig) {
 	app.DockerEndpoint = ""
 	app.DockerStrategy = ""
 	app.DockerManagedURL = ""
+	app.DockerManagedHealthCheck = nil
 	app.DockerAutoImported = false
+}
+
+// detachHealthCheckIfHandEdited drops the health_check marker when the
+// stored health_check no longer matches what the label last applied, so
+// an operator's edit to that field survives the next reconcile.
+func detachHealthCheckIfHandEdited(app *AppConfig) {
+	if app.DockerManagedHealthCheck == nil {
+		return
+	}
+	on := app.HealthCheck != nil && *app.HealthCheck
+	if on == *app.DockerManagedHealthCheck {
+		return
+	}
+	logging.Info("Auto-detached health_check from Docker label due to operator edit in config.yaml",
+		"source", "config",
+		"app", app.Name)
+	app.DockerManagedHealthCheck = nil
 }
 
 // autoDetachEditedDockerEntries clears DockerKey/DockerEndpoint/

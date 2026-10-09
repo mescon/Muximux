@@ -3917,3 +3917,39 @@ func TestGetConfig_HidesForwardAuthAdminGroupsFromNonAdmins(t *testing.T) {
 		}
 	}
 }
+
+func TestSaveConfig_KeepsDockerManagedHealthCheck(t *testing.T) {
+	cfg := createTestConfig()
+	tr, f := true, false
+	a := &cfg.Apps[0]
+	a.DockerKey, a.DockerEndpoint, a.DockerStrategy = "label:app1", "unix:///var/run/docker.sock", "container_ip"
+	a.DockerManagedURL, a.DockerAutoImported = a.URL, true
+	a.HealthCheck, a.DockerManagedHealthCheck = &tr, &tr
+	payload := func(marker *bool) []ClientAppConfig {
+		out := make([]ClientAppConfig, 0, len(cfg.Apps))
+		for i := range cfg.Apps {
+			out = append(out, sanitizeAppForRole(&cfg.Apps[i], true))
+		}
+		out[0].DockerManagedHealthCheck = marker
+		return out
+	}
+	saveAppsForTest(t, cfg, payload(nil)) // a client that drops the field
+	if m := cfg.Apps[0].DockerManagedHealthCheck; m == nil || !*m {
+		t.Fatalf("marker lost when omitted: %+v", m)
+	}
+	saveAppsForTest(t, cfg, payload(&f)) // a client that forges it
+	if m := cfg.Apps[0].DockerManagedHealthCheck; m == nil || !*m {
+		t.Fatalf("marker overwritten by the payload: %+v", m)
+	}
+}
+
+func TestSanitizeAppForRole_DockerManagedHealthCheckAdminOnly(t *testing.T) {
+	tr := true
+	app := config.AppConfig{Name: "Emby", URL: "http://emby:8096", DockerKey: "label:emby", DockerManagedHealthCheck: &tr}
+	if got := sanitizeAppForRole(&app, true); got.DockerManagedHealthCheck == nil || !*got.DockerManagedHealthCheck {
+		t.Fatalf("admin view lost the marker: %+v", got.DockerManagedHealthCheck)
+	}
+	if got := sanitizeAppForRole(&app, false); got.DockerManagedHealthCheck != nil {
+		t.Fatal("non-admin view must not carry the marker")
+	}
+}

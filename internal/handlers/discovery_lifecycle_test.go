@@ -604,3 +604,18 @@ func TestDetachTracked_ClearsDockerAuto(t *testing.T) {
 		t.Error("DockerAutoImported still set after detach")
 	}
 }
+
+func TestDetachTracked_ClearsDockerManagedHealthCheck(t *testing.T) {
+	tr := true
+	h, cfg := seedLifecycleHandler(t, []config.AppConfig{{Name: "Emby", URL: "http://10.0.0.1:8096", Enabled: true,
+		DockerKey: "label:emby", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip",
+		DockerManagedURL: "http://10.0.0.1:8096", DockerAutoImported: true, HealthCheck: &tr, DockerManagedHealthCheck: &tr}}, nil)
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:emby", nil))
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status %d, body=%s", w.Code, w.Body.String())
+	}
+	if a := cfg.Apps[0]; a.DockerManagedHealthCheck != nil || a.HealthCheck == nil || !*a.HealthCheck {
+		t.Fatalf("after detach: %+v", a)
+	}
+}

@@ -35,6 +35,7 @@ const (
 	LabelAppShortcut           = "muximux.app.shortcut"            // keyboard digit 1..9
 	LabelAppGatewayDomain      = "muximux.app.gateway.domain"      // suggest as gateway site
 	LabelAppURL                = "muximux.app.url"                 // absolute URL the app opens at; health still follows the container
+	LabelAppHealthCheck        = "muximux.app.health_check"        // "true" enables health monitoring, "false" disables, unset keeps the app's own setting
 
 	LabelAppHTTPActionMethod    = "muximux.app.http_action_method"     // GET | POST | PUT | DELETE | PATCH
 	LabelAppHTTPActionHeaders   = "muximux.app.http_action_headers"    // Key=Value,Key2=Value2 (CSV)
@@ -78,7 +79,8 @@ type AppLabels struct {
 	AllowedGroups      []string
 	Permissions        []string
 	AllowNotifications *bool
-	Shortcut           int // 0 = unset
+	HealthCheck        *bool // pointer so unset keeps the app's own setting
+	Shortcut           int   // 0 = unset
 	GatewayDomain      string
 
 	// URL is the trimmed muximux.app.url value. Validated where it is
@@ -168,6 +170,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 			out.Shortcut = n
 		}
 	},
+	LabelAppHealthCheck:   func(out *AppLabels, v string) { b := boolish(v); out.HealthCheck = &b },
 	LabelAppGatewayDomain: func(out *AppLabels, v string) { out.GatewayDomain = v },
 	LabelAppURL:           func(out *AppLabels, v string) { out.URL = strings.TrimSpace(v) },
 	LabelAppHTTPActionMethod: func(out *AppLabels, v string) {

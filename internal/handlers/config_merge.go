@@ -15,6 +15,7 @@ import (
 var serverOwnedAppFields = map[string]bool{
 	"OriginalName": true, "ProxyURL": true, "GatewayDomain": true,
 	"DockerKey": true, "DockerEndpoint": true, "DockerStrategy": true, "DockerManagedURL": true,
+	"DockerManagedHealthCheck": true,
 }
 
 // topLevelSkip lists the ClientConfigUpdate fields mergeThreeWay merges
@@ -139,6 +140,7 @@ func stripServerOwned(a *ClientAppConfig) ClientAppConfig {
 	out := *a
 	out.OriginalName, out.ProxyURL, out.GatewayDomain = "", "", ""
 	out.DockerKey, out.DockerEndpoint, out.DockerStrategy, out.DockerManagedURL = "", "", "", ""
+	out.DockerManagedHealthCheck = nil
 	return out
 }
 

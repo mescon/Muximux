@@ -2452,3 +2452,50 @@ func TestParse_LegacyGateway(t *testing.T) {
 		t.Errorf("malformed input: err = %v, want a decode error", err)
 	}
 }
+
+func TestLoad_AutoDetachClearsDockerManagedHealthCheck(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte(`
+apps:
+  - name: Emby
+    url: http://edited:8096
+    enabled: true
+    health_check: true
+    docker_key: "label:emby"
+    docker_managed_url: http://emby:8096
+    docker_managed_health_check: true
+    docker_auto: true
+`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := cfg.Apps[0]
+	if a.DockerKey != "" || a.DockerManagedHealthCheck != nil || a.HealthCheck == nil || !*a.HealthCheck {
+		t.Fatalf("hand-edited app: %+v (marker must clear, the health check value must stay)", a)
+	}
+}
+
+func TestDetachIfHandEdited_HealthCheckMarker(t *testing.T) {
+	tr, f := true, false
+	// Marker matches the stored value: tracking and marker stay.
+	a := AppConfig{Name: "A", URL: "http://a", DockerKey: "label:a", DockerManagedURL: "http://a", HealthCheck: &tr, DockerManagedHealthCheck: &tr}
+	detachIfHandEdited(&a)
+	if a.DockerKey == "" || a.DockerManagedHealthCheck == nil {
+		t.Fatalf("matching marker must stay: %+v", a)
+	}
+	// Only health_check hand-edited: the marker clears, URL tracking stays.
+	a.HealthCheck = &f
+	detachIfHandEdited(&a)
+	if a.DockerKey == "" || a.DockerManagedHealthCheck != nil {
+		t.Fatalf("health edit must clear only the marker: %+v", a)
+	}
+	// Untracked app never keeps a marker.
+	b := AppConfig{Name: "B", URL: "http://b", DockerManagedHealthCheck: &tr, HealthCheck: &tr}
+	detachIfHandEdited(&b)
+	if b.DockerManagedHealthCheck != nil {
+		t.Fatalf("untracked app kept marker: %+v", b)
+	}
+}

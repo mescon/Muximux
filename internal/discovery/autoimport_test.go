@@ -634,3 +634,49 @@ func TestMergeManagedFields_KeepsOperatorFields(t *testing.T) {
 		t.Errorf("tracking fields not taken from desired: %+v", got)
 	}
 }
+
+func TestBuildDesired_HealthCheckLabel(t *testing.T) {
+	tr := true
+	sug := Suggestion{Name: "Emby", URL: "http://emby:8096", Key: "label:emby", HealthURL: "http://emby:8096/System/Ping", HealthCheck: &tr}
+	d := BuildDesired(&sug, "unix:///s")
+	if !healthCheckOn(&d.App) || d.App.DockerManagedHealthCheck == nil || !*d.App.DockerManagedHealthCheck {
+		t.Fatalf("app = %+v", d.App)
+	}
+	f := false
+	sug.HealthCheck = &f
+	d = BuildDesired(&sug, "unix:///s")
+	if d.App.HealthCheck != nil || d.App.DockerManagedHealthCheck == nil || *d.App.DockerManagedHealthCheck {
+		t.Fatalf("false label: app = %+v", d.App)
+	}
+	sug.HealthCheck = nil
+	if d = BuildDesired(&sug, "unix:///s"); d.App.HealthCheck != nil || d.App.DockerManagedHealthCheck != nil {
+		t.Fatalf("unset label: app = %+v", d.App)
+	}
+}
+
+// Written against the CURRENT Reconcile(mode, desired, current, sites)
+// signature; Task 8 converts the call to the ReconcileInput form.
+func TestReconcile_HealthCheckLabelResyncs(t *testing.T) {
+	tr := true
+	cur := config.AppConfig{Name: "Emby", URL: "http://emby:8096", DockerKey: "label:emby", DockerAutoImported: true, Enabled: true,
+		Icon: config.AppIconConfig{Type: "dashboard"}, DockerManagedHealthCheck: &tr} // operator switched HealthCheck off in Settings
+	des := cur
+	des.HealthCheck = &tr
+	plan := Reconcile(config.AutoImportUpdate, []Desired{{App: des}}, []config.AppConfig{cur}, nil)
+	if len(plan.Update) != 1 {
+		t.Fatalf("label true must win over the Settings toggle: %+v", plan)
+	}
+	merged := mergeManagedFields(&cur, &des)
+	if !healthCheckOn(&merged) {
+		t.Fatal("merge did not re-enable health check")
+	}
+	// Unset label keeps the operator's value and clears the marker.
+	des2 := cur
+	des2.DockerManagedHealthCheck = nil
+	cur2 := cur
+	cur2.HealthCheck = &tr
+	merged = mergeManagedFields(&cur2, &des2)
+	if !healthCheckOn(&merged) || merged.DockerManagedHealthCheck != nil {
+		t.Fatalf("unset label: %+v", merged)
+	}
+}

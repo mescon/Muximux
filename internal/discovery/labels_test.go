@@ -361,3 +361,16 @@ func TestParseAppLabels_GatewaySkipTLSVerifyIsKnown(t *testing.T) {
 		}
 	}
 }
+
+func TestParseAppLabels_HealthCheck(t *testing.T) {
+	l := ParseAppLabels(map[string]string{LabelAppHealthCheck: "true"})
+	if l.HealthCheck == nil || !*l.HealthCheck {
+		t.Fatalf("got %+v", l.HealthCheck)
+	}
+	if l := ParseAppLabels(map[string]string{LabelAppHealthCheck: "no"}); l.HealthCheck == nil || *l.HealthCheck {
+		t.Fatalf("got %+v", l.HealthCheck)
+	}
+	if l := ParseAppLabels(map[string]string{}); l.HealthCheck != nil {
+		t.Fatal("unset must stay nil")
+	}
+}

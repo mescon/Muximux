@@ -173,6 +173,7 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 			a.DockerEndpoint = ""
 			a.DockerStrategy = ""
 			a.DockerManagedURL = ""
+			a.DockerManagedHealthCheck = nil
 			a.DockerAutoImported = false
 			affectedApps = append(affectedApps, a.Name)
 		}

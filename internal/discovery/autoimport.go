@@ -101,6 +101,14 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 	// Seed the clean-detach baseline to the final App.URL (the container
 	// URL for direct/proxy, the gateway domain for gateway routing).
 	app.DockerManagedURL = app.URL
+	if sug.HealthCheck != nil {
+		v := *sug.HealthCheck
+		app.DockerManagedHealthCheck = &v
+		if v {
+			on := true
+			app.HealthCheck = &on
+		}
+	}
 	d.App = app
 	return d
 }
@@ -264,7 +272,14 @@ func sameManagedFields(a, b *config.AppConfig) bool {
 		reflect.DeepEqual(a.HTTPActionShowToast, b.HTTPActionShowToast) &&
 		reflect.DeepEqual(a.AllowedGroups, b.AllowedGroups) &&
 		reflect.DeepEqual(a.Permissions, b.Permissions) &&
-		reflect.DeepEqual(a.HTTPActionHeaders, b.HTTPActionHeaders)
+		reflect.DeepEqual(a.HTTPActionHeaders, b.HTTPActionHeaders) &&
+		reflect.DeepEqual(a.DockerManagedHealthCheck, b.DockerManagedHealthCheck) &&
+		(b.DockerManagedHealthCheck == nil || healthCheckOn(a) == healthCheckOn(b))
+}
+
+// healthCheckOn reports whether health monitoring is switched on for a.
+func healthCheckOn(a *config.AppConfig) bool {
+	return a.HealthCheck != nil && *a.HealthCheck
 }
 
 // mergeManagedFields returns cur with every field auto-import owns (the
@@ -299,6 +314,12 @@ func mergeManagedFields(cur, desired *config.AppConfig) config.AppConfig {
 	out.DockerEndpoint = desired.DockerEndpoint
 	out.DockerStrategy = desired.DockerStrategy
 	out.DockerManagedURL = desired.DockerManagedURL
+	// A health_check label owns the value; an unset label leaves the
+	// operator's setting alone and only clears the marker.
+	out.DockerManagedHealthCheck = desired.DockerManagedHealthCheck
+	if desired.DockerManagedHealthCheck != nil {
+		out.HealthCheck = desired.HealthCheck
+	}
 	out.DockerAutoImported = desired.DockerAutoImported
 	return out
 }
