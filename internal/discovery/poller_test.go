@@ -2482,3 +2482,50 @@ func TestTick_RefreshUsesServicePort(t *testing.T) {
 		t.Fatalf("url = %q (resolveFailed=%v)", cfg.Apps[0].URL, p.resolveFailed)
 	}
 }
+
+// A gateway-routed app whose site is quarantined is still gateway-routed:
+// the refresh pass must not rewrite its https URL to the container URL.
+func TestTick_GatewayAppWithQuarantinedSite_URLNotClobbered(t *testing.T) {
+	containers := []ContainerSummary{{
+		ID:     "gw1",
+		Names:  []string{"/sonarr"},
+		Image:  "linuxserver/sonarr",
+		Labels: map[string]string{LabelDiscoveryID: "gw-sonarr"},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.99"}},
+		},
+		Ports: []ContainerPort{{PrivatePort: 8989, Type: "tcp"}},
+	}}
+	socket, cleanup := fakeDaemonForPoller(t, containers)
+	defer cleanup()
+
+	dockerCfg := &config.DiscoveryDockerConfig{
+		Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: "container_ip",
+	}
+	cfg := &config.Config{
+		Discovery: config.DiscoveryConfig{Docker: *dockerCfg},
+		Apps: []config.AppConfig{{
+			Name: "Sonarr", URL: "https://sonarr.example.com",
+			DockerKey: "label:gw-sonarr", DockerEndpoint: "unix://" + socket,
+			DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+			DockerAutoImported: true,
+		}},
+	}
+	cfg.QuarantineSite(&config.GatewaySite{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", TLS: "auto", RequireAuth: true,
+		DockerKey: "label:gw-sonarr", DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip",
+	}, "require_auth needs an auth method")
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	if cfg.Apps[0].URL != "https://sonarr.example.com" || cfg.Apps[0].DockerManagedURL != "https://sonarr.example.com" {
+		t.Errorf("gateway app URL clobbered: url=%q managed=%q", cfg.Apps[0].URL, cfg.Apps[0].DockerManagedURL)
+	}
+}

@@ -550,9 +550,16 @@ func (p *Poller) tick(ctx context.Context) {
 	// (doing so would clobber the domain and break routing). The sibling
 	// site's BackendURL refresh below keeps routing pointed at the live
 	// container.
+	// A quarantined gateway site counts too: its app is still
+	// gateway-routed and keeps its public URL while the site is set aside.
 	gatewaySiteKeys := make(map[string]bool, len(tracked.sites))
 	for i := range tracked.sites {
 		gatewaySiteKeys[tracked.sites[i].key] = true
+	}
+	for i := range quarantinedEntries {
+		if quarantinedEntries[i].Kind == "gateway" {
+			gatewaySiteKeys[quarantinedEntries[i].Key] = true
+		}
 	}
 
 	// Resolve each tracked entry's container -> new URL. Skips
