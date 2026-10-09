@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Nem sikerült újratölteni az egyéni ikonokat",
   "toast_failedDeleteIcon": "Törlés sikertelen",
   "toast_securitySetupFailed": "Biztonsági beállítás sikertelen",
+  "toast_setupCompletedElsewhere": "A beállítás máshol befejeződött. A folytatáshoz jelentkezzen be.",
   "toast_iconSourcesPartialFail": "Néhány ikonforrást nem sikerült betölteni: {sources}",
   "error_somethingWentWrong": "Valami hiba történt",
   "error_failedLoadDashboard": "Nem sikerült betölteni a vezérlőpultot",

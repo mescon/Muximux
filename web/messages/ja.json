@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "カスタムアイコンの再読み込みに失敗しました",
   "toast_failedDeleteIcon": "削除に失敗しました",
   "toast_securitySetupFailed": "セキュリティ設定に失敗しました",
+  "toast_setupCompletedElsewhere": "セットアップは別の場所で完了しました。続行するにはサインインしてください。",
   "toast_iconSourcesPartialFail": "一部のアイコンソースの読み込みに失敗しました: {sources}",
   "error_somethingWentWrong": "エラーが発生しました",
   "error_failedLoadDashboard": "ダッシュボードの読み込みに失敗しました",

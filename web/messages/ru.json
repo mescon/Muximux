@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Не удалось перезагрузить пользовательские иконки",
   "toast_failedDeleteIcon": "Не удалось удалить",
   "toast_securitySetupFailed": "Настройка безопасности не удалась",
+  "toast_setupCompletedElsewhere": "Настройка была завершена в другом месте. Войдите, чтобы продолжить.",
   "toast_iconSourcesPartialFail": "Не удалось загрузить некоторые источники иконок: {sources}",
   "error_somethingWentWrong": "Что-то пошло не так",
   "error_failedLoadDashboard": "Не удалось загрузить панель управления",

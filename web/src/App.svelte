@@ -136,6 +136,9 @@
   let authChecked = $state(false);
 
   // Onboarding state
+  // The wizard opens only during setup, so while it is shown the setup flow
+  // is in progress even after submitSetup lowered $setupRequired (a failed
+  // config save keeps it open with the setup-time restrictions).
   let showOnboarding = $state(false);
   // True once submitSetup succeeded (or answered 409, setup already done):
   // a retry after a failed config save goes straight to the save.
@@ -590,6 +593,15 @@
           }
         } catch (e) {
           if (!(e instanceof Error && e.message.includes('Setup already completed'))) throw e;
+          // Someone else finished setup. If that enabled auth, this browser
+          // has no session: close the wizard and let Login take over.
+          await checkAuthStatus();
+          if (!get(isAuthenticated)) {
+            showOnboarding = false;
+            authRequired = true;
+            toasts.info(m.toast_setupCompletedElsewhere());
+            return;
+          }
         }
         setupSubmitted = true;
       }
@@ -1054,7 +1066,7 @@
   </div>
 {:else if ($setupRequired || showOnboarding) && OnboardingWizardComponent}
   <OnboardingWizardComponent
-    needsSetup={$setupRequired}
+    needsSetup={$setupRequired || showOnboarding}
     oncomplete={handleOnboardingComplete}
   />
 {:else if authRequired && !$isAuthenticated}

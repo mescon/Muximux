@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Ricaricamento delle icone personalizzate non riuscito",
   "toast_failedDeleteIcon": "Eliminazione non riuscita",
   "toast_securitySetupFailed": "Configurazione della sicurezza non riuscita",
+  "toast_setupCompletedElsewhere": "La configurazione è stata completata altrove. Accedi per continuare.",
   "toast_iconSourcesPartialFail": "Alcune fonti di icone non sono state caricate: {sources}",
   "error_somethingWentWrong": "Qualcosa è andato storto",
   "error_failedLoadDashboard": "Caricamento della dashboard non riuscito",

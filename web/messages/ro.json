@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Reîncărcarea pictogramelor personalizate a eșuat",
   "toast_failedDeleteIcon": "Ștergerea a eșuat",
   "toast_securitySetupFailed": "Configurarea securității a eșuat",
+  "toast_setupCompletedElsewhere": "Configurarea a fost finalizată în altă parte. Conectați-vă pentru a continua.",
   "toast_iconSourcesPartialFail": "Unele surse de pictograme nu s-au putut încărca: {sources}",
   "error_somethingWentWrong": "Ceva nu a funcționat corect",
   "error_failedLoadDashboard": "Încărcarea panoului de control a eșuat",

@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Échec du rechargement des icônes personnalisées",
   "toast_failedDeleteIcon": "Échec de la suppression",
   "toast_securitySetupFailed": "Échec de la configuration de sécurité",
+  "toast_setupCompletedElsewhere": "La configuration a été terminée ailleurs. Connectez-vous pour continuer.",
   "toast_iconSourcesPartialFail": "Certaines sources d'icônes n'ont pas pu être chargées : {sources}",
   "error_somethingWentWrong": "Quelque chose s'est mal passé",
   "error_failedLoadDashboard": "Échec du chargement du tableau de bord",

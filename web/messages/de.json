@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Benutzerdefinierte Icons konnten nicht neu geladen werden",
   "toast_failedDeleteIcon": "Löschen fehlgeschlagen",
   "toast_securitySetupFailed": "Sicherheitseinrichtung fehlgeschlagen",
+  "toast_setupCompletedElsewhere": "Die Einrichtung wurde an anderer Stelle abgeschlossen. Melden Sie sich an, um fortzufahren.",
   "toast_iconSourcesPartialFail": "Einige Icon-Quellen konnten nicht geladen werden: {sources}",
   "error_somethingWentWrong": "Etwas ist schiefgelaufen",
   "error_failedLoadDashboard": "Dashboard konnte nicht geladen werden",

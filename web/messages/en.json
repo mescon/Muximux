@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Failed to reload custom icons",
   "toast_failedDeleteIcon": "Delete failed",
   "toast_securitySetupFailed": "Security setup failed",
+  "toast_setupCompletedElsewhere": "Setup was completed elsewhere. Sign in to continue.",
   "toast_iconSourcesPartialFail": "Some icon sources failed to load: {sources}",
   "error_somethingWentWrong": "Something went wrong",
   "error_failedLoadDashboard": "Failed to load dashboard",

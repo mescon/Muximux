@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "सानुकूल आयकॉन पुन्हा लोड अयशस्वी",
   "toast_failedDeleteIcon": "हटवणे अयशस्वी",
   "toast_securitySetupFailed": "सुरक्षा सेटअप अयशस्वी",
+  "toast_setupCompletedElsewhere": "सेटअप दुसरीकडे पूर्ण झाला. पुढे जाण्यासाठी साइन इन करा.",
   "toast_iconSourcesPartialFail": "काही आयकॉन स्रोत लोड अयशस्वी: {sources}",
   "error_somethingWentWrong": "काहीतरी चूक झाली",
   "error_failedLoadDashboard": "डॅशबोर्ड लोड अयशस्वी",

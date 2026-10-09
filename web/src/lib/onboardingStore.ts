@@ -116,6 +116,7 @@ export function mergeOnboardingResult(
     ...current,
     language: picked.language,
     navigation: { ...current.navigation, ...picked.navigation },
+    // Replacing the stored theme is intended: the wizard's pick wins.
     theme: picked.theme,
     groups: [...currentGroups, ...addedGroups],
     apps: [...currentApps, ...addedApps],

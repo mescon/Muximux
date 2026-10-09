@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Aangepaste pictogrammen herladen mislukt",
   "toast_failedDeleteIcon": "Verwijderen mislukt",
   "toast_securitySetupFailed": "Beveiligingsinstelling mislukt",
+  "toast_setupCompletedElsewhere": "De installatie is elders voltooid. Meld je aan om verder te gaan.",
   "toast_iconSourcesPartialFail": "Sommige pictogrambronnen konden niet geladen worden: {sources}",
   "error_somethingWentWrong": "Er is iets misgegaan",
   "error_failedLoadDashboard": "Dashboard laden mislukt",

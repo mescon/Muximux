@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "重新加载自定义图标失败",
   "toast_failedDeleteIcon": "删除失败",
   "toast_securitySetupFailed": "安全设置失败",
+  "toast_setupCompletedElsewhere": "设置已在其他地方完成。请登录以继续。",
   "toast_iconSourcesPartialFail": "部分图标源加载失败：{sources}",
   "error_somethingWentWrong": "出了点问题",
   "error_failedLoadDashboard": "加载仪表盘失败",

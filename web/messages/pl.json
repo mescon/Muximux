@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Nie udało się przeładować własnych ikon",
   "toast_failedDeleteIcon": "Usuwanie nie powiodło się",
   "toast_securitySetupFailed": "Konfiguracja zabezpieczeń nie powiodła się",
+  "toast_setupCompletedElsewhere": "Konfiguracja została ukończona w innym miejscu. Zaloguj się, aby kontynuować.",
   "toast_iconSourcesPartialFail": "Nie udało się załadować niektórych źródeł ikon: {sources}",
   "error_somethingWentWrong": "Coś poszło nie tak",
   "error_failedLoadDashboard": "Nie udało się załadować panelu",

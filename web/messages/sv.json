@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Kunde inte ladda om anpassade ikoner",
   "toast_failedDeleteIcon": "Borttagning misslyckades",
   "toast_securitySetupFailed": "Säkerhetskonfigurationen misslyckades",
+  "toast_setupCompletedElsewhere": "Installationen slutfördes någon annanstans. Logga in för att fortsätta.",
   "toast_iconSourcesPartialFail": "Vissa ikonkällor kunde inte laddas: {sources}",
   "error_somethingWentWrong": "Något gick fel",
   "error_failedLoadDashboard": "Kunde inte ladda panelen",

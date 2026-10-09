@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "فشل إعادة تحميل الأيقونات المخصصة",
   "toast_failedDeleteIcon": "فشل الحذف",
   "toast_securitySetupFailed": "فشل إعداد الأمان",
+  "toast_setupCompletedElsewhere": "اكتمل الإعداد في مكان آخر. سجّل الدخول للمتابعة.",
   "toast_iconSourcesPartialFail": "فشل تحميل بعض مصادر الأيقونات: {sources}",
   "error_somethingWentWrong": "حدث خطأ ما",
   "error_failedLoadDashboard": "فشل تحميل لوحة التحكم",

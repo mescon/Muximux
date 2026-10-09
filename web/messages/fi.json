@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Mukautettujen kuvakkeiden uudelleenlataus epäonnistui",
   "toast_failedDeleteIcon": "Poisto epäonnistui",
   "toast_securitySetupFailed": "Tietoturva-asennus epäonnistui",
+  "toast_setupCompletedElsewhere": "Asennus viimeisteltiin muualla. Jatka kirjautumalla sisään.",
   "toast_iconSourcesPartialFail": "Joidenkin kuvakelähteiden lataus epäonnistui: {sources}",
   "error_somethingWentWrong": "Jokin meni pieleen",
   "error_failedLoadDashboard": "Hallintapaneelin lataus epäonnistui",

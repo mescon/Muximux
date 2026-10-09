@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Nepavyko iš naujo įkelti pasirinktinių piktogramų",
   "toast_failedDeleteIcon": "Ištrynimas nepavyko",
   "toast_securitySetupFailed": "Saugumo sąranka nepavyko",
+  "toast_setupCompletedElsewhere": "Sąranka užbaigta kitur. Prisijunkite, kad tęstumėte.",
   "toast_iconSourcesPartialFail": "Kai kurių piktogramų šaltinių nepavyko įkelti: {sources}",
   "error_somethingWentWrong": "Kažkas nutiko ne taip",
   "error_failedLoadDashboard": "Nepavyko įkelti valdymo skydo",

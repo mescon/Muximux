@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Nepodarilo sa znovu načítať vlastné ikony",
   "toast_failedDeleteIcon": "Vymazanie zlyhalo",
   "toast_securitySetupFailed": "Nastavenie zabezpečenia zlyhalo",
+  "toast_setupCompletedElsewhere": "Nastavenie bolo dokončené inde. Pokračujte prihlásením.",
   "toast_iconSourcesPartialFail": "Niektoré zdroje ikon sa nepodarilo načítať: {sources}",
   "error_somethingWentWrong": "Niečo sa pokazilo",
   "error_failedLoadDashboard": "Nepodarilo sa načítať panel",

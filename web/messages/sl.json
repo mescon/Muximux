@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Ponovno nalaganje prilagojenih ikon ni uspelo",
   "toast_failedDeleteIcon": "Brisanje ni uspelo",
   "toast_securitySetupFailed": "Nastavitev varnosti ni uspela",
+  "toast_setupCompletedElsewhere": "Nastavitev je bila dokončana drugje. Za nadaljevanje se prijavite.",
   "toast_iconSourcesPartialFail": "Nekaterih virov ikon ni bilo mogoče naložiti: {sources}",
   "error_somethingWentWrong": "Nekaj je šlo narobe",
   "error_failedLoadDashboard": "Nalaganje nadzorne plošče ni uspelo",

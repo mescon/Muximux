@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Kohandatud ikoonide uuesti laadimine ebaõnnestus",
   "toast_failedDeleteIcon": "Kustutamine ebaõnnestus",
   "toast_securitySetupFailed": "Turbeseadistus ebaõnnestus",
+  "toast_setupCompletedElsewhere": "Seadistus lõpetati mujal. Jätkamiseks logige sisse.",
   "toast_iconSourcesPartialFail": "Mõnede ikooniallikate laadimine ebaõnnestus: {sources}",
   "error_somethingWentWrong": "Midagi läks valesti",
   "error_failedLoadDashboard": "Töölaua laadimine ebaõnnestus",

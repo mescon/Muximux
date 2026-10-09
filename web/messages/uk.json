@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Не вдалося перезавантажити власні іконки",
   "toast_failedDeleteIcon": "Видалення не вдалося",
   "toast_securitySetupFailed": "Налаштування безпеки не вдалося",
+  "toast_setupCompletedElsewhere": "Налаштування завершено в іншому місці. Увійдіть, щоб продовжити.",
   "toast_iconSourcesPartialFail": "Деякі джерела іконок не вдалося завантажити: {sources}",
   "error_somethingWentWrong": "Щось пішло не так",
   "error_failedLoadDashboard": "Не вдалося завантажити панель керування",

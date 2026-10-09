@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Nepodařilo se znovu načíst vlastní ikony",
   "toast_failedDeleteIcon": "Smazání se nezdařilo",
   "toast_securitySetupFailed": "Nastavení zabezpečení selhalo",
+  "toast_setupCompletedElsewhere": "Nastavení bylo dokončeno jinde. Pokračujte přihlášením.",
   "toast_iconSourcesPartialFail": "Některé zdroje ikon se nepodařilo načíst: {sources}",
   "error_somethingWentWrong": "Něco se pokazilo",
   "error_failedLoadDashboard": "Nepodařilo se načíst panel",

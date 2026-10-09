@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Neizdevās atkārtoti ielādēt pielāgotās ikonas",
   "toast_failedDeleteIcon": "Dzēšana neizdevās",
   "toast_securitySetupFailed": "Drošības iestatīšana neizdevās",
+  "toast_setupCompletedElsewhere": "Iestatīšana tika pabeigta citur. Pierakstieties, lai turpinātu.",
   "toast_iconSourcesPartialFail": "Dažu ikonu avotu ielāde neizdevās: {sources}",
   "error_somethingWentWrong": "Kaut kas nogāja greizi",
   "error_failedLoadDashboard": "Neizdevās ielādēt paneli",

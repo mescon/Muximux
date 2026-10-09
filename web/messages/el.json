@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Αποτυχία επαναφόρτωσης προσαρμοσμένων εικονιδίων",
   "toast_failedDeleteIcon": "Η διαγραφή απέτυχε",
   "toast_securitySetupFailed": "Η ρύθμιση ασφαλείας απέτυχε",
+  "toast_setupCompletedElsewhere": "Η ρύθμιση ολοκληρώθηκε από αλλού. Συνδεθείτε για να συνεχίσετε.",
   "toast_iconSourcesPartialFail": "Κάποιες πηγές εικονιδίων απέτυχαν να φορτωθούν: {sources}",
   "error_somethingWentWrong": "Κάτι πήγε στραβά",
   "error_failedLoadDashboard": "Αποτυχία φόρτωσης πίνακα ελέγχου",

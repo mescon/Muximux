@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Ponovno učitavanje prilagođenih ikona nije uspelo",
   "toast_failedDeleteIcon": "Brisanje nije uspelo",
   "toast_securitySetupFailed": "Podešavanje bezbednosti nije uspelo",
+  "toast_setupCompletedElsewhere": "Подешавање је завршено на другом месту. Пријавите се да бисте наставили.",
   "toast_iconSourcesPartialFail": "Neke izvore ikona nije moguće učitati: {sources}",
   "error_somethingWentWrong": "Nešto je pošlo po zlu",
   "error_failedLoadDashboard": "Učitavanje kontrolne table nije uspelo",

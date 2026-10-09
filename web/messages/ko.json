@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "사용자 지정 아이콘을 다시 불러오지 못했습니다",
   "toast_failedDeleteIcon": "삭제에 실패했습니다",
   "toast_securitySetupFailed": "보안 설정에 실패했습니다",
+  "toast_setupCompletedElsewhere": "다른 곳에서 설정이 완료되었습니다. 계속하려면 로그인하세요.",
   "toast_iconSourcesPartialFail": "일부 아이콘 소스를 불러오지 못했습니다: {sources}",
   "error_somethingWentWrong": "문제가 발생했습니다",
   "error_failedLoadDashboard": "대시보드를 불러오지 못했습니다",

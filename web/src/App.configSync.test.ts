@@ -73,6 +73,7 @@ vi.mock('./components/OnboardingWizard.svelte', async () => ({ default: (await i
 vi.mock('./components/Settings.svelte', async () => ({ default: (await import('./test/shell/SettingsStub.svelte')).default }));
 
 import AppShell from './App.svelte';
+import { toasts } from './lib/toastStore';
 
 function makeApp(name: string): App {
   return {
@@ -303,15 +304,48 @@ describe('App onboarding path', () => {
     await waitFor(() => expect(screen.queryByTestId('onboarding-done')).toBeNull());
   });
 
+  it('keeps the setup-time wizard restrictions while a failed save is retried', async () => {
+    api.saveConfig.mockRejectedValueOnce(new Error('API error: 500'));
+    const done = await firstRun(makeConfig({ apps: [] }));
+    expect(done.dataset.needsSetup).toBe('true');
+    await fireEvent.click(done);
+    await waitFor(() => expect(api.saveConfig).toHaveBeenCalledTimes(1));
+    // submitSetup lowered setupRequired, but the setup flow is still open.
+    expect(screen.getByTestId('onboarding-done').dataset.needsSetup).toBe('true');
+  });
+
   it('treats a 409 from setup as already done and saves the config', async () => {
+    const error = vi.spyOn(toasts, 'error');
     const done = await firstRun(makeConfig({ apps: [] }));
     api.submitSetup.mockImplementationOnce(async () => {
       auth.setupRequired!.set(false);
+      // Setup finished elsewhere without auth: this browser has a session.
+      auth.authenticated!.set(true);
       throw new Error('API error: 409 {"error":"Setup already completed"}');
     });
     api.saveConfig.mockResolvedValueOnce(makeConfig());
     await fireEvent.click(done);
     await waitFor(() => expect(api.saveConfig).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.queryByTestId('onboarding-done')).toBeNull());
+    await screen.findByTestId('splash');
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it('sends the user to sign in when setup was completed elsewhere with auth', async () => {
+    const error = vi.spyOn(toasts, 'error');
+    const info = vi.spyOn(toasts, 'info');
+    const done = await firstRun(makeConfig({ apps: [] }));
+    api.submitSetup.mockImplementationOnce(async () => {
+      auth.setupRequired!.set(false);
+      throw new Error('API error: 409 {"error":"Setup already completed"}');
+    });
+    await fireEvent.click(done);
+    await screen.findByTestId('login-stub');
+    expect(screen.queryByTestId('onboarding-done')).toBeNull();
+    expect(info).toHaveBeenCalledWith('Setup was completed elsewhere. Sign in to continue.');
+    expect(error).not.toHaveBeenCalled();
+    expect(api.fetchConfig).not.toHaveBeenCalled();
+    expect(api.saveConfig).not.toHaveBeenCalled();
   });
 
   it('stops on any other setup error', async () => {

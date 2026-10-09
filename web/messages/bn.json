@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "কাস্টম আইকন পুনরায় লোড করতে ব্যর্থ",
   "toast_failedDeleteIcon": "মুছতে ব্যর্থ",
   "toast_securitySetupFailed": "নিরাপত্তা সেটআপ ব্যর্থ",
+  "toast_setupCompletedElsewhere": "সেটআপ অন্য কোথাও সম্পূর্ণ হয়েছে। চালিয়ে যেতে সাইন ইন করুন।",
   "toast_iconSourcesPartialFail": "কিছু আইকন উৎস লোড করতে ব্যর্থ: {sources}",
   "error_somethingWentWrong": "কিছু ভুল হয়েছে",
   "error_failedLoadDashboard": "ড্যাশবোর্ড লোড করতে ব্যর্থ",

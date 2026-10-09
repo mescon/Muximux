@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "重新載入自訂圖示失敗",
   "toast_failedDeleteIcon": "刪除失敗",
   "toast_securitySetupFailed": "安全設定失敗",
+  "toast_setupCompletedElsewhere": "設定已經喺第度完成咗。請登入再繼續。",
   "toast_iconSourcesPartialFail": "部分圖示來源載入失敗：{sources}",
   "error_somethingWentWrong": "出咗啲問題",
   "error_failedLoadDashboard": "載入儀表板失敗",

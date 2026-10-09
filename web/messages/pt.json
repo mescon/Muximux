@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Erro ao recarregar os ícones personalizados",
   "toast_failedDeleteIcon": "Erro ao eliminar",
   "toast_securitySetupFailed": "Erro na configuração de segurança",
+  "toast_setupCompletedElsewhere": "A configuração foi concluída noutro local. Inicie sessão para continuar.",
   "toast_iconSourcesPartialFail": "Algumas fontes de ícones falharam ao carregar: {sources}",
   "error_somethingWentWrong": "Algo correu mal",
   "error_failedLoadDashboard": "Erro ao carregar o painel",

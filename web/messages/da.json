@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Kunne ikke genindlæse brugerdefinerede ikoner",
   "toast_failedDeleteIcon": "Sletning mislykkedes",
   "toast_securitySetupFailed": "Sikkerhedsopsætning mislykkedes",
+  "toast_setupCompletedElsewhere": "Opsætningen blev fuldført et andet sted. Log ind for at fortsætte.",
   "toast_iconSourcesPartialFail": "Nogle ikonkilder kunne ikke indlæses: {sources}",
   "error_somethingWentWrong": "Noget gik galt",
   "error_failedLoadDashboard": "Kunne ikke indlæse panelet",

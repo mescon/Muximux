@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "कस्टम आइकन पुनः लोड करने में विफल",
   "toast_failedDeleteIcon": "हटाने में विफल",
   "toast_securitySetupFailed": "सुरक्षा सेटअप विफल",
+  "toast_setupCompletedElsewhere": "सेटअप कहीं और पूरा हो गया। जारी रखने के लिए साइन इन करें।",
   "toast_iconSourcesPartialFail": "कुछ आइकन स्रोत लोड होने में विफल: {sources}",
   "error_somethingWentWrong": "कुछ गलत हो गया",
   "error_failedLoadDashboard": "डैशबोर्ड लोड करने में विफल",

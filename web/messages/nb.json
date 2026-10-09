@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Kunne ikke laste inn egendefinerte ikoner på nytt",
   "toast_failedDeleteIcon": "Sletting mislyktes",
   "toast_securitySetupFailed": "Sikkerhetsoppsett mislyktes",
+  "toast_setupCompletedElsewhere": "Oppsettet ble fullført et annet sted. Logg inn for å fortsette.",
   "toast_iconSourcesPartialFail": "Noen ikonkilder kunne ikke lastes: {sources}",
   "error_somethingWentWrong": "Noe gikk galt",
   "error_failedLoadDashboard": "Kunne ikke laste panelet",

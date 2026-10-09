@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Không thể tải lại biểu tượng tùy chỉnh",
   "toast_failedDeleteIcon": "Xóa thất bại",
   "toast_securitySetupFailed": "Thiết lập bảo mật thất bại",
+  "toast_setupCompletedElsewhere": "Thiết lập đã được hoàn tất ở nơi khác. Hãy đăng nhập để tiếp tục.",
   "toast_iconSourcesPartialFail": "Một số nguồn biểu tượng không tải được: {sources}",
   "error_somethingWentWrong": "Đã xảy ra lỗi",
   "error_failedLoadDashboard": "Không thể tải bảng điều khiển",

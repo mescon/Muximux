@@ -42,6 +42,7 @@
   "toast_failedReloadIcons": "Презареждането на персонализираните икони е неуспешно",
   "toast_failedDeleteIcon": "Изтриването е неуспешно",
   "toast_securitySetupFailed": "Настройката на сигурността е неуспешна",
+  "toast_setupCompletedElsewhere": "Настройката е завършена от друго място. Влезте, за да продължите.",
   "toast_iconSourcesPartialFail": "Някои източници на икони не успяха да се заредят: {sources}",
   "error_somethingWentWrong": "Нещо се обърка",
   "error_failedLoadDashboard": "Зареждането на таблото е неуспешно",
