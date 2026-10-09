@@ -79,6 +79,23 @@ input[type="color"]::-moz-color-swatch {
   --color-status-error: var(--status-error);
   --color-status-info: var(--status-info);
 
+  /* ── Colors: semantic status and accent-as-text (see docs/wiki/themes.md) ── */
+  --color-success-text: var(--success-text);
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-warning-text: var(--warning-text);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
+  --color-danger-text: var(--danger-text);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-border: var(--danger-border);
+  --color-info-text: var(--info-text);
+  --color-info-bg: var(--info-bg);
+  --color-info-border: var(--info-border);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-on-solid: var(--danger-on-solid);
+  --color-accent-text: var(--accent-text);
+
   /* ── Colors: brand palette ── */
   --color-brand-50: #f0fdfa;
   --color-brand-100: #ccfbf1;
@@ -228,6 +245,28 @@ input[type="color"]::-moz-color-swatch {
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   --shadow-glow: 0 0 20px rgba(45, 212, 191, 0.15);
+}
+
+/* Semantic status and accent tokens. These values reproduce the fixed
+   Tailwind shades the UI used before the tokens existed; the themes
+   override them with per-theme values (see the colours PR). */
+:root {
+  --success-text:   oklch(79.2% 0.209 151.711);                                        /* green-400 */
+  --success-bg:     color-mix(in oklab, oklch(72.3% 0.219 149.579) 10%, transparent);    /* green-500/10 */
+  --success-border: color-mix(in oklab, oklch(72.3% 0.219 149.579) 40%, transparent);    /* green-500/40 */
+  --warning-text:   oklch(87.9% 0.169 91.605);                                         /* amber-300 */
+  --warning-bg:     color-mix(in oklab, oklch(76.9% 0.188 70.08) 10%, transparent);      /* amber-500/10 */
+  --warning-border: color-mix(in oklab, oklch(76.9% 0.188 70.08) 40%, transparent);      /* amber-500/40 */
+  --danger-text:    oklch(70.4% 0.191 22.216);                                         /* red-400 */
+  --danger-bg:      color-mix(in oklab, oklch(63.7% 0.237 25.331) 10%, transparent);     /* red-500/10 */
+  --danger-border:  color-mix(in oklab, oklch(63.7% 0.237 25.331) 40%, transparent);     /* red-500/40 */
+  --info-text:      oklch(80.9% 0.105 251.813);                                        /* blue-300 */
+  --info-bg:        color-mix(in oklab, oklch(62.3% 0.214 259.815) 15%, transparent);    /* blue-500/15 */
+  --info-border:    color-mix(in oklab, oklch(62.3% 0.214 259.815) 30%, transparent);    /* blue-500/30 */
+  --danger-solid:       oklch(57.7% 0.245 27.325);                                     /* red-600, .btn-danger */
+  --danger-solid-hover: oklch(63.7% 0.237 25.331);                                     /* red-500 */
+  --danger-on-solid:    #fff;
+  --accent-text:    var(--accent-primary);                                             /* accent used as text */
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -474,12 +513,13 @@ html.theme-transitioning *::after {
   }
 
   .btn-danger {
-    @apply bg-red-600 text-white;
+    background: var(--danger-solid);
+    color: var(--danger-on-solid);
     border: none;
   }
 
   .btn-danger:hover {
-    @apply bg-red-500;
+    background: var(--danger-solid-hover);
   }
 }
 
@@ -767,28 +807,6 @@ html.theme-transitioning *::after {
 .stagger-8 { animation-delay: 400ms; }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   HEALTH INDICATOR COLORS
-   ───────────────────────────────────────────────────────────────────────────── */
-.health-healthy {
-  background: var(--status-success);
-  box-shadow: 0 0 6px var(--status-success);
-}
-
-.health-unhealthy {
-  background: var(--status-error);
-  box-shadow: 0 0 6px var(--status-error);
-}
-
-.health-checking {
-  background: var(--status-warning);
-  animation: pulse 1s ease-in-out infinite;
-}
-
-.health-unknown {
-  background: var(--text-muted);
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
    MODAL & OVERLAY
    ───────────────────────────────────────────────────────────────────────────── */
 @layer components {
@@ -843,23 +861,29 @@ html.theme-transitioning *::after {
 
   .badge-accent {
     background: var(--accent-muted);
-    color: var(--accent-primary);
+    color: var(--accent-text);
   }
 
-  .badge-success {
-    background: rgba(34, 197, 94, 0.2);
-    color: var(--status-success);
-  }
+  .badge-success { background: var(--success-bg); color: var(--success-text); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning-text); }
+  .badge-error   { background: var(--danger-bg);  color: var(--danger-text); }
+}
 
-  .badge-warning {
-    background: rgba(245, 158, 11, 0.2);
-    color: var(--status-warning);
-  }
+/* ─────────────────────────────────────────────────────────────────────────────
+   NOTICES (status boxes) AND HEALTH DOTS
+   ───────────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .notice { @apply p-3 rounded-md border text-sm; }
+  .notice-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+  .notice-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
+  .notice-danger  { background: var(--danger-bg);  border-color: var(--danger-border);  color: var(--danger-text); }
+  .notice-info    { background: var(--info-bg);    border-color: var(--info-border);    color: var(--info-text); }
+  .notice-neutral { background: var(--bg-elevated); border-color: var(--border-default); color: var(--text-secondary); }
 
-  .badge-error {
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--status-error);
-  }
+  /* Health dot shapes: circle = healthy, diamond = unhealthy, hollow ring = unknown */
+  .health-dot-healthy   { background: var(--status-success); }
+  .health-dot-unhealthy { background: var(--status-error); transform: rotate(45deg); border-radius: 1px; }
+  .health-dot-unknown   { background: transparent; border: 2px solid var(--text-muted); }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
