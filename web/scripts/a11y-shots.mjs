@@ -108,7 +108,12 @@ async function shot(name) {
   if (args.axe) {
     const { default: AxeBuilder } = require('@axe-core/playwright');
     const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
-    axeResults.push({ name, violations: r.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })) });
+    axeResults.push({ name, violations: r.violations.map((v) => ({
+      id: v.id,
+      nodes: v.nodes.length,
+      // colour pairs make the failing node findable without a second run
+      ...(v.id === 'color-contrast' ? { detail: v.nodes.map((n) => ({ target: n.target.join(' '), data: n.any[0]?.data })) } : {}),
+    })) });
   }
 }
 // The onboarding wizard resets the stored theme, so there the theme is forced on the document
@@ -216,6 +221,13 @@ if (PHASE === 'onboarding') {
       await page.waitForTimeout(500);
       await shot(`settings-${id}-${t}`);
     }
+    // Security tab with the "No authentication" card selected: the warning notice sits inside the tinted card.
+    await click(/^security$/i);
+    await page.waitForTimeout(400);
+    await click(/no authentication/i);
+    await page.waitForTimeout(400);
+    await shot(`settings-security-none-${t}`);
+    await click(/^password/i);
     await click(/^general$/i);
     await page.focus('#title');
     await page.keyboard.press('Tab');
