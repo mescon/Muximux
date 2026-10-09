@@ -47,11 +47,43 @@ describe('semantic tokens (PR 1 values)', () => {
     }
   });
 
-  it('fall back to the :root values for a theme that does not define them', () => {
-    const base = rootVars();
-    const userTheme = { ...base, '--accent-primary': '#ff00aa', '--bg-base': '#101010' };
-    expect(hex(parseColor('var(--danger-text)', userTheme)!)).toBe(hex(parseColor(EXPECTED['--danger-text'])!));
-    expect(hex(parseColor('var(--accent-text)', userTheme)!)).toBe('#ff00aa');
+  it('cascade: a theme override beats :root and a token the theme omits falls back', () => {
+    // Real cascade in the DOM: app.css :root first, then a user theme file (same specificity,
+    // later in source order), as the app loads them.
+    const rootCss = `:root { ${Object.entries(rootVars()).map(([k, v]) => `${k}: ${v};`).join(' ')} }`;
+    const themeCss = '[data-theme="mine"] { --accent-primary: #ff00aa; --danger-text: #123456; }';
+    const styles = [rootCss, themeCss].map((css) => {
+      const el = document.createElement('style');
+      el.textContent = css;
+      document.head.appendChild(el);
+      return el;
+    });
+    const html = document.documentElement;
+    html.dataset.theme = 'mine';
+    try {
+      const cs = getComputedStyle(html);
+      const computed = (k: string) => cs.getPropertyValue(k).trim();
+      // The override wins over :root.
+      expect(computed('--danger-text')).toBe('#123456');
+      expect(computed('--accent-primary')).toBe('#ff00aa');
+      // Tokens the theme omits come from :root.
+      // (jsdom re-serialises oklch() without the space after "%", so compare without spaces.)
+      const squash = (v: string) => v.replace(/\s+/g, '');
+      expect(squash(computed('--success-text'))).toBe(squash(EXPECTED['--success-text']));
+      expect(computed('--accent-text')).toBe('var(--accent-primary)');
+      // Resolving the cascaded values: accent-text follows the theme's own accent.
+      const vars = Object.fromEntries(Object.keys(rootVars()).map((k) => [k, computed(k)]));
+      expect(hex(parseColor('var(--accent-text)', vars)!)).toBe('#ff00aa');
+      // Without the theme attribute, :root alone applies.
+      delete html.dataset.theme;
+      expect(squash(getComputedStyle(html).getPropertyValue('--danger-text'))).toBe(squash(EXPECTED['--danger-text']));
+    } finally {
+      delete html.dataset.theme;
+      styles.forEach((el) => el.remove());
+    }
+  });
+
+  it('every bundled theme resolves every semantic token', () => {
     for (const theme of loadBundledThemes()) {
       for (const key of Object.keys(EXPECTED)) expect(theme.vars[key], `${theme.id} ${key}`).toBeDefined();
     }
