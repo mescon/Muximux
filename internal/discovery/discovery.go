@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -39,6 +40,11 @@ type Service struct {
 	// probe against a now-replaced daemon can't stamp stale self-detect
 	// onto the live Service.
 	cfgGen uint64
+
+	// swarmDegraded is the Swarm services condition last logged: "",
+	// noteSwarmWorker or noteSwarmForbidden. It guards the WARN so a
+	// worker node does not log on every scan and tick.
+	swarmDegraded string
 
 	// Capability cache. statusCacheTTL is short (30s) because the
 	// /status endpoint is hit on every Settings page load and the
@@ -182,6 +188,8 @@ func (s *Service) Reconfigure(cfg *config.DiscoveryDockerConfig) {
 	s.selfChecked = false
 	s.selfInfo = nil
 	s.selfErr = nil
+	// A new endpoint may be a manager; let the next degraded read log again.
+	s.swarmDegraded = ""
 	s.statusCache = StatusResult{}
 	s.statusCachedAt = time.Time{}
 	if cfg.Enabled && cfg.Endpoint != "" {
@@ -615,6 +623,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		return ScanResult{Error: err.Error()}
 	}
 
+	note := s.enrichSwarm(ctx, client, containers)
 	out := ScanResult{Suggestions: make([]Suggestion, 0, len(containers))}
 	for i := range containers {
 		// Skip Muximux's own container - importing it would create
@@ -631,13 +640,67 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 			cfg.HostIP,
 			dashboardDomain,
 		)
-		sug.AutoImportSkip = autoImportSkipReason(&sug, cfg.RequireExplicitEnable)
-		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {
-			out.OptedOut++
+		if note != "" && swarmServiceName(&containers[i]) != "" {
+			sug.Notes = append(sug.Notes, note)
 		}
 		out.Suggestions = append(out.Suggestions, sug)
 	}
+	// Replicas of one service (or a scaled compose service) share a key;
+	// eligibility is computed on the survivor only.
+	out.Suggestions = collapseDuplicateKeys(out.Suggestions)
+	for i := range out.Suggestions {
+		sug := &out.Suggestions[i]
+		sug.AutoImportSkip = autoImportSkipReason(sug, cfg.RequireExplicitEnable)
+		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {
+			out.OptedOut++
+		}
+	}
 	return out
+}
+
+// enrichSwarm sorts containers by PrimaryName, calls ListServices once when
+// hasSwarmTasks, merges, and returns the note every swarm suggestion gets
+// ("" when services were read). Logs a WARN on the transition into a
+// degraded state and an INFO on recovery; another error is logged at Debug.
+func (s *Service) enrichSwarm(ctx context.Context, client *Client, containers []ContainerSummary) (note string) {
+	sort.SliceStable(containers, func(a, b int) bool {
+		return containers[a].PrimaryName() < containers[b].PrimaryName()
+	})
+	if !hasSwarmTasks(containers) {
+		return ""
+	}
+	services, err := client.ListServices(ctx)
+	switch {
+	case err == nil:
+		mergeSwarmServices(containers, services)
+		if s.setSwarmDegraded("") {
+			logging.Info("Swarm services readable again", "source", "discovery")
+		}
+		return ""
+	case errors.Is(err, ErrNotSwarmManager):
+		note = noteSwarmWorker
+	case errors.Is(err, ErrServicesForbidden):
+		note = noteSwarmForbidden
+	default:
+		logging.Debug("Swarm services read failed; using task data only", "source", "discovery", "error", err.Error())
+		return ""
+	}
+	if s.setSwarmDegraded(note) {
+		logging.Warn("Swarm services unavailable; using task data only", "source", "discovery", "reason", note)
+	}
+	return note
+}
+
+// setSwarmDegraded records the Swarm services condition and reports
+// whether it changed.
+func (s *Service) setSwarmDegraded(state string) (changed bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.swarmDegraded == state {
+		return false
+	}
+	s.swarmDegraded = state
+	return true
 }
 
 // isLikelySelf reports whether the container is plausibly a Muximux

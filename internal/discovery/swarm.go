@@ -31,9 +31,8 @@ func composeKeyValue(c *ContainerSummary) string {
 	return project + ":" + service
 }
 
-// Used by the scan wiring in a later task.
-//
-//nolint:unused // wired into Scan in Task 15
+// Notes added to every swarm suggestion when the services endpoint cannot
+// be read, so the operator knows why ports and deploy labels are missing.
 const (
 	noteSwarmWorker    = "Swarm worker node: service ports and deploy labels are not visible; set muximux.app.port and put labels under the service's labels: key"
 	noteSwarmForbidden = "Swarm services are not readable (403; a socket proxy needs SERVICES=1): service ports and deploy labels are not visible"
@@ -59,17 +58,15 @@ func mergeSwarmServices(containers []ContainerSummary, services []ServiceSummary
 	}
 	for i := range containers {
 		c := &containers[i]
-		svc, ok := byID[c.Labels[LabelSwarmServiceID]]
-		if !ok {
-			continue
+		id := c.Labels[LabelSwarmServiceID]
+		svc, ok := byID[id]
+		if id == "" || !ok {
+			continue // not a task (Labels non-nil past here)
 		}
 		for _, src := range []map[string]string{svc.Labels, svc.ContainerLabels} {
 			for k, v := range src {
 				if _, has := c.Labels[k]; has {
 					continue
-				}
-				if c.Labels == nil {
-					c.Labels = map[string]string{}
 				}
 				c.Labels[k] = v
 			}

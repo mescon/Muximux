@@ -804,7 +804,15 @@ func TestClient_ListServices_Errors(t *testing.T) {
 			t.Fatalf("status %d: err = %v, want %v", tc.status, err, tc.want)
 		}
 	}
-	socket, cleanup := fakeDockerOverUnix(t, servicesMux(http.StatusInternalServerError, `{"message":"boom"}`))
+	// A 403 keeps the sanitized daemon body so the operator sees the proxy's reason.
+	socket, cleanup := fakeDockerOverUnix(t, servicesMux(http.StatusForbidden, "{\"message\":\"blocked\r\n  by proxy\"}"))
+	c403, _ := NewClient(&config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket})
+	_, err := c403.ListServices(context.Background())
+	cleanup()
+	if !errors.Is(err, ErrServicesForbidden) || !strings.Contains(err.Error(), `{"message":"blocked by proxy"}`) {
+		t.Fatalf("403 must keep the sanitized body: %v", err)
+	}
+	socket, cleanup = fakeDockerOverUnix(t, servicesMux(http.StatusInternalServerError, `{"message":"boom"}`))
 	defer cleanup()
 	c, _ := NewClient(&config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket})
 	if _, err := c.ListServices(context.Background()); err == nil || errors.Is(err, ErrNotSwarmManager) || errors.Is(err, ErrServicesForbidden) {

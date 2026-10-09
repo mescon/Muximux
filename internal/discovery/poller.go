@@ -540,6 +540,9 @@ func (p *Poller) tick(ctx context.Context) {
 		p.daemonDown = false
 		logging.Info("Discovery daemon reachable again", "source", "discovery")
 	}
+	// Fold Swarm service ports and labels into the task containers so the
+	// resolve loop below sees the same data the scan does.
+	svc.enrichSwarm(ctx, client, containers)
 
 	// Resolve each tracked entry's container -> new URL. Skips
 	// entries whose DockerEndpoint differs from the live endpoint

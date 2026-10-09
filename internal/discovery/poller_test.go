@@ -2467,3 +2467,18 @@ func TestNoteResolve_NotFoundClearsResolveFailed(t *testing.T) {
 		t.Fatal("not-found must clear the logged resolve error so it logs again")
 	}
 }
+
+func TestTick_RefreshUsesServicePort(t *testing.T) {
+	set := []ContainerSummary{whoamiTask("stack_whoami.1.aaaaaaaaaaaaaaaaaaaaaaaaa")} // no EXPOSE on the task
+	socket := swarmDaemon(t, &set, whoamiService, http.StatusOK)
+	dockerCfg := &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: config.StrategyHostPort, HostIP: "10.0.0.1"}
+	cfg := &config.Config{Discovery: config.DiscoveryConfig{Docker: *dockerCfg}}
+	cfg.Apps = []config.AppConfig{{Name: "Whoami", URL: "http://10.0.0.1:1", DockerKey: "swarm:stack_whoami", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: string(config.StrategyHostPort), DockerManagedURL: "http://10.0.0.1:1", Enabled: true}}
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(dockerCfg), OnSave: func() error { return nil }})
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.1:18081" {
+		t.Fatalf("url = %q (resolveFailed=%v)", cfg.Apps[0].URL, p.resolveFailed)
+	}
+}
