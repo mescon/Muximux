@@ -106,6 +106,31 @@ func TestStripImageTag(t *testing.T) {
 	}
 }
 
+func TestMatchImage_GenericLastSegmentDoesNotMatch(t *testing.T) {
+	for _, img := range []string{"ghcr.io/goauthentik/server:2025.8", "someone/server", "foo/bar/server:1", "acme/app", "acme/web:latest", "acme/api"} {
+		if e, ok := MatchImage(img); ok {
+			t.Errorf("MatchImage(%q) = %q, want no match", img, e.Name)
+		}
+	}
+	if e, ok := MatchImage("vaultwarden/server:latest"); !ok || e.Name != "Vaultwarden" {
+		t.Fatalf("exact path must still match: %+v %v", e, ok)
+	}
+	if e, ok := MatchImage("ghcr.io/foo/sonarr"); !ok || e.Name != "Sonarr" {
+		t.Fatalf("non-generic last segment must still match: %+v %v", e, ok)
+	}
+}
+
+func TestMatchByContainerName_SkipsGenericTokens(t *testing.T) {
+	for _, n := range []string{"authentik_server.1.iigxo04fr5oc1ej3g25xnhblo", "homeassistant_server.1.x", "my-api", "web"} {
+		if e, ok := MatchByContainerName(n); ok {
+			t.Errorf("MatchByContainerName(%q) = %q, want no match", n, e.Name)
+		}
+	}
+	if e, ok := MatchByContainerName("homelab-sonarr"); !ok || e.Name != "Sonarr" {
+		t.Fatalf("prefix convention broke: %+v %v", e, ok)
+	}
+}
+
 func TestPrefersStrategyOnFrontdoorImages(t *testing.T) {
 	// SWAG / Nginx Proxy Manager / Caddy expect to bind host ports.
 	for _, image := range []string{"linuxserver/swag", "jc21/nginx-proxy-manager", "caddy"} {

@@ -6,6 +6,15 @@ import (
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
+// genericImageSegments are last path segments and name tokens too common
+// to identify an image: "ghcr.io/goauthentik/server" is not Vaultwarden
+// because both end in "server". Exact image paths still match.
+var genericImageSegments = map[string]bool{
+	"server": true, "app": true, "web": true, "api": true, "frontend": true, "backend": true,
+	"core": true, "ui": true, "service": true, "worker": true, "main": true, "base": true,
+	"image": true, "docker": true,
+}
+
 // CatalogEntry is one row of the hand-curated image-to-app catalog.
 // Operators see these suggestions in the Discover modal; they can
 // edit any field before importing.
@@ -138,6 +147,9 @@ func MatchImage(image string) (CatalogEntry, bool) {
 	}
 	// Fall back to last-segment match.
 	imageBase := lastSegment(stripped)
+	if genericImageSegments[imageBase] {
+		return CatalogEntry{}, false
+	}
 	for i := range builtinCatalog {
 		entry := builtinCatalog[i]
 		if lastSegment(stripImageTag(entry.Image)) == imageBase {
@@ -174,6 +186,9 @@ func MatchByContainerName(name string) (CatalogEntry, bool) {
 	// Single-pass so a short prefix can't accidentally win when a
 	// later token would have been a better match.
 	for _, tok := range tokens {
+		if genericImageSegments[tok] {
+			continue
+		}
 		for i := range builtinCatalog {
 			if lastSegment(stripImageTag(builtinCatalog[i].Image)) == tok {
 				return builtinCatalog[i], true
@@ -185,6 +200,9 @@ func MatchByContainerName(name string) (CatalogEntry, bool) {
 	// tokens). Try every pair of adjacent tokens joined with "-"
 	// against the catalog. Cheap because the token list is short.
 	for i := 0; i+1 < len(tokens); i++ {
+		if genericImageSegments[tokens[i]] || genericImageSegments[tokens[i+1]] {
+			continue
+		}
 		joined := tokens[i] + "-" + tokens[i+1]
 		for j := range builtinCatalog {
 			if lastSegment(stripImageTag(builtinCatalog[j].Image)) == joined {
