@@ -2790,10 +2790,14 @@
     min-height: 0;
   }
 
-  /* These containers clip their content (overflow hidden or auto), and the resize handle
-     is only 8px wide at the sidebar edge, so the global 2px-offset focus outline would be
-     cut off. Draw it just inside the element instead. Tailwind overflow-* containers get
-     the same treatment from the global rule in app.css. */
+  /* These containers clip their content (overflow hidden or auto) and their items sit
+     flush to the edge (the collapsed sidebar has no padding, the group dropdown none at the
+     sides), and the resize handle is only 8px wide at the sidebar edge, so the global
+     2px-offset focus outline would be cut off. Draw it just inside the element instead.
+     This is scoped on purpose: elsewhere the 2px halo (and offset 0 on inputs) applies. */
+  .sidebar-panel :global(:focus-visible),
+  .floating-panel :global(:focus-visible),
+  .group-dropdown-item:focus-visible,
   .top-nav-panel :global(:focus-visible),
   .bottom-nav-panel :global(:focus-visible),
   .group-apps-wrapper :global(:focus-visible),

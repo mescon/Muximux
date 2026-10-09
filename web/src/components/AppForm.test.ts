@@ -158,7 +158,7 @@ describe('AppForm', () => {
       // app.css's global focus rules are plain CSS; load that section into the document.
       const css = readFileSync(join(process.cwd(), 'src/app.css'), 'utf8');
       const start = css.indexOf(':focus-visible {');
-      const end = css.indexOf('/* A clipping ancestor');
+      const end = css.indexOf('/* Containers that clip');
       expect(start).toBeGreaterThan(-1);
       expect(end).toBeGreaterThan(start);
       const style = document.createElement('style');

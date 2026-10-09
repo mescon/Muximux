@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { normaliseBase } from '$lib/configMerge';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Mutable hoisted flag: tests flip it to emulate prefers-reduced-motion.
 const reducedMotion = vi.hoisted(() => ({ current: false }));
@@ -745,6 +747,34 @@ describe('Settings', () => {
       });
       expect(screen.getByText('Plex')).toBeInTheDocument();
       expect(screen.getByText('Portainer')).toBeInTheDocument();
+    });
+
+    it('a focused input inside the scrolling dialog keeps outline-offset 0, buttons keep 2px', async () => {
+      // Load app.css's whole FOCUS RING block (plain CSS) so any rule that targets
+      // descendants of overflow containers is applied too.
+      const css = readFileSync(join(process.cwd(), 'src/app.css'), 'utf8');
+      const start = css.indexOf(':focus-visible {');
+      const end = css.indexOf('SELECTION', start);
+      expect(start).toBeGreaterThan(-1);
+      expect(end).toBeGreaterThan(start);
+      const style = document.createElement('style');
+      style.textContent = css.slice(start, css.lastIndexOf('/*', end));
+      document.head.appendChild(style);
+      try {
+        renderSettings({ initialTab: 'apps' });
+        await fireEvent.click(screen.getByTestId('trigger-add-app'));
+        const input = await screen.findByPlaceholderText('Search apps...');
+        expect(input.closest('.overflow-y-auto')).not.toBeNull();
+        input.focus();
+        expect(input.matches(':focus-visible')).toBe(true);
+        expect(getComputedStyle(input).outlineOffset).toMatch(/^0(px)?$/);
+        const card = screen.getByText('Custom App').closest('button')!;
+        expect(card.closest('.overflow-y-auto')).not.toBeNull();
+        card.focus();
+        expect(getComputedStyle(card).outlineOffset).toBe('2px');
+      } finally {
+        style.remove();
+      }
     });
 
     it('shows Custom App card when no search is active', async () => {

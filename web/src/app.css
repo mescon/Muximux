@@ -931,12 +931,8 @@ html.theme-transitioning *::after {
 [aria-invalid="true"]:focus-visible, .border-danger-border:focus-visible {
   border-color: var(--danger-border);
 }
-/* A clipping ancestor (overflow hidden, auto or scroll) cuts off an outline drawn
-   outside the element, so inside one the outline is drawn just inside the element. */
-:is(.overflow-hidden, .overflow-clip, .overflow-auto, .overflow-scroll,
-    .overflow-x-hidden, .overflow-y-hidden, .overflow-x-auto, .overflow-y-auto) :focus-visible {
-  outline-offset: -2px;
-}
+/* Containers that clip their items flush to the edge (the nav lists) draw the outline just
+   inside the item with scoped rules in Navigation.svelte; nothing here insets it globally. */
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SELECTION
