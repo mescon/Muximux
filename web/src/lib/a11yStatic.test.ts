@@ -11,10 +11,10 @@ import { parse, type AST } from 'svelte/compiler';
 const SRC = path.join(process.cwd(), 'src');
 
 export const BUDGET: Record<string, number> = {
-  palette: 244,
+  palette: 126,
   whiteBlack: 0,
-  styleColours: 25,
-  tokenAsText: 31,
+  styleColours: 24,
+  tokenAsText: 30,
   arbitraryToken: 34,
   outline: 84,
   unlabeled: 36,

@@ -74,7 +74,7 @@
         type="button"
         aria-label={m.app_http_action_remove_header()}
         title={m.app_http_action_remove_header()}
-        class="px-2 py-1 text-text-muted hover:text-red-400"
+        class="px-2 py-1 text-text-muted hover:text-danger-text"
         onclick={() => removeRow(row.id)}
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,7 +87,7 @@
     type="button"
     aria-label={m.app_http_action_add_header()}
     onclick={addRow}
-    class="text-xs text-brand-400 hover:text-brand-300"
+    class="text-xs text-accent-text hover:text-accent-text"
   >
     {m.app_http_action_add_header()}
   </button>

@@ -1124,7 +1124,7 @@
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newGroup')}>
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('newGroup')}>
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             </button>
             <button
@@ -1273,7 +1273,7 @@
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editGroup')}>
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('editGroup')}>
               <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
             </button>
             <div class="flex-1">

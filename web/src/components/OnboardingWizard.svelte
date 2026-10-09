@@ -1231,7 +1231,7 @@
                 <button
                   class="relative p-4 rounded-xl border text-start transition-all
                          {isSelected
-                           ? 'border-border-focus bg-accent-subtle ring-1 ring-brand-500/30'
+                           ? 'border-border-focus bg-accent-subtle ring-1 ring-accent-primary/30'
                            : 'border-border hover:border-border-strong bg-bg-surface'}"
                   onclick={() => setThemeFamily(family.id)}
                 >

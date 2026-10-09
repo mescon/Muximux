@@ -457,6 +457,24 @@ describe('KeybindingsEditor', () => {
       });
     });
 
+    it('conflict notice is a warning notice', async () => {
+      mockKeybindings.set([
+        { action: 'search', label: 'Search', description: 'Search', category: 'actions', editable: true, combos: [{ key: 's' }] },
+      ]);
+      mockFindConflicts.mockReturnValue([
+        { action: 'refresh', label: 'Refresh App', description: 'Refresh', category: 'actions', editable: true, combos: [{ key: 'a' }] },
+      ]);
+      render(KeybindingsEditor);
+      await fireEvent.click(screen.getByText('S').closest('button') as HTMLButtonElement);
+      await fireEvent.keyDown(window, { key: 'a' });
+      const title = await screen.findByText('Conflict detected');
+      const box = title.closest('.notice')!;
+      expect(box.className).toContain('notice-warning');
+      expect(box.className).toContain('rounded-lg');
+      expect(title.className).toContain('text-warning-text');
+      expect(title.getAttribute('style')).toBeNull();
+    });
+
     it('calls setKeybinding and onchange when Confirm is clicked', async () => {
       const onchange = vi.fn();
       render(KeybindingsEditor, { props: { onchange } });

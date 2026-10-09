@@ -388,13 +388,13 @@
               {@const ch = confidenceHint(row.s)}
               {@const st = statusFor(row.s.key)}
               <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
-                          {row.selected ? 'ring-1 ring-brand-500/50' : ''}">
+                          {row.selected ? 'ring-1 ring-accent-primary/50' : ''}">
                 <div class="flex items-start gap-3">
                   <input type="checkbox" bind:checked={row.selected} class="mt-1" />
 
                   <button
                     type="button"
-                    class="shrink-0 cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all"
+                    class="shrink-0 cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all"
                     onclick={() => openIconPicker(row.s.key)}
                     title="Pick an icon for this app"
                     aria-label="Pick icon for {row.nameOverride || row.s.name}"

@@ -275,7 +275,7 @@
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'dashboard'
-               ? 'text-brand-400 border-brand-400'
+               ? 'text-accent-text border-border-focus'
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'dashboard'}
     >
@@ -285,7 +285,7 @@
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'lucide'
-               ? 'text-brand-400 border-brand-400'
+               ? 'text-accent-text border-border-focus'
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'lucide'}
     >
@@ -295,7 +295,7 @@
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'custom'
-               ? 'text-brand-400 border-brand-400'
+               ? 'text-accent-text border-border-focus'
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'custom'}
     >
@@ -365,7 +365,7 @@
         {/if}
       </button>
       {#if uploadError}
-        <p class="text-xs text-red-400 mt-1">{uploadError}</p>
+        <p class="text-xs text-danger-text mt-1">{uploadError}</p>
       {/if}
       <div class="flex gap-2 mt-2">
         <input
@@ -392,7 +392,7 @@
         </button>
       </div>
       {#if fetchError}
-        <p class="text-xs text-red-400 mt-1">{fetchError}</p>
+        <p class="text-xs text-danger-text mt-1">{fetchError}</p>
       {/if}
     </div>
   {/if}
@@ -424,7 +424,7 @@
             <button
               class="aspect-square p-2 rounded-lg border transition-all w-full
                      {selectedIcon === icon.name && selectedType === activeTab
-                       ? 'border-brand-500 bg-brand-500/10'
+                       ? 'border-border-focus bg-accent-subtle'
                        : 'border-border hover:border-border hover:bg-bg-hover'}"
               onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
@@ -451,7 +451,7 @@
               {#if confirmDeleteIcon === icon.name}
                 <!-- Inline confirmation overlay -->
                 <div class="absolute inset-0 rounded-lg bg-bg-base/90 flex flex-col items-center justify-center gap-1 z-10">
-                  <span class="text-[10px] text-red-400">{m.common_deleteConfirm()}</span>
+                  <span class="text-[10px] text-danger-text">{m.common_deleteConfirm()}</span>
                   <div class="flex gap-1">
                     <button
                       class="btn btn-danger px-1.5 py-0.5 text-[10px] rounded"

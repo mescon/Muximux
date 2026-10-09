@@ -145,7 +145,7 @@
     </p>
     {#if confirmResetAll}
       <div class="flex items-center gap-2">
-        <span class="text-sm text-red-400">{m.keybindings_resetAllConfirm()}</span>
+        <span class="text-sm text-danger-text">{m.keybindings_resetAllConfirm()}</span>
         <button
           type="button"
           class="btn btn-danger px-2 py-1 text-xs rounded"
@@ -179,13 +179,13 @@
         {#each bindings as binding (binding.action)}
           <div
             class="flex items-center justify-between p-3 bg-bg-hover rounded-lg
-                   {isCustomized(binding.action) ? 'ring-1 ring-brand-500/30' : ''}"
+                   {isCustomized(binding.action) ? 'ring-1 ring-accent-primary/30' : ''}"
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="text-text-primary">{binding.label}</span>
                 {#if isCustomized(binding.action)}
-                  <span class="text-xs text-brand-400">{m.keybindings_customized()}</span>
+                  <span class="text-xs text-accent-text">{m.keybindings_customized()}</span>
                 {/if}
               </div>
               <p class="text-xs text-text-disabled mt-0.5">{binding.description}</p>
@@ -226,7 +226,7 @@
                         {#if binding.editable && binding.combos.length > 1}
                           <span
                             role="button"
-                            class="p-0.5 text-text-disabled hover:text-red-400 cursor-pointer"
+                            class="p-0.5 text-text-disabled hover:text-danger-text cursor-pointer"
                             onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
                             tabindex="0"
@@ -280,7 +280,7 @@
               {#if isCustomized(binding.action)}
                 <button
                   type="button"
-                  class="p-1 text-text-disabled hover:text-yellow-400 transition-colors"
+                  class="p-1 text-text-disabled hover:text-warning-text transition-colors"
                   onclick={() => handleResetBinding(binding.action)}
                   title={m.keybindings_resetToDefault()}
                 >
@@ -314,8 +314,8 @@
         </div>
 
         {#if conflicts.length > 0}
-          <div class="keybinding-conflict rounded-lg p-3 mb-4">
-            <p class="text-sm font-medium mb-1" style="color: var(--status-warning);">
+          <div class="notice notice-warning rounded-lg mb-4">
+            <p class="text-sm font-medium mb-1 text-warning-text">
               {m.keybindings_conflictDetected()}
             </p>
             <p class="text-xs" style="color: var(--text-secondary);">
@@ -355,10 +355,6 @@
     background: var(--bg-elevated);
     border: 1px solid var(--border-default);
     color: var(--text-primary);
-  }
-  .keybinding-conflict {
-    background: color-mix(in srgb, var(--status-warning) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--status-warning) 30%, transparent);
   }
   .keybinding-btn-cancel {
     background: var(--bg-elevated);

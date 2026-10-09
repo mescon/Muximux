@@ -193,7 +193,7 @@
           role="option"
           aria-selected={locale.tag === effectiveValue}
           class="flex items-center gap-2 px-3 py-1.5 cursor-pointer select-none
-                 {i === highlightedIndex ? 'bg-brand-500/20 text-text-primary' : 'text-text-primary hover:bg-bg-surface'}
+                 {i === highlightedIndex ? 'bg-accent-muted text-text-primary' : 'text-text-primary hover:bg-bg-surface'}
                  {locale.tag === effectiveValue ? 'font-medium' : ''}"
           onclick={() => select(locale.tag)}
           onkeydown={handleKeydown}
@@ -202,7 +202,7 @@
           {@render localeFlag(locale)}
           <span class="truncate">{locale.name}</span>
           {#if locale.tag === effectiveValue}
-            <svg class="w-4 h-4 ms-auto shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 ms-auto shrink-0 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           {/if}
