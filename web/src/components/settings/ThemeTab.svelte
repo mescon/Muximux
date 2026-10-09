@@ -223,8 +223,7 @@
           <div class="absolute top-3 end-3 flex items-center gap-1">
             {#if isCustom}
               <button
-                class="w-5 h-5 rounded-full flex items-center justify-center"
-                style="background: var(--status-error); color: var(--danger-on-solid);"
+                class="btn btn-danger w-5 h-5 p-0 gap-0 rounded-full"
                 onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                 title={m.theme_deleteTheme()}
                 aria-label={m.common_deleteNamed({ name: family.name })}
@@ -304,8 +303,7 @@
                  onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
                  role="presentation">
                 <span class="text-sm font-medium" style="color: var(--text-primary);">{m.common_deleteConfirm()}</span>
-                <button class="px-3 py-1 rounded text-sm font-medium"
-                        style="background: var(--status-error); color: var(--danger-on-solid);"
+                <button class="btn btn-danger px-3 py-1 rounded text-sm"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteThemeAction(); }}>{m.common_yes()}</button>
                 <button class="btn btn-secondary btn-sm"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteTheme = null; }}>{m.common_no()}</button>

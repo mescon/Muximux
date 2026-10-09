@@ -551,6 +551,17 @@ describe('ThemeTab', () => {
       ]);
     });
 
+    it('uses the danger button style for delete and confirm, not status colours inline', async () => {
+      render(ThemeTab);
+      const deleteBtn = screen.getByTitle('Delete theme');
+      expect(deleteBtn).toHaveClass('btn', 'btn-danger', 'w-5', 'h-5', 'p-0', 'rounded-full');
+      expect(deleteBtn.getAttribute('style') ?? '').not.toContain('--status-error');
+      await fireEvent.click(deleteBtn);
+      const yes = await screen.findByText('Yes');
+      expect(yes).toHaveClass('btn', 'btn-danger', 'px-3', 'py-1');
+      expect(yes.getAttribute('style') ?? '').not.toContain('--status-error');
+    });
+
     it('shows delete confirmation when delete button is clicked', async () => {
       render(ThemeTab);
 
