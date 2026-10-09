@@ -2478,21 +2478,8 @@ apps:
 	}
 }
 
-func TestDetachIfHandEdited_HealthCheckMarker(t *testing.T) {
-	tr, f := true, false
-	// Marker matches the stored value: tracking and marker stay.
-	a := AppConfig{Name: "A", URL: "http://a", DockerKey: "label:a", DockerManagedURL: "http://a", HealthCheck: &tr, DockerManagedHealthCheck: &tr}
-	detachIfHandEdited(&a)
-	if a.DockerKey == "" || a.DockerManagedHealthCheck == nil {
-		t.Fatalf("matching marker must stay: %+v", a)
-	}
-	// Only health_check hand-edited: the marker clears, URL tracking stays.
-	a.HealthCheck = &f
-	detachIfHandEdited(&a)
-	if a.DockerKey == "" || a.DockerManagedHealthCheck != nil {
-		t.Fatalf("health edit must clear only the marker: %+v", a)
-	}
-	// Untracked app never keeps a marker.
+func TestDetachIfHandEdited_UntrackedDropsHealthCheckMarker(t *testing.T) {
+	tr := true
 	b := AppConfig{Name: "B", URL: "http://b", DockerManagedHealthCheck: &tr, HealthCheck: &tr}
 	detachIfHandEdited(&b)
 	if b.DockerManagedHealthCheck != nil {

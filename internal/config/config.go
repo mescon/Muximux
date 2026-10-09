@@ -839,7 +839,6 @@ func finishConfig(cfg *Config) error {
 // not yet recorded" and skipped so grandfathered configs keep their
 // tracking until the poller next writes the baseline.
 func detachIfHandEdited(app *AppConfig) {
-	detachHealthCheckIfHandEdited(app)
 	if app.DockerKey == "" {
 		app.DockerManagedHealthCheck = nil
 		return
@@ -862,23 +861,6 @@ func detachIfHandEdited(app *AppConfig) {
 	app.DockerManagedURL = ""
 	app.DockerManagedHealthCheck = nil
 	app.DockerAutoImported = false
-}
-
-// detachHealthCheckIfHandEdited drops the health_check marker when the
-// stored health_check no longer matches what the label last applied, so
-// an operator's edit to that field survives the next reconcile.
-func detachHealthCheckIfHandEdited(app *AppConfig) {
-	if app.DockerManagedHealthCheck == nil {
-		return
-	}
-	on := app.HealthCheck != nil && *app.HealthCheck
-	if on == *app.DockerManagedHealthCheck {
-		return
-	}
-	logging.Info("Auto-detached health_check from Docker label due to operator edit in config.yaml",
-		"source", "config",
-		"app", app.Name)
-	app.DockerManagedHealthCheck = nil
 }
 
 // autoDetachEditedDockerEntries clears DockerKey/DockerEndpoint/
