@@ -116,8 +116,11 @@ func (c *Config) fileView() *Config {
 	if len(c.quarantined) > 0 {
 		// Fresh slices: appending to c.Apps directly could write the
 		// quarantined entries into the live slice's spare capacity.
-		v.Apps = append(append([]AppConfig(nil), c.Apps...), c.quarantinedApps()...)
-		v.Server.GatewaySites = append(append([]GatewaySite(nil), c.Server.GatewaySites...), c.quarantinedSites()...)
+		// fileView does not change c: Save drops the superseded entries
+		// from memory only after the write succeeds.
+		qApps, qSites := c.quarantinedFileEntries()
+		v.Apps = append(append([]AppConfig(nil), c.Apps...), qApps...)
+		v.Server.GatewaySites = append(append([]GatewaySite(nil), c.Server.GatewaySites...), qSites...)
 	}
 	return &v
 }

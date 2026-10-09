@@ -111,16 +111,16 @@ func (c *Config) QuarantineSnapshot() []quarantined {
 // RestoreQuarantine puts back a list taken with QuarantineSnapshot.
 func (c *Config) RestoreQuarantine(snap []quarantined) { c.quarantined = snap }
 
-// pruneSupersededQuarantine drops every quarantined entry a live entry has
-// taken over, and returns how many it dropped. A live app with the same name
-// or slug as a quarantined app supersedes it: the operator has resolved the
-// conflict, and writing both back would leave two apps with one name (or one
-// proxy path) in config.yaml. A quarantined site is superseded by a live site
-// with the same domain, or when its app was superseded. Save runs it through
-// fileView, under the caller's write lock, so memory and the file agree.
-func (c *Config) pruneSupersededQuarantine() int {
+// splitSupersededQuarantine sorts the quarantine list into the entries to
+// keep and the ones a live entry has taken over, without changing anything.
+// A live app with the same name or slug as a quarantined app supersedes it:
+// the operator has resolved the conflict, and writing both back would leave
+// two apps with one name (or one proxy path) in config.yaml. A quarantined
+// site is superseded by a live site with the same domain, or when its app
+// was superseded.
+func (c *Config) splitSupersededQuarantine() (kept, dropped []quarantined) {
 	if len(c.quarantined) == 0 {
-		return 0
+		return c.quarantined, nil
 	}
 	liveNames := map[string]bool{}
 	liveSlugs := map[string]bool{}
@@ -141,7 +141,7 @@ func (c *Config) pruneSupersededQuarantine() int {
 			supersededKeys[q.app.DockerKey] = true
 		}
 	}
-	kept := make([]quarantined, 0, len(c.quarantined))
+	kept = make([]quarantined, 0, len(c.quarantined))
 	for i := range c.quarantined {
 		q := &c.quarantined[i]
 		var superseded bool
@@ -153,41 +153,43 @@ func (c *Config) pruneSupersededQuarantine() int {
 				(q.site.DockerKey != "" && supersededKeys[q.site.DockerKey])
 		}
 		if superseded {
-			logging.Info("Quarantined entry superseded by a live entry; dropped from config.yaml",
-				"source", "config", "kind", q.entry.Kind, "name", q.entry.Name, "key", q.entry.Key)
+			dropped = append(dropped, *q)
 			continue
 		}
 		kept = append(kept, *q)
 	}
-	n := len(c.quarantined) - len(kept)
-	c.quarantined = kept
-	return n
+	return kept, dropped
 }
 
-// quarantinedApps returns copies of the quarantined apps for fileView,
-// after dropping the entries a live entry superseded.
-func (c *Config) quarantinedApps() []AppConfig {
-	c.pruneSupersededQuarantine()
-	var out []AppConfig
-	for i := range c.quarantined {
-		if c.quarantined[i].app != nil {
-			out = append(out, *c.quarantined[i].app)
-		}
+// pruneSupersededQuarantine drops every quarantined entry a live entry has
+// taken over, logs each one and returns how many it dropped. Save calls it
+// only after config.yaml was written without those entries, so a failed
+// write leaves memory and the log untouched.
+func (c *Config) pruneSupersededQuarantine() int {
+	kept, dropped := c.splitSupersededQuarantine()
+	for i := range dropped {
+		logging.Info("Quarantined entry superseded by a live entry; dropped from config.yaml",
+			"source", "config", "kind", dropped[i].entry.Kind, "name", dropped[i].entry.Name, "key", dropped[i].entry.Key)
 	}
-	return out
+	if len(dropped) > 0 {
+		c.quarantined = kept
+	}
+	return len(dropped)
 }
 
-// quarantinedSites returns copies of the quarantined gateway sites for
-// fileView, after dropping the entries a live entry superseded.
-func (c *Config) quarantinedSites() []GatewaySite {
-	c.pruneSupersededQuarantine()
-	var out []GatewaySite
-	for i := range c.quarantined {
-		if c.quarantined[i].site != nil {
-			out = append(out, *c.quarantined[i].site)
+// quarantinedFileEntries returns copies of the quarantined apps and sites
+// fileView writes back: every quarantined entry no live entry superseded.
+func (c *Config) quarantinedFileEntries() (apps []AppConfig, sites []GatewaySite) {
+	kept, _ := c.splitSupersededQuarantine()
+	for i := range kept {
+		if kept[i].app != nil {
+			apps = append(apps, *kept[i].app)
+		}
+		if kept[i].site != nil {
+			sites = append(sites, *kept[i].site)
 		}
 	}
-	return out
+	return apps, sites
 }
 
 // gatedSiteReason mirrors validateSessionCookieDomain for one site: a site

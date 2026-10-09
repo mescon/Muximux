@@ -1821,6 +1821,9 @@ func (c *Config) Save(path string) error {
 		os.Remove(tmpName) // don't leave the temp file behind on a failed rename
 		return err
 	}
+	// The file no longer holds the superseded quarantined entries; drop
+	// them from memory (and log it) now that the write has succeeded.
+	c.pruneSupersededQuarantine()
 	// Re-record the references from what was just written, so the next
 	// save matches items by their current names and positions rather than
 	// the ones they had when the file was loaded.

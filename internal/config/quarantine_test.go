@@ -1,6 +1,8 @@
 package config
 
 import (
+	"bytes"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -562,5 +564,43 @@ func TestQuarantineUnchangedInvalidDockerApps_NothingToDo(t *testing.T) {
 	cfg.Server.GatewaySites = []GatewaySite{{Domain: "m.example.com", BackendURL: "http://m:80", AppName: "Manual"}}
 	if n := cfg.QuarantineUnchangedInvalidDockerApps(prior); n != 0 || len(cfg.Apps) != 1 || cfg.Server.GatewaySites[0].AppName != "Manual" {
 		t.Fatalf("n=%d apps=%+v sites=%+v", n, cfg.Apps, cfg.Server.GatewaySites)
+	}
+}
+
+// A failed write leaves a superseded quarantined entry in memory and logs
+// nothing; the next successful save drops it and logs it once.
+func TestSave_PrunesSupersededQuarantineOnlyAfterWrite(t *testing.T) {
+	var buf bytes.Buffer
+	prev := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	t.Cleanup(func() { slog.SetDefault(prev) })
+
+	cfg := defaultConfig()
+	cfg.QuarantineApp(&AppConfig{Name: "Sonarr", DockerKey: "label:sonarr", DockerAutoImported: true}, "url is required")
+	cfg.Apps = []AppConfig{{Name: "Sonarr", URL: "http://sonarr:8989", Enabled: true}}
+
+	blocker := filepath.Join(t.TempDir(), "file")
+	if err := os.WriteFile(blocker, nil, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.Save(filepath.Join(blocker, "config.yaml")); err == nil {
+		t.Fatal("Save under a regular file must fail")
+	}
+	if !cfg.HasQuarantined("label:sonarr") {
+		t.Fatalf("failed save changed the quarantine: %+v", cfg.Quarantined())
+	}
+	if strings.Contains(buf.String(), "superseded") {
+		t.Fatalf("failed save logged the prune:\n%s", buf.String())
+	}
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Quarantined()) != 0 {
+		t.Fatalf("superseded entry still in memory: %+v", cfg.Quarantined())
+	}
+	if n := strings.Count(buf.String(), "superseded"); n != 1 {
+		t.Fatalf("prune logged %d times:\n%s", n, buf.String())
 	}
 }
