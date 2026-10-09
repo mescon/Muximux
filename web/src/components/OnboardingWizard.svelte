@@ -2211,7 +2211,7 @@
   .stepper-circle.active {
     background: var(--bg-surface, #1f2937);
     border-color: var(--accent-primary, #6366f1);
-    color: var(--accent-on-primary);
+    color: var(--text-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary, #6366f1) 25%, transparent);
   }
 

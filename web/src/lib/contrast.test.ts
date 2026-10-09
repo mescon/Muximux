@@ -31,6 +31,11 @@ describe('parseColor', () => {
     expect(hex(parseColor('var(--missing, #abcdef)', vars)!)).toBe('#abcdef');
     expect(parseColor('var(--x)', vars)).toBeNull();
   });
+  it('returns null for an incomplete light-dark()', () => {
+    expect(parseColor('light-dark(#fff)', {}, 'dark')).toBeNull();
+    expect(parseColor('light-dark(#fff)', {}, 'light')).toBeNull();
+  });
+
   it('resolves light-dark() by mode', () => {
     expect(hex(parseColor('light-dark(#000000, #ffffff)', {}, 'light')!)).toBe('#000000');
     expect(hex(parseColor('light-dark(#000000, #ffffff)', {}, 'dark')!)).toBe('#ffffff');

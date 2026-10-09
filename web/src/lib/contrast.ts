@@ -96,6 +96,7 @@ function parseVar(inner: string, vars: Vars, mode: Mode, depth: number): RGBA | 
 
 function parseLightDark(inner: string, vars: Vars, mode: Mode, depth: number): RGBA | null {
   const [light, dark] = splitArgs(inner);
+  if (!light || !dark) return null;
   return parseInner(mode === 'dark' ? dark : light, vars, mode, depth + 1);
 }
 
