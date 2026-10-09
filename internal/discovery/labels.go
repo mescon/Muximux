@@ -66,17 +66,20 @@ const (
 // Empty-when-missing fields are zero values; callers default to
 // catalog or container facts when a field is unset.
 type AppLabels struct {
-	Any                bool  // at least one muximux.* label was present (known or unknown)
-	Enabled            *bool // pointer so we can distinguish "absent" from "false"
-	Name               string
-	Icon               string
-	Group              string
-	Port               int    // 0 = unset
-	Scheme             string // "" = unset
-	Path               string
-	Health             string
-	Color              string
-	Order              int   // 0 = unset
+	Any     bool  // at least one muximux.* label was present (known or unknown)
+	Enabled *bool // pointer so we can distinguish "absent" from "false"
+	Name    string
+	Icon    string
+	Group   string
+	Port    int    // 0 = unset
+	Scheme  string // "" = unset
+	Path    string
+	Health  string
+	Color   string
+	Order   int // 0 when unset; see OrderSet
+	// OrderSet is true when muximux.app.order holds a valid value, so an
+	// explicit 0 can be told apart from an unset label.
+	OrderSet           bool
 	Default            *bool // pointer to distinguish absent from false
 	OpenMode           string
 	Proxy              *bool
@@ -155,6 +158,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppOrder: func(out *AppLabels, v string) {
 		if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil && n >= 0 && n <= 9999 {
 			out.Order = n
+			out.OrderSet = true
 		}
 	},
 	LabelAppDefault: func(out *AppLabels, v string) { b := boolish(v); out.Default = &b },

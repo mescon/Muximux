@@ -706,6 +706,12 @@ func (p *Poller) tick(ctx context.Context) {
 		svc.RecordRefreshTickSuccess()
 	} else {
 		p.applyRefreshBatch(batch)
+		// The batch may have renamed or re-keyed apps (or rolled that
+		// back). The state cache is keyed by app name, so take the
+		// tracked set again from what the config now holds.
+		p.deps.ConfigMu.RLock()
+		tracked = p.collectTracked()
+		p.deps.ConfigMu.RUnlock()
 	}
 
 	p.refreshDockerState(ctx, tracked)

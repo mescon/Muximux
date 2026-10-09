@@ -360,9 +360,9 @@ func TestApplyLabelSyncs_UnderLock(t *testing.T) {
 	}
 	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "old.example.com", AppName: "Old"}, {Domain: "x.example.com", AppName: "Hand"}}
 	got := applyLabelSyncs(cfg, map[string]labelSync{
-		"label:m":    {name: "New", icon: "traefik", group: "Deleted", order: 3},
+		"label:m":    {name: "New", icon: "traefik", group: "Deleted", order: intp(3)},
 		"label:auto": {name: "Nope"},
-		"label:same": {name: "Same", icon: "same", group: "Infra", order: 2},
+		"label:same": {name: "Same", icon: "same", group: "Infra", order: intp(2)},
 	})
 	a := cfg.Apps[0]
 	if a.Name != "New" || a.Order != 3 || a.Group != "" {
@@ -400,5 +400,134 @@ func TestParseAppLabels_TrimsDisplayLabels(t *testing.T) {
 	})
 	if got.Name != "My App" || got.Icon != "traefik-proxy" || got.Group != "Infra" || got.Order != 12 {
 		t.Errorf("labels = %+v", got)
+	}
+}
+
+func intp(v int) *int { return &v }
+
+// Chained renames in one tick (X: N->C, A: M->N) relink each gateway site
+// to the app it belonged to, not to whichever app now holds its old name.
+func TestApplyLabelSyncs_ChainedRenamesRelinkSitesOnce(t *testing.T) {
+	cfg := &config.Config{
+		Apps: []config.AppConfig{
+			{Name: "M", DockerKey: "label:a", Enabled: true},
+			{Name: "N", DockerKey: "label:x", Enabled: true},
+		},
+	}
+	cfg.Server.GatewaySites = []config.GatewaySite{
+		{Domain: "n.example.com", AppName: "N"},
+		{Domain: "m.example.com", AppName: "M"},
+	}
+	got := applyLabelSyncs(cfg, map[string]labelSync{
+		"label:x": {name: "C"},
+		"label:a": {name: "N"},
+	})
+	if cfg.Apps[0].Name != "N" || cfg.Apps[1].Name != "C" {
+		t.Fatalf("apps = %+v", cfg.Apps)
+	}
+	if cfg.Server.GatewaySites[0].AppName != "C" || cfg.Server.GatewaySites[1].AppName != "N" {
+		t.Errorf("sites relinked wrongly: %+v", cfg.Server.GatewaySites)
+	}
+	if len(got) != 2 {
+		t.Errorf("synced = %+v", got)
+	}
+}
+
+// An app that freed its name in the plan but is skipped at apply time
+// keeps that name, so the rename that took it is dropped (and any rename
+// depending on that one), instead of failing validation for the tick.
+func TestApplyLabelSyncs_DropsRenameOntoNameStillHeld(t *testing.T) {
+	cfg := &config.Config{
+		Apps: []config.AppConfig{
+			{Name: "N", DockerKey: "label:x", DockerAutoImported: true, Enabled: true}, // became auto since the plan
+			{Name: "M", DockerKey: "label:a", Enabled: true, Order: 1},
+			{Name: "P", DockerKey: "label:b", Enabled: true},
+		},
+	}
+	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "m.example.com", AppName: "M"}}
+	got := applyLabelSyncs(cfg, map[string]labelSync{
+		"label:x": {name: "C"},
+		"label:a": {name: "N", order: intp(4)}, // N is still held by x
+		"label:b": {name: "M"},                 // M is only free if a's rename lands
+	})
+	if cfg.Apps[0].Name != "N" || cfg.Apps[1].Name != "M" || cfg.Apps[2].Name != "P" {
+		t.Fatalf("apps = %+v", cfg.Apps)
+	}
+	if cfg.Apps[1].Order != 4 {
+		t.Errorf("other fields of a dropped rename must still apply: %+v", cfg.Apps[1])
+	}
+	if cfg.Server.GatewaySites[0].AppName != "M" {
+		t.Errorf("site relinked for a dropped rename: %+v", cfg.Server.GatewaySites)
+	}
+	if err := config.ValidateUniqueAppSlugs(cfg.Apps); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].key != "label:a" || strings.Join(got[0].fields, ",") != "order" {
+		t.Errorf("synced = %+v", got)
+	}
+}
+
+func TestLabelSync_OrderZeroCanBeSet(t *testing.T) {
+	f := newLabelSyncFixture(t, config.AutoImportOff)
+	f.label(LabelAppOrder, "0")
+	f.p.tick(context.Background())
+	if a := findAppByKey(f.cfg, lsKey); a.Order != 0 || f.saves != 1 {
+		t.Fatalf("order = %d saves = %d, want 0 and 1", a.Order, f.saves)
+	}
+	f.label(LabelAppOrder, "bogus") // invalid is unset: the value stays
+	f.cfg.Apps[0].Order = 6
+	f.p.tick(context.Background())
+	if a := findAppByKey(f.cfg, lsKey); a.Order != 6 {
+		t.Errorf("invalid order label overwrote: %d", a.Order)
+	}
+}
+
+// A rename followed by a failed save restores the linked gateway site too.
+func TestLabelSync_SaveFailureRestoresSites(t *testing.T) {
+	f := newLabelSyncFixture(t, config.AutoImportOff)
+	f.cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989", TLS: "auto", AppName: "Sonarr"}}
+	f.fail = errors.New("disk full")
+	f.label(LabelAppName, "TV")
+	f.p.tick(context.Background())
+	if f.saves != 1 {
+		t.Fatalf("saves = %d, want 1 attempt", f.saves)
+	}
+	if a := findAppByKey(f.cfg, lsKey); a.Name != "Sonarr" {
+		t.Errorf("app not rolled back: %+v", a)
+	}
+	if f.cfg.Server.GatewaySites[0].AppName != "Sonarr" {
+		t.Errorf("site not rolled back: %+v", f.cfg.Server.GatewaySites)
+	}
+	f.fail = nil
+	f.p.tick(context.Background())
+	if f.cfg.Server.GatewaySites[0].AppName != "TV" || findAppByKey(f.cfg, lsKey).Name != "TV" {
+		t.Errorf("retry: apps = %+v sites = %+v", f.cfg.Apps, f.cfg.Server.GatewaySites)
+	}
+}
+
+// A re-key and a label rename in the same tick commit together: the label
+// plan works on the new key, which applyRefreshBatch renames first. The
+// docker state cache is taken again after the save, under the new name.
+func TestLabelSync_RekeyAndRenameSameTick(t *testing.T) {
+	const old = "name:bindery_web.1.71e9k1i0wfiyk5sbbjku668er"
+	set := []ContainerSummary{swarmTask("bindery_web.1.newtaskidnewtaskidnewtaskid", "bindery/web",
+		map[string]string{"muximux.app.port": "8080", LabelAppName: "Bindery Web", LabelAppOrder: "2"})}
+	p, cfg := swarmPoller(t, &set, config.AutoImportOff)
+	saves := 0
+	p.deps.OnSave = func() error { saves++; return nil }
+	endpoint := cfg.Discovery.Docker.Endpoint
+	cfg.Apps = []config.AppConfig{{Name: "Bindery", URL: "http://old:8080", DockerKey: old, DockerEndpoint: endpoint,
+		DockerStrategy: string(config.StrategyContainerDNS), DockerManagedURL: "http://old:8080", Enabled: true}}
+	p.tick(context.Background())
+
+	a := cfg.Apps[0]
+	if a.DockerKey != "swarm:bindery_web" || a.Name != "Bindery Web" || a.Order != 2 || a.URL != "http://bindery_web:8080" {
+		t.Fatalf("app = %+v", a)
+	}
+	if saves != 1 {
+		t.Errorf("saves = %d, want 1", saves)
+	}
+	if _, ok := p.deps.Service.DockerStateSnapshot()["Bindery Web"]; !ok {
+		t.Errorf("state cache not keyed by the new name: %+v", p.deps.Service.DockerStateSnapshot())
 	}
 }

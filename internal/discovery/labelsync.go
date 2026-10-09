@@ -32,11 +32,11 @@ type labelSync struct {
 	name  string // new app name
 	icon  string // new dashboard icon slug
 	group string // canonical name of an existing group
-	order int    // new order (a label order of 0 means unset)
+	order *int   // new order; nil when the label is unset or in sync
 }
 
 func (s *labelSync) empty() bool {
-	return s.name == "" && s.icon == "" && s.group == "" && s.order == 0
+	return s.name == "" && s.icon == "" && s.group == "" && s.order == nil
 }
 
 // labelSyncContext is the part of the config the plan checks against,
@@ -174,8 +174,9 @@ func planOneLabelSync(t *trackedAppEntry, labels *AppLabels, ctx *labelSyncConte
 			s.group = g
 		}
 	}
-	if labels.Order != 0 && labels.Order != t.order {
-		s.order = labels.Order
+	if labels.OrderSet && labels.Order != t.order {
+		v := labels.Order
+		s.order = &v
 	}
 	return s, held
 }
@@ -209,9 +210,13 @@ type labelSynced struct {
 // caller holds the write lock and has snapshotted apps, sites and the
 // quarantine for rollback. Ownership is checked again under the lock: an
 // app that became auto-imported or lost its tracking since the plan is
-// skipped, and a group deleted since the plan is not applied. A rename
-// carries any gateway site linked by app_name along, as a Settings rename
-// does.
+// skipped, and a group deleted since the plan is not applied. Renames are
+// re-checked against the names the apps will have after this apply (an
+// app skipped here keeps a name the plan thought was freed), and a rename
+// that would now collide is dropped instead of failing the whole tick.
+// Gateway sites linked by app_name follow the renames, cascaded once from
+// one old-to-new map so chained renames (N->C and M->N) relink correctly,
+// as handlers.cascadeAppRenames does for a Settings save.
 func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync) []labelSynced {
 	if len(syncs) == 0 {
 		return nil
@@ -220,7 +225,8 @@ func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync) []labelSync
 	for i := range cfg.Groups {
 		groups = append(groups, cfg.Groups[i].Name)
 	}
-	var out []labelSynced
+	var eligible []int
+	renames := map[int]string{} // app index -> new name
 	for i := range cfg.Apps {
 		a := &cfg.Apps[i]
 		if a.DockerKey == "" || a.DockerAutoImported {
@@ -230,26 +236,80 @@ func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync) []labelSync
 		if !ok {
 			continue
 		}
-		if fields := applyOneLabelSync(cfg, a, &s, groups); len(fields) > 0 {
+		eligible = append(eligible, i)
+		if s.name != "" && s.name != a.Name {
+			renames[i] = s.name
+		}
+	}
+	dropCollidingRenames(cfg.Apps, renames)
+
+	oldToNew := make(map[string]string, len(renames))
+	for i, n := range renames {
+		oldToNew[cfg.Apps[i].Name] = n
+	}
+	for j := range cfg.Server.GatewaySites {
+		if n, ok := oldToNew[cfg.Server.GatewaySites[j].AppName]; ok {
+			cfg.Server.GatewaySites[j].AppName = n
+		}
+	}
+
+	var out []labelSynced
+	for _, i := range eligible {
+		a := &cfg.Apps[i]
+		var fields []string
+		if n, ok := renames[i]; ok {
+			a.Name = n
+			fields = append(fields, "name")
+		}
+		s := syncs[a.DockerKey]
+		fields = append(fields, applyOneLabelSync(a, &s, groups)...)
+		if len(fields) > 0 {
 			out = append(out, labelSynced{name: a.Name, key: a.DockerKey, fields: fields})
 		}
 	}
 	return out
 }
 
-// applyOneLabelSync applies one plan entry to a and returns the names of
-// the fields it changed.
-func applyOneLabelSync(cfg *config.Config, a *config.AppConfig, s *labelSync, groups []string) []string {
-	var fields []string
-	if s.name != "" && s.name != a.Name {
-		for j := range cfg.Server.GatewaySites {
-			if cfg.Server.GatewaySites[j].AppName == a.Name {
-				cfg.Server.GatewaySites[j].AppName = s.name
+// dropCollidingRenames removes every rename whose new name would share a
+// name key with another app after the renames. It drops one rename at a
+// time, the highest DockerKey first (the plan lets the lower key win), and
+// re-checks, since a dropped rename keeps its old name and that can collide
+// with a rename that took it.
+func dropCollidingRenames(apps []config.AppConfig, renames map[int]string) {
+	for len(renames) > 0 {
+		counts := make(map[string]int, len(apps))
+		for i := range apps {
+			n := apps[i].Name
+			if r, ok := renames[i]; ok {
+				n = r
+			}
+			counts[nameKey(n)]++
+		}
+		idx := make([]int, 0, len(renames))
+		for i := range renames {
+			idx = append(idx, i)
+		}
+		sort.Slice(idx, func(a, b int) bool { return apps[idx[a]].DockerKey > apps[idx[b]].DockerKey })
+		dropped := false
+		for _, i := range idx {
+			if counts[nameKey(renames[i])] > 1 {
+				logging.Warn("Docker name label not applied to tracked app; the name is now used by another app",
+					"source", "discovery", "app", apps[i].Name, "key", apps[i].DockerKey, "name", renames[i])
+				delete(renames, i)
+				dropped = true
+				break
 			}
 		}
-		a.Name = s.name
-		fields = append(fields, "name")
+		if !dropped {
+			return
+		}
 	}
+}
+
+// applyOneLabelSync applies the icon, group and order of one plan entry to
+// a and returns the names of the fields it changed.
+func applyOneLabelSync(a *config.AppConfig, s *labelSync, groups []string) []string {
+	var fields []string
 	if s.icon != "" && !labelIconSynced(&a.Icon, s.icon) {
 		// Same shape as an import: a dashboard icon by slug. Styling the
 		// operator set on the icon (variant, colour, background, invert)
@@ -266,8 +326,8 @@ func applyOneLabelSync(cfg *config.Config, a *config.AppConfig, s *labelSync, gr
 			fields = append(fields, "group")
 		}
 	}
-	if s.order != 0 && s.order != a.Order {
-		a.Order = s.order
+	if s.order != nil && *s.order != a.Order {
+		a.Order = *s.order
 		fields = append(fields, "order")
 	}
 	return fields

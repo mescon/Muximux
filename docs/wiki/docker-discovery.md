@@ -354,7 +354,7 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | `muximux.app.enabled` | bool | `true` | Opt-out via `false`. With `require_explicit_enable` (or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`) only `true` opts in. See [Explicit opt-in](#explicit-opt-in). |
 | `muximux.app.name` | string | catalog name or container name | Display name in the menu. Surrounding spaces are ignored. Re-synced while the app is tracked; see [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps). |
 | `muximux.app.icon` | string | catalog icon or `""` | Any `dashboard-icons` slug (e.g. `sonarr`, `plex`, `qbittorrent`). Surrounding spaces are ignored and the slug is lowercased. |
-| `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist. |
+| `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist (from 3.6.0). |
 | `muximux.app.port` | int 1-65535 | catalog port or first exposed | Which container port the app listens on. |
 | `muximux.app.url` | absolute `http(s)` URL | unset | Open the app at this URL instead of the container address, e.g. its public name behind your own reverse proxy. Health checks still go to the container. Ignored (with a scan note) when `muximux.app.gateway.domain` is set, and invalid values are ignored with a note. See [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy). |
 | `muximux.app.scheme` | `http` \| `https` | `http` | Scheme for the constructed URL. |
@@ -478,10 +478,10 @@ This holds for every tracked app, including apps you imported by hand through th
 The URL and health address keep following the container as before.
 
 - A label that is **not set** never changes anything: your own name, icon, group or order stays.
-- If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). A detached app, or one you added by hand, is never touched.
+- If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). An app you detached (Detach in Settings), or one you added by hand, is never touched.
 - The re-sync only updates apps that are already tracked. It never imports a container or removes an app, whatever the `auto_import` mode.
 - Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `add`), so no field is written twice.
-- A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), the name is over 100 characters, or the group does not exist yet. The app keeps its current value until the conflict is resolved.
+- A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), or the name is over 100 characters. The app keeps its current value until the conflict is resolved.
 - If saving the config fails, the whole tick is rolled back and retried on the next tick.
 
 ### Gateway labels and `update`/`sync`
