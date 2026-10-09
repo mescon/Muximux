@@ -253,3 +253,32 @@ func TestInheritRuntime_NilPrev(t *testing.T) {
 		t.Errorf("nil prev changed the config: %q", next.Server.LogLevel)
 	}
 }
+
+// A field absent from the file and set only by an override is not written
+// into the file by a save: the file keeps what it had (absent, or the
+// load default it decodes to), never the override's value.
+func TestApplyOverride_AbsentInFileStaysOutOfFile(t *testing.T) {
+	cfg, path := loadWithEnv(t, "server:\n  title: Dash\n", nil)
+	before := cfg.Server.LogFormat
+	cfg.ApplyOverride(OverrideLogFormat, "MUXIMUX_LOG_FORMAT", "json")
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "json") {
+		t.Errorf("override value written to the file:\n%s", data)
+	}
+	reloaded, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Server.LogFormat != before {
+		t.Errorf("saved log_format = %q, want the file's own %q", reloaded.Server.LogFormat, before)
+	}
+	if cfg.Server.LogFormat != "json" {
+		t.Errorf("live log_format = %q, want json", cfg.Server.LogFormat)
+	}
+}

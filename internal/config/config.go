@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -1164,7 +1165,7 @@ func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig) error {
 	// groups), not dashboard groups, so only reject blank entries.
 	for _, g := range d.LifecycleAllowedGroups {
 		if strings.TrimSpace(g) == "" {
-			return fmt.Errorf("discovery.docker.lifecycle_allowed_groups entries must not be empty")
+			return errors.New("discovery.docker.lifecycle_allowed_groups entries must not be empty")
 		}
 	}
 	return nil
