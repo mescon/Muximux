@@ -221,9 +221,10 @@
   let initialConfigSnapshot = $state(configKey(loaded.config));
   let initialAppsSnapshot = $state(appsKey(loaded.apps));
 
-  // Snapshot theme so we can revert on close without save
-  const initialFamily = untrack(() => get(selectedFamily));
-  const initialVariant = untrack(() => get(variantMode));
+  // Snapshot theme so we can revert on close without save. A rebase moves
+  // it to the server's theme.
+  let initialFamily = $state(untrack(() => get(selectedFamily)));
+  let initialVariant = $state(untrack(() => get(variantMode)));
 
   // Keybinding edits go straight into the global store (the editor and the
   // live shortcuts read it), so they are compared against the bindings the
@@ -317,6 +318,7 @@
     const theirs = clone(theirsIn);
     const hadEdits = hasChanges;
     const hadKeybindingEdits = keybindingsDirty;
+    const hadThemeEdits = get(selectedFamily) !== initialFamily || get(variantMode) !== initialVariant;
     const beforeConfig = configKey(localConfig);
     const beforeApps = appsKey(localApps);
     const { config: merged, apps: mergedApps, conflicts: found } = rebaseConfig({
@@ -341,11 +343,28 @@
     // compared against the server's from now on.
     if (!hadKeybindingEdits) initKeybindings(theirs.keybindings);
     initialKeybindings = keybindingsKey(theirs.keybindings);
+    syncThemeOnRebase(theirs.theme, hadThemeEdits);
     rebuildDndArrays();
     configRevision += 1;
     if (hadEdits && (configKey(localConfig) !== beforeConfig || appsKey(localApps) !== beforeApps)) {
       toasts.info(m.settings_rebased());
     }
+  }
+
+  // An untouched theme follows the server, so a save never writes back the
+  // theme this dialog opened with over one another admin saved meanwhile.
+  // An edited theme stays; either way the server's theme is the one a
+  // discard returns to.
+  function syncThemeOnRebase(theme: Config['theme'], edited: boolean) {
+    if (!theme?.family) return;
+    const v = theme.variant;
+    const variant = v === 'dark' || v === 'light' || v === 'system' ? v : null;
+    if (!edited) {
+      if (get(selectedFamily) !== theme.family) setThemeFamily(theme.family);
+      if (variant && get(variantMode) !== variant) setVariantMode(variant);
+    }
+    initialFamily = theme.family;
+    if (variant) initialVariant = variant;
   }
 
   // A new config prop (the shell refetched after a push or reconnect).

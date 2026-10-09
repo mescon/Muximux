@@ -2396,6 +2396,63 @@ describe('Settings', () => {
       });
     });
 
+    describe('theme pushed while open (I-2)', () => {
+      beforeEach(() => {
+        mockSetThemeFamily.mockImplementation((f: string) => mockSelectedFamily.set(f));
+        mockSetVariantMode.mockImplementation((v: 'dark' | 'light' | 'system') => mockVariantMode.set(v));
+        mockSelectedFamily.set('nord');
+        mockVariantMode.set('dark');
+      });
+
+      it('an untouched theme follows the server and is not written back stale', async () => {
+        const config = makeConfig({ apps: sampleApps, theme: { family: 'nord', variant: 'dark' } });
+        const onsave = vi.fn().mockResolvedValue(undefined);
+        const { rerender } = render(Settings, { props: { config, apps: config.apps, initialTab: 'security', onsave } });
+        // Another admin saved dracula/light; the shell refetched and passed
+        // it down without touching the theme stores (Settings is open).
+        const theirs = makeConfig({ apps: sampleApps, theme: { family: 'dracula', variant: 'light' } });
+        await rerender({ config: theirs, apps: theirs.apps });
+        expect(mockSelectedFamily.get()).toBe('dracula');
+        expect(mockVariantMode.get()).toBe('light');
+        // Following the server is not an unsaved edit.
+        expect(screen.getByText('Save Changes')).toBeDisabled();
+
+        await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+        await fireEvent.click(screen.getByText('Save Changes'));
+        await waitFor(() => expect(onsave).toHaveBeenCalledTimes(1));
+        const [saved, base] = onsave.mock.calls[0] as [Config, Config];
+        expect(base.theme).toEqual({ family: 'dracula', variant: 'light' });
+        expect(saved.theme).toEqual({ family: 'dracula', variant: 'light' });
+      });
+
+      it('an edited theme stays, and discard returns to the server theme', async () => {
+        const config = makeConfig({ apps: sampleApps, theme: { family: 'nord', variant: 'dark' } });
+        const onclose = vi.fn();
+        const { rerender, component } = render(Settings, { props: { config, apps: config.apps, initialTab: 'security', onclose } });
+        mockSelectedFamily.set('solarized');
+        const theirs = makeConfig({ apps: sampleApps, theme: { family: 'dracula', variant: 'bogus' as 'dark' } });
+        await rerender({ config: theirs, apps: theirs.apps });
+        expect(mockSelectedFamily.get()).toBe('solarized');
+        expect(mockVariantMode.get()).toBe('dark');
+
+        expect(component.requestClose()).toBe(false);
+        await fireEvent.click(await screen.findByText('Discard'));
+        expect(mockSetThemeFamily).toHaveBeenLastCalledWith('dracula');
+        expect(mockSetVariantMode).toHaveBeenLastCalledWith('dark');
+        expect(onclose).toHaveBeenCalledTimes(1);
+      });
+
+      it('a push without a theme leaves the theme alone', async () => {
+        const config = makeConfig({ apps: sampleApps, theme: { family: 'nord', variant: 'dark' } });
+        const { rerender } = render(Settings, { props: { config, apps: config.apps, initialTab: 'security' } });
+        const theirs = makeConfig({ apps: sampleApps, title: 'Other' });
+        delete theirs.theme;
+        await rerender({ config: theirs, apps: theirs.apps });
+        expect(mockSetThemeFamily).not.toHaveBeenCalled();
+        expect(mockSelectedFamily.get()).toBe('nord');
+      });
+    });
+
     it('a push takes untouched keybindings from the server and keeps edited ones', async () => {
       const { rerender } = render(Settings, { props: { config: makeConfig(), apps: sampleApps } });
 
