@@ -346,7 +346,10 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 			authCfg.Headers = cfg.Auth.Headers
 		}
 		authCfg.LogoutURL = cfg.Auth.LogoutURL
-		authCfg.ForwardAuthAdminGroups = cfg.Auth.ForwardAuthAdminGroups
+		// Which IdP group grants admin is for the admin-only Security tab.
+		if userRole == auth.RoleAdmin {
+			authCfg.ForwardAuthAdminGroups = cfg.Auth.ForwardAuthAdminGroups
+		}
 		resp.Auth = authCfg
 	}
 	resp.Discovery = &clientDiscoveryConfig{

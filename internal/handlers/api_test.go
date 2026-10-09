@@ -3870,3 +3870,16 @@ func TestGetConfig_ExposesForwardAuthAdminGroups(t *testing.T) {
 		t.Errorf("forward_auth_admin_groups = %v, want [dashboard-admins]", authCfg.Groups)
 	}
 }
+
+func TestGetConfig_HidesForwardAuthAdminGroupsFromNonAdmins(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Auth.Method = "forward_auth"
+	cfg.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	for _, role := range []string{auth.RoleUser, auth.RolePowerUser} {
+		resp := getConfigAs(t, cfg, role)
+		if strings.Contains(string(resp["auth"]), "forward_auth_admin_groups") {
+			t.Errorf("%s sees forward_auth_admin_groups: %s", role, resp["auth"])
+		}
+	}
+}
