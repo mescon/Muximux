@@ -867,5 +867,12 @@
   "oidc_cap_token": "Endpoint token",
   "oidc_cap_userinfo": "Endpoint thông tin người dùng",
   "oidc_cap_jwks": "Khóa ký (JWKS)",
-  "oidc_redirect_url": "Ghi đè URL callback (tùy chọn)"
+  "oidc_redirect_url": "Ghi đè URL callback (tùy chọn)",
+  "settings_fromEnv": "Từ {name}",
+  "discovery_autoImport": "Tự động nhập",
+  "discovery_autoImportHint": "Tự động thêm, cập nhật hoặc xóa ứng dụng cho các container có nhãn muximux.*.",
+  "discovery_autoImportOff": "Tắt",
+  "discovery_autoImportAdd": "Thêm container mới",
+  "discovery_autoImportUpdate": "Thêm và cập nhật",
+  "discovery_autoImportSync": "Thêm, cập nhật và xóa"
 }

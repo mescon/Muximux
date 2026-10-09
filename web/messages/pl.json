@@ -867,5 +867,12 @@
   "oidc_cap_token": "Punkt końcowy tokenów",
   "oidc_cap_userinfo": "Punkt końcowy informacji o użytkowniku",
   "oidc_cap_jwks": "Klucze podpisywania (JWKS)",
-  "oidc_redirect_url": "Nadpisanie adresu wywołania zwrotnego (opcjonalnie)"
+  "oidc_redirect_url": "Nadpisanie adresu wywołania zwrotnego (opcjonalnie)",
+  "settings_fromEnv": "Z {name}",
+  "discovery_autoImport": "Automatyczny import",
+  "discovery_autoImportHint": "Automatycznie dodawaj, aktualizuj lub usuwaj aplikacje dla kontenerów z etykietami muximux.*.",
+  "discovery_autoImportOff": "Wyłączony",
+  "discovery_autoImportAdd": "Dodawaj nowe kontenery",
+  "discovery_autoImportUpdate": "Dodawaj i aktualizuj",
+  "discovery_autoImportSync": "Dodawaj, aktualizuj i usuwaj"
 }

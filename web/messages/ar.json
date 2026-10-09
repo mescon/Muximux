@@ -867,5 +867,12 @@
   "oidc_cap_token": "نقطة الرمز المميز",
   "oidc_cap_userinfo": "نقطة معلومات المستخدم",
   "oidc_cap_jwks": "مفاتيح التوقيع (JWKS)",
-  "oidc_redirect_url": "تجاوز عنوان رد النداء (اختياري)"
+  "oidc_redirect_url": "تجاوز عنوان رد النداء (اختياري)",
+  "settings_fromEnv": "من {name}",
+  "discovery_autoImport": "الاستيراد التلقائي",
+  "discovery_autoImportHint": "إضافة التطبيقات أو تحديثها أو إزالتها تلقائيًا للحاويات التي تحمل تسميات muximux.*.",
+  "discovery_autoImportOff": "إيقاف",
+  "discovery_autoImportAdd": "إضافة الحاويات الجديدة",
+  "discovery_autoImportUpdate": "إضافة وتحديث",
+  "discovery_autoImportSync": "إضافة وتحديث وإزالة"
 }

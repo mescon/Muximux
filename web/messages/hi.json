@@ -867,5 +867,12 @@
   "oidc_cap_token": "टोकन एंडपॉइंट",
   "oidc_cap_userinfo": "यूज़र इन्फो एंडपॉइंट",
   "oidc_cap_jwks": "साइनिंग कीज़ (JWKS)",
-  "oidc_redirect_url": "कॉलबैक URL ओवरराइड (वैकल्पिक)"
+  "oidc_redirect_url": "कॉलबैक URL ओवरराइड (वैकल्पिक)",
+  "settings_fromEnv": "{name} से",
+  "discovery_autoImport": "स्वचालित आयात",
+  "discovery_autoImportHint": "muximux.* लेबल वाले कंटेनरों के लिए ऐप्स अपने आप जोड़ें, अपडेट करें या हटाएँ।",
+  "discovery_autoImportOff": "बंद",
+  "discovery_autoImportAdd": "नए कंटेनर जोड़ें",
+  "discovery_autoImportUpdate": "जोड़ें और अपडेट करें",
+  "discovery_autoImportSync": "जोड़ें, अपडेट करें और हटाएँ"
 }

@@ -867,5 +867,12 @@
   "oidc_cap_token": "トークンエンドポイント",
   "oidc_cap_userinfo": "ユーザー情報エンドポイント",
   "oidc_cap_jwks": "署名鍵(JWKS)",
-  "oidc_redirect_url": "コールバックURLの上書き(任意)"
+  "oidc_redirect_url": "コールバックURLの上書き(任意)",
+  "settings_fromEnv": "{name} から",
+  "discovery_autoImport": "自動インポート",
+  "discovery_autoImportHint": "muximux.* ラベルを持つコンテナのアプリを自動的に追加、更新、削除します。",
+  "discovery_autoImportOff": "オフ",
+  "discovery_autoImportAdd": "新しいコンテナを追加",
+  "discovery_autoImportUpdate": "追加と更新",
+  "discovery_autoImportSync": "追加、更新、削除"
 }

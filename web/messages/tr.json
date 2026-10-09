@@ -867,5 +867,12 @@
   "oidc_cap_token": "Belirteç uç noktası",
   "oidc_cap_userinfo": "Kullanıcı bilgisi uç noktası",
   "oidc_cap_jwks": "İmzalama anahtarları (JWKS)",
-  "oidc_redirect_url": "Geri çağırma URL'sini geçersiz kıl (isteğe bağlı)"
+  "oidc_redirect_url": "Geri çağırma URL'sini geçersiz kıl (isteğe bağlı)",
+  "settings_fromEnv": "Kaynak: {name}",
+  "discovery_autoImport": "Otomatik içe aktarma",
+  "discovery_autoImportHint": "muximux.* etiketli konteynerler için uygulamaları otomatik olarak ekleyin, güncelleyin veya kaldırın.",
+  "discovery_autoImportOff": "Kapalı",
+  "discovery_autoImportAdd": "Yeni konteynerleri ekle",
+  "discovery_autoImportUpdate": "Ekle ve güncelle",
+  "discovery_autoImportSync": "Ekle, güncelle ve kaldır"
 }

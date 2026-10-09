@@ -867,5 +867,12 @@
   "oidc_cap_token": "Крайна точка за токени",
   "oidc_cap_userinfo": "Крайна точка за потребителска информация",
   "oidc_cap_jwks": "Ключове за подпис (JWKS)",
-  "oidc_redirect_url": "Заместване на Callback URL (по избор)"
+  "oidc_redirect_url": "Заместване на Callback URL (по избор)",
+  "settings_fromEnv": "От {name}",
+  "discovery_autoImport": "Автоматичен импорт",
+  "discovery_autoImportHint": "Автоматично добавяне, обновяване или премахване на приложения за контейнери с етикети muximux.*.",
+  "discovery_autoImportOff": "Изключено",
+  "discovery_autoImportAdd": "Добавяне на нови контейнери",
+  "discovery_autoImportUpdate": "Добавяне и обновяване",
+  "discovery_autoImportSync": "Добавяне, обновяване и премахване"
 }

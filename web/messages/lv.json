@@ -867,5 +867,12 @@
   "oidc_cap_token": "Pilnvaras galapunkts",
   "oidc_cap_userinfo": "Lietotāja informācijas galapunkts",
   "oidc_cap_jwks": "Parakstīšanas atslēgas (JWKS)",
-  "oidc_redirect_url": "Atzvanīšanas URL aizstāšana (neobligāti)"
+  "oidc_redirect_url": "Atzvanīšanas URL aizstāšana (neobligāti)",
+  "settings_fromEnv": "No {name}",
+  "discovery_autoImport": "Automātiskā importēšana",
+  "discovery_autoImportHint": "Automātiski pievienot, atjaunināt vai noņemt lietotnes konteineriem ar muximux.* etiķetēm.",
+  "discovery_autoImportOff": "Izslēgts",
+  "discovery_autoImportAdd": "Pievienot jaunus konteinerus",
+  "discovery_autoImportUpdate": "Pievienot un atjaunināt",
+  "discovery_autoImportSync": "Pievienot, atjaunināt un noņemt"
 }

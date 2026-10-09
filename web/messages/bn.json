@@ -867,5 +867,12 @@
   "oidc_cap_token": "টোকেন এন্ডপয়েন্ট",
   "oidc_cap_userinfo": "ইউজার ইনফো এন্ডপয়েন্ট",
   "oidc_cap_jwks": "সাইনিং কী (JWKS)",
-  "oidc_redirect_url": "কলব্যাক URL ওভাররাইড (ঐচ্ছিক)"
+  "oidc_redirect_url": "কলব্যাক URL ওভাররাইড (ঐচ্ছিক)",
+  "settings_fromEnv": "{name} থেকে",
+  "discovery_autoImport": "স্বয়ংক্রিয় আমদানি",
+  "discovery_autoImportHint": "muximux.* লেবেলযুক্ত কন্টেইনারের জন্য অ্যাপ স্বয়ংক্রিয়ভাবে যোগ, আপডেট বা সরান।",
+  "discovery_autoImportOff": "বন্ধ",
+  "discovery_autoImportAdd": "নতুন কন্টেইনার যোগ করুন",
+  "discovery_autoImportUpdate": "যোগ ও আপডেট করুন",
+  "discovery_autoImportSync": "যোগ, আপডেট ও সরান"
 }

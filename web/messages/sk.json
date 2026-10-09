@@ -867,5 +867,12 @@
   "oidc_cap_token": "Tokenový endpoint",
   "oidc_cap_userinfo": "Endpoint informácií o používateľovi",
   "oidc_cap_jwks": "Podpisové kľúče (JWKS)",
-  "oidc_redirect_url": "Prepísanie callback URL (voliteľné)"
+  "oidc_redirect_url": "Prepísanie callback URL (voliteľné)",
+  "settings_fromEnv": "Z {name}",
+  "discovery_autoImport": "Automatický import",
+  "discovery_autoImportHint": "Automaticky pridávať, aktualizovať alebo odstraňovať aplikácie pre kontajnery so štítkami muximux.*.",
+  "discovery_autoImportOff": "Vypnuté",
+  "discovery_autoImportAdd": "Pridať nové kontajnery",
+  "discovery_autoImportUpdate": "Pridať a aktualizovať",
+  "discovery_autoImportSync": "Pridať, aktualizovať a odstrániť"
 }

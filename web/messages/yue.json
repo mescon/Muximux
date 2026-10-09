@@ -867,5 +867,12 @@
   "oidc_cap_token": "令牌端點",
   "oidc_cap_userinfo": "用戶資料端點",
   "oidc_cap_jwks": "簽署金鑰(JWKS)",
-  "oidc_redirect_url": "覆寫回呼 URL(可選)"
+  "oidc_redirect_url": "覆寫回呼 URL(可選)",
+  "settings_fromEnv": "來自 {name}",
+  "discovery_autoImport": "自動匯入",
+  "discovery_autoImportHint": "自動為帶有 muximux.* 標籤嘅容器新增、更新或者移除應用程式。",
+  "discovery_autoImportOff": "關",
+  "discovery_autoImportAdd": "新增新容器",
+  "discovery_autoImportUpdate": "新增同更新",
+  "discovery_autoImportSync": "新增、更新同移除"
 }

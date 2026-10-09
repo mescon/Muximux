@@ -867,5 +867,12 @@
   "oidc_cap_token": "Krajnja tačka tokena",
   "oidc_cap_userinfo": "Krajnja tačka korisničkih podataka",
   "oidc_cap_jwks": "Ključevi za potpisivanje (JWKS)",
-  "oidc_redirect_url": "Zamena callback URL-a (opciono)"
+  "oidc_redirect_url": "Zamena callback URL-a (opciono)",
+  "settings_fromEnv": "Iz {name}",
+  "discovery_autoImport": "Аутоматски увоз",
+  "discovery_autoImportHint": "Аутоматски додај, ажурирај или уклони апликације за контејнере са ознакама muximux.*.",
+  "discovery_autoImportOff": "Искључено",
+  "discovery_autoImportAdd": "Додај нове контејнере",
+  "discovery_autoImportUpdate": "Додај и ажурирај",
+  "discovery_autoImportSync": "Додај, ажурирај и уклони"
 }

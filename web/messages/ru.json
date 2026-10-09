@@ -867,5 +867,12 @@
   "oidc_cap_token": "Конечная точка токенов",
   "oidc_cap_userinfo": "Конечная точка сведений о пользователе",
   "oidc_cap_jwks": "Ключи подписи (JWKS)",
-  "oidc_redirect_url": "Переопределение callback URL (необязательно)"
+  "oidc_redirect_url": "Переопределение callback URL (необязательно)",
+  "settings_fromEnv": "Из {name}",
+  "discovery_autoImport": "Автоимпорт",
+  "discovery_autoImportHint": "Автоматически добавлять, обновлять или удалять приложения для контейнеров с метками muximux.*.",
+  "discovery_autoImportOff": "Выкл.",
+  "discovery_autoImportAdd": "Добавлять новые контейнеры",
+  "discovery_autoImportUpdate": "Добавлять и обновлять",
+  "discovery_autoImportSync": "Добавлять, обновлять и удалять"
 }

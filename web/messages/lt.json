@@ -867,5 +867,12 @@
   "oidc_cap_token": "Prieigos rakto galinis taškas",
   "oidc_cap_userinfo": "Naudotojo informacijos galinis taškas",
   "oidc_cap_jwks": "Pasirašymo raktai (JWKS)",
-  "oidc_redirect_url": "Atgalinio kvietimo URL pakeitimas (neprivaloma)"
+  "oidc_redirect_url": "Atgalinio kvietimo URL pakeitimas (neprivaloma)",
+  "settings_fromEnv": "Iš {name}",
+  "discovery_autoImport": "Automatinis importas",
+  "discovery_autoImportHint": "Automatiškai pridėti, atnaujinti arba pašalinti programas konteineriams su muximux.* žymomis.",
+  "discovery_autoImportOff": "Išjungta",
+  "discovery_autoImportAdd": "Pridėti naujus konteinerius",
+  "discovery_autoImportUpdate": "Pridėti ir atnaujinti",
+  "discovery_autoImportSync": "Pridėti, atnaujinti ir pašalinti"
 }

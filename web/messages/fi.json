@@ -867,5 +867,12 @@
   "oidc_cap_token": "Tokenin päätepiste",
   "oidc_cap_userinfo": "Käyttäjätietojen päätepiste",
   "oidc_cap_jwks": "Allekirjoitusavaimet (JWKS)",
-  "oidc_redirect_url": "Callback-URL:n ohitus (valinnainen)"
+  "oidc_redirect_url": "Callback-URL:n ohitus (valinnainen)",
+  "settings_fromEnv": "Lähde {name}",
+  "discovery_autoImport": "Automaattinen tuonti",
+  "discovery_autoImportHint": "Lisää, päivitä tai poista sovelluksia automaattisesti kontteihin, joilla on muximux.*-tunnisteet.",
+  "discovery_autoImportOff": "Pois",
+  "discovery_autoImportAdd": "Lisää uudet kontit",
+  "discovery_autoImportUpdate": "Lisää ja päivitä",
+  "discovery_autoImportSync": "Lisää, päivitä ja poista"
 }

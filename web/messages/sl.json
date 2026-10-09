@@ -867,5 +867,12 @@
   "oidc_cap_token": "Končna točka žetonov",
   "oidc_cap_userinfo": "Končna točka podatkov o uporabniku",
   "oidc_cap_jwks": "Podpisni ključi (JWKS)",
-  "oidc_redirect_url": "Preglasitev URL-ja povratnega klica (neobvezno)"
+  "oidc_redirect_url": "Preglasitev URL-ja povratnega klica (neobvezno)",
+  "settings_fromEnv": "Iz {name}",
+  "discovery_autoImport": "Samodejni uvoz",
+  "discovery_autoImportHint": "Samodejno dodajaj, posodabljaj ali odstranjuj aplikacije za vsebnike z oznakami muximux.*.",
+  "discovery_autoImportOff": "Izklopljeno",
+  "discovery_autoImportAdd": "Dodaj nove vsebnike",
+  "discovery_autoImportUpdate": "Dodaj in posodobi",
+  "discovery_autoImportSync": "Dodaj, posodobi in odstrani"
 }

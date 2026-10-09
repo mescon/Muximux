@@ -867,5 +867,12 @@
   "oidc_cap_token": "Endpoint de token",
   "oidc_cap_userinfo": "Endpoint de informații utilizator",
   "oidc_cap_jwks": "Chei de semnare (JWKS)",
-  "oidc_redirect_url": "Suprascriere URL de callback (opțional)"
+  "oidc_redirect_url": "Suprascriere URL de callback (opțional)",
+  "settings_fromEnv": "Din {name}",
+  "discovery_autoImport": "Import automat",
+  "discovery_autoImportHint": "Adaugă, actualizează sau elimină automat aplicațiile pentru containerele cu etichete muximux.*.",
+  "discovery_autoImportOff": "Dezactivat",
+  "discovery_autoImportAdd": "Adaugă containere noi",
+  "discovery_autoImportUpdate": "Adaugă și actualizează",
+  "discovery_autoImportSync": "Adaugă, actualizează și elimină"
 }

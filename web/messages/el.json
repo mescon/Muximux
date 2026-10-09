@@ -867,5 +867,12 @@
   "oidc_cap_token": "Endpoint token",
   "oidc_cap_userinfo": "Endpoint πληροφοριών χρήστη",
   "oidc_cap_jwks": "Κλειδιά υπογραφής (JWKS)",
-  "oidc_redirect_url": "Παράκαμψη URL επανάκλησης (προαιρετικό)"
+  "oidc_redirect_url": "Παράκαμψη URL επανάκλησης (προαιρετικό)",
+  "settings_fromEnv": "Από {name}",
+  "discovery_autoImport": "Αυτόματη εισαγωγή",
+  "discovery_autoImportHint": "Αυτόματη προσθήκη, ενημέρωση ή αφαίρεση εφαρμογών για κοντέινερ με ετικέτες muximux.*.",
+  "discovery_autoImportOff": "Ανενεργό",
+  "discovery_autoImportAdd": "Προσθήκη νέων κοντέινερ",
+  "discovery_autoImportUpdate": "Προσθήκη και ενημέρωση",
+  "discovery_autoImportSync": "Προσθήκη, ενημέρωση και αφαίρεση"
 }

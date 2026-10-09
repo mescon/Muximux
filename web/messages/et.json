@@ -867,5 +867,12 @@
   "oidc_cap_token": "Tokeni lõpp-punkt",
   "oidc_cap_userinfo": "Kasutajainfo lõpp-punkt",
   "oidc_cap_jwks": "Allkirjastamisvõtmed (JWKS)",
-  "oidc_redirect_url": "Tagasikutse URL-i alistamine (valikuline)"
+  "oidc_redirect_url": "Tagasikutse URL-i alistamine (valikuline)",
+  "settings_fromEnv": "Allikas {name}",
+  "discovery_autoImport": "Automaatne import",
+  "discovery_autoImportHint": "Lisa, uuenda või eemalda muximux.* siltidega konteinerite rakendusi automaatselt.",
+  "discovery_autoImportOff": "Väljas",
+  "discovery_autoImportAdd": "Lisa uued konteinerid",
+  "discovery_autoImportUpdate": "Lisa ja uuenda",
+  "discovery_autoImportSync": "Lisa, uuenda ja eemalda"
 }

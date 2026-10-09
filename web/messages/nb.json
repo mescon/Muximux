@@ -867,5 +867,12 @@
   "oidc_cap_token": "Token-endepunkt",
   "oidc_cap_userinfo": "Brukerinfo-endepunkt",
   "oidc_cap_jwks": "Signeringsnøkler (JWKS)",
-  "oidc_redirect_url": "Overstyr callback-URL (valgfritt)"
+  "oidc_redirect_url": "Overstyr callback-URL (valgfritt)",
+  "settings_fromEnv": "Fra {name}",
+  "discovery_autoImport": "Automatisk import",
+  "discovery_autoImportHint": "Legg til, oppdater eller fjern apper automatisk for containere med muximux.*-etiketter.",
+  "discovery_autoImportOff": "Av",
+  "discovery_autoImportAdd": "Legg til nye containere",
+  "discovery_autoImportUpdate": "Legg til og oppdater",
+  "discovery_autoImportSync": "Legg til, oppdater og fjern"
 }

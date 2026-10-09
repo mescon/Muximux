@@ -867,5 +867,12 @@
   "oidc_cap_token": "토큰 엔드포인트",
   "oidc_cap_userinfo": "사용자 정보 엔드포인트",
   "oidc_cap_jwks": "서명 키(JWKS)",
-  "oidc_redirect_url": "콜백 URL 재정의(선택)"
+  "oidc_redirect_url": "콜백 URL 재정의(선택)",
+  "settings_fromEnv": "{name}에서 가져옴",
+  "discovery_autoImport": "자동 가져오기",
+  "discovery_autoImportHint": "muximux.* 레이블이 있는 컨테이너의 앱을 자동으로 추가, 업데이트 또는 제거합니다.",
+  "discovery_autoImportOff": "끔",
+  "discovery_autoImportAdd": "새 컨테이너 추가",
+  "discovery_autoImportUpdate": "추가 및 업데이트",
+  "discovery_autoImportSync": "추가, 업데이트 및 제거"
 }

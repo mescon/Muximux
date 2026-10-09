@@ -867,5 +867,12 @@
   "oidc_cap_token": "Endpoint de token",
   "oidc_cap_userinfo": "Endpoint de información de usuario",
   "oidc_cap_jwks": "Claves de firma (JWKS)",
-  "oidc_redirect_url": "Anular URL de callback (opcional)"
+  "oidc_redirect_url": "Anular URL de callback (opcional)",
+  "settings_fromEnv": "Desde {name}",
+  "discovery_autoImport": "Importación automática",
+  "discovery_autoImportHint": "Añade, actualiza o elimina automáticamente aplicaciones para los contenedores con etiquetas muximux.*.",
+  "discovery_autoImportOff": "Desactivada",
+  "discovery_autoImportAdd": "Añadir contenedores nuevos",
+  "discovery_autoImportUpdate": "Añadir y actualizar",
+  "discovery_autoImportSync": "Añadir, actualizar y eliminar"
 }

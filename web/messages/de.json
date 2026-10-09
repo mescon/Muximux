@@ -867,5 +867,12 @@
   "oidc_cap_token": "Token-Endpunkt",
   "oidc_cap_userinfo": "Userinfo-Endpunkt",
   "oidc_cap_jwks": "Signaturschlüssel (JWKS)",
-  "oidc_redirect_url": "Callback-URL überschreiben (optional)"
+  "oidc_redirect_url": "Callback-URL überschreiben (optional)",
+  "settings_fromEnv": "Aus {name}",
+  "discovery_autoImport": "Automatischer Import",
+  "discovery_autoImportHint": "Apps für Container mit muximux.*-Labels automatisch hinzufügen, aktualisieren oder entfernen.",
+  "discovery_autoImportOff": "Aus",
+  "discovery_autoImportAdd": "Neue Container hinzufügen",
+  "discovery_autoImportUpdate": "Hinzufügen und aktualisieren",
+  "discovery_autoImportSync": "Hinzufügen, aktualisieren und entfernen"
 }

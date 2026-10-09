@@ -867,5 +867,12 @@
   "oidc_cap_token": "Point de terminaison de jeton",
   "oidc_cap_userinfo": "Point de terminaison des informations utilisateur",
   "oidc_cap_jwks": "Clés de signature (JWKS)",
-  "oidc_redirect_url": "Remplacement de l'URL de rappel (facultatif)"
+  "oidc_redirect_url": "Remplacement de l'URL de rappel (facultatif)",
+  "settings_fromEnv": "Depuis {name}",
+  "discovery_autoImport": "Import automatique",
+  "discovery_autoImportHint": "Ajoute, met à jour ou supprime automatiquement les applications des conteneurs portant des étiquettes muximux.*.",
+  "discovery_autoImportOff": "Désactivé",
+  "discovery_autoImportAdd": "Ajouter les nouveaux conteneurs",
+  "discovery_autoImportUpdate": "Ajouter et mettre à jour",
+  "discovery_autoImportSync": "Ajouter, mettre à jour et supprimer"
 }
