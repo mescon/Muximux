@@ -761,3 +761,53 @@ func TestClient_InspectContainerState_NotFound(t *testing.T) {
 		t.Fatalf("want ErrContainerNotFound, got %v", err)
 	}
 }
+
+func servicesMux(status int, body string) *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v1.41/services", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(status)
+		_, _ = w.Write([]byte(body))
+	})
+	return mux
+}
+
+func TestClient_ListServices(t *testing.T) {
+	socket, cleanup := fakeDockerOverUnix(t, servicesMux(http.StatusOK, `[{"ID":"svc1","Spec":{"Name":"stack_whoami","Labels":{"muximux.app.name":"Whoami"},
+	  "TaskTemplate":{"ContainerSpec":{"Labels":{"com.docker.stack.namespace":"stack"}}}},
+	  "Endpoint":{"Ports":[{"Protocol":"tcp","TargetPort":80,"PublishedPort":18081,"PublishMode":"ingress"}]}}]`))
+	defer cleanup()
+	c, _ := NewClient(&config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket})
+	svcs, err := c.ListServices(context.Background())
+	if err != nil || len(svcs) != 1 || svcs[0].Name != "stack_whoami" || svcs[0].Labels["muximux.app.name"] != "Whoami" ||
+		svcs[0].ContainerLabels["com.docker.stack.namespace"] != "stack" ||
+		len(svcs[0].Ports) != 1 || svcs[0].Ports[0].PrivatePort != 80 || svcs[0].Ports[0].PublicPort != 18081 || svcs[0].Ports[0].Type != "tcp" {
+		t.Fatalf("got %+v err=%v", svcs, err)
+	}
+}
+
+func TestClient_ListServices_Errors(t *testing.T) {
+	cases := []struct {
+		status int
+		body   string
+		want   error
+	}{
+		{http.StatusServiceUnavailable, `{"message":"This node is not a swarm manager. Use \"docker swarm init\" ..."}`, ErrNotSwarmManager},
+		{http.StatusForbidden, `{"message":"forbidden"}`, ErrServicesForbidden},
+	}
+	for i := range cases {
+		tc := &cases[i]
+		socket, cleanup := fakeDockerOverUnix(t, servicesMux(tc.status, tc.body))
+		c, _ := NewClient(&config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket})
+		_, err := c.ListServices(context.Background())
+		cleanup()
+		if !errors.Is(err, tc.want) {
+			t.Fatalf("status %d: err = %v, want %v", tc.status, err, tc.want)
+		}
+	}
+	socket, cleanup := fakeDockerOverUnix(t, servicesMux(http.StatusInternalServerError, `{"message":"boom"}`))
+	defer cleanup()
+	c, _ := NewClient(&config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket})
+	if _, err := c.ListServices(context.Background()); err == nil || errors.Is(err, ErrNotSwarmManager) || errors.Is(err, ErrServicesForbidden) {
+		t.Fatalf("500 must be a plain error: %v", err)
+	}
+}

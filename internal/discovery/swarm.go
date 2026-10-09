@@ -1,6 +1,10 @@
 package discovery
 
-import "strings"
+import (
+	"fmt"
+	"sort"
+	"strings"
+)
 
 // swarmServiceName returns the Swarm service name a task container
 // belongs to, or "" when the container carries no swarm service label.
@@ -25,4 +29,95 @@ func composeKeyValue(c *ContainerSummary) string {
 		return ""
 	}
 	return project + ":" + service
+}
+
+// Used by the scan wiring in a later task.
+//
+//nolint:unused // wired into Scan in Task 15
+const (
+	noteSwarmWorker    = "Swarm worker node: service ports and deploy labels are not visible; set muximux.app.port and put labels under the service's labels: key"
+	noteSwarmForbidden = "Swarm services are not readable (403; a socket proxy needs SERVICES=1): service ports and deploy labels are not visible"
+)
+
+// hasSwarmTasks reports whether any container is a Swarm task.
+func hasSwarmTasks(containers []ContainerSummary) bool {
+	for i := range containers {
+		if _, ok := containers[i].Labels[LabelSwarmServiceID]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// mergeSwarmServices folds service labels and ports into the task
+// containers in place. Container labels win over service labels, and
+// service Labels win over ContainerLabels.
+func mergeSwarmServices(containers []ContainerSummary, services []ServiceSummary) {
+	byID := make(map[string]*ServiceSummary, len(services))
+	for i := range services {
+		byID[services[i].ID] = &services[i]
+	}
+	for i := range containers {
+		c := &containers[i]
+		svc, ok := byID[c.Labels[LabelSwarmServiceID]]
+		if !ok {
+			continue
+		}
+		for _, src := range []map[string]string{svc.Labels, svc.ContainerLabels} {
+			for k, v := range src {
+				if _, has := c.Labels[k]; has {
+					continue
+				}
+				if c.Labels == nil {
+					c.Labels = map[string]string{}
+				}
+				c.Labels[k] = v
+			}
+		}
+		for _, sp := range svc.Ports {
+			found := false
+			for j := range c.Ports {
+				if c.Ports[j].PrivatePort == sp.PrivatePort && c.Ports[j].Type == sp.Type {
+					if c.Ports[j].PublicPort == 0 {
+						c.Ports[j].PublicPort = sp.PublicPort
+					}
+					found = true
+					break
+				}
+			}
+			if !found {
+				c.Ports = append(c.Ports, sp)
+			}
+		}
+	}
+}
+
+// collapseDuplicateKeys keeps one suggestion per tracking key, whatever the
+// source (swarm replicas, a scaled compose service, two containers sharing a
+// discovery id): the lowest ContainerName wins and gets the note
+// "N containers share this key; one app is imported".
+func collapseDuplicateKeys(suggestions []Suggestion) []Suggestion {
+	idx := make(map[string]int, len(suggestions))
+	var groups [][]int
+	for i := range suggestions {
+		g, ok := idx[suggestions[i].Key]
+		if !ok {
+			g = len(groups)
+			idx[suggestions[i].Key] = g
+			groups = append(groups, nil)
+		}
+		groups[g] = append(groups[g], i)
+	}
+	out := make([]Suggestion, 0, len(groups))
+	for _, members := range groups {
+		sort.SliceStable(members, func(a, b int) bool {
+			return suggestions[members[a]].ContainerName < suggestions[members[b]].ContainerName
+		})
+		s := suggestions[members[0]]
+		if len(members) > 1 {
+			s.Notes = append(append([]string(nil), s.Notes...), fmt.Sprintf("%d containers share this key; one app is imported", len(members)))
+		}
+		out = append(out, s)
+	}
+	return out
 }
