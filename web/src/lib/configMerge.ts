@@ -19,6 +19,12 @@
 
 import { type App, type Config, type Group, type KeyCombo, type KeybindingsConfig, makeApp, makeGroup } from './types';
 
+// Stable, locale-independent key order for canonical comparisons.
+export function byCodePoint(a: string, b: string): number {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
+}
+
 type Obj = Record<string, unknown>;
 
 /**
@@ -62,7 +68,7 @@ function canonical(v: unknown, pointer = false): unknown {
   }
   if (typeof v === 'object') {
     const out: Obj = {};
-    for (const k of Object.keys(v as Obj).sort()) {
+    for (const k of Object.keys(v as Obj).sort(byCodePoint)) {
       const c = canonical((v as Obj)[k], POINTER_FIELDS.has(k));
       if (c !== undefined) out[k] = c;
     }

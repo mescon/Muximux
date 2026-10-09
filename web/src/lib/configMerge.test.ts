@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  byCodePoint,
   deepEqual,
   mergeField,
   mergeObject,
@@ -588,5 +589,11 @@ describe('rebaseConfig with a null health', () => {
     expect(rebaseConfig({ base: cfg({ health: nul }), local: cfg({ health: h }), localApps: [], theirs: cfg({ health: nul }) }).config.health).toEqual(h);
     expect(rebaseConfig({ base: cfg({ health: h }), local: cfg({ health: nul }), localApps: [], theirs: cfg({ health: h }) }).config.health).toEqual(h);
     expect(rebaseConfig({ base: cfg(), local: cfg({ health: nul }), localApps: [], theirs: cfg({ health: nul }) }).config.health).toBeUndefined();
+  });
+});
+
+describe('byCodePoint', () => {
+  it('orders keys by code point, independent of locale', () => {
+    expect(['b', 'a', 'B', 'a'].sort(byCodePoint)).toEqual(['B', 'a', 'a', 'b']);
   });
 });

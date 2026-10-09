@@ -3,7 +3,7 @@
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { type App, type Config, type Group, type KeybindingsConfig, makeApp, makeGroup, stampUniqueIds } from '$lib/types';
-  import { normaliseBase, rebaseConfig, stampOriginalNames, type MergeConflict } from '$lib/configMerge';
+  import { byCodePoint, normaliseBase, rebaseConfig, stampOriginalNames, type MergeConflict } from '$lib/configMerge';
   import { refreshDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
@@ -202,7 +202,7 @@
         // An empty object and an absent one decode alike in Go (the
         // rebase yields theme: {} where the server sent none).
         if (Object.keys(o).length === 0 && key !== '') return undefined;
-        return Object.fromEntries(Object.keys(o).sort().map(k => [k, o[k]]));
+        return Object.fromEntries(Object.keys(o).sort(byCodePoint).map(k => [k, o[k]]));
       }
       return v;
     });
