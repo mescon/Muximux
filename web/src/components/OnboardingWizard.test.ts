@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
+import { tick } from 'svelte';
 
 // --- Hoisted store values and mock fns ---
 const {
@@ -302,8 +303,8 @@ describe('OnboardingWizard', () => {
       const current = () => Array.from(container.querySelectorAll('.stepper-node[aria-current="step"]'));
       expect(current()).toHaveLength(1);
       expect(current()[0].textContent).toContain('Welcome');
-      const status = screen.getByRole('status');
-      expect(status).toHaveTextContent('Step 1 of 5: Welcome');
+      expect(screen.getByRole('status')).toHaveTextContent('');
+      expect(screen.getByRole('status').textContent?.trim()).toBe('');
 
       mockCurrentStep.set('apps');
       mockStepProgress.set(1);
@@ -312,6 +313,13 @@ describe('OnboardingWizard', () => {
         expect(current()[0].textContent).toContain('Apps');
         expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 5: Apps');
       });
+
+      // Re-setting the same step must not re-announce it.
+      const node = screen.getByRole('status').firstChild;
+      mockStepProgress.set(1);
+      await tick();
+      expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 5: Apps');
+      expect(screen.getByRole('status').firstChild).toBe(node);
     });
 
     it('shows Security step label when needsSetup is true', () => {

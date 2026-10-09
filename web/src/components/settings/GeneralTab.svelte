@@ -243,13 +243,13 @@
     <div class="p-3 bg-bg-hover rounded-lg sm:col-span-2">
       <div class="flex items-center justify-between mb-2">
         <div>
-          <div class="text-sm text-text-primary">{m.general_iconSize()}</div>
+          <div id="gen-icon-size" class="text-sm text-text-primary">{m.general_iconSize()}</div>
           <div class="text-xs text-text-muted">{m.general_iconSizeDesc()}</div>
         </div>
         <span class="text-sm text-text-secondary tabular-nums">{localConfig.navigation.icon_scale}×</span>
       </div>
       <input type="range" min="0.5" max="2" step="0.25"
-        aria-label={m.general_iconSize()}
+        aria-labelledby="gen-icon-size"
         bind:value={localConfig.navigation.icon_scale}
         class="w-full" />
     </div>
@@ -294,9 +294,9 @@
       </label>
       {#if localConfig.navigation.auto_hide}
         <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border-subtle">
-          <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
+          <div id="gen-hide-after" class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
           <select
-            aria-label={m.general_hideAfter()}
+            aria-labelledby="gen-hide-after"
             bind:value={localConfig.navigation.auto_hide_delay}
             class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary"
           >

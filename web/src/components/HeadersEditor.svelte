@@ -74,7 +74,7 @@
       />
       <button
         type="button"
-        aria-label={m.app_http_action_remove_header()}
+        aria-label={row.key ? m.appForm_removeHeaderNamed({ name: row.key }) : m.app_http_action_remove_header()}
         title={m.app_http_action_remove_header()}
         class="px-2 py-1 text-text-muted hover:text-danger-text"
         onclick={() => removeRow(row.id)}

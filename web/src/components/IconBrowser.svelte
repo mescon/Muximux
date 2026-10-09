@@ -469,7 +469,7 @@
                 </div>
               {:else}
                 <button
-                  aria-label={m.common_delete()}
+                  aria-label={m.common_deleteNamed({ name: icon.name })}
                   class="absolute -top-1 -end-1 w-5 h-5 bg-danger-solid hover:brightness-110 rounded-full
                          text-danger-on-solid flex items-center justify-center text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}

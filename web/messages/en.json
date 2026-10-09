@@ -902,5 +902,19 @@
   "discovery_gatewayDomain": "Gateway domain",
   "theme_nameLabel": "Theme name",
   "theme_descriptionLabel": "Theme description",
-  "theme_authorLabel": "Theme author"
+  "theme_authorLabel": "Theme author",
+  "common_editNamed": "Edit {name}",
+  "common_deleteNamed": "Delete {name}",
+  "apps_editGroupNamed": "Edit group {name}",
+  "apps_deleteGroupNamed": "Delete group {name}",
+  "theme_varColor": "{token} color",
+  "theme_varHex": "{token} hex value",
+  "theme_resetVar": "Reset {token} to default",
+  "security_roleFor": "Role for {user}",
+  "keybindings_addAlternativeFor": "Add alternative shortcut for {name}",
+  "keybindings_resetFor": "Reset {name} to default",
+  "appForm_removeHeaderNamed": "Remove header {name}",
+  "onboarding_changeIconFor": "Change icon for {name}",
+  "onboarding_appUrlFor": "URL for {name}",
+  "onboarding_openModeFor": "Open mode for {name}"
 }

@@ -494,7 +494,7 @@
                   }}
                 />
                 <button class="px-2 py-1 text-text-muted hover:text-danger-text" title={m.appForm_removeHeader()}
-                  aria-label={m.appForm_removeHeader()}
+                  aria-label={m.appForm_removeHeaderNamed({ name: key })}
                   onclick={() => {
                     const headers = { ...(app.proxy_headers ?? {}) };
                     delete headers[key];

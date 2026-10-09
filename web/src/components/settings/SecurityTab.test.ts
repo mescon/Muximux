@@ -410,6 +410,19 @@ describe('SecurityTab', () => {
       expect(reloadMock).not.toHaveBeenCalled();
     });
 
+    it('names the role select and delete button after each user', async () => {
+      mockListUsers.mockResolvedValue([
+        { username: 'alice', role: 'admin', email: '', display_name: '' },
+        { username: 'bob', role: 'user', email: '', display_name: '' },
+      ]);
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'builtin' }), hasUnsavedChanges: false } });
+
+      expect(await screen.findByRole('combobox', { name: 'Role for alice' })).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Role for bob' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete bob' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete alice' })).toBeInTheDocument();
+    });
+
     it('asks before Update Method reloads into password auth', async () => {
       mockListUsers.mockResolvedValue([{ username: 'admin', role: 'admin', email: '', display_name: '' }]);
       render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }), hasUnsavedChanges: true } });

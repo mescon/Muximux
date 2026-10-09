@@ -895,6 +895,18 @@
   };
   const steps = $derived($activeStepOrder.map(s => stepLabelFns[s]()));
 
+  // Live-region text: empty on first load, set only when the step changes.
+  let stepAnnouncement = $state('');
+  let lastAnnouncedStep: number | null = null;
+  $effect(() => {
+    const progress = $stepProgress;
+    if (progress === lastAnnouncedStep) return;
+    if (lastAnnouncedStep !== null) {
+      stepAnnouncement = m.onboarding_stepAnnouncement({ current: progress + 1, total: steps.length, title: steps[progress] ?? '' });
+    }
+    lastAnnouncedStep = progress;
+  });
+
   function handleGlobalKeydown(e: KeyboardEvent) {
     if (e.key !== 'Enter') return;
     // Don't intercept Enter inside textareas, selects, or buttons
@@ -992,7 +1004,7 @@
         {/each}
       </div>
       <div class="sr-only" role="status" data-testid="wizard-step-status">
-        {m.onboarding_stepAnnouncement({ current: $stepProgress + 1, total: steps.length, title: steps[$stepProgress] ?? '' })}
+        {stepAnnouncement}
       </div>
     </div>
   </div>
@@ -1139,13 +1151,13 @@
               <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <div class="flex items-center justify-between mb-2">
                   <div>
-                    <div class="text-sm text-text-primary">{m.general_iconSize()}</div>
+                    <div id="wiz-icon-size" class="text-sm text-text-primary">{m.general_iconSize()}</div>
                     <div class="text-xs text-text-muted">{m.general_iconSizeDesc()}</div>
                   </div>
                   <span class="text-sm text-text-secondary tabular-nums">{navIconScale}×</span>
                 </div>
                 <input type="range" min="0.5" max="2" step="0.25"
-                  aria-label={m.general_iconSize()}
+                  aria-labelledby="wiz-icon-size"
                   bind:value={navIconScale}
                   class="w-full accent-accent-primary" />
               </div>
@@ -1170,9 +1182,9 @@
                 </label>
                 {#if navAutoHide}
                   <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
-                    <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
+                    <div id="wiz-hide-after" class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
-                      aria-label={m.general_hideAfter()}
+                      aria-labelledby="wiz-hide-after"
                       class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary">
                       <option value="0.25s">0.25s</option>
                       <option value="0.5s">0.5s</option>
@@ -1827,7 +1839,7 @@
                               style="background-color: {group.color}"
                             />
                             <button
-                              aria-label={m.onboarding_changeIcon()}
+                              aria-label={m.onboarding_changeIconFor({ name: group.name })}
                               class="flex-shrink-0 w-7 h-7 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                               onclick={() => iconBrowserContext = i}
                               title={m.onboarding_changeIcon()}
@@ -1932,7 +1944,7 @@
                                     </button>
                                   </div>
                                   <input
-                                    aria-label={m.onboarding_appUrl()}
+                                    aria-label={m.onboarding_appUrlFor({ name: item.name })}
                                     type="url"
                                     value={getAppUrl(item.name)}
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
@@ -1944,7 +1956,7 @@
                                   />
                                   <div class="flex items-center gap-2 mt-1 ml-[66px]">
                                     <select
-                                      aria-label={m.appForm_openMode()}
+                                      aria-label={m.onboarding_openModeFor({ name: item.name })}
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
                                       onclick={(e) => e.stopPropagation()}

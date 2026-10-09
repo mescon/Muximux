@@ -223,7 +223,7 @@
                 style="background: var(--status-error); color: var(--danger-on-solid);"
                 onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                 title={m.theme_deleteTheme()}
-                aria-label={m.theme_deleteTheme()}
+                aria-label={m.common_deleteNamed({ name: family.name })}
               >
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -374,12 +374,13 @@
               <div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted);">{groupName}</div>
               <div class="space-y-2">
                 {#each vars as varName (varName)}
+                  {@const tokenLabel = varLabels[varName]?.label || varName.replace('--', '')}
                   {@const isColorVar = !themeEditorVars[varName]?.startsWith('rgba') && !themeEditorVars[varName]?.includes('px')}
                   <div class="flex items-center gap-2">
                     <span class="text-xs w-20 flex-shrink-0" style="color: var(--text-secondary);">{varLabels[varName]?.label || varName.replace('--', '')}</span>
                     {#if isColorVar}
                       <input
-                        aria-label={varLabels[varName]?.label || varName.replace('--', '')}
+                        aria-label={m.theme_varColor({ token: tokenLabel })}
                         type="color"
                         value={cssColorToHex(themeEditorVars[varName] || '#000000')}
                         oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
@@ -387,7 +388,7 @@
                       />
                     {/if}
                     <input
-                      aria-label={varLabels[varName]?.label || varName.replace('--', '')}
+                      aria-label={m.theme_varHex({ token: tokenLabel })}
                       type="text"
                       value={themeEditorVars[varName] || ''}
                       oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
@@ -396,7 +397,7 @@
                     />
                     {#if themeEditorVars[varName] !== themeEditorDefaults[varName]}
                       <button
-                        aria-label={m.theme_resetToDefault()}
+                        aria-label={m.theme_resetVar({ token: tokenLabel })}
                         class="p-1 rounded transition-colors flex-shrink-0"
                         style="color: var(--text-muted);"
                         onclick={() => resetThemeVar(varName)}

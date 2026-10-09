@@ -248,7 +248,7 @@
                 <!-- Add new combo button -->
                 {#if binding.editable && capturingAction !== binding.action}
                   <button
-                    aria-label={m.keybindings_addAlternative()}
+                    aria-label={m.keybindings_addAlternativeFor({ name: binding.label })}
                     type="button"
                     class="p-1 text-text-disabled hover:text-text-secondary transition-colors"
                     onclick={() => startCapture(binding.action, null)}
@@ -280,7 +280,7 @@
               <!-- Reset button (shown if customized) -->
               {#if isCustomized(binding.action)}
                 <button
-                  aria-label={m.keybindings_resetToDefault()}
+                  aria-label={m.keybindings_resetFor({ name: binding.label })}
                   type="button"
                   class="p-1 text-text-disabled hover:text-warning-text transition-colors"
                   onclick={() => handleResetBinding(binding.action)}

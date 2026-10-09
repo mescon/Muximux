@@ -235,6 +235,7 @@ describe('ThemeTab', () => {
       render(ThemeTab);
 
       expect(screen.getByTitle('Delete theme')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete My Custom' })).toBeInTheDocument();
     });
   });
 
@@ -250,6 +251,19 @@ describe('ThemeTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Theme Editor')).toBeInTheDocument();
       });
+    });
+
+    it('gives each token a distinct colour and hex name', async () => {
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await waitFor(() => {
+        expect(screen.getAllByLabelText(/ color$/).length).toBeGreaterThan(0);
+        expect(screen.getAllByLabelText(/ hex value$/).length).toBeGreaterThan(0);
+      });
+      const picker = screen.getAllByLabelText(/ color$/)[0] as HTMLInputElement;
+      const hex = screen.getAllByLabelText(/ hex value$/)[0] as HTMLInputElement;
+      expect(picker.type).toBe('color');
+      expect(hex.type).toBe('text');
     });
 
     it('shows variable groups in the editor', async () => {
