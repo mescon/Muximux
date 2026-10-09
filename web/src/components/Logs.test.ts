@@ -841,12 +841,32 @@ describe('Logs', () => {
     });
   });
 
+  it('names the filter input without the placeholder ellipsis', () => {
+    render(Logs);
+    expect(screen.getByRole('textbox', { name: 'Filter logs' })).toBe(screen.getByPlaceholderText('Filter logs...'));
+  });
+
   it('level badges and filter buttons use the semantic tokens, not fixed colours', () => {
     const src = fs.readFileSync(path.join(process.cwd(), 'src/components/Logs.svelte'), 'utf8');
     const style = src.slice(src.indexOf('<style'));
     expect(style).not.toMatch(/#(?:9ca3af|60a5fa|fbbf24|f87171)/i);
     expect(style).not.toMatch(/rgba\((?:156|96|251|248),/);
-    expect(style).toMatch(/\.log-level-warn\s*\{[^}]*var\(--warning-text\)/);
-    expect(style).toMatch(/\.log-btn-error-active\s*\{[^}]*var\(--danger-border\)/);
+    // Every level, badge and active filter button, reads its own token trio.
+    const rule = (sel: string) => {
+      const m = style.match(new RegExp(`\\.${sel}\\s*\\{([^}]*)\\}`));
+      expect(m, sel).not.toBeNull();
+      const decl = (prop: string) => m![1].match(new RegExp(`(?:^|[;\\s])${prop}\\s*:\\s*([^;]+);`))?.[1].trim();
+      return { color: decl('color'), background: decl('background'), border: decl('border-color') };
+    };
+    const levels: Record<string, { text: string; bg: string; border: string }> = {
+      debug: { text: 'var(--text-secondary)', bg: 'var(--bg-active)', border: 'var(--border-strong)' },
+      info: { text: 'var(--info-text)', bg: 'var(--info-bg)', border: 'var(--info-border)' },
+      warn: { text: 'var(--warning-text)', bg: 'var(--warning-bg)', border: 'var(--warning-border)' },
+      error: { text: 'var(--danger-text)', bg: 'var(--danger-bg)', border: 'var(--danger-border)' },
+    };
+    for (const [level, t] of Object.entries(levels)) {
+      expect(rule(`log-level-${level}`), `badge ${level}`).toMatchObject({ color: t.text, background: t.bg });
+      expect(rule(`log-btn-${level}-active`), `button ${level}`).toEqual({ color: t.text, background: t.bg, border: t.border });
+    }
   });
 });

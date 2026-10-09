@@ -808,7 +808,7 @@
 
     <!-- Save failure: the dialog stays open with every edit -->
     {#if saveError}
-      <div class="px-4 py-2 bg-danger-bg border-b border-danger-border text-sm text-danger-text" role="alert">
+      <div class="px-4 py-2 bg-danger-bg border-b border-danger-border text-sm text-danger-text" role="alert" data-testid="settings-save-error">
         {m.settings_saveFailed({ error: saveError })}
       </div>
     {/if}

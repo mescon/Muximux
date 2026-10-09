@@ -788,6 +788,10 @@ describe('SecurityTab', () => {
         expect(mockChangePassword).toHaveBeenCalledWith('oldpassword', 'newpassword123');
         expect(screen.getByText('Password changed successfully')).toBeInTheDocument();
       });
+      // The success arm of cpMessage is a polite status, not an alert.
+      const status = screen.getByText('Password changed successfully');
+      expect(status).toHaveAttribute('role', 'status');
+      expect(status.className).toContain('notice-success');
     });
 
     it('shows error when changePassword fails', async () => {
@@ -807,6 +811,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Incorrect password')).toBeInTheDocument();
       });
+      // The error arm of cpMessage is an alert.
+      const alert = screen.getByText('Incorrect password');
+      expect(alert).toHaveAttribute('role', 'alert');
+      expect(alert.className).toContain('notice-danger');
     });
   });
 
@@ -886,6 +894,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Server down')).toBeInTheDocument();
       });
+      // securityError is announced as an alert, styled as a danger notice.
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent('Server down');
+      expect(alert.className).toContain('notice-danger');
     });
 
     it('shows add user form when Add User button is clicked', async () => {
@@ -1366,6 +1378,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('boom')).toBeInTheDocument();
       });
+      // apiKeyError is announced as an alert, styled as a danger notice.
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent('boom');
+      expect(alert.className).toContain('notice-danger');
     });
 
   });

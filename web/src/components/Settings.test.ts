@@ -1922,7 +1922,9 @@ describe('Settings', () => {
       await fireEvent.click(screen.getByText('Save Changes'));
       await screen.findByText('Save failed: bad');
 
-      const banner = screen.getAllByRole('alert').find((el) => !el.dataset.testid)!;
+      const banner = screen.getByTestId('settings-save-error');
+      expect(banner).toHaveAttribute('role', 'alert');
+      expect(banner).toHaveTextContent('Save failed: bad');
       expect(banner.className).toMatch(/bg-danger-bg/);
       expect(banner.className).toMatch(/text-danger-text/);
       expect(banner.className).not.toMatch(/red-/);

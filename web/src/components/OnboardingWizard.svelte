@@ -1933,7 +1933,7 @@
                                     <button
                                       class="p-1 text-text-disabled hover:text-danger-text transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}
-                                      aria-label="Remove {item.name}"
+                                      aria-label={m.common_removeNamed({ name: item.name })}
                                     >
                                       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
