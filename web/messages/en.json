@@ -319,6 +319,7 @@
   "apps_ungrouped": "Ungrouped",
   "apps_appCount": "{count} apps",
   "apps_dragToUngroup": "Drag apps here to ungroup them",
+  "apps_groupMissing": "Group missing: {name}",
   "apps_editGroup": "Edit group",
   "apps_deleteGroup": "Delete group",
   "apps_noAppsConfigured": "No applications or groups configured. Click \"Add App\" to get started.",

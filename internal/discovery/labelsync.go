@@ -81,6 +81,34 @@ func canonicalDesiredGroups(desired []Desired, groups []string) {
 	}
 }
 
+// missingGroupKeys returns, in desired order, the keys of tracked
+// auto-imported apps whose stored group equals the desired one while no
+// configured group matches it (it was deleted). Reconcile sees no diff for
+// them, so without this the group would never come back. groups is the
+// snapshot desired was canonicalised against.
+func missingGroupKeys(desired []Desired, current []config.AppConfig, groups []string) []string {
+	stored := make(map[string]*config.AppConfig, len(current))
+	for i := range current {
+		if current[i].DockerKey != "" && current[i].DockerAutoImported {
+			stored[current[i].DockerKey] = &current[i]
+		}
+	}
+	var keys []string
+	for i := range desired {
+		d := &desired[i].App
+		if d.Group == "" {
+			continue
+		}
+		if _, ok := resolveLabelGroup(groups, d.Group); ok {
+			continue
+		}
+		if a, ok := stored[d.DockerKey]; ok && a.Group == d.Group {
+			keys = append(keys, d.DockerKey)
+		}
+	}
+	return keys
+}
+
 // ensureAppGroup makes sure the group a's Group names exists in cfg,
 // creating it after the existing groups when it does not, and points a at
 // the canonical name. A created group is appended to created, for the

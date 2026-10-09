@@ -668,6 +668,7 @@ func (p *Poller) tick(ctx context.Context) {
 			// removed through the same grace gate.
 			desired, skipped := p.buildDesired(&scan, endpoint, currentApps, &server)
 			canonicalDesiredGroups(desired, labelCtx.groups)
+			batch.ensureGroupKeys = missingGroupKeys(desired, currentApps, labelCtx.groups)
 			plan := Reconcile(&ReconcileInput{
 				Mode: autoImport, Desired: desired, Skipped: skipped,
 				Current: currentApps, CurrentSites: currentSites,
@@ -975,6 +976,10 @@ type refreshBatch struct {
 	// group, order) of tracked apps that auto-import does not own, keyed
 	// by DockerKey. Only labels that are set appear here.
 	labelSyncs map[string]labelSync
+	// ensureGroupKeys lists tracked auto-imported apps that already store
+	// their desired group while that group is missing (deleted since), so
+	// Reconcile sees no diff; applyReconcile creates the group again.
+	ensureGroupKeys []string
 }
 
 // Removal reasons for the audit line of a sync removal.
@@ -1008,7 +1013,7 @@ func (b *refreshBatch) empty() bool {
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
 		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0 &&
-		len(b.labelSyncs) == 0
+		len(b.labelSyncs) == 0 && len(b.ensureGroupKeys) == 0
 }
 
 // reconcileChangesApps reports whether the auto-import plan touches any
@@ -1016,7 +1021,7 @@ func (b *refreshBatch) empty() bool {
 // route-table rebuild hook the same way an app URL change does.
 func (b *refreshBatch) reconcileChangesApps() bool {
 	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0 || len(b.rekeys) > 0 ||
-		len(b.labelSyncs) > 0
+		len(b.labelSyncs) > 0 || len(b.ensureGroupKeys) > 0
 }
 
 func (b *refreshBatch) touchesGateway() bool {
@@ -1399,6 +1404,17 @@ func (p *Poller) applyReconcile(batch *refreshBatch) (touchedGateway bool, rec r
 	if len(batch.addSites) > 0 {
 		cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, batch.addSites...)
 		touchedGateway = true
+	}
+
+	// Groups deleted under an unchanged auto-imported app: create them
+	// again (the plan saw no diff, so the update loop above did not).
+	for _, k := range batch.ensureGroupKeys {
+		for j := range cfg.Apps {
+			if cfg.Apps[j].DockerKey == k && cfg.Apps[j].DockerAutoImported {
+				ensureAppGroup(cfg, &cfg.Apps[j], &rec.createdGroups)
+				break
+			}
+		}
 	}
 
 	// Detaches: the container is present but no longer opted in. Clear

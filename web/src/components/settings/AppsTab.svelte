@@ -500,15 +500,19 @@
       </div>
       {#each orphanGroupNames as orphanName (orphanName)}
         {@const orphanApps = dndGroupedApps[orphanName] || []}
-        <div class="p-2 pt-0 space-y-1" data-orphan-group={orphanName} use:dndzone={{items: orphanApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, orphanName)} onfinalize={(e) => handleAppDndFinalize(e, orphanName)}>
-          {#each orphanApps as app, appIndex ((app as App & Record<string, unknown>).id)}
-            <div
-              class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
-              animate:flip={{duration: motionMs(flipDurationMs)}}
-            >
-              {@render appRowContent(app, orphanName, appIndex, orphanApps.length)}
-            </div>
-          {/each}
+        <!-- Drag-out only: an app can leave a missing group but never be dropped into one. -->
+        <div role="group" aria-label={m.apps_groupMissing({ name: orphanName })} data-orphan-group={orphanName}>
+          <div class="px-3 pt-1 text-xs text-text-muted">{m.apps_groupMissing({ name: orphanName })}</div>
+          <div class="p-2 pt-0 space-y-1" use:dndzone={{items: orphanApps, flipDurationMs, type: 'apps', dropTargetStyle: {}, dropFromOthersDisabled: true}} onconsider={(e) => handleAppDndConsider(e, orphanName)} onfinalize={(e) => handleAppDndFinalize(e, orphanName)}>
+            {#each orphanApps as app, appIndex ((app as App & Record<string, unknown>).id)}
+              <div
+                class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
+                animate:flip={{duration: motionMs(flipDurationMs)}}
+              >
+                {@render appRowContent(app, orphanName, appIndex, orphanApps.length)}
+              </div>
+            {/each}
+          </div>
         </div>
       {/each}
     </div>

@@ -741,6 +741,8 @@ describe('AppsTab', () => {
     const zone = container.querySelector('[data-orphan-group="Infra"]');
     expect(zone?.textContent).toContain('Traefik');
     expect(zone?.closest('.border-dashed')?.textContent).toContain('Ungrouped');
+    expect(screen.getByRole('group', { name: 'Group missing: Infra' })).toBe(zone);
+    expect(screen.getByText('Group missing: Infra')).toBeInTheDocument();
   });
 
   it('shows orphan-group apps when no group is configured at all', async () => {

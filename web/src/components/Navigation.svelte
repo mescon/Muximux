@@ -373,8 +373,12 @@
   // Ungrouped instead of being hidden: the bars only render configured
   // groups plus Ungrouped.
   let configuredGroupNames = $derived(new Set(config.groups.map(g => g.name)));
+  // Key of the Ungrouped bucket. Like PINNED_GROUP it starts with a
+  // character no group name has, so a real group called "Ungrouped" stays
+  // its own section.
+  const UNGROUPED_GROUP = '\u0000ungrouped';
   function navGroupOf(app: App): string {
-    return app.group && configuredGroupNames.has(app.group) ? app.group : 'Ungrouped';
+    return app.group && configuredGroupNames.has(app.group) ? app.group : UNGROUPED_GROUP;
   }
 
   let groupedApps = $derived.by(() => {
@@ -408,19 +412,21 @@
   // group name: the key starts with a character group names cannot.
   const PINNED_GROUP = '\u0000pinned';
   function displayGroupName(name: string): string {
-    return name === PINNED_GROUP ? m.nav_pinned() : name;
+    if (name === PINNED_GROUP) return m.nav_pinned();
+    if (name === UNGROUPED_GROUP) return m.apps_ungrouped();
+    return name;
   }
 
-  // Get group names in order, including 'Ungrouped' at the end
+  // Get group names in order, including the Ungrouped bucket at the end
   let groupNames = $derived([
     ...sortedGroups.map(g => g.name),
-    ...(groupedApps['Ungrouped'] ? ['Ungrouped'] : [])
+    ...(groupedApps[UNGROUPED_GROUP] ? [UNGROUPED_GROUP] : [])
   ].filter(name => groupedApps[name]));
 
   let sidebarGroupNames = $derived(pinnedApps.length > 0 ? [PINNED_GROUP, ...groupNames] : groupNames);
 
   // Whether we have real groups (not just one "Ungrouped" bucket)
-  let hasRealGroups = $derived(groupNames.length > 1 || (groupNames.length === 1 && groupNames[0] !== 'Ungrouped'));
+  let hasRealGroups = $derived(groupNames.length > 1 || (groupNames.length === 1 && groupNames[0] !== UNGROUPED_GROUP));
 
   // Top/bottom bar mode: grouped dropdowns vs flat scrollable list
   let useGroupDropdowns = $derived(hasRealGroups && config.navigation.bar_style !== 'flat');
@@ -1103,7 +1109,7 @@
                 {#if hasIcon(groupConfig?.icon)}
                   <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
-                <span>{groupName}</span>
+                <span>{displayGroupName(groupName)}</span>
                 <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -1169,8 +1175,8 @@
                 style="{gi > 0 ? 'margin-inline-start: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
                 onclick={scrollToGroup}
-                title={groupName}
-                aria-label={groupName}
+                title={displayGroupName(groupName)}
+                aria-label={displayGroupName(groupName)}
               >
                 {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
@@ -1183,7 +1189,7 @@
                   <span
                     use:fixedTooltip={false}
                     class="fixed -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider pointer-events-none z-[100] px-1.5 py-0.5 rounded bg-bg-elevated/90 text-text-muted shadow-sm"
-                  >{groupName}</span>
+                  >{displayGroupName(groupName)}</span>
                 {/if}
               </button>
             {/if}
@@ -2208,7 +2214,7 @@
                 {#if hasIcon(groupConfig?.icon)}
                   <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
-                <span>{groupName}</span>
+                <span>{displayGroupName(groupName)}</span>
                 <svg class="w-3 h-3 opacity-50 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -2273,8 +2279,8 @@
                 style="{gi > 0 ? 'margin-inline-start: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
                 onclick={scrollToGroup}
-                title={groupName}
-                aria-label={groupName}
+                title={displayGroupName(groupName)}
+                aria-label={displayGroupName(groupName)}
               >
                 {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
@@ -2287,7 +2293,7 @@
                   <span
                     use:fixedTooltip={true}
                     class="fixed -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider pointer-events-none z-[100] px-1.5 py-0.5 rounded bg-bg-elevated/90 text-text-muted shadow-sm"
-                  >{groupName}</span>
+                  >{displayGroupName(groupName)}</span>
                 {/if}
               </button>
             {/if}

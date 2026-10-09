@@ -591,6 +591,22 @@ describe('Navigation', () => {
       });
     });
 
+    it('keeps a real group named Ungrouped apart from the Ungrouped bucket', () => {
+      render(Navigation, {
+        props: {
+          apps: [
+            makeApp({ name: 'RealMember', url: 'https://real.local', group: 'Ungrouped' }),
+            makeApp({ name: 'Traefik', url: 'https://traefik.local', order: 1, group: 'Infra' }),
+          ],
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'left' }, groups: [makeGroup({ name: 'Ungrouped' })] }),
+        },
+      });
+      expect(screen.getAllByText('Ungrouped')).toHaveLength(2);
+      expect(screen.getByText('RealMember')).toBeInTheDocument();
+      expect(screen.getByText('Traefik')).toBeInTheDocument();
+    });
+
     it('shows the app when no group is configured at all', () => {
       render(Navigation, {
         props: {

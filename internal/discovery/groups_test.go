@@ -124,3 +124,56 @@ func TestTick_SameNewGroupFromTwoPathsCreatedOnce(t *testing.T) {
 		t.Errorf("tick after create saved again")
 	}
 }
+
+// A group deleted under an auto-imported app that already stores it (no
+// Reconcile diff) is created again in one save.
+func TestTick_DeletedGroupOfUnchangedAutoAppRecreated(t *testing.T) {
+	for _, mode := range []config.AutoImportMode{config.AutoImportAdd, config.AutoImportSync} {
+		t.Run(string(mode), func(t *testing.T) {
+			f := newLabelSyncFixture(t, mode)
+			f.cfg.Apps = nil
+			f.label(LabelAppGroup, "Downloads")
+			f.p.tick(context.Background())
+			if a := findAppByKey(f.cfg, lsKey); a == nil || a.Group != "Downloads" || len(f.cfg.Groups) != 3 {
+				t.Fatalf("setup: app %+v groups %v", a, groupNames(f.cfg))
+			}
+
+			f.cfg.Groups = f.cfg.Groups[:2] // the user deletes Downloads
+			saves := f.saves
+			f.p.tick(context.Background())
+			if f.saves != saves+1 {
+				t.Errorf("saves = %d, want one more", f.saves-saves)
+			}
+			if got := groupNames(f.cfg); len(got) != 3 || got[2] != "Downloads" {
+				t.Errorf("group not re-created: %v", got)
+			}
+			saves = f.saves
+			f.p.tick(context.Background())
+			if f.saves != saves {
+				t.Error("tick after re-create saved again")
+			}
+		})
+	}
+}
+
+func TestMissingGroupKeys(t *testing.T) {
+	desired := []Desired{
+		{App: config.AppConfig{DockerKey: "k:none"}},
+		{App: config.AppConfig{DockerKey: "k:exists", Group: "Media"}},
+		{App: config.AppConfig{DockerKey: "k:gone", Group: "Gone"}},
+		{App: config.AppConfig{DockerKey: "k:differs", Group: "Gone2"}},
+		{App: config.AppConfig{DockerKey: "k:manual", Group: "Gone"}},
+		{App: config.AppConfig{DockerKey: "k:new", Group: "Gone"}},
+	}
+	current := []config.AppConfig{
+		{DockerKey: "k:none", DockerAutoImported: true},
+		{DockerKey: "k:exists", Group: "Media", DockerAutoImported: true},
+		{DockerKey: "k:gone", Group: "Gone", DockerAutoImported: true},
+		{DockerKey: "k:differs", Group: "Other", DockerAutoImported: true},
+		{DockerKey: "k:manual", Group: "Gone"},
+	}
+	got := missingGroupKeys(desired, current, []string{"Media"})
+	if len(got) != 1 || got[0] != "k:gone" {
+		t.Errorf("keys = %v, want [k:gone]", got)
+	}
+}
