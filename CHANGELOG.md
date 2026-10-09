@@ -53,6 +53,10 @@ keys, migrated in place.
 - **Tracking keys for Swarm and Compose containers change** to
   `swarm:<service>` and `compose:<project>:<service>`; existing `name:` keys
   are migrated automatically on the first refresh. (#499)
+- **Swarm apps take their name from the service.** Under `update`/`sync` an
+  auto-imported Swarm app without a `muximux.app.name` label is re-synced
+  from the task name to the service name on the first refresh, which can
+  change its slug and its `/proxy/<slug>/` path. (#499)
 - Images whose last path segment is generic (`server`, `app`, `web`, `api`
   and similar) no longer match a catalog entry by that segment. (#499)
 - **Live updates.** Every open browser receives a `config_updated` event

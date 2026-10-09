@@ -65,7 +65,7 @@ discovery:
     host_ip: ""                             # required by host_port strategy
     refresh_interval: 60s                   # poller cadence, [10s, 1h]
     auto_import: off                        # off (default) | add | update | sync (3.2.0)
-    require_explicit_enable: false          # only containers with muximux.app.enabled=true (3.5.1)
+    require_explicit_enable: false          # only containers with muximux.app.enabled=true (3.6.0)
     lifecycle_enabled: false                # allow start/stop/restart of tracked containers (needs :rw socket)
     lifecycle_min_role: admin               # min role for lifecycle controls
     lifecycle_allowed_groups: []            # additionally require group membership
@@ -490,7 +490,7 @@ The key is the first of these that applies:
 | 4 | Container name | `name:<name>` (shown with a stability warning) |
 | 5 | Container ID | `id:<id>` (last resort) |
 
-Swarm tasks and Compose services therefore no longer need `muximux.discovery.id` for stability. Existing `name:` keys are migrated to the stable key automatically on the first refresh (a `Docker tracking key migrated` audit line is logged). Entries tracked on another endpoint are migrated after **Re-link**. Quarantined entries keep their old key; `sync` removes them once the task is gone, or you can remove them in Settings. Duplicates left by earlier redeploys are cleaned by `sync`.
+Swarm tasks and Compose services therefore no longer need `muximux.discovery.id` for stability. Existing `name:` keys are migrated to the stable key automatically on the first refresh (a `Docker tracking key migrated` audit line is logged). Entries tracked on another endpoint are migrated after **Re-link**. Quarantined entries keep their old key; `sync` removes them once the task is gone from the endpoint it polls, or you can remove them in Settings. Duplicates left by earlier redeploys are cleaned by `sync`.
 
 There is one app per key: Swarm replicas and the containers of a scaled Compose service (`--scale`) are collapsed into a single app. With `container_ip` and several replicas the address may alternate between them.
 
@@ -508,12 +508,12 @@ There is one app per key: Swarm replicas and the containers of a scaled Compose 
 
 An invalid Docker-owned entry in `config.yaml` (an auto-imported app or gateway site that fails validation, for example one written without a URL by an older version) no longer stops Muximux from starting and no longer rejects a save from Settings. Instead it is:
 
-- kept in `config.yaml`, unchanged,
+- kept in `config.yaml`, unchanged, until it is fixed, removed, or superseded (see below),
 - not loaded, so it does not appear on the dashboard,
 - logged once at startup as "Invalid Docker auto-imported entry quarantined", and
 - listed in **Settings -> Discovery -> Tracked** with its reason.
 
-Fix the container's labels and the next refresh replaces the entry, or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined; other invalid config still fails validation as before.
+Fix the container's labels and the next refresh replaces the entry, or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`; a live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded, and dropped from `config.yaml` at the next save (logged as "Quarantined entry superseded by a live entry"), when a live app takes its name or slug or a live gateway site takes its domain; a quarantined site goes with its superseded app. Under `sync`, a quarantined app whose container is gone from the polled endpoint is removed after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined; other invalid config still fails validation as before.
 
 Other housekeeping that applies to discovery: image names whose last segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry, apps whose names differ only by case or spacing are deduplicated, and a tracked container that cannot be found is logged once when it goes missing instead of on every refresh.
 
