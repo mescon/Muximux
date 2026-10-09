@@ -90,6 +90,11 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
       check(t, 'health-dot', '--danger-border', resolve(t, '--danger-border'), p, bg(p), NON_TEXT);
     }
   }
+  if (opts.hierarchy) {
+    // Text hierarchy: muted < secondary < primary, measured as contrast against --bg-base.
+    const [m, sec, pri] = ['--text-muted', '--text-secondary', '--text-primary'].map((n) => contrast(resolve(t, n), bg('--bg-base')));
+    if (!(m < sec && sec < pri)) failures.push({ key: `${t.id} | text hierarchy | muted ${m.toFixed(2)} < secondary ${sec.toFixed(2)} < primary ${pri.toFixed(2)}`, ratio: 0, need: 0 });
+  }
   if (opts.hierarchy && t.mode === 'dark') {
     const L = ['--bg-base', '--bg-surface', '--bg-elevated', '--bg-overlay'].map((n) => luminance(bg(n)));
     for (let i = 1; i < L.length; i++) if (!(L[i] > L[i - 1])) failures.push({ key: `${t.id} | surface hierarchy | ${['base', 'surface', 'elevated', 'overlay'][i]} not lighter than the one below`, ratio: L[i] - L[i - 1], need: 0 });
