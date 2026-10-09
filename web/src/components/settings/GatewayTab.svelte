@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/focusTrap';
   import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
@@ -621,6 +622,7 @@
       aria-modal="true"
       aria-labelledby="gateway-form-title"
       tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 8, duration: motionMs(150) }}
     >
       <div class="p-5 border-b border-border">

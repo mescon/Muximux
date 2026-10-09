@@ -65,4 +65,111 @@ describe('focusTrap', () => {
     handle.destroy();
     expect(document.activeElement).toBe(outside);
   });
+
+  describe('inert background', () => {
+    it('marks siblings along the path to body inert and removes it on destroy', () => {
+      const wrap = document.createElement('div');
+      const host = document.createElement('div');
+      const aside = document.createElement('aside');
+      wrap.append(host, aside);
+      document.body.appendChild(wrap);
+      host.appendChild(dialog);
+      const handle = focusTrap(dialog);
+      expect(aside.hasAttribute('inert')).toBe(true);
+      expect(outside.hasAttribute('inert')).toBe(true);
+      expect(wrap.hasAttribute('inert')).toBe(false);
+      expect(host.hasAttribute('inert')).toBe(false);
+      handle.destroy();
+      expect(aside.hasAttribute('inert')).toBe(false);
+      expect(outside.hasAttribute('inert')).toBe(false);
+    });
+
+    it('leaves live regions and toasts operable', () => {
+      const live = document.createElement('div');
+      live.setAttribute('aria-live', 'polite');
+      const toast = document.createElement('section');
+      toast.setAttribute('aria-label', 'Notifications alt+T');
+      document.body.append(live, toast);
+      const handle = focusTrap(dialog);
+      expect(live.hasAttribute('inert')).toBe(false);
+      expect(toast.hasAttribute('inert')).toBe(false);
+      handle.destroy();
+    });
+
+    it('stacks for nested dialogs and only releases a sibling when the last trap closes', () => {
+      const wrap = document.createElement('div');
+      const second = document.createElement('div');
+      second.tabIndex = -1;
+      const btn = document.createElement('button');
+      second.appendChild(btn);
+      wrap.append(dialog, second);
+      document.body.appendChild(wrap);
+      const a = focusTrap(dialog);
+      expect(second.hasAttribute('inert')).toBe(true);
+      second.removeAttribute('inert');
+      // dialog is inert while the second one is open
+      const b = focusTrap(second);
+      expect(dialog.hasAttribute('inert')).toBe(true);
+      b.destroy();
+      expect(dialog.hasAttribute('inert')).toBe(false);
+      a.destroy();
+      expect(outside.hasAttribute('inert')).toBe(false);
+    });
+
+    it('does not touch elements that were already inert', () => {
+      outside.setAttribute('inert', '');
+      const handle = focusTrap(dialog);
+      handle.destroy();
+      expect(outside.hasAttribute('inert')).toBe(true);
+    });
+
+    it('returns focus to the opener even though it was inert while open', () => {
+      const handle = focusTrap(dialog);
+      expect(outside.hasAttribute('inert')).toBe(true);
+      handle.destroy();
+      expect(outside.hasAttribute('inert')).toBe(false);
+      expect(document.activeElement).toBe(outside);
+    });
+
+    it('skips restoring focus when the opener left the document', () => {
+      const handle = focusTrap(dialog);
+      outside.remove();
+      expect(() => handle.destroy()).not.toThrow();
+    });
+  });
+
+  describe('initial focus and edge cases', () => {
+    it('prefers an autofocus element over the first focusable', () => {
+      last.setAttribute('autofocus', '');
+      focusTrap(dialog);
+      expect(document.activeElement).toBe(last);
+    });
+
+    it('falls back to the dialog node when it has nothing focusable and keeps Tab on it', () => {
+      first.remove();
+      last.remove();
+      focusTrap(dialog);
+      expect(document.activeElement).toBe(dialog);
+      const ev = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+      dialog.dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(dialog);
+    });
+
+    it('pulls focus back in when Tab is pressed while focus is outside the dialog', () => {
+      focusTrap(dialog);
+      outside.removeAttribute('inert');
+      outside.focus();
+      dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+      expect(document.activeElement).toBe(first);
+    });
+
+    it('update() swaps the params used by Escape', () => {
+      let a = 0, b = 0;
+      const handle = focusTrap(dialog, { onEscape: () => { a++; } });
+      handle.update({ onEscape: () => { b++; } });
+      dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      expect([a, b]).toEqual([0, 1]);
+    });
+  });
 });
