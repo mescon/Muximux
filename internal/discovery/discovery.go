@@ -662,6 +662,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 // hasSwarmTasks, merges, and returns the note every swarm suggestion gets
 // ("" when services were read). Logs a WARN on the transition into a
 // degraded state and an INFO on recovery; another error is logged at Debug.
+// The sort and the merge modify the caller's containers slice in place.
 func (s *Service) enrichSwarm(ctx context.Context, client *Client, containers []ContainerSummary) (note string) {
 	sort.SliceStable(containers, func(a, b int) bool {
 		return containers[a].PrimaryName() < containers[b].PrimaryName()

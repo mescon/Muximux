@@ -472,14 +472,15 @@ func (p *Poller) tick(ctx context.Context) {
 	// label change is detected. Only relevant when auto-import is active.
 	var currentApps []config.AppConfig
 	var currentSites []config.GatewaySite
-	var quarantinedEntries []config.QuarantinedEntry
 	var server config.ServerConfig
 	if autoImport != config.AutoImportOff {
 		server = p.deps.Config.Server
 		currentApps = append([]config.AppConfig(nil), p.deps.Config.Apps...)
 		currentSites = append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
-		quarantinedEntries = p.deps.Config.Quarantined()
 	}
+	// Taken whatever the auto-import mode: the re-key plan must never
+	// target a key a quarantined entry holds.
+	quarantinedEntries := p.deps.Config.Quarantined()
 	p.deps.ConfigMu.RUnlock()
 
 	if !enabled {
@@ -494,17 +495,6 @@ func (p *Poller) tick(ctx context.Context) {
 	// auto-import to perform.
 	if len(tracked.apps) == 0 && len(tracked.sites) == 0 && autoImport == config.AutoImportOff {
 		return // nothing to do
-	}
-
-	// Keys of tracked gateway sites. A tracked app sharing a key with a
-	// gateway site is gateway-routed: its URL is the static public domain,
-	// not a container URL, so the refresh pass must NOT resolve/rewrite it
-	// (doing so would clobber the domain and break routing). The sibling
-	// site's BackendURL refresh below keeps routing pointed at the live
-	// container.
-	gatewaySiteKeys := make(map[string]bool, len(tracked.sites))
-	for i := range tracked.sites {
-		gatewaySiteKeys[tracked.sites[i].key] = true
 	}
 
 	svc := p.deps.Service
@@ -544,12 +534,34 @@ func (p *Poller) tick(ctx context.Context) {
 	// resolve loop below sees the same data the scan does.
 	svc.enrichSwarm(ctx, client, containers)
 
+	// Migrate churning name:/id: keys to the stable label/swarm/compose
+	// key of their container. The tick works on the new keys from here on;
+	// applyRefreshBatch renames the live entries in the same transaction.
+	rekeys := planRekeys(&rekeyInput{
+		Endpoint: endpoint, Tracked: tracked, Containers: containers,
+		HeldKeys: heldKeys(&tracked, quarantinedEntries),
+	})
+	applyRekeysToTracked(rekeys, endpoint, &tracked, currentApps, currentSites)
+
+	// Keys of tracked gateway sites. A tracked app sharing a key with a
+	// gateway site is gateway-routed: its URL is the static public domain,
+	// not a container URL, so the refresh pass must NOT resolve/rewrite it
+	// (doing so would clobber the domain and break routing). The sibling
+	// site's BackendURL refresh below keeps routing pointed at the live
+	// container.
+	gatewaySiteKeys := make(map[string]bool, len(tracked.sites))
+	for i := range tracked.sites {
+		gatewaySiteKeys[tracked.sites[i].key] = true
+	}
+
 	// Resolve each tracked entry's container -> new URL. Skips
 	// entries whose DockerEndpoint differs from the live endpoint
 	// (operator changed daemons; the re-link flow handles that
 	// case interactively). Skips containers that disappeared with
 	// a Warn; the next tick may find them again.
 	batch := newRefreshBatch()
+	batch.rekeys = rekeys
+	batch.endpoint = endpoint
 	for i := range tracked.apps {
 		t := &tracked.apps[i]
 		if t.endpoint != endpoint {
@@ -900,6 +912,11 @@ type refreshBatch struct {
 	// but no longer opted in: key -> skip code (unlabeled | not_enabled),
 	// carried into the audit line.
 	detach map[string]string
+	// rekeys migrates tracked entries on endpoint from an old name:/id:
+	// key to a stable one (old -> new). Applied first, so every other
+	// change in the batch is keyed by the new key.
+	rekeys   map[string]string
+	endpoint string
 }
 
 func newRefreshBatch() *refreshBatch {
@@ -908,6 +925,7 @@ func newRefreshBatch() *refreshBatch {
 		appHealthChanges: map[string]string{},
 		siteURLChanges:   map[string]string{},
 		detach:           map[string]string{},
+		rekeys:           map[string]string{},
 	}
 }
 
@@ -915,14 +933,14 @@ func (b *refreshBatch) empty() bool {
 	return len(b.appURLChanges) == 0 && len(b.appHealthChanges) == 0 && len(b.siteURLChanges) == 0 &&
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
-		len(b.removeKeys) == 0 && len(b.detach) == 0
+		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0
 }
 
 // reconcileChangesApps reports whether the auto-import plan touches any
-// app (added, updated, removed or detached). Used to fire the route-table
-// rebuild hook the same way an app URL change does.
+// app (added, updated, removed, detached or re-keyed). Used to fire the
+// route-table rebuild hook the same way an app URL change does.
 func (b *refreshBatch) reconcileChangesApps() bool {
-	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0
+	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0 || len(b.rekeys) > 0
 }
 
 func (b *refreshBatch) touchesGateway() bool {
@@ -964,6 +982,16 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		p.deps.Config.Apps = priorApps
 		p.deps.Config.Server.GatewaySites = priorSites
 		p.deps.Config.RestoreQuarantine(priorQuarantine)
+	}
+
+	// Re-keys first, so the URL changes and the reconcile plan below
+	// (keyed by the new keys) find their entries.
+	rekeyed, ok := applyRekeysToConfig(p.deps.Config, batch.rekeys, batch.endpoint)
+	if !ok {
+		rollback()
+		logging.Warn("Docker tracking key migration skipped: target key taken since the scan; nothing saved this tick",
+			"source", "discovery")
+		return
 	}
 
 	// Apply changes in memory. Mirror each URL write into
@@ -1114,6 +1142,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	if (len(batch.appURLChanges) > 0 || len(batch.appHealthChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
 		p.deps.OnConfigSaved()
 	}
+	p.finishRekeys(rekeyed)
 	for _, r := range refreshed {
 		if r.health {
 			logging.Info("Docker health address refreshed",

@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -592,5 +593,59 @@ func TestIssue499_AbsentContainerRemovedOnlyBySyncOfAutoImported(t *testing.T) {
 		if len(cfg.Apps) != tc.wantApps {
 			t.Errorf("mode=%s auto_imported=%v: apps left = %d, want %d", tc.mode, tc.auto, len(cfg.Apps), tc.wantApps)
 		}
+	}
+}
+
+func TestIssue499_RedeployKeepsOneAppAndState(t *testing.T) { // F-07
+	old := swarmTask("bindery_web.1.71e9k1i0wfiyk5sbbjku668er", "bindery/web", map[string]string{"muximux.app.port": "8080"})
+	for _, mode := range []config.AutoImportMode{config.AutoImportUpdate, config.AutoImportSync} {
+		set := []ContainerSummary{old}
+		p, cfg := swarmPoller(t, &set, mode)
+		p.tick(context.Background())
+		cfg.Apps[0].DockerKey = "name:bindery_web.1.71e9k1i0wfiyk5sbbjku668er" // a 3.5.0 install tracked it by task name
+		cfg.Apps[0].Pinned = true
+		set = []ContainerSummary{swarmTask("bindery_web.1.newtaskidnewtaskidnewtaskid", "bindery/web", map[string]string{"muximux.app.port": "8080"})}
+		for i := 0; i <= syncRemovalGraceTicks; i++ {
+			p.tick(context.Background())
+			if len(cfg.Apps) != 1 {
+				t.Fatalf("mode %s tick %d: %d apps", mode, i, len(cfg.Apps))
+			}
+		}
+		a := &cfg.Apps[0]
+		if a.DockerKey != "swarm:bindery_web" || !a.Pinned || a.URL != "http://bindery_web:8080" {
+			t.Fatalf("mode %s: %+v", mode, a)
+		}
+		if p.deps.Service.LastSeen("swarm:bindery_web").IsZero() {
+			t.Fatalf("mode %s: Service records not on the new key", mode)
+		}
+	}
+}
+
+// Ruling 16: on a failed save the config rolls back to the old keys, so the
+// Service records must stay on the old keys too.
+func TestApplyRefreshBatch_RekeyRenamesServiceOnlyAfterSave(t *testing.T) {
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "B", URL: "http://b:1", DockerKey: "name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa", DockerManagedURL: "http://b:1", Enabled: true}}}
+	svc := NewService(&config.DiscoveryDockerConfig{})
+	svc.MarkMissing("name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa")
+	var mu sync.RWMutex
+	fail := true
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error {
+		if fail {
+			return errors.New("disk full")
+		}
+		return nil
+	}})
+	b := newRefreshBatch()
+	b.rekeys = map[string]string{"name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa": "swarm:b"}
+	p.applyRefreshBatch(b)
+	if cfg.Apps[0].DockerKey != "name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa" || svc.MissingSince("name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa").IsZero() {
+		t.Fatalf("failed save: key=%q", cfg.Apps[0].DockerKey)
+	}
+	fail = false
+	b = newRefreshBatch()
+	b.rekeys = map[string]string{"name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa": "swarm:b"}
+	p.applyRefreshBatch(b)
+	if cfg.Apps[0].DockerKey != "swarm:b" || svc.MissingSince("swarm:b").IsZero() {
+		t.Fatalf("successful save: key=%q", cfg.Apps[0].DockerKey)
 	}
 }
