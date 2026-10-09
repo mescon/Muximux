@@ -367,8 +367,8 @@
               onchange={(e) => { app.http_action_method = e.currentTarget.value as App['http_action_method']; }}
               class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              <option value="GET">GET</option>
               <option value="POST">POST</option>
+              <option value="GET">GET</option>
               <option value="PUT">PUT</option>
               <option value="DELETE">DELETE</option>
               <option value="PATCH">PATCH</option>

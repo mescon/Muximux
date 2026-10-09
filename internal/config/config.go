@@ -1431,10 +1431,10 @@ func isValidHeaderValue(s string) bool {
 // has body semantics we deliberately do not support yet (CONNECT,
 // OPTIONS). Spec lock: only these five.
 // httpActionMethods is the ordered, canonical set of HTTP verbs accepted for
-// an http_action app. The lookup set and the "expected one of ..." error
+// an http_action app, POST (the default) first. The lookup set and the "expected one of ..." error
 // message both derive from it, so the verb list has one Go source; a test
 // (TestHTTPActionMethodsMatchFrontend) keeps the AppForm dropdown in sync.
-var httpActionMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
+var httpActionMethods = []string{"POST", "GET", "PUT", "DELETE", "PATCH"}
 
 var httpActionAllowedMethods = func() map[string]struct{} {
 	m := make(map[string]struct{}, len(httpActionMethods))
