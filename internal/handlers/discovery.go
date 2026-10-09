@@ -367,7 +367,18 @@ func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
 	// the connection until net/http's idle timeout.
 	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
-	sendJSON(w, http.StatusOK, svc.Scan(ctx, dashboardDomain))
+	res := svc.Scan(ctx, dashboardDomain)
+	// Containers that opted out (muximux.app.enabled=false) are counted in
+	// OptedOut but not listed.
+	kept := res.Suggestions[:0]
+	for i := range res.Suggestions {
+		if sk := res.Suggestions[i].AutoImportSkip; sk != nil && sk.Code == discovery.SkipDisabled {
+			continue
+		}
+		kept = append(kept, res.Suggestions[i])
+	}
+	res.Suggestions = kept
+	sendJSON(w, http.StatusOK, res)
 }
 
 // TestDockerConfig handles POST /api/discovery/docker/test. The body

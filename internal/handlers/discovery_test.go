@@ -826,3 +826,25 @@ func TestUpdateDockerConfig_SetsRequireExplicitEnable(t *testing.T) {
 		t.Fatalf("status = %d, live = %v", w.Code, cfg.Discovery.Docker.RequireExplicitEnable)
 	}
 }
+
+func TestScanDocker_HidesOptedOutRows(t *testing.T) {
+	media := discovery.ContainerNetworks{Networks: map[string]discovery.ContainerNetwork{"media": {IPAddress: "10.0.0.5"}}}
+	socket, cleanup := fakeDockerForLifecycle(t, []discovery.ContainerSummary{
+		{ID: "a", Names: []string{"/optout"}, Image: "acme/optout", NetworkSettings: media,
+			Labels: map[string]string{"muximux.app.enabled": "false", "muximux.app.port": "80"}},
+		{ID: "b", Names: []string{"/kept"}, Image: "acme/kept", NetworkSettings: media,
+			Labels: map[string]string{"muximux.app.port": "80"}},
+	})
+	defer cleanup()
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket,
+		NetworkStrategy: "container_ip", NetworkFilter: "media"})
+	w := httptest.NewRecorder()
+	h.ScanDocker(w, adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan"))
+	var got discovery.ScanResult
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Suggestions) != 1 || got.Suggestions[0].ContainerName != "kept" || got.OptedOut != 1 {
+		t.Fatalf("got %+v", got)
+	}
+}

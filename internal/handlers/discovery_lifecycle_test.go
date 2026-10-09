@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
@@ -617,5 +618,87 @@ func TestDetachTracked_ClearsDockerManagedHealthCheck(t *testing.T) {
 	}
 	if a := cfg.Apps[0]; a.DockerManagedHealthCheck != nil || a.HealthCheck == nil || !*a.HealthCheck {
 		t.Fatalf("after detach: %+v", a)
+	}
+}
+
+func TestListTracked_IncludesQuarantinedAndMissingSince(t *testing.T) {
+	h, cfg := seedLifecycleHandler(t, []config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.1:8989", Enabled: true,
+		DockerKey: "label:sonarr", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"}}, nil)
+	h.Service().MarkMissing("label:sonarr")
+	cfg.QuarantineApp(&config.AppConfig{Name: "Vaultwarden", DockerKey: "label:vw", DockerAutoImported: true}, "url is required")
+	w := httptest.NewRecorder()
+	h.ListTracked(w, httptest.NewRequest(http.MethodGet, "/api/discovery/docker/tracked", nil))
+	var got TrackedListResult
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Entries) != 1 || got.Entries[0].MissingSince == "" {
+		t.Fatalf("entries = %+v", got.Entries)
+	}
+	if len(got.Quarantined) != 1 || got.Quarantined[0].Key != "label:vw" || got.Quarantined[0].Kind != "app" || got.Quarantined[0].Reason != "url is required" {
+		t.Fatalf("quarantined = %+v", got.Quarantined)
+	}
+}
+
+func TestListTracked_EmptyQuarantineIsArray(t *testing.T) {
+	h, _ := seedLifecycleHandler(t, nil, nil)
+	w := httptest.NewRecorder()
+	h.ListTracked(w, httptest.NewRequest(http.MethodGet, "/api/discovery/docker/tracked", nil))
+	if !strings.Contains(w.Body.String(), `"quarantined":[]`) {
+		t.Fatalf("body = %s", w.Body.String())
+	}
+}
+
+func TestFormatMissingSince(t *testing.T) {
+	if formatMissingSince(nil, "k") != "" {
+		t.Fatal("nil service")
+	}
+	svc := discovery.NewService(&config.DiscoveryDockerConfig{})
+	if formatMissingSince(svc, "k") != "" {
+		t.Fatal("never missing")
+	}
+	svc.MarkMissing("k")
+	if _, err := time.Parse(time.RFC3339, formatMissingSince(svc, "k")); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestDetachTracked_RemovesQuarantinedEntry(t *testing.T) {
+	h, cfg := seedLifecycleHandler(t, nil, nil)
+	// A compose key (ruling 1): no "/", so the handler accepts it.
+	cfg.QuarantineApp(&config.AppConfig{Name: "VW", DockerKey: "compose:vault:vw", DockerAutoImported: true}, "url is required")
+	cfg.QuarantineSite(&config.GatewaySite{Domain: "vw.example.com", DockerKey: "compose:vault:vw"}, "its app is quarantined")
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/compose:vault:vw", nil))
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status %d, body=%s", w.Code, w.Body.String())
+	}
+	if len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+	raw, _ := os.ReadFile(h.configPath)
+	if strings.Contains(string(raw), "compose:vault:vw") {
+		t.Fatalf("file still has the key:\n%s", raw)
+	}
+}
+
+func TestDetachTracked_ComposeKeyDetachesLiveApp(t *testing.T) { // ruling 1
+	h, cfg := seedLifecycleHandler(t, []config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.1:8989",
+		DockerKey: "compose:home:sonarr", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_dns"}}, nil)
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/compose:home:sonarr", nil))
+	if w.Code != http.StatusNoContent || cfg.Apps[0].DockerKey != "" {
+		t.Fatalf("status %d app %+v", w.Code, cfg.Apps[0])
+	}
+}
+
+func TestDetachTracked_SaveFailureRestoresQuarantine(t *testing.T) {
+	h, cfg := seedLifecycleHandler(t, nil, nil)
+	cfg.QuarantineApp(&config.AppConfig{Name: "VW", DockerKey: "label:vw", DockerAutoImported: true}, "r")
+	h.configPath = "/dev/null/impossible/config.yaml" // Save fails
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:vw", nil))
+	if w.Code != http.StatusInternalServerError || !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("status %d quarantined %+v", w.Code, cfg.Quarantined())
 	}
 }
