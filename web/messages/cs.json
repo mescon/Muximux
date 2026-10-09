@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Žádné ikony nejsou k dispozici",
   "iconBrowser_noIconsMatchingQuery": "Nenalezeny žádné ikony odpovídající \"{query}\"",
   "iconBrowser_uploadHint": "Nahrajte vlastní ikony pro použití zde",
+  "icons_availableAfterSetup": "Nahrávání vlastních ikon je k dispozici po dokončení nastavení.",
   "iconBrowser_loadingMore": "Načítání dalších... ({current} z {total})",
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} z {total} ikon",

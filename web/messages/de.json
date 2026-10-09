@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Keine Icons verfügbar",
   "iconBrowser_noIconsMatchingQuery": "Keine Icons gefunden für \"{query}\"",
   "iconBrowser_uploadHint": "Laden Sie eigene Icons hoch, um sie hier zu verwenden",
+  "icons_availableAfterSetup": "Das Hochladen eigener Symbole ist nach Abschluss der Einrichtung verfügbar.",
   "iconBrowser_loadingMore": "Weitere laden... ({current} von {total})",
   "iconBrowser_iconCount": "{count} Icons",
   "iconBrowser_iconCountFiltered": "{filtered} von {total} Icons",

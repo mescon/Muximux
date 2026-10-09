@@ -247,7 +247,13 @@ function noopComponent() {
 }
 vi.mock('./AppIcon.svelte', () => ({ default: noopComponent }));
 vi.mock('./Navigation.svelte', () => ({ default: noopComponent }));
-vi.mock('./IconBrowser.svelte', () => ({ default: noopComponent }));
+const { iconBrowserProps } = vi.hoisted(() => ({ iconBrowserProps: [] as Record<string, unknown>[] }));
+vi.mock('./IconBrowser.svelte', () => ({
+  default: (_anchor: unknown, props: Record<string, unknown>) => {
+    iconBrowserProps.push(props);
+    return { $destroy: vi.fn() };
+  },
+}));
 
 import OnboardingWizard from './OnboardingWizard.svelte';
 
@@ -2524,6 +2530,42 @@ describe('OnboardingWizard', () => {
       await fireEvent.click(screen.getByLabelText('Move Media up'));
       expect(screen.getByLabelText('Move Media up').getAttribute('aria-disabled')).toBe('true');
       expect(screen.getByLabelText('Move Downloads up').getAttribute('aria-disabled')).toBe('false');
+    });
+  });
+
+  describe('Setup gating', () => {
+    async function openGroupIconBrowser(needsSetup: boolean) {
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      renderWizard({ needsSetup });
+      await fireEvent.click(screen.getByRole('checkbox', { name: /Plex/i }));
+      await waitFor(() => expect(screen.getAllByTitle('Change icon').length).toBeGreaterThan(0));
+      iconBrowserProps.length = 0;
+      await fireEvent.click(screen.getAllByTitle('Change icon')[0]);
+      await waitFor(() => expect(iconBrowserProps.length).toBeGreaterThan(0));
+      return iconBrowserProps[iconBrowserProps.length - 1];
+    }
+
+    it('passes allowCustomManagement false to the icon browser while setup is required', async () => {
+      const props = await openGroupIconBrowser(true);
+      expect(props.allowCustomManagement).toBe(false);
+    });
+
+    it('allows custom icon management once setup is complete', async () => {
+      const props = await openGroupIconBrowser(false);
+      expect(props.allowCustomManagement).toBe(true);
+    });
+
+    it('emits the chosen language on the setup path', async () => {
+      mockCurrentStep.set('complete');
+      mockStepProgress.set(5);
+      mockActiveStepOrder.set(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
+      const oncomplete = vi.fn();
+      renderWizard({ oncomplete, needsSetup: true });
+      await fireEvent.click(screen.getByText('Launch Dashboard'));
+      expect(oncomplete).toHaveBeenCalledTimes(1);
+      const arg = oncomplete.mock.calls[0][0] as Record<string, unknown>;
+      expect(arg.language).toBe('en');
     });
   });
 });

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Geen pictogrammen beschikbaar",
   "iconBrowser_noIconsMatchingQuery": "Geen pictogrammen gevonden voor \"{query}\"",
   "iconBrowser_uploadHint": "Upload je eigen pictogrammen om ze hier te gebruiken",
+  "icons_availableAfterSetup": "Eigen pictogrammen uploaden is beschikbaar zodra de installatie is voltooid.",
   "iconBrowser_loadingMore": "Meer laden... ({current} van {total})",
   "iconBrowser_iconCount": "{count} pictogrammen",
   "iconBrowser_iconCountFiltered": "{filtered} van {total} pictogrammen",

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Ikoone pole saadaval",
   "iconBrowser_noIconsMatchingQuery": "Päringule \"{query}\" vastavaid ikoone ei leitud",
   "iconBrowser_uploadHint": "Laadige üles oma ikoonid, et neid siin kasutada",
+  "icons_availableAfterSetup": "Kohandatud ikoonide üleslaadimine on saadaval pärast seadistuse lõpetamist.",
   "iconBrowser_loadingMore": "Laadin veel... ({current}/{total})",
   "iconBrowser_iconCount": "{count} ikooni",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} ikooni",

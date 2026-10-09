@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Ei kuvakkeita saatavilla",
   "iconBrowser_noIconsMatchingQuery": "Hakua \"{query}\" vastaavia kuvakkeita ei löytynyt",
   "iconBrowser_uploadHint": "Lataa omia kuvakkeita käyttääksesi niitä täällä",
+  "icons_availableAfterSetup": "Omien kuvakkeiden lataaminen on käytettävissä, kun asennus on valmis.",
   "iconBrowser_loadingMore": "Ladataan lisää... ({current}/{total})",
   "iconBrowser_iconCount": "{count} kuvaketta",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} kuvaketta",

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "কোনো আইকন পাওয়া যায়নি",
   "iconBrowser_noIconsMatchingQuery": "\"{query}\" মেলে এমন কোনো আইকন পাওয়া যায়নি",
   "iconBrowser_uploadHint": "এখানে ব্যবহারের জন্য আপনার নিজের আইকন আপলোড করুন",
+  "icons_availableAfterSetup": "সেটআপ সম্পূর্ণ হওয়ার পরে কাস্টম আইকন আপলোড উপলব্ধ হবে।",
   "iconBrowser_loadingMore": "আরো লোড হচ্ছে... ({current} এর মধ্যে {total})",
   "iconBrowser_iconCount": "{count} আইকন",
   "iconBrowser_iconCountFiltered": "{total} আইকনের মধ্যে {filtered}",

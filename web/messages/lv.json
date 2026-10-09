@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Ikonas nav pieejamas",
   "iconBrowser_noIconsMatchingQuery": "Nav atrasta neviena ikona vaicājumam \"{query}\"",
   "iconBrowser_uploadHint": "Augšupielādējiet savas ikonas, lai tās izmantotu šeit",
+  "icons_availableAfterSetup": "Pielāgotu ikonu augšupielāde ir pieejama pēc iestatīšanas pabeigšanas.",
   "iconBrowser_loadingMore": "Ielādē vēl... ({current}/{total})",
   "iconBrowser_iconCount": "{count} ikonas",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} ikonas",

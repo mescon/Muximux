@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Нет доступных иконок",
   "iconBrowser_noIconsMatchingQuery": "Иконок, соответствующих \"{query}\", не найдено",
   "iconBrowser_uploadHint": "Загрузите свои иконки, чтобы использовать их здесь",
+  "icons_availableAfterSetup": "Загрузка собственных значков станет доступна после завершения настройки.",
   "iconBrowser_loadingMore": "Загрузка... ({current} из {total})",
   "iconBrowser_iconCount": "{count} иконок",
   "iconBrowser_iconCountFiltered": "{filtered} из {total} иконок",

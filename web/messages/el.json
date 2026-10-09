@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Δεν υπάρχουν διαθέσιμα εικονίδια",
   "iconBrowser_noIconsMatchingQuery": "Δεν βρέθηκαν εικονίδια για \"{query}\"",
   "iconBrowser_uploadHint": "Μεταφορτώστε τα δικά σας εικονίδια για χρήση εδώ",
+  "icons_availableAfterSetup": "Η μεταφόρτωση προσαρμοσμένων εικονιδίων είναι διαθέσιμη μετά την ολοκλήρωση της ρύθμισης.",
   "iconBrowser_loadingMore": "Φόρτωση περισσότερων... ({current} από {total})",
   "iconBrowser_iconCount": "{count} εικονίδια",
   "iconBrowser_iconCountFiltered": "{filtered} από {total} εικονίδια",

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "कोई आइकन उपलब्ध नहीं",
   "iconBrowser_noIconsMatchingQuery": "\"{query}\" से मेल खाने वाला कोई आइकन नहीं मिला",
   "iconBrowser_uploadHint": "यहाँ उपयोग करने के लिए अपने स्वयं के आइकन अपलोड करें",
+  "icons_availableAfterSetup": "सेटअप पूरा होने के बाद कस्टम आइकन अपलोड उपलब्ध होंगे।",
   "iconBrowser_loadingMore": "और लोड हो रहा है... ({current} में से {total})",
   "iconBrowser_iconCount": "{count} आइकन",
   "iconBrowser_iconCountFiltered": "{total} में से {filtered} आइकन",

@@ -104,6 +104,7 @@
       navigation: NavigationConfig;
       groups: Group[];
       theme: ThemeConfig;
+      language: string;
       setup?: SetupRequest;
       setupToken?: string;
       docker?: { enabled: boolean; endpoint: string; network_strategy: 'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal' };
@@ -630,6 +631,7 @@
       navigation,
       groups,
       theme,
+      language: getLocale(),
       ...(needsSetup && authMethod ? { setup: buildSetupRequest(), setupToken: setupToken.trim() } : {}),
       ...(dockerEnabled ? { docker: { enabled: true, endpoint: dockerEndpoint.trim(), network_strategy: dockerStrategy } } : {}),
     });
@@ -2113,6 +2115,7 @@
         selectedIcon={browserIcon?.name || ''}
         selectedVariant={browserIcon?.variant || 'svg'}
         selectedType={browserIcon?.type as 'dashboard' | 'lucide' | 'custom' || 'dashboard'}
+        allowCustomManagement={!needsSetup}
         onselect={handleIconSelect}
         onclose={() => iconBrowserContext = null}
       />

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "冇可用嘅圖示",
   "iconBrowser_noIconsMatchingQuery": "搵唔到符合「{query}」嘅圖示",
   "iconBrowser_uploadHint": "上載你自己嘅圖示嚟喺呢度使用",
+  "icons_availableAfterSetup": "自訂圖示上載要喺設定完成之後先可以用。",
   "iconBrowser_loadingMore": "載入更多...（{current}/{total}）",
   "iconBrowser_iconCount": "{count} 個圖示",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} 個圖示",

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Brak dostępnych ikon",
   "iconBrowser_noIconsMatchingQuery": "Nie znaleziono ikon pasujących do \"{query}\"",
   "iconBrowser_uploadHint": "Prześlij własne ikony, aby używać ich tutaj",
+  "icons_availableAfterSetup": "Przesyłanie własnych ikon będzie dostępne po zakończeniu konfiguracji.",
   "iconBrowser_loadingMore": "Ładowanie więcej... ({current} z {total})",
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} z {total} ikon",

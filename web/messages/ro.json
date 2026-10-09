@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Nicio pictogramă disponibilă",
   "iconBrowser_noIconsMatchingQuery": "Nu s-au găsit pictograme pentru \"{query}\"",
   "iconBrowser_uploadHint": "Încarcă propriile pictograme pentru a le folosi aici",
+  "icons_availableAfterSetup": "Încărcarea pictogramelor personalizate este disponibilă după finalizarea configurării.",
   "iconBrowser_loadingMore": "Se încarcă mai multe... ({current} din {total})",
   "iconBrowser_iconCount": "{count} pictograme",
   "iconBrowser_iconCountFiltered": "{filtered} din {total} pictograme",

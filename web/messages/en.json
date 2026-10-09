@@ -690,6 +690,7 @@
   "iconBrowser_noIconsAvailable": "No icons available",
   "iconBrowser_noIconsMatchingQuery": "No icons found matching \"{query}\"",
   "iconBrowser_uploadHint": "Upload your own icons to use them here",
+  "icons_availableAfterSetup": "Custom icon uploads are available after setup is complete.",
   "iconBrowser_loadingMore": "Loading more... ({current} of {total})",
   "iconBrowser_iconCount": "{count} icons",
   "iconBrowser_iconCountFiltered": "{filtered} of {total} icons",

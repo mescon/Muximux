@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Nėra prieinamų piktogramų",
   "iconBrowser_noIconsMatchingQuery": "Nerasta piktogramų pagal \"{query}\"",
   "iconBrowser_uploadHint": "Įkelkite savo piktogramas, kad jas naudotumėte čia",
+  "icons_availableAfterSetup": "Pasirinktinių piktogramų įkėlimas bus pasiekiamas užbaigus sąranką.",
   "iconBrowser_loadingMore": "Kraunama daugiau... ({current} iš {total})",
   "iconBrowser_iconCount": "{count} piktogramų",
   "iconBrowser_iconCountFiltered": "{filtered} iš {total} piktogramų",

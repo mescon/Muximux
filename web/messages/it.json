@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Nessuna icona disponibile",
   "iconBrowser_noIconsMatchingQuery": "Nessuna icona trovata per \"{query}\"",
   "iconBrowser_uploadHint": "Carica le tue icone per utilizzarle qui",
+  "icons_availableAfterSetup": "Il caricamento di icone personalizzate è disponibile al termine della configurazione.",
   "iconBrowser_loadingMore": "Caricamento di altre... ({current} di {total})",
   "iconBrowser_iconCount": "{count} icone",
   "iconBrowser_iconCountFiltered": "{filtered} di {total} icone",

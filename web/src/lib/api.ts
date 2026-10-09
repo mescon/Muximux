@@ -626,8 +626,10 @@ export async function listDockerNetworks(): Promise<{ networks: string[] }> {
   return fetchJSON<{ networks: string[] }>('/discovery/docker/networks');
 }
 
-export async function updateDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): Promise<DiscoveryDockerStatus> {
-  return putJSON<DiscoveryDockerConfig, DiscoveryDockerStatus>('/discovery/docker/config', cfg);
+// The server merges the body onto the stored block: fields left out keep
+// their stored values.
+export async function updateDiscoveryDockerConfig(cfg: Partial<DiscoveryDockerConfig>): Promise<DiscoveryDockerStatus> {
+  return putJSON<Partial<DiscoveryDockerConfig>, DiscoveryDockerStatus>('/discovery/docker/config', cfg);
 }
 
 export async function testDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): Promise<DiscoveryDockerStatus> {

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Nema dostupnih ikona",
   "iconBrowser_noIconsMatchingQuery": "Nema ikona koje odgovaraju \"{query}\"",
   "iconBrowser_uploadHint": "Otpremite svoje ikone da ih koristite ovde",
+  "icons_availableAfterSetup": "Отпремање прилагођених икона доступно је након завршетка подешавања.",
   "iconBrowser_loadingMore": "Učitavanje više... ({current} od {total})",
   "iconBrowser_iconCount": "{count} ikona",
   "iconBrowser_iconCountFiltered": "{filtered} od {total} ikona",

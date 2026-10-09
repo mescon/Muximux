@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Ingen ikoner tilgjengelig",
   "iconBrowser_noIconsMatchingQuery": "Ingen ikoner funnet som matcher \"{query}\"",
   "iconBrowser_uploadHint": "Last opp dine egne ikoner for å bruke dem her",
+  "icons_availableAfterSetup": "Opplasting av egne ikoner er tilgjengelig når oppsettet er fullført.",
   "iconBrowser_loadingMore": "Laster flere... ({current} av {total})",
   "iconBrowser_iconCount": "{count} ikoner",
   "iconBrowser_iconCountFiltered": "{filtered} av {total} ikoner",

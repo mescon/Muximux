@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "No hay iconos disponibles",
   "iconBrowser_noIconsMatchingQuery": "No se encontraron iconos que coincidan con \"{query}\"",
   "iconBrowser_uploadHint": "Sube tus propios iconos para usarlos aquí",
+  "icons_availableAfterSetup": "La subida de iconos personalizados está disponible cuando se completa la configuración.",
   "iconBrowser_loadingMore": "Cargando más... ({current} de {total})",
   "iconBrowser_iconCount": "{count} iconos",
   "iconBrowser_iconCountFiltered": "{filtered} de {total} iconos",

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Немає доступних іконок",
   "iconBrowser_noIconsMatchingQuery": "Іконок за запитом \"{query}\" не знайдено",
   "iconBrowser_uploadHint": "Завантажте власні іконки для використання тут",
+  "icons_availableAfterSetup": "Завантаження власних значків стане доступним після завершення налаштування.",
   "iconBrowser_loadingMore": "Завантаження ще... ({current} з {total})",
   "iconBrowser_iconCount": "{count} іконок",
   "iconBrowser_iconCountFiltered": "{filtered} з {total} іконок",

@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "आयकॉन उपलब्ध नाहीत",
   "iconBrowser_noIconsMatchingQuery": "\"{query}\" शी जुळणारे आयकॉन सापडले नाहीत",
   "iconBrowser_uploadHint": "इथे वापरण्यासाठी तुमचे स्वतःचे आयकॉन अपलोड करा",
+  "icons_availableAfterSetup": "सेटअप पूर्ण झाल्यानंतर सानुकूल आयकॉन अपलोड उपलब्ध होतील.",
   "iconBrowser_loadingMore": "आणखी लोड होत आहे... ({current}/{total})",
   "iconBrowser_iconCount": "{count} आयकॉन",
   "iconBrowser_iconCountFiltered": "{total} पैकी {filtered} आयकॉन",

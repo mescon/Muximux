@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Ingen ikoner tilgængelige",
   "iconBrowser_noIconsMatchingQuery": "Ingen ikoner fundet der matcher \"{query}\"",
   "iconBrowser_uploadHint": "Upload dine egne ikoner for at bruge dem her",
+  "icons_availableAfterSetup": "Upload af egne ikoner er tilgængelig, når opsætningen er fuldført.",
   "iconBrowser_loadingMore": "Indlæser flere... ({current} af {total})",
   "iconBrowser_iconCount": "{count} ikoner",
   "iconBrowser_iconCountFiltered": "{filtered} af {total} ikoner",

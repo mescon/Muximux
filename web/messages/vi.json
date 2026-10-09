@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Không có biểu tượng khả dụng",
   "iconBrowser_noIconsMatchingQuery": "Không tìm thấy biểu tượng phù hợp với \"{query}\"",
   "iconBrowser_uploadHint": "Tải lên biểu tượng của bạn để sử dụng ở đây",
+  "icons_availableAfterSetup": "Tải lên biểu tượng tùy chỉnh sẽ khả dụng sau khi hoàn tất thiết lập.",
   "iconBrowser_loadingMore": "Đang tải thêm... ({current}/{total})",
   "iconBrowser_iconCount": "{count} biểu tượng",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} biểu tượng",

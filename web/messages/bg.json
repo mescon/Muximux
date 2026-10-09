@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Няма налични икони",
   "iconBrowser_noIconsMatchingQuery": "Не са намерени икони за \"{query}\"",
   "iconBrowser_uploadHint": "Качете собствените си икони, за да ги използвате тук",
+  "icons_availableAfterSetup": "Качването на персонализирани икони е достъпно след завършване на настройката.",
   "iconBrowser_loadingMore": "Зареждане на още... ({current} от {total})",
   "iconBrowser_iconCount": "{count} икони",
   "iconBrowser_iconCountFiltered": "{filtered} от {total} икони",

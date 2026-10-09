@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "لا توجد أيقونات متاحة",
   "iconBrowser_noIconsMatchingQuery": "لم يتم العثور على أيقونات تطابق \"{query}\"",
   "iconBrowser_uploadHint": "ارفع أيقوناتك الخاصة لاستخدامها هنا",
+  "icons_availableAfterSetup": "تتوفر عمليات رفع الأيقونات المخصصة بعد اكتمال الإعداد.",
   "iconBrowser_loadingMore": "جارٍ تحميل المزيد... ({current} من {total})",
   "iconBrowser_iconCount": "{count} أيقونات",
   "iconBrowser_iconCountFiltered": "{filtered} من {total} أيقونات",

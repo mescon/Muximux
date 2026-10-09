@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Nincsenek elérhető ikonok",
   "iconBrowser_noIconsMatchingQuery": "Nem található ikon a következőre: \"{query}\"",
   "iconBrowser_uploadHint": "Töltse fel saját ikonjait az itteni használathoz",
+  "icons_availableAfterSetup": "Egyéni ikonok feltöltése a beállítás befejezése után érhető el.",
   "iconBrowser_loadingMore": "További betöltése... ({current} / {total})",
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} / {total} ikon",

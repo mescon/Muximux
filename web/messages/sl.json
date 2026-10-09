@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Ni razpoložljivih ikon",
   "iconBrowser_noIconsMatchingQuery": "Ni ikon, ki ustrezajo \"{query}\"",
   "iconBrowser_uploadHint": "Naložite svoje ikone za uporabo tukaj",
+  "icons_availableAfterSetup": "Nalaganje ikon po meri je na voljo po končani nastavitvi.",
   "iconBrowser_loadingMore": "Nalaganje več... ({current} od {total})",
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} od {total} ikon",

@@ -20,7 +20,7 @@
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
-  import { resetOnboarding } from './lib/onboardingStore';
+  import { mergeOnboardingResult } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
@@ -31,7 +31,6 @@
   import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
   import { applyConfigLocale } from './lib/localeStore';
-  import { getLocale } from '$lib/paraglide/runtime.js';
   import * as m from '$lib/paraglide/messages.js';
   import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
@@ -138,6 +137,9 @@
 
   // Onboarding state
   let showOnboarding = $state(false);
+  // True once submitSetup succeeded (or answered 409, setup already done):
+  // a retry after a failed config save goes straight to the save.
+  let setupSubmitted = $state(false);
 
   // Version info (fetched after auth)
   let appVersion = $state('');
@@ -451,15 +453,6 @@
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
-      // Show onboarding when no apps are configured
-      if (apps.length === 0) {
-        resetOnboarding();
-        await loadOnboardingWizard();
-        showOnboarding = true;
-        loading = false;
-        return;
-      }
-
       // Fetch version info (non-blocking)
       fetchSystemInfo().then(info => appVersion = info.version).catch(() => {});
 
@@ -577,20 +570,30 @@
     navigation: NavigationConfig;
     groups: Group[];
     theme: ThemeConfig;
+    language: string;
     setup?: import('./lib/types').SetupRequest;
     setupToken?: string;
     docker?: { enabled: boolean; endpoint: string; network_strategy: 'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal' };
   }) {
-    const { apps: newApps, navigation, groups, theme, setup, setupToken, docker } = detail;
+    const { apps: newApps, navigation, groups, theme, language, setup, setupToken, docker } = detail;
 
     try {
-      // Submit security setup first (if this was initial setup)
-      if (setup) {
-        const resp = await submitSetup(setup, setupToken);
-        if (!resp.success) {
-          toasts.error(resp.error || m.toast_securitySetupFailed());
-          return;
+      // Submit security setup first (if this was initial setup). Skipped on
+      // a retry once it went through, so a failed config save below does
+      // not leave the wizard stuck on 409.
+      if (setup && !setupSubmitted) {
+        try {
+          const resp = await submitSetup(setup, setupToken);
+          if (!resp.success) {
+            toasts.error(resp.error || m.toast_securitySetupFailed());
+            return;
+          }
+        } catch (e) {
+          if (!(e instanceof Error && e.message.includes('Setup already completed'))) throw e;
         }
+        setupSubmitted = true;
+      }
+      if (setupSubmitted) {
         // Re-check auth status and load config now that guard is down
         await checkAuthStatus();
         config = await fetchConfig();
@@ -600,42 +603,35 @@
 
       if (!config) return;
 
-      // Update config with onboarding selections
-      const newConfig: Config = {
-        ...config,
-        language: getLocale(),
-        navigation: {
-          ...config.navigation,
-          ...navigation
-        },
-        theme,
-        groups,
-        apps: newApps
-      };
-
-      const saved = await saveConfig(newConfig);
-      config = saved;
-      apps = saved.apps;
+      // Merge the onboarding picks onto the loaded config: groups, apps,
+      // navigation and every other section already stored are kept.
+      const base = config;
+      const newConfig = mergeOnboardingResult(base, { apps: newApps, groups, navigation, theme, language });
+      const saved = await saveConfig(newConfig, base);
 
       // Persist Docker discovery config if the operator opted in
-      // during the wizard. Best-effort: a failure here doesn't roll
-      // back the rest of onboarding, since the operator can always
-      // re-enable from Settings -> Discovery later.
+      // during the wizard. The PUT merges onto the stored block, so only
+      // the fields the wizard sets are sent. Best-effort: a failure here
+      // doesn't roll back the rest of onboarding, since the operator can
+      // always re-enable from Settings -> Discovery later.
       if (docker?.enabled) {
         try {
           const { updateDiscoveryDockerConfig } = await import('./lib/api');
           await updateDiscoveryDockerConfig({
             enabled: true,
             endpoint: docker.endpoint,
-            tls: { enabled: false },
             network_strategy: docker.network_strategy,
-            refresh_interval: '60s',
           });
         } catch (e) {
           console.error('Failed to enable Docker discovery during onboarding:', e);
           toasts.warning(m.toast_dockerDiscoverySetupFailed());
         }
       }
+
+      // Hide onboarding, then apply the saved config the same way a
+      // Settings save does (theme, keybindings, health, locale).
+      showOnboarding = false;
+      if (applyConfigToShell(saved, shellState(), shellActions, shellDeps)) return;
 
       // After onboarding, always show the overview (splash) page
       showSplash = true;
@@ -644,8 +640,6 @@
       startServices();
       registerLiveSync();
 
-      // Hide onboarding
-      showOnboarding = false;
       toasts.success(m.toast_dashboardSetupComplete());
     } catch (e) {
       console.error('Failed to save onboarding config:', e);

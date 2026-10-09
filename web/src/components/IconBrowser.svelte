@@ -23,12 +23,16 @@
     selectedIcon = '',
     selectedVariant = 'svg',
     selectedType = 'dashboard' as 'dashboard' | 'lucide' | 'custom',
+    allowCustomManagement = true,
     onselect,
     onclose,
   }: {
     selectedIcon?: string;
     selectedVariant?: string;
     selectedType?: 'dashboard' | 'lucide' | 'custom';
+    // false hides upload, fetch-from-URL and delete: those endpoints are
+    // closed until setup is complete (the setup wizard passes false).
+    allowCustomManagement?: boolean;
     onselect?: (detail: { name: string; variant: string; type: string }) => void;
     onclose?: () => void;
   } = $props();
@@ -330,7 +334,11 @@
   {/if}
 
   <!-- Custom icon upload (only for custom tab) -->
-  {#if activeTab === 'custom'}
+  {#if activeTab === 'custom' && !allowCustomManagement}
+    <div class="px-3 py-2 border-b border-border">
+      <p class="text-xs text-text-muted" data-testid="icons-available-after-setup">{m.icons_availableAfterSetup()}</p>
+    </div>
+  {:else if activeTab === 'custom'}
     <div class="px-3 py-2 border-b border-border">
       <input
         bind:this={fileInput}
@@ -439,7 +447,7 @@
                 />
               {/if}
             </button>
-            {#if activeTab === 'custom'}
+            {#if activeTab === 'custom' && allowCustomManagement}
               {#if confirmDeleteIcon === icon.name}
                 <!-- Inline confirmation overlay -->
                 <div class="absolute inset-0 rounded-lg bg-bg-base/90 flex flex-col items-center justify-center gap-1 z-10">

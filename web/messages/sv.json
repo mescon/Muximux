@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Inga ikoner tillgängliga",
   "iconBrowser_noIconsMatchingQuery": "Inga ikoner hittades som matchar \"{query}\"",
   "iconBrowser_uploadHint": "Ladda upp egna ikoner för att använda dem här",
+  "icons_availableAfterSetup": "Uppladdning av egna ikoner är tillgänglig när installationen är klar.",
   "iconBrowser_loadingMore": "Laddar fler... ({current} av {total})",
   "iconBrowser_iconCount": "{count} ikoner",
   "iconBrowser_iconCountFiltered": "{filtered} av {total} ikoner",

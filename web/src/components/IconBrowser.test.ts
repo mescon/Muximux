@@ -339,6 +339,34 @@ describe('IconBrowser', () => {
     });
   });
 
+  describe('allowCustomManagement', () => {
+    it('hides upload, fetch and delete when allowCustomManagement is false', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom', allowCustomManagement: false } });
+      await waitFor(() => {
+        expect(screen.getByTitle('my-icon.png')).toBeInTheDocument();
+      });
+
+      // Existing custom icons stay selectable.
+      expect(screen.getByTitle('logo.svg')).toBeInTheDocument();
+      expect(screen.queryByText('Upload Custom Icon')).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText('https://example.com/icon.png')).not.toBeInTheDocument();
+      expect(document.querySelectorAll('button[title="Delete"]').length).toBe(0);
+      expect(screen.getByText('Custom icon uploads are available after setup is complete.')).toBeInTheDocument();
+    });
+
+    it('shows upload, fetch and delete by default', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        expect(screen.getByTitle('my-icon.png')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Upload Custom Icon')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('https://example.com/icon.png')).toBeInTheDocument();
+      expect(document.querySelectorAll('button[title="Delete"]').length).toBeGreaterThan(0);
+      expect(screen.queryByText('Custom icon uploads are available after setup is complete.')).not.toBeInTheDocument();
+    });
+  });
+
   describe('icon count footer', () => {
     it('shows icon count in footer', async () => {
       render(IconBrowser);

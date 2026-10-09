@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "利用可能なアイコンがありません",
   "iconBrowser_noIconsMatchingQuery": "「{query}」に一致するアイコンが見つかりません",
   "iconBrowser_uploadHint": "自分のアイコンをアップロードしてここで使用",
+  "icons_availableAfterSetup": "カスタムアイコンのアップロードはセットアップ完了後に利用できます。",
   "iconBrowser_loadingMore": "さらに読み込み中...（{current}/{total}）",
   "iconBrowser_iconCount": "{count} 個のアイコン",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} 個のアイコン",

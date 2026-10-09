@@ -49,16 +49,19 @@ vi.mock('./lib/logStore', () => ({ initLogStore: vi.fn() }));
 const theme = vi.hoisted(() => ({ loadCustomThemesFromServer: vi.fn(), syncFromConfig: vi.fn() }));
 vi.mock('./lib/themeStore', async (orig) => ({ ...(await orig<object>()), ...theme }));
 
-const auth = vi.hoisted(() => ({ authenticated: null as null | { set: (v: boolean) => void } }));
+type BoolStore = { set: (v: boolean) => void };
+const auth = vi.hoisted(() => ({ authenticated: null as null | BoolStore, setupRequired: null as null | BoolStore }));
 vi.mock('./lib/authStore', async () => {
   const { writable: w } = await import('svelte/store');
   const isAuthenticated = w(false);
+  const setupRequired = w(false);
   auth.authenticated = isAuthenticated;
+  auth.setupRequired = setupRequired;
   return {
     checkAuthStatus: vi.fn(() => Promise.resolve()),
     isAuthenticated,
     isAdmin: w(true),
-    setupRequired: w(false),
+    setupRequired,
   };
 });
 
@@ -117,6 +120,11 @@ beforeEach(() => {
   ws.registrations.length = 0;
   (globalThis as Record<string, unknown>).__settingsConfigs = [];
   auth.authenticated?.set(false);
+  auth.setupRequired?.set(false);
+  api.fetchConfig.mockReset();
+  api.saveConfig.mockReset();
+  api.submitSetup.mockReset();
+  delete (globalThis as Record<string, unknown>).__onboardingDetail;
   ws.reconnect.length = 0;
   (globalThis as Record<string, unknown>).__settingsBlockClose = false;
   history.replaceState(null, '', '/');
@@ -225,14 +233,103 @@ function liveRegistrations() {
 }
 
 describe('App onboarding path', () => {
+  // First run: setup is required, so the shell opens the wizard straight
+  // away. submitSetup lowers the guard the way the real server does.
+  async function firstRun(loaded: Config) {
+    auth.setupRequired!.set(true);
+    api.submitSetup.mockImplementation(async () => {
+      auth.setupRequired!.set(false);
+      return { success: true };
+    });
+    api.fetchConfig.mockResolvedValue(loaded);
+    render(AppShell);
+    return screen.findByTestId('onboarding-done', {}, { timeout: 5000 });
+  }
+
   it('registers live sync after first-run onboarding', async () => {
     const empty = makeConfig({ apps: [], auth: { method: 'none' } as Config['auth'] });
-    api.fetchConfig.mockResolvedValueOnce(empty);
     api.saveConfig.mockResolvedValueOnce(makeConfig({ auth: { method: 'none' } as Config['auth'] }));
-    render(AppShell);
-    await fireEvent.click(await screen.findByTestId('onboarding-done', {}, { timeout: 5000 }));
+    await fireEvent.click(await firstRun(empty));
     await waitFor(() => expect(liveRegistrations()).toBe(1));
     expect(ws.reconnect).toHaveLength(1);
+    expect(api.submitSetup).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not open the wizard for a configured instance with zero apps', async () => {
+    await loggedIn(makeConfig({ apps: [] }));
+    expect(screen.queryByTestId('onboarding-done')).toBeNull();
+  });
+
+  it('merges the wizard picks onto the loaded config and sends it as base', async () => {
+    const loaded = makeConfig({
+      language: 'en',
+      groups: [{ name: 'Ops', icon: { type: 'dashboard', name: 'x' }, color: '#111111', order: 0, expanded: true }] as Config['groups'],
+      apps: [{ ...makeApp('grafana'), group: 'Ops' }],
+      discovery: { docker: { enabled: true, endpoint: 'tcp://d:2376', tls: { enabled: true }, network_strategy: 'container_dns', refresh_interval: '30s', auto_import: 'add' } },
+    });
+    g.__onboardingDetail = {
+      apps: [{ ...makeApp('plex'), group: 'Media' }],
+      groups: [{ name: 'Media', icon: { type: 'dashboard', name: 'x' }, color: '#222222', order: 0, expanded: true }],
+      navigation: { position: 'left' },
+      theme: { family: 'nord', variant: 'light' },
+      language: 'sv',
+      setup: { method: 'none' },
+    };
+    api.saveConfig.mockImplementationOnce(async (c: Config) => c);
+    await fireEvent.click(await firstRun(loaded));
+    await waitFor(() => expect(api.saveConfig).toHaveBeenCalledTimes(1));
+
+    const [sent, base] = api.saveConfig.mock.calls[0] as [Config, Config];
+    expect(base).toEqual(loaded);
+    expect(sent.groups.map(gr => gr.name)).toEqual(['Ops', 'Media']);
+    expect(sent.apps.map(a => a.name)).toEqual(['grafana', 'plex']);
+    expect(sent.navigation).toEqual({ ...loaded.navigation, position: 'left' });
+    expect(sent.theme).toEqual({ family: 'nord', variant: 'light' });
+    expect(sent.language).toBe('sv');
+    expect(sent.discovery).toEqual(loaded.discovery);
+  });
+
+  it('retries a failed config save without submitting setup again', async () => {
+    api.saveConfig.mockRejectedValueOnce(new Error('API error: 500'));
+    api.saveConfig.mockResolvedValueOnce(makeConfig());
+    const done = await firstRun(makeConfig({ apps: [] }));
+    await fireEvent.click(done);
+    await waitFor(() => expect(api.saveConfig).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId('onboarding-done')).toBeTruthy();
+
+    await fireEvent.click(screen.getByTestId('onboarding-done'));
+    await waitFor(() => expect(api.saveConfig).toHaveBeenCalledTimes(2));
+    expect(api.submitSetup).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.queryByTestId('onboarding-done')).toBeNull());
+  });
+
+  it('treats a 409 from setup as already done and saves the config', async () => {
+    const done = await firstRun(makeConfig({ apps: [] }));
+    api.submitSetup.mockImplementationOnce(async () => {
+      auth.setupRequired!.set(false);
+      throw new Error('API error: 409 {"error":"Setup already completed"}');
+    });
+    api.saveConfig.mockResolvedValueOnce(makeConfig());
+    await fireEvent.click(done);
+    await waitFor(() => expect(api.saveConfig).toHaveBeenCalledTimes(1));
+  });
+
+  it('stops on any other setup error', async () => {
+    const done = await firstRun(makeConfig({ apps: [] }));
+    api.submitSetup.mockRejectedValueOnce(new Error('API error: 403 invalid setup token'));
+    await fireEvent.click(done);
+    await waitFor(() => expect(api.submitSetup).toHaveBeenCalledTimes(1));
+    await new Promise(r => setTimeout(r, 0));
+    expect(api.saveConfig).not.toHaveBeenCalled();
+  });
+
+  it('stops when setup reports failure', async () => {
+    const done = await firstRun(makeConfig({ apps: [] }));
+    api.submitSetup.mockResolvedValueOnce({ success: false, error: 'bad password' });
+    await fireEvent.click(done);
+    await waitFor(() => expect(api.submitSetup).toHaveBeenCalledTimes(1));
+    await new Promise(r => setTimeout(r, 0));
+    expect(api.saveConfig).not.toHaveBeenCalled();
   });
 });
 

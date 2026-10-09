@@ -691,6 +691,7 @@
   "iconBrowser_noIconsAvailable": "Kullanılabilir simge yok",
   "iconBrowser_noIconsMatchingQuery": "\"{query}\" ile eşleşen simge bulunamadı",
   "iconBrowser_uploadHint": "Burada kullanmak için kendi simgelerinizi yükleyin",
+  "icons_availableAfterSetup": "Özel simge yükleme, kurulum tamamlandıktan sonra kullanılabilir.",
   "iconBrowser_loadingMore": "Daha fazla yükleniyor... ({current} / {total})",
   "iconBrowser_iconCount": "{count} simge",
   "iconBrowser_iconCountFiltered": "{total} simgeden {filtered}",
