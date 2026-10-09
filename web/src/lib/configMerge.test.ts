@@ -11,6 +11,7 @@ import {
   cascadeGroupRenames,
   rebaseConfig,
   SERVER_OWNED_APP_FIELDS,
+  POINTER_FIELDS,
   CLIENT_ONLY_KEYS,
 } from './configMerge';
 import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from './types';
@@ -77,9 +78,25 @@ describe('configMerge primitives', () => {
     // Pinned bool: absent and false are both the zero value.
     ['pinned absent vs false', {}, { pinned: false }, false],
     ['pinned true vs false', { pinned: true }, { pinned: false }, true],
-    // HealthCheck *bool: the payload's false and the stored false agree.
-    ['health_check absent vs false', {}, { health_check: false }, false],
+    // Pointer fields (*bool, *int): Go compares by presence, nil != &false.
+    // HealthCheck *bool (nil = enabled).
+    ['health_check nil vs false', {}, { health_check: false }, true],
+    ['health_check false vs nil', { health_check: false }, { health_check: undefined }, true],
+    ['health_check nil vs nil', {}, {}, false],
+    ['health_check false vs false', { health_check: false }, {}, false],
     ['health_check true vs false', { health_check: true }, { health_check: false }, true],
+    // ProxySkipTLSVerify *bool (nil = skip).
+    ['proxy_skip_tls_verify nil vs false', {}, { proxy_skip_tls_verify: false }, true],
+    ['proxy_skip_tls_verify false vs nil', { proxy_skip_tls_verify: false }, { proxy_skip_tls_verify: undefined }, true],
+    ['proxy_skip_tls_verify nil vs nil', {}, {}, false],
+    // HTTPActionShowToast *bool (nil = show).
+    ['http_action_show_toast nil vs false', {}, { http_action_show_toast: false }, true],
+    ['http_action_show_toast false vs nil', { http_action_show_toast: false }, { http_action_show_toast: undefined }, true],
+    ['http_action_show_toast nil vs nil', {}, {}, false],
+    // Shortcut *int: nil vs a pointer to 0.
+    ['shortcut nil vs 0', {}, { shortcut: 0 }, true],
+    ['shortcut 0 vs nil', { shortcut: 0 }, { shortcut: undefined }, true],
+    ['shortcut nil vs nil', {}, {}, false],
     // Color string: "" is the zero value.
     ['color absent vs empty', {}, { color: '' }, false],
     ['color set vs cleared', { color: '#fff' }, { color: '' }, true],
@@ -105,12 +122,44 @@ describe('configMerge primitives', () => {
     expect(got.apps.length === 1).toBe(edited);
   });
 
-  it('untouched pinned: false and health_check: false over an absent base are not edits', () => {
+  it('untouched pinned: false over an absent base is not an edit, health_check: false is', () => {
     const base = rawApp('A', 'u');
-    const mine = makeApp(rawApp('A', 'u', { pinned: false, health_check: false }));
-    const theirs = rawApp('A', 'u', { pinned: true, health_check: true });
-    const got = rebaseConfig({ base: cfg({ apps: [base] }), local: cfg(), localApps: [mine], theirs: cfg({ apps: [theirs] }) });
-    expect(got.apps[0]).toMatchObject({ pinned: true, health_check: true });
+    const theirs = rawApp('A', 'u', { pinned: true });
+    let got = rebaseConfig({ base: cfg({ apps: [base] }), local: cfg(), localApps: [makeApp(rawApp('A', 'u', { pinned: false }))], theirs: cfg({ apps: [theirs] }) });
+    expect(got.apps[0].pinned).toBe(true);
+    // Go: HealthCheck *bool, nil (enabled) vs &false (disabled) is an edit.
+    got = rebaseConfig({
+      base: cfg({ apps: [base] }), local: cfg(),
+      localApps: [makeApp(rawApp('A', 'u', { health_check: false }))],
+      theirs: cfg({ apps: [rawApp('A', 'u', { color: '#srv' })] }),
+    });
+    expect(got.apps[0]).toMatchObject({ health_check: false, color: '#srv' });
+    // Unchecking back to nil over a stored false is an edit too.
+    got = rebaseConfig({
+      base: cfg({ apps: [rawApp('A', 'u', { proxy_skip_tls_verify: false })] }), local: cfg(),
+      localApps: [makeApp(rawApp('A', 'u'))],
+      theirs: cfg({ apps: [rawApp('A', 'u', { proxy_skip_tls_verify: false })] }),
+    });
+    expect(got.apps[0].proxy_skip_tls_verify).toBeUndefined();
+  });
+
+  it('pointer structs compare by presence: home_icon, health, keybindings', () => {
+    // Go: NavigationConfig.HomeIcon *AppIconConfig, nil vs &AppIconConfig{}.
+    expect(deepEqual({ home_icon: {} }, {})).toBe(false);
+    expect(deepEqual({ home_icon: { type: 'dashboard', name: '' } }, { home_icon: { type: 'dashboard' } })).toBe(true);
+    // Go: ClientConfigUpdate.Health / Keybindings pointers.
+    expect(deepEqual({ health: { enabled: false } }, {})).toBe(false);
+    expect(deepEqual({ keybindings: {} }, {})).toBe(false);
+    expect(deepEqual({ keybindings: null }, {})).toBe(true);
+    expect(POINTER_FIELDS.has('proxy_skip_tls_verify')).toBe(true);
+    const nav = { position: 'top', width: '200px' } as Config['navigation'];
+    const got = rebaseConfig({
+      base: cfg({ navigation: nav }),
+      local: cfg({ navigation: { ...nav, home_icon: { type: 'dashboard' } } }),
+      localApps: [],
+      theirs: cfg({ navigation: { ...nav, width: '300px' } }),
+    });
+    expect(got.config.navigation).toMatchObject({ width: '300px', home_icon: { type: 'dashboard' } });
   });
 
   it('mergeField takes theirs only when mine is unchanged', () => {
@@ -384,19 +433,42 @@ describe('rebaseConfig', () => {
     expect(got.config.apps).toBe(got.apps);
   });
 
-  it('optional sections: absent mine keeps theirs, absent base or theirs keeps mine, absent everywhere stays absent', () => {
+  it('health is a pointer (absent mine keeps theirs), theme is a value struct merged per field', () => {
     const health = { enabled: true, interval: '1m', timeout: '5s' };
     const theme = { family: 'nord', variant: 'dark' as const };
+    // Go mergeHealth: nil mine keeps theirs; nil base or theirs keeps mine.
     let got = rebaseConfig({ base: cfg(), local: cfg(), localApps: [], theirs: cfg({ health, theme }) });
     expect(got.config.health).toEqual(health);
     expect(got.config.theme).toEqual(theme);
     got = rebaseConfig({ base: cfg(), local: cfg({ health }), localApps: [], theirs: cfg() });
     expect(got.config.health).toEqual(health);
-    got = rebaseConfig({ base: cfg({ theme }), local: cfg({ theme }), localApps: [], theirs: cfg() });
-    expect(got.config.theme).toEqual(theme);
     got = rebaseConfig({ base: cfg({ theme }), local: cfg(), localApps: [], theirs: cfg({ theme }) });
-    expect(got.config.health).toBeUndefined();
     expect('health' in got.config).toBe(false);
+    // Go ThemeConfig is a value: an untouched theme takes theirs per field,
+    // even when theirs is the zero struct.
+    got = rebaseConfig({ base: cfg({ theme }), local: cfg({ theme }), localApps: [], theirs: cfg() });
+    expect(got.config.theme).toEqual({});
+    got = rebaseConfig({
+      base: cfg({ theme }),
+      local: cfg({ theme: { family: 'nord', variant: 'light' } }),
+      localApps: [],
+      theirs: cfg({ theme: { family: 'dracula', variant: 'dark' } }),
+    });
+    expect(got.config.theme).toEqual({ family: 'dracula', variant: 'light' });
+  });
+
+  it('only ClientConfigUpdate scalars merge; other top-level keys take theirs', () => {
+    const got = rebaseConfig({
+      base: cfg({ log_level: 'info', gateway: 'g1' }),
+      local: cfg({ log_level: 'debug', gateway: 'mine', auth: { method: 'none' } }),
+      localApps: [],
+      theirs: cfg({ log_level: 'info', gateway: 'g2', auth: { method: 'builtin' } }),
+    });
+    expect(got.config.log_level).toBe('debug');
+    expect(got.config.gateway).toBe('g2');
+    expect(got.config.auth).toEqual({ method: 'builtin' });
+    const cleared = rebaseConfig({ base: cfg({ language: 'sv' }), local: cfg(), localApps: [], theirs: cfg({ language: 'sv' }) });
+    expect('language' in cleared.config).toBe(false);
   });
 
   it('tolerates configs without group or app lists', () => {
@@ -484,9 +556,9 @@ describe('rebaseConfig', () => {
     expect(got.conflicts[0].message).toBe('both you and the server now have a group named "G"; rename one of them before saving');
   });
 
-  it('a rename whose old name the server added on its own is a conflict', () => {
-    // Go: mine {B, original A}, base without A, theirs with A -> b == nil,
-    // t != nil -> MergeConflictError{Name: B, RenamedFrom: A}.
+  it('a rename whose old name the server added on its own keeps both without a conflict', () => {
+    // mine {B, original A}, base without A, theirs with A: the names differ,
+    // so nothing collides.
     const got = rebaseConfig({
       base: cfg(),
       local: cfg(),
@@ -494,10 +566,7 @@ describe('rebaseConfig', () => {
       theirs: cfg({ apps: [rawApp('A', 'u')] }),
     });
     expect(got.apps.map(a => a.name)).toEqual(['B', 'A']);
-    expect(got.conflicts).toEqual([{
-      kind: 'app', name: 'B', renamedFrom: 'A',
-      message: 'both you and the server now have an app named "B"; rename one of them before saving',
-    }]);
+    expect(got.conflicts).toEqual([]);
   });
 
   it('two user items of one name are both kept and reported', () => {

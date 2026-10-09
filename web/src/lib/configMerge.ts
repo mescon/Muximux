@@ -21,13 +21,41 @@ import { type App, type Config, type Group, type KeyCombo, type KeybindingsConfi
 
 type Obj = Record<string, unknown>;
 
+/**
+ * JSON names of the fields Go declares as pointers in the client config
+ * shape. Go compares a pointer by presence: nil and a pointer to the zero
+ * value differ (nil often means true, e.g. proxy_skip_tls_verify), so for
+ * these keys only undefined and null read as absent and false, 0 or a
+ * zero struct stay a value. Every name is unique across the shape, so the
+ * set is keyed by name alone.
+ */
+export const POINTER_FIELDS: ReadonlySet<string> = new Set([
+  'http_action_show_toast', // handlers.ClientAppConfig.HTTPActionShowToast *bool (internal/handlers/api.go)
+  'health_check',           // handlers.ClientAppConfig.HealthCheck *bool (internal/handlers/api.go)
+  'proxy_skip_tls_verify',  // handlers.ClientAppConfig.ProxySkipTLSVerify *bool (internal/handlers/api.go)
+  'shortcut',               // handlers.ClientAppConfig.Shortcut *int (internal/handlers/api.go)
+  'home_icon',              // config.NavigationConfig.HomeIcon *AppIconConfig (internal/config/config.go)
+  'health',                 // handlers.ClientConfigUpdate.Health *config.HealthConfig (internal/handlers/api.go)
+  'keybindings',            // handlers.ClientConfigUpdate.Keybindings *config.KeybindingsConfig (internal/handlers/api.go)
+]);
+
+function isZero(v: unknown): boolean {
+  return v === undefined || v === null || v === '' || v === false || v === 0;
+}
+
 // canonical maps v to its comparison form, matching Go's typed-struct
 // compare: object keys are sorted, and undefined, null, '', false, 0,
 // empty arrays and empty objects all read as absent, since Go decodes an
-// absent field to its zero value. Array elements keep their zero values
-// (a Go slice keeps them too), only nested objects inside are normalised.
-function canonical(v: unknown): unknown {
-  if (v === undefined || v === null || v === '' || v === false || v === 0) return undefined;
+// absent field to its zero value. A pointer value (pointer = true, see
+// POINTER_FIELDS) is absent only when undefined or null; a present one
+// keeps its zero value. Array elements keep their zero values (a Go slice
+// keeps them too); only nested objects inside are normalised.
+function canonical(v: unknown, pointer = false): unknown {
+  if (pointer) {
+    if (v === undefined || v === null) return undefined;
+    return typeof v === 'object' ? { ptr: canonical(v) ?? {} } : { ptr: v };
+  }
+  if (isZero(v)) return undefined;
   if (Array.isArray(v)) {
     if (v.length === 0) return undefined;
     return v.map(e => (e !== null && typeof e === 'object' ? canonical(e) ?? {} : e ?? null));
@@ -35,7 +63,7 @@ function canonical(v: unknown): unknown {
   if (typeof v === 'object') {
     const out: Obj = {};
     for (const k of Object.keys(v as Obj).sort()) {
-      const c = canonical((v as Obj)[k]);
+      const c = canonical((v as Obj)[k], POINTER_FIELDS.has(k));
       if (c !== undefined) out[k] = c;
     }
     return Object.keys(out).length === 0 ? undefined : out;
@@ -43,9 +71,17 @@ function canonical(v: unknown): unknown {
   return v;
 }
 
-/** Compares a and b by their key-sorted JSON, with absent and empty alike. */
+function equalAs(a: unknown, b: unknown, pointer: boolean): boolean {
+  return JSON.stringify(canonical(a, pointer)) === JSON.stringify(canonical(b, pointer));
+}
+
+/**
+ * Compares a and b the way Go compares the typed values: key-sorted, with
+ * absent, null, zero values and empty containers alike, except for the
+ * POINTER_FIELDS keys inside objects, which compare by presence.
+ */
 export function deepEqual(a: unknown, b: unknown): boolean {
-  return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+  return equalAs(a, b, false);
 }
 
 /** Theirs when mine still equals base, else mine. */
@@ -62,7 +98,7 @@ export function mergeObject<T extends object>(base: T, mine: T, theirs: T, skip?
   const out: Obj = { ...(theirs as Obj) };
   const keys = new Set([...Object.keys(b), ...Object.keys(m), ...Object.keys(theirs as Obj)]);
   for (const k of keys) {
-    if (skip?.has(k as keyof T) || deepEqual(m[k], b[k])) continue;
+    if (skip?.has(k as keyof T) || equalAs(m[k], b[k], POINTER_FIELDS.has(k))) continue;
     if (m[k] === undefined) delete out[k];
     else out[k] = m[k];
   }
@@ -211,9 +247,8 @@ function mergeList<T extends Named>(base: T[], mine: T[], theirs: T[], rules: Li
     const from = renamedFrom(m);
     if (t) consumed.add(t);
     if (!b && t) {
-      // New on both sides: keep both. A shared name is reported by
-      // reportDuplicates; a claim through original_name is reported here.
-      if (m.name !== t.name) conflicts.push(conflict(rules.kind, m.name, from));
+      // New in mine while the server added its match: keep both. A shared
+      // name is reported by reportDuplicates; different names do not clash.
       merged.push({ item: rules.strip(m), fromMine: true, renamedFrom: from });
       merged.push({ item: { ...t, original_name: t.name }, theirs: t, fromMine: false, renamedFrom: '' });
     } else if (!b) {
@@ -350,7 +385,10 @@ function mergeKeybindings(base?: KeybindingsConfig, mine?: KeybindingsConfig, th
 export interface RebaseInput { base: Config; local: Config; localApps: App[]; theirs: Config }
 export interface RebaseResult { config: Config; apps: App[]; conflicts: MergeConflict[] }
 
-const TOP_LEVEL_SKIP: ReadonlySet<keyof Config> = new Set<keyof Config>(['apps', 'groups', 'keybindings', 'navigation', 'theme', 'health']);
+// The scalar fields of Go's ClientConfigUpdate. Every other top-level key
+// (auth, tls, gateway, discovery, env_overrides) is not part of a config
+// save, so the rebase takes the server's value for it.
+const TOP_LEVEL_SCALARS = ['title', 'language', 'log_level', 'proxy_timeout', 'session_cookie_domain'] as const;
 
 /**
  * Rebases the user's unsaved edits (local config plus localApps) from
@@ -382,15 +420,24 @@ export function rebaseConfig(input: RebaseInput): RebaseResult {
   cascadeGroupRenames(mergedGroups, mergedApps, (i, group) =>
     apps.merged[i].base?.group === group || apps.merged[i].theirs?.group === group);
 
-  const config = mergeObject(base, local, theirs, TOP_LEVEL_SKIP);
-  config.navigation = mergeOptional(base.navigation, local.navigation, theirs.navigation)!;
-  const optional = {
-    theme: mergeOptional(base.theme, local.theme, theirs.theme),
+  const config: Config = { ...theirs };
+  const fields = config as unknown as Obj;
+  for (const k of TOP_LEVEL_SCALARS) {
+    const v = mergeField(base[k], local[k], theirs[k]);
+    if (v === undefined) delete fields[k];
+    else fields[k] = v;
+  }
+  // Navigation and Theme are value structs in Go: merged per field, an
+  // absent side reading as the zero struct. Health and Keybindings are
+  // pointers: an absent payload keeps the server's (mergeHealth and
+  // mergeKeybindings).
+  config.navigation = mergeObject(base.navigation ?? {}, local.navigation ?? {}, theirs.navigation ?? {}) as Config['navigation'];
+  config.theme = mergeObject(base.theme ?? {}, local.theme ?? {}, theirs.theme ?? {}) as Config['theme'];
+  const pointers = {
     health: mergeOptional(base.health, local.health, theirs.health),
     keybindings: mergeKeybindings(base.keybindings, local.keybindings, theirs.keybindings),
   };
-  const fields = config as unknown as Obj;
-  for (const [k, v] of Object.entries(optional)) {
+  for (const [k, v] of Object.entries(pointers)) {
     if (v === undefined) delete fields[k];
     else fields[k] = v;
   }
