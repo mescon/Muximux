@@ -563,3 +563,32 @@ func TestRefreshBatch_DetachCountsAsAppChange(t *testing.T) {
 		t.Fatal("a detach must make the batch non-empty and touch apps")
 	}
 }
+
+// A tracked container that is gone is removed only by sync mode, and only
+// for auto-imported entries, once it has been absent past the grace period.
+// Hand-added apps and apps in off mode are never removed.
+func TestIssue499_AbsentContainerRemovedOnlyBySyncOfAutoImported(t *testing.T) {
+	for _, tc := range []struct {
+		mode     config.AutoImportMode
+		auto     bool
+		wantApps int
+	}{
+		{config.AutoImportSync, true, 0},
+		{config.AutoImportSync, false, 1},
+		{config.AutoImportOff, true, 1},
+	} {
+		set := []ContainerSummary{}
+		p, cfg := swarmPoller(t, &set, tc.mode)
+		cfg.Apps = []config.AppConfig{{
+			Name: "Bindery_web.1.71e9k1i0wfiyk5sbbjku668er", URL: "http://bindery_web.1.71e9k1i0wfiyk5sbbjku668er:8080",
+			DockerKey: "name:bindery_web.1.71e9k1i0wfiyk5sbbjku668er", DockerEndpoint: cfg.Discovery.Docker.Endpoint,
+			DockerStrategy: "container_dns", DockerAutoImported: tc.auto, Enabled: true,
+		}}
+		for i := 0; i < 5; i++ {
+			p.tick(context.Background())
+		}
+		if len(cfg.Apps) != tc.wantApps {
+			t.Errorf("mode=%s auto_imported=%v: apps left = %d, want %d", tc.mode, tc.auto, len(cfg.Apps), tc.wantApps)
+		}
+	}
+}

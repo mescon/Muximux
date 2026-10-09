@@ -2343,3 +2343,116 @@ func TestApplyRefreshBatch_LogsRefreshOnlyAfterSave(t *testing.T) {
 		})
 	}
 }
+
+func TestTick_NotFoundTransitions(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.42:8989", DockerKey: "label:sonarr-auto",
+		DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989", Enabled: true}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+	ctx := context.Background()
+	set = nil
+	p.tick(ctx)
+	first := svc.MissingSince("label:sonarr-auto")
+	if first.IsZero() {
+		t.Fatal("not marked missing")
+	}
+	p.tick(ctx)
+	p.tick(ctx)
+	if !svc.MissingSince("label:sonarr-auto").Equal(first) {
+		t.Fatal("missing record restamped: the WARN would repeat")
+	}
+	set = []ContainerSummary{labeledSonarr()}
+	p.tick(ctx)
+	if !svc.MissingSince("label:sonarr-auto").IsZero() || svc.LastSeen("label:sonarr-auto").IsZero() {
+		t.Fatal("recovery not recorded")
+	}
+	set = nil
+	p.tick(ctx)
+	if again := svc.MissingSince("label:sonarr-auto"); again.IsZero() || again.Before(first) {
+		t.Fatalf("second outage not recorded: %v", again)
+	}
+}
+
+func TestTick_ResolveFailedTransitions(t *testing.T) {
+	noPort := labeledSonarr()
+	noPort.Ports = nil
+	set := []ContainerSummary{noPort}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.42:8989", DockerKey: "label:sonarr-auto",
+		DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989", Enabled: true}}
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(dockerCfg), OnSave: func() error { return nil }})
+	ctx := context.Background()
+	p.tick(ctx)
+	firstErr := p.resolveFailed["label:sonarr-auto"]
+	if firstErr == "" {
+		t.Fatal("resolve failure not recorded")
+	}
+	p.tick(ctx)
+	p.tick(ctx)
+	if p.resolveFailed["label:sonarr-auto"] != firstErr || len(p.resolveFailed) != 1 {
+		t.Fatalf("resolveFailed = %v", p.resolveFailed)
+	}
+	set = []ContainerSummary{labeledSonarr()}
+	p.tick(ctx)
+	if _, ok := p.resolveFailed["label:sonarr-auto"]; ok {
+		t.Fatal("successful resolve must clear the record so the next failure logs again")
+	}
+}
+
+func TestTick_PrunesStateOfUntrackedKeys(t *testing.T) {
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.42:8989", DockerKey: "label:sonarr-auto",
+		DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989", Enabled: true}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+	svc.MarkMissing("stale-missing")
+	p.resolveFailed = map[string]string{"stale-failed": "boom"}
+	p.tick(context.Background())
+	if !svc.MissingSince("stale-missing").IsZero() || len(p.resolveFailed) != 0 {
+		t.Fatalf("state of untracked keys not pruned: %v", p.resolveFailed)
+	}
+	if svc.MissingSince("label:sonarr-auto").IsZero() {
+		t.Fatal("tracked missing key must survive the prune")
+	}
+}
+
+func TestTick_SiteNotFoundAndResolveFailedTransitions(t *testing.T) {
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip"}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+	ctx := context.Background()
+	p.tick(ctx)
+	if svc.MissingSince("label:sonarr-auto").IsZero() {
+		t.Fatal("site key not marked missing")
+	}
+	noPort := labeledSonarr()
+	noPort.Ports = nil
+	set = []ContainerSummary{noPort}
+	p.tick(ctx)
+	if p.resolveFailed["label:sonarr-auto"] == "" {
+		t.Fatal("site resolve failure not recorded")
+	}
+	set = []ContainerSummary{labeledSonarr()}
+	p.tick(ctx)
+	if len(p.resolveFailed) != 0 || svc.LastSeen("label:sonarr-auto").IsZero() {
+		t.Fatal("site recovery not recorded")
+	}
+}

@@ -70,6 +70,11 @@ type Service struct {
 	// and detach over time.
 	lastSeenAt sync.Map // map[string]time.Time
 
+	// missingSince records, per tracking key, when the poller first failed
+	// to find its container. It dedupes the "not found" WARN to one line
+	// per outage and is cleared on recovery, detach and prune.
+	missingSince sync.Map // map[string]time.Time
+
 	// dockerState is the poller-managed snapshot of every tracked
 	// app's container state. Replaced wholesale by the poller each
 	// tick; individual entries are updated by the lifecycle handlers
@@ -325,16 +330,64 @@ func (s *Service) RecordDivergence() {
 	s.recoveredAt = time.Time{}
 }
 
-// RecordSeen stamps a tracked key as last-resolved at now. Poller
-// calls this for every container it successfully looks up.
-func (s *Service) RecordSeen(key string) {
+// RecordSeen stamps a tracked key as last-resolved at now and clears its
+// missing record. It reports whether the key was missing (a recovery).
+func (s *Service) RecordSeen(key string) (recovered bool) {
 	s.lastSeenAt.Store(key, time.Now())
+	_, recovered = s.missingSince.LoadAndDelete(key)
+	return recovered
 }
 
-// ForgetTrackedKey removes the LastSeenAt entry for a detached key.
-// Called from the DELETE /track handler to keep the map bounded.
+// ForgetTrackedKey removes the LastSeenAt and missing entries for a
+// detached key. Called from the DELETE /track handler to keep the maps
+// bounded.
 func (s *Service) ForgetTrackedKey(key string) {
 	s.lastSeenAt.Delete(key)
+	s.missingSince.Delete(key)
+}
+
+// MarkMissing records the key as missing since now if it is not already.
+// It returns true only on the transition into missing.
+func (s *Service) MarkMissing(key string) bool {
+	_, loaded := s.missingSince.LoadOrStore(key, time.Now())
+	return !loaded
+}
+
+// MissingSince returns when the key was first found missing, or zero when
+// it is not missing.
+func (s *Service) MissingSince(key string) time.Time {
+	if v, ok := s.missingSince.Load(key); ok {
+		if t, ok := v.(time.Time); ok {
+			return t
+		}
+	}
+	return time.Time{}
+}
+
+// RenameTrackedKey moves the lastSeen and missing records of oldKey to
+// newKey; a record already present under newKey wins (it is newer).
+// Callers invoke it only after a successful save.
+func (s *Service) RenameTrackedKey(oldKey, newKey string) {
+	if oldKey == newKey {
+		return
+	}
+	if v, ok := s.lastSeenAt.LoadAndDelete(oldKey); ok {
+		s.lastSeenAt.LoadOrStore(newKey, v)
+	}
+	if v, ok := s.missingSince.LoadAndDelete(oldKey); ok {
+		s.missingSince.LoadOrStore(newKey, v)
+	}
+}
+
+// pruneMissing drops the missing record of every key not in keep, so the
+// map cannot outgrow the tracked set.
+func (s *Service) pruneMissing(keep map[string]bool) {
+	s.missingSince.Range(func(k, _ any) bool {
+		if key, ok := k.(string); ok && !keep[key] {
+			s.missingSince.Delete(key)
+		}
+		return true
+	})
 }
 
 // LastSeen returns the most recent time the given key was resolved,

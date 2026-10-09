@@ -73,6 +73,11 @@ type Poller struct {
 	// hold only keys present in it, so it never grows past the current
 	// container set. Only touched from tick().
 	skipWarned map[string]string
+	// resolveFailed records, per tracking key, the last logged resolve
+	// error text, so an unchanged failure is logged once instead of every
+	// tick. Cleared on a successful resolve and pruned to the tracked set.
+	// Only touched from tick().
+	resolveFailed map[string]string
 	// candidateInvalid is the last Validate error that rolled a
 	// reconcile back ("" when the last apply was valid). It dedupes the
 	// ERROR to one line per distinct error. Only touched under the
@@ -260,6 +265,58 @@ func (p *Poller) warnSkipOnce(sug *Suggestion, skip *AutoImportSkip) {
 		"reason", skip.Code, "detail", skip.Detail)
 }
 
+// noteResolve records the outcome of resolving one tracked key and logs
+// only on transitions: missing once per outage, a resolve failure once per
+// distinct error text, and recovery once. It returns true when the key
+// failed to resolve and the caller should skip it.
+func (p *Poller) noteResolve(svc *Service, key string, err error, kind, nameField, name string) bool {
+	if errors.Is(err, ErrContainerNotFound) {
+		if svc.MarkMissing(key) {
+			logging.Warn("Tracked docker container not found",
+				"source", "discovery", "kind", kind, nameField, name, "key", key)
+		}
+		return true
+	}
+	if err != nil {
+		if p.resolveFailed[key] != err.Error() {
+			if p.resolveFailed == nil {
+				p.resolveFailed = map[string]string{}
+			}
+			p.resolveFailed[key] = err.Error()
+			// Daemon disconnect, malformed key, no-port-on-container,
+			// URL-builder failure: surface the cause once per change.
+			logging.Warn("Tracked docker resolve failed",
+				"source", "discovery", "kind", kind, nameField, name, "key", key,
+				"error", err.Error())
+		}
+		return true
+	}
+	delete(p.resolveFailed, key)
+	if svc.RecordSeen(key) {
+		logging.Info("Tracked docker container found again",
+			"source", "discovery", "kind", kind, nameField, name, "key", key)
+	}
+	return false
+}
+
+// pruneTrackedState drops per-key resolve state of keys that are no longer
+// tracked, so the maps cannot grow without bound.
+func (p *Poller) pruneTrackedState(svc *Service, tracked *trackedSet) {
+	keep := make(map[string]bool, len(tracked.apps)+len(tracked.sites))
+	for i := range tracked.apps {
+		keep[tracked.apps[i].key] = true
+	}
+	for i := range tracked.sites {
+		keep[tracked.sites[i].key] = true
+	}
+	for k := range p.resolveFailed {
+		if !keep[k] {
+			delete(p.resolveFailed, k)
+		}
+	}
+	svc.pruneMissing(keep)
+}
+
 // gateSyncRemovals applies removal hysteresis to the sync-mode removal
 // candidates. It advances a per-key absence counter and returns only the
 // keys that have now been absent for syncRemovalGraceTicks consecutive
@@ -427,6 +484,9 @@ func (p *Poller) tick(ctx context.Context) {
 	if !enabled {
 		return
 	}
+	if p.deps.Service != nil {
+		p.pruneTrackedState(p.deps.Service, &tracked)
+	}
 	// Proceed when something is tracked OR auto-import is on. Auto-import
 	// must run before anything is tracked (the first boot of a declared
 	// container). Only bail when there is nothing to refresh AND no
@@ -499,21 +559,9 @@ func (p *Poller) tick(ctx context.Context) {
 			continue
 		}
 		target, err := p.resolveAppRefreshFrom(containers, t.key, t.strategy, hostIP)
-		if errors.Is(err, ErrContainerNotFound) {
-			logging.Warn("Tracked docker container not found",
-				"source", "discovery", "kind", "app", "name", t.name, "key", t.key)
+		if p.noteResolve(svc, t.key, err, "app", "name", t.name) {
 			continue
 		}
-		if err != nil {
-			// Daemon disconnect, malformed key, no-port-on-container,
-			// URL-builder failure - all silent before, all surfaced now.
-			// Operator sees the cause without correlating stale URLs.
-			logging.Warn("Tracked docker resolve failed",
-				"source", "discovery", "kind", "app", "name", t.name, "key", t.key,
-				"error", err.Error())
-			continue
-		}
-		svc.RecordSeen(t.key)
 		if target.Fixed {
 			if target.HealthManaged && target.HealthURL != t.currentHealth {
 				batch.appHealthChanges[t.key] = target.HealthURL
@@ -533,18 +581,9 @@ func (p *Poller) tick(ctx context.Context) {
 			continue
 		}
 		newURL, err := p.resolveURLFrom(containers, t.key, t.strategy, hostIP)
-		if errors.Is(err, ErrContainerNotFound) {
-			logging.Warn("Tracked docker container not found",
-				"source", "discovery", "kind", "gateway", "domain", t.domain, "key", t.key)
+		if p.noteResolve(svc, t.key, err, "gateway", "domain", t.domain) {
 			continue
 		}
-		if err != nil {
-			logging.Warn("Tracked docker resolve failed",
-				"source", "discovery", "kind", "gateway", "domain", t.domain, "key", t.key,
-				"error", err.Error())
-			continue
-		}
-		svc.RecordSeen(t.key)
 		if newURL != t.currentURL {
 			batch.siteURLChanges[t.domain] = newURL
 		}

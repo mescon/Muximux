@@ -379,3 +379,40 @@ func TestService_LifecycleOps_NilClient_ReturnError(t *testing.T) {
 		}
 	}
 }
+
+func TestService_MissingTransitions(t *testing.T) {
+	s := NewService(&config.DiscoveryDockerConfig{})
+	if !s.MarkMissing("k") || s.MarkMissing("k") || s.MissingSince("k").IsZero() {
+		t.Fatal("first MarkMissing must report the transition, the second must not")
+	}
+	if !s.RecordSeen("k") || !s.MissingSince("k").IsZero() || s.RecordSeen("k") {
+		t.Fatal("RecordSeen must clear and report recovery once")
+	}
+	s.MarkMissing("old")
+	s.RecordSeen("seen-old")
+	s.RenameTrackedKey("old", "new")
+	if !s.MissingSince("old").IsZero() || s.MissingSince("new").IsZero() {
+		t.Fatal("rename did not move the missing record")
+	}
+	s.RecordSeen("fresh")
+	freshAt := s.LastSeen("fresh")
+	s.RenameTrackedKey("seen-old", "fresh")
+	if !s.LastSeen("fresh").Equal(freshAt) || !s.LastSeen("seen-old").IsZero() {
+		t.Fatal("an existing record under the new key must win; the old key must be gone")
+	}
+	s.MarkMissing("gone")
+	s.ForgetTrackedKey("gone")
+	if !s.MissingSince("gone").IsZero() {
+		t.Fatal("ForgetTrackedKey must clear the missing record")
+	}
+}
+
+func TestService_PruneMissing(t *testing.T) {
+	s := NewService(&config.DiscoveryDockerConfig{})
+	s.MarkMissing("keep")
+	s.MarkMissing("drop")
+	s.pruneMissing(map[string]bool{"keep": true})
+	if s.MissingSince("keep").IsZero() || !s.MissingSince("drop").IsZero() {
+		t.Fatal("pruneMissing must drop only untracked keys")
+	}
+}
