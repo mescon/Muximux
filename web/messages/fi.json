@@ -287,6 +287,7 @@
   "theme_statusWarning": "Varoitus",
   "theme_statusError": "Virhe",
   "theme_statusInfo": "Tiedot",
+  "theme_bundledNameTaken": "Sisäänrakennettu teema käyttää jo tätä nimeä. Valitse toinen nimi.",
   "apps_heading": "Sovellukset ja ryhmät",
   "apps_addGroup": "Lisää ryhmä",
   "apps_addApp": "Lisää sovellus",

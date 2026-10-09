@@ -287,6 +287,7 @@
   "theme_statusWarning": "경고",
   "theme_statusError": "오류",
   "theme_statusInfo": "정보",
+  "theme_bundledNameTaken": "번들 테마가 이미 이 이름을 사용하고 있습니다. 다른 이름을 선택하세요.",
   "apps_heading": "앱 및 그룹",
   "apps_addGroup": "그룹 추가",
   "apps_addApp": "앱 추가",

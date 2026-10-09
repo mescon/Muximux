@@ -287,6 +287,7 @@
   "theme_statusWarning": "Įspėjimas",
   "theme_statusError": "Klaida",
   "theme_statusInfo": "Informacija",
+  "theme_bundledNameTaken": "Šį pavadinimą jau naudoja įtraukta tema. Pasirinkite kitą pavadinimą.",
   "apps_heading": "Programos ir grupės",
   "apps_addGroup": "Pridėti grupę",
   "apps_addApp": "Pridėti programą",

@@ -575,6 +575,13 @@ describe('themeStore', () => {
   });
 
   describe('saveCustomThemeToServer', () => {
+    it("returns 'conflict' when the name collides with a bundled theme (409)", async () => {
+      const { saveCustomThemeToServer } = await import('./themeStore');
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 409 });
+
+      expect(await saveCustomThemeToServer('Nord', 'dark', true, {})).toBe('conflict');
+    });
+
     it('returns false on API failure', async () => {
       const { saveCustomThemeToServer } = await import('./themeStore');
       mockFetch.mockResolvedValueOnce({ ok: false });
@@ -593,6 +600,17 @@ describe('themeStore', () => {
   });
 
   describe('deleteCustomThemeFromServer', () => {
+    it('sends X-Requested-With on the DELETE', async () => {
+      const { deleteCustomThemeFromServer } = await import('./themeStore');
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) });
+
+      await deleteCustomThemeFromServer('csrf-theme');
+      const [, opts] = mockFetch.mock.calls[0];
+      expect(opts.method).toBe('DELETE');
+      expect(opts.headers['X-Requested-With']).toBe('XMLHttpRequest');
+    });
+
     it('returns false on API failure', async () => {
       const { deleteCustomThemeFromServer } = await import('./themeStore');
       mockFetch.mockResolvedValueOnce({ ok: false });

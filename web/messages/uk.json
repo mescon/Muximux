@@ -287,6 +287,7 @@
   "theme_statusWarning": "Попередження",
   "theme_statusError": "Помилка",
   "theme_statusInfo": "Інформація",
+  "theme_bundledNameTaken": "Вбудована тема вже використовує цю назву. Виберіть іншу назву.",
   "apps_heading": "Застосунки та групи",
   "apps_addGroup": "Додати групу",
   "apps_addApp": "Додати застосунок",

@@ -287,6 +287,7 @@
   "theme_statusWarning": "Waarschuwing",
   "theme_statusError": "Fout",
   "theme_statusInfo": "Info",
+  "theme_bundledNameTaken": "Een meegeleverd thema gebruikt deze naam al. Kies een andere naam.",
   "apps_heading": "Apps & Groepen",
   "apps_addGroup": "Groep toevoegen",
   "apps_addApp": "App toevoegen",

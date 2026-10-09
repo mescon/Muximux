@@ -287,6 +287,7 @@
   "theme_statusWarning": "Предупреждение",
   "theme_statusError": "Ошибка",
   "theme_statusInfo": "Информация",
+  "theme_bundledNameTaken": "Встроенная тема уже использует это имя. Выберите другое имя.",
   "apps_heading": "Приложения и группы",
   "apps_addGroup": "Добавить группу",
   "apps_addApp": "Добавить приложение",

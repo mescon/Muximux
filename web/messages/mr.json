@@ -287,6 +287,7 @@
   "theme_statusWarning": "चेतावणी",
   "theme_statusError": "त्रुटी",
   "theme_statusInfo": "माहिती",
+  "theme_bundledNameTaken": "एक बंडल केलेली थीम हे नाव आधीच वापरत आहे. दुसरे नाव निवडा.",
   "apps_heading": "अॅप्स आणि गट",
   "apps_addGroup": "गट जोडा",
   "apps_addApp": "अॅप जोडा",

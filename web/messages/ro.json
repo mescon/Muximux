@@ -287,6 +287,7 @@
   "theme_statusWarning": "Warning",
   "theme_statusError": "Error",
   "theme_statusInfo": "Info",
+  "theme_bundledNameTaken": "O temă inclusă folosește deja acest nume. Alegeți alt nume.",
   "apps_heading": "Aplicații și grupuri",
   "apps_addGroup": "Adaugă grup",
   "apps_addApp": "Adaugă aplicație",

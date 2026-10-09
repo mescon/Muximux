@@ -287,6 +287,7 @@
   "theme_statusWarning": "Varování",
   "theme_statusError": "Chyba",
   "theme_statusInfo": "Informace",
+  "theme_bundledNameTaken": "Toto jméno už používá vestavěný motiv. Zvolte jiné jméno.",
   "apps_heading": "Aplikace a skupiny",
   "apps_addGroup": "Přidat skupinu",
   "apps_addApp": "Přidat aplikaci",

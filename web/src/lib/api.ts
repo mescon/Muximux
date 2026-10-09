@@ -275,6 +275,10 @@ export async function deleteApp(name: string): Promise<void> {
   }
 }
 
+export async function deleteTheme(id: string): Promise<void> {
+  return request<void>('DELETE', `/themes/${encodeURIComponent(id)}`);
+}
+
 // DockerActionResult mirrors handlers.dockerActionResult on the
 // backend. `error` is the short, operator-readable message from
 // mapDockerError; the full daemon error stays in the audit log.

@@ -10,6 +10,7 @@ import {
   createApp,
   updateApp,
   deleteApp,
+  deleteTheme,
   getGroup,
   createGroup,
   updateGroup,
@@ -310,6 +311,14 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('throws on non-OK response', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
       await expect(deleteApp('Missing')).rejects.toThrow('API error: 404');
+    });
+  });
+
+  describe('deleteTheme', () => {
+    it('sends DELETE with X-Requested-With', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+      await deleteTheme('my theme');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/themes/my%20theme', { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
   });
 

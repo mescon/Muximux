@@ -287,6 +287,7 @@
   "theme_statusWarning": "警告",
   "theme_statusError": "错误",
   "theme_statusInfo": "信息",
+  "theme_bundledNameTaken": "已有内置主题使用了此名称，请选择其他名称。",
   "apps_heading": "应用和分组",
   "apps_addGroup": "添加分组",
   "apps_addApp": "添加应用",

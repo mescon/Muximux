@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { untrack } from 'svelte';
+  import { untrack, onDestroy } from 'svelte';
   import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { toasts } from '$lib/toastStore';
   import * as m from '$lib/paraglide/messages.js';
@@ -49,6 +49,9 @@
     saveThemeName = '';
   }
 
+  // Drop any live-preview overrides if the tab goes away with the editor open
+  onDestroy(closeThemeEditor);
+
   function updateThemeVar(name: string, value: string) {
     themeEditorVars[name] = value;
     // Live preview
@@ -70,7 +73,7 @@
   async function handleSaveTheme() {
     if (!saveThemeName.trim()) return;
     isSavingTheme = true;
-    const success = await saveCustomThemeToServer(
+    const result = await saveCustomThemeToServer(
       saveThemeName.trim(),
       $resolvedTheme,
       $isDarkTheme,
@@ -79,7 +82,7 @@
       saveThemeAuthor.trim()
     );
     isSavingTheme = false;
-    if (success) {
+    if (result === true) {
       // Clear inline overrides — the saved CSS file takes over
       for (const name of Object.keys(themeEditorVars)) {
         document.documentElement.style.removeProperty(name);
@@ -93,6 +96,8 @@
       saveThemeDescription = '';
       saveThemeAuthor = '';
       toasts.success(m.toast_themeSaved());
+    } else if (result === 'conflict') {
+      toasts.error(m.theme_bundledNameTaken());
     } else {
       toasts.error(m.toast_failedSaveTheme());
     }

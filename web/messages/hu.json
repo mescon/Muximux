@@ -287,6 +287,7 @@
   "theme_statusWarning": "Figyelmeztetés",
   "theme_statusError": "Hiba",
   "theme_statusInfo": "Információ",
+  "theme_bundledNameTaken": "Egy beépített téma már használja ezt a nevet. Válasszon másik nevet.",
   "apps_heading": "Alkalmazások és csoportok",
   "apps_addGroup": "Csoport hozzáadása",
   "apps_addApp": "Alkalmazás hozzáadása",

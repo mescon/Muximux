@@ -287,6 +287,7 @@
   "theme_statusWarning": "Upozorenje",
   "theme_statusError": "Greška",
   "theme_statusInfo": "Informacija",
+  "theme_bundledNameTaken": "Ugrađena tema već koristi ovaj naziv. Odaberite drugi naziv.",
   "apps_heading": "Aplikacije i grupe",
   "apps_addGroup": "Dodaj grupu",
   "apps_addApp": "Dodaj aplikaciju",

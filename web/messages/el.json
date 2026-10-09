@@ -287,6 +287,7 @@
   "theme_statusWarning": "Προειδοποίηση",
   "theme_statusError": "Σφάλμα",
   "theme_statusInfo": "Πληροφορία",
+  "theme_bundledNameTaken": "Ένα ενσωματωμένο θέμα χρησιμοποιεί ήδη αυτό το όνομα. Επιλέξτε άλλο όνομα.",
   "apps_heading": "Εφαρμογές & Ομάδες",
   "apps_addGroup": "Προσθήκη ομάδας",
   "apps_addApp": "Προσθήκη εφαρμογής",

@@ -287,6 +287,7 @@
   "theme_statusWarning": "警告",
   "theme_statusError": "錯誤",
   "theme_statusInfo": "資訊",
+  "theme_bundledNameTaken": "已經有內置主題用咗呢個名，請揀第二個名。",
   "apps_heading": "應用程式同群組",
   "apps_addGroup": "新增群組",
   "apps_addApp": "新增應用程式",

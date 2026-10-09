@@ -287,6 +287,7 @@
   "theme_statusWarning": "Warning",
   "theme_statusError": "Error",
   "theme_statusInfo": "Info",
+  "theme_bundledNameTaken": "A bundled theme already uses this name. Choose another name.",
   "apps_heading": "Apps & Groups",
   "apps_addGroup": "Add Group",
   "apps_addApp": "Add App",

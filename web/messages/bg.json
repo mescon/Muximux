@@ -287,6 +287,7 @@
   "theme_statusWarning": "Warning",
   "theme_statusError": "Error",
   "theme_statusInfo": "Info",
+  "theme_bundledNameTaken": "Вградена тема вече използва това име. Изберете друго име.",
   "apps_heading": "Приложения и групи",
   "apps_addGroup": "Добави група",
   "apps_addApp": "Добави приложение",

@@ -287,6 +287,7 @@
   "theme_statusWarning": "Uyarı",
   "theme_statusError": "Hata",
   "theme_statusInfo": "Bilgi",
+  "theme_bundledNameTaken": "Paketle gelen bir tema bu adı zaten kullanıyor. Başka bir ad seçin.",
   "apps_heading": "Uygulamalar ve Gruplar",
   "apps_addGroup": "Grup Ekle",
   "apps_addApp": "Uygulama Ekle",

@@ -287,6 +287,7 @@
   "theme_statusWarning": "Brīdinājums",
   "theme_statusError": "Kļūda",
   "theme_statusInfo": "Informācija",
+  "theme_bundledNameTaken": "Šo nosaukumu jau izmanto iebūvēta tēma. Izvēlieties citu nosaukumu.",
   "apps_heading": "Lietotnes un grupas",
   "apps_addGroup": "Pievienot grupu",
   "apps_addApp": "Pievienot lietotni",

@@ -287,6 +287,7 @@
   "theme_statusWarning": "সতর্কতা",
   "theme_statusError": "ত্রুটি",
   "theme_statusInfo": "তথ্য",
+  "theme_bundledNameTaken": "একটি বান্ডেল করা থিম ইতিমধ্যে এই নামটি ব্যবহার করছে। অন্য একটি নাম বেছে নিন।",
   "apps_heading": "অ্যাপ ও গ্রুপ",
   "apps_addGroup": "গ্রুপ যোগ করুন",
   "apps_addApp": "অ্যাপ যোগ করুন",

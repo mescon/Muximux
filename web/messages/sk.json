@@ -287,6 +287,7 @@
   "theme_statusWarning": "Varovanie",
   "theme_statusError": "Chyba",
   "theme_statusInfo": "Informácia",
+  "theme_bundledNameTaken": "Tento názov už používa vstavaná téma. Zvoľte iný názov.",
   "apps_heading": "Aplikácie a skupiny",
   "apps_addGroup": "Pridať skupinu",
   "apps_addApp": "Pridať aplikáciu",

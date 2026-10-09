@@ -9,7 +9,7 @@
  */
 
 import { writable, derived, get } from 'svelte/store';
-import { getBase } from './api';
+import { getBase, deleteTheme } from './api';
 import { debug } from './debug';
 
 // Built-in themes
@@ -471,7 +471,7 @@ export async function saveCustomThemeToServer(
   variables: Record<string, string>,
   description?: string,
   author?: string
-): Promise<boolean> {
+): Promise<boolean | 'conflict'> {
   try {
     const response = await fetch(`${getBase()}/api/themes`, {
       method: 'POST',
@@ -479,6 +479,8 @@ export async function saveCustomThemeToServer(
       body: JSON.stringify({ name, baseTheme, isDark, variables, description, author })
     });
 
+    // 409: the name collides with a bundled theme
+    if (response.status === 409) return 'conflict';
     if (!response.ok) return false;
 
     await detectCustomThemes();
@@ -497,11 +499,7 @@ export async function saveCustomThemeToServer(
 // Delete a custom theme via API
 export async function deleteCustomThemeFromServer(themeId: string): Promise<boolean> {
   try {
-    const response = await fetch(`${getBase()}/api/themes/${themeId}`, {
-      method: 'DELETE'
-    });
-
-    if (!response.ok) return false;
+    await deleteTheme(themeId);
 
     const linkEl = document.getElementById(`theme-${themeId}`);
     if (linkEl) linkEl.remove();

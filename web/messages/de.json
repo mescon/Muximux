@@ -287,6 +287,7 @@
   "theme_statusWarning": "Warnung",
   "theme_statusError": "Fehler",
   "theme_statusInfo": "Info",
+  "theme_bundledNameTaken": "Ein mitgeliefertes Theme verwendet diesen Namen bereits. Wählen Sie einen anderen Namen.",
   "apps_heading": "Apps & Gruppen",
   "apps_addGroup": "Gruppe hinzufügen",
   "apps_addApp": "App hinzufügen",

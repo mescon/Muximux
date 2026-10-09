@@ -287,6 +287,7 @@
   "theme_statusWarning": "Hoiatus",
   "theme_statusError": "Viga",
   "theme_statusInfo": "Teave",
+  "theme_bundledNameTaken": "Selle nimega sisseehitatud teema on juba olemas. Valige teine nimi.",
   "apps_heading": "Rakendused ja grupid",
   "apps_addGroup": "Lisa grupp",
   "apps_addApp": "Lisa rakendus",

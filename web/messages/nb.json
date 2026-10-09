@@ -287,6 +287,7 @@
   "theme_statusWarning": "Advarsel",
   "theme_statusError": "Feil",
   "theme_statusInfo": "Info",
+  "theme_bundledNameTaken": "Et innebygd tema bruker allerede dette navnet. Velg et annet navn.",
   "apps_heading": "Apper og grupper",
   "apps_addGroup": "Legg til gruppe",
   "apps_addApp": "Legg til app",
