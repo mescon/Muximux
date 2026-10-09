@@ -578,3 +578,65 @@ describe('DiscoverModal confidence pills', () => {
     expect(screen.getByText('guessed').className).toMatch(/bg-bg-active text-text-secondary/);
   });
 });
+
+describe('DiscoverModal auto-import eligibility', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('shows a not-importable chip with the reason and keeps manual import for unlabeled rows', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [
+        makeSuggestion({ key: 'swarm:a', name: 'A', url: 'http://a:80', labeled: false, auto_import_skip: { code: 'unlabeled' } }),
+        makeSuggestion({ key: 'swarm:b', name: 'B', url: '', requires_input: true, labeled: true, auto_import_skip: { code: 'no_port' } }),
+        makeSuggestion({ key: 'swarm:c', name: 'C', url: 'http://c:80', labeled: true, auto_import_skip: { code: 'invalid', detail: 'bad name' } }),
+      ],
+      opted_out: 2,
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    expect(await screen.findByText('Not importable: No muximux.* labels')).toBeInTheDocument();
+    expect(screen.getByText('Not importable: No port: add muximux.app.port')).toBeInTheDocument();
+    expect(screen.getByText('Not importable: Invalid app (bad name)')).toBeInTheDocument();
+    expect(screen.getByText('2 containers opted out with muximux.app.enabled=false')).toBeInTheDocument();
+    const rows = screen.getAllByTestId('not-importable').map((chip) => chip.closest('[data-testid="discover-row"]') as HTMLElement);
+    const addBox = (row: HTMLElement) => within(row).getByLabelText('Add to menu') as HTMLInputElement;
+    expect(addBox(rows[0]).disabled).toBe(false);
+    expect(addBox(rows[1]).disabled).toBe(true);
+  });
+
+  it('renders the no_url and not_enabled reasons and nothing for an eligible row', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [
+        makeSuggestion({ key: 'k1', name: 'N1', auto_import_skip: { code: 'no_url', detail: 'container has no network IP' } }),
+        makeSuggestion({ key: 'k2', name: 'N2', auto_import_skip: { code: 'not_enabled' } }),
+        makeSuggestion({ key: 'k3', name: 'N3' }),
+        makeSuggestion({ key: 'k4', name: 'N4', auto_import_skip: { code: 'disabled' } }),
+      ],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    expect(await screen.findByText('Not importable: No URL could be built (container has no network IP)')).toBeInTheDocument();
+    expect(screen.getByText(/explicit opt-in is on/)).toBeInTheDocument();
+    expect(screen.getAllByTestId('not-importable')).toHaveLength(2);
+    expect(screen.queryByText(/opted out/)).not.toBeInTheDocument();
+  });
+
+  it('passes health_check from the suggestion to the import payload', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({ suggestions: [makeSuggestion({ health_check: true })] });
+    mockApi.importDockerSuggestions.mockResolvedValue({ success: true, items: [{ key: 'name:c1', status: 'created', app_name: 'C1' }] });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    await waitFor(() => expect(screen.getByDisplayValue('C1')).toBeInTheDocument());
+    await fireEvent.click(screen.getAllByRole('checkbox')[1]);
+    await fireEvent.click(screen.getByText(/Import 1 selected/i));
+    await waitFor(() => expect(mockApi.importDockerSuggestions).toHaveBeenCalled());
+    expect(mockApi.importDockerSuggestions.mock.calls[0][0].items[0].app.health_check).toBe(true);
+  });
+});
+
+describe('DiscoverModal skipReason fallback', () => {
+  it('shows no chip for an unknown skip code', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [makeSuggestion({ key: 'u1', name: 'U1', auto_import_skip: { code: 'future_code' as never } })],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    await screen.findByDisplayValue('U1');
+    expect(screen.queryByTestId('not-importable')).not.toBeInTheDocument();
+  });
+});

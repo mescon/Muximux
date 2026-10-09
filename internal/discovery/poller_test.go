@@ -1,10 +1,13 @@
 package discovery
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -480,7 +483,7 @@ func TestApplyRefreshBatch_AppOnlyChange_NoCaddyReload(t *testing.T) {
 		OnSave:   func() error { saveCalled++; return nil },
 	}}
 	batch := newRefreshBatch()
-	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+	batch.appURLChanges["label:alpha"] = "http://10.0.0.99:8080"
 
 	p.applyRefreshBatch(batch)
 
@@ -513,7 +516,7 @@ func TestApplyRefreshBatch_SaveFailureRollsBackInMemory(t *testing.T) {
 		OnSave:   func() error { return saveErr },
 	}}
 	batch := newRefreshBatch()
-	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+	batch.appURLChanges["label:alpha"] = "http://10.0.0.99:8080"
 
 	p.applyRefreshBatch(batch)
 
@@ -795,7 +798,7 @@ func TestApplyRefreshBatch_FiresOnConfigSavedForAppChanges(t *testing.T) {
 		OnConfigSaved: func() { fired++ },
 	}}
 	batch := newRefreshBatch()
-	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+	batch.appURLChanges["label:alpha"] = "http://10.0.0.99:8080"
 
 	p.applyRefreshBatch(batch)
 	if fired != 1 {
@@ -1679,6 +1682,9 @@ func TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates(t *testing.T) {
 	defer cleanup()
 
 	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	// A require_auth site is only valid with a session cookie domain;
+	// without it the container is skipped as invalid.
+	cfg.Server.SessionCookieDomain = "example.com"
 	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
 
 	var mu sync.RWMutex
@@ -1881,7 +1887,7 @@ func TestDedupeDesiredNames(t *testing.T) {
 		{App: config.AppConfig{Name: "Radarr", DockerKey: "label:c"}},
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},
 	}
-	out := dedupeDesiredNames(in, nil)
+	out, _ := dedupeDesiredNames(in, nil)
 	if len(out) != 2 {
 		t.Fatalf("want 2 unique names, got %d: %+v", len(out), out)
 	}
@@ -1912,7 +1918,7 @@ func TestDedupeDesiredNames_RespectsIncumbent(t *testing.T) {
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},  // incumbent, still present
 		{App: config.AppConfig{Name: "Grafana", DockerKey: "label:g"}}, // collides with a manual app
 	}
-	out := dedupeDesiredNames(in, current)
+	out, _ := dedupeDesiredNames(in, current)
 
 	byName := map[string]string{}
 	for _, e := range out {
@@ -2250,5 +2256,286 @@ func TestPoller_Tick_NonFixedHandSetHealthKept(t *testing.T) {
 	}
 	if a.HealthURL != "http://status.local/s" {
 		t.Errorf("hand-set HealthURL changed: %q", a.HealthURL)
+	}
+}
+
+func TestDedupeDesiredNames_BySlug(t *testing.T) { // F-10
+	current := []config.AppConfig{{Name: "Home Assistant", URL: "http://ha:8123", Enabled: true}}
+	desired := []Desired{
+		{App: config.AppConfig{Name: "Home-Assistant", DockerKey: "label:ha"}},
+		{App: config.AppConfig{Name: "sonarr", DockerKey: "label:s1"}},
+		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:s2"}},
+	}
+	got, _ := dedupeDesiredNames(desired, current)
+	if len(got) != 1 || got[0].App.DockerKey != "label:s1" {
+		t.Fatalf("got %+v", got)
+	}
+	// The config the survivors produce passes the slug validator.
+	apps := make([]config.AppConfig, len(current)+1)
+	copy(apps, current)
+	apps[len(current)] = got[0].App
+	apps[1].Enabled = true
+	if err := config.ValidateUniqueAppSlugs(apps); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNameKey(t *testing.T) {
+	if nameKey("Home Assistant") != nameKey("home-assistant") {
+		t.Fatal("slug forms differ")
+	}
+	if nameKey("  !!! ") != "!!!" {
+		t.Fatalf("empty slug must fall back to the trimmed lower-cased name, got %q", nameKey("  !!! "))
+	}
+}
+
+func TestApplyRefreshBatch_MatchesAppsByKey(t *testing.T) { // F-11
+	cfg := &config.Config{Apps: []config.AppConfig{
+		{Name: "Whoami", URL: "http://old-a", DockerKey: "label:a", DockerManagedURL: "http://old-a", Enabled: true},
+		{Name: "Whoami", URL: "http://old-b", DockerKey: "label:b", DockerManagedURL: "http://old-b", Enabled: false},
+		{Name: "Manual", URL: "http://manual"},
+	}}
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(&config.DiscoveryDockerConfig{}), OnSave: func() error { return nil }})
+	b := newRefreshBatch()
+	b.appURLChanges["label:b"] = "http://new-b"
+	b.appHealthChanges["label:a"] = "http://health-a"
+	b.appURLChanges[""] = "http://bogus"
+	p.applyRefreshBatch(b)
+	if cfg.Apps[0].URL != "http://old-a" || cfg.Apps[1].URL != "http://new-b" || cfg.Apps[1].DockerManagedURL != "http://new-b" {
+		t.Fatalf("apps = %+v", cfg.Apps)
+	}
+	if cfg.Apps[0].HealthURL != "http://health-a" || cfg.Apps[1].HealthURL != "" {
+		t.Fatalf("health = %+v", cfg.Apps)
+	}
+	if cfg.Apps[2].URL != "http://manual" {
+		t.Fatalf("untracked app rewritten: %+v", cfg.Apps[2])
+	}
+}
+
+func TestApplyRefreshBatch_LogsRefreshOnlyAfterSave(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		saveErr error
+		want    bool
+	}{{"save ok", nil, true}, {"save fails", errors.New("disk full"), false}} {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			prev := slog.Default()
+			slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+			defer slog.SetDefault(prev)
+			cfg := &config.Config{Apps: []config.AppConfig{
+				{Name: "alpha", URL: "http://old", DockerKey: "label:alpha", DockerManagedURL: "http://old"},
+			}}
+			var mu sync.RWMutex
+			p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(&config.DiscoveryDockerConfig{}), OnSave: func() error { return tc.saveErr }})
+			b := newRefreshBatch()
+			b.appURLChanges["label:alpha"] = "http://new"
+			b.appHealthChanges["label:alpha"] = "http://health"
+			p.applyRefreshBatch(b)
+			got := strings.Contains(buf.String(), "Docker app URL refreshed") && strings.Contains(buf.String(), "Docker health address refreshed")
+			if got != tc.want {
+				t.Fatalf("logged=%v want %v; log=%s", got, tc.want, buf.String())
+			}
+			if !tc.want && strings.Contains(buf.String(), "refreshed") {
+				t.Fatalf("refresh logged despite failed save: %s", buf.String())
+			}
+		})
+	}
+}
+
+func TestTick_NotFoundTransitions(t *testing.T) {
+	set := []ContainerSummary{labeledSonarr()}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.42:8989", DockerKey: "label:sonarr-auto",
+		DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989", Enabled: true}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+	ctx := context.Background()
+	set = nil
+	p.tick(ctx)
+	first := svc.MissingSince("label:sonarr-auto")
+	if first.IsZero() {
+		t.Fatal("not marked missing")
+	}
+	p.tick(ctx)
+	p.tick(ctx)
+	if !svc.MissingSince("label:sonarr-auto").Equal(first) {
+		t.Fatal("missing record restamped: the WARN would repeat")
+	}
+	set = []ContainerSummary{labeledSonarr()}
+	p.tick(ctx)
+	if !svc.MissingSince("label:sonarr-auto").IsZero() || svc.LastSeen("label:sonarr-auto").IsZero() {
+		t.Fatal("recovery not recorded")
+	}
+	set = nil
+	p.tick(ctx)
+	if again := svc.MissingSince("label:sonarr-auto"); again.IsZero() || again.Before(first) {
+		t.Fatalf("second outage not recorded: %v", again)
+	}
+}
+
+func TestTick_ResolveFailedTransitions(t *testing.T) {
+	noPort := labeledSonarr()
+	noPort.Ports = nil
+	set := []ContainerSummary{noPort}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.42:8989", DockerKey: "label:sonarr-auto",
+		DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989", Enabled: true}}
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(dockerCfg), OnSave: func() error { return nil }})
+	ctx := context.Background()
+	p.tick(ctx)
+	firstErr := p.resolveFailed["label:sonarr-auto"]
+	if firstErr == "" {
+		t.Fatal("resolve failure not recorded")
+	}
+	p.tick(ctx)
+	p.tick(ctx)
+	if p.resolveFailed["label:sonarr-auto"] != firstErr || len(p.resolveFailed) != 1 {
+		t.Fatalf("resolveFailed = %v", p.resolveFailed)
+	}
+	set = []ContainerSummary{labeledSonarr()}
+	p.tick(ctx)
+	if _, ok := p.resolveFailed["label:sonarr-auto"]; ok {
+		t.Fatal("successful resolve must clear the record so the next failure logs again")
+	}
+}
+
+func TestTick_PrunesStateOfUntrackedKeys(t *testing.T) {
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Sonarr", URL: "http://10.0.0.42:8989", DockerKey: "label:sonarr-auto",
+		DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip", DockerManagedURL: "http://10.0.0.42:8989", Enabled: true}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+	svc.MarkMissing("stale-missing")
+	p.resolveFailed = map[string]string{"stale-failed": "boom"}
+	p.tick(context.Background())
+	if !svc.MissingSince("stale-missing").IsZero() || len(p.resolveFailed) != 0 {
+		t.Fatalf("state of untracked keys not pruned: %v", p.resolveFailed)
+	}
+	if svc.MissingSince("label:sonarr-auto").IsZero() {
+		t.Fatal("tracked missing key must survive the prune")
+	}
+}
+
+func TestTick_SiteNotFoundAndResolveFailedTransitions(t *testing.T) {
+	set := []ContainerSummary{}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportOff)
+	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.42:8989",
+		DockerKey: "label:sonarr-auto", DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip"}}
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: svc, OnSave: func() error { return nil }})
+	ctx := context.Background()
+	p.tick(ctx)
+	if svc.MissingSince("label:sonarr-auto").IsZero() {
+		t.Fatal("site key not marked missing")
+	}
+	noPort := labeledSonarr()
+	noPort.Ports = nil
+	set = []ContainerSummary{noPort}
+	p.tick(ctx)
+	if p.resolveFailed["label:sonarr-auto"] == "" {
+		t.Fatal("site resolve failure not recorded")
+	}
+	set = []ContainerSummary{labeledSonarr()}
+	p.tick(ctx)
+	if len(p.resolveFailed) != 0 || svc.LastSeen("label:sonarr-auto").IsZero() {
+		t.Fatal("site recovery not recorded")
+	}
+}
+
+func TestNoteResolve_NotFoundClearsResolveFailed(t *testing.T) {
+	svc := NewService(&config.DiscoveryDockerConfig{})
+	p := &Poller{resolveFailed: map[string]string{"k": "boom"}}
+	if !p.noteResolve(svc, "k", ErrContainerNotFound, "app", "name", "n") {
+		t.Fatal("not found must skip the key")
+	}
+	if _, ok := p.resolveFailed["k"]; ok {
+		t.Fatal("not-found must clear the logged resolve error so it logs again")
+	}
+}
+
+func TestTick_RefreshUsesServicePort(t *testing.T) {
+	set := []ContainerSummary{whoamiTask("stack_whoami.1.aaaaaaaaaaaaaaaaaaaaaaaaa")} // no EXPOSE on the task
+	socket := swarmDaemon(t, &set, whoamiService, http.StatusOK)
+	dockerCfg := &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: config.StrategyHostPort, HostIP: "10.0.0.1"}
+	cfg := &config.Config{Discovery: config.DiscoveryConfig{Docker: *dockerCfg}}
+	cfg.Apps = []config.AppConfig{{Name: "Whoami", URL: "http://10.0.0.1:1", DockerKey: "swarm:stack_whoami", DockerEndpoint: "unix://" + socket,
+		DockerStrategy: string(config.StrategyHostPort), DockerManagedURL: "http://10.0.0.1:1", Enabled: true}}
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(dockerCfg), OnSave: func() error { return nil }})
+	p.tick(context.Background())
+	if cfg.Apps[0].URL != "http://10.0.0.1:18081" {
+		t.Fatalf("url = %q (resolveFailed=%v)", cfg.Apps[0].URL, p.resolveFailed)
+	}
+}
+
+// A gateway-routed app whose site is quarantined is still gateway-routed:
+// the refresh pass must not rewrite its https URL to the container URL.
+func TestTick_GatewayAppWithQuarantinedSite_URLNotClobbered(t *testing.T) {
+	containers := []ContainerSummary{{
+		ID:     "gw1",
+		Names:  []string{"/sonarr"},
+		Image:  "linuxserver/sonarr",
+		Labels: map[string]string{LabelDiscoveryID: "gw-sonarr"},
+		NetworkSettings: ContainerNetworks{
+			Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.99"}},
+		},
+		Ports: []ContainerPort{{PrivatePort: 8989, Type: "tcp"}},
+	}}
+	socket, cleanup := fakeDaemonForPoller(t, containers)
+	defer cleanup()
+
+	dockerCfg := &config.DiscoveryDockerConfig{
+		Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: "container_ip",
+	}
+	cfg := &config.Config{
+		Discovery: config.DiscoveryConfig{Docker: *dockerCfg},
+		Apps: []config.AppConfig{{
+			Name: "Sonarr", URL: "https://sonarr.example.com",
+			DockerKey: "label:gw-sonarr", DockerEndpoint: "unix://" + socket,
+			DockerStrategy: "container_ip", DockerManagedURL: "https://sonarr.example.com",
+			DockerAutoImported: true,
+		}},
+	}
+	cfg.QuarantineSite(&config.GatewaySite{
+		Domain: "sonarr.example.com", BackendURL: "http://10.0.0.1:8989", TLS: "auto", RequireAuth: true,
+		DockerKey: "label:gw-sonarr", DockerEndpoint: "unix://" + socket, DockerStrategy: "container_ip",
+	}, "require_auth needs an auth method")
+
+	var mu sync.RWMutex
+	svc := NewService(dockerCfg)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { return nil },
+	})
+
+	p.tick(context.Background())
+
+	if cfg.Apps[0].URL != "https://sonarr.example.com" || cfg.Apps[0].DockerManagedURL != "https://sonarr.example.com" {
+		t.Errorf("gateway app URL clobbered: url=%q managed=%q", cfg.Apps[0].URL, cfg.Apps[0].DockerManagedURL)
+	}
+}
+
+func TestRemovalReason(t *testing.T) {
+	skipped := map[string]string{"label:off": SkipDisabled, "label:np": SkipNoPort}
+	if got := removalReason(skipped, "label:off"); got != "disabled" {
+		t.Errorf("opted out: %q", got)
+	}
+	if got := removalReason(skipped, "label:gone"); got != "vanished" {
+		t.Errorf("gone: %q", got)
 	}
 }

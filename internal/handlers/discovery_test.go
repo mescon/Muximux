@@ -783,3 +783,68 @@ func TestGetDockerStateMap_FiltersByAppVisibility(t *testing.T) {
 		t.Errorf("admin should see both apps, got %d: %+v", len(admin), admin)
 	}
 }
+
+func TestGetDockerConfig_ReportsRequireExplicitEnableOverride(t *testing.T) {
+	h, cfg, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+	config.ApplyAutoImportEnv(cfg, func(string) (string, bool) { return "sync", true })
+	config.ApplyRequireExplicitEnableEnv(cfg, func(string) (string, bool) { return "true", true })
+	got := getDockerConfig(t, h)
+	if got.EnvOverrides["require_explicit_enable"] != config.EnvRequireExplicitEnable {
+		t.Errorf("env_overrides = %v, want require_explicit_enable -> %s", got.EnvOverrides, config.EnvRequireExplicitEnable)
+	}
+	if got.EnvOverrides["auto_import"] != config.EnvAutoImport {
+		t.Errorf("env_overrides = %v, want auto_import kept", got.EnvOverrides)
+	}
+	if !got.Config.RequireExplicitEnable {
+		t.Error("require_explicit_enable = false, want the live value true")
+	}
+}
+
+func TestUpdateDockerConfig_KeepsOverriddenRequireExplicitEnable(t *testing.T) {
+	h, cfg, configPath := newTestDiscoveryHandler(t, storedDockerConfig())
+	config.ApplyRequireExplicitEnableEnv(cfg, func(string) (string, bool) { return "true", true })
+	w := putDockerConfig(t, h, `{"require_explicit_enable": false, "network_filter": "host"}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if !cfg.Discovery.Docker.RequireExplicitEnable {
+		t.Error("live require_explicit_enable changed while overridden")
+	}
+	persisted, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if persisted.Discovery.Docker.RequireExplicitEnable {
+		t.Error("override leaked into the file")
+	}
+}
+
+func TestUpdateDockerConfig_SetsRequireExplicitEnable(t *testing.T) {
+	h, cfg, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+	w := putDockerConfig(t, h, `{"require_explicit_enable": true}`)
+	if w.Code != http.StatusOK || !cfg.Discovery.Docker.RequireExplicitEnable {
+		t.Fatalf("status = %d, live = %v", w.Code, cfg.Discovery.Docker.RequireExplicitEnable)
+	}
+}
+
+func TestScanDocker_HidesOptedOutRows(t *testing.T) {
+	media := discovery.ContainerNetworks{Networks: map[string]discovery.ContainerNetwork{"media": {IPAddress: "10.0.0.5"}}}
+	socket, cleanup := fakeDockerForLifecycle(t, []discovery.ContainerSummary{
+		{ID: "a", Names: []string{"/optout"}, Image: "acme/optout", NetworkSettings: media,
+			Labels: map[string]string{"muximux.app.enabled": "false", "muximux.app.port": "80"}},
+		{ID: "b", Names: []string{"/kept"}, Image: "acme/kept", NetworkSettings: media,
+			Labels: map[string]string{"muximux.app.port": "80"}},
+	})
+	defer cleanup()
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket,
+		NetworkStrategy: "container_ip", NetworkFilter: "media"})
+	w := httptest.NewRecorder()
+	h.ScanDocker(w, adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan"))
+	var got discovery.ScanResult
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Suggestions) != 1 || got.Suggestions[0].ContainerName != "kept" || got.OptedOut != 1 {
+		t.Fatalf("got %+v", got)
+	}
+}

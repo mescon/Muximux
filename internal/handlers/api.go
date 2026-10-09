@@ -451,6 +451,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	priorGroups := h.config.Groups
 	priorApps := h.config.Apps
 	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
+	priorQuarantine := h.config.QuarantineSnapshot()
 
 	mergeConfigUpdate(h.config, &update, baseApps)
 
@@ -467,13 +468,21 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
 		h.config.Server.GatewaySites = priorSites
+		h.config.RestoreQuarantine(priorQuarantine)
 	}
 
 	// Re-run the same invariant checks Load uses at startup, so a bad
 	// runtime mutation (e.g. a session_cookie_domain that doesn't cover
 	// a configured gateway site) is rejected with a 400 before it can
-	// be persisted and break the next boot.
-	if err := h.config.Validate(); err != nil {
+	// be persisted and break the next boot. Docker auto-imported apps
+	// that are invalid but untouched by this payload (left behind by an
+	// older poller) are quarantined instead of failing the whole save;
+	// an app the operator edited is still rejected.
+	err := h.config.Validate()
+	if err != nil && h.config.QuarantineUnchangedInvalidDockerApps(priorApps) > 0 {
+		err = h.config.Validate()
+	}
+	if err != nil {
 		rollback()
 		logging.From(r.Context()).Warn("SaveConfig rejected by validation",
 			"source", "audit",
@@ -483,7 +492,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save to file
-	if err := h.config.Save(h.configPath); err != nil {
+	if err = h.config.Save(h.configPath); err != nil {
 		rollback()
 		logging.Error("SaveConfig failed; in-memory state rolled back",
 			"source", "audit",
@@ -626,36 +635,37 @@ func cascadeAppRenames(cfg *config.Config, renamed map[string]string, deleted ma
 // clientAppToConfig converts a client app payload to a full AppConfig.
 func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 	return config.AppConfig{
-		Name:                c.Name,
-		URL:                 c.URL,
-		HealthURL:           c.HealthURL,
-		Icon:                c.Icon,
-		Color:               c.Color,
-		Group:               c.Group,
-		Order:               c.Order,
-		Enabled:             c.Enabled,
-		Default:             c.Default,
-		Pinned:              c.Pinned,
-		OpenMode:            c.OpenMode,
-		HTTPActionMethod:    c.HTTPActionMethod,
-		HTTPActionHeaders:   c.HTTPActionHeaders,
-		HTTPActionConfirm:   c.HTTPActionConfirm,
-		HTTPActionShowToast: c.HTTPActionShowToast,
-		Proxy:               c.Proxy,
-		HealthCheck:         c.HealthCheck,
-		ProxySkipTLSVerify:  c.ProxySkipTLSVerify,
-		ProxyHeaders:        c.ProxyHeaders,
-		Scale:               c.Scale,
-		Shortcut:            c.Shortcut,
-		MinRole:             c.MinRole,
-		AllowedGroups:       c.AllowedGroups,
-		ForceIconBackground: c.ForceIconBackground,
-		Permissions:         c.Permissions,
-		AllowNotifications:  c.AllowNotifications,
-		DockerKey:           c.DockerKey,
-		DockerEndpoint:      c.DockerEndpoint,
-		DockerStrategy:      c.DockerStrategy,
-		DockerManagedURL:    c.DockerManagedURL,
+		Name:                     c.Name,
+		URL:                      c.URL,
+		HealthURL:                c.HealthURL,
+		Icon:                     c.Icon,
+		Color:                    c.Color,
+		Group:                    c.Group,
+		Order:                    c.Order,
+		Enabled:                  c.Enabled,
+		Default:                  c.Default,
+		Pinned:                   c.Pinned,
+		OpenMode:                 c.OpenMode,
+		HTTPActionMethod:         c.HTTPActionMethod,
+		HTTPActionHeaders:        c.HTTPActionHeaders,
+		HTTPActionConfirm:        c.HTTPActionConfirm,
+		HTTPActionShowToast:      c.HTTPActionShowToast,
+		Proxy:                    c.Proxy,
+		HealthCheck:              c.HealthCheck,
+		ProxySkipTLSVerify:       c.ProxySkipTLSVerify,
+		ProxyHeaders:             c.ProxyHeaders,
+		Scale:                    c.Scale,
+		Shortcut:                 c.Shortcut,
+		MinRole:                  c.MinRole,
+		AllowedGroups:            c.AllowedGroups,
+		ForceIconBackground:      c.ForceIconBackground,
+		Permissions:              c.Permissions,
+		AllowNotifications:       c.AllowNotifications,
+		DockerKey:                c.DockerKey,
+		DockerEndpoint:           c.DockerEndpoint,
+		DockerStrategy:           c.DockerStrategy,
+		DockerManagedURL:         c.DockerManagedURL,
+		DockerManagedHealthCheck: c.DockerManagedHealthCheck,
 	}
 }
 
@@ -712,6 +722,7 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 	updated.DockerEndpoint = existing.DockerEndpoint
 	updated.DockerStrategy = existing.DockerStrategy
 	updated.DockerManagedURL = existing.DockerManagedURL
+	updated.DockerManagedHealthCheck = existing.DockerManagedHealthCheck
 	updated.DockerAutoImported = existing.DockerAutoImported
 	if existing.DockerKey == "" {
 		return ""
@@ -721,6 +732,7 @@ func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config
 		updated.DockerEndpoint = ""
 		updated.DockerStrategy = ""
 		updated.DockerManagedURL = ""
+		updated.DockerManagedHealthCheck = nil
 		updated.DockerAutoImported = false
 		return existing.DockerKey
 	}
@@ -841,6 +853,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	newApp := clientAppToConfig(&clientApp)
 	newApp.Order = len(h.config.Apps) // Add at end
 	newApp.DockerKey, newApp.DockerEndpoint, newApp.DockerStrategy, newApp.DockerManagedURL = "", "", "", ""
+	newApp.DockerManagedHealthCheck = nil
 
 	// Validate before persisting: Config.Save does not validate, so an
 	// invalid http_action would be written to disk and only rejected on
@@ -1226,6 +1239,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		out.DockerEndpoint = app.DockerEndpoint
 		out.DockerStrategy = app.DockerStrategy
 		out.DockerManagedURL = app.DockerManagedURL
+		out.DockerManagedHealthCheck = app.DockerManagedHealthCheck
 		// http_action headers can carry secrets (bearer tokens), so they
 		// go to admins only, mirroring ProxyHeaders above.
 		out.HTTPActionHeaders = app.HTTPActionHeaders
@@ -1317,6 +1331,9 @@ type ClientAppConfig struct {
 	// sync with URL after a successful tracking-preserving save.
 	// Frontends do not need to read or display it.
 	DockerManagedURL string `json:"docker_managed_url,omitempty"`
+	// DockerManagedHealthCheck is the muximux.app.health_check value the
+	// reconciler last applied. Server-owned, admin-only, never set from a payload.
+	DockerManagedHealthCheck *bool `json:"docker_managed_health_check,omitempty"`
 }
 
 // sanitizeApps removes sensitive fields and filters by role and group

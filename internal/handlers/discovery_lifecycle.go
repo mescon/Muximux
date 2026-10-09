@@ -34,7 +34,8 @@ type TrackedEntry struct {
 	Endpoint        string    `json:"endpoint"` // saved DockerEndpoint
 	URL             string    `json:"url"`      // current URL (BackendURL for gateway)
 	LastSeenAt      string    `json:"last_seen_at,omitempty"`
-	EndpointMatches bool      `json:"endpoint_matches"` // false -> show Re-link
+	MissingSince    string    `json:"missing_since,omitempty"` // first time the container was absent
+	EndpointMatches bool      `json:"endpoint_matches"`        // false -> show Re-link
 }
 
 // EntryKind names the two kinds of tracked entries the Currently-
@@ -51,6 +52,9 @@ const (
 type TrackedListResult struct {
 	Entries         []TrackedEntry `json:"entries"`
 	CurrentEndpoint string         `json:"current_endpoint"`
+	// Quarantined lists Docker-owned entries held out of the live config
+	// because they failed validation. Always an array, never null.
+	Quarantined []config.QuarantinedEntry `json:"quarantined"`
 }
 
 // ListTracked handles GET /api/discovery/docker/tracked. The response
@@ -66,12 +70,14 @@ func (h *DiscoveryHandler) ListTracked(w http.ResponseWriter, r *http.Request) {
 	currentEndpoint := h.config.Discovery.Docker.Endpoint
 	apps := append([]config.AppConfig(nil), h.config.Apps...)
 	sites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
+	quarantined := h.config.Quarantined()
 	h.configMu.RUnlock()
 
 	svc := h.Service()
 	out := TrackedListResult{
 		Entries:         []TrackedEntry{},
 		CurrentEndpoint: currentEndpoint,
+		Quarantined:     quarantined,
 	}
 	for i := range apps {
 		a := &apps[i]
@@ -86,6 +92,7 @@ func (h *DiscoveryHandler) ListTracked(w http.ResponseWriter, r *http.Request) {
 			Endpoint:        a.DockerEndpoint,
 			URL:             a.URL,
 			LastSeenAt:      formatLastSeen(svc, a.DockerKey),
+			MissingSince:    formatMissingSince(svc, a.DockerKey),
 			EndpointMatches: a.DockerEndpoint == currentEndpoint,
 		})
 	}
@@ -102,6 +109,7 @@ func (h *DiscoveryHandler) ListTracked(w http.ResponseWriter, r *http.Request) {
 			Endpoint:        s.DockerEndpoint,
 			URL:             s.BackendURL,
 			LastSeenAt:      formatLastSeen(svc, s.DockerKey),
+			MissingSince:    formatMissingSince(svc, s.DockerKey),
 			EndpointMatches: s.DockerEndpoint == currentEndpoint,
 		})
 	}
@@ -123,11 +131,27 @@ func formatLastSeen(svc *discovery.Service, key string) string {
 	return t.Format(time.RFC3339)
 }
 
+// formatMissingSince returns the RFC3339 time the key was first found
+// missing, or "" when it is not missing (or there is no service).
+func formatMissingSince(svc *discovery.Service, key string) string {
+	if svc == nil {
+		return ""
+	}
+	t := svc.MissingSince(key)
+	if t.IsZero() {
+		return ""
+	}
+	return t.Format(time.RFC3339)
+}
+
 // DetachTracked handles DELETE /api/discovery/docker/track/{key}.
-// Detaches every app and gateway site whose DockerKey == key AND
-// DockerEndpoint matches the current endpoint. Returns 404 when no
-// entries match (idempotency for scripted callers — see plan v4
-// "DELETE /track/{key} mutation spec").
+// Quarantined entries with the key are dropped whatever their endpoint.
+// Live apps and gateway sites are detached only when their DockerKey == key
+// AND their DockerEndpoint matches the current endpoint. With
+// ?scope=quarantined only the quarantined entries are dropped and live
+// entries sharing the key stay tracked (the Remove buttons on the
+// quarantined list use it). Returns 404 when nothing matches (idempotency
+// for scripted callers - see plan v4 "DELETE /track/{key} mutation spec").
 func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
@@ -142,8 +166,9 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 	// "/api/discovery/docker/track/" as a prefix, so a URL like
 	// /api/discovery/docker/track/relink/probe would hit this
 	// handler with key="relink/probe" and quietly attempt a
-	// detach against a key the operator never typed. Valid keys
-	// are "label:foo", "name:bar", "id:hex" - none contain a /.
+	// detach against a key the operator never typed. Tracking keys
+	// are "<source>:<value>" forms (see discovery.ParseTrackingKey for
+	// the set) and none contain a /.
 	if strings.Contains(rawKey, "/") {
 		respondError(w, r, http.StatusBadRequest, "tracking key must not contain /")
 		return
@@ -157,37 +182,30 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	scope := r.URL.Query().Get("scope")
+	if scope != "" && scope != detachScopeQuarantined {
+		respondError(w, r, http.StatusBadRequest, "scope must be empty or \"quarantined\"")
+		return
+	}
+	quarantinedOnly := scope == detachScopeQuarantined
+
 	h.configMu.Lock()
 	defer h.configMu.Unlock()
 
 	currentEndpoint := h.config.Discovery.Docker.Endpoint
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
+	priorQuarantine := h.config.QuarantineSnapshot()
 
 	var affectedApps []string
 	var affectedSites []string
-	for i := range h.config.Apps {
-		a := &h.config.Apps[i]
-		if a.DockerKey == key && a.DockerEndpoint == currentEndpoint {
-			a.DockerKey = ""
-			a.DockerEndpoint = ""
-			a.DockerStrategy = ""
-			a.DockerManagedURL = ""
-			a.DockerAutoImported = false
-			affectedApps = append(affectedApps, a.Name)
-		}
+	if !quarantinedOnly {
+		affectedApps, affectedSites = detachLiveEntries(h.config, key, currentEndpoint)
 	}
-	for i := range h.config.Server.GatewaySites {
-		s := &h.config.Server.GatewaySites[i]
-		if s.DockerKey == key && s.DockerEndpoint == currentEndpoint {
-			s.DockerKey = ""
-			s.DockerEndpoint = ""
-			s.DockerStrategy = ""
-			s.DockerManagedURL = ""
-			affectedSites = append(affectedSites, s.Domain)
-		}
-	}
-	if len(affectedApps)+len(affectedSites) == 0 {
+	// Quarantined entries are removed by key whatever the endpoint: they
+	// are never refreshed, and Remove must always work on them.
+	dropped := h.config.DropQuarantined(key)
+	if len(affectedApps)+len(affectedSites)+dropped == 0 {
 		respondError(w, r, http.StatusNotFound, "no tracked entries match key")
 		return
 	}
@@ -197,6 +215,7 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 		// the same state Caddy / disk are still serving.
 		h.config.Apps = priorApps
 		h.config.Server.GatewaySites = priorSites
+		h.config.RestoreQuarantine(priorQuarantine)
 		logging.Error("Detach save failed; in-memory rolled back",
 			"source", "audit",
 			"key", key,
@@ -208,7 +227,9 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 	// Drop the LastSeenAt entry so the map stays bounded as operators
 	// detach over time. Done BEFORE the audit so a scripted caller
 	// observing the map sees the cleanup before the log line.
-	if svc := h.Service(); svc != nil {
+	// A live entry still holding the key (quarantined-only removal) keeps
+	// its last-seen and missing state.
+	if svc := h.Service(); svc != nil && !liveEntryHoldsKey(h.config, key) {
 		svc.ForgetTrackedKey(key)
 	}
 
@@ -231,7 +252,56 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 			"kind", "gateway", "domain", domain,
 			"previous_key", key, "previous_endpoint", currentEndpoint)
 	}
+	if dropped > 0 {
+		logging.Audit("Quarantined Docker entries removed", "key", key, "count", dropped)
+	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// detachScopeQuarantined limits DELETE /track/{key} to quarantined entries.
+const detachScopeQuarantined = "quarantined"
+
+// detachLiveEntries clears the tracking fields of every live app and gateway
+// site with key on endpoint, and returns the names and domains it detached.
+func detachLiveEntries(cfg *config.Config, key, endpoint string) (apps, sites []string) {
+	for i := range cfg.Apps {
+		a := &cfg.Apps[i]
+		if a.DockerKey == key && a.DockerEndpoint == endpoint {
+			a.DockerKey = ""
+			a.DockerEndpoint = ""
+			a.DockerStrategy = ""
+			a.DockerManagedURL = ""
+			a.DockerManagedHealthCheck = nil
+			a.DockerAutoImported = false
+			apps = append(apps, a.Name)
+		}
+	}
+	for i := range cfg.Server.GatewaySites {
+		s := &cfg.Server.GatewaySites[i]
+		if s.DockerKey == key && s.DockerEndpoint == endpoint {
+			s.DockerKey = ""
+			s.DockerEndpoint = ""
+			s.DockerStrategy = ""
+			s.DockerManagedURL = ""
+			sites = append(sites, s.Domain)
+		}
+	}
+	return apps, sites
+}
+
+// liveEntryHoldsKey reports whether a live app or gateway site still tracks key.
+func liveEntryHoldsKey(cfg *config.Config, key string) bool {
+	for i := range cfg.Apps {
+		if cfg.Apps[i].DockerKey == key {
+			return true
+		}
+	}
+	for i := range cfg.Server.GatewaySites {
+		if cfg.Server.GatewaySites[i].DockerKey == key {
+			return true
+		}
+	}
+	return false
 }
 
 // RelinkProbeRequest is the body of POST /relink/probe.

@@ -165,3 +165,15 @@ func TestResolveHealth(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildURL_ContainerDNSUsesSwarmServiceName(t *testing.T) {
+	c := ContainerSummary{Names: []string{"/authentik_server.1.iigxo"}, Labels: map[string]string{LabelSwarmServiceName: "authentik_server"}}
+	u, err := buildURLForSuggestion("container_dns", &c, 9000, "http", "")
+	if err != nil || u != "http://authentik_server:9000" {
+		t.Fatalf("got %q %v", u, err)
+	}
+	plain := ContainerSummary{Names: []string{"/sonarr"}}
+	if u, _ := buildURLForSuggestion("container_dns", &plain, 8989, "http", ""); u != "http://sonarr:8989" {
+		t.Fatalf("got %q", u)
+	}
+}

@@ -3,6 +3,8 @@ package discovery
 import (
 	"strings"
 	"testing"
+
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 func sonarrContainer() ContainerSummary {
@@ -435,5 +437,79 @@ func TestApplyFixedURL_KeepsCatalogHealth(t *testing.T) {
 	applyFixedURL(&s, &AppLabels{URL: "https://x.example.com"})
 	if s.HealthURL != "http://10.0.0.5:8989/ping" || s.URL != "https://x.example.com" {
 		t.Errorf("URL=%q health=%q", s.URL, s.HealthURL)
+	}
+}
+
+func TestAutoImportSkipReason(t *testing.T) {
+	f, tr := false, true
+	cases := []struct {
+		name     string
+		s        Suggestion
+		explicit bool
+		want     string // "" = eligible
+	}{
+		{"labelled with url", Suggestion{Labeled: true, URL: "http://a:1"}, false, ""},
+		{"disabled wins", Suggestion{Labeled: true, LabelEnabled: &f, URL: "http://a:1"}, false, SkipDisabled},
+		{"unlabeled", Suggestion{URL: "http://a:1"}, false, SkipUnlabeled},
+		{"explicit without enabled", Suggestion{Labeled: true, URL: "http://a:1"}, true, SkipNotEnabled},
+		{"explicit with enabled", Suggestion{Labeled: true, LabelEnabled: &tr, URL: "http://a:1"}, true, ""},
+		{"no port", Suggestion{Labeled: true, RequiresInput: true, Notes: []string{noteNoPort}}, false, SkipNoPort},
+		{"url build failed", Suggestion{Labeled: true, RequiresInput: true, Notes: []string{noteCannotBuildURL + "container has no network IP"}}, false, SkipNoURL},
+		{"gateway without backend", Suggestion{Labeled: true, URL: "https://x.example.com", GatewayRequested: true, SuggestedDomain: "x.example.com"}, false, SkipNoURL},
+	}
+	for i := range cases {
+		tc := &cases[i] // rangeValCopy: the case embeds a Suggestion
+		t.Run(tc.name, func(t *testing.T) {
+			got := autoImportSkipReason(&tc.s, tc.explicit)
+			code := ""
+			if got != nil {
+				code = got.Code
+			}
+			if code != tc.want {
+				t.Fatalf("code = %q, want %q (%+v)", code, tc.want, got)
+			}
+			if tc.name == "url build failed" && !strings.Contains(got.Detail, "no network IP") {
+				t.Fatalf("detail = %q", got.Detail)
+			}
+		})
+	}
+}
+
+func TestSuggestForContainer_LabeledAndEnabled(t *testing.T) {
+	c := ContainerSummary{ID: "1", Names: []string{"/x"}, Image: "foo/bar", Labels: map[string]string{"muximux.app.enabled": "false", "muximux.app.port": "80"}}
+	s := suggestForContainer(&c, config.StrategyHostPort, "", "")
+	if !s.Labeled || s.LabelEnabled == nil || *s.LabelEnabled {
+		t.Fatalf("labeled=%v enabled=%v", s.Labeled, s.LabelEnabled)
+	}
+	plain := ContainerSummary{ID: "2", Names: []string{"/y"}, Image: "foo/bar", Labels: map[string]string{"com.docker.compose.project": "p"}}
+	if s := suggestForContainer(&plain, config.StrategyHostPort, "", ""); s.Labeled || s.LabelEnabled != nil {
+		t.Fatalf("plain container reported as labeled: %+v", s)
+	}
+	unknownOnly := ContainerSummary{ID: "3", Names: []string{"/z"}, Image: "foo/bar", Labels: map[string]string{"muximux.app.typo": "1"}}
+	if s := suggestForContainer(&unknownOnly, config.StrategyHostPort, "", ""); !s.Labeled {
+		t.Fatal("an unknown muximux.* label still counts as labelled")
+	}
+}
+
+// A Swarm task container is named "<service>.<slot>.<task id>". The
+// fallback name and the default gateway subdomain come from the
+// service name, so a hand import does not carry the task ID.
+func TestSuggest_SwarmTaskUsesServiceNameForFallbacks(t *testing.T) {
+	c := ContainerSummary{
+		ID:     strings.Repeat("c", 64),
+		Names:  []string{"/web_plain.1.j0nifhp8r8ww9ojqldr6ghlt7"},
+		Image:  "private.io/plain:1.0",
+		Labels: map[string]string{LabelSwarmServiceName: "web_plain"},
+		Ports:  []ContainerPort{{PrivatePort: 8080, Type: "tcp"}},
+	}
+	s := suggestForContainer(&c, "container_dns", "", "example.com")
+	if s.Name != "Web_plain" {
+		t.Errorf("Name = %q, want Web_plain", s.Name)
+	}
+	if s.SuggestedDomain != "web-plain.example.com" {
+		t.Errorf("SuggestedDomain = %q, want it derived from the service name", s.SuggestedDomain)
+	}
+	if s.ContainerName != "web_plain.1.j0nifhp8r8ww9ojqldr6ghlt7" {
+		t.Errorf("ContainerName = %q, want the task container name", s.ContainerName)
 	}
 }

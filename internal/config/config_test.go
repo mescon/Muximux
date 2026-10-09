@@ -2452,3 +2452,84 @@ func TestParse_LegacyGateway(t *testing.T) {
 		t.Errorf("malformed input: err = %v, want a decode error", err)
 	}
 }
+
+func TestLoad_AutoDetachClearsDockerManagedHealthCheck(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte(`
+apps:
+  - name: Emby
+    url: http://edited:8096
+    enabled: true
+    health_check: true
+    docker_key: "label:emby"
+    docker_managed_url: http://emby:8096
+    docker_managed_health_check: true
+    docker_auto: true
+`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := cfg.Apps[0]
+	if a.DockerKey != "" || a.DockerManagedHealthCheck != nil || a.HealthCheck == nil || !*a.HealthCheck {
+		t.Fatalf("hand-edited app: %+v (marker must clear, the health check value must stay)", a)
+	}
+}
+
+func TestDetachIfHandEdited_UntrackedDropsHealthCheckMarker(t *testing.T) {
+	tr := true
+	b := AppConfig{Name: "B", URL: "http://b", DockerManagedHealthCheck: &tr, HealthCheck: &tr}
+	detachIfHandEdited(&b)
+	if b.DockerManagedHealthCheck != nil {
+		t.Fatalf("untracked app kept marker: %+v", b)
+	}
+}
+
+//nolint:gosec // fake credentials, the test asserts they never reach a reason
+func TestValidateApp_ReasonsOmitURLCredentials(t *testing.T) {
+	cases := []AppConfig{
+		{Name: "a", URL: "ftp://user:secret@host/x"},
+		{Name: "b", URL: "http://user:secret@:80/"},
+		{Name: "c", URL: "http://user:secret@host/%zz"},
+		{Name: "d", URL: "ftp://user:secret@host/x", OpenMode: "http_action"},
+		{Name: "e", URL: "//user:secret@host/x"},
+	}
+	for i := range cases {
+		err := ValidateApp(&cases[i])
+		if err == nil {
+			t.Fatalf("case %d: expected an error", i)
+		}
+		if strings.Contains(err.Error(), "secret") {
+			t.Fatalf("case %d: reason leaks credentials: %v", i, err)
+		}
+	}
+	if got := redactURL("http://u:p@h/%zz"); got != "http://h/%zz" {
+		t.Fatalf("unparseable must still lose userinfo, got %q", got)
+	}
+}
+
+//nolint:gosec // fake credentials, the test asserts they never reach a reason
+func TestValidateGatewaySite_ReasonsOmitURLCredentials(t *testing.T) {
+	srv := &ServerConfig{Listen: ":8080"}
+	cases := []string{
+		"ftp://user:secret@host",
+		"http://user:secret@host/%zz",
+		"http://user:secret@host/path",
+		"http://user:secret@host?q=1",
+		"http://user:secret@host#f",
+		"http://user:secret@0.0.0.0:80",
+		"http://user:secret@169.254.1.1:80",
+		"http://user:secret@127.0.0.1:8080",
+	}
+	for _, backend := range cases {
+		err := validateGatewaySite(&GatewaySite{Domain: "a.example.com", BackendURL: backend, TLS: "auto"}, srv)
+		if err == nil {
+			t.Fatalf("%s: expected an error", backend)
+		}
+		if strings.Contains(err.Error(), "secret") {
+			t.Fatalf("%s: reason leaks credentials: %v", backend, err)
+		}
+	}
+}

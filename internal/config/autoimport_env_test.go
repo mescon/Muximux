@@ -33,3 +33,7 @@ func TestApplyAutoImportEnv(t *testing.T) {
 	// nil cfg: guarded, must not panic
 	ApplyAutoImportEnv(nil, func(string) (string, bool) { return "sync", true })
 }
+
+func TestApplyRequireExplicitEnableEnv_NilConfig(t *testing.T) {
+	ApplyRequireExplicitEnableEnv(nil, func(string) (string, bool) { return "true", true })
+}

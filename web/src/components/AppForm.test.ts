@@ -487,4 +487,23 @@ describe('AppForm', () => {
       expect(app.http_action_method).toBe('GET');
     });
   });
+
+  describe('docker-managed health check', () => {
+    it('locks the health check toggle when the label manages it', () => {
+      render(AppForm, { props: { app: makeApp({ docker_key: 'swarm:emby', docker_managed_health_check: true, health_check: true }), mode: 'edit', groups: defaultGroups, allApps: [] } });
+      expect((screen.getByRole('checkbox', { name: /Health check/ }) as HTMLInputElement).disabled).toBe(true);
+      expect(screen.getByText('Docker-managed: set by label muximux.app.health_check')).toBeInTheDocument();
+    });
+    it('locks the toggle off when the label is false', () => {
+      render(AppForm, { props: { app: makeApp({ docker_key: 'swarm:emby', docker_managed_health_check: false }), mode: 'edit', groups: defaultGroups, allApps: [] } });
+      const box = screen.getByRole('checkbox', { name: /Health check/ }) as HTMLInputElement;
+      expect(box.disabled).toBe(true);
+      expect(box.checked).toBe(false);
+    });
+    it('keeps the toggle editable on an auto-imported app without the label', () => {
+      render(AppForm, { props: { app: makeApp({ docker_key: 'swarm:emby' }), mode: 'edit', groups: defaultGroups, allApps: [] } });
+      expect((screen.getByRole('checkbox', { name: /Health check/ }) as HTMLInputElement).disabled).toBe(false);
+      expect(screen.queryByText(/Docker-managed: set by label/)).not.toBeInTheDocument();
+    });
+  });
 });

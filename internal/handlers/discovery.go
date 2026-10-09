@@ -227,6 +227,12 @@ func (h *DiscoveryHandler) GetDockerConfig(w http.ResponseWriter, r *http.Reques
 	if src, ok := h.config.EnvOverrides()[string(config.OverrideAutoImport)]; ok {
 		resp.EnvOverrides = map[string]string{"auto_import": src}
 	}
+	if src, ok := h.config.EnvOverrides()[string(config.OverrideRequireExplicitEnable)]; ok {
+		if resp.EnvOverrides == nil {
+			resp.EnvOverrides = map[string]string{}
+		}
+		resp.EnvOverrides["require_explicit_enable"] = src
+	}
 	h.configMu.RUnlock()
 	sendJSON(w, http.StatusOK, resp)
 }
@@ -309,6 +315,9 @@ func (h *DiscoveryHandler) mergeDockerConfigLocked(body []byte) (config.Discover
 	if h.config.IsOverridden(config.OverrideAutoImport) {
 		newCfg.AutoImport = h.config.Discovery.Docker.AutoImport
 	}
+	if h.config.IsOverridden(config.OverrideRequireExplicitEnable) {
+		newCfg.RequireExplicitEnable = h.config.Discovery.Docker.RequireExplicitEnable
+	}
 	for i := range newCfg.LifecycleAllowedGroups {
 		newCfg.LifecycleAllowedGroups[i] = strings.TrimSpace(newCfg.LifecycleAllowedGroups[i])
 	}
@@ -358,7 +367,18 @@ func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
 	// the connection until net/http's idle timeout.
 	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
-	sendJSON(w, http.StatusOK, svc.Scan(ctx, dashboardDomain))
+	res := svc.Scan(ctx, dashboardDomain)
+	// Containers that opted out (muximux.app.enabled=false) are counted in
+	// OptedOut but not listed.
+	kept := make([]discovery.Suggestion, 0, len(res.Suggestions))
+	for i := range res.Suggestions {
+		if sk := res.Suggestions[i].AutoImportSkip; sk != nil && sk.Code == discovery.SkipDisabled {
+			continue
+		}
+		kept = append(kept, res.Suggestions[i])
+	}
+	res.Suggestions = kept
+	sendJSON(w, http.StatusOK, res)
 }
 
 // TestDockerConfig handles POST /api/discovery/docker/test. The body

@@ -361,3 +361,43 @@ func TestParseAppLabels_GatewaySkipTLSVerifyIsKnown(t *testing.T) {
 		}
 	}
 }
+
+func TestParseAppLabels_HealthCheck(t *testing.T) {
+	l := ParseAppLabels(map[string]string{LabelAppHealthCheck: "true"})
+	if l.HealthCheck == nil || !*l.HealthCheck {
+		t.Fatalf("got %+v", l.HealthCheck)
+	}
+	if l := ParseAppLabels(map[string]string{LabelAppHealthCheck: "no"}); l.HealthCheck == nil || *l.HealthCheck {
+		t.Fatalf("got %+v", l.HealthCheck)
+	}
+	if l := ParseAppLabels(map[string]string{}); l.HealthCheck != nil {
+		t.Fatal("unset must stay nil")
+	}
+}
+
+func TestKeyForContainer_SwarmAndComposeBeforeName(t *testing.T) {
+	swarm := ContainerSummary{ID: "1", Names: []string{"/bindery_web.1.71e9k1i0wfiyk5sbbjku668er"}, Labels: map[string]string{LabelSwarmServiceName: "bindery_web", LabelSwarmServiceID: "x"}}
+	if k, st := KeyForContainer(&swarm); k != "swarm:bindery_web" || st != StabilityStable {
+		t.Fatalf("got %s %s", k, st)
+	}
+	compose := ContainerSummary{ID: "2", Names: []string{"/home-sonarr-1"}, Labels: map[string]string{LabelComposeProject: "home", LabelComposeService: "sonarr"}}
+	if k, st := KeyForContainer(&compose); k != "compose:home:sonarr" || st != StabilityStable {
+		t.Fatalf("got %s %s", k, st)
+	}
+	if strings.Contains("compose:home:sonarr", "/") {
+		t.Fatal("tracking keys must not contain /")
+	}
+	labelled := swarm
+	labelled.Labels = map[string]string{LabelSwarmServiceName: "bindery_web", LabelDiscoveryID: "bindery"}
+	if k, _ := KeyForContainer(&labelled); k != "label:bindery" {
+		t.Fatalf("discovery.id must win: %s", k)
+	}
+	plain := ContainerSummary{ID: "3", Names: []string{"/sonarr"}}
+	if k, _ := KeyForContainer(&plain); k != "name:sonarr" {
+		t.Fatalf("got %s", k)
+	}
+	half := ContainerSummary{ID: "4", Names: []string{"/x"}, Labels: map[string]string{LabelComposeProject: "home"}}
+	if k, _ := KeyForContainer(&half); k != "name:x" {
+		t.Fatalf("a project without a service is not a compose key: %s", k)
+	}
+}

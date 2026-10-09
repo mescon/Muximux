@@ -48,6 +48,7 @@
   let scanError = $state<string | null>(null);
   let scanBlocked = $state<string | null>(null);
   let rows = $state<RowState[]>([]);
+  let optedOut = $state(0);
 
   // Re-scan when the modal opens; reset state every time so the
   // operator gets fresh suggestions and can't accidentally import
@@ -61,6 +62,7 @@
     scanError = null;
     scanBlocked = null;
     rows = [];
+    optedOut = 0;
     try {
       const r = await scanDockerContainers();
       if (r.scan_blocked) {
@@ -71,6 +73,7 @@
         scanError = r.error;
         return;
       }
+      optedOut = r.opted_out ?? 0;
       rows = (r.suggestions ?? []).map((s) => ({
         s,
         selected: false,
@@ -83,7 +86,7 @@
         routing: 'direct' as const,
       }));
     } catch (e) {
-      scanError = errorText(e, 'Scan failed');
+      scanError = errorText(e, m.discovery_scanFailed());
     } finally {
       scanning = false;
     }
@@ -97,6 +100,21 @@
   function toggleAll() {
     const v = !allSelected;
     rows = rows.map(r => ({ ...r, selected: v }));
+  }
+
+  // Translate the server's auto-import skip code into a short reason.
+  // 'disabled' rows are filtered by the server, so there is nothing to show.
+  function skipReason(s: DiscoverySuggestion): string | null {
+    const k = s.auto_import_skip;
+    if (!k) return null;
+    switch (k.code) {
+      case 'no_port': return m.discovery_skipNoPort();
+      case 'no_url': return m.discovery_skipNoUrl({ detail: k.detail ?? '' });
+      case 'unlabeled': return m.discovery_skipUnlabeled();
+      case 'not_enabled': return m.discovery_skipNotEnabled();
+      case 'invalid': return m.discovery_skipInvalid({ detail: k.detail ?? '' });
+      default: return null;
+    }
   }
 
   function stabilityHint(s: DiscoverySuggestion): { tone: 'gray' | 'amber' | 'red'; tip: string } {
@@ -182,6 +200,7 @@
             if (typeof r.s.allow_notifications === 'boolean') app.allow_notifications = r.s.allow_notifications;
             if (typeof r.s.default === 'boolean') app.default = r.s.default;
             if (typeof r.s.shortcut === 'number') app.shortcut = r.s.shortcut;
+            if (typeof r.s.health_check === 'boolean') app.health_check = r.s.health_check || undefined;
             item.app = app;
             // Routing only matters when an app is being created;
             // omit when the row is gateway-only to keep the wire
@@ -344,43 +363,46 @@
     <div class="bg-bg-base border border-border rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
       <header class="px-5 py-4 border-b border-border flex items-center justify-between">
         <div>
-          <h2 id="discover-modal-title" class="text-lg font-semibold text-text-primary">Discover from Docker</h2>
+          <h2 id="discover-modal-title" class="text-lg font-semibold text-text-primary">{m.discovery_modalTitle()}</h2>
           <p class="text-xs text-text-muted mt-0.5">
             {#if mode === 'apps'}
-              Each container becomes an app in your menu by default. Toggle "Gateway" to also expose it on a subdomain.
+              {m.discovery_modalIntroApps()}
             {:else}
-              Each container becomes a gateway-only subdomain by default. Toggle "App" to also add it to the dashboard menu.
+              {m.discovery_modalIntroGateway()}
             {/if}
           </p>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick={onclose} type="button">Close</button>
+        <button class="btn btn-secondary btn-sm" onclick={onclose} type="button">{m.common_close()}</button>
       </header>
 
       <div class="flex-1 overflow-y-auto p-5">
         {#if scanning}
-          <div class="text-text-muted text-sm">Scanning Docker daemon…</div>
+          <div class="text-text-muted text-sm">{m.discovery_scanning()}</div>
         {:else if scanBlocked}
           <div class="notice notice-warning">
-            <div class="font-medium mb-1">Scan blocked</div>
+            <div class="font-medium mb-1">{m.discovery_scanBlocked()}</div>
             <div>{scanBlocked}</div>
           </div>
         {:else if scanError}
           <div role="alert" class="notice notice-danger">
-            <div class="font-medium mb-1">Scan failed</div>
+            <div class="font-medium mb-1">{m.discovery_scanFailed()}</div>
             <div>{scanError}</div>
           </div>
         {:else if rows.length === 0}
           <div class="text-text-muted text-sm">
-            No running containers found on the configured daemon. Containers must be running and (when network_strategy is container_ip) attached to a network Muximux can reach.
+            {m.discovery_noContainers()}
           </div>
         {:else}
+          {#if optedOut > 0}
+            <div role="status" class="notice notice-info mb-3 text-sm">{m.discovery_optedOut({ count: optedOut })}</div>
+          {/if}
           <div class="mb-3 flex items-center gap-2 text-sm">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={allSelected} onchange={toggleAll} />
-              <span class="text-text-secondary">Select all</span>
+              <span class="text-text-secondary">{m.discovery_selectAll()}</span>
             </label>
             <span class="text-text-muted">·</span>
-            <span class="text-text-muted">{selectedCount} of {rows.length} selected</span>
+            <span class="text-text-muted">{m.discovery_selectedCount({ selected: selectedCount, total: rows.length })}</span>
           </div>
 
           <div class="space-y-2">
@@ -388,7 +410,8 @@
               {@const sh = stabilityHint(row.s)}
               {@const ch = confidenceHint(row.s)}
               {@const st = statusFor(row.s.key)}
-              <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
+              {@const skip = skipReason(row.s)}
+              <div data-testid="discover-row" class="p-3 rounded-md border border-border-subtle bg-bg-elevated
                           {row.selected ? 'ring-1 ring-accent-primary/50' : ''}">
                 <div class="flex items-start gap-3">
                   <input aria-label={m.discovery_selectApp({ name: row.nameOverride || row.s.name })} type="checkbox" bind:checked={row.selected} class="mt-1" />
@@ -397,8 +420,8 @@
                     type="button"
                     class="shrink-0 cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all"
                     onclick={() => openIconPicker(row.s.key)}
-                    title="Pick an icon for this app"
-                    aria-label="Pick icon for {row.nameOverride || row.s.name}"
+                    title={m.discovery_pickIconTitle()}
+                    aria-label={m.discovery_pickIconFor({ name: row.nameOverride || row.s.name })}
                   >
                     <AppIcon icon={effectiveIcon(row)} name={row.nameOverride || row.s.name || 'App'} size="md" />
                   </button>
@@ -418,6 +441,9 @@
                             title={ch.tip}>
                         {ch.label}
                       </span>
+                      {#if skip}
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text" data-testid="not-importable">{m.discovery_notImportable({ reason: skip })}</span>
+                      {/if}
                       {#if sh.tone !== 'gray'}
                         <span class="text-xs px-1.5 py-0.5 rounded
                                      {sh.tone === 'amber' ? 'bg-warning-bg text-warning-text' : ''}
@@ -447,11 +473,11 @@
 
                     {#if row.s.url}
                       <div class="mt-1 text-xs text-text-secondary">
-                        <span class="text-text-muted">URL:</span> <code>{row.s.url}</code>
+                        <span class="text-text-muted">{m.discovery_urlLabel()}</span> <code>{row.s.url}</code>
                       </div>
                     {:else}
                       <div class="mt-1 text-xs text-warning-text">
-                        ⚠ No URL could be built - fix port / strategy in Settings → Discovery before importing.
+                        {m.discovery_noUrlWarning()}
                       </div>
                     {/if}
 
@@ -469,7 +495,7 @@
                         <span class="flex items-center gap-1.5">
                           <label class="flex items-center gap-1.5 cursor-pointer">
                             <input type="checkbox" bind:checked={row.createApp} disabled={row.s.requires_input} />
-                            <span class="text-text-primary">Add to menu</span>
+                            <span class="text-text-primary">{m.discovery_addToMenu()}</span>
                           </label>
                           {@render helpTip(
                             'More info about the menu option',
@@ -483,7 +509,7 @@
                               bind:checked={row.createGateway}
                               disabled={row.routing === 'gateway' && row.createApp}
                             />
-                            <span class="text-text-primary">Add gateway site</span>
+                            <span class="text-text-primary">{m.discovery_addGatewaySite()}</span>
                             {#if row.routing === 'gateway' && row.createApp}
                               <span class="text-text-muted">(required by routing)</span>
                             {/if}
@@ -506,17 +532,17 @@
                       {#if row.createApp}
                         <fieldset class="flex flex-wrap items-center gap-3 pl-6 text-text-secondary"
                                   data-testid="row-routing">
-                          <legend class="text-text-muted">Menu link:</legend>
+                          <legend class="text-text-muted">{m.discovery_menuLink()}</legend>
                           <label class="flex items-center gap-1 cursor-pointer">
                             <input type="radio" bind:group={row.routing} value="direct" />
-                            <span title="Menu links straight to the container's URL. Requires the dashboard machine to reach the container's IP.">Direct</span>
+                            <span title="Menu links straight to the container's URL. Requires the dashboard machine to reach the container's IP.">{m.discovery_routeDirect()}</span>
                           </label>
                           <label class="flex items-center gap-1 cursor-pointer">
                             <input type="radio" bind:group={row.routing} value="proxy" />
-                            <span title="Menu links to /proxy/<slug>; Muximux reverse-proxies to the container.">Proxy</span>
+                            <span title="Menu links to /proxy/<slug>; Muximux reverse-proxies to the container.">{m.discovery_routeProxy()}</span>
                           </label>
                           <label class="flex items-center gap-1 cursor-pointer"
-                                 title={row.gatewayDomain ? '' : 'Set a gateway domain to enable this option.'}>
+                                 title={row.gatewayDomain ? '' : m.discovery_gatewayDomainNeeded()}>
                             <input
                               type="radio"
                               bind:group={row.routing}
@@ -524,7 +550,7 @@
                               disabled={!row.gatewayDomain.trim()}
                               onchange={(e) => { if ((e.currentTarget as HTMLInputElement).value === 'gateway') row.createGateway = true; }}
                             />
-                            <span>Gateway domain</span>
+                            <span>{m.discovery_routeGateway()}</span>
                           </label>
                         </fieldset>
                       {/if}
@@ -542,17 +568,17 @@
           {#if importTopError}
             <span class="text-danger-text" role="alert">{importTopError}</span>
           {:else if importResult && importResult.success}
-            <span class="text-success-text" role="status">Import succeeded ({importResult.items.length} items)</span>
+            <span class="text-success-text" role="status">{m.discovery_importSucceeded({ count: importResult.items.length })}</span>
           {:else if importResult && !importResult.success}
-            <span class="text-danger-text" role="alert">{importResult.error || 'Import failed - see per-row status'}</span>
+            <span class="text-danger-text" role="alert">{importResult.error || m.discovery_importFailedRows()}</span>
           {:else}
-            <span class="text-text-muted">{selectedCount} of {rows.length} selected</span>
+            <span class="text-text-muted">{m.discovery_selectedCount({ selected: selectedCount, total: rows.length })}</span>
           {/if}
         </span>
         <div class="flex gap-2">
-          <button class="btn btn-secondary btn-sm" onclick={load} disabled={scanning || importing} type="button">Re-scan</button>
+          <button class="btn btn-secondary btn-sm" onclick={load} disabled={scanning || importing} type="button">{m.discovery_rescan()}</button>
           <button class="btn btn-primary btn-sm" onclick={runImport} disabled={importing || selectedCount === 0} type="button">
-            {importing ? 'Importing…' : `Import ${selectedCount} selected`}
+            {importing ? m.discovery_importing() : m.discovery_importSelected({ count: selectedCount })}
           </button>
         </div>
       </footer>
@@ -567,14 +593,14 @@
         class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
         role="dialog"
         aria-modal="true"
-        aria-label="Pick icon"
+        aria-label={m.discovery_pickIcon()}
       >
         <div class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col border border-border">
           <div class="flex items-center justify-between p-4 border-b border-border">
             <h3 class="text-lg font-semibold text-text-primary">
-              Pick an icon for {pickingRow.nameOverride || pickingRow.s.name}
+              {m.discovery_pickIconHeading({ name: pickingRow.nameOverride || pickingRow.s.name })}
             </h3>
-            <button class="btn btn-ghost btn-icon" onclick={closeIconPicker} aria-label="Close" type="button">
+            <button class="btn btn-ghost btn-icon" onclick={closeIconPicker} aria-label={m.common_close()} type="button">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>

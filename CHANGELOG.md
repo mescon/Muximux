@@ -10,9 +10,29 @@ load path. Upgrade notes: restore refuses legacy `server.gateway` backups;
 a saved theme cannot use a bundled theme's name; `lifecycle_allowed_groups`
 now accepts any group names; API scripts that `PUT /api/config` without
 `base` keep the old two-way behaviour; the gateway site PUT accepts an
-optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
+optional `base_backend_url`; `GET /api/discovery/docker/config` is new;
+auto-import now imports only labelled containers; an auto-imported app whose
+container has no labels is detached from auto-import (kept) on the first
+refresh under `update`/`sync`; Swarm and Compose containers get new tracking
+keys, migrated in place.
 
 ### Added
+- **Explicit opt-in for auto-import.** `discovery.docker.require_explicit_enable`
+  and `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` limit auto-import to
+  containers labelled `muximux.app.enabled=true`. The environment override
+  stays in memory and shows as locked in Settings. (#496)
+- **`muximux.app.health_check` label** enables or disables health monitoring
+  for an imported app; it is re-synced like the other label fields and shown
+  locked in the app's settings. (#497)
+- **Docker Swarm.** Services are tracked as `swarm:<service>` (and Compose
+  services as `compose:<project>:<service>`), ingress-published ports and
+  `deploy.labels` are read from the service, `container_dns` uses the
+  service name, and one app is imported per service. Existing `name:` keys
+  are migrated on the first refresh. A socket proxy must allow `/services`
+  (`SERVICES=1`). (#499)
+- **The Discover modal says why a container is not auto-imported**, and
+  Settings -> Discovery lists invalid auto-imported entries that were not
+  loaded and tracked containers that are missing. (#499)
 - **`GET /api/discovery/docker/config`** returns the stored discovery
   config, and `PUT` merges onto it. (#494)
 - **`base` on `PUT /api/config`** enables a three-way merge, and apps and
@@ -24,6 +44,21 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   the backend address was refreshed while the site was being edited. (#494)
 
 ### Changed
+- **Auto-import considers only labelled containers.** A container needs at
+  least one `muximux.*` label; `muximux.app.enabled=false` opts out (under
+  `sync` the app is removed). Upgrade note: an auto-imported app whose
+  container has no labels is detached from auto-import on the first refresh
+  under `update`/`sync`: it stays, its URL keeps refreshing, and `sync` no
+  longer removes it. (#499)
+- **Tracking keys for Swarm and Compose containers change** to
+  `swarm:<service>` and `compose:<project>:<service>`; existing `name:` keys
+  are migrated automatically on the first refresh. (#499)
+- **Swarm apps take their name from the service.** Under `update`/`sync` an
+  auto-imported Swarm app without a `muximux.app.name` label is re-synced
+  from the task name to the service name on the first refresh, which can
+  change its slug and its `/proxy/<slug>/` path. (#499)
+- Images whose last path segment is generic (`server`, `app`, `web`, `api`
+  and similar) no longer match a catalog entry by that segment. (#499)
 - **Live updates.** Every open browser receives a `config_updated` event
   after any config change and refetches the config (the page reloads only
   when the language changed); an open Settings dialog keeps unsaved edits
@@ -60,6 +95,17 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   badge uses the status badge colours.
 
 ### Fixed
+- **Docker auto-import can no longer break the config.** A container without
+  a usable port is skipped (and shown as not importable) instead of written
+  without a URL; an update never blanks an existing URL; the poller validates
+  before saving. An invalid auto-imported entry already in `config.yaml` is
+  quarantined at startup with a warning instead of stopping Muximux, is kept
+  in the file, and no longer blocks saving from Settings. Swarm redeploys and
+  scaled Compose services no longer duplicate or re-create apps. Names that
+  differ only by case or punctuation are deduplicated. "Tracked docker
+  container not found" is logged once per outage instead of every refresh.
+  `sync` removes only auto-imported apps, and only after the container has
+  been absent for three consecutive scans. (#499)
 - **Custom apps added in the onboarding wizard appear on the dashboard.**
   An app added through the wizard's custom app form was saved in an "Other"
   group that was never created, so it stayed hidden until the group was

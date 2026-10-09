@@ -911,6 +911,14 @@ describe('discovery api functions', () => {
     expect(call[1].method).toBe('DELETE');
   });
 
+  it('detachDockerTracked appends scope=quarantined when asked', async () => {
+    globalThis.fetch = mockFetchOk({});
+    await detachDockerTracked('compose:vault:vw', 'quarantined');
+    const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call[0]).toBe('/api/discovery/docker/track/compose%3Avault%3Avw?scope=quarantined');
+    expect(call[1].method).toBe('DELETE');
+  });
+
   it('probeDockerRelink POSTs the key payload', async () => {
     globalThis.fetch = mockFetchOk({ found: false, candidates: [] });
     await probeDockerRelink('name:sonarr');

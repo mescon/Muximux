@@ -1,5 +1,7 @@
 package config
 
+import "strconv"
+
 // OverrideField names a config field that a command-line flag or an
 // environment variable can override at startup. An override changes the
 // live value only: Save writes the value the file had, so a temporary
@@ -13,6 +15,8 @@ const (
 	OverrideListen     OverrideField = "listen"
 	OverrideBasePath   OverrideField = "base_path"
 	OverrideAutoImport OverrideField = "discovery.docker.auto_import"
+
+	OverrideRequireExplicitEnable OverrideField = "discovery.docker.require_explicit_enable"
 )
 
 // override remembers where an overridden value came from and the value
@@ -71,6 +75,8 @@ func (c *Config) overrideValue(field OverrideField) string {
 		return c.Server.BasePath
 	case OverrideAutoImport:
 		return string(c.Discovery.Docker.AutoImport)
+	case OverrideRequireExplicitEnable:
+		return strconv.FormatBool(c.Discovery.Docker.RequireExplicitEnable)
 	}
 	return ""
 }
@@ -89,20 +95,32 @@ func (c *Config) setOverrideValue(field OverrideField, value string) {
 		c.Server.BasePath = value
 	case OverrideAutoImport:
 		c.Discovery.Docker.AutoImport = AutoImportMode(value)
+	case OverrideRequireExplicitEnable:
+		c.Discovery.Docker.RequireExplicitEnable = value == "true"
 	}
 }
 
 // fileView returns a shallow copy of c with every overridden field set
-// back to the value the file held, which is what Save writes. The copy
+// back to the value the file held and every quarantined app and gateway
+// site appended, which is what Save writes. The copy
 // keeps c's recorded ${VAR} references, so a field that was a reference in
 // the file is written back as that reference.
 func (c *Config) fileView() *Config {
-	if len(c.overrides) == 0 {
+	if len(c.overrides) == 0 && len(c.quarantined) == 0 {
 		return c
 	}
 	v := *c
 	for field, o := range c.overrides {
 		v.setOverrideValue(field, o.fileValue)
+	}
+	if len(c.quarantined) > 0 {
+		// Fresh slices: appending to c.Apps directly could write the
+		// quarantined entries into the live slice's spare capacity.
+		// fileView does not change c: Save drops the superseded entries
+		// from memory only after the write succeeds.
+		qApps, qSites := c.quarantinedFileEntries()
+		v.Apps = append(append([]AppConfig(nil), c.Apps...), qApps...)
+		v.Server.GatewaySites = append(append([]GatewaySite(nil), c.Server.GatewaySites...), qSites...)
 	}
 	return &v
 }

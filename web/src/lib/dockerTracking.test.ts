@@ -74,3 +74,17 @@ describe('refreshDockerTracking', () => {
     expect(localApps[0].docker_key).toBe('label:sonarr');
   });
 });
+
+describe('docker_managed_health_check', () => {
+  it('strips docker_managed_health_check with the other tracking fields', () => {
+    expect(withoutDockerTracking('docker_managed_health_check', true)).toBeUndefined();
+  });
+  it('syncs docker_managed_health_check after a server-side detach, including false', () => {
+    const local = [{ name: 'Emby', docker_managed_health_check: true }] as App[];
+    expect(syncDockerTracking(local, [{ name: 'Emby', docker_managed_health_check: false }] as App[])).toBe(1);
+    expect(local[0].docker_managed_health_check).toBe(false);
+    expect(syncDockerTracking(local, [{ name: 'Emby' }] as App[])).toBe(1);
+    expect(local[0].docker_managed_health_check).toBeUndefined();
+  });
+});
+

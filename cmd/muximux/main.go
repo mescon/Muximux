@@ -172,6 +172,10 @@ func main() {
 	}
 	logging.LoadRecentFromFile()
 
+	// Load ran before logging.Init, so re-emit the quarantine warnings
+	// now that they can reach muximux.log and the log viewer.
+	config.LogQuarantined(cfg.Quarantined())
+
 	applyOverrides(cfg, *listenAddr, *basePath)
 
 	// Warn if OIDC client_secret is stored as plaintext in config
