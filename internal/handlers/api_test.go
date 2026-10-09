@@ -3917,3 +3917,204 @@ func TestGetConfig_HidesForwardAuthAdminGroupsFromNonAdmins(t *testing.T) {
 		}
 	}
 }
+
+func TestSaveConfig_KeepsDockerManagedHealthCheck(t *testing.T) {
+	cfg := createTestConfig()
+	tr, f := true, false
+	a := &cfg.Apps[0]
+	a.DockerKey, a.DockerEndpoint, a.DockerStrategy = "label:app1", "unix:///var/run/docker.sock", "container_ip"
+	a.DockerManagedURL, a.DockerAutoImported = a.URL, true
+	a.HealthCheck, a.DockerManagedHealthCheck = &tr, &tr
+	payload := func(marker *bool) []ClientAppConfig {
+		out := make([]ClientAppConfig, 0, len(cfg.Apps))
+		for i := range cfg.Apps {
+			out = append(out, sanitizeAppForRole(&cfg.Apps[i], true))
+		}
+		out[0].DockerManagedHealthCheck = marker
+		return out
+	}
+	saveAppsForTest(t, cfg, payload(nil)) // a client that drops the field
+	if m := cfg.Apps[0].DockerManagedHealthCheck; m == nil || !*m {
+		t.Fatalf("marker lost when omitted: %+v", m)
+	}
+	saveAppsForTest(t, cfg, payload(&f)) // a client that forges it
+	if m := cfg.Apps[0].DockerManagedHealthCheck; m == nil || !*m {
+		t.Fatalf("marker overwritten by the payload: %+v", m)
+	}
+}
+
+func TestSanitizeAppForRole_DockerManagedHealthCheckAdminOnly(t *testing.T) {
+	tr := true
+	app := config.AppConfig{Name: "Emby", URL: "http://emby:8096", DockerKey: "label:emby", DockerManagedHealthCheck: &tr}
+	if got := sanitizeAppForRole(&app, true); got.DockerManagedHealthCheck == nil || !*got.DockerManagedHealthCheck {
+		t.Fatalf("admin view lost the marker: %+v", got.DockerManagedHealthCheck)
+	}
+	if got := sanitizeAppForRole(&app, false); got.DockerManagedHealthCheck != nil {
+		t.Fatal("non-admin view must not carry the marker")
+	}
+}
+
+func brokenAutoApp() config.AppConfig {
+	return config.AppConfig{Name: "Vaultwarden", URL: "", Group: "Media", Enabled: true,
+		DockerKey: "label:vw", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_dns", DockerAutoImported: true}
+}
+
+// saveRoundTripForTest PUTs cfg back through SaveConfig the way the UI does
+// (every app sanitized for an admin), with the title changed to "Renamed"
+// and edit applied to the payload apps.
+func saveRoundTripForTest(t *testing.T, cfg *config.Config, edit func([]ClientAppConfig)) (*httptest.ResponseRecorder, string) {
+	t.Helper()
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	apps := make([]ClientAppConfig, 0, len(cfg.Apps))
+	for i := range cfg.Apps {
+		apps = append(apps, sanitizeAppForRole(&cfg.Apps[i], true)) // the round trip the UI makes
+	}
+	if edit != nil {
+		edit(apps)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+	body, _ := json.Marshal(ClientConfigUpdate{Title: "Renamed", Navigation: cfg.Navigation, Groups: cfg.Groups, Apps: apps})
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body)))
+	return w, configPath
+}
+
+func TestSaveConfig_QuarantinesUnchangedBrokenAutoApp(t *testing.T) { // F-02
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp()) // injected directly, as a 3.5.0 poller left it
+	w, path := saveRoundTripForTest(t, cfg, nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Server.Title != "Renamed" {
+		t.Fatalf("title = %q", cfg.Server.Title)
+	}
+	for i := range cfg.Apps {
+		if cfg.Apps[i].Name == "Vaultwarden" {
+			t.Fatal("broken app still live")
+		}
+	}
+	if !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+	raw, _ := os.ReadFile(path)
+	if !strings.Contains(string(raw), "label:vw") {
+		t.Fatalf("quarantined app dropped from the file:\n%s", raw)
+	}
+}
+
+func TestSaveConfig_StillRejectsUserEditedBrokenApp(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp())
+	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) { apps[0].URL = "" })
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), `"App1"`) {
+		t.Fatalf("status = %d, body = %q, want 400 naming App1", w.Code, w.Body.String())
+	}
+	if cfg.HasQuarantined("label:vw") {
+		t.Fatal("rollback must restore the quarantine snapshot")
+	}
+	found := false
+	for i := range cfg.Apps {
+		found = found || cfg.Apps[i].Name == "Vaultwarden"
+	}
+	if !found || cfg.Server.Title == "Renamed" {
+		t.Fatalf("rollback incomplete: title=%q apps=%+v", cfg.Server.Title, cfg.Apps)
+	}
+}
+
+// A fully populated broken app, with the empty collections and the managed
+// URL the merge normalises, must still count as unchanged.
+func TestSaveConfig_QuarantinesUnchangedBrokenAutoApp_FullRoundTrip(t *testing.T) {
+	tr, f := true, false
+	sc := 3
+	app := brokenAutoApp()
+	app.HealthURL = "http://h"
+	app.Icon = config.AppIconConfig{Type: "dashboard", Name: "vaultwarden"}
+	app.Color = "#123456"
+	app.OpenMode = "iframe"
+	app.HTTPActionHeaders = map[string]string{}
+	app.ProxyHeaders = map[string]string{}
+	app.AllowedGroups = []string{}
+	app.Permissions = []string{}
+	app.AuthBypass = []config.AuthBypassRule{}
+	app.HealthCheck = &tr
+	app.ProxySkipTLSVerify = &f
+	app.HTTPActionShowToast = &tr
+	app.Shortcut = &sc
+	app.Scale = 1
+	app.DockerManagedURL = "http://stale"
+	app.DockerManagedHealthCheck = &tr
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, app)
+	w, _ := saveRoundTripForTest(t, cfg, nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
+
+// Editing the broken auto-imported app itself (here its colour) means the
+// operator owns the mistake: the save is rejected, nothing is quarantined.
+func TestSaveConfig_RejectsEditedBrokenAutoApp(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp())
+	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) { apps[len(apps)-1].Color = "#abcdef" })
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "Vaultwarden") {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.HasQuarantined("label:vw") || len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
+
+// A manual app inserted with the slug of a valid, unchanged docker app is
+// the operator's clash: 400, nothing quarantined, the docker app kept.
+func TestSaveConfig_RejectsSlugClashWithValidAutoApp(t *testing.T) {
+	cfg := createTestConfig()
+	auto := brokenAutoApp()
+	auto.URL = "http://vaultwarden:80"
+	cfg.Apps = append(cfg.Apps, auto)
+	w, path := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) {
+		apps[0].Name = "vaultwarden" // same slug as "Vaultwarden"
+	})
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "slug") {
+		t.Fatalf("status = %d, body = %q, want 400", w.Code, w.Body.String())
+	}
+	if len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+	raw, _ := os.ReadFile(path)
+	if !strings.Contains(string(raw), "label:vw") {
+		t.Fatalf("docker app dropped from the file:\n%s", raw)
+	}
+	found := false
+	for i := range cfg.Apps {
+		found = found || cfg.Apps[i].DockerKey == "label:vw"
+	}
+	if !found {
+		t.Fatalf("docker app not live after rollback: %+v", cfg.Apps)
+	}
+}
+
+// Reordering apps in Settings is not an edit of a broken auto-imported
+// app: the save quarantines it instead of failing.
+func TestSaveConfig_QuarantinesReorderedBrokenAutoApp(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp())
+	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) {
+		for i := range apps {
+			apps[i].Order = len(apps) - i
+		}
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}

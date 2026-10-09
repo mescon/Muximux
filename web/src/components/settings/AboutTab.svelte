@@ -202,10 +202,10 @@ chmod +x muximux-linux-amd64
 ./muximux-linux-amd64</pre>
               {#if updateInfo.download_urls?.linux_amd64}
                 <div class="flex gap-2 mt-2">
-                  <a href={updateInfo.download_urls.linux_amd64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadLinuxAmd64()}</a>
+                  <a href={updateInfo.download_urls.linux_amd64} class="text-xs text-accent-text underline underline-offset-2 transition-colors">{m.about_downloadLinuxAmd64()}</a>
                   {#if updateInfo.download_urls?.linux_arm64}
                     <span class="text-text-muted">|</span>
-                    <a href={updateInfo.download_urls.linux_arm64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadLinuxArm64()}</a>
+                    <a href={updateInfo.download_urls.linux_arm64} class="text-xs text-accent-text underline underline-offset-2 transition-colors">{m.about_downloadLinuxArm64()}</a>
                   {/if}
                 </div>
               {/if}
@@ -227,10 +227,10 @@ chmod +x muximux-darwin-arm64
 ./muximux-darwin-arm64</pre>
               {#if updateInfo.download_urls?.darwin_arm64}
                 <div class="flex gap-2 mt-2">
-                  <a href={updateInfo.download_urls.darwin_arm64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadDarwinArm64()}</a>
+                  <a href={updateInfo.download_urls.darwin_arm64} class="text-xs text-accent-text underline underline-offset-2 transition-colors">{m.about_downloadDarwinArm64()}</a>
                   {#if updateInfo.download_urls?.darwin_amd64}
                     <span class="text-text-muted">|</span>
-                    <a href={updateInfo.download_urls.darwin_amd64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadDarwinAmd64()}</a>
+                    <a href={updateInfo.download_urls.darwin_amd64} class="text-xs text-accent-text underline underline-offset-2 transition-colors">{m.about_downloadDarwinAmd64()}</a>
                   {/if}
                 </div>
               {/if}
@@ -252,7 +252,7 @@ chmod +x muximux-darwin-arm64
 # Restart</pre>
               {#if updateInfo.download_urls?.windows_amd64}
                 <div class="mt-2">
-                  <a href={updateInfo.download_urls.windows_amd64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadWindowsAmd64()}</a>
+                  <a href={updateInfo.download_urls.windows_amd64} class="text-xs text-accent-text underline underline-offset-2 transition-colors">{m.about_downloadWindowsAmd64()}</a>
                 </div>
               {/if}
             </div>

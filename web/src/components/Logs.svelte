@@ -286,6 +286,9 @@
   <!-- Log entries -->
   <div
     class="log-entries"
+    role="region"
+    aria-label={m.logs_entriesRegion()}
+    tabindex="0"
     bind:this={logContainer}
     onscroll={handleScroll}
   >

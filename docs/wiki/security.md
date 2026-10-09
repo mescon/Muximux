@@ -180,10 +180,12 @@ Please do not open a public issue for a security problem. Report it privately th
    enable lifecycle controls (`discovery.docker.lifecycle_enabled`), which let
    authorized users start/stop/restart containers (role-gated, audit-logged).
 9. **Auto-import is opt-in** -- It is off by default. Enabling
-   `discovery.docker.auto_import` imports every labeled container without a
-   click, including any exposed via public gateway subdomains; review labels
-   before turning it on, and use `muximux.app.enabled=false` to opt a
-   container out.
+   `discovery.docker.auto_import` imports every container with `muximux.*`
+   labels without a click, including any exposed via public gateway
+   subdomains; review labels before turning it on, and use
+   `muximux.app.enabled=false` to opt a container out. Set
+   `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE=true` to require
+   `muximux.app.enabled=true` per container.
 10. **Verify what you download** -- Release binaries and container images
     carry signed SLSA provenance. Check it before deploying, pinning the
     signing workflow rather than only the repository:

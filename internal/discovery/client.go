@@ -360,6 +360,68 @@ func (c *Client) ListContainers(ctx context.Context, opts ListContainersOpts) ([
 	return filtered, nil
 }
 
+// ServiceSummary is the subset of a Swarm service that discovery needs.
+type ServiceSummary struct {
+	ID              string
+	Name            string
+	Labels          map[string]string // Spec.Labels (deploy.labels in a stack file)
+	ContainerLabels map[string]string // Spec.TaskTemplate.ContainerSpec.Labels
+	Ports           []ContainerPort   // Endpoint.Ports: TargetPort -> PrivatePort, PublishedPort -> PublicPort, Protocol -> Type
+}
+
+var (
+	// ErrNotSwarmManager means the endpoint is not a swarm manager node.
+	ErrNotSwarmManager = errors.New("docker endpoint is not a swarm manager")
+	// ErrServicesForbidden means the endpoint refused GET /services.
+	ErrServicesForbidden = errors.New("docker endpoint refused GET /services (a socket proxy needs SERVICES=1)")
+)
+
+type serviceEnvelope struct {
+	ID   string `json:"ID"`
+	Spec struct {
+		Name         string            `json:"Name"`
+		Labels       map[string]string `json:"Labels"`
+		TaskTemplate struct {
+			ContainerSpec struct {
+				Labels map[string]string `json:"Labels"`
+			} `json:"ContainerSpec"`
+		} `json:"TaskTemplate"`
+	} `json:"Spec"`
+	Endpoint struct {
+		Ports []struct {
+			Protocol      string `json:"Protocol"`
+			TargetPort    uint16 `json:"TargetPort"`
+			PublishedPort uint16 `json:"PublishedPort"`
+		} `json:"Ports"`
+	} `json:"Endpoint"`
+}
+
+// ListServices returns the Swarm services visible to this endpoint.
+// A 503 "not a swarm manager" maps to ErrNotSwarmManager and a 403 to
+// ErrServicesForbidden.
+func (c *Client) ListServices(ctx context.Context) ([]ServiceSummary, error) {
+	var raw []serviceEnvelope
+	if err := c.getJSON(ctx, "/"+dockerAPIVersion+"/services", &raw); err != nil {
+		msg := err.Error()
+		switch {
+		case strings.Contains(msg, "returned 503") && strings.Contains(strings.ToLower(msg), "not a swarm manager"):
+			return nil, ErrNotSwarmManager
+		case strings.Contains(msg, "returned 403"):
+			return nil, fmt.Errorf("%w: %s", ErrServicesForbidden, msg)
+		}
+		return nil, err
+	}
+	out := make([]ServiceSummary, 0, len(raw))
+	for i := range raw {
+		s := ServiceSummary{ID: raw[i].ID, Name: raw[i].Spec.Name, Labels: raw[i].Spec.Labels, ContainerLabels: raw[i].Spec.TaskTemplate.ContainerSpec.Labels}
+		for _, p := range raw[i].Endpoint.Ports {
+			s.Ports = append(s.Ports, ContainerPort{PrivatePort: p.TargetPort, PublicPort: p.PublishedPort, Type: p.Protocol})
+		}
+		out = append(out, s)
+	}
+	return out, nil
+}
+
 // InspectContainer returns the full /containers/{id}/json payload as
 // raw JSON. Callers that need typed fields decode into their own
 // struct - inspect responses are large and we don't want to maintain

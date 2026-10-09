@@ -178,7 +178,7 @@ describe('configMerge primitives', () => {
 
   it('exposes the server-owned and client-only key sets', () => {
     expect([...SERVER_OWNED_APP_FIELDS].sort()).toEqual([
-      'docker_endpoint', 'docker_key', 'docker_managed_url', 'docker_strategy', 'gateway_domain', 'original_name', 'proxyUrl',
+      'docker_endpoint', 'docker_key', 'docker_managed_health_check', 'docker_managed_url', 'docker_strategy', 'gateway_domain', 'original_name', 'proxyUrl',
     ]);
     expect(CLIENT_ONLY_KEYS.has('id')).toBe(true);
   });
@@ -595,5 +595,11 @@ describe('rebaseConfig with a null health', () => {
 describe('byCodePoint', () => {
   it('orders keys by code point, independent of locale', () => {
     expect(['b', 'a', 'B', 'a'].sort(byCodePoint)).toEqual(['B', 'a', 'a', 'b']);
+  });
+});
+
+describe('server-owned health check marker', () => {
+  it('treats docker_managed_health_check as server-owned', () => {
+    expect(SERVER_OWNED_APP_FIELDS.has('docker_managed_health_check')).toBe(true);
   });
 });

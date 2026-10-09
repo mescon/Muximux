@@ -651,11 +651,14 @@ export async function listDockerTracked(): Promise<DiscoveryTrackedListResult> {
   return fetchJSON<DiscoveryTrackedListResult>('/discovery/docker/tracked');
 }
 
-export async function detachDockerTracked(key: string): Promise<void> {
+export async function detachDockerTracked(key: string, scope?: 'quarantined'): Promise<void> {
   // Caller treats 404 as success-with-no-effect (idempotency for
   // double-clicks). The shared deleteJSON helper resolves on 2xx
   // and rejects on 4xx/5xx, so the caller catches and inspects.
-  await deleteJSON(`/discovery/docker/track/${encodeURIComponent(key)}`);
+  // scope 'quarantined' drops only quarantined entries, so a live
+  // app sharing the key stays tracked.
+  const query = scope ? `?scope=${scope}` : '';
+  await deleteJSON(`/discovery/docker/track/${encodeURIComponent(key)}${query}`);
 }
 
 export async function probeDockerRelink(key: string): Promise<DiscoveryRelinkProbeResult> {

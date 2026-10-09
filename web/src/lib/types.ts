@@ -13,6 +13,7 @@ export interface App {
   open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect' | 'http_action';
   proxy: boolean;
   health_check?: boolean;  // true = enabled, undefined/false = disabled (opt-in)
+  docker_managed_health_check?: boolean;  // health_check is driven by Docker labels
   proxy_skip_tls_verify?: boolean;
   proxy_headers?: Record<string, string>;
   // Emit X-Forwarded-* / X-Real-IP to the backend. Defaults to true when
@@ -466,6 +467,7 @@ export interface DiscoveryDockerConfig {
   lifecycle_allowed_groups?: string[];
   health_badge_placement?: 'off' | 'overview' | 'overview_and_nav' | '';
   auto_import?: 'off' | 'add' | 'update' | 'sync';
+  require_explicit_enable?: boolean;
 }
 
 // DiscoveryDockerConfigResponse is the body of GET
@@ -474,6 +476,13 @@ export interface DiscoveryDockerConfig {
 export interface DiscoveryDockerConfigResponse {
   config: DiscoveryDockerConfig;
   env_overrides?: Record<string, string>;
+}
+
+// DiscoveryAutoImportSkip explains why a suggestion is not eligible for
+// auto-import. 'disabled' rows are filtered out by the server.
+export interface DiscoveryAutoImportSkip {
+  code: 'disabled' | 'not_enabled' | 'unlabeled' | 'no_port' | 'no_url' | 'invalid';
+  detail?: string;
 }
 
 export interface DiscoveryTLSConfig {
@@ -526,6 +535,10 @@ export interface DiscoverySuggestion {
   http_action_confirm?: boolean;
   http_action_show_toast?: boolean;
   suggested_gateway?: SuggestedGatewayConfig;
+  labeled: boolean;
+  label_enabled?: boolean;
+  auto_import_skip?: DiscoveryAutoImportSkip;
+  health_check?: boolean;
 }
 
 // SuggestedGatewayConfig mirrors discovery.SuggestedGatewayConfig.
@@ -546,6 +559,7 @@ export interface DiscoveryScanResult {
   suggestions?: DiscoverySuggestion[];
   scan_blocked?: string;
   error?: string;
+  opted_out?: number;
 }
 
 // Discovery import. Mirrors handlers.ImportRequest / ImportResult.
@@ -593,10 +607,19 @@ export interface DiscoveryTrackedEntry {
   url: string;
   last_seen_at?: string;
   endpoint_matches: boolean;
+  missing_since?: string;
+}
+
+export interface DiscoveryQuarantinedEntry {
+  kind: 'app' | 'gateway';
+  name: string;
+  key: string;
+  reason: string;
 }
 
 export interface DiscoveryTrackedListResult {
   entries: DiscoveryTrackedEntry[];
+  quarantined?: DiscoveryQuarantinedEntry[];
   current_endpoint: string;
 }
 

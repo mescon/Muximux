@@ -525,6 +525,8 @@
         <input
           type="checkbox"
           checked={app.health_check === true}
+          disabled={app.docker_managed_health_check !== undefined}
+          aria-describedby={app.docker_managed_health_check !== undefined ? `${prefix}-app-health-managed` : undefined}
           onchange={(e) => {
             app.health_check = (e.target as HTMLInputElement).checked ? true : undefined;
           }}
@@ -535,6 +537,9 @@
             {@render helpTip(m.appForm_helpHealthCheck())}
           </span>
           <p class="text-xs text-text-muted">{m.appForm_healthCheckDesc()}</p>
+          {#if app.docker_managed_health_check !== undefined}
+            <p id="{prefix}-app-health-managed" class="text-xs text-warning-text">{m.appForm_healthCheckDockerManaged()}</p>
+          {/if}
         </div>
       </label>
       {#if app.health_check === true}

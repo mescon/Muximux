@@ -297,6 +297,9 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 				break
 			} else {
 				newApp := clientAppToConfig(item.App)
+				// The health check marker is reconciler-owned; a manual
+				// import never sets it, whatever the payload carries.
+				newApp.DockerManagedHealthCheck = nil
 				// Apply the routing decision. The discovered URL
 				// (item.App.URL) lives in newApp.URL by default; for
 				// gateway-routed apps we override it with the public

@@ -47,6 +47,7 @@
   // Env var name behind a locked auto_import, from the admin-only
   // env_overrides on the config response. Undefined when nothing locks it.
   let autoImportLocked = $state<string | undefined>(undefined);
+  let requireExplicitLocked = $state<string | undefined>(undefined);
   // True once the form was seeded from the stored config. Until then Save
   // and Test stay disabled so defaults can never overwrite stored values.
   let seeded = $state(false);
@@ -67,6 +68,7 @@
       status = s;
       form = { ...stored, tls: { ...stored.tls, enabled: stored.tls?.enabled ?? false } };
       autoImportLocked = env_overrides?.auto_import;
+      requireExplicitLocked = env_overrides?.require_explicit_enable;
       seeded = true;
       // Refresh the available-networks list in the background. We
       // intentionally don't await this on the main path so a slow
@@ -153,6 +155,7 @@
       lifecycle_allowed_groups: [],
       health_badge_placement: 'overview',
       auto_import: 'off',
+      require_explicit_enable: false,
     };
   }
 
@@ -211,7 +214,7 @@
   <header>
     <h2 class="text-lg font-semibold text-text-primary">Docker discovery</h2>
     <p class="text-sm text-text-muted mt-1">
-      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-accent-text hover:underline">the docs</a> for the full label / strategy reference.
+      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-accent-text underline underline-offset-2">the docs</a> for the full label / strategy reference.
     </p>
   </header>
 
@@ -458,6 +461,7 @@
             id="dd-autoimport"
             bind:value={form.auto_import}
             disabled={!!autoImportLocked}
+            aria-describedby={autoImportLocked ? 'dd-autoimport-env dd-autoimport-hint' : 'dd-autoimport-hint'}
             class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm disabled:opacity-60"
           >
             <option value="off">{m.discovery_autoImportOff()}</option>
@@ -466,9 +470,20 @@
             <option value="sync">{m.discovery_autoImportSync()}</option>
           </select>
           {#if autoImportLocked}
-            <p class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
+            <p id="dd-autoimport-env" class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
           {/if}
-          <p class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
+          <p id="dd-autoimport-hint" class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
+        </div>
+
+        <div>
+          <label class="flex items-start gap-2 cursor-pointer text-sm">
+            <input type="checkbox" bind:checked={form.require_explicit_enable} disabled={!!requireExplicitLocked} aria-describedby={requireExplicitLocked ? 'dd-explicit-env dd-explicit-hint' : 'dd-explicit-hint'} class="mt-0.5" />
+            <span class="text-text-secondary">{m.discovery_requireExplicitEnable()}</span>
+          </label>
+          {#if requireExplicitLocked}
+            <p id="dd-explicit-env" class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: requireExplicitLocked })}</p>
+          {/if}
+          <p id="dd-explicit-hint" class="text-xs text-text-muted mt-1">{m.discovery_requireExplicitEnableHint()}</p>
         </div>
       </div>
 

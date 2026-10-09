@@ -276,6 +276,7 @@ These override the corresponding config file values without needing `${VAR}` syn
 | `MUXIMUX_LOG_LEVEL` | Log verbosity (debug, info, warn, error) | From config file |
 | `MUXIMUX_LOG_FORMAT` | Log format (`text` or `json`) | `text` |
 | `MUXIMUX_DISCOVERY_AUTO_IMPORT` | Docker auto-import mode (`off`, `add`, `update`, `sync`) | From config file |
+| `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | Auto-import only containers labelled `muximux.app.enabled=true` (`true`/`false`) | From config file |
 
 These overrides, and the `--listen` and `--base-path` flags, apply in memory only. They are never written back to `config.yaml` when you save from Settings, and Settings shows an overridden field as locked ("From VAR").
 

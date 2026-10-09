@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -40,6 +41,11 @@ type Service struct {
 	// onto the live Service.
 	cfgGen uint64
 
+	// swarmDegraded is the Swarm services condition last logged: "",
+	// noteSwarmWorker or noteSwarmForbidden. It guards the WARN so a
+	// worker node does not log on every scan and tick.
+	swarmDegraded string
+
 	// Capability cache. statusCacheTTL is short (30s) because the
 	// /status endpoint is hit on every Settings page load and the
 	// daemon ping is cheap but we still want to avoid hammering it.
@@ -69,6 +75,11 @@ type Service struct {
 	// matching entry to keep the map bounded as operators track
 	// and detach over time.
 	lastSeenAt sync.Map // map[string]time.Time
+
+	// missingSince records, per tracking key, when the poller first failed
+	// to find its container. It dedupes the "not found" WARN to one line
+	// per outage and is cleared on recovery, detach and prune.
+	missingSince sync.Map // map[string]time.Time
 
 	// dockerState is the poller-managed snapshot of every tracked
 	// app's container state. Replaced wholesale by the poller each
@@ -177,6 +188,8 @@ func (s *Service) Reconfigure(cfg *config.DiscoveryDockerConfig) {
 	s.selfChecked = false
 	s.selfInfo = nil
 	s.selfErr = nil
+	// A new endpoint may be a manager; let the next degraded read log again.
+	s.swarmDegraded = ""
 	s.statusCache = StatusResult{}
 	s.statusCachedAt = time.Time{}
 	if cfg.Enabled && cfg.Endpoint != "" {
@@ -325,16 +338,71 @@ func (s *Service) RecordDivergence() {
 	s.recoveredAt = time.Time{}
 }
 
-// RecordSeen stamps a tracked key as last-resolved at now. Poller
-// calls this for every container it successfully looks up.
-func (s *Service) RecordSeen(key string) {
+// RecordSeen stamps a tracked key as last-resolved at now and clears its
+// missing record. It reports whether the key was missing (a recovery).
+func (s *Service) RecordSeen(key string) (recovered bool) {
 	s.lastSeenAt.Store(key, time.Now())
+	_, recovered = s.missingSince.LoadAndDelete(key)
+	return recovered
 }
 
-// ForgetTrackedKey removes the LastSeenAt entry for a detached key.
-// Called from the DELETE /track handler to keep the map bounded.
+// ForgetTrackedKey removes the LastSeenAt and missing entries for a
+// detached key. Called from the DELETE /track handler to keep the maps
+// bounded.
 func (s *Service) ForgetTrackedKey(key string) {
 	s.lastSeenAt.Delete(key)
+	s.missingSince.Delete(key)
+}
+
+// MarkMissing records the key as missing since now if it is not already.
+// It returns true only on the transition into missing.
+func (s *Service) MarkMissing(key string) bool {
+	_, loaded := s.missingSince.LoadOrStore(key, time.Now())
+	return !loaded
+}
+
+// MissingSince returns when the key was first found missing, or zero when
+// it is not missing.
+func (s *Service) MissingSince(key string) time.Time {
+	if v, ok := s.missingSince.Load(key); ok {
+		if t, ok := v.(time.Time); ok {
+			return t
+		}
+	}
+	return time.Time{}
+}
+
+// RenameTrackedKey moves the lastSeen and missing records of oldKey to
+// newKey; a record already present under newKey wins (it is newer).
+// Callers invoke it only after a successful save.
+func (s *Service) RenameTrackedKey(oldKey, newKey string) {
+	if oldKey == newKey {
+		return
+	}
+	if v, ok := s.lastSeenAt.LoadAndDelete(oldKey); ok {
+		s.lastSeenAt.LoadOrStore(newKey, v)
+	}
+	if v, ok := s.missingSince.LoadAndDelete(oldKey); ok {
+		s.missingSince.LoadOrStore(newKey, v)
+	}
+}
+
+// pruneUntracked drops the last-seen and missing records of every key not
+// in keep, so neither map can outgrow the tracked set.
+func (s *Service) pruneUntracked(keep map[string]bool) {
+	for _, m := range []*sync.Map{&s.lastSeenAt, &s.missingSince} {
+		m.Range(func(k, _ any) bool {
+			if key, ok := k.(string); ok && !keep[key] {
+				m.Delete(key)
+			}
+			return true
+		})
+	}
+}
+
+// clearMissing drops the missing record of key, if any.
+func (s *Service) clearMissing(key string) {
+	s.missingSince.Delete(key)
 }
 
 // LastSeen returns the most recent time the given key was resolved,
@@ -497,6 +565,8 @@ type ScanResult struct {
 	Suggestions []Suggestion `json:"suggestions,omitempty"`
 	ScanBlocked string       `json:"scan_blocked,omitempty"`
 	Error       string       `json:"error,omitempty"`
+	// OptedOut counts containers with muximux.app.enabled=false.
+	OptedOut int `json:"opted_out,omitempty"`
 }
 
 // Scan enumerates the daemon's running containers and produces a
@@ -560,6 +630,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		return ScanResult{Error: err.Error()}
 	}
 
+	note := s.enrichSwarm(ctx, client, containers)
 	out := ScanResult{Suggestions: make([]Suggestion, 0, len(containers))}
 	for i := range containers {
 		// Skip Muximux's own container - importing it would create
@@ -570,14 +641,74 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		if isLikelySelf(&containers[i]) {
 			continue
 		}
-		out.Suggestions = append(out.Suggestions, suggestForContainer(
+		sug := suggestForContainer(
 			&containers[i],
 			cfg.NetworkStrategy,
 			cfg.HostIP,
 			dashboardDomain,
-		))
+		)
+		if note != "" && swarmServiceName(&containers[i]) != "" {
+			sug.Notes = append(sug.Notes, note)
+		}
+		sug.AutoImportSkip = autoImportSkipReason(&sug, cfg.RequireExplicitEnable)
+		out.Suggestions = append(out.Suggestions, sug)
+	}
+	// Replicas of one service (or a scaled compose service) share a key;
+	// eligibility is computed first so an importable replica wins.
+	out.Suggestions = collapseDuplicateKeys(out.Suggestions)
+	for i := range out.Suggestions {
+		sug := &out.Suggestions[i]
+		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {
+			out.OptedOut++
+		}
 	}
 	return out
+}
+
+// enrichSwarm sorts containers by PrimaryName, calls ListServices once when
+// hasSwarmTasks, merges, and returns the note every swarm suggestion gets
+// ("" when services were read). Logs a WARN on the transition into a
+// degraded state and an INFO on recovery; another error is logged at Debug.
+// The sort and the merge modify the caller's containers slice in place.
+func (s *Service) enrichSwarm(ctx context.Context, client *Client, containers []ContainerSummary) (note string) {
+	sort.SliceStable(containers, func(a, b int) bool {
+		return containers[a].PrimaryName() < containers[b].PrimaryName()
+	})
+	if !hasSwarmTasks(containers) {
+		return ""
+	}
+	services, err := client.ListServices(ctx)
+	switch {
+	case err == nil:
+		mergeSwarmServices(containers, services)
+		if s.setSwarmDegraded("") {
+			logging.Info("Swarm services readable again", "source", "discovery")
+		}
+		return ""
+	case errors.Is(err, ErrNotSwarmManager):
+		note = noteSwarmWorker
+	case errors.Is(err, ErrServicesForbidden):
+		note = noteSwarmForbidden
+	default:
+		logging.Debug("Swarm services read failed; using task data only", "source", "discovery", "error", err.Error())
+		return ""
+	}
+	if s.setSwarmDegraded(note) {
+		logging.Warn("Swarm services unavailable; using task data only", "source", "discovery", "reason", note)
+	}
+	return note
+}
+
+// setSwarmDegraded records the Swarm services condition and reports
+// whether it changed.
+func (s *Service) setSwarmDegraded(state string) (changed bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.swarmDegraded == state {
+		return false
+	}
+	s.swarmDegraded = state
+	return true
 }
 
 // isLikelySelf reports whether the container is plausibly a Muximux

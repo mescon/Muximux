@@ -220,22 +220,18 @@
         {@const isSelected = $selectedFamily === family.id}
         {@const isCustom = family.darkTheme ? !family.darkTheme.isBuiltin : family.lightTheme ? !family.lightTheme.isBuiltin : false}
         <div
-          class="relative p-4 rounded-xl text-start transition-all group cursor-pointer"
+          class="relative rounded-xl transition-all group"
           style="
             background: var(--bg-surface);
             border: 2px solid {isSelected ? 'var(--accent-primary)' : 'var(--border-subtle)'};
             box-shadow: {isSelected ? 'var(--shadow-glow)' : 'none'};
           "
-          onclick={() => setThemeFamily(family.id)}
-          onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setThemeFamily(family.id); } }}
-          role="button"
-          tabindex="0"
         >
           <!-- Selection indicator / delete button -->
-          <div class="absolute top-3 end-3 flex items-center gap-1">
+          <div class="absolute top-3 end-3 z-[1] flex items-center gap-1 pointer-events-none">
             {#if isCustom}
               <button
-                class="btn btn-danger w-5 h-5 p-0 gap-0 rounded-full"
+                class="btn btn-danger w-5 h-5 p-0 gap-0 rounded-full pointer-events-auto"
                 onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                 title={m.theme_deleteTheme()}
                 aria-label={m.common_deleteNamed({ name: family.name })}
@@ -246,7 +242,7 @@
               </button>
             {/if}
             {#if isSelected}
-              <div class="w-5 h-5 rounded-full flex items-center justify-center"
+              <div aria-hidden="true" class="w-5 h-5 rounded-full flex items-center justify-center"
                    style="background: var(--accent-primary);">
                 <svg class="w-3 h-3 text-accent-on-primary" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -255,46 +251,52 @@
             {/if}
           </div>
 
+          <button
+            type="button"
+            class="block w-full p-4 rounded-xl text-start cursor-pointer"
+            aria-pressed={isSelected}
+            onclick={() => setThemeFamily(family.id)}
+          >
           <!-- Dual Preview Swatches (dark left, light right) -->
-          <div class="flex gap-1.5 mb-3">
+          <span class="flex gap-1.5 mb-3">
             {#if family.darkTheme?.preview && family.lightTheme?.preview}
               <!-- Dark variant swatch -->
-              <div class="w-10 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+              <span class="w-10 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
                    style="border: 1px solid {family.darkTheme.preview.text}20;">
-                <div class="flex-1" style="background: {family.darkTheme.preview.bg};"></div>
-                <div class="h-2" style="background: {family.darkTheme.preview.accent};"></div>
-              </div>
+                <span class="flex-1" style="background: {family.darkTheme.preview.bg};"></span>
+                <span class="h-2" style="background: {family.darkTheme.preview.accent};"></span>
+              </span>
               <!-- Light variant swatch -->
-              <div class="w-10 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+              <span class="w-10 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
                    style="border: 1px solid {family.lightTheme.preview.text}20;">
-                <div class="flex-1" style="background: {family.lightTheme.preview.bg};"></div>
-                <div class="h-2" style="background: {family.lightTheme.preview.accent};"></div>
-              </div>
+                <span class="flex-1" style="background: {family.lightTheme.preview.bg};"></span>
+                <span class="h-2" style="background: {family.lightTheme.preview.accent};"></span>
+              </span>
             {:else}
               <!-- Single variant swatch -->
               {@const theme = family.darkTheme || family.lightTheme}
               {#if theme?.preview}
-                <div class="w-12 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+                <span class="w-12 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
                      style="border: 1px solid {theme.preview.text}20;">
-                  <div class="flex-1" style="background: {theme.preview.bg};"></div>
-                  <div class="h-2" style="background: {theme.preview.accent};"></div>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <div class="w-6 h-5.5 rounded" style="background: {theme.preview.surface}; border: 1px solid {theme.preview.text}15;"></div>
-                  <div class="w-6 h-5.5 rounded" style="background: {theme.preview.accent};"></div>
-                </div>
+                  <span class="flex-1" style="background: {theme.preview.bg};"></span>
+                  <span class="h-2" style="background: {theme.preview.accent};"></span>
+                </span>
+                <span class="flex flex-col gap-1">
+                  <span class="w-6 h-5.5 rounded" style="background: {theme.preview.surface}; border: 1px solid {theme.preview.text}15;"></span>
+                  <span class="w-6 h-5.5 rounded" style="background: {theme.preview.accent};"></span>
+                </span>
               {:else}
-                <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-bg-elevated border border-border-subtle">
+                <span class="w-12 h-12 rounded-lg flex items-center justify-center bg-bg-elevated border border-border-subtle">
                   <svg class="w-6 h-6 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                   </svg>
-                </div>
+                </span>
               {/if}
             {/if}
-          </div>
+          </span>
 
           <!-- Family Name & Badge -->
-          <div class="flex items-center gap-2">
+          <span class="flex items-center gap-2">
             <span class="font-medium" style="color: var(--text-primary);">{family.name}</span>
             {#if isCustom}
               <span class="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0"
@@ -302,10 +304,11 @@
                 {m.theme_custom()}
               </span>
             {/if}
-          </div>
+          </span>
           {#if family.description}
-            <div class="text-xs mt-0.5 pe-1" style="color: var(--text-muted);">{family.description}</div>
+            <span class="block text-xs mt-0.5 pe-1" style="color: var(--text-muted);">{family.description}</span>
           {/if}
+          </button>
 
           <!-- Delete confirmation overlay -->
           {#if confirmDeleteTheme === (family.darkTheme?.id || family.lightTheme?.id)}

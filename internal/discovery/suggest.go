@@ -33,7 +33,7 @@ const (
 // default already.
 type Suggestion struct {
 	// Tracking
-	Key       string    `json:"key"`       // "label:foo" | "name:bar" | "id:..."
+	Key       string    `json:"key"`       // label|swarm|compose|name|id, e.g. "swarm:stack_svc"
 	Stability Stability `json:"stability"` // see Stability constants
 
 	// Display
@@ -67,6 +67,7 @@ type Suggestion struct {
 	AllowedGroups      []string `json:"allowed_groups,omitempty"`
 	Permissions        []string `json:"permissions,omitempty"`
 	AllowNotifications *bool    `json:"allow_notifications,omitempty"`
+	HealthCheck        *bool    `json:"health_check,omitempty"`
 	Default            *bool    `json:"default,omitempty"`
 	Shortcut           int      `json:"shortcut,omitempty"`
 
@@ -93,6 +94,52 @@ type Suggestion struct {
 	// BackendURL is the container URL without any sub-path. Gateway sites
 	// forward to it; the path only applies to the app URL.
 	BackendURL string `json:"backend_url,omitempty"`
+
+	// Labeled is true when the container carries any muximux.* label.
+	Labeled bool `json:"labeled"`
+	// LabelEnabled mirrors muximux.app.enabled; nil when absent.
+	LabelEnabled *bool `json:"label_enabled,omitempty"`
+	// AutoImportSkip is non-nil when auto-import must not add this container.
+	AutoImportSkip *AutoImportSkip `json:"auto_import_skip,omitempty"`
+}
+
+// AutoImportSkip explains why a suggestion is not auto-import eligible.
+type AutoImportSkip struct {
+	Code   string `json:"code"` // disabled | not_enabled | unlabeled | no_port | no_url | invalid
+	Detail string `json:"detail,omitempty"`
+}
+
+// AutoImportSkip codes.
+const (
+	SkipDisabled   = "disabled"
+	SkipNotEnabled = "not_enabled"
+	SkipUnlabeled  = "unlabeled"
+	SkipNoPort     = "no_port"
+	SkipNoURL      = "no_url"
+	SkipInvalid    = "invalid"
+)
+
+// autoImportSkipReason returns nil when the suggestion is eligible for
+// auto-import, or the reason it is not.
+func autoImportSkipReason(s *Suggestion, requireExplicit bool) *AutoImportSkip {
+	switch {
+	case s.LabelEnabled != nil && !*s.LabelEnabled:
+		return &AutoImportSkip{Code: SkipDisabled}
+	case requireExplicit && (s.LabelEnabled == nil || !*s.LabelEnabled):
+		return &AutoImportSkip{Code: SkipNotEnabled}
+	case !requireExplicit && !s.Labeled:
+		return &AutoImportSkip{Code: SkipUnlabeled}
+	case s.RequiresInput || s.URL == "":
+		for _, n := range s.Notes {
+			if strings.HasPrefix(n, noteCannotBuildURL) {
+				return &AutoImportSkip{Code: SkipNoURL, Detail: strings.TrimPrefix(n, noteCannotBuildURL)}
+			}
+		}
+		return &AutoImportSkip{Code: SkipNoPort}
+	case s.GatewayRequested && s.BackendURL == "":
+		return &AutoImportSkip{Code: SkipNoURL, Detail: "gateway site has no backend URL"}
+	}
+	return nil
 }
 
 const (
@@ -129,7 +176,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 		// the image didn't map to anything. Operators routinely
 		// prefix their containers (homelab-sonarr, homelab_radarr)
 		// and shouldn't lose the catalog hint as a result.
-		catalog, hasCatalog = MatchByContainerName(c.PrimaryName())
+		catalog, hasCatalog = MatchByContainerName(baseName(c))
 	}
 	key, stability := KeyForContainer(c)
 
@@ -141,6 +188,8 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 		ImageRef:      c.Image,
 		Confidence:    ConfidenceLow,
 		Notes:         []string{},
+		Labeled:       labels.Any,
+		LabelEnabled:  labels.Enabled,
 	}
 
 	// Resolve each field with the per-helper "label > catalog >
@@ -180,7 +229,7 @@ func resolveSuggestionName(s *Suggestion, labels *AppLabels, catalog *CatalogEnt
 		s.Confidence = ConfidenceMedium
 		s.Notes = append(s.Notes, fmt.Sprintf("Name suggested from catalog: %s", catalog.Image))
 	default:
-		s.Name = titleizeName(c.PrimaryName())
+		s.Name = titleizeName(baseName(c))
 	}
 }
 
@@ -284,15 +333,15 @@ func resolveSuggestionHealthURL(s *Suggestion, labels *AppLabels, catalog *Catal
 
 // resolveSuggestionGatewayDomain picks the gateway subdomain to seed
 // the modal's "Add gateway site" input. Priority: explicit
-// muximux.app.gateway.domain label > <container>.<dashboardDomain>
+// muximux.app.gateway.domain label > <service or container>.<dashboardDomain>
 // derived default > empty.
 func resolveSuggestionGatewayDomain(s *Suggestion, labels *AppLabels, dashboardDomain string, c *ContainerSummary) {
 	switch {
 	case labels.GatewayDomain != "":
 		s.SuggestedDomain = labels.GatewayDomain
 		s.GatewayRequested = true
-	case dashboardDomain != "" && c.PrimaryName() != "":
-		s.SuggestedDomain = sanitiseSubdomain(c.PrimaryName()) + "." + dashboardDomain
+	case dashboardDomain != "" && baseName(c) != "":
+		s.SuggestedDomain = sanitiseSubdomain(baseName(c)) + "." + dashboardDomain
 	}
 }
 
@@ -346,6 +395,7 @@ func applyLabelOverrides(s *Suggestion, labels *AppLabels) {
 	s.AllowedGroups = labels.AllowedGroups
 	s.Permissions = labels.Permissions
 	s.AllowNotifications = labels.AllowNotifications
+	s.HealthCheck = labels.HealthCheck
 	s.Default = labels.Default
 	s.Shortcut = labels.Shortcut
 	s.HTTPActionMethod = labels.HTTPActionMethod

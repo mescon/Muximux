@@ -39,7 +39,10 @@ func buildURLForSuggestion(strategy string, c *ContainerSummary, port int, schem
 		return fmt.Sprintf(urlFormat, scheme, ip, port), nil
 
 	case config.StrategyContainerDNS:
-		name := c.PrimaryName()
+		name := swarmServiceName(c)
+		if name == "" {
+			name = c.PrimaryName()
+		}
 		if name == "" {
 			return "", fmt.Errorf("container has no name for container_dns strategy")
 		}

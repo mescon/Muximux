@@ -57,6 +57,11 @@ type Config struct {
 	// onSaved is the broadcast hook Save calls after a successful write.
 	// Unexported, so YAML ignores it.
 	onSaved func()
+
+	// quarantined holds docker-owned apps and gateway sites that failed
+	// validation at load. They are not live, but Save writes them back
+	// so config.yaml keeps them. Unexported, so YAML ignores it.
+	quarantined []quarantined
 }
 
 // SetOnSaved registers the broadcast hook: called after every successful
@@ -116,6 +121,9 @@ type DiscoveryDockerConfig struct {
 	// AutoImport controls automatic import of muximux.*-labeled
 	// containers. off (default) | add | update | sync. See AutoImportMode.
 	AutoImport AutoImportMode `yaml:"auto_import,omitempty" json:"auto_import,omitempty"`
+	// RequireExplicitEnable limits auto-import to containers labelled
+	// muximux.app.enabled=true. Off by default: any muximux.* label is enough.
+	RequireExplicitEnable bool `yaml:"require_explicit_enable,omitempty" json:"require_explicit_enable"`
 
 	// Container lifecycle controls (Splash actions). Two-layer opt-in:
 	// also requires the Docker socket to be mounted read-write at
@@ -597,6 +605,9 @@ type AppConfig struct {
 	// hand-edited config.yaml, and Load() auto-detaches tracking
 	// so the operator's edit survives the next poller tick.
 	DockerManagedURL string `yaml:"docker_managed_url,omitempty" json:"docker_managed_url,omitempty"`
+	// DockerManagedHealthCheck is the muximux.app.health_check value the
+	// reconciler last applied; nil when the label is unset. Server-owned.
+	DockerManagedHealthCheck *bool `yaml:"docker_managed_health_check,omitempty" json:"docker_managed_health_check,omitempty"`
 	// DockerAutoImported marks an app the discovery reconciler created.
 	// Only such apps are updated or removed by auto-import; manually
 	// imported apps (DockerKey set, this false) are never touched.
@@ -727,7 +738,9 @@ func hasLegacyGateway(data []byte) bool {
 // Parse turns config.yaml bytes into a validated Config exactly as boot does:
 // env-ref recording, ${VAR} expansion (MissingEnvVars), strict decode onto
 // defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
-// ApplyAutoImportEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
+// ApplyAutoImportEnv(cfg, os.LookupEnv),
+// ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv),
+// autoDetachEditedDockerEntries, validate().
 // It never runs the legacy server.gateway migration and refuses such input
 // with ErrLegacyGateway.
 func Parse(data []byte) (*Config, error) {
@@ -797,6 +810,7 @@ func decodeConfig(data []byte) (*Config, error) {
 	// applyDiscoveryDefaults (which normalizes the yaml value) so an
 	// operator-set MUXIMUX_DISCOVERY_AUTO_IMPORT wins over config.yaml.
 	ApplyAutoImportEnv(cfg, os.LookupEnv)
+	ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv)
 
 	return cfg, nil
 }
@@ -811,6 +825,9 @@ func finishConfig(cfg *Config) error {
 	// all have consistent semantics: operator's URL edit wins,
 	// tracking is dropped.
 	autoDetachEditedDockerEntries(cfg)
+	// Set aside docker-owned entries that would fail validate(), so an
+	// invalid entry written by auto-import can never stop startup.
+	quarantineInvalidDockerEntries(cfg)
 	warnStrayHTTPActionFields(cfg.Apps)
 
 	return cfg.validate()
@@ -823,6 +840,7 @@ func finishConfig(cfg *Config) error {
 // tracking until the poller next writes the baseline.
 func detachIfHandEdited(app *AppConfig) {
 	if app.DockerKey == "" {
+		app.DockerManagedHealthCheck = nil
 		return
 	}
 	if app.DockerManagedURL == "" {
@@ -841,6 +859,7 @@ func detachIfHandEdited(app *AppConfig) {
 	app.DockerEndpoint = ""
 	app.DockerStrategy = ""
 	app.DockerManagedURL = ""
+	app.DockerManagedHealthCheck = nil
 	app.DockerAutoImported = false
 }
 
@@ -1298,28 +1317,31 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 	if s.BackendURL == "" {
 		return fmt.Errorf("backend_url is required")
 	}
+	// Error reasons name the URL without its userinfo, so a password in
+	// backend_url never reaches the log or the quarantine reason.
+	shown := redactURL(s.BackendURL)
 	u, err := url.Parse(s.BackendURL)
 	if err != nil {
-		return fmt.Errorf("backend_url %q is not a valid URL: %w", s.BackendURL, err)
+		return fmt.Errorf("backend_url %q is not a valid URL: %w", shown, urlErrCause(err))
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("backend_url %q must use http or https", s.BackendURL)
+		return fmt.Errorf("backend_url %q must use http or https", shown)
 	}
 	if u.Host == "" {
-		return fmt.Errorf("backend_url %q is missing a host", s.BackendURL)
+		return fmt.Errorf("backend_url %q is missing a host", shown)
 	}
 	// Caddy's reverse_proxy upstream syntax is scheme://host[:port] only:
 	// path, query, and fragment are not allowed. Catching them here turns
 	// a confusing late-stage Caddy parse error ("invalid upstream") into
 	// a clear validator message at the originating field.
 	if u.Path != "" && u.Path != "/" {
-		return fmt.Errorf("backend_url %q must not include a path; the structured form forwards the inbound request path as-is", s.BackendURL)
+		return fmt.Errorf("backend_url %q must not include a path; the structured form forwards the inbound request path as-is", shown)
 	}
 	if u.RawQuery != "" {
-		return fmt.Errorf("backend_url %q must not include a query string", s.BackendURL)
+		return fmt.Errorf("backend_url %q must not include a query string", shown)
 	}
 	if u.Fragment != "" {
-		return fmt.Errorf("backend_url %q must not include a fragment", s.BackendURL)
+		return fmt.Errorf("backend_url %q must not include a fragment", shown)
 	}
 	// Reject 0.0.0.0 and IPv4 link-local; never legitimate as upstream
 	// targets and easy to type by mistake. Private IPs (10/8, 172.16/12,
@@ -1327,10 +1349,10 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 	// homelab backends live.
 	hostname := u.Hostname()
 	if hostname == "0.0.0.0" {
-		return fmt.Errorf("backend_url %q points at 0.0.0.0; specify a real host or 127.0.0.1", s.BackendURL)
+		return fmt.Errorf("backend_url %q points at 0.0.0.0; specify a real host or 127.0.0.1", shown)
 	}
 	if ip := net.ParseIP(hostname); ip != nil && ip.IsLinkLocalUnicast() {
-		return fmt.Errorf("backend_url %q targets a link-local address; this is rarely intentional", s.BackendURL)
+		return fmt.Errorf("backend_url %q targets a link-local address; this is rarely intentional", shown)
 	}
 	// Reject the obvious self-loop: backend pointing at the Muximux
 	// HTTP listener itself. Letting this through would make every
@@ -1349,7 +1371,7 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 			}
 		}
 		if isSelfLoop(hostname, backendPort, srv.Listen) {
-			return fmt.Errorf("backend_url %q points at Muximux's own listener %q; this would loop the proxy back on itself", s.BackendURL, srv.Listen)
+			return fmt.Errorf("backend_url %q points at Muximux's own listener %q; this would loop the proxy back on itself", shown, srv.Listen)
 		}
 	}
 
@@ -1601,6 +1623,30 @@ func validateAppName(a *AppConfig) error {
 	return nil
 }
 
+var userinfoRe = regexp.MustCompile(`//[^/@]*@`)
+
+// redactURL returns raw without any userinfo, so credentials embedded in a
+// URL never reach a validation reason (which is logged and returned to the
+// UI). An unparseable value has any "//userinfo@" prefix stripped textually.
+func redactURL(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return userinfoRe.ReplaceAllString(raw, "//")
+	}
+	u.User = nil
+	return u.String()
+}
+
+// urlErrCause returns the underlying cause of a url.Parse error without the
+// raw URL that url.Error.Error() embeds.
+func urlErrCause(err error) error {
+	var ue *url.Error
+	if errors.As(err, &ue) {
+		return ue.Err
+	}
+	return err
+}
+
 // validateAppURL is the URL rule for non-http_action apps. It matches the
 // frontend iframe src allowlist (AppFrame.safeIframeSrc): a single-slash
 // same-origin path is allowed (proxied/local apps), a protocol-relative
@@ -1612,19 +1658,19 @@ func validateAppURL(a *AppConfig) error {
 	}
 	if strings.HasPrefix(a.URL, "/") {
 		if strings.HasPrefix(a.URL, "//") || strings.HasPrefix(a.URL, "/\\") {
-			return fmt.Errorf("url %q must be an absolute http(s) URL or a single-slash path", a.URL)
+			return fmt.Errorf("url %q must be an absolute http(s) URL or a single-slash path", redactURL(a.URL))
 		}
 		return nil
 	}
 	u, err := url.Parse(a.URL)
 	if err != nil {
-		return fmt.Errorf("url %q is not parseable: %w", a.URL, err)
+		return fmt.Errorf("url %q is not parseable: %w", redactURL(a.URL), urlErrCause(err))
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("url %q must use http or https", a.URL)
+		return fmt.Errorf("url %q must use http or https", redactURL(a.URL))
 	}
 	if u.Hostname() == "" {
-		return fmt.Errorf("url %q must have a hostname", a.URL)
+		return fmt.Errorf("url %q must have a hostname", redactURL(a.URL))
 	}
 	return nil
 }
@@ -1635,13 +1681,13 @@ func validateAppHTTPAction(a *AppConfig) error {
 	}
 	u, err := url.Parse(a.URL)
 	if err != nil {
-		return fmt.Errorf("http_action url %q is not parseable: %w", a.URL, err)
+		return fmt.Errorf("http_action url %q is not parseable: %w", redactURL(a.URL), urlErrCause(err))
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("http_action url %q must use http or https", a.URL)
+		return fmt.Errorf("http_action url %q must use http or https", redactURL(a.URL))
 	}
 	if u.Hostname() == "" {
-		return fmt.Errorf("http_action url %q must have a hostname", a.URL)
+		return fmt.Errorf("http_action url %q must have a hostname", redactURL(a.URL))
 	}
 	if a.HTTPActionMethod != "" {
 		if _, ok := httpActionAllowedMethods[a.HTTPActionMethod]; !ok {
@@ -1778,6 +1824,9 @@ func (c *Config) Save(path string) error {
 		os.Remove(tmpName) // don't leave the temp file behind on a failed rename
 		return err
 	}
+	// The file no longer holds the superseded quarantined entries; drop
+	// them from memory (and log it) now that the write has succeeded.
+	c.pruneSupersededQuarantine()
 	// Re-record the references from what was just written, so the next
 	// save matches items by their current names and positions rather than
 	// the ones they had when the file was loaded.

@@ -559,3 +559,28 @@ func TestImportDocker_FiresOnConfigSavedAfterSuccess(t *testing.T) {
 
 // httpBody is defined in discovery_test.go in this package; reused.
 var _ = bytes.NewBuffer
+
+func TestImportDocker_ManualImportNeverSetsHealthCheckMarker(t *testing.T) {
+	h, cfg := newTestImportHandler(t, nil)
+	tr := true
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:emby",
+			Strategy: "container_ip",
+			App: &ClientAppConfig{
+				Name: "Emby", URL: "http://10.0.0.6:8096", Enabled: true,
+				HealthCheck: &tr, DockerManagedHealthCheck: &tr,
+			},
+		}},
+	})
+	if !res.Success || len(cfg.Apps) != 1 {
+		t.Fatalf("import failed: %+v", res)
+	}
+	app := cfg.Apps[0]
+	if app.DockerManagedHealthCheck != nil {
+		t.Errorf("marker must be nil on manual import, got %v", *app.DockerManagedHealthCheck)
+	}
+	if app.HealthCheck == nil || !*app.HealthCheck {
+		t.Errorf("health_check must pass through: %+v", app.HealthCheck)
+	}
+}

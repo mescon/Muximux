@@ -182,7 +182,7 @@ describe('ThemeTab', () => {
       render(ThemeTab);
 
       // Click the Default theme card
-      const defaultTheme = screen.getByText('Muximux').closest('[role="button"]')!;
+      const defaultTheme = screen.getByText('Muximux').closest('button')!;
       await fireEvent.click(defaultTheme);
 
       expect(mockSetThemeFamily).toHaveBeenCalledWith('default');
@@ -764,6 +764,36 @@ describe('ThemeTab', () => {
       await waitFor(() => {
         expect(mockToasts.error).toHaveBeenCalledWith('A bundled theme already uses this name. Choose another name.');
       });
+    });
+  });
+
+  describe('card structure', () => {
+    it('selecting a theme is a native button with aria-pressed and nothing interactive nested in it', () => {
+      (themeFamilies as unknown as { set: (v: unknown) => void }).set([
+        {
+          id: 'my-custom',
+          name: 'My Custom',
+          description: 'Mine',
+          darkTheme: { id: 'my-custom-dark', name: 'My Custom Dark', isBuiltin: false, preview: { bg: '#000', surface: '#111', accent: '#ff0', text: '#fff' } },
+          lightTheme: null,
+        },
+      ]);
+      render(ThemeTab);
+      const card = screen.getByText('My Custom').closest('button')!;
+      expect(card).not.toBeNull();
+      expect(card).toHaveAttribute('aria-pressed');
+      expect(card.querySelector('button, a[href], input, select, textarea, [role="button"], [tabindex]')).toBeNull();
+      // The delete control sits beside the card button, not inside it.
+      const del = screen.getByRole('button', { name: 'Delete My Custom' });
+      expect(card.contains(del)).toBe(false);
+      expect(del.closest('[role="button"]')).toBeNull();
+    });
+
+    it('no role=button wrapper contains another control', () => {
+      const { container } = render(ThemeTab);
+      for (const el of container.querySelectorAll('[role="button"]')) {
+        expect(el.querySelector('button, a[href], input, select, textarea')).toBeNull();
+      }
     });
   });
 });

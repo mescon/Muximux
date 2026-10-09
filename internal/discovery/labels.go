@@ -12,6 +12,12 @@ import (
 const (
 	LabelDiscoveryID = "muximux.discovery.id" // operator-supplied stable tracking key
 
+	// Docker-owned labels used for stable swarm and compose keys.
+	LabelSwarmServiceID   = "com.docker.swarm.service.id"
+	LabelSwarmServiceName = "com.docker.swarm.service.name"
+	LabelComposeProject   = "com.docker.compose.project"
+	LabelComposeService   = "com.docker.compose.service"
+
 	// muximux.app.* namespace - per-app fields. Anything an operator
 	// would normally set in the App edit form can be pinned here.
 	LabelAppEnabled            = "muximux.app.enabled" // "true" to opt in; defaults true when image matches catalog
@@ -35,6 +41,7 @@ const (
 	LabelAppShortcut           = "muximux.app.shortcut"            // keyboard digit 1..9
 	LabelAppGatewayDomain      = "muximux.app.gateway.domain"      // suggest as gateway site
 	LabelAppURL                = "muximux.app.url"                 // absolute URL the app opens at; health still follows the container
+	LabelAppHealthCheck        = "muximux.app.health_check"        // "true" enables health monitoring, "false" disables, unset keeps the app's own setting
 
 	LabelAppHTTPActionMethod    = "muximux.app.http_action_method"     // GET | POST | PUT | DELETE | PATCH
 	LabelAppHTTPActionHeaders   = "muximux.app.http_action_headers"    // Key=Value,Key2=Value2 (CSV)
@@ -59,6 +66,7 @@ const (
 // Empty-when-missing fields are zero values; callers default to
 // catalog or container facts when a field is unset.
 type AppLabels struct {
+	Any                bool  // at least one muximux.* label was present (known or unknown)
 	Enabled            *bool // pointer so we can distinguish "absent" from "false"
 	Name               string
 	Icon               string
@@ -77,7 +85,8 @@ type AppLabels struct {
 	AllowedGroups      []string
 	Permissions        []string
 	AllowNotifications *bool
-	Shortcut           int // 0 = unset
+	HealthCheck        *bool // pointer so unset keeps the app's own setting
+	Shortcut           int   // 0 = unset
 	GatewayDomain      string
 
 	// URL is the trimmed muximux.app.url value. Validated where it is
@@ -167,6 +176,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 			out.Shortcut = n
 		}
 	},
+	LabelAppHealthCheck:   func(out *AppLabels, v string) { b := boolish(v); out.HealthCheck = &b },
 	LabelAppGatewayDomain: func(out *AppLabels, v string) { out.GatewayDomain = v },
 	LabelAppURL:           func(out *AppLabels, v string) { out.URL = strings.TrimSpace(v) },
 	LabelAppHTTPActionMethod: func(out *AppLabels, v string) {
@@ -220,6 +230,7 @@ func ParseAppLabels(labels map[string]string) AppLabels {
 		if !strings.HasPrefix(k, "muximux.") {
 			continue
 		}
+		out.Any = true
 		if h, ok := appLabelHandlers[k]; ok {
 			h(&out, v)
 			continue
@@ -339,13 +350,15 @@ func parseHTTPActionHeadersCSV(v string) map[string]string {
 
 // Stability hints surface in the Discover modal next to each
 // suggestion so the operator can see whether the tracking key will
-// survive a docker-compose --force-recreate.
+// survive a docker-compose --force-recreate or a swarm reschedule.
+// Label, swarm service and compose service keys are all stable; only
+// task-name and compose-suffixed container-name keys are fragile.
 type Stability string
 
 const (
-	StabilityStable          Stability = "stable"           // label-based or plain non-suffixed name
-	StabilityRecreateFragile Stability = "recreate-fragile" // compose-style suffix that changes on recreate
-	StabilityTaskFragile     Stability = "task-fragile"     // swarm task name with random suffix
+	StabilityStable          Stability = "stable"           // label, swarm service, compose service, or plain non-suffixed name
+	StabilityRecreateFragile Stability = "recreate-fragile" // compose-style name suffix (no compose labels) that changes on recreate
+	StabilityTaskFragile     Stability = "task-fragile"     // swarm task name with random suffix (no swarm service label)
 )
 
 // composeV1Suffix matches names like "myproject_sonarr_1" - V1 default.
@@ -364,8 +377,10 @@ var swarmTaskPattern = regexp.MustCompile(`\.\d+\.[a-z0-9]{20,}$`)
 // stable first):
 //
 //  1. operator label muximux.discovery.id  -> "label:<value>"
-//  2. plain container name                  -> "name:<name>"   (with stability hint)
-//  3. container ID (full SHA)               -> "id:<id>"        (last resort)
+//  2. swarm service name label             -> "swarm:<service>"
+//  3. compose project + service labels      -> "compose:<project>:<service>"
+//  4. plain container name                  -> "name:<name>"   (with stability hint)
+//  5. container ID (full SHA)               -> "id:<id>"        (last resort)
 //
 // The returned stability lets the modal surface a warning when the
 // chosen key will likely shift on docker-compose --force-recreate or
@@ -373,6 +388,12 @@ var swarmTaskPattern = regexp.MustCompile(`\.\d+\.[a-z0-9]{20,}$`)
 func KeyForContainer(c *ContainerSummary) (key string, stability Stability) {
 	if v, ok := c.Labels[LabelDiscoveryID]; ok && strings.TrimSpace(v) != "" {
 		return "label:" + strings.TrimSpace(v), StabilityStable
+	}
+	if svc := swarmServiceName(c); svc != "" {
+		return "swarm:" + svc, StabilityStable
+	}
+	if v := composeKeyValue(c); v != "" {
+		return "compose:" + v, StabilityStable
 	}
 	name := c.PrimaryName()
 	if name != "" {

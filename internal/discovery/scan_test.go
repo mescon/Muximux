@@ -102,3 +102,41 @@ func TestService_Scan_HappyPath_ReturnsSuggestions(t *testing.T) {
 		t.Errorf("suggestion ContainerName = %q, want sonarr", res.Suggestions[0].ContainerName)
 	}
 }
+
+func TestScan_SetsAutoImportSkipAndOptedOut(t *testing.T) {
+	media := ContainerNetworks{Networks: map[string]ContainerNetwork{"media": {IPAddress: "10.0.0.5"}}}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v1.41/containers/json", func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode([]ContainerSummary{
+			{ID: "a", Names: []string{"/optout"}, Image: "acme/optout", NetworkSettings: media,
+				Labels: map[string]string{"muximux.app.enabled": "false", "muximux.app.port": "80"},
+				Ports:  []ContainerPort{{PrivatePort: 80, Type: "tcp"}}},
+			{ID: "b", Names: []string{"/plain"}, Image: "acme/plain", NetworkSettings: media,
+				Ports: []ContainerPort{{PrivatePort: 8080, Type: "tcp"}}},
+		})
+	})
+	socket, cleanup := fakeDockerOverUnix(t, mux)
+	defer cleanup()
+	dc := &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket, NetworkStrategy: "container_ip", NetworkFilter: "media"}
+	svc := NewService(dc)
+	codes := func(res *ScanResult) map[string]string {
+		out := map[string]string{}
+		for i := range res.Suggestions {
+			if s := &res.Suggestions[i]; s.AutoImportSkip != nil {
+				out[s.ContainerName] = s.AutoImportSkip.Code
+			}
+		}
+		return out
+	}
+	res := svc.Scan(context.Background(), "")
+	got := codes(&res)
+	if len(res.Suggestions) != 2 || res.OptedOut != 1 || got["optout"] != SkipDisabled || got["plain"] != SkipUnlabeled {
+		t.Fatalf("suggestions=%d opted_out=%d codes=%v", len(res.Suggestions), res.OptedOut, got)
+	}
+	dc.RequireExplicitEnable = true
+	svc.Reconfigure(dc)
+	res = svc.Scan(context.Background(), "")
+	if got = codes(&res); got["plain"] != SkipNotEnabled || got["optout"] != SkipDisabled {
+		t.Fatalf("explicit mode codes = %v", got)
+	}
+}

@@ -1,6 +1,11 @@
 import type { App, Config } from '$lib/types';
 
-const TRACKED = ['docker_key', 'docker_endpoint', 'docker_strategy'] as const;
+const TRACKED = ['docker_key', 'docker_endpoint', 'docker_strategy', 'docker_managed_health_check'] as const;
+
+// The string markers treat '' as absent; the boolean marker must keep false.
+function norm(f: (typeof TRACKED)[number], v: unknown): unknown {
+  return f === 'docker_managed_health_check' ? (v ?? undefined) : (v || undefined);
+}
 
 /**
  * Copies Docker tracking from the server's apps onto the Settings dialog's
@@ -20,8 +25,8 @@ export function syncDockerTracking(local: App[], server: App[]): number {
     if (!fresh) continue;
     let diff = false;
     for (const f of TRACKED) {
-      if ((app[f] || undefined) !== (fresh[f] || undefined)) {
-        app[f] = fresh[f] || undefined;
+      if (norm(f, app[f]) !== norm(f, fresh[f])) {
+        (app as unknown as Record<string, unknown>)[f] = norm(f, fresh[f]);
         diff = true;
       }
     }
@@ -46,7 +51,7 @@ export async function refreshDockerTracking(lists: App[][], fetchConfig: () => P
   return true;
 }
 
-const TRACKING_FIELDS = new Set(['docker_key', 'docker_endpoint', 'docker_strategy', 'docker_managed_url', 'docker_auto']);
+const TRACKING_FIELDS = new Set(['docker_key', 'docker_endpoint', 'docker_strategy', 'docker_managed_url', 'docker_auto', 'docker_managed_health_check']);
 
 /**
  * JSON.stringify replacer that leaves out Docker tracking fields. The server
