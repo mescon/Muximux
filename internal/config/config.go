@@ -1620,6 +1620,30 @@ func validateAppName(a *AppConfig) error {
 	return nil
 }
 
+var userinfoRe = regexp.MustCompile(`//[^/@]*@`)
+
+// redactURL returns raw without any userinfo, so credentials embedded in a
+// URL never reach a validation reason (which is logged and returned to the
+// UI). An unparseable value has any "//userinfo@" prefix stripped textually.
+func redactURL(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return userinfoRe.ReplaceAllString(raw, "//")
+	}
+	u.User = nil
+	return u.String()
+}
+
+// urlErrCause returns the underlying cause of a url.Parse error without the
+// raw URL that url.Error.Error() embeds.
+func urlErrCause(err error) error {
+	var ue *url.Error
+	if errors.As(err, &ue) {
+		return ue.Err
+	}
+	return err
+}
+
 // validateAppURL is the URL rule for non-http_action apps. It matches the
 // frontend iframe src allowlist (AppFrame.safeIframeSrc): a single-slash
 // same-origin path is allowed (proxied/local apps), a protocol-relative
@@ -1631,19 +1655,19 @@ func validateAppURL(a *AppConfig) error {
 	}
 	if strings.HasPrefix(a.URL, "/") {
 		if strings.HasPrefix(a.URL, "//") || strings.HasPrefix(a.URL, "/\\") {
-			return fmt.Errorf("url %q must be an absolute http(s) URL or a single-slash path", a.URL)
+			return fmt.Errorf("url %q must be an absolute http(s) URL or a single-slash path", redactURL(a.URL))
 		}
 		return nil
 	}
 	u, err := url.Parse(a.URL)
 	if err != nil {
-		return fmt.Errorf("url %q is not parseable: %w", a.URL, err)
+		return fmt.Errorf("url %q is not parseable: %w", redactURL(a.URL), urlErrCause(err))
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("url %q must use http or https", a.URL)
+		return fmt.Errorf("url %q must use http or https", redactURL(a.URL))
 	}
 	if u.Hostname() == "" {
-		return fmt.Errorf("url %q must have a hostname", a.URL)
+		return fmt.Errorf("url %q must have a hostname", redactURL(a.URL))
 	}
 	return nil
 }
@@ -1654,13 +1678,13 @@ func validateAppHTTPAction(a *AppConfig) error {
 	}
 	u, err := url.Parse(a.URL)
 	if err != nil {
-		return fmt.Errorf("http_action url %q is not parseable: %w", a.URL, err)
+		return fmt.Errorf("http_action url %q is not parseable: %w", redactURL(a.URL), urlErrCause(err))
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("http_action url %q must use http or https", a.URL)
+		return fmt.Errorf("http_action url %q must use http or https", redactURL(a.URL))
 	}
 	if u.Hostname() == "" {
-		return fmt.Errorf("http_action url %q must have a hostname", a.URL)
+		return fmt.Errorf("http_action url %q must have a hostname", redactURL(a.URL))
 	}
 	if a.HTTPActionMethod != "" {
 		if _, ok := httpActionAllowedMethods[a.HTTPActionMethod]; !ok {

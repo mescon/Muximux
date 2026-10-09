@@ -370,7 +370,7 @@ func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
 	res := svc.Scan(ctx, dashboardDomain)
 	// Containers that opted out (muximux.app.enabled=false) are counted in
 	// OptedOut but not listed.
-	kept := res.Suggestions[:0]
+	kept := make([]discovery.Suggestion, 0, len(res.Suggestions))
 	for i := range res.Suggestions {
 		if sk := res.Suggestions[i].AutoImportSkip; sk != nil && sk.Code == discovery.SkipDisabled {
 			continue

@@ -693,12 +693,42 @@ func TestDetachTracked_ComposeKeyDetachesLiveApp(t *testing.T) { // ruling 1
 }
 
 func TestDetachTracked_SaveFailureRestoresQuarantine(t *testing.T) {
-	h, cfg := seedLifecycleHandler(t, nil, nil)
+	h, cfg := seedLifecycleHandler(t, []config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.1:8989", Enabled: true,
+		DockerKey: "label:sonarr", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"}}, nil)
 	cfg.QuarantineApp(&config.AppConfig{Name: "VW", DockerKey: "label:vw", DockerAutoImported: true}, "r")
+	svc := h.Service()
+	svc.MarkMissing("label:sonarr")
+	svc.RecordSeen("label:other")
 	h.configPath = "/dev/null/impossible/config.yaml" // Save fails
+	for _, key := range []string{"label:vw", "label:sonarr"} {
+		w := httptest.NewRecorder()
+		h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/"+key, nil))
+		if w.Code != http.StatusInternalServerError {
+			t.Fatalf("%s: status %d", key, w.Code)
+		}
+	}
+	if !cfg.HasQuarantined("label:vw") {
+		t.Fatalf("quarantined %+v", cfg.Quarantined())
+	}
+	if cfg.Apps[0].DockerKey != "label:sonarr" {
+		t.Fatalf("live app not rolled back: %+v", cfg.Apps[0])
+	}
+	if svc.MissingSince("label:sonarr").IsZero() || svc.LastSeen("label:other").IsZero() {
+		t.Fatal("missing/last-seen state must survive a failed save")
+	}
+}
+
+func TestDetachTracked_ClearsMissingSince(t *testing.T) {
+	h, _ := seedLifecycleHandler(t, []config.AppConfig{{Name: "sonarr", URL: "http://10.0.0.1:8989", Enabled: true,
+		DockerKey: "label:sonarr", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"}}, nil)
+	svc := h.Service()
+	svc.MarkMissing("label:sonarr")
 	w := httptest.NewRecorder()
-	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:vw", nil))
-	if w.Code != http.StatusInternalServerError || !cfg.HasQuarantined("label:vw") {
-		t.Fatalf("status %d quarantined %+v", w.Code, cfg.Quarantined())
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:sonarr", nil))
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status %d", w.Code)
+	}
+	if !svc.MissingSince("label:sonarr").IsZero() {
+		t.Fatal("missing_since must be cleared after a successful detach")
 	}
 }

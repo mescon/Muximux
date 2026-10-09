@@ -145,9 +145,10 @@ func formatMissingSince(svc *discovery.Service, key string) string {
 }
 
 // DetachTracked handles DELETE /api/discovery/docker/track/{key}.
-// Detaches every app and gateway site whose DockerKey == key AND
-// DockerEndpoint matches the current endpoint. Returns 404 when no
-// entries match (idempotency for scripted callers — see plan v4
+// Quarantined entries with the key are dropped whatever their endpoint.
+// Live apps and gateway sites are detached only when their DockerKey == key
+// AND their DockerEndpoint matches the current endpoint. Returns 404 when
+// nothing matches (idempotency for scripted callers - see plan v4
 // "DELETE /track/{key} mutation spec").
 func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
@@ -163,8 +164,9 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 	// "/api/discovery/docker/track/" as a prefix, so a URL like
 	// /api/discovery/docker/track/relink/probe would hit this
 	// handler with key="relink/probe" and quietly attempt a
-	// detach against a key the operator never typed. Valid keys
-	// are "label:foo", "name:bar", "id:hex" - none contain a /.
+	// detach against a key the operator never typed. Tracking keys
+	// are "<source>:<value>" forms (see discovery.ParseTrackingKey for
+	// the set) and none contain a /.
 	if strings.Contains(rawKey, "/") {
 		respondError(w, r, http.StatusBadRequest, "tracking key must not contain /")
 		return

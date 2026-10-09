@@ -2486,3 +2486,26 @@ func TestDetachIfHandEdited_UntrackedDropsHealthCheckMarker(t *testing.T) {
 		t.Fatalf("untracked app kept marker: %+v", b)
 	}
 }
+
+//nolint:gosec // fake credentials, the test asserts they never reach a reason
+func TestValidateApp_ReasonsOmitURLCredentials(t *testing.T) {
+	cases := []AppConfig{
+		{Name: "a", URL: "ftp://user:secret@host/x"},
+		{Name: "b", URL: "http://user:secret@:80/"},
+		{Name: "c", URL: "http://user:secret@host/%zz"},
+		{Name: "d", URL: "ftp://user:secret@host/x", OpenMode: "http_action"},
+		{Name: "e", URL: "//user:secret@host/x"},
+	}
+	for i := range cases {
+		err := ValidateApp(&cases[i])
+		if err == nil {
+			t.Fatalf("case %d: expected an error", i)
+		}
+		if strings.Contains(err.Error(), "secret") {
+			t.Fatalf("case %d: reason leaks credentials: %v", i, err)
+		}
+	}
+	if got := redactURL("http://u:p@h/%zz"); got != "http://h/%zz" {
+		t.Fatalf("unparseable must still lose userinfo, got %q", got)
+	}
+}
