@@ -49,9 +49,15 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   `--accent-on-primary` and `--danger-solid` instead of fixed Tailwind
   shades, so themes can set them; omitted tokens fall back to the defaults.
   The theme editor writes the text colour for accent fills when a custom
-  theme is saved. Colours are otherwise unchanged, apart from small shifts
-  such as buttons sharing the standard button style and one-shade accent
-  changes.
+  theme is saved (pure white or black, whichever reads better on the
+  accent). Visible shifts that come with this: status text, tints and
+  borders move to one shade per status; text on accent and red fills is
+  white in light themes too; the Login and onboarding primary buttons use
+  the theme accent instead of a fixed brand shade; buttons share the
+  standard button style; accent-coloured text and links are one shade off
+  in some themes and links underline on hover; focus is a uniform 2px
+  outline; the unknown health dot is a hollow ring and the tooltip's uptime
+  badge uses the status badge colours.
 
 ### Fixed
 - **Custom apps added in the onboarding wizard appear on the dashboard.**
