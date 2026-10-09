@@ -87,8 +87,6 @@
     pendingAction = { app, action };
   }
 
-  const emptyDockerState: DockerState = { status: 'missing', health: 'none', restart_count: 0, image: '' };
-
   async function runAction(app: App, action: 'start' | 'stop' | 'restart') {
     const fn = action === 'start' ? dockerStart : action === 'stop' ? dockerStop : dockerRestart;
     let res;
@@ -106,11 +104,12 @@
     } else {
       const verb = action === 'start' ? 'Started' : action === 'stop' ? 'Stopped' : 'Restarted';
       toasts.success(`${verb} ${app.name} (${res.latency_ms}ms)`);
-      if (res.status) {
-        applyDockerStateChange(app.name, {
-          ...(getDockerStateFor(app.name) ?? emptyDockerState),
-          status: res.status as DockerState['status'],
-        });
+      const prev = getDockerStateFor(app.name);
+      if (res.status && prev) {
+        applyDockerStateChange(app.name, { ...prev, status: res.status as DockerState['status'] });
+      } else if (res.status) {
+        // No prior state to extend: do not fabricate health/image, fetch the real snapshot.
+        void refreshDockerState();
       }
     }
   }

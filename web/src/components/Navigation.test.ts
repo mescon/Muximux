@@ -852,6 +852,17 @@ describe('Navigation', () => {
       expect(style).toContain('top: 200px');
     });
 
+    it('records the effective corner on mobile', () => {
+      const orig = window.innerWidth;
+      Object.defineProperty(window, 'innerWidth', { value: 500, configurable: true });
+      try {
+        renderFloating('top-left');
+        expect(JSON.parse(localStorage.getItem('muximux_fab_position')!).corner).toBe('bottom-right');
+      } finally {
+        Object.defineProperty(window, 'innerWidth', { value: orig, configurable: true });
+      }
+    });
+
     it('re-derives the position when the configured corner changes after mount', async () => {
       const { container, rerender } = renderFloating('bottom-right');
       await rerender({

@@ -176,10 +176,11 @@
     };
   }
 
-  // The configured corner; recorded with the stored coordinates so a config
+  // The corner recorded with the stored coordinates so a config
   // change (or a different corner in another session) wins over stale coords.
-  let configFloatingCorner = $derived(config.navigation.floating_position || 'bottom-right');
-  let appliedFabCorner = configFloatingCorner;
+  // The effective corner is used (not the raw config) so mobile, which always
+  // anchors bottom-right, records the coordinates it actually derived.
+  let appliedFabCorner = '';
 
   function persistFabPosition() {
     localStorage.setItem(FAB_LS_KEY, JSON.stringify({ x: fabX, y: fabY, corner: appliedFabCorner }));
@@ -187,7 +188,7 @@
 
   // Place the FAB at the configured corner and remember it.
   function resetFabToCorner() {
-    appliedFabCorner = configFloatingCorner;
+    appliedFabCorner = effectiveFloatingPosition;
     const coords = floatingPositionToCoords(effectiveFloatingPosition);
     fabX = coords.x; fabY = coords.y;
     persistFabPosition();
@@ -460,7 +461,7 @@
     if (storedFab) {
       try {
         const p = JSON.parse(storedFab);
-        if (p.corner === configFloatingCorner) {
+        if (p.corner === effectiveFloatingPosition) {
           const c = clampFabPosition(p.x, p.y);
           fabX = c.x; fabY = c.y;
         }
@@ -469,6 +470,7 @@
     if (!fabX && !fabY) {
       resetFabToCorner();
     }
+    appliedFabCorner = effectiveFloatingPosition;
     fabInitialized = true;
     // Set up scroll fade ResizeObserver
     updateAllScrollFades();
@@ -509,7 +511,7 @@
 
   // Re-derive the FAB position when the configured corner changes after mount
   $effect(() => {
-    const corner = configFloatingCorner;
+    const corner = effectiveFloatingPosition;
     if (!fabInitialized || corner === appliedFabCorner) return;
     resetFabToCorner();
   });
