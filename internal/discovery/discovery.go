@@ -497,6 +497,8 @@ type ScanResult struct {
 	Suggestions []Suggestion `json:"suggestions,omitempty"`
 	ScanBlocked string       `json:"scan_blocked,omitempty"`
 	Error       string       `json:"error,omitempty"`
+	// OptedOut counts containers with muximux.app.enabled=false.
+	OptedOut int `json:"opted_out,omitempty"`
 }
 
 // Scan enumerates the daemon's running containers and produces a
@@ -570,12 +572,17 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		if isLikelySelf(&containers[i]) {
 			continue
 		}
-		out.Suggestions = append(out.Suggestions, suggestForContainer(
+		sug := suggestForContainer(
 			&containers[i],
 			cfg.NetworkStrategy,
 			cfg.HostIP,
 			dashboardDomain,
-		))
+		)
+		sug.AutoImportSkip = autoImportSkipReason(&sug, cfg.RequireExplicitEnable)
+		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {
+			out.OptedOut++
+		}
+		out.Suggestions = append(out.Suggestions, sug)
 	}
 	return out
 }

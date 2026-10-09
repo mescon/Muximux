@@ -59,6 +59,7 @@ const (
 // Empty-when-missing fields are zero values; callers default to
 // catalog or container facts when a field is unset.
 type AppLabels struct {
+	Any                bool  // at least one muximux.* label was present (known or unknown)
 	Enabled            *bool // pointer so we can distinguish "absent" from "false"
 	Name               string
 	Icon               string
@@ -220,6 +221,7 @@ func ParseAppLabels(labels map[string]string) AppLabels {
 		if !strings.HasPrefix(k, "muximux.") {
 			continue
 		}
+		out.Any = true
 		if h, ok := appLabelHandlers[k]; ok {
 			h(&out, v)
 			continue
