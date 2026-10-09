@@ -1260,13 +1260,24 @@ var setupAllowedAuthPaths = map[string]bool{
 	"/api/auth/me":     true,
 }
 
+// isSetupBlockedDynamicPath reports whether a non-/api/ path is a dynamic
+// route that waits for setup: /ws and the /proxy/ reverse proxy. Neither is
+// used by the onboarding wizard.
+func isSetupBlockedDynamicPath(path string) bool {
+	return path == "/ws" || strings.HasPrefix(path, "/ws/") ||
+		path == strings.TrimSuffix(proxyPathPrefix, "/") || strings.HasPrefix(path, proxyPathPrefix)
+}
+
 // isSetupAllowed returns true if the request should be allowed through during setup.
 func (s *Server) isSetupAllowed(r *http.Request) bool {
 	path := r.URL.Path
 
-	// Non-API paths (static assets, SPA) are always allowed
+	// Non-API paths are static assets, theme CSS, icons and the SPA shell,
+	// which the wizard needs. The exceptions run handler logic as the
+	// virtual admin while auth is none: the WebSocket (which streams log
+	// entries and config snapshots to admins) and the app reverse proxy.
 	if !strings.HasPrefix(path, "/api/") {
-		return true
+		return !isSetupBlockedDynamicPath(path)
 	}
 
 	// The auth endpoints the login page and the wizard need, health, and

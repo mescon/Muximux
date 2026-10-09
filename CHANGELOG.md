@@ -103,8 +103,9 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   and use it to claim the instance. The token is now printed only to the
   console (container/console output) and is never written to the log
   buffer or `muximux.log`; the log viewer, `/api/system/updates` and
-  `/api/system/info` return 503 `setup_required` until setup completes --
-  only the theme list and icon routes the wizard uses stay open. A setup
+  `/api/system/info`, the `/ws` live stream and the `/proxy/` app routes
+  return 503 `setup_required` until setup completes -- only the theme list,
+  icon routes and static assets the wizard uses stay open. A setup
   token found in a log file written by an earlier release is replaced with
   a new one at startup, and newly created log files are mode 0600. (#494)
 

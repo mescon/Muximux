@@ -609,8 +609,9 @@ func TestConfigRestore_InvalidConfigIs400(t *testing.T) {
 
 func TestConfigRestore_ProxyRoutesRebuilt(t *testing.T) {
 	s := newServerForTest(t, nil)
-	if rec := get(t, s, "/proxy/proxied/"); rec.Code != http.StatusNotFound {
-		t.Fatalf("before restore /proxy/proxied/ = %d, want 404", rec.Code)
+	// Before setup the reverse proxy waits behind the setup guard.
+	if rec := get(t, s, "/proxy/proxied/"); rec.Code != http.StatusServiceUnavailable {
+		t.Fatalf("before restore /proxy/proxied/ = %d, want 503", rec.Code)
 	}
 	backup := `auth:
   method: none
@@ -623,8 +624,8 @@ apps:
 	if rec := postRestore(s, backup); rec.Code != http.StatusOK {
 		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
 	}
-	if rec := get(t, s, "/proxy/proxied/"); rec.Code == http.StatusNotFound {
-		t.Fatalf("/proxy/proxied/ still 404 after restore: %s", rec.Body.String())
+	if rec := get(t, s, "/proxy/proxied/"); rec.Code == http.StatusNotFound || rec.Code == http.StatusServiceUnavailable {
+		t.Fatalf("/proxy/proxied/ = %d after restore: %s", rec.Code, rec.Body.String())
 	}
 }
 
@@ -1153,4 +1154,66 @@ func TestSetupToken_ReusedWhenNotInLog(t *testing.T) {
 	if second.setupToken != first.setupToken {
 		t.Errorf("token rotated without a leak: %q -> %q", first.setupToken, second.setupToken)
 	}
+}
+
+// Every non-/api/ route registered on the mux, with whether it is reachable
+// before setup. A new non-/api/ route must be added here and decided on: the
+// guard lets non-/api/ paths through unless they are listed as dynamic.
+func TestPreSetup_NonAPIRoutes(t *testing.T) {
+	s := newServerForTest(t, nil)
+	if !s.needsSetup.Load() {
+		t.Fatal("expected pre-setup state")
+	}
+	routes := []struct {
+		path    string
+		allowed bool
+	}{
+		{"/", true},
+		{"/login", true},
+		{"/sw.js", true},
+		{"/themes/dark.css", true},
+		{"/icons/lucide/home.svg", true},
+		{"/ws", false},
+		{"/proxy/app/", false},
+		{"/proxy/app/admin", false},
+	}
+	for _, rt := range routes {
+		rec := get(t, s, rt.path)
+		blocked := rec.Code == http.StatusServiceUnavailable && strings.Contains(rec.Body.String(), "setup_required")
+		if blocked == rt.allowed {
+			t.Errorf("GET %s = %d, allowed before setup = %v", rt.path, rec.Code, rt.allowed)
+		}
+	}
+}
+
+// Before setup an anonymous WebSocket upgrade is refused; after setup an
+// authenticated one is accepted and an anonymous one is still refused.
+func TestWebSocket_SetupGate(t *testing.T) {
+	pre := newServerForTest(t, nil)
+	preSrv := httptest.NewServer(pre.httpServer.Handler)
+	t.Cleanup(preSrv.Close)
+	wsURL := func(srv *httptest.Server) string { return "ws" + strings.TrimPrefix(srv.URL, "http") + "/ws" }
+
+	conn, resp, err := gws.DefaultDialer.Dial(wsURL(preSrv), http.Header{"Origin": []string{preSrv.URL}})
+	if err == nil {
+		conn.Close()
+		t.Fatal("anonymous /ws upgrade accepted before setup")
+	}
+	if resp == nil || resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("pre-setup /ws: resp=%v err=%v, want 503", resp, err)
+	}
+	resp.Body.Close()
+
+	post := newServerForTest(t, completeSetup(t))
+	postSrv := httptest.NewServer(post.httpServer.Handler)
+	t.Cleanup(postSrv.Close)
+	conn, resp, err = gws.DefaultDialer.Dial(wsURL(postSrv), http.Header{"Origin": []string{postSrv.URL}})
+	if err == nil {
+		conn.Close()
+		t.Fatal("anonymous /ws upgrade accepted after setup")
+	}
+	if resp != nil {
+		resp.Body.Close()
+	}
+	_ = dialWS(t, postSrv, loginCookies(t, post, "admin", "correct horse"))
 }

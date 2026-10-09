@@ -2163,13 +2163,29 @@ func TestSetupGuardMiddleware(t *testing.T) {
 		s.needsSetup.Store(true)
 		handler := s.setupGuardMiddleware(inner)
 
-		for _, path := range []string{"/", "/login", "/assets/style.css", "/themes/dark.css"} {
+		for _, path := range []string{"/", "/login", "/assets/style.css", "/themes/dark.css", "/icons/lucide/home.svg", "/sw.js", "/wsx", "/proxyish"} {
 			req := httptest.NewRequest(http.MethodGet, path, nil)
 			rec := httptest.NewRecorder()
 			handler.ServeHTTP(rec, req)
 
 			if rec.Code != http.StatusOK {
 				t.Errorf("path %s: expected 200, got %d", path, rec.Code)
+			}
+		}
+	})
+
+	t.Run("blocks dynamic non-API routes during setup", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(true)
+		handler := s.setupGuardMiddleware(inner)
+
+		for _, path := range []string{"/ws", "/ws/", "/proxy", "/proxy/", "/proxy/app/", "/proxy/app/admin"} {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusServiceUnavailable || !strings.Contains(rec.Body.String(), "setup_required") {
+				t.Errorf("path %s: expected 503 setup_required, got %d", path, rec.Code)
 			}
 		}
 	})
