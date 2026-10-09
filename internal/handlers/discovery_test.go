@@ -3,6 +3,8 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -548,6 +550,52 @@ func TestUpdateDockerConfig_KeepsOverriddenAutoImport(t *testing.T) {
 	}
 	if persisted.Discovery.Docker.AutoImport != config.AutoImportAdd {
 		t.Errorf("file auto_import = %q, want its own value add", persisted.Discovery.Docker.AutoImport)
+	}
+}
+
+// Concurrent saves of different fields: each merges onto what the other
+// stored (decode under the write lock), so neither field is lost.
+func TestUpdateDockerConfig_ConcurrentSavesKeepBothFields(t *testing.T) {
+	for round := 0; round < 20; round++ {
+		h, cfg, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+		var wg sync.WaitGroup
+		codes := make([]int, 2)
+		for i, body := range []string{`{"network_filter": "host"}`, `{"health_badge_placement": "off"}`} {
+			wg.Add(1)
+			go func(i int, body string) {
+				defer wg.Done()
+				req := adminCtxRequest(http.MethodPut, "/api/discovery/docker/config")
+				req.Body = httpBody([]byte(body))
+				w := httptest.NewRecorder()
+				h.UpdateDockerConfig(w, req)
+				codes[i] = w.Code
+			}(i, body)
+		}
+		wg.Wait()
+		if codes[0] != http.StatusOK || codes[1] != http.StatusOK {
+			t.Fatalf("round %d: codes %v", round, codes)
+		}
+		h.configMu.RLock()
+		d := cfg.Discovery.Docker
+		h.configMu.RUnlock()
+		if d.NetworkFilter != "host" || d.HealthBadgePlacement != "off" {
+			t.Fatalf("round %d: lost a field: filter %q placement %q", round, d.NetworkFilter, d.HealthBadgePlacement)
+		}
+	}
+}
+
+type failingReader struct{}
+
+func (failingReader) Read([]byte) (int, error) { return 0, errors.New("read failed") }
+
+func TestUpdateDockerConfig_BodyReadError(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, storedDockerConfig())
+	req := adminCtxRequest(http.MethodPut, "/api/discovery/docker/config")
+	req.Body = io.NopCloser(failingReader{})
+	w := httptest.NewRecorder()
+	h.UpdateDockerConfig(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("status = %d, want 400", w.Code)
 	}
 }
 

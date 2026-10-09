@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -239,50 +242,23 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
-	h.configMu.RLock()
-	newCfg := h.config.Discovery.Docker
-	// json.Decode reuses a slice's backing array: copy it so the decode and
-	// the trim below never write into the stored config.
-	newCfg.LifecycleAllowedGroups = append([]string(nil), newCfg.LifecycleAllowedGroups...)
-	autoImportLocked := h.config.IsOverridden(config.OverrideAutoImport)
-	storedAutoImport := h.config.Discovery.Docker.AutoImport
-	h.configMu.RUnlock()
-	if err := json.NewDecoder(r.Body).Decode(&newCfg); err != nil {
+	// Read the body before taking the lock, so a slow client never holds it.
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
-	// While MUXIMUX_DISCOVERY_AUTO_IMPORT is set the live mode is the
-	// override; Save writes the file's own value through fileView.
-	if autoImportLocked {
-		newCfg.AutoImport = storedAutoImport
-	}
-	for i := range newCfg.LifecycleAllowedGroups {
-		newCfg.LifecycleAllowedGroups[i] = strings.TrimSpace(newCfg.LifecycleAllowedGroups[i])
-	}
-	// Apply the SAME defaults and normalisation as config.Load (strategy,
-	// refresh interval, min role, placement, auto-import mode). The poller
-	// shares this live *config.Config and treats only the literal "off" as
-	// off, so a raw auto_import stored here would fall through Reconcile and
-	// silently auto-import until the next restart re-normalized it.
-	config.ApplyDiscoveryDockerDefaults(&newCfg)
-	if err := validateDiscoveryDockerConfig(&newCfg); err != nil {
-		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
-		return
-	}
-	// Validate the lifecycle fields with the SAME rules the load path
-	// uses, so a PUT can't persist an unknown lifecycle_min_role (which
-	// would fail OPEN -- HasMinRole against an unknown role is level 0,
-	// i.e. every authenticated user passes) or an allowed_groups entry
-	// that bricks the next restart's load-time validation.
-	if err := config.ValidateDiscoveryLifecycle(&newCfg); err != nil {
-		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
-		return
-	}
 
-	// Snapshot, mutate, save, rollback on failure - same shape as the
-	// auth-config update path. Persist BEFORE rebuilding the service so
-	// a save failure leaves the running service untouched.
+	// Decode, merge, save and roll back all under the write lock: two
+	// concurrent saves each merge onto what the other stored, instead of
+	// onto a stale snapshot that would drop the other's fields.
 	h.configMu.Lock()
+	newCfg, err := h.mergeDockerConfigLocked(body)
+	if err != nil {
+		h.configMu.Unlock()
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
+		return
+	}
 	prior := h.config.Discovery.Docker
 	h.config.Discovery.Docker = newCfg
 	if err := h.config.Save(h.configPath); err != nil {
@@ -315,6 +291,45 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 
 	// Return the fresh status so the UI can update without a follow-up GET.
 	sendJSON(w, http.StatusOK, svc.Status(r.Context()))
+}
+
+// mergeDockerConfigLocked decodes body onto a copy of the stored
+// discovery.docker block and normalises and validates the result like
+// config.Load. The caller holds configMu for writing.
+func (h *DiscoveryHandler) mergeDockerConfigLocked(body []byte) (config.DiscoveryDockerConfig, error) {
+	newCfg := h.config.Discovery.Docker
+	// json.Decode reuses a slice's backing array: copy it so the decode and
+	// the trim below never write into the stored config.
+	newCfg.LifecycleAllowedGroups = append([]string(nil), newCfg.LifecycleAllowedGroups...)
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&newCfg); err != nil {
+		return newCfg, errors.New(errInvalidJSON + err.Error())
+	}
+	// While MUXIMUX_DISCOVERY_AUTO_IMPORT is set the live mode is the
+	// override; Save writes the file's own value through fileView.
+	if h.config.IsOverridden(config.OverrideAutoImport) {
+		newCfg.AutoImport = h.config.Discovery.Docker.AutoImport
+	}
+	for i := range newCfg.LifecycleAllowedGroups {
+		newCfg.LifecycleAllowedGroups[i] = strings.TrimSpace(newCfg.LifecycleAllowedGroups[i])
+	}
+	// Apply the SAME defaults and normalisation as config.Load (strategy,
+	// refresh interval, min role, placement, auto-import mode). The poller
+	// shares this live *config.Config and treats only the literal "off" as
+	// off, so a raw auto_import stored here would fall through Reconcile and
+	// silently auto-import until the next restart re-normalized it.
+	config.ApplyDiscoveryDockerDefaults(&newCfg)
+	if err := validateDiscoveryDockerConfig(&newCfg); err != nil {
+		return newCfg, err
+	}
+	// Validate the lifecycle fields with the SAME rules the load path
+	// uses, so a PUT can't persist an unknown lifecycle_min_role (which
+	// would fail OPEN -- HasMinRole against an unknown role is level 0,
+	// i.e. every authenticated user passes) or an allowed_groups entry
+	// that bricks the next restart's load-time validation.
+	if err := config.ValidateDiscoveryLifecycle(&newCfg); err != nil {
+		return newCfg, err
+	}
+	return newCfg, nil
 }
 
 // ScanDocker handles GET /api/discovery/docker/scan. Walks the
