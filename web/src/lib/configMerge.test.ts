@@ -15,10 +15,15 @@ import {
 } from './configMerge';
 import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from './types';
 
-// rawApp is the wire shape the server sends (Go testApp): no icon
-// file/url/variant, no force_icon_background, no min_role.
+// rawApp is the wire shape the server sends for Go's testApp: every field
+// without omitempty is present at its zero value, the omitempty ones (icon
+// file/url/variant, force_icon_background, min_role, ...) are absent.
 function rawApp(name: string, url: string, extra: Partial<App> = {}): App {
-  return { name, url, enabled: true, icon: { type: 'dashboard', name: 'x' }, ...extra } as App;
+  return {
+    name, url, icon: { type: 'dashboard', name: 'x', color: '', background: '' },
+    color: '', group: '', order: 0, enabled: true, default: false, open_mode: '', proxy: false, scale: 0,
+    ...extra,
+  } as unknown as App;
 }
 
 function app(name: string, url: string, extra: Partial<App> = {}): App {
@@ -42,14 +47,70 @@ function cfg(extra: Partial<Config> = {}): Config {
 const names = (items: { name: string }[]) => items.map(i => i.name).join(',');
 
 describe('configMerge primitives', () => {
-  it('deepEqual treats absent, null, empty arrays and empty objects alike and ignores key order', () => {
+  it('deepEqual treats absent, null, zero values, empty arrays and empty objects alike and ignores key order', () => {
     expect(deepEqual(undefined, [])).toBe(true);
     expect(deepEqual(null, {})).toBe(true);
     expect(deepEqual({ a: 1, b: [] }, { a: 1 })).toBe(true);
     expect(deepEqual({ a: 1, b: 2 }, { b: 2, a: 1 })).toBe(true);
     expect(deepEqual(['a'], ['b'])).toBe(false);
     expect(deepEqual([undefined, 1], [null, 1])).toBe(true);
-    expect(deepEqual('', undefined)).toBe(false);
+    expect(deepEqual('', undefined)).toBe(true);
+    expect(deepEqual(false, undefined)).toBe(true);
+    expect(deepEqual(0, undefined)).toBe(true);
+    expect(deepEqual({ a: { b: '' } }, {})).toBe(true);
+    // Zero values inside a slice are kept, as Go keeps them.
+    expect(deepEqual([0], [])).toBe(false);
+    expect(deepEqual([''], [false])).toBe(false);
+    expect(deepEqual([{ a: '' }], [{}])).toBe(true);
+  });
+
+  it('a real change to a zero value still counts as different', () => {
+    expect(deepEqual(true, false)).toBe(false);
+    expect(deepEqual('x', '')).toBe(false);
+    expect(deepEqual(5, 0)).toBe(false);
+    expect(deepEqual({ pinned: true }, { pinned: false })).toBe(false);
+  });
+
+  // Each pair is (base, mine) for one app field; edited is the verdict the
+  // Go merge reaches comparing the typed ClientAppConfig fields named.
+  it.each([
+    // Pinned bool: absent and false are both the zero value.
+    ['pinned absent vs false', {}, { pinned: false }, false],
+    ['pinned true vs false', { pinned: true }, { pinned: false }, true],
+    // HealthCheck *bool: the payload's false and the stored false agree.
+    ['health_check absent vs false', {}, { health_check: false }, false],
+    ['health_check true vs false', { health_check: true }, { health_check: false }, true],
+    // Color string: "" is the zero value.
+    ['color absent vs empty', {}, { color: '' }, false],
+    ['color set vs cleared', { color: '#fff' }, { color: '' }, true],
+    // Order int and Scale float64: 0 is the zero value.
+    ['order absent vs 0', {}, { order: 0 }, false],
+    ['order 5 vs 0', { order: 5 }, { order: 0 }, true],
+    // AllowedGroups []string with omitempty: nil and [] alike.
+    ['allowed_groups absent vs []', {}, { allowed_groups: [] }, false],
+    ['allowed_groups set vs []', { allowed_groups: ['ops'] }, { allowed_groups: [] }, true],
+    // ProxyHeaders map[string]string: nil and {} alike.
+    ['proxy_headers absent vs {}', {}, { proxy_headers: {} }, false],
+    // Icon AppIconConfig struct: zero fields drop out.
+    ['icon variant absent vs empty', {}, { icon: { type: 'dashboard', name: 'x', variant: '' } }, false],
+    ['icon invert false vs true', {}, { icon: { type: 'dashboard', name: 'x', invert: true } }, true],
+    // Shortcut *int: set vs cleared.
+    ['shortcut 3 vs cleared', { shortcut: 3 }, { shortcut: undefined }, true],
+  ] as [string, Partial<App>, Partial<App>, boolean][])('edited verdict matches Go: %s', (_label, baseExtra, mineExtra, edited) => {
+    const base = rawApp('A', 'u', baseExtra);
+    const mine = makeApp(rawApp('A', 'u', { ...baseExtra, ...mineExtra }));
+    stampAppId(mine);
+    // A server removal drops an untouched app and keeps an edited one.
+    const got = rebaseConfig({ base: cfg({ apps: [base] }), local: cfg(), localApps: [mine], theirs: cfg() });
+    expect(got.apps.length === 1).toBe(edited);
+  });
+
+  it('untouched pinned: false and health_check: false over an absent base are not edits', () => {
+    const base = rawApp('A', 'u');
+    const mine = makeApp(rawApp('A', 'u', { pinned: false, health_check: false }));
+    const theirs = rawApp('A', 'u', { pinned: true, health_check: true });
+    const got = rebaseConfig({ base: cfg({ apps: [base] }), local: cfg(), localApps: [mine], theirs: cfg({ apps: [theirs] }) });
+    expect(got.apps[0]).toMatchObject({ pinned: true, health_check: true });
   });
 
   it('mergeField takes theirs only when mine is unchanged', () => {
@@ -396,32 +457,47 @@ describe('rebaseConfig', () => {
     expect(Object.fromEntries(got.apps.map(a => [a.name, a.group]))).toEqual({ Stored: 'Y', Placed: 'X', SrvAdded: 'Y' });
   });
 
-  it('rename onto a server-added app name keeps the user app and reports a conflict', () => {
+  it('rename onto a server-added app name keeps both apps and reports a conflict', () => {
     const base = cfg({ apps: [rawApp('A', 'u')] });
     const theirs = cfg({ apps: [rawApp('A', 'u'), rawApp('B', 'srv')] });
     const got = rebaseConfig({ base, local: cfg(), localApps: [makeApp(rawApp('B', 'mine', { original_name: 'A' }))], theirs });
-    expect(got.apps).toHaveLength(1);
-    expect(got.apps[0]).toMatchObject({ name: 'B', url: 'mine', original_name: 'A' });
+    expect(got.apps.map(a => [a.name, a.url, a.original_name])).toEqual([['B', 'mine', 'A'], ['B', 'srv', 'B']]);
     expect(got.conflicts).toEqual([{
       kind: 'app', name: 'B', renamedFrom: 'A',
-      message: 'an app named "B" was added on the server while you renamed "A" to "B"; your app is kept and saving will replace the server\'s',
+      message: 'both you and the server now have an app named "B"; rename one of them before saving',
     }]);
   });
 
-  it('both sides adding one name keeps the user item and reports a conflict', () => {
+  it('both sides adding one name keeps both items and reports a conflict', () => {
     const got = rebaseConfig({
       base: cfg(),
       local: cfg({ groups: [group('G', { color: '#mine' })] }),
       localApps: [makeApp(rawApp('Same', 'http://mine'))],
       theirs: cfg({ groups: [group('G', { color: '#srv' })], apps: [rawApp('Same', 'http://theirs', { docker_key: 'k' })] }),
     });
-    expect(got.apps).toHaveLength(1);
-    expect(got.apps[0].url).toBe('http://mine');
-    expect(got.apps[0].docker_key).toBeUndefined();
-    expect(got.config.groups).toHaveLength(1);
-    expect(got.config.groups[0].color).toBe('#mine');
+    expect(got.apps.map(a => [a.url, a.docker_key, a.original_name])).toEqual([
+      ['http://mine', undefined, undefined],
+      ['http://theirs', 'k', 'Same'],
+    ]);
+    expect(got.config.groups.map(g => g.color)).toEqual(['#mine', '#srv']);
     expect(got.conflicts.map(c => [c.kind, c.name, c.renamedFrom])).toEqual([['group', 'G', undefined], ['app', 'Same', undefined]]);
-    expect(got.conflicts[0].message).toBe('a group named "G" was added on the server while you also added one; your group is kept and saving will replace the server\'s');
+    expect(got.conflicts[0].message).toBe('both you and the server now have a group named "G"; rename one of them before saving');
+  });
+
+  it('a rename whose old name the server added on its own is a conflict', () => {
+    // Go: mine {B, original A}, base without A, theirs with A -> b == nil,
+    // t != nil -> MergeConflictError{Name: B, RenamedFrom: A}.
+    const got = rebaseConfig({
+      base: cfg(),
+      local: cfg(),
+      localApps: [makeApp(rawApp('B', 'u', { original_name: 'A' }))],
+      theirs: cfg({ apps: [rawApp('A', 'u')] }),
+    });
+    expect(got.apps.map(a => a.name)).toEqual(['B', 'A']);
+    expect(got.conflicts).toEqual([{
+      kind: 'app', name: 'B', renamedFrom: 'A',
+      message: 'both you and the server now have an app named "B"; rename one of them before saving',
+    }]);
   });
 
   it('two user items of one name are both kept and reported', () => {
@@ -432,6 +508,6 @@ describe('rebaseConfig', () => {
       theirs: cfg(),
     });
     expect(got.apps).toHaveLength(2);
-    expect(got.conflicts).toEqual([{ kind: 'app', name: 'Dup', message: 'two apps are named "Dup"; rename one before saving' }]);
+    expect(got.conflicts).toEqual([{ kind: 'app', name: 'Dup', message: 'two apps are named "Dup"; rename one of them before saving' }]);
   });
 });

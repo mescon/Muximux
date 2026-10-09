@@ -12,22 +12,25 @@
 //   - apps left in a group mine deleted become ungrouped, and a group
 //     rename re-points apps once, after the merge.
 //
-// Where the server answers a name collision with a 409, the rebase keeps
-// the user's item, drops the server's colliding copy and reports a
-// MergeConflict so Settings can tell the user what will happen on save.
+// Where the server would answer a name collision with a 409, the rebase
+// keeps both items and reports a MergeConflict: the save stays rejected
+// until the user renames one of them, so Settings shows the message and
+// blocks or explains the save.
 
 import { type App, type Config, type Group, type KeyCombo, type KeybindingsConfig, makeApp, makeGroup } from './types';
 
 type Obj = Record<string, unknown>;
 
-// canonical maps v to its comparison form: object keys sorted, and
-// undefined, null, empty arrays and empty objects all read as absent,
-// the way Go's omitempty and wireBytes treat nil and empty alike.
+// canonical maps v to its comparison form, matching Go's typed-struct
+// compare: object keys are sorted, and undefined, null, '', false, 0,
+// empty arrays and empty objects all read as absent, since Go decodes an
+// absent field to its zero value. Array elements keep their zero values
+// (a Go slice keeps them too), only nested objects inside are normalised.
 function canonical(v: unknown): unknown {
-  if (v === undefined || v === null) return undefined;
+  if (v === undefined || v === null || v === '' || v === false || v === 0) return undefined;
   if (Array.isArray(v)) {
     if (v.length === 0) return undefined;
-    return v.map(e => canonical(e) ?? null);
+    return v.map(e => (e !== null && typeof e === 'object' ? canonical(e) ?? {} : e ?? null));
   }
   if (typeof v === 'object') {
     const out: Obj = {};
@@ -132,15 +135,9 @@ export interface MergeConflict {
 }
 
 function conflict(kind: 'app' | 'group', name: string, renamedFrom: string, ownDuplicate = false): MergeConflict {
-  const article = kind === 'app' ? 'an' : 'a';
-  let message: string;
-  if (ownDuplicate) {
-    message = `two ${kind}s are named "${name}"; rename one before saving`;
-  } else if (renamedFrom) {
-    message = `${article} ${kind} named "${name}" was added on the server while you renamed "${renamedFrom}" to "${name}"; your ${kind} is kept and saving will replace the server's`;
-  } else {
-    message = `${article} ${kind} named "${name}" was added on the server while you also added one; your ${kind} is kept and saving will replace the server's`;
-  }
+  const message = ownDuplicate
+    ? `two ${kind}s are named "${name}"; rename one of them before saving`
+    : `both you and the server now have ${kind === 'app' ? 'an' : 'a'} ${kind} named "${name}"; rename one of them before saving`;
   const c: MergeConflict = { kind, name, message };
   if (renamedFrom) c.renamedFrom = renamedFrom;
   return c;
@@ -214,9 +211,11 @@ function mergeList<T extends Named>(base: T[], mine: T[], theirs: T[], rules: Li
     const from = renamedFrom(m);
     if (t) consumed.add(t);
     if (!b && t) {
-      // New on both sides under one name: keep the user's item.
-      conflicts.push(conflict(rules.kind, m.name, from));
+      // New on both sides: keep both. A shared name is reported by
+      // reportDuplicates; a claim through original_name is reported here.
+      if (m.name !== t.name) conflicts.push(conflict(rules.kind, m.name, from));
       merged.push({ item: rules.strip(m), fromMine: true, renamedFrom: from });
+      merged.push({ item: { ...t, original_name: t.name }, theirs: t, fromMine: false, renamedFrom: '' });
     } else if (!b) {
       merged.push({ item: rules.strip(m), fromMine: true, renamedFrom: from });
     } else if (!t) {
@@ -232,24 +231,20 @@ function mergeList<T extends Named>(base: T[], mine: T[], theirs: T[], rules: Li
     if (consumed.has(t) || deletedByUser(t)) continue;
     merged.push({ item: { ...t, original_name: t.name }, theirs: t, fromMine: false, renamedFrom: '' });
   }
-  return { merged: dropDuplicates(rules.kind, merged, conflicts), conflicts };
+  reportDuplicates(rules.kind, merged, conflicts);
+  return { merged, conflicts };
 }
 
-// dropDuplicates resolves names that occur twice in the merge. Server-only
-// items come after every mine item, so a server copy that collides with a
-// user item gives way to it; two of the user's own items are both kept but
-// reported.
-function dropDuplicates<T extends Named>(kind: 'app' | 'group', merged: Merged<T>[], conflicts: MergeConflict[]): Merged<T>[] {
+// reportDuplicates records every name that occurs twice in the merge.
+// Both items stay so the user can see them and rename one; the server
+// would reject the save with a 409 until then.
+function reportDuplicates<T extends Named>(kind: 'app' | 'group', merged: Merged<T>[], conflicts: MergeConflict[]): void {
   const first = new Map<string, Merged<T>>();
-  return merged.filter(cur => {
+  for (const cur of merged) {
     const prev = first.get(cur.item.name);
-    if (!prev) {
-      first.set(cur.item.name, cur);
-      return true;
-    }
-    conflicts.push(conflict(kind, cur.item.name, cur.renamedFrom || prev.renamedFrom, cur.fromMine));
-    return cur.fromMine;
-  });
+    if (!prev) first.set(cur.item.name, cur);
+    else conflicts.push(conflict(kind, cur.item.name, cur.renamedFrom || prev.renamedFrom, cur.fromMine && prev.fromMine));
+  }
 }
 
 function byName<T extends Named>(items: T[]): Map<string, T> {
@@ -294,7 +289,7 @@ const GROUP_RULES: ListRules<Group> = {
   },
 };
 
-/** Merges app lists (inputs already normalised). Name conflicts keep the user's app. */
+/** Merges app lists (inputs already normalised). Name conflicts keep both apps. */
 export function mergeApps(base: App[], mine: App[], theirs: App[]): App[] {
   return mergeList(base, mine, theirs, APP_RULES).merged.map(m => m.item);
 }
