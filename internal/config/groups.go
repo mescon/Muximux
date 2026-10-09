@@ -24,16 +24,26 @@ func MatchGroupName(names []string, name string) (string, bool) {
 	return "", false
 }
 
-// NewAutoGroup builds the group created for a name an app references but
-// the config does not define. The defaults match a group made in
-// Settings: a lucide folder icon, no colour, expanded.
+// NewAutoGroup builds the group Docker discovery creates for a name an app
+// references but the config does not define. The defaults match a group
+// made in Settings: a lucide folder icon, no colour, expanded. It is
+// marked DockerManaged, so the muximux.group.* labels apply to it until
+// the operator edits it in Settings.
 func NewAutoGroup(name string, order int) GroupConfig {
 	return GroupConfig{
-		Name:     name,
-		Icon:     AppIconConfig{Type: "lucide", Name: "folder"},
-		Order:    order,
-		Expanded: true,
+		Name:          name,
+		Icon:          AppIconConfig{Type: "lucide", Name: "folder"},
+		Order:         order,
+		Expanded:      true,
+		DockerManaged: true,
 	}
+}
+
+// GroupStyleEdited reports whether b changes the label-managed fields of
+// a: the icon, the colour or the order. A save that does releases a
+// DockerManaged group to the operator.
+func GroupStyleEdited(a, b *GroupConfig) bool {
+	return a.Icon != b.Icon || a.Color != b.Color || a.Order != b.Order
 }
 
 // EnsureGroup returns the configured group name an app with group name

@@ -60,6 +60,13 @@ const (
 	LabelGatewayRequireAuth        = "muximux.gateway.require_auth"         // "true" to gate the site behind Muximux login
 	LabelGatewayMinRole            = "muximux.gateway.min_role"             // user | power-user | admin
 	LabelGatewayAllowedGroups      = "muximux.gateway.allowed_groups"       // comma-separated
+
+	// muximux.group.* namespace - fields of the group the container's app
+	// is in. Applied only to a group Docker discovery created and still
+	// manages (GroupConfig.DockerManaged); see grouplabels.go.
+	LabelGroupIcon  = "muximux.group.icon"  // dashboard-icons slug
+	LabelGroupColor = "muximux.group.color" // "#rrggbb"
+	LabelGroupOrder = "muximux.group.order" // sort order of the group, 0..9999
 )
 
 // AppLabels is the parsed shape of the muximux.app.* label namespace.
@@ -220,6 +227,9 @@ var knownNonAppLabels = map[string]struct{}{
 	LabelGatewayRequireAuth:        {},
 	LabelGatewayMinRole:            {},
 	LabelGatewayAllowedGroups:      {},
+	LabelGroupIcon:                 {},
+	LabelGroupColor:                {},
+	LabelGroupOrder:                {},
 }
 
 // ParseAppLabels extracts known muximux.app.* and muximux.discovery.*

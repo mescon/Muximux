@@ -25,8 +25,10 @@ var topLevelSkip = map[string]bool{
 	"Keybindings": true, "Groups": true, "Apps": true,
 }
 
-// groupSkip keeps the transport-only identity out of the per-field merge.
-var groupSkip = map[string]bool{"OriginalName": true}
+// groupSkip keeps the transport-only identity and the server-owned
+// DockerManaged marker out of the per-field merge; the marker is always
+// theirs, cleared only by a user edit of the group (see mergeGroupsAliased).
+var groupSkip = map[string]bool{"OriginalName": true, "DockerManaged": true}
 
 // appIdentity is the name an app had in base: OriginalName when the client
 // sent it, else Name.
@@ -336,11 +338,47 @@ func indexGroups(groups []config.GroupConfig) map[string]*config.GroupConfig {
 	return m
 }
 
-// groupsEqual compares two groups ignoring the transport-only identity.
+// groupsEqual compares two groups ignoring the transport-only identity and
+// the server-owned DockerManaged marker.
 func groupsEqual(a, b *config.GroupConfig) bool {
 	ca, cb := *a, *b
 	ca.OriginalName, cb.OriginalName = "", ""
+	ca.DockerManaged, cb.DockerManaged = false, false
 	return jsonEqual(&ca, &cb)
+}
+
+// stripGroupMarkers clears the server-owned DockerManaged marker on groups
+// a client sent, so a payload can neither set nor keep it.
+func stripGroupMarkers(groups []config.GroupConfig) {
+	for i := range groups {
+		groups[i].DockerManaged = false
+	}
+}
+
+// resolveGroupMarkers sets the DockerManaged marker of each payload group
+// on the two-way save path (no base): a group keeps the marker of the
+// stored group it claims by identity unless the payload edits its icon,
+// colour or order, which hands it to the operator.
+func resolveGroupMarkers(stored, groups []config.GroupConfig) {
+	byName := indexGroups(stored)
+	for i := range groups {
+		g := &groups[i]
+		st := byName[groupIdentity(g)]
+		g.DockerManaged = st != nil && st.DockerManaged && !config.GroupStyleEdited(st, g)
+	}
+}
+
+// releasedGroups lists the stored DockerManaged groups the payload claims
+// by identity while no longer marking them: the user took them over.
+func releasedGroups(stored, groups []config.GroupConfig) []string {
+	byName := indexGroups(stored)
+	var out []string
+	for i := range groups {
+		if st := byName[groupIdentity(&groups[i])]; st != nil && st.DockerManaged && !groups[i].DockerManaged {
+			out = append(out, groups[i].Name)
+		}
+	}
+	return out
 }
 
 func groupOriginalName(g *config.GroupConfig) string { return g.OriginalName }
@@ -393,6 +431,11 @@ func mergeGroupsAliased(base, mine, theirs []config.GroupConfig) ([]config.Group
 		default:
 			g := mergeFields(b, m, t, groupSkip)
 			g.OriginalName = t.Name
+			// Editing the icon, colour or order of a Docker-managed group
+			// takes it over: the labels stop applying to it.
+			if config.GroupStyleEdited(b, m) {
+				g.DockerManaged = false
+			}
 			out = append(out, g)
 		}
 		renamed = append(renamed, renamedFrom(m.OriginalName, m.Name))

@@ -380,6 +380,16 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 | `muximux.app.shortcut` | int 1-9 | unset | Keyboard shortcut slot. |
 | `muximux.app.gateway.domain` | string | unset | Required for auto-import to create a gateway site; the derived `<name>.<dashboard domain>` default only pre-fills the import modal. When set, the import modal also offers a gateway-site entry for this subdomain. Pairs with the `muximux.gateway.*` labels below. |
 
+##### Group fields (the group the app is in)
+
+These describe the group the container's app is in. They apply only to a group Docker discovery created; see [Group labels](#group-labels).
+
+| Label | Type | Default | What it does |
+|---|---|---|---|
+| `muximux.group.icon` | string | folder icon | Any `dashboard-icons` slug, the same as `muximux.app.icon`. Surrounding spaces are ignored and the slug is lowercased. |
+| `muximux.group.color` | `#rrggbb` | unset | Group colour, a hex colour (`#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa`). Other values are ignored with a warning and a scan note. |
+| `muximux.group.order` | int 0-9999 | after existing groups | Sort order of the group. Other values are ignored with a warning and a scan note. |
+
 ##### Gateway-site fields (only consulted when `muximux.app.gateway.domain` is set)
 
 | Label | Type | Default | What it does |
@@ -495,6 +505,28 @@ When an app lands in a group that does not exist, Muximux creates the group in t
 - While a tracked app has `muximux.app.group` set, a group you delete is created again on the next tick. Remove the label or detach the app to stop that.
 - If the save fails, the new groups are rolled back together with the apps.
 - An app whose group is missing anyway (for example a group removed from `config.yaml` by hand) is never hidden: the navigation and **Settings -> Apps** list it under **Ungrouped** until the group exists again.
+
+### Group labels
+
+`muximux.group.icon`, `muximux.group.color` and `muximux.group.order` set the look and position of the group a container's app is in. Put them on any container whose app is in the group; they need no `muximux.app.group` on the same container, but without a group there is nothing to apply them to (the Discover dialog notes that).
+
+```yaml
+services:
+  sonarr:
+    labels:
+      - muximux.app.group=Media
+      - muximux.group.icon=plex
+      - muximux.group.color=#e5a00d
+      - muximux.group.order=1
+```
+
+- **Only groups Docker discovery created.** A group made by an import, auto-import or the label re-sync is marked as Docker-managed (`docker_managed: true` in `config.yaml`). The labels are applied when the group is created and re-synced on every tick while it stays managed. A group you created yourself is never touched.
+- **Edit in Settings to take control.** Changing the icon, colour or order of a managed group in Settings (including dragging groups into a new order) clears the marker. From then on the group is yours and later label changes are ignored. Renaming or expanding/collapsing the group does not count. Set `docker_managed: true` in `config.yaml` to hand a group back to the labels.
+- **A label that is not set never changes anything:** the group keeps its own value for that field.
+- **Conflicts.** When several containers in one group set different values, the container with the lowest tracking key wins, per field. The others get a scan note in the Discover dialog and a warning in the log (once until the conflict changes).
+- **Invalid values** (a colour that is not a hex colour, an order outside 0-9999) are ignored, with one warning per change and a scan note.
+- The labels are read from the containers of tracked apps and of tracked gateway sites (through the site's linked app), whatever the `auto_import` mode. A group created by a manual import gets its label values on the next refresh tick.
+- Applying them is part of the tick's single save: if the save fails, the group changes are rolled back together with everything else.
 
 ### Gateway labels and `update`/`sync`
 

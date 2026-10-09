@@ -249,6 +249,8 @@ POST /api/apps
 | `/api/group/{name}` | PUT | Admin | Update group (full replace; omitted fields are reset) |
 | `/api/group/{name}` | DELETE | Admin | Delete group |
 
+Admins also receive `docker_managed: true` on a group Docker discovery created and still manages from `muximux.group.*` labels (in these endpoints and in `GET /api/config`). The marker is server-owned: `POST /api/groups`, `PUT /api/group/{name}` and `PUT /api/config` ignore it in the payload. An update that changes the group's `icon`, `color` or `order` clears it, after which the labels no longer apply to that group.
+
 ---
 
 ## Discovery

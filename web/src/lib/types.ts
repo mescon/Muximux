@@ -71,6 +71,11 @@ export interface Group {
   color: string;
   order: number;
   expanded: boolean;
+  // Set by the server (admins only) on a group Docker discovery created
+  // and still manages from muximux.group.* labels. Read-only: the server
+  // ignores it in a payload and clears it when the icon, color or order
+  // is edited.
+  docker_managed?: boolean;
   // Transport-only rename identity, as on App.original_name.
   original_name?: string;
 }

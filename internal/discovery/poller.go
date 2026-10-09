@@ -88,6 +88,12 @@ type Poller struct {
 	// already uses, a group that does not exist), so it is logged once per
 	// transition. Pruned to the tracked set. Only touched from tick().
 	labelHeld map[string]string
+	// groupLabelInvalid (per tracking key) and groupLabelConflict (per
+	// group) record the last logged invalid muximux.group.* values and
+	// label conflicts, so each is logged once per transition. Rebuilt
+	// every tick by planGroupLabels. Only touched from tick().
+	groupLabelInvalid  map[string]string
+	groupLabelConflict map[string]string
 }
 
 // syncRemovalGraceTicks is how many consecutive successful scans a
@@ -497,6 +503,8 @@ func (p *Poller) tick(ctx context.Context) {
 	// Taken whatever the auto-import mode: label re-sync of tracked apps
 	// runs with auto-import off too, and checks names and groups.
 	labelCtx := snapshotLabelSyncContext(p.deps.Config)
+	// And the groups with their owners, for the group labels.
+	groupSnap := snapshotGroupLabels(p.deps.Config, endpoint)
 	p.deps.ConfigMu.RUnlock()
 
 	if !enabled {
@@ -703,6 +711,11 @@ func (p *Poller) tick(ctx context.Context) {
 	// or removes an entry. Planned after Reconcile so a name an
 	// auto-import add or update claims this tick is not reused.
 	batch.labelSyncs = p.planLabelSync(tracked.apps, containers, endpoint, &labelCtx, batch)
+	// Group labels: the apply step re-reads them from this list under the
+	// write lock; the plan only says whether an existing managed group
+	// would change, so such a tick is not skipped as empty.
+	batch.containers = containers
+	batch.groupLabelsDirty = p.planGroupLabels(&groupSnap, containers)
 
 	if batch.empty() {
 		svc.RecordRefreshTickSuccess()
@@ -980,6 +993,12 @@ type refreshBatch struct {
 	// their desired group while that group is missing (deleted since), so
 	// Reconcile sees no diff; applyReconcile creates the group again.
 	ensureGroupKeys []string
+	// containers is this tick's container list, from which the apply step
+	// reads the muximux.group.* labels of the tracked entries.
+	containers []ContainerSummary
+	// groupLabelsDirty is true when the group labels change an existing
+	// DockerManaged group, so the batch is not empty for that alone.
+	groupLabelsDirty bool
 }
 
 // Removal reasons for the audit line of a sync removal.
@@ -1013,7 +1032,7 @@ func (b *refreshBatch) empty() bool {
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
 		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0 &&
-		len(b.labelSyncs) == 0 && len(b.ensureGroupKeys) == 0
+		len(b.labelSyncs) == 0 && len(b.ensureGroupKeys) == 0 && !b.groupLabelsDirty
 }
 
 // reconcileChangesApps reports whether the auto-import plan touches any
@@ -1131,6 +1150,9 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	labelSynced := applyLabelSyncs(p.deps.Config, batch.labelSyncs, &createdGroups)
 	reconcileTouchedGateway, rec := p.applyReconcile(batch)
 	createdGroups = append(createdGroups, rec.createdGroups...)
+	// Group labels last, so a group created above gets its label values
+	// in the same save and every app sits in its final group.
+	groupsSynced := syncGroupLabels(p.deps.Config, batch)
 	if err := p.deps.Config.Validate(); err != nil {
 		rollback()
 		if p.candidateInvalid != err.Error() { // log on transition only
@@ -1250,6 +1272,11 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	for _, g := range createdGroups {
 		logging.Info("Group created by Docker discovery",
 			"source", "audit", "group", g)
+	}
+	for i := range groupsSynced {
+		logging.Info("Docker-managed group re-synced from labels",
+			"source", "audit", "group", groupsSynced[i].name,
+			"fields", strings.Join(groupsSynced[i].fields, ","))
 	}
 	for i := range batch.addApps {
 		logging.Info("Docker container auto-imported",

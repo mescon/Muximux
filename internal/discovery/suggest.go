@@ -86,6 +86,9 @@ type Suggestion struct {
 	// FixedURL is true when URL came from muximux.app.url rather than
 	// from the container. HealthURL then carries the container address.
 	FixedURL bool `json:"fixed_url,omitempty"`
+	// groupLabels holds the parsed muximux.group.* labels, so the scan can
+	// note conflicts between suggestions that share a group. Not sent.
+	groupLabels GroupLabels
 	// GatewayRequested is true only when the container carries
 	// muximux.app.gateway.domain. SuggestedDomain may also hold a derived
 	// default meant to pre-fill the import modal; auto-import must not
@@ -211,6 +214,8 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	applyLabelOverrides(&s, &labels)
 	attachGatewayLabels(&s, c.Labels)
 	surfaceUnknownLabels(&s, &labels)
+	s.groupLabels = ParseGroupLabels(c.Labels)
+	noteGroupLabels(&s, &s.groupLabels)
 
 	return s
 }

@@ -656,6 +656,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 	// Replicas of one service (or a scaled compose service) share a key;
 	// eligibility is computed first so an importable replica wins.
 	out.Suggestions = collapseDuplicateKeys(out.Suggestions)
+	noteGroupLabelConflicts(out.Suggestions)
 	for i := range out.Suggestions {
 		sug := &out.Suggestions[i]
 		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {

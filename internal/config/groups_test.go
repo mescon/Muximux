@@ -22,7 +22,7 @@ func TestEnsureGroup(t *testing.T) {
 	if !created || g != "Downloads" || len(out) != 3 {
 		t.Fatalf("create = %q,%v len %d", g, created, len(out))
 	}
-	want := GroupConfig{Name: "Downloads", Icon: AppIconConfig{Type: "lucide", Name: "folder"}, Order: 2, Expanded: true}
+	want := GroupConfig{Name: "Downloads", Icon: AppIconConfig{Type: "lucide", Name: "folder"}, Order: 2, Expanded: true, DockerManaged: true}
 	if out[2] != want {
 		t.Errorf("new group = %+v, want %+v", out[2], want)
 	}
@@ -49,5 +49,25 @@ func TestEnsureGroup(t *testing.T) {
 	}
 	if _, _, c := EnsureGroup([]GroupConfig{{Name: "メディア"}}, "!!!"); !c {
 		t.Error("slugless unknown name should be created")
+	}
+}
+
+func TestGroupStyleEdited(t *testing.T) {
+	base := GroupConfig{Name: "G", Icon: AppIconConfig{Type: "dashboard", Name: "plex"}, Color: "#111", Order: 1, DockerManaged: true}
+	same := base
+	same.Name, same.Expanded, same.DockerManaged = "Renamed", true, false
+	if GroupStyleEdited(&base, &same) {
+		t.Error("name, expanded and marker counted as a style edit")
+	}
+	for _, edit := range []func(g *GroupConfig){
+		func(g *GroupConfig) { g.Icon.Background = "#fff" },
+		func(g *GroupConfig) { g.Color = "#222" },
+		func(g *GroupConfig) { g.Order = 2 },
+	} {
+		g := base
+		edit(&g)
+		if !GroupStyleEdited(&base, &g) {
+			t.Errorf("edit %+v not detected", g)
+		}
 	}
 }

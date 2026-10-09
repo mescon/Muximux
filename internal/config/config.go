@@ -534,6 +534,13 @@ type GroupConfig struct {
 	Color    string        `yaml:"color" json:"color"`
 	Order    int           `yaml:"order" json:"order"`
 	Expanded bool          `yaml:"expanded" json:"expanded"`
+	// DockerManaged marks a group Docker discovery created. While it is
+	// set, the muximux.group.icon, .color and .order labels of the
+	// containers whose apps are in the group are re-synced onto it. A
+	// Settings edit of the icon, colour or order clears it, handing the
+	// group to the operator. Server-owned: never taken from a client
+	// payload, and sent to admins only.
+	DockerManaged bool `yaml:"docker_managed,omitempty" json:"docker_managed,omitempty"`
 	// OriginalName is the name this group had in the client's base
 	// config. Transport-only identity for renames; never stored.
 	OriginalName string `yaml:"-" json:"original_name,omitempty"`

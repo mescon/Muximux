@@ -331,7 +331,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 		Navigation:          cfg.Navigation,
 		Theme:               cfg.Theme,
 		Health:              &cfg.Health,
-		Groups:              cfg.Groups,
+		Groups:              groupsForRole(cfg.Groups, isAdminRole(userRole)),
 		Apps:                sanitizeApps(cfg.Apps, userRole, userGroups, cfg.Server.GatewaySites),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
@@ -406,6 +406,12 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	// cannot revert server-side changes made while it was open. Without
 	// one the payload replaces the config as before (scripts, older
 	// frontends).
+	// The Docker-managed group marker is server-owned: whatever the payload
+	// says is dropped, and the marker is taken from the stored groups.
+	stripGroupMarkers(update.Groups)
+	if update.Base != nil {
+		stripGroupMarkers(update.Base.Groups)
+	}
 	var baseApps []ClientAppConfig
 	if update.Base != nil {
 		baseApps = update.Base.Apps
@@ -416,7 +422,10 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		update = *merged
+	} else {
+		resolveGroupMarkers(h.config.Groups, update.Groups)
 	}
+	released := releasedGroups(h.config.Groups, update.Groups)
 
 	// Snapshot every field mergeConfigUpdate mutates so we can restore
 	// the in-memory config if the disk Save fails. Without this the
@@ -502,6 +511,10 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logging.From(r.Context()).Info("Configuration saved", "source", "audit")
+	for _, g := range released {
+		logging.From(r.Context()).Info("Group edited in Settings; Docker group labels no longer apply to it",
+			"source", "audit", "group", g)
+	}
 	h.notifyConfigSaved()
 
 	// Apply log level change at runtime
@@ -756,7 +769,21 @@ func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	sendJSON(w, http.StatusOK, h.config.Groups)
+	userRole, _ := getUserRoleAndGroups(r)
+	sendJSON(w, http.StatusOK, groupsForRole(h.config.Groups, isAdminRole(userRole)))
+}
+
+// groupsForRole returns groups as a client may see them. The
+// DockerManaged marker goes to admins only, like the Docker tracking
+// fields of an app; others get copies without it.
+func groupsForRole(groups []config.GroupConfig, isAdmin bool) []config.GroupConfig {
+	if isAdmin {
+		return groups
+	}
+	out := make([]config.GroupConfig, len(groups))
+	copy(out, groups)
+	stripGroupMarkers(out)
+	return out
 }
 
 // GetApp returns a single app by name, projected for the caller's role and
@@ -1015,9 +1042,14 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
+	userRole, _ := getUserRoleAndGroups(r)
 	for i := range h.config.Groups {
 		if h.config.Groups[i].Name == name {
-			sendJSON(w, http.StatusOK, h.config.Groups[i])
+			g := h.config.Groups[i]
+			if !isAdminRole(userRole) {
+				g.DockerManaged = false
+			}
+			sendJSON(w, http.StatusOK, g)
 			return
 		}
 	}
@@ -1032,8 +1064,11 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
-	// OriginalName is transport-only for PUT /api/config; never accept it here.
+	// OriginalName is transport-only for PUT /api/config; never accept it
+	// here. The Docker-managed marker is server-owned: a created group is
+	// the operator's.
 	group.OriginalName = ""
+	group.DockerManaged = false
 
 	if group.Name == "" {
 		respondError(w, r, http.StatusBadRequest, errGroupNameRequired)
@@ -1107,6 +1142,13 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		}
 	}
 
+	// The Docker-managed marker is server-owned: the group keeps it unless
+	// this update edits its icon, colour or order, which hands it to the
+	// operator.
+	existing := &h.config.Groups[idx]
+	group.DockerManaged = existing.DockerManaged && !config.GroupStyleEdited(existing, &group)
+	released := existing.DockerManaged && !group.DockerManaged
+
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Groups[idx] = group
@@ -1130,6 +1172,10 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 	}
 
 	logging.From(r.Context()).Info("Group updated", "source", "audit", "group", group.Name)
+	if released {
+		logging.From(r.Context()).Info("Group edited in Settings; Docker group labels no longer apply to it",
+			"source", "audit", "group", group.Name)
+	}
 	sendJSON(w, http.StatusOK, group)
 }
 

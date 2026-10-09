@@ -259,7 +259,7 @@ func TestLabelSync_NameTakenHeldMissingGroupCreated(t *testing.T) {
 	if a.Order != 8 || a.Group != "Nowhere" {
 		t.Errorf("order/group = %d/%q, want 8/Nowhere (other labels still apply)", a.Order, a.Group)
 	}
-	want := config.GroupConfig{Name: "Nowhere", Icon: config.AppIconConfig{Type: "lucide", Name: "folder"}, Order: 2, Expanded: true}
+	want := config.GroupConfig{Name: "Nowhere", Icon: config.AppIconConfig{Type: "lucide", Name: "folder"}, Order: 2, Expanded: true, DockerManaged: true}
 	if len(f.cfg.Groups) != 3 || f.cfg.Groups[2] != want {
 		t.Errorf("group not created after the existing ones: %+v", f.cfg.Groups)
 	}
