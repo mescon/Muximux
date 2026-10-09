@@ -2714,7 +2714,6 @@ func TestLogin_LocalLoginDisabled(t *testing.T) {
 	}
 }
 
-// putForwardAuth sends a forward_auth PUT /api/auth/method with the given body fields.
 // forwardAuthRole runs a trusted-proxy request carrying the given groups
 // header through the live middleware and returns the role it resolves to.
 func forwardAuthRole(t *testing.T, handler *AuthHandler, groups string) string {
@@ -2733,6 +2732,7 @@ func forwardAuthRole(t *testing.T, handler *AuthHandler, groups string) string {
 	return role
 }
 
+// putForwardAuth sends a forward_auth PUT /api/auth/method with the given body fields.
 func putForwardAuth(t *testing.T, handler *AuthHandler, extra map[string]interface{}) {
 	t.Helper()
 	fields := map[string]interface{}{
