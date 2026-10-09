@@ -275,7 +275,7 @@ input[type="color"]::-moz-color-swatch {
   --danger-solid:       var(--danger-border);
   --danger-solid-hover: color-mix(in srgb, var(--danger-solid) 90%, var(--fallback-ink));
   --danger-on-solid:    var(--fallback-on-solid);
-  --accent-text:    color-mix(in srgb, var(--accent-primary) 52%, var(--fallback-ink));
+  --accent-text:    color-mix(in srgb, var(--accent-primary) 51%, var(--fallback-ink));
   /* Form control boundary: 3:1 on base, surface, elevated and overlay (WCAG 1.4.11) in both schemes */
   --border-input:   color-mix(in srgb, var(--fallback-ink) 50%, transparent);
 }
@@ -922,6 +922,9 @@ html.theme-transitioning *::after {
   .notice-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
   .notice-danger  { background: var(--danger-bg);  border-color: var(--danger-border);  color: var(--danger-text); }
   .notice-info    { background: var(--info-bg);    border-color: var(--info-border);    color: var(--info-text); }
+  /* A notice inside an already-tinted card (e.g. the "No authentication" warning) does not stack a second tint:
+     the doubled wash dropped muted text below AA on every theme. The border still sets it apart. */
+  .bg-warning-bg .notice-warning { background: transparent; }
   .notice-neutral { background: var(--bg-elevated); border-color: var(--border-default); color: var(--text-secondary); }
 
   /* Health dot shapes: circle = healthy, diamond = unhealthy, hollow ring = unknown */
@@ -994,4 +997,34 @@ html.theme-transitioning *::after {
   width: 1px;
   height: 100%;
   background: var(--border-subtle);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOASTS (svelte-sonner, richColors)
+   sonner ships its own status colours (e.g. #e60000 on #fff0f0, 4.34:1). Map them to the semantic
+   tokens, painted over --bg-elevated so the translucent tints stay opaque and AA is guaranteed by
+   themeContrast.test.ts. The --mx-* aliases live on :root because sonner redefines --success-bg,
+   --warning-bg and --info-bg on the toaster element itself, which would make a direct
+   var(--success-bg) there a cycle. Unlayered and one element deeper than sonner's own rules so it wins.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --mx-success-bg: linear-gradient(var(--success-bg), var(--success-bg)), var(--bg-elevated);
+  --mx-success-border: var(--success-border);
+  --mx-success-text: var(--success-text);
+  --mx-warning-bg: linear-gradient(var(--warning-bg), var(--warning-bg)), var(--bg-elevated);
+  --mx-warning-border: var(--warning-border);
+  --mx-warning-text: var(--warning-text);
+  --mx-info-bg: linear-gradient(var(--info-bg), var(--info-bg)), var(--bg-elevated);
+  --mx-info-border: var(--info-border);
+  --mx-info-text: var(--info-text);
+  --mx-danger-bg: linear-gradient(var(--danger-bg), var(--danger-bg)), var(--bg-elevated);
+  --mx-danger-border: var(--danger-border);
+  --mx-danger-text: var(--danger-text);
+}
+
+html [data-sonner-toaster][data-sonner-theme] {
+  --success-bg: var(--mx-success-bg); --success-border: var(--mx-success-border); --success-text: var(--mx-success-text);
+  --warning-bg: var(--mx-warning-bg); --warning-border: var(--mx-warning-border); --warning-text: var(--mx-warning-text);
+  --info-bg: var(--mx-info-bg); --info-border: var(--mx-info-border); --info-text: var(--mx-info-text);
+  --error-bg: var(--mx-danger-bg); --error-border: var(--mx-danger-border); --error-text: var(--mx-danger-text);
 }

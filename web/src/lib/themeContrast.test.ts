@@ -62,6 +62,26 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
     check(t, 'accent-text', '--accent-text', accentText, '--bg-surface+accent-subtle', subtleOnSurface, AA);
     // .badge-accent: accent text on the accent-muted tint.
     check(t, 'accent-text', '--accent-text', accentText, '--bg-surface+accent-muted', over(resolve(t, '--accent-muted'), bg('--bg-surface')), AA);
+    // Tinted composites on their real parent surfaces (axe found these under 4.5:1; see composite-fix-report.md).
+    // Settings dialog and Logs sit on --bg-surface, onboarding on --bg-base.
+    const stack = (parent: RGBA, ...tints: RGBA[]) => tints.reduce((acc, tint) => over(tint, acc), parent);
+    const accentMuted = resolve(t, '--accent-muted'), accentSubtle = resolve(t, '--accent-subtle');
+    const warnBg = resolve(t, '--warning-bg'), okBg = resolve(t, '--success-bg');
+    const muted = resolve(t, '--text-muted'), okText = resolve(t, '--success-text');
+    // Settings app rows sit in a group body washed with ~10% of --bg-elevated over --bg-surface.
+    const rowWash = over({ ...bg('--bg-elevated'), a: 0.1 }, bg('--bg-surface'));
+    // .badge-accent, Apps "Default" badge, Logs source pills, discovery network chips
+    check(t, 'accent-badge', '--accent-text', accentText, '--bg-surface+row-wash+accent-muted', stack(rowWash, accentMuted), AA);
+    for (const p of ['--bg-base', '--bg-surface']) {
+      // Selected option cards (Settings General/Security, onboarding): muted description text on accent-subtle
+      check(t, 'muted-on-tint', '--text-muted', muted, `${p}+accent-subtle`, stack(bg(p), accentSubtle), AA);
+      // "No authentication" card: muted text on warning-bg (the inner .notice drops its own tint, see app.css)
+      check(t, 'muted-on-tint', '--text-muted', muted, `${p}+warning-bg`, stack(bg(p), warnBg), AA);
+    }
+    // CURRENT pill inside a selected Security card
+    check(t, 'success-pill', '--success-text', okText, '--bg-surface+accent-subtle+success-bg', stack(bg('--bg-surface'), accentSubtle, okBg), AA);
+    // App.svelte Toaster: the tinted status toast sits on --bg-elevated (see "toast" rules in app.css)
+    for (const s of STATUS) check(t, 'toast', `--${s}-text`, resolve(t, `--${s}-text`), `--bg-elevated+${s}-bg`, stack(bg('--bg-elevated'), resolve(t, `--${s}-bg`)), AA);
     const solid = resolve(t, '--danger-solid');
     check(t, 'danger-button', '--danger-on-solid', resolve(t, '--danger-on-solid'), '--danger-solid', solid, AA);
     for (const p of PARENTS) check(t, 'danger-button', '--danger-solid', solid, p, bg(p), NON_TEXT);
@@ -93,6 +113,15 @@ describe('bundled theme contrast', () => {
       const fallback = Object.fromEntries(Object.entries(schemeRootVars(t.mode)).filter(([k]) => /^--fallback-/.test(k) || SEMANTIC_KEYS.test(k)));
       const own = Object.fromEntries(Object.entries(t.vars).filter(([k]) => !SEMANTIC_KEYS.test(k)));
       runChecks({ ...t, id: `${t.id} (fallback)`, vars: { ...own, ...fallback } }, { base: false, semantic: true, hierarchy: false });
+    }
+  });
+
+  it('app.css maps the sonner toast colours to the semantic tokens', () => {
+    const css = fs.readFileSync(path.join(process.cwd(), 'src', 'app.css'), 'utf8');
+    for (const [toast, token] of [['success', 'success'], ['warning', 'warning'], ['info', 'info'], ['error', 'danger']]) {
+      for (const part of ['bg', 'border', 'text']) {
+        expect(css, `toast ${toast}-${part}`).toMatch(new RegExp(`--${toast}-${part}:\\s*var\\(--mx-${token}-${part}\\)`));
+      }
     }
   });
 

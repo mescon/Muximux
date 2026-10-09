@@ -21,7 +21,7 @@ const EXPECTED: Record<string, string> = {
   '--danger-solid': 'var(--danger-border)',
   '--danger-solid-hover': `color-mix(in srgb, var(--danger-solid) 90%, ${ink})`,
   '--danger-on-solid': 'var(--fallback-on-solid)',
-  '--accent-text': `color-mix(in srgb, var(--accent-primary) 52%, ${ink})`,
+  '--accent-text': `color-mix(in srgb, var(--accent-primary) 51%, ${ink})`,
 };
 
 describe('semantic tokens', () => {
@@ -51,8 +51,8 @@ describe('semantic tokens', () => {
 
   it('fall back to the :root formulas for a theme that does not define them', () => {
     const user = (mode: 'dark' | 'light') => ({ ...schemeRootVars(mode), '--accent-primary': '#ff0000', '--status-error': '#0000ff' });
-    // Dark: mixed towards white. 52% of #ff0000 + 48% white = #ff7a7a.
-    expect(hex(parseColor('var(--accent-text)', user('dark'))!)).toBe('#ff7a7a');
+    // Dark: mixed towards white. 51% of #ff0000 + 49% white = #ff7a7a.
+    expect(hex(parseColor('var(--accent-text)', user('dark'))!)).toBe('#ff7d7d');
     // 40% of #0000ff + 60% white = #9999ff.
     expect(hex(parseColor('var(--danger-text)', user('dark'))!)).toBe('#9999ff');
     expect(hex(parseColor('var(--danger-on-solid)', user('dark'))!)).toBe('#111111');
@@ -83,9 +83,9 @@ describe('semantic tokens', () => {
       expect(squash(computed('--success-text'))).toBe(squash(EXPECTED['--success-text']));
       expect(squash(computed('--accent-text'))).toBe(squash(EXPECTED['--accent-text']));
       // Resolving the cascaded values: accent-text follows the theme's own accent,
-      // mixed towards the dark-scheme ink (52% of #ff00aa + 48% white = #ff7ad3).
+      // mixed towards the dark-scheme ink (51% of #ff00aa + 49% white = #ff7dd4).
       const vars = Object.fromEntries(Object.keys(rootVars()).map((k) => [k, computed(k)]));
-      expect(hex(parseColor('var(--accent-text)', vars)!)).toBe('#ff7ad3');
+      expect(hex(parseColor('var(--accent-text)', vars)!)).toBe('#ff7dd4');
       // Without the theme attribute, :root alone applies.
       delete html.dataset.theme;
       expect(squash(getComputedStyle(html).getPropertyValue('--danger-text'))).toBe(squash(EXPECTED['--danger-text']));
@@ -105,8 +105,8 @@ describe('semantic tokens', () => {
     // What the browser sees for a light user theme: :root, the light scheme block that
     // themeStore turns on, then the theme's own block (no semantic tokens).
     const vars = { ...schemeRootVars('light'), '--accent-primary': '#ff0000', '--status-error': '#0000ff', '--status-success': '#00ff00' };
-    // Mixed towards black: 52% of #ff0000 = #850000; 40% of #0000ff = #000066.
-    expect(hex(parseColor('var(--accent-text)', vars)!)).toBe('#850000');
+    // Mixed towards black: 51% of #ff0000 = #820000; 40% of #0000ff = #000066.
+    expect(hex(parseColor('var(--accent-text)', vars)!)).toBe('#820000');
     expect(hex(parseColor('var(--danger-text)', vars)!)).toBe('#000066');
     expect(hex(parseColor('var(--success-border)', vars)!)).toBe('#009900');
     expect(hex(parseColor('var(--danger-solid)', vars)!)).toBe('#000099');

@@ -72,7 +72,7 @@
   /* Text hierarchy - using Snow Storm */
   --text-primary: #eceff4;
   --text-secondary: #d8dee9;
-  --text-muted: #acc8e2;
+  --text-muted: #aec9e3;
   --text-disabled: #616e88;
 
   /* Borders */
@@ -114,10 +114,10 @@
   --shadow-glow: 0 0 20px rgba(136, 192, 208, 0.2);
 
   /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
-  --success-text: #bbd6a3; --success-bg: color-mix(in srgb, #a3be8c 12%, transparent); --success-border: #a3be8c;
+  --success-text: #c5dcb0; --success-bg: color-mix(in srgb, #a3be8c 12%, transparent); --success-border: #a3be8c;
   --warning-text: #edcd8d; --warning-bg: color-mix(in srgb, #ebcb8b 12%, transparent); --warning-border: #ebcb8b;
   --danger-text: #feacb1; --danger-bg: color-mix(in srgb, #bf616a 12%, transparent); --danger-border: #e4828a;
   --info-text: #abcced; --info-bg: color-mix(in srgb, #81a1c1 12%, transparent); --info-border: #89a9c9;
   --danger-solid: #e4828a; --danger-on-solid: #111111;
-  --accent-text: #a9e2f2;
+  --accent-text: #ace3f2;
 }

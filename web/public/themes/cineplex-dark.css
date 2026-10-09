@@ -58,7 +58,7 @@
   /* Text hierarchy */
   --text-primary: #eeeeee;
   --text-secondary: #b4b4b4;
-  --text-muted: #a0a0a0;
+  --text-muted: #a2a2a2;
   --text-disabled: #5a5a5a;
 
   /* Borders */
@@ -100,10 +100,10 @@
   --shadow-glow: 0 0 20px rgba(229, 160, 13, 0.2);
 
   /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
-  --success-text: #59bc5c; --success-bg: color-mix(in srgb, #4caf50 12%, transparent); --success-border: #4caf50;
+  --success-text: #6dc470; --success-bg: color-mix(in srgb, #4caf50 12%, transparent); --success-border: #4caf50;
   --warning-text: #e5a00d; --warning-bg: color-mix(in srgb, #e5a00d 12%, transparent); --warning-border: #e5a00d;
   --danger-text: #ff7a68; --danger-bg: color-mix(in srgb, #e74c3c 12%, transparent); --danger-border: #e94e3e;
   --info-text: #4daef3; --info-bg: color-mix(in srgb, #3498db 12%, transparent); --info-border: #3498db;
   --danger-solid: #e94e3e; --danger-on-solid: #111111;
-  --accent-text: #f1ab27;
+  --accent-text: #f1ad2b;
 }

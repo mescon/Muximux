@@ -108,10 +108,10 @@
   --shadow-glow: 0 0 20px rgba(38, 139, 210, 0.2);
 
   /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
-  --success-text: #a3b93a; --success-bg: color-mix(in srgb, #859900 12%, transparent); --success-border: #859900;
+  --success-text: #a5ba3e; --success-bg: color-mix(in srgb, #859900 12%, transparent); --success-border: #859900;
   --warning-text: #d4a738; --warning-bg: color-mix(in srgb, #b58900 12%, transparent); --warning-border: #b58900;
   --danger-text: #ff7d71; --danger-bg: color-mix(in srgb, #dc322f 12%, transparent); --danger-border: #ee463f;
   --info-text: #59b6ff; --info-bg: color-mix(in srgb, #268bd2 12%, transparent); --info-border: #3294dc;
   --danger-solid: #ee463f; --danger-on-solid: #111111;
-  --accent-text: #65baff;
+  --accent-text: #68bbff;
 }

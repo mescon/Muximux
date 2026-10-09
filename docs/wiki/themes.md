@@ -95,7 +95,7 @@ Status boxes, pills, inline messages, form control borders and the danger button
 | `--danger-text`, `--danger-bg`, `--danger-border` | errors, failed saves, destructive hints | the same recipe from `--status-error` |
 | `--info-text`, `--info-bg`, `--info-border` | informational pills | the same recipe from `--status-info` |
 | `--danger-solid`, `--danger-solid-hover`, `--danger-on-solid` | the solid danger button fill, its hover fill and its text | `--danger-border`, that fill mixed 90% with the ink, `#111111` on dark or `#ffffff` on light |
-| `--accent-text` | the accent used as text: links, the active tab and the active navigation item | `--accent-primary` mixed 52% with the ink |
+| `--accent-text` | the accent used as text: links, the active tab and the active navigation item | `--accent-primary` mixed 51% with the ink |
 | `--accent-on-primary` | text on an accent-filled button | `#ffffff` |
 | `--border-focus` | the keyboard focus outline on every control | `--accent-primary` |
 | `--border-input` | the boundary of form controls: inputs, selects, textareas, checkboxes and the locale picker | the ink at 50% over transparent |

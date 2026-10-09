@@ -117,5 +117,5 @@
   --danger-text: #fea4bc; --danger-bg: color-mix(in srgb, #f38ba8 12%, transparent); --danger-border: #f38ba8;
   --info-text: #9ec3fe; --info-bg: color-mix(in srgb, #89b4fa 12%, transparent); --info-border: #89b4fa;
   --danger-solid: #f38ba8; --danger-on-solid: #111111;
-  --accent-text: #d9bbff;
+  --accent-text: #dabdff;
 }
