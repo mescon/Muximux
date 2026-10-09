@@ -28,6 +28,24 @@ const ARBITRARY_TOKEN = /(?<![\w-])(?:[\w-]+:)*!?(?:text|bg|border|ring|outline|
 // count by relying on the global :focus-visible rule in app.css instead.
 const OUTLINE = /(?<![\w-])(?:[\w-]+:)*outline-(?:none|hidden|0)(?![\w-])|(?<![\w-])outline\s*:\s*(?:none|0(?:px)?)(?![\w.%-])/g;
 
+// A hover utility identical to the element's own base utility changes nothing, so pointer
+// users get no hover cue (the brand-400 -> brand-300 shifts collapsed onto one token this
+// way). Matched per literal segment: text between quotes, backticks and braces, so the two
+// arms of a {cond ? 'a' : 'b'} ternary are judged separately.
+const NOOP_HOVER_UTIL = /^(?:(?:text|bg|border(?:-[trblxyse])?|decoration|ring|outline|fill|stroke)-.+|underline|no-underline|line-through)$/;
+function noOpHovers(src: string): Array<[number, string]> {
+  const out: Array<[number, string]> = [];
+  for (const seg of src.matchAll(/[^"'`{}]+/g)) {
+    const tokens = [...seg[0].matchAll(/\S+/g)];
+    const base = new Set(tokens.map((t) => t[0]).filter((t) => !t.includes(':')));
+    for (const t of tokens) {
+      const m = /^hover:(.+)$/.exec(t[0]);
+      if (m && !m[1].includes(':') && NOOP_HOVER_UTIL.test(m[1]) && base.has(m[1])) out.push([seg.index! + t.index!, `${m[1]} ${t[0]}`]);
+    }
+  }
+  return out;
+}
+
 // Decorative uses that carry no information and are not text. `before` is matched against
 // the text just before the class, so the AboutTab rule only covers the three logo svgs
 // (`<svg class="w-5 h-5 text-blue-400" ...>`) and not any other use of those colours.
@@ -69,7 +87,7 @@ const rel = (f: string) => path.relative(SRC, f);
 const lineOf = (src: string, idx: number) => src.slice(0, idx).split('\n').length;
 
 type Finding = string;
-const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], unlabeled: [], unnamedButtons: [] };
+const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], noOpHover: [], unlabeled: [], unnamedButtons: [] };
 const parseFailures: string[] = [];
 
 type Obj = Record<string, unknown>;
@@ -86,6 +104,7 @@ for (const f of files) {
   for (const m of src.matchAll(ARBITRARY_TOKEN)) add('arbitraryToken', m.index!, m[0]);
   for (const m of src.matchAll(OUTLINE)) add('outline', m.index!, m[0]);
   for (const [idx, text] of styleHits(src)) add('styleColours', idx, text);
+  for (const [idx, text] of noOpHovers(src)) add('noOpHover', idx, text);
   for (const a of src.matchAll(/\sstyle="([^"]*)"/g)) {
     const offset = a.index! + a[0].indexOf(a[1]);
     for (const m of a[1].matchAll(INLINE_COLOUR)) add('styleColours', offset + m.index!, `style: ${m[0]}`);
@@ -200,6 +219,21 @@ describe('a11y static guard', () => {
       const src = '<div></div>\n<style>\n  /* a\n  b */\n  .a { background: rgba(0, 0, 0, 0.5); }\n  .b {\n    color: #fff;\n    border-color: var(--x, #abc);\n  }\n</style>\n';
       const found = styleHits(src).map(([i, t]) => [lineOf(src, i), t]);
       expect(found).toEqual([[7, 'color: #fff']]);
+    });
+    it('noOpHover flags a hover colour or decoration identical to the base, per literal segment', () => {
+      const found = (s: string) => noOpHovers(s).map(([, t]) => t);
+      expect(found('class="text-accent-text hover:text-accent-text"')).toEqual(['text-accent-text hover:text-accent-text']);
+      expect(found('class="underline hover:underline"')).toEqual(['underline hover:underline']);
+      expect(found("class=\"{x ? 'a' : 'border-border bg-bg-surface hover:border-border'}\"")).toEqual(['border-border hover:border-border']);
+      expect(found('class="bg-accent-muted text-accent-text hover:bg-accent-muted"')).toEqual(['bg-accent-muted hover:bg-accent-muted']);
+      // Different values, other variants and separate ternary arms are not no-ops.
+      expect(found('class="text-text-muted hover:text-text-primary hover:underline"')).toEqual([]);
+      expect(found('class="underline hover:decoration-2 dark:text-a hover:text-a"')).toEqual([]);
+      expect(found("class=\"{on ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}\"")).toEqual([]);
+      expect(found('class="w-4 hover:w-4 sm:hover:text-a text-a"')).toEqual([]);
+      // The reported index points at the hover token.
+      const src = 'a\n<a class="text-x hover:text-x">';
+      expect(lineOf(src, noOpHovers(src)[0][0])).toBe(2);
     });
     it('blankStyle keeps line numbers', () => {
       const css = '/* a\n b */\n.x { color: #fff; }';

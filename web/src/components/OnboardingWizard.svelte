@@ -1391,7 +1391,7 @@
           <div class="mt-6">
             <p class="text-sm text-text-muted mb-2">{m.onboarding_existingConfig()}</p>
             <button
-              class="text-sm text-accent-text hover:text-accent-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="text-sm text-accent-text hover:underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onclick={() => restoreFileInput?.click()}
               disabled={restoring || (needsSetup && !setupToken.trim())}
             >
@@ -1424,7 +1424,7 @@
               <!-- Builtin password -->
               <div
                 class="rounded-xl border text-start transition-all overflow-hidden
-                       {authMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border'}"
+                       {authMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1489,7 +1489,7 @@
               <!-- Forward auth -->
               <div
                 class="rounded-xl border text-start transition-all overflow-hidden
-                       {authMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border'}"
+                       {authMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1585,7 +1585,7 @@
               <!-- None -->
               <div
                 class="rounded-xl border text-start transition-all overflow-hidden
-                       {authMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border'}"
+                       {authMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1746,7 +1746,7 @@
                         class="relative p-3 rounded-lg border transition-all cursor-pointer
                                {selection?.selected
                                  ? 'bg-accent-subtle border-border-focus'
-                                 : 'bg-bg-surface border-border hover:border-border'}"
+                                 : 'bg-bg-surface border-border hover:border-border-strong'}"
                         onclick={() => toggleApp(app)}
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleApp(app))}
                         role="checkbox"
@@ -1759,7 +1759,7 @@
                             <button
                               aria-label={m.onboarding_addAnotherInstance({ appName: app.name })}
                               class="w-5 h-5 rounded border border-border-focus bg-accent-muted flex items-center justify-center
-                                     hover:bg-accent-muted transition-colors"
+                                     hover:brightness-110 transition-colors"
                               onclick={(e) => { e.stopPropagation(); addInstanceOf(app); }}
                               title={m.onboarding_addAnotherInstance({ appName: app.name })}
                             >

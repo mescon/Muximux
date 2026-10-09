@@ -89,7 +89,7 @@
     type="button"
     aria-label={m.app_http_action_add_header()}
     onclick={addRow}
-    class="text-xs text-accent-text hover:text-accent-text"
+    class="text-xs text-accent-text hover:underline"
   >
     {m.app_http_action_add_header()}
   </button>

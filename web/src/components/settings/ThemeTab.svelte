@@ -334,8 +334,7 @@
   <div class="space-y-3">
     {#if !showThemeEditor}
       <button
-        class="w-full p-4 rounded-lg text-start transition-all hover:border-border-strong flex items-center gap-3"
-        style="background: var(--bg-surface); border: 1px solid var(--border-subtle);"
+        class="w-full p-4 rounded-lg text-start transition-all bg-bg-surface border border-border-subtle hover:border-border-strong flex items-center gap-3"
         onclick={openThemeEditor}
       >
         <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"

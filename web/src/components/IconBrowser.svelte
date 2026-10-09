@@ -429,7 +429,7 @@
               class="aspect-square p-2 rounded-lg border transition-all w-full
                      {selectedIcon === icon.name && selectedType === activeTab
                        ? 'border-border-focus bg-accent-subtle'
-                       : 'border-border hover:border-border hover:bg-bg-hover'}"
+                       : 'border-border hover:border-border-strong hover:bg-bg-hover'}"
               onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
             >

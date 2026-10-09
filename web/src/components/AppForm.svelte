@@ -505,7 +505,7 @@
                 </button>
               </div>
             {/each}
-            <button class="text-xs text-accent-text hover:text-accent-text"
+            <button class="text-xs text-accent-text hover:underline"
               onclick={() => {
                 app.proxy_headers = { ...(app.proxy_headers ?? {}), '': '' };
               }}

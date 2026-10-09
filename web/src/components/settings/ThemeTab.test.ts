@@ -577,6 +577,13 @@ describe('ThemeTab', () => {
       ]);
     });
 
+    it('gives the customize button a working hover border (no inline border overriding it)', () => {
+      render(ThemeTab);
+      const btn = screen.getByText('Customize Current Theme').closest('button')!;
+      expect(btn).toHaveClass('border', 'border-border-subtle', 'hover:border-border-strong');
+      expect(btn.getAttribute('style') ?? '').not.toMatch(/border/);
+    });
+
     it('uses the danger button style for delete and confirm, not status colours inline', async () => {
       render(ThemeTab);
       const deleteBtn = screen.getByTitle('Delete theme');
