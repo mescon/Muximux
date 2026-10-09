@@ -13,7 +13,7 @@ vi.mock('$lib/paraglide/runtime.js', () => ({
   localStorageKey: 'PARAGLIDE_LOCALE',
 }));
 
-import { applyLocaleToDocument, syncLocaleFromConfig, getAvailableLocales, localeNames, localeFlags } from './localeStore';
+import { applyLocaleToDocument, syncLocaleFromConfig, applyConfigLocale, getAvailableLocales, localeNames, localeFlags } from './localeStore';
 
 describe('localeStore', () => {
   beforeEach(() => {
@@ -135,6 +135,20 @@ describe('localeStore', () => {
       // setLocale should be called, but document should not be updated directly
       expect(mockSetLocale).toHaveBeenCalledWith('fr');
       expect(document.documentElement.lang).toBe('');
+    });
+  });
+
+  describe('applyConfigLocale', () => {
+    it('returns false and does nothing when the language matches or is empty', () => {
+      expect(applyConfigLocale('en')).toBe(false);
+      expect(applyConfigLocale('')).toBe(false);
+      expect(applyConfigLocale(undefined)).toBe(false);
+      expect(mockSetLocale).not.toHaveBeenCalled();
+    });
+
+    it('returns true and syncs when it differs', () => {
+      expect(applyConfigLocale('sv')).toBe(true);
+      expect(mockSetLocale).toHaveBeenCalledWith('sv');
     });
   });
 });

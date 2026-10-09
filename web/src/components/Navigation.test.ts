@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { tick } from 'svelte';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 
 // --- Hoisted store values ---
@@ -819,6 +820,49 @@ describe('Navigation', () => {
       const navEl = container.querySelector('[role="navigation"]');
       expect(navEl!.classList.contains('fixed')).toBe(true);
       expect(navEl!.classList.contains('z-40')).toBe(true);
+    });
+  });
+
+  describe('Floating position precedence', () => {
+    const renderFloating = (corner: string) =>
+      render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'floating', floating_position: corner as NavigationConfig['floating_position'] } }),
+        },
+      });
+
+    afterEach(() => localStorage.removeItem('muximux_fab_position'));
+
+    it('config floating_position wins over stored coordinates from another corner', () => {
+      localStorage.setItem('muximux_fab_position', JSON.stringify({ x: 40, y: 40, corner: 'top-left' }));
+      const { container } = renderFloating('bottom-right');
+      const style = (container.querySelector('[role="navigation"]') as HTMLElement).getAttribute('style') ?? '';
+      expect(style).toContain(`left: ${window.innerWidth - 24 - 28}px`);
+      expect(style).toContain(`top: ${window.innerHeight - 24 - 28}px`);
+      expect(JSON.parse(localStorage.getItem('muximux_fab_position')!).corner).toBe('bottom-right');
+    });
+
+    it('keeps stored coordinates when the corner matches', () => {
+      localStorage.setItem('muximux_fab_position', JSON.stringify({ x: 300, y: 200, corner: 'bottom-right' }));
+      const { container } = renderFloating('bottom-right');
+      const style = (container.querySelector('[role="navigation"]') as HTMLElement).getAttribute('style') ?? '';
+      expect(style).toContain('left: 300px');
+      expect(style).toContain('top: 200px');
+    });
+
+    it('re-derives the position when the configured corner changes after mount', async () => {
+      const { container, rerender } = renderFloating('bottom-right');
+      await rerender({
+        apps: ungroupedApps,
+        currentApp: null,
+        config: makeConfig({ navigation: { position: 'floating', floating_position: 'top-left' } }),
+      });
+      await tick();
+      const style = (container.querySelector('[role="navigation"]') as HTMLElement).getAttribute('style') ?? '';
+      expect(style).toContain('left: 52px');
+      expect(JSON.parse(localStorage.getItem('muximux_fab_position')!).corner).toBe('top-left');
     });
   });
 

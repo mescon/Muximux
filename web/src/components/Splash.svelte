@@ -9,7 +9,7 @@
   import DockerLogo from './DockerLogo.svelte';
   import DockerStatePill from './DockerStatePill.svelte';
   import ConfirmDockerActionModal from './ConfirmDockerActionModal.svelte';
-  import { dockerStateStore, refreshDockerState } from '$lib/dockerStateStore';
+  import { dockerStateStore, refreshDockerState, applyDockerStateChange, getDockerStateFor } from '$lib/dockerStateStore';
   import { currentUser } from '$lib/authStore';
   import { dockerStart, dockerStop, dockerRestart } from '$lib/api';
   import { toasts } from '$lib/toastStore';
@@ -87,6 +87,8 @@
     pendingAction = { app, action };
   }
 
+  const emptyDockerState: DockerState = { status: 'missing', health: 'none', restart_count: 0, image: '' };
+
   async function runAction(app: App, action: 'start' | 'stop' | 'restart') {
     const fn = action === 'start' ? dockerStart : action === 'stop' ? dockerStop : dockerRestart;
     let res;
@@ -104,6 +106,12 @@
     } else {
       const verb = action === 'start' ? 'Started' : action === 'stop' ? 'Stopped' : 'Restarted';
       toasts.success(`${verb} ${app.name} (${res.latency_ms}ms)`);
+      if (res.status) {
+        applyDockerStateChange(app.name, {
+          ...(getDockerStateFor(app.name) ?? emptyDockerState),
+          status: res.status as DockerState['status'],
+        });
+      }
     }
   }
 

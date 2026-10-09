@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { get } from 'svelte/store';
 import { dockerStateStore, refreshDockerState, applyDockerStateChange } from './dockerStateStore';
 import type { DockerState } from './types';
@@ -28,6 +28,32 @@ describe('dockerStateStore', () => {
     expect(map.size).toBe(2);
     expect(map.get('sonarr')?.status).toBe('running');
     expect(map.get('radarr')?.status).toBe('exited');
+  });
+
+  describe('base path', () => {
+    afterEach(() => {
+      delete (globalThis as Record<string, unknown>).__MUXIMUX_BASE__;
+      vi.resetModules();
+    });
+
+    it('refreshDockerState uses the base path', async () => {
+      (globalThis as Record<string, unknown>).__MUXIMUX_BASE__ = '/mux';
+      vi.resetModules();
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+      vi.stubGlobal('fetch', fetchMock);
+      const mod = await import('./dockerStateStore');
+      await mod.refreshDockerState();
+      expect(fetchMock).toHaveBeenCalled();
+      expect(String(fetchMock.mock.calls[0][0]).startsWith('/mux/api/')).toBe(true);
+    });
+  });
+
+  it('refreshDockerState warns and keeps the store empty on a non-OK response', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    await refreshDockerState();
+    expect(get(dockerStateStore).size).toBe(0);
+    expect(warn).toHaveBeenCalled();
   });
 
   it('applyDockerStateChange creates a new Map (reference inequality preserved)', () => {

@@ -176,8 +176,21 @@
     };
   }
 
+  // The configured corner; recorded with the stored coordinates so a config
+  // change (or a different corner in another session) wins over stale coords.
+  let configFloatingCorner = $derived(config.navigation.floating_position || 'bottom-right');
+  let appliedFabCorner = configFloatingCorner;
+
   function persistFabPosition() {
-    localStorage.setItem(FAB_LS_KEY, JSON.stringify({ x: fabX, y: fabY }));
+    localStorage.setItem(FAB_LS_KEY, JSON.stringify({ x: fabX, y: fabY, corner: appliedFabCorner }));
+  }
+
+  // Place the FAB at the configured corner and remember it.
+  function resetFabToCorner() {
+    appliedFabCorner = configFloatingCorner;
+    const coords = floatingPositionToCoords(effectiveFloatingPosition);
+    fabX = coords.x; fabY = coords.y;
+    persistFabPosition();
   }
 
   function handleFabResize() {
@@ -447,13 +460,14 @@
     if (storedFab) {
       try {
         const p = JSON.parse(storedFab);
-        const c = clampFabPosition(p.x, p.y);
-        fabX = c.x; fabY = c.y;
+        if (p.corner === configFloatingCorner) {
+          const c = clampFabPosition(p.x, p.y);
+          fabX = c.x; fabY = c.y;
+        }
       } catch { /* fall through to default */ }
     }
     if (!fabX && !fabY) {
-      const coords = floatingPositionToCoords(effectiveFloatingPosition);
-      fabX = coords.x; fabY = coords.y;
+      resetFabToCorner();
     }
     fabInitialized = true;
     // Set up scroll fade ResizeObserver
@@ -491,6 +505,13 @@
   $effect(() => {
     void JSON.stringify(expandedGroups);
     requestAnimationFrame(updateAllScrollFades);
+  });
+
+  // Re-derive the FAB position when the configured corner changes after mount
+  $effect(() => {
+    const corner = configFloatingCorner;
+    if (!fabInitialized || corner === appliedFabCorner) return;
+    resetFabToCorner();
   });
 
   // Constrain floating panel scroll height when panel opens or FAB moves
@@ -2597,7 +2618,7 @@
         touch-action: none;
       "
       onpointerdown={handleFabPointerDown}
-      ondblclick={(e) => { e.preventDefault(); const c = floatingPositionToCoords(effectiveFloatingPosition); fabX = c.x; fabY = c.y; persistFabPosition(); }}
+      ondblclick={(e) => { e.preventDefault(); resetFabToCorner(); }}
       title={panelOpen ? m.nav_closeNavigation() : config.title}
       aria-label={panelOpen ? m.nav_closeNavigation() : m.nav_openNavigation()}
     >

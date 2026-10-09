@@ -13,7 +13,7 @@
   import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
   import { slugify } from './lib/slug';
   import { toasts } from './lib/toastStore';
-  import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
+  import { restartHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, connectionState } from './lib/websocketStore';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
@@ -28,7 +28,7 @@
   import { resolveIconUrl } from './lib/iconUrl';
   import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
-  import { syncLocaleFromConfig } from './lib/localeStore';
+  import { syncLocaleFromConfig, applyConfigLocale } from './lib/localeStore';
   import { getLocale } from '$lib/paraglide/runtime.js';
   import * as m from '$lib/paraglide/messages.js';
   import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
@@ -229,16 +229,6 @@
   let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
 
 
-  function parseIntervalMs(intervalStr: string, fallback = 30000): number {
-    const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);
-    if (!match) return fallback;
-    const value = parseInt(match[1], 10);
-    const unit = match[2] || 's';
-    if (unit === 'ms') return value;
-    if (unit === 'm') return value * 60 * 1000;
-    return value * 1000;
-  }
-
   function showDefaultApp() {
     // Hash deep-link takes priority (e.g. /#Plex)
     if (selectAppFromHash()) return;
@@ -251,10 +241,7 @@
 
   function startServices() {
     if (!config) return;
-    if (config.health?.enabled !== false) {
-      const intervalMs = parseIntervalMs(config.health?.interval || '30s');
-      startHealthPolling(intervalMs);
-    }
+    restartHealthPolling(config.health);
     connectWs();
     // /api/logs/recent is admin-only because the ring buffer carries
     // audit lines, panic stacks, and full client IPs. Only init the
@@ -385,10 +372,7 @@
       }
 
       // Sync locale from server config (may trigger reload if different from localStorage)
-      if (config.language && config.language !== getLocale()) {
-        syncLocaleFromConfig(config.language);
-        return; // reload will re-run onMount
-      }
+      if (applyConfigLocale(config.language)) return; // reload will re-run onMount
 
       // Inject PWA manifest now that auth has passed — deferred from index.html
       // so forward-auth proxies don't redirect the manifest fetch to a login page.
@@ -508,6 +492,9 @@
       if (config.theme) {
         syncFromConfig(config.theme);
       }
+
+      // Apply the server locale (reloads the page when it differs)
+      if (applyConfigLocale(config.language)) return;
 
       // Load custom themes from server
       loadCustomThemesFromServer();

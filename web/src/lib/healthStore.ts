@@ -1,5 +1,6 @@
 import { writable, derived, get } from 'svelte/store';
 import type { AppHealth, HealthStatus } from './api';
+import type { HealthConfig } from './types';
 import { fetchAllAppHealth } from './api';
 import { debug } from './debug';
 
@@ -54,6 +55,26 @@ export function stopHealthPolling(): void {
     clearInterval(pollInterval);
     pollInterval = null;
   }
+}
+
+// Parse an interval string such as "500ms", "30s" or "2m" into milliseconds.
+// A bare number is treated as seconds; anything unparseable yields the fallback.
+export function parseIntervalMs(intervalStr: string, fallback = 30000): number {
+  const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);
+  if (!match) return fallback;
+  const value = parseInt(match[1], 10);
+  const unit = match[2] || 's';
+  if (unit === 'ms') return value;
+  if (unit === 'm') return value * 60 * 1000;
+  return value * 1000;
+}
+
+// Re-apply the health polling settings from config: stop any running poll,
+// then start a new one unless health checks are disabled.
+export function restartHealthPolling(health?: HealthConfig): void {
+  stopHealthPolling();
+  if (health?.enabled === false) return;
+  startHealthPolling(parseIntervalMs(health?.interval || '30s'));
 }
 
 // Get health status for a specific app

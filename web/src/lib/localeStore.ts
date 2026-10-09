@@ -26,6 +26,17 @@ export function syncLocaleFromConfig(configLocale: string): void {
 }
 
 /**
+ * Apply the language from the server config. Returns true when the language is
+ * set and differs from the active locale; syncLocaleFromConfig then persists it
+ * and reloads the page, so the caller should stop. Returns false otherwise.
+ */
+export function applyConfigLocale(language?: string): boolean {
+  if (!language || language === getLocale()) return false;
+  syncLocaleFromConfig(language);
+  return true;
+}
+
+/**
  * Flag emoji for each supported locale.
  *
  * Note: `ru`'s flag is drawn inline in LocaleSelect.svelte (there is no emoji
