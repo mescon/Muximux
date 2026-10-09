@@ -189,7 +189,7 @@
     <!-- Header -->
     <header class="text-center mb-10 md:mb-14">
       <div class="flex justify-center mb-4">
-        <MuximuxLogo height="80" class="text-[var(--accent-primary)]" />
+        <MuximuxLogo height="80" class="text-accent-text" />
       </div>
       <p class="text-sm md:text-base" style="color: var(--text-muted);">
         {m.splash_selectApp()}
@@ -529,7 +529,7 @@
     color: var(--text-primary);
   }
   .docker-action-btn.start:hover {
-    color: var(--status-success, #22c55e);
+    color: var(--success-text);
   }
   .docker-action-btn svg {
     width: 0.875rem;

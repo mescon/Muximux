@@ -2565,7 +2565,7 @@ describe('Navigation', () => {
         },
       });
       const panel1Btn = container.querySelector('[title="Target panel 1"]');
-      expect(panel1Btn!.className).toContain('text-[var(--accent-primary)]');
+      expect(panel1Btn!.className).toContain('text-accent-text');
     });
 
     it('highlights panel 2 when splitActivePanel=1 (vertical)', () => {
@@ -2580,7 +2580,7 @@ describe('Navigation', () => {
         },
       });
       const panel2Btn = container.querySelector('[title="Target panel 2"]');
-      expect(panel2Btn!.className).toContain('text-[var(--accent-primary)]');
+      expect(panel2Btn!.className).toContain('text-accent-text');
     });
 
     it('calls onsplitpanel(0) when panel 1 button clicked', async () => {

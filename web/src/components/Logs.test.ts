@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import type { LogEntry } from '$lib/types';
 
 const { mockLogEntries, mockClearLogs } = vi.hoisted(() => {
@@ -825,5 +828,14 @@ describe('Logs', () => {
       globalThis.Blob = OrigBlob;
       vi.restoreAllMocks();
     });
+  });
+
+  it('level badges and filter buttons use the semantic tokens, not fixed colours', () => {
+    const src = fs.readFileSync(path.join(process.cwd(), 'src/components/Logs.svelte'), 'utf8');
+    const style = src.slice(src.indexOf('<style'));
+    expect(style).not.toMatch(/#(?:9ca3af|60a5fa|fbbf24|f87171)/i);
+    expect(style).not.toMatch(/rgba\((?:156|96|251|248),/);
+    expect(style).toMatch(/\.log-level-warn\s*\{[^}]*var\(--warning-text\)/);
+    expect(style).toMatch(/\.log-btn-error-active\s*\{[^}]*var\(--danger-border\)/);
   });
 });

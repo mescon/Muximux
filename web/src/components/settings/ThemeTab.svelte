@@ -220,7 +220,7 @@
             {#if isCustom}
               <button
                 class="w-5 h-5 rounded-full flex items-center justify-center"
-                style="background: var(--status-error); color: white;"
+                style="background: var(--status-error); color: var(--danger-on-solid);"
                 onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                 title={m.theme_deleteTheme()}
                 aria-label={m.theme_deleteTheme()}
@@ -283,7 +283,7 @@
             <span class="font-medium" style="color: var(--text-primary);">{family.name}</span>
             {#if isCustom}
               <span class="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0"
-                    style="background: var(--accent-subtle); color: var(--accent-primary);">
+                    style="background: var(--accent-subtle); color: var(--accent-text);">
                 {m.theme_custom()}
               </span>
             {/if}
@@ -301,7 +301,7 @@
                  role="presentation">
                 <span class="text-sm font-medium" style="color: var(--text-primary);">{m.common_deleteConfirm()}</span>
                 <button class="px-3 py-1 rounded text-sm font-medium"
-                        style="background: var(--status-error); color: white;"
+                        style="background: var(--status-error); color: var(--danger-on-solid);"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteThemeAction(); }}>{m.common_yes()}</button>
                 <button class="btn btn-secondary btn-sm"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteTheme = null; }}>{m.common_no()}</button>
@@ -329,13 +329,13 @@
   <div class="space-y-3">
     {#if !showThemeEditor}
       <button
-        class="w-full p-4 rounded-lg text-start transition-all hover:border-brand-500/50 flex items-center gap-3"
+        class="w-full p-4 rounded-lg text-start transition-all hover:border-border-strong flex items-center gap-3"
         style="background: var(--bg-surface); border: 1px solid var(--border-subtle);"
         onclick={openThemeEditor}
       >
         <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
              style="background: var(--accent-subtle);">
-          <svg class="w-4 h-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-4 h-4" style="color: var(--accent-text);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
           </svg>
         </div>

@@ -844,15 +844,15 @@
   {#if !isMobile}
     {#if splitEnabled}
       <div class="flex items-center gap-0.5">
-        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
         </button>
-        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
         </button>
         <div class="flex items-center">
-          <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-          <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+          <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+          <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
         </div>
         <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -925,15 +925,15 @@
   {/if}
   {#if splitEnabled}
     <div class="flex items-center gap-1 px-3 py-1.5">
-      <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+      <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
       </button>
-      <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+      <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
       </button>
       <div class="flex items-center">
-        <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+        <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
       </div>
       <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => { onsplitclose?.(); footerHoverExpand = false; }} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -950,7 +950,7 @@
   {/if}
   {#if hasRealAuth && $isAuthenticated && $currentUser}
     <button
-      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
       onclick={() => { handleLogout(); footerHoverExpand = false; }}
     >
       <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1032,7 +1032,7 @@
         {#if hasIcon(homeIcon)}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1042,7 +1042,7 @@
         {:else if config.navigation.show_logo}
           <button
             class="flex-shrink-0 hover:opacity-80"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1052,7 +1052,7 @@
         {:else}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -1240,7 +1240,7 @@
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="p-2 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
+            class="p-2 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover transition-colors"
             onclick={handleLogout}
             title={m.nav_signOut()}
             aria-label={m.nav_signOut()}
@@ -1285,7 +1285,7 @@
              style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1298,7 +1298,7 @@
              style="height: 100px;">
           <button
             class="hover:opacity-80 flex items-center justify-center"
-            style="color: var(--accent-primary); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
+            style="color: var(--accent-text); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1311,7 +1311,7 @@
              style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -1484,15 +1484,15 @@
               {#if splitEnabled}
                 <div class="w-full flex items-center py-1.5 gap-1">
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
                   </button>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
                   </button>
                   <div class="flex items-center">
-                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
                   </div>
                   <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1510,7 +1510,7 @@
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
-                class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
                 onclick={handleLogout}
                 title={m.nav_signOut()}
               >
@@ -1590,15 +1590,15 @@
           {#if splitEnabled}
             <div class="w-full flex items-center py-1.5 gap-1" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};">
               <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
               </button>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
               </button>
               <div class="flex items-center">
-                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
               </div>
               <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1616,7 +1616,7 @@
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
             style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
             tabindex={isCollapsed ? -1 : 0}
             onclick={handleLogout}
@@ -1710,7 +1710,7 @@
              style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1723,7 +1723,7 @@
              style="height: 100px;">
           <button
             class="hover:opacity-80 flex items-center justify-center"
-            style="color: var(--accent-primary); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
+            style="color: var(--accent-text); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1736,7 +1736,7 @@
              style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -1908,15 +1908,15 @@
               {#if splitEnabled}
                 <div class="w-full flex items-center py-1.5 gap-1">
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
                   </button>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
                   </button>
                   <div class="flex items-center">
-                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
                   </div>
                   <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1934,7 +1934,7 @@
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
-                class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
                 onclick={handleLogout}
                 title={m.nav_signOut()}
               >
@@ -2014,15 +2014,15 @@
           {#if splitEnabled}
             <div class="w-full flex items-center py-1.5 gap-1" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
               <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
               </button>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
               </button>
               <div class="flex items-center">
-                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
               </div>
               <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -2040,7 +2040,7 @@
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
             style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
             tabindex={isCollapsedRight ? -1 : 0}
             onclick={handleLogout}
@@ -2137,7 +2137,7 @@
         {#if hasIcon(homeIcon)}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -2147,7 +2147,7 @@
         {:else if config.navigation.show_logo}
           <button
             class="flex-shrink-0 hover:opacity-80"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -2157,7 +2157,7 @@
         {:else}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -2342,7 +2342,7 @@
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="p-2 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
+            class="p-2 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover transition-colors"
             onclick={handleLogout}
             title={m.nav_signOut()}
             aria-label={m.nav_signOut()}
@@ -2480,7 +2480,7 @@
             {#if hasIcon(homeIcon)}
               <button
                 class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
-                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
                 onclick={() => { onsplash?.(); panelOpen = false; }}
                 title={config.title}
                 aria-label={m.nav_goToOverview()}
@@ -2490,7 +2490,7 @@
             {:else if config.navigation.show_logo}
               <button
                 class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-bg-hover"
-                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
                 onclick={() => { onsplash?.(); panelOpen = false; }}
                 title={config.title}
                 aria-label={m.nav_goToOverview()}
@@ -2500,7 +2500,7 @@
             {:else}
               <button
                 class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
-                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
                 onclick={() => { onsplash?.(); panelOpen = false; }}
                 title={m.nav_overview()}
                 aria-label={m.nav_goToOverview()}
@@ -2548,15 +2548,15 @@
           {#if !isMobile}
             {#if splitEnabled}
               <div class="flex items-center gap-0.5">
-                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
                 </button>
-                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
                 </button>
                 <div class="flex items-center">
-                  <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                    <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                  <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                    <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
                 </div>
                 <button class="p-1 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -2583,7 +2583,7 @@
           {/if}
           {#if hasRealAuth && $isAuthenticated && $currentUser}
             <button
-              class="p-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
+              class="p-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover transition-colors"
               onclick={() => { handleLogout(); panelOpen = false; }}
               title={m.nav_signOut()}
               aria-label={m.nav_signOut()}

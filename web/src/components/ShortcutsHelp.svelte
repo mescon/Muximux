@@ -189,7 +189,7 @@
       <!-- Customization hint -->
       <div class="mt-6 p-3 rounded-lg" style="background: var(--bg-hover);">
         <p class="text-sm text-center" style="color: var(--text-muted);">
-          {m.shortcuts_customizeHint()} <span style="color: var(--accent-primary);">{m.shortcuts_settingsKeybindings()}</span>
+          {m.shortcuts_customizeHint()} <span style="color: var(--accent-text);">{m.shortcuts_settingsKeybindings()}</span>
         </p>
       </div>
     </div>

@@ -11,11 +11,11 @@ import { parse, type AST } from 'svelte/compiler';
 const SRC = path.join(process.cwd(), 'src');
 
 export const BUDGET: Record<string, number> = {
-  palette: 126,
+  palette: 117,
   whiteBlack: 0,
-  styleColours: 24,
-  tokenAsText: 30,
-  arbitraryToken: 34,
+  styleColours: 1,
+  tokenAsText: 4,
+  arbitraryToken: 4,
   outline: 84,
   unlabeled: 36,
   unnamedButtons: 17, // corrected measurement: icon components and {@render} no longer count as a name (was 13)
