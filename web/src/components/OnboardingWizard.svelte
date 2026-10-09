@@ -331,7 +331,7 @@
     const toAdd = suggestedGroups.filter(name => !existingNames.has(name));
 
     // Check if custom apps exist that need an "Other" group
-    const hasCustomApps = get(selectedApps).length > 0;
+    const hasCustomApps = $selectedApps.length > 0;
     if (hasCustomApps && !existingNames.has('Other') && !toAdd.includes('Other') && wizardGroups.length === 0) {
       toAdd.push('Other');
     }
@@ -598,6 +598,21 @@
 
     // Build groups from wizard state (strip internal _id)
     const groups: Group[] = wizardGroups.map(({ id: _id, ...g }, i) => ({ ...g, order: i }));
+
+    // Defence in depth: an app must never reference a group that is not
+    // saved, or it is invisible on the dashboard. Append any missing one.
+    const groupNames = new SvelteSet(groups.map(g => g.name));
+    for (const app of apps) {
+      if (!app.group || groupNames.has(app.group)) continue;
+      groupNames.add(app.group);
+      groups.push({
+        name: app.group,
+        icon: { type: 'lucide', name: defaultGroupIcons[app.group] || '', file: '', url: '', variant: 'svg' },
+        color: getGroupColor(app.group),
+        order: groups.length,
+        expanded: true,
+      });
+    }
 
     // Build navigation config
     const navigation: NavigationConfig = {

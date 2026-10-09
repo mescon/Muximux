@@ -1730,6 +1730,56 @@ describe('OnboardingWizard', () => {
     });
   });
 
+  describe('Custom app added through the form', () => {
+    it('finishes with every app group present in groups', async () => {
+      mockSelectedApps.set([]);
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      const oncomplete = vi.fn();
+      renderWizard({ oncomplete });
+      await fireEvent.input(screen.getByPlaceholderText('App name'), { target: { value: 'MyApp' } });
+      await fireEvent.input(screen.getByPlaceholderText('http://localhost:8080'), { target: { value: 'http://localhost:3000' } });
+      await fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+      mockCurrentStep.set('complete');
+      mockStepProgress.set(4);
+      await fireEvent.click(await screen.findByText('Launch Dashboard'));
+      const arg = oncomplete.mock.calls[0][0] as { apps: Array<{ group: string }>; groups: Array<{ name: string; order: number }> };
+      const names = new Set(arg.groups.map(g => g.name));
+      for (const a of arg.apps) {
+        expect(names.has(a.group)).toBe(true);
+      }
+    });
+  });
+
+  describe('Group consistency on finish', () => {
+    it('appends a group an app references but the wizard does not hold', async () => {
+      mockCurrentStep.set('complete');
+      mockStepProgress.set(4);
+      mockSelectedApps.set([
+        {
+          name: 'Ghosted',
+          url: 'http://localhost:3000',
+          icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
+          color: '#22c55e',
+          group: 'Ghost',
+          order: 0,
+          enabled: true,
+          default: false,
+          open_mode: 'iframe',
+          proxy: false,
+          scale: 1,
+        },
+      ]);
+      const oncomplete = vi.fn();
+      renderWizard({ oncomplete });
+      await fireEvent.click(screen.getByText('Launch Dashboard'));
+      const arg = oncomplete.mock.calls[0][0] as { apps: Array<{ group: string }>; groups: Array<{ name: string; order: number }> };
+      const names = arg.groups.map(g => g.name);
+      for (const a of arg.apps) expect(names).toContain(a.group);
+      expect(new Set(arg.groups.map(g => g.order)).size).toBe(arg.groups.length);
+    });
+  });
+
   // =======================================================================
   // 14. Footer status text
   // =======================================================================
