@@ -166,6 +166,8 @@ auth:
     - dashboard-admins
 ```
 
+The admin groups can also be edited in Settings -> Security, and they are kept when other forward-auth settings are saved.
+
 ### Direct Access Behavior
 
 When forward auth is enabled, Muximux will not show a login form. Instead, users who reach Muximux without being authenticated (e.g., by accessing the internal IP directly instead of through the reverse proxy) see an informational message explaining that authentication is handled by an external provider.
@@ -390,6 +392,8 @@ OIDC users inherit groups from their IdP claim, so the work happens on the IdP s
 - [Pocket ID](oidc-pocket-id) -- assign users to groups in the admin UI
 - [Zitadel](oidc-zitadel) -- create project roles, point `groups_claim` at `urn:zitadel:iam:org:project:roles`
 - [Authelia](forward-auth-authelia) -- groups arrive via `Remote-Groups` (forward auth) or the `groups` claim (OIDC)
+
+If you restore a backup whose OIDC provider cannot be reached, Muximux clears the OIDC provider and OIDC login stays off until you fix the issuer in Settings -> Security.
 
 ### What if a user has no groups?
 

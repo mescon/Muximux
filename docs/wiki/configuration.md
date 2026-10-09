@@ -275,6 +275,9 @@ These override the corresponding config file values without needing `${VAR}` syn
 | `MUXIMUX_BASE_PATH` | Subpath for reverse proxy (e.g., `/muximux`) | Empty (root) |
 | `MUXIMUX_LOG_LEVEL` | Log verbosity (debug, info, warn, error) | From config file |
 | `MUXIMUX_LOG_FORMAT` | Log format (`text` or `json`) | `text` |
+| `MUXIMUX_DISCOVERY_AUTO_IMPORT` | Docker auto-import mode (`off`, `add`, `update`, `sync`) | From config file |
+
+These overrides, and the `--listen` and `--base-path` flags, apply in memory only. They are never written back to `config.yaml` when you save from Settings, and Settings shows an overridden field as locked ("From VAR").
 
 ## Validation Rules
 
@@ -299,6 +302,10 @@ The following settings **require a restart** to take effect:
 - `server.gateway_listen` (overrides the bind port for the embedded Caddy)
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
 - `server.gateway_sites:` schema changes (the auth gate; backend swaps and TLS-mode flips reload Caddy in place)
+
+When Muximux saves the configuration it writes defaults for fields you omitted, so a saved `config.yaml` can contain more keys than you wrote by hand. Settings saves are a three-way merge: changes made on the server while Settings is open (a Docker URL refresh, auto-import, another tab) are kept, and fields you did not touch keep the server's value. A save that would create two apps or groups with the same name is refused (409) and Settings blocks Save until one is renamed. Other open browsers get a live update and reload the config.
+
+A restored backup is read exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once; listen address, TLS, base-path routing and session cookie settings still need a restart.
 
 Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level, log format -- is applied immediately.
 
