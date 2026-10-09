@@ -640,3 +640,45 @@ describe('DiscoverModal skipReason fallback', () => {
     expect(screen.queryByTestId('not-importable')).not.toBeInTheDocument();
   });
 });
+
+describe('DiscoverModal tracked rows', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('shows a Tracked chip, disables the checkbox with a description, and Select all skips it', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [
+        makeSuggestion({ key: 'name:c1', name: 'AppOne', tracked: { kind: 'app', name: 'AppOne', auto_imported: false } }),
+        makeSuggestion({ key: 'name:c2', name: 'AppTwo', name_taken: true }),
+        makeSuggestion({ key: 'name:c3', name: 'AppThree', tracked: { kind: 'site', name: 'three.example.com', auto_imported: false } }),
+        makeSuggestion({ key: 'name:c4', name: 'AppFour', tracked: { kind: 'quarantined', name: 'AppFour', auto_imported: false } }),
+        makeSuggestion({ key: 'name:c5', name: 'AppFive', tracked: { kind: 'app', name: 'AppFive', auto_imported: true } }),
+      ],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    await waitFor(() => expect(screen.getByDisplayValue('AppOne')).toBeInTheDocument());
+
+    const chips = screen.getAllByTestId('tracked-chip');
+    expect(chips).toHaveLength(4);
+    expect(chips[0].textContent).toContain('Tracked');
+    expect(chips[0].textContent).toContain('app AppOne');
+    expect(chips[1].textContent).toContain('gateway site three.example.com');
+    expect(chips[2].textContent).toContain('quarantined entry AppFour');
+    expect(chips[3].textContent).toContain('auto-imported app AppFive');
+    expect(screen.getByTestId('name-taken')).toBeInTheDocument();
+
+    const one = screen.getByLabelText('Select AppOne') as HTMLInputElement;
+    expect(one.disabled).toBe(true);
+    const describedBy = one.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy as string)).toBe(chips[0]);
+    expect((screen.getByLabelText('Select AppTwo') as HTMLInputElement).disabled).toBe(false);
+
+    await fireEvent.click(screen.getByLabelText('Select all'));
+    expect((screen.getByLabelText('Select AppTwo') as HTMLInputElement).checked).toBe(true);
+    expect(one.checked).toBe(false);
+    expect((screen.getByLabelText('Select AppThree') as HTMLInputElement).checked).toBe(false);
+    expect(screen.getAllByText(/1 of 5 selected/).length).toBeGreaterThan(0);
+  });
+});

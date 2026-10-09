@@ -378,7 +378,46 @@ func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
 		kept = append(kept, res.Suggestions[i])
 	}
 	res.Suggestions = kept
+	h.configMu.RLock()
+	annotateTracked(h.config, res.Suggestions)
+	h.configMu.RUnlock()
 	sendJSON(w, http.StatusOK, res)
+}
+
+// annotateTracked marks suggestions the config already tracks (by key,
+// scoped to the current endpoint where the entry carries one) and flags
+// names that collide with an untracked app. The caller holds configMu.
+func annotateTracked(cfg *config.Config, sugs []discovery.Suggestion) {
+	endpoint := cfg.Discovery.Docker.Endpoint
+	inScope := func(e string) bool { return e == "" || e == endpoint }
+	refs := map[string]*discovery.TrackedRef{}
+	// Lowest precedence first so later kinds overwrite: quarantined, site, app.
+	for _, q := range cfg.Quarantined() {
+		if q.Key != "" && inScope(q.Endpoint) {
+			refs[q.Key] = &discovery.TrackedRef{Kind: discovery.TrackedQuarantined, Name: q.Name}
+		}
+	}
+	for i := range cfg.Server.GatewaySites {
+		s := &cfg.Server.GatewaySites[i]
+		if s.DockerKey != "" && inScope(s.DockerEndpoint) {
+			refs[s.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedSite, Name: s.Domain}
+		}
+	}
+	names := make(map[string]bool, len(cfg.Apps))
+	for i := range cfg.Apps {
+		a := &cfg.Apps[i]
+		names[a.Name] = true
+		if a.DockerKey != "" && inScope(a.DockerEndpoint) {
+			refs[a.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedApp, Name: a.Name, AutoImported: a.DockerAutoImported}
+		}
+	}
+	for i := range sugs {
+		if ref, ok := refs[sugs[i].Key]; ok {
+			sugs[i].Tracked = ref
+			continue
+		}
+		sugs[i].NameTaken = names[sugs[i].Name]
+	}
 }
 
 // TestDockerConfig handles POST /api/discovery/docker/test. The body

@@ -104,6 +104,26 @@ type Suggestion struct {
 	LabelEnabled *bool `json:"label_enabled,omitempty"`
 	// AutoImportSkip is non-nil when auto-import must not add this container.
 	AutoImportSkip *AutoImportSkip `json:"auto_import_skip,omitempty"`
+	// Tracked is non-nil when the config already tracks this container.
+	// Set by the scan handler, not by the scan itself.
+	Tracked *TrackedRef `json:"tracked,omitempty"`
+	// NameTaken is true when an untracked app already uses Name, so an
+	// import under that name would collide. Set by the scan handler.
+	NameTaken bool `json:"name_taken,omitempty"`
+}
+
+// Kinds of TrackedRef.
+const (
+	TrackedApp         = "app"
+	TrackedSite        = "site"
+	TrackedQuarantined = "quarantined"
+)
+
+// TrackedRef says how the config already tracks a suggested container.
+type TrackedRef struct {
+	Kind         string `json:"kind"` // TrackedApp | TrackedSite | TrackedQuarantined
+	Name         string `json:"name"` // app name or site domain
+	AutoImported bool   `json:"auto_imported"`
 }
 
 // AutoImportSkip explains why a suggestion is not auto-import eligible.
