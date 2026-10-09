@@ -4010,8 +4010,8 @@ func TestSaveConfig_StillRejectsUserEditedBrokenApp(t *testing.T) {
 	cfg := createTestConfig()
 	cfg.Apps = append(cfg.Apps, brokenAutoApp())
 	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) { apps[0].URL = "" })
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("status = %d, want 400", w.Code)
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), `"App1"`) {
+		t.Fatalf("status = %d, body = %q, want 400 naming App1", w.Code, w.Body.String())
 	}
 	if cfg.HasQuarantined("label:vw") {
 		t.Fatal("rollback must restore the quarantine snapshot")
@@ -4068,6 +4068,53 @@ func TestSaveConfig_RejectsEditedBrokenAutoApp(t *testing.T) {
 		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
 	}
 	if cfg.HasQuarantined("label:vw") || len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
+
+// A manual app inserted with the slug of a valid, unchanged docker app is
+// the operator's clash: 400, nothing quarantined, the docker app kept.
+func TestSaveConfig_RejectsSlugClashWithValidAutoApp(t *testing.T) {
+	cfg := createTestConfig()
+	auto := brokenAutoApp()
+	auto.URL = "http://vaultwarden:80"
+	cfg.Apps = append(cfg.Apps, auto)
+	w, path := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) {
+		apps[0].Name = "vaultwarden" // same slug as "Vaultwarden"
+	})
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "slug") {
+		t.Fatalf("status = %d, body = %q, want 400", w.Code, w.Body.String())
+	}
+	if len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+	raw, _ := os.ReadFile(path)
+	if !strings.Contains(string(raw), "label:vw") {
+		t.Fatalf("docker app dropped from the file:\n%s", raw)
+	}
+	found := false
+	for i := range cfg.Apps {
+		found = found || cfg.Apps[i].DockerKey == "label:vw"
+	}
+	if !found {
+		t.Fatalf("docker app not live after rollback: %+v", cfg.Apps)
+	}
+}
+
+// Reordering apps in Settings is not an edit of a broken auto-imported
+// app: the save quarantines it instead of failing.
+func TestSaveConfig_QuarantinesReorderedBrokenAutoApp(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps = append(cfg.Apps, brokenAutoApp())
+	w, _ := saveRoundTripForTest(t, cfg, func(apps []ClientAppConfig) {
+		for i := range apps {
+			apps[i].Order = len(apps) - i
+		}
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if !cfg.HasQuarantined("label:vw") {
 		t.Fatalf("quarantined = %+v", cfg.Quarantined())
 	}
 }

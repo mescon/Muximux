@@ -533,7 +533,9 @@ func TestQuarantineUnchangedInvalidDockerApps_SlugCollision(t *testing.T) {
 	}
 	cfg := defaultConfig()
 	cfg.Apps = append([]AppConfig(nil), prior...)
-	if n := cfg.QuarantineUnchangedInvalidDockerApps(prior); n != 1 || len(cfg.Apps) != 1 {
+	// On save a slug clash is the operator's doing: it is left for
+	// Validate to reject, never quarantined.
+	if n := cfg.QuarantineUnchangedInvalidDockerApps(prior); n != 0 || len(cfg.Apps) != 2 || len(cfg.Quarantined()) != 0 {
 		t.Fatalf("n=%d apps=%+v", n, cfg.Apps)
 	}
 }
@@ -543,6 +545,7 @@ func TestSameSavedApp(t *testing.T) {
 		DockerManagedURL: "http://old", ProxyHeaders: map[string]string{}, HTTPActionHeaders: map[string]string{},
 		AllowedGroups: []string{}, Permissions: []string{}}
 	a := AppConfig{Name: "A", URL: "", DockerKey: "k", DockerAutoImported: true}
+	a.Order = 7 // a drag-reorder is not an edit
 	if !sameSavedApp(&a, &p) {
 		t.Fatal("merge-made differences must be ignored")
 	}

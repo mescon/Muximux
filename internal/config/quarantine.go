@@ -281,7 +281,8 @@ func quarantineInvalidDockerEntries(cfg *Config) {
 // sameSavedApp reports whether a, an app after a SaveConfig merge, is the
 // stored app p unchanged. It ignores the differences the merge itself makes
 // whatever the payload says: an empty map or slice comes back nil (JSON
-// omitempty), and DockerManagedURL is reset to URL.
+// omitempty), and DockerManagedURL is reset to URL. Order is ignored too:
+// a drag-reorder in Settings is not an edit of the app.
 func sameSavedApp(a, p *AppConfig) bool {
 	return reflect.DeepEqual(normalizedForCompare(a), normalizedForCompare(p))
 }
@@ -291,6 +292,7 @@ func sameSavedApp(a, p *AppConfig) bool {
 func normalizedForCompare(a *AppConfig) AppConfig {
 	n := *a
 	n.DockerManagedURL = ""
+	n.Order = 0
 	if len(n.HTTPActionHeaders) == 0 {
 		n.HTTPActionHeaders = nil
 	}
@@ -307,11 +309,15 @@ func normalizedForCompare(a *AppConfig) AppConfig {
 }
 
 // QuarantineUnchangedInvalidDockerApps quarantines every docker-owned app
-// that fails the load rule (quarantineReason) and is identical to the app
-// with the same DockerKey in prior, the list held before this save. An app
-// the payload changed is never quarantined, so the operator's own mistakes
-// still fail validation loudly. It then applies the shared site rule and
-// returns how many apps it quarantined.
+// that fails ValidateApp on its own and is identical to the app with the
+// same DockerKey in prior, the list held before this save. An app the
+// payload changed is never quarantined, so the operator's own mistakes
+// still fail validation loudly. Unlike the load rule, a slug or name
+// collision never quarantines here: on save a clash is caused by the
+// operator's edit, and quarantining the docker app would let the next
+// Save prune it as superseded, so the clash falls through to Validate's
+// 400. It then applies the shared site rule and returns how many apps it
+// quarantined.
 func (c *Config) QuarantineUnchangedInvalidDockerApps(prior []AppConfig) int {
 	priorByKey := map[string]*AppConfig{}
 	for i := range prior {
@@ -320,18 +326,16 @@ func (c *Config) QuarantineUnchangedInvalidDockerApps(prior []AppConfig) int {
 		}
 	}
 	kept := make([]AppConfig, 0, len(c.Apps))
-	slugs := map[string]string{}
 	n := 0
 	for i := range c.Apps {
 		a := &c.Apps[i]
 		if p := priorByKey[a.DockerKey]; isDockerOwnedApp(a) && p != nil && sameSavedApp(a, p) {
-			if reason := quarantineReason(a, slugs); reason != "" {
-				c.QuarantineApp(a, reason)
+			if err := ValidateApp(a); err != nil {
+				c.QuarantineApp(a, err.Error())
 				n++
 				continue
 			}
 		}
-		rememberSlug(slugs, a)
 		kept = append(kept, *a)
 	}
 	c.Apps = kept
