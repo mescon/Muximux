@@ -64,6 +64,7 @@ input[type="color"]::-moz-color-swatch {
   --color-border-subtle: var(--border-subtle);
   --color-border: var(--border-default);
   --color-border-strong: var(--border-strong);
+  --color-border-input: var(--border-input);
   --color-border-focus: var(--border-focus);
 
   /* ── Colors: accent ── */
@@ -205,7 +206,7 @@ input[type="color"]::-moz-color-swatch {
   /* Text hierarchy */
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
-  --text-muted: #848490;
+  --text-muted: #8d8d99;
   --text-disabled: #52525b;
 
   /* Borders */
@@ -219,7 +220,7 @@ input[type="color"]::-moz-color-swatch {
   --accent-secondary: #14b8a6;
   --accent-muted: rgba(45, 212, 191, 0.2);
   --accent-subtle: rgba(45, 212, 191, 0.1);
-  --accent-on-primary: #fff;
+  --accent-on-primary: #111111;
 
   /* Brand palette (for app-specific elements) */
   --color-brand-50: #f0fdfa;
@@ -247,26 +248,52 @@ input[type="color"]::-moz-color-swatch {
   --shadow-glow: 0 0 20px rgba(45, 212, 191, 0.15);
 }
 
-/* Semantic status and accent tokens. These values reproduce the fixed
-   Tailwind shades the UI used before the tokens existed; the themes
-   override them with per-theme values (see the colours PR). */
+/* Generic semantic tokens for themes that do not define their own. Derived from
+   the theme's --status-* and --accent-primary; every bundled theme overrides them
+   with tuned values (see docs/wiki/themes.md). Plain :root so a theme block
+   later in the cascade wins.
+   The mix target and the on-solid ink switch on <html data-color-scheme>, which
+   themeStore sets from the active theme's isDark metadata. The CSS light-dark()
+   function is not used here: the build lowers it to helper variables that only
+   app.css's own color-scheme blocks switch, so bundled and user theme files
+   would always get the dark branch. */
 :root {
-  --success-text:   oklch(79.2% 0.209 151.711);                                        /* green-400 */
-  --success-bg:     color-mix(in oklab, oklch(72.3% 0.219 149.579) 10%, transparent);    /* green-500/10 */
-  --success-border: color-mix(in oklab, oklch(72.3% 0.219 149.579) 40%, transparent);    /* green-500/40 */
-  --warning-text:   oklch(87.9% 0.169 91.605);                                         /* amber-300 */
-  --warning-bg:     color-mix(in oklab, oklch(76.9% 0.188 70.08) 10%, transparent);      /* amber-500/10 */
-  --warning-border: color-mix(in oklab, oklch(76.9% 0.188 70.08) 40%, transparent);      /* amber-500/40 */
-  --danger-text:    oklch(70.4% 0.191 22.216);                                         /* red-400 */
-  --danger-bg:      color-mix(in oklab, oklch(63.7% 0.237 25.331) 10%, transparent);     /* red-500/10 */
-  --danger-border:  color-mix(in oklab, oklch(63.7% 0.237 25.331) 40%, transparent);     /* red-500/40 */
-  --info-text:      oklch(80.9% 0.105 251.813);                                        /* blue-300 */
-  --info-bg:        color-mix(in oklab, oklch(62.3% 0.214 259.815) 15%, transparent);    /* blue-500/15 */
-  --info-border:    color-mix(in oklab, oklch(62.3% 0.214 259.815) 30%, transparent);    /* blue-500/30 */
-  --danger-solid:       oklch(57.7% 0.245 27.325);                                     /* red-600, .btn-danger */
-  --danger-solid-hover: oklch(63.7% 0.237 25.331);                                     /* red-500 */
-  --danger-on-solid:    #fff;
-  --accent-text:    var(--accent-primary);                                             /* accent used as text */
+  --fallback-ink: white;
+  --fallback-on-solid: #111111;
+  --success-text:   color-mix(in srgb, var(--status-success) 40%, var(--fallback-ink));
+  --success-bg:     color-mix(in srgb, var(--status-success) 12%, transparent);
+  --success-border: color-mix(in srgb, var(--status-success) 60%, var(--fallback-ink));
+  --warning-text:   color-mix(in srgb, var(--status-warning) 40%, var(--fallback-ink));
+  --warning-bg:     color-mix(in srgb, var(--status-warning) 12%, transparent);
+  --warning-border: color-mix(in srgb, var(--status-warning) 60%, var(--fallback-ink));
+  --danger-text:    color-mix(in srgb, var(--status-error) 40%, var(--fallback-ink));
+  --danger-bg:      color-mix(in srgb, var(--status-error) 12%, transparent);
+  --danger-border:  color-mix(in srgb, var(--status-error) 60%, var(--fallback-ink));
+  --info-text:      color-mix(in srgb, var(--status-info) 40%, var(--fallback-ink));
+  --info-bg:        color-mix(in srgb, var(--status-info) 12%, transparent);
+  --info-border:    color-mix(in srgb, var(--status-info) 60%, var(--fallback-ink));
+  --danger-solid:       var(--danger-border);
+  --danger-solid-hover: color-mix(in srgb, var(--danger-solid) 90%, var(--fallback-ink));
+  --danger-on-solid:    var(--fallback-on-solid);
+  --accent-text:    color-mix(in srgb, var(--accent-primary) 52%, var(--fallback-ink));
+  /* Form control boundary: 3:1 on base, surface, elevated and overlay (WCAG 1.4.11) in both schemes */
+  --border-input:   color-mix(in srgb, var(--fallback-ink) 50%, transparent);
+}
+
+:root[data-color-scheme="light"] {
+  --fallback-ink: black;
+  --fallback-on-solid: #ffffff;
+}
+
+[data-theme="muximux"] {
+  --text-muted: #8d8d99;
+  --accent-on-primary: #111111;
+  --success-text: #22c55e; --success-bg: color-mix(in srgb, #22c55e 12%, transparent); --success-border: #22c55e;
+  --warning-text: #f59e0b; --warning-bg: color-mix(in srgb, #f59e0b 12%, transparent); --warning-border: #f59e0b;
+  --danger-text: #f84d4c; --danger-bg: color-mix(in srgb, #ef4444 12%, transparent); --danger-border: #ef4444;
+  --info-text: #438aff; --info-bg: color-mix(in srgb, #3b82f6 12%, transparent); --info-border: #3b82f6;
+  --danger-solid: #ef4444; --danger-on-solid: #111111;
+  --accent-text: #2dd4bf;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -306,7 +333,7 @@ input[type="color"]::-moz-color-swatch {
   --accent-secondary: #0f766e;
   --accent-muted: rgba(13, 148, 136, 0.15);
   --accent-subtle: rgba(13, 148, 136, 0.08);
-  --accent-on-primary: #fff;
+  --accent-on-primary: #111111;
 
   /* Brand palette - shifted darker for light backgrounds */
   --color-brand-50: #f0fdfa;
@@ -332,6 +359,14 @@ input[type="color"]::-moz-color-swatch {
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 20px rgba(13, 148, 136, 0.1);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #047732; --success-bg: color-mix(in srgb, #16a34a 12%, transparent); --success-border: #039641;
+  --warning-text: #9c5402; --warning-bg: color-mix(in srgb, #d97706 12%, transparent); --warning-border: #c36b05;
+  --danger-text: #c70514; --danger-bg: color-mix(in srgb, #dc2626 12%, transparent); --danger-border: #dc2626;
+  --info-text: #1c59e0; --info-bg: color-mix(in srgb, #2563eb 12%, transparent); --info-border: #2563eb;
+  --danger-solid: #dc2626; --danger-on-solid: #ffffff;
+  --accent-text: #04776e;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -526,7 +561,7 @@ html.theme-transitioning *::after {
     @apply w-full px-3 py-2;
     background: var(--bg-surface);
     color: var(--text-primary);
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--border-input);
     border-radius: var(--radius-md);
     font-size: 0.875rem;
     transition: all var(--transition-fast);
@@ -537,7 +572,7 @@ html.theme-transitioning *::after {
   }
 
   .input:hover {
-    border-color: var(--border-strong);
+    border-color: var(--border-input);
   }
 
   .input-ghost {
@@ -890,8 +925,8 @@ html.theme-transitioning *::after {
   .notice-neutral { background: var(--bg-elevated); border-color: var(--border-default); color: var(--text-secondary); }
 
   /* Health dot shapes: circle = healthy, diamond = unhealthy, hollow ring = unknown */
-  .health-dot-healthy   { background: var(--status-success); border-radius: 9999px; }
-  .health-dot-unhealthy { background: var(--status-error); transform: rotate(45deg); border-radius: 1px; }
+  .health-dot-healthy   { background: var(--success-border); border-radius: 9999px; }
+  .health-dot-unhealthy { background: var(--danger-border); transform: rotate(45deg); border-radius: 1px; }
   .health-dot-unknown   { background: transparent; border: 2px solid var(--text-muted); border-radius: 9999px; }
 }
 

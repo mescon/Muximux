@@ -222,11 +222,15 @@ async function applyTheme(theme: string) {
   // authoritative source; the id fallback only matters if an unknown
   // theme is ever applied, in which case we assume dark (since
   // Muximux's default-when-nothing-is-set is dark).
-  if (themeInfo?.isDark ?? true) {
+  const dark = themeInfo?.isDark ?? true;
+  if (dark) {
     root.classList.add('dark');
   } else {
     root.classList.remove('dark');
   }
+  // app.css switches the generic semantic-token fallback on this attribute,
+  // so a theme file that omits those tokens still gets its scheme's values.
+  root.dataset.colorScheme = dark ? 'dark' : 'light';
 
   // Remove transition class after animations complete
   setTimeout(() => root.classList.remove('theme-transitioning'), 200);
@@ -489,6 +493,10 @@ export async function saveCustomThemeToServer(
     const linkEl = document.getElementById(`theme-${id}`);
     if (linkEl) linkEl.remove();
     await loadCustomThemeCSS(id);
+
+    // Saving over the active theme keeps the same resolved id, so the store never
+    // re-fires: re-apply it so data-color-scheme and .dark follow a changed isDark.
+    if (get(resolvedTheme) === id) await applyTheme(id);
 
     return true;
   } catch {

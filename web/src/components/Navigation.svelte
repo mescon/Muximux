@@ -1383,7 +1383,7 @@
                 </svg>
               {/if}
               <span class="truncate">{displayGroupName(groupName)}</span>
-              <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ms-auto text-text-muted flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
@@ -1808,7 +1808,7 @@
                 </svg>
               {/if}
               <span class="truncate">{displayGroupName(groupName)}</span>
-              <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ms-auto text-text-muted flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
@@ -2425,7 +2425,7 @@
                     </svg>
                   {/if}
                   <span class="truncate">{displayGroupName(groupName)}</span>
-                  <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+                  <span class="ms-auto text-text-muted flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
                 </div>
               </button>
 
@@ -2689,11 +2689,6 @@
     color: var(--text-muted) !important;
   }
 
-  nav :global(.text-text-disabled),
-  aside :global(.text-text-disabled) {
-    color: var(--text-disabled) !important;
-  }
-
   /* Background colors */
   nav :global(.bg-bg-elevated),
   aside :global(.bg-bg-elevated) {
@@ -2844,9 +2839,6 @@
   }
   .floating-panel :global(.text-text-muted) {
     color: var(--text-muted) !important;
-  }
-  .floating-panel :global(.text-text-disabled) {
-    color: var(--text-disabled) !important;
   }
   .floating-panel :global(.bg-bg-elevated) {
     background: var(--bg-hover) !important;

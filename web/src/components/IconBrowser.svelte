@@ -280,7 +280,7 @@
       onclick={() => activeTab = 'dashboard'}
     >
       {m.iconBrowser_dashboardIcons()}
-      <span class="text-xs text-text-disabled ms-1">({dashboardIcons.length})</span>
+      <span class="text-xs text-text-muted ms-1">({dashboardIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
@@ -290,7 +290,7 @@
       onclick={() => activeTab = 'lucide'}
     >
       {m.iconBrowser_lucide()}
-      <span class="text-xs text-text-disabled ms-1">({lucideIcons.length})</span>
+      <span class="text-xs text-text-muted ms-1">({lucideIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
@@ -300,7 +300,7 @@
       onclick={() => activeTab = 'custom'}
     >
       {m.iconBrowser_custom()}
-      <span class="text-xs text-text-disabled ms-1">({customIcons.length})</span>
+      <span class="text-xs text-text-muted ms-1">({customIcons.length})</span>
     </button>
   </div>
 
@@ -312,7 +312,7 @@
       bind:value={searchQuery}
       oninput={handleSearch}
       placeholder={m.iconBrowser_searchPlaceholder()}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
     />
   </div>
 
@@ -374,7 +374,7 @@
           type="text"
           bind:value={fetchUrl}
           placeholder="https://example.com/icon.png"
-          class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+          class="flex-1 px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') handleFetchUrl(); }}
           disabled={fetching}
         />

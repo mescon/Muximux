@@ -67,7 +67,7 @@
   /* Text hierarchy */
   --text-primary: #c0caf5;
   --text-secondary: #a9b1d6;
-  --text-muted: #888fb4;
+  --text-muted: #9da5ca;
   --text-disabled: #414868;
 
   /* Borders */
@@ -81,6 +81,7 @@
   --accent-secondary: #2ac3de;
   --accent-muted: rgba(122, 162, 247, 0.25);
   --accent-subtle: rgba(122, 162, 247, 0.12);
+  --accent-on-primary: #111111;
 
   /* Brand palette - derived from Blue */
   --color-brand-50: #eef2ff;
@@ -106,4 +107,12 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   --shadow-glow: 0 0 20px rgba(122, 162, 247, 0.2);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #9ece6a; --success-bg: color-mix(in srgb, #9ece6a 12%, transparent); --success-border: #9ece6a;
+  --warning-text: #e0af68; --warning-bg: color-mix(in srgb, #e0af68 12%, transparent); --warning-border: #e0af68;
+  --danger-text: #ff7f96; --danger-bg: color-mix(in srgb, #f7768e 12%, transparent); --danger-border: #f7768e;
+  --info-text: #7dcfff; --info-bg: color-mix(in srgb, #7dcfff 12%, transparent); --info-border: #7dcfff;
+  --danger-solid: #f7768e; --danger-on-solid: #111111;
+  --accent-text: #92b5fe;
 }

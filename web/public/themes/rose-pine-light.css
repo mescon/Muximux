@@ -56,8 +56,8 @@
 
   /* Text hierarchy */
   --text-primary: #575279;
-  --text-secondary: #6f6b89;
-  --text-muted: #726c81;
+  --text-secondary: #65617f;
+  --text-muted: #676175;
   --text-disabled: #b4b0c0;
 
   /* Borders */
@@ -71,6 +71,7 @@
   --accent-secondary: #d7827e;
   --accent-muted: rgba(180, 99, 122, 0.2);
   --accent-subtle: rgba(180, 99, 122, 0.1);
+  --accent-on-primary: #000000;
 
   /* Brand palette - derived from Love */
   --color-brand-50: #fdf2f4;
@@ -96,4 +97,12 @@
   --shadow-md: 0 4px 6px -1px rgba(87, 82, 121, 0.08), 0 2px 4px -1px rgba(87, 82, 121, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(87, 82, 121, 0.08), 0 4px 6px -2px rgba(87, 82, 121, 0.04);
   --shadow-glow: 0 0 20px rgba(180, 99, 122, 0.1);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #23657e; --success-bg: color-mix(in srgb, #286983 12%, transparent); --success-border: #286983;
+  --warning-text: #8b5805; --warning-bg: color-mix(in srgb, #ea9d34 12%, transparent); --warning-border: #b17001;
+  --danger-text: #93465d; --danger-bg: color-mix(in srgb, #b4637a 12%, transparent); --danger-border: #b26279;
+  --info-text: #6d5784; --info-bg: color-mix(in srgb, #907aa9 12%, transparent); --info-border: #8873a1;
+  --danger-solid: #93465d; --danger-on-solid: #ffffff;
+  --accent-text: #994b62;
 }

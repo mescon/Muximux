@@ -406,7 +406,7 @@
                       value={themeEditorVars[varName] || ''}
                       oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
                       class="flex-1 px-2 py-1 text-xs rounded font-mono"
-                      style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-subtle);"
+                      style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-input);"
                     />
                     {#if themeEditorVars[varName] !== themeEditorDefaults[varName]}
                       <button
@@ -437,7 +437,7 @@
               bind:value={saveThemeName}
               placeholder={m.theme_namePlaceholder()}
               class="w-full px-3 py-2 text-sm rounded"
-              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-input);"
             />
             <input
               aria-label={m.theme_descriptionLabel()}
@@ -445,7 +445,7 @@
               bind:value={saveThemeDescription}
               placeholder={m.theme_descriptionPlaceholder()}
               class="w-full px-3 py-2 text-sm rounded"
-              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-input);"
             />
             <input
               aria-label={m.theme_authorLabel()}
@@ -453,7 +453,7 @@
               bind:value={saveThemeAuthor}
               placeholder={m.theme_authorPlaceholder()}
               class="w-full px-3 py-2 text-sm rounded"
-              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-input);"
             />
             <button
               class="w-full px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50 bg-accent-primary text-accent-on-primary"

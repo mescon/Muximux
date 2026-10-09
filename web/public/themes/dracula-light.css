@@ -57,7 +57,7 @@
   /* Text hierarchy */
   --text-primary: #1f1f1f;
   --text-secondary: #3d3d3d;
-  --text-muted: #6c664b;
+  --text-muted: #5e583d;
   --text-disabled: #9a9484;
 
   /* Borders */
@@ -71,6 +71,7 @@
   --accent-secondary: #a3144d;
   --accent-muted: rgba(100, 74, 201, 0.18);
   --accent-subtle: rgba(100, 74, 201, 0.08);
+  --accent-on-primary: #ffffff;
 
   /* Brand palette - derived from Purple */
   --color-brand-50: #f3f0ff;
@@ -96,4 +97,12 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 20px rgba(100, 74, 201, 0.15);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #096600; --success-bg: color-mix(in srgb, #14710a 12%, transparent); --success-border: #14710a;
+  --warning-text: #913f01; --warning-bg: color-mix(in srgb, #a34d14 12%, transparent); --warning-border: #a34d14;
+  --danger-text: #ad1609; --danger-bg: color-mix(in srgb, #cb3a2a 12%, transparent); --danger-border: #cb3a2a;
+  --info-text: #015e86; --info-bg: color-mix(in srgb, #036a96 12%, transparent); --info-border: #036a96;
+  --danger-solid: #cb3a2a; --danger-on-solid: #ffffff;
+  --accent-text: #5e43c2;
 }

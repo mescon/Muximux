@@ -69,8 +69,8 @@
 
   /* Text hierarchy */
   --text-primary: #4c4f69;
-  --text-secondary: #5c5f77;
-  --text-muted: #64667b;
+  --text-secondary: #54576e;
+  --text-muted: #55576b;
   --text-disabled: #9ca0b0;
 
   /* Borders */
@@ -84,6 +84,7 @@
   --accent-secondary: #7287fd;
   --accent-muted: rgba(136, 57, 239, 0.18);
   --accent-subtle: rgba(136, 57, 239, 0.08);
+  --accent-on-primary: #ffffff;
 
   /* Brand palette - derived from Mauve */
   --color-brand-50: #f5f0ff;
@@ -109,4 +110,12 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 20px rgba(136, 57, 239, 0.15);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #1a6901; --success-bg: color-mix(in srgb, #40a02b 12%, transparent); --success-border: #238700;
+  --warning-text: #835004; --warning-bg: color-mix(in srgb, #df8e1d 12%, transparent); --warning-border: #a86802;
+  --danger-text: #ae032c; --danger-bg: color-mix(in srgb, #d20f39 12%, transparent); --danger-border: #d20f39;
+  --info-text: #014bd4; --info-bg: color-mix(in srgb, #1e66f5 12%, transparent); --info-border: #1e66f5;
+  --danger-solid: #d20f39; --danger-on-solid: #ffffff;
+  --accent-text: #771dda;
 }

@@ -1,0 +1,15 @@
+/**
+ * @theme-id: user-minimal
+ * @theme-name: User minimal
+ * @theme-is-dark: false
+ */
+[data-theme="user-minimal"] {
+  color-scheme: light;
+  --bg-base: #fbfaf6; --bg-surface: #ffffff; --bg-elevated: #f1efe8; --bg-overlay: #e8e5dc; --bg-hover: #f1efe8; --bg-active: #e8e5dc;
+  --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(0, 0, 0, 0.08); --glass-highlight: rgba(255, 255, 255, 0.9);
+  --text-primary: #1f2328; --text-secondary: #3f4650; --text-muted: #5a6370; --text-disabled: #a3a9b2;
+  --border-subtle: rgba(0, 0, 0, 0.06); --border-default: rgba(0, 0, 0, 0.12); --border-strong: rgba(0, 0, 0, 0.2);
+  --accent-primary: #d98cb3; --accent-secondary: #c777a1; --accent-muted: rgba(217, 140, 179, 0.2); --accent-subtle: rgba(217, 140, 179, 0.1);
+  --status-success: #3fa34d; --status-warning: #d9a21b; --status-error: #d9534f; --status-info: #3b82f6;
+  --shadow-sm: none; --shadow-md: none; --shadow-lg: none; --shadow-glow: none;
+}

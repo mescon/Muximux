@@ -188,7 +188,7 @@
                   <span class="text-xs text-accent-text">{m.keybindings_customized()}</span>
                 {/if}
               </div>
-              <p class="text-xs text-text-disabled mt-0.5">{binding.description}</p>
+              <p class="text-xs text-text-muted mt-0.5">{binding.description}</p>
             </div>
 
             <div class="flex items-center gap-2 ms-4">
@@ -210,15 +210,16 @@
                         {/if}
                       </div>
                     {:else}
+                      {@const comboDisabled = !binding.editable}
                       <div class="group flex items-center gap-1">
                         <button
                           type="button"
                           onclick={() => binding.editable && startCapture(binding.action, i)}
-                          disabled={!binding.editable}
+                          disabled={comboDisabled}
                         >
                           <kbd
                             class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded font-mono
-                                   {binding.editable ? 'text-text-primary group-hover:bg-bg-active group-hover:border-border-strong' : 'text-text-disabled'}"
+                                   {comboDisabled ? 'text-text-disabled' : 'text-text-primary group-hover:bg-bg-active group-hover:border-border-strong'}"
                           >
                             {formatKeyCombo(combo)}
                           </kbd>
@@ -226,7 +227,7 @@
                         {#if binding.editable && binding.combos.length > 1}
                           <span
                             role="button"
-                            class="p-0.5 text-text-disabled hover:text-danger-text cursor-pointer"
+                            class="p-0.5 text-text-muted hover:text-danger-text cursor-pointer"
                             onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
                             tabindex="0"
@@ -240,7 +241,7 @@
                       </div>
                     {/if}
                     {#if i < binding.combos.length - 1}
-                      <span class="text-text-disabled text-xs mx-1">{m.common_or()}</span>
+                      <span class="text-text-muted text-xs mx-1">{m.common_or()}</span>
                     {/if}
                   </div>
                 {/each}
@@ -250,7 +251,7 @@
                   <button
                     aria-label={m.keybindings_addAlternativeFor({ name: binding.label })}
                     type="button"
-                    class="p-1 text-text-disabled hover:text-text-secondary transition-colors"
+                    class="p-1 text-text-muted hover:text-text-primary transition-colors"
                     onclick={() => startCapture(binding.action, null)}
                     title={m.keybindings_addAlternative()}
                   >
@@ -263,7 +264,7 @@
                 <!-- Adding new combo -->
                 {#if capturingAction === binding.action && capturingIndex === null}
                   <div class="flex items-center gap-1">
-                    <span class="text-text-disabled text-xs mx-1">{m.common_or()}</span>
+                    <span class="text-text-muted text-xs mx-1">{m.common_or()}</span>
                     {#if capturedCombo}
                       <kbd class="px-2 py-1 text-xs bg-accent-primary border border-border-focus rounded text-accent-on-primary font-mono">
                         {formatKeyCombo(capturedCombo)}
@@ -282,7 +283,7 @@
                 <button
                   aria-label={m.keybindings_resetFor({ name: binding.label })}
                   type="button"
-                  class="p-1 text-text-disabled hover:text-warning-text transition-colors"
+                  class="p-1 text-text-muted hover:text-warning-text transition-colors"
                   onclick={() => handleResetBinding(binding.action)}
                   title={m.keybindings_resetToDefault()}
                 >

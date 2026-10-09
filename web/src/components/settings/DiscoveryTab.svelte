@@ -279,7 +279,7 @@
           type="text"
           bind:value={form.endpoint}
           placeholder="unix:///var/run/docker.sock"
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
         />
         <p class="text-xs text-text-muted mt-1">
           <code>unix:///var/run/docker.sock</code> for local Docker, or <code>tcp://host:2376</code> for a remote daemon (TLS recommended), or <code>npipe:////./pipe/docker_engine</code> on Windows.
@@ -291,7 +291,7 @@
         <select
           id="dd-strategy"
           bind:value={form.network_strategy}
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
         >
           <option value="container_ip">container_ip - use the container's docker-network IP (Muximux must share a network)</option>
           <option value="container_dns">container_dns - use the container name (resolves via docker DNS in shared network)</option>
@@ -311,7 +311,7 @@
             type="text"
             bind:value={form.host_ip}
             placeholder="leave blank to use 127.0.0.1"
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           />
           <p class="text-xs text-text-muted mt-1">Set when Muximux runs on a different host than Docker (or when 127.0.0.1 isn't reachable from where Muximux runs).</p>
         </div>
@@ -378,7 +378,7 @@
           type="text"
           bind:value={form.refresh_interval}
           placeholder="60s"
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
         />
         <p class="text-xs text-text-muted mt-1">How often the poller checks tracked containers for IP/port changes. <code>60s</code> is a good default.</p>
       </div>
@@ -414,7 +414,7 @@
             <select
               id="dd-lc-role"
               bind:value={form.lifecycle_min_role}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
             >
               <option value="admin">Admin</option>
               <option value="power-user">Power user</option>
@@ -433,7 +433,7 @@
                 form.lifecycle_allowed_groups = (e.currentTarget as HTMLInputElement).value
                   .split(',').map((g) => g.trim()).filter(Boolean);
               }}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
             />
             <p class="text-xs text-text-muted mt-1">When set, a user must also belong to one of these groups (in addition to meeting the minimum role).</p>
           </div>
@@ -444,7 +444,7 @@
           <select
             id="dd-badge"
             bind:value={form.health_badge_placement}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           >
             <option value="off">Off</option>
             <option value="overview">Overview only</option>
@@ -458,7 +458,7 @@
             id="dd-autoimport"
             bind:value={form.auto_import}
             disabled={!!autoImportLocked}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm disabled:opacity-60"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm disabled:opacity-60"
           >
             <option value="off">{m.discovery_autoImportOff()}</option>
             <option value="add">{m.discovery_autoImportAdd()}</option>
@@ -487,15 +487,15 @@
             {#if form.tls.enabled}
               <div>
                 <label for="dd-tls-ca" class="block text-xs text-text-secondary mb-1">CA certificate</label>
-                <input id="dd-tls-ca" type="text" bind:value={form.tls.ca_cert} placeholder="/etc/docker/ca.pem" class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm font-mono" />
+                <input id="dd-tls-ca" type="text" bind:value={form.tls.ca_cert} placeholder="/etc/docker/ca.pem" class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm font-mono" />
               </div>
               <div>
                 <label for="dd-tls-cert" class="block text-xs text-text-secondary mb-1">Client certificate</label>
-                <input id="dd-tls-cert" type="text" bind:value={form.tls.client_cert} placeholder="/etc/docker/cert.pem" class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm font-mono" />
+                <input id="dd-tls-cert" type="text" bind:value={form.tls.client_cert} placeholder="/etc/docker/cert.pem" class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm font-mono" />
               </div>
               <div>
                 <label for="dd-tls-key" class="block text-xs text-text-secondary mb-1">Client key (chmod 600)</label>
-                <input id="dd-tls-key" type="text" bind:value={form.tls.client_key} placeholder="/etc/docker/key.pem" class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm font-mono" />
+                <input id="dd-tls-key" type="text" bind:value={form.tls.client_key} placeholder="/etc/docker/key.pem" class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm font-mono" />
               </div>
             {/if}
           </div>

@@ -63,6 +63,7 @@
   --accent-secondary: #81a1c1;
   --accent-muted: rgba(94, 129, 172, 0.2);
   --accent-subtle: rgba(94, 129, 172, 0.08);
+  --accent-on-primary: #111111;
 
   /* Brand palette - derived from Frost */
   --color-brand-50: #eceff4;
@@ -88,4 +89,12 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 20px rgba(94, 129, 172, 0.15);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #466126; --success-bg: color-mix(in srgb, #6d8a4e 12%, transparent); --success-border: #607c41;
+  --warning-text: #7a5300; --warning-bg: color-mix(in srgb, #c08b2c 12%, transparent); --warning-border: #9d6c00;
+  --danger-text: #943b46; --danger-bg: color-mix(in srgb, #bf616a 12%, transparent); --danger-border: #b2555f;
+  --info-text: #3a5b84; --info-bg: color-mix(in srgb, #5e81ac 12%, transparent); --info-border: #53759f;
+  --danger-solid: #b2555f; --danger-on-solid: #ffffff;
+  --accent-text: #3c5d86;
 }

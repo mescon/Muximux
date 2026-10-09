@@ -112,7 +112,7 @@ async function shot(name) {
   }
 }
 // The onboarding wizard resets the stored theme, so there the theme is forced on the document
-// directly (stylesheet plus data-theme), as the shared theme CSS files are plain attribute selectors.
+// directly (stylesheet plus data-theme and data-color-scheme), as the shared theme CSS files are plain attribute selectors.
 async function forceTheme(id) {
   if (!['muximux', 'muximux-light'].includes(id) && !(await page.$(`link[data-a11y="${id}"]`))) {
     await page.evaluate(([href, key]) => new Promise((res) => {
@@ -123,6 +123,7 @@ async function forceTheme(id) {
   }
   await page.evaluate((t) => {
     document.documentElement.dataset.theme = t;
+    document.documentElement.dataset.colorScheme = t.endsWith('light') ? 'light' : 'dark';
     document.documentElement.classList.toggle('dark', !t.endsWith('light'));
   }, id);
   await page.waitForTimeout(150);

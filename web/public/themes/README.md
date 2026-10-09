@@ -69,8 +69,9 @@ Your theme file must define a CSS rule that targets `[data-theme="your-theme-id"
   --danger-text: ...;   --danger-bg: ...;   --danger-border: ...;
   --info-text: ...;     --info-bg: ...;     --info-border: ...;
   --danger-solid: ...;  --danger-solid-hover: ...;  --danger-on-solid: ...;
-  --accent-text: ...;        /* accent used as text; defaults to --accent-primary */
-  --accent-on-primary: ...;  /* text on accent fills: #ffffff or #000000 */
+  --accent-text: ...;        /* accent used as text; defaults to --accent-primary mixed 52% with the ink */
+  --accent-on-primary: ...;  /* text on accent fills: #ffffff or a near-black such as #000000 or #111111 */
+  --border-input: ...;       /* form control borders; 3:1 on every background */
 
   /* Shadows */
   --shadow-sm: ...;
@@ -111,6 +112,11 @@ Add metadata comments at the top of your file for the theme selector to display:
 - `--bg-base`: Lightest background (near white)
 - `--bg-surface`: Pure white or very light
 - `--text-primary`: Should be very dark for readability
+
+**Contrast targets (WCAG 2.1 AA):**
+- Text, 4.5:1 on your backgrounds; borders and the focus outline, 3:1. `--border-input` needs 3:1 on base, surface, elevated and overlay.
+- Omitted status, accent and `--border-input` tokens are derived from your `--status-*` and `--accent-primary` colours (40% mixed with white for text on dark themes, black on light; 60% for borders; 12% for backgrounds). The mix direction follows `@theme-is-dark`.
+- `web/src/lib/themeContrast.test.ts` checks every bundled theme and is the reference.
 
 **General tips:**
 - Use RGBA for borders to maintain transparency across backgrounds

@@ -44,15 +44,22 @@ const selectors = (s: string) => s.split(',').map((x) => x.trim());
 export function rootVars(): Vars {
   return appBlocks((s) => selectors(s).includes(':root'));
 }
+// The `:root[data-color-scheme="light"]` block that themeStore switches on for light themes.
+export function lightSchemeVars(): Vars {
+  return appBlocks((s) => selectors(s).includes(':root[data-color-scheme="light"]'));
+}
+// :root as the browser sees it for a theme of the given mode.
+export function schemeRootVars(mode: Mode): Vars {
+  return mode === 'light' ? { ...rootVars(), ...lightSchemeVars() } : rootVars();
+}
 export function muximuxVars(): Vars {
   return { ...rootVars(), ...appBlocks((s) => selectors(s).includes('[data-theme="muximux"]')) };
 }
 export function muximuxLightVars(): Vars {
-  return { ...rootVars(), ...appBlocks((s) => selectors(s).includes('[data-theme="muximux-light"]')) };
+  return { ...schemeRootVars('light'), ...appBlocks((s) => selectors(s).includes('[data-theme="muximux-light"]')) };
 }
 
 export function loadBundledThemes(): ThemeFixture[] {
-  const base = rootVars();
   return fs.readdirSync(THEMES_DIR).filter((f) => f.endsWith('.css')).sort().map((file) => {
     const raw = fs.readFileSync(path.join(THEMES_DIR, file), 'utf8');
     // Metadata lives in the header comment: read it from the raw text.
@@ -61,6 +68,7 @@ export function loadBundledThemes(): ThemeFixture[] {
     const blocks = topLevelBlocks(stripComments(raw)).filter((b) => /\[data-theme=/.test(b.selector));
     const own: Vars = {};
     for (const b of blocks) Object.assign(own, parseVarBlock(b.body));
-    return { id, file, mode: isDark ? 'dark' : 'light', vars: { ...base, ...own } };
+    const mode: Mode = isDark ? 'dark' : 'light';
+    return { id, file, mode, vars: { ...schemeRootVars(mode), ...own } };
   });
 }

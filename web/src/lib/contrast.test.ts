@@ -138,14 +138,15 @@ describe('theme fixtures', () => {
   it('loads 18 bundled themes with inherited defaults', () => {
     const root = rootVars();
     // Guards against the comment bug: without stripComments only --dir comes back.
-    expect(root['--accent-on-primary']).toBe('#fff');
+    expect(root['--accent-on-primary']).toBe('#111111');
     expect(root['--bg-base']).toMatch(/^#/);
     const themes = loadBundledThemes();
     expect(themes).toHaveLength(18);
     expect(themes.map((t) => t.id)).toContain('solarized-light');
     const nord = themes.find((t) => t.id === 'nord')!;
     expect(nord.mode).toBe('dark');
-    expect(nord.vars['--accent-on-primary']).toBe('#fff'); // inherited: nord.css does not set it
+    expect(nord.vars['--accent-on-primary']).toBe('#111111'); // nord.css sets it
+    expect(nord.vars['--radius-full']).toBe('9999px'); // inherited: nord.css does not set it
   });
   it('merges the app.css muximux blocks', () => {
     expect(muximuxVars()['--bg-base']).toMatch(/^#/);

@@ -62,7 +62,7 @@
         value={row.key}
         placeholder={m.app_http_action_header_name()}
         oninput={(e) => updateKey(row.id, (e.currentTarget as HTMLInputElement).value)}
-        class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
+        class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded text-text-primary placeholder-text-disabled"
       />
       <input
         aria-label={m.appForm_headerValueAt({ n: idx + 1 })}
@@ -70,7 +70,7 @@
         value={row.value}
         placeholder={m.app_http_action_header_value()}
         oninput={(e) => updateValue(row.id, (e.currentTarget as HTMLInputElement).value)}
-        class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
+        class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded text-text-primary placeholder-text-disabled"
       />
       <button
         type="button"

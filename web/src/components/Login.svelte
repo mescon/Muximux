@@ -198,7 +198,7 @@
             <input
               type="checkbox"
               bind:checked={rememberMe}
-              class="w-4 h-4 rounded border-[var(--border-default)] text-accent-text"
+              class="w-4 h-4 rounded border-border-input text-accent-text"
               disabled={loading}
             />
             <span class="ms-2">{m.login_rememberMe()}</span>
@@ -251,7 +251,7 @@
   }
   .login-input {
     background: var(--bg-elevated);
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--border-input);
     color: var(--text-primary);
   }
   .login-input::placeholder {

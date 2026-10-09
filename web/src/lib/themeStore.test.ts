@@ -477,6 +477,38 @@ describe('themeStore', () => {
       expect(document.documentElement.dataset.theme).toBe('muximux');
     });
 
+    it('sets data-color-scheme from the active theme metadata', async () => {
+      selectedFamily.set('default');
+      variantMode.set('light');
+      initTheme();
+      await new Promise(r => setTimeout(r, 50));
+      expect(document.documentElement.dataset.theme).toBe('muximux-light');
+      expect(document.documentElement.dataset.colorScheme).toBe('light');
+
+      variantMode.set('dark');
+      await new Promise(r => setTimeout(r, 50));
+      expect(document.documentElement.dataset.colorScheme).toBe('dark');
+    });
+
+    it('sets data-color-scheme to light for a light custom theme', async () => {
+      // A pre-existing link makes loadCustomThemeCSS resolve at once.
+      const link = document.createElement('link');
+      link.id = 'theme-zen-light';
+      document.head.appendChild(link);
+      customThemes.set([{
+        id: 'zen-light', name: 'Zen Light', isBuiltin: false, isDark: false,
+        family: 'zen', variant: 'light', familyName: 'Zen',
+      }]);
+      selectedFamily.set('zen');
+      variantMode.set('light');
+      initTheme();
+      await new Promise(r => setTimeout(r, 50));
+      expect(document.documentElement.dataset.theme).toBe('zen-light');
+      expect(document.documentElement.dataset.colorScheme).toBe('light');
+      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      link.remove();
+    });
+
     it('sets up matchMedia listener', () => {
       initTheme();
       expect(globalThis.matchMedia).toHaveBeenCalledWith('(prefers-color-scheme: dark)');
@@ -643,6 +675,38 @@ describe('themeStore', () => {
       const result = await deleteCustomThemeFromServer('test-delete');
       expect(result).toBe(true);
       expect(document.getElementById('theme-test-delete')).toBeNull();
+    });
+  });
+
+  describe('saveCustomThemeToServer - active theme', () => {
+    it('re-applies the active theme so a flipped isDark updates the document', async () => {
+      const { saveCustomThemeToServer } = await import('./themeStore');
+      const root = document.documentElement;
+      const saved = (isDark: boolean): ThemeInfo => ({
+        id: 'flip-me', name: 'Flip me', description: '', isBuiltin: false, isDark,
+        family: 'flip-me', familyName: 'Flip me', variant: isDark ? 'dark' : 'light',
+      } as ThemeInfo);
+      // jsdom never loads stylesheets: fire onload for each link the store creates
+      const origCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string, opts?: ElementCreationOptions) => {
+        const el = origCreateElement(tag, opts);
+        if (tag === 'link') setTimeout(() => (el as HTMLLinkElement).onload?.(new Event('load')), 0);
+        return el;
+      });
+
+      customThemes.set([saved(true)]);
+      selectedFamily.set('flip-me');
+      variantMode.set('dark');
+      await vi.waitFor(() => expect(root.dataset.colorScheme).toBe('dark'));
+
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([saved(false)]) });
+      expect(await saveCustomThemeToServer('Flip me', 'dark', false, {})).toBe(true);
+
+      expect(root.dataset.colorScheme).toBe('light');
+      expect(root.classList.contains('dark')).toBe(false);
+      document.getElementById('theme-flip-me')?.remove();
+      vi.restoreAllMocks();
     });
   });
 

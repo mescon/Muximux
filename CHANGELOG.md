@@ -51,13 +51,25 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   The theme editor writes the text colour for accent fills when a custom
   theme is saved (pure white or black, whichever reads better on the
   accent). Visible shifts that come with this: status text, tints and
-  borders move to one shade per status; text on accent and red fills is
-  white in light themes too; the Login and onboarding primary buttons use
-  the theme accent instead of a fixed brand shade; buttons share the
-  standard button style; accent-coloured text and links are one shade off
-  in some themes and links underline on hover; focus is a uniform 2px
-  outline; the unknown health dot is a hollow ring and the tooltip's uptime
-  badge uses the status badge colours.
+  borders move to one shade per status; the Login and onboarding primary
+  buttons use the theme accent instead of a fixed brand shade; buttons
+  share the standard button style; accent-coloured text and links are one
+  shade off in some themes and links underline on hover; focus is a uniform
+  2px outline; the unknown health dot is a hollow ring and the tooltip's
+  uptime badge uses the status badge colours.
+- **Theme colours adjusted for contrast.** Every bundled theme now meets
+  WCAG 2.1 AA for text (4.5:1) and for control borders and focus outlines
+  (3:1), light and dark. Muted and secondary text moved a step towards the
+  foreground; the elevated and overlay surfaces of Catppuccin, Cineplex Dark,
+  Gruvbox, Nord and Solarized Dark are a step darker; buttons use dark text
+  on most accents; accent-coloured text moved a step away from the
+  background so accent badges reach 4.5:1 on their tint. Accent and status
+  base colours are unchanged. Custom themes that omit the new tokens get
+  values derived from their own colours, switched by `@theme-is-dark`.
+- **Form controls have a visible boundary.** Inputs, selects, textareas,
+  checkboxes and the locale picker use a new `--border-input` token that
+  meets 3:1 on every surface; card and divider borders are unchanged.
+- **Toasts follow the theme** instead of always being dark.
 
 ### Fixed
 - **Custom apps added in the onboarding wizard appear on the dashboard.**
@@ -110,6 +122,11 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   level filters report on or off, and form controls and icon-only buttons
   have names, including per-row actions. Transitions, spinners and pulses
   calm down when the operating system asks for reduced motion.
+- **Status text is legible on light themes.** "Unsaved changes", failed
+  saves (previously pink on pink), warnings, success notices, pills, the
+  Logs level colours and the keyboard-conflict notice use per-theme colours
+  with AA contrast; disabled-looking grey is no longer used for real
+  content or placeholders.
 
 ### Security
 - **`golang.org/x/net` v0.60.0** -- fixes GO-2026-6603, GO-2026-6610,

@@ -323,7 +323,7 @@
     onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
   >
     <svg
-      class="w-3.5 h-3.5 text-text-disabled cursor-help"
+      class="w-3.5 h-3.5 text-text-muted cursor-help"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -409,7 +409,7 @@
                         aria-label={m.discovery_appNameFor({ name: row.s.name })}
                         type="text"
                         bind:value={row.nameOverride}
-                        class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle px-1"
+                        class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-input px-1"
                       />
                       <span class="text-xs px-1.5 py-0.5 rounded cursor-help
                                    {row.s.confidence === 'high' ? 'bg-success-bg text-success-text' : ''}
@@ -499,7 +499,7 @@
                             type="text"
                             bind:value={row.gatewayDomain}
                             placeholder="sonarr.example.com"
-                            class="text-xs px-2 py-0.5 bg-bg-base border border-border-subtle rounded text-text-primary"
+                            class="text-xs px-2 py-0.5 bg-bg-base border border-border-input rounded text-text-primary"
                           />
                         {/if}
                       </div>

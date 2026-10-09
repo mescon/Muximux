@@ -1,21 +1,17 @@
-// Theme contrast test. Every check the colours PR will enforce strictly runs here
-// already; until that PR lands the known failures are listed in contrastBaseline.json
-// and the test fails on any NEW failure or any STALE baseline entry.
-// Prune fixed entries (remove-only) with: CONTRAST_WRITE_BASELINE=1 npx vitest run themeContrast
-// Adding new known failures is deliberate and needs both flags:
-//   CONTRAST_WRITE_BASELINE=1 CONTRAST_ALLOW_ADD=1 npx vitest run themeContrast
+// Theme contrast test. Strict: every pair below must pass for every bundled theme and for
+// the fallback tokens. A change to a theme file or to the fallback formulas in app.css must
+// keep every pair green; there is no baseline of known failures.
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseColor, over, contrast, luminance, type RGBA } from './contrast';
-import { loadBundledThemes, muximuxVars, muximuxLightVars, rootVars, parseVarBlock, THEMES_DIR, type ThemeFixture } from '../test/themeFixtures';
+import { loadBundledThemes, muximuxVars, muximuxLightVars, schemeRootVars, parseVarBlock, THEMES_DIR, type ThemeFixture } from '../test/themeFixtures';
 
 const AA = 4.5, NON_TEXT = 3;
 const SIX = ['--bg-base', '--bg-surface', '--bg-elevated', '--bg-overlay', '--bg-hover', '--bg-active'];
 const PARENTS = ['--bg-base', '--bg-surface', '--bg-elevated'];
 const STATUS = ['success', 'warning', 'danger', 'info'] as const;
-const SEMANTIC_KEYS = /^--(?:(?:success|warning|danger|info)-(?:text|bg|border)|accent-text|danger-solid|danger-solid-hover|danger-on-solid)$/;
-const BASELINE = path.join(process.cwd(), 'src', 'test', 'contrastBaseline.json');
+const SEMANTIC_KEYS = /^--(?:(?:success|warning|danger|info)-(?:text|bg|border)|accent-text|danger-solid|danger-solid-hover|danger-on-solid|border-input)$/;
 
 interface Failure { key: string; ratio: number; need: number }
 const failures: Failure[] = [];
@@ -37,10 +33,16 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
   const bg = (n: string) => resolve(t, n);
   if (opts.base) {
     for (const fg of ['--text-primary', '--text-secondary']) for (const b of SIX) check(t, 'text', fg, resolve(t, fg), b, bg(b), AA);
-    for (const b of SIX.slice(0, 4)) check(t, 'text', '--text-muted', resolve(t, '--text-muted'), b, bg(b), AA);
+    for (const b of [...SIX.slice(0, 4), '--bg-hover']) check(t, 'text', '--text-muted', resolve(t, '--text-muted'), b, bg(b), AA);
     check(t, 'on-primary', '--accent-on-primary', resolve(t, '--accent-on-primary'), '--accent-primary', resolve(t, '--accent-primary'), AA);
     for (const b of SIX.slice(0, 2)) check(t, 'focus-ring', '--border-focus', resolve(t, '--border-focus'), b, bg(b), NON_TEXT);
-    for (const fg of ['--border-default', '--border-subtle']) for (const b of SIX.slice(0, 2)) check(t, 'neutral-border', fg, over(resolve(t, fg), bg(b)), b, bg(b), NON_TEXT);
+  }
+  if (opts.semantic) {
+    // Form controls (on base, surface, elevated or overlay) draw their boundary with --border-input (WCAG 1.4.11).
+    // --border-subtle/--border-default are decorative separators and are exempt.
+    for (const b of SIX.slice(0, 4)) check(t, 'input-boundary', '--border-input', over(resolve(t, '--border-input'), bg(b)), b, bg(b), NON_TEXT);
+  }
+  if (opts.base) {
     for (const b of PARENTS) check(t, 'health-unknown', '--text-muted', resolve(t, '--text-muted'), b, bg(b), NON_TEXT);
   }
   if (opts.semantic) {
@@ -86,8 +88,9 @@ describe('bundled theme contrast', () => {
   }
 
   it('fallback tokens pass for every bundled theme without its own semantic tokens', () => {
-    const fallback = Object.fromEntries(Object.entries(rootVars()).filter(([k]) => SEMANTIC_KEYS.test(k)));
     for (const t of THEMES) {
+      // :root as the browser sees it for this theme's mode (the fallback ink flips for light themes)
+      const fallback = Object.fromEntries(Object.entries(schemeRootVars(t.mode)).filter(([k]) => /^--fallback-/.test(k) || SEMANTIC_KEYS.test(k)));
       const own = Object.fromEntries(Object.entries(t.vars).filter(([k]) => !SEMANTIC_KEYS.test(k)));
       runChecks({ ...t, id: `${t.id} (fallback)`, vars: { ...own, ...fallback } }, { base: false, semantic: true, hierarchy: false });
     }
@@ -101,25 +104,17 @@ describe('bundled theme contrast', () => {
     for (const [k, v] of Object.entries(light)) expect(appLight[k], `muximux-light ${k}`).toBe(v);
   });
 
-  it('matches the checked-in baseline of known failures', () => {
-    const byKey = new Map(failures.map((f) => [f.key, f]));
-    const keys = [...byKey.keys()].sort();
-    let baseline: string[] = fs.existsSync(BASELINE) ? JSON.parse(fs.readFileSync(BASELINE, 'utf8')) : [];
-    const detail = (k: string) => { const f = byKey.get(k)!; return `${k} = ${f.ratio.toFixed(2)} (needs ${f.need})`; };
-    let added = keys.filter((k) => !baseline.includes(k));
-    if (process.env.CONTRAST_WRITE_BASELINE) {
-      if (process.env.CONTRAST_ALLOW_ADD) {
-        console.info(`contrast baseline: ADDING ${added.length} failing pairs:\n${added.map(detail).join('\n')}`);
-        baseline = keys;
-      } else {
-        baseline = baseline.filter((k) => byKey.has(k)); // remove-only
-      }
-      fs.writeFileSync(BASELINE, JSON.stringify([...baseline].sort(), null, 2) + '\n');
-      added = keys.filter((k) => !baseline.includes(k));
-    }
-    const stale = baseline.filter((k) => !byKey.has(k));
-    expect(added.map(detail), 'new contrast failures (to accept them deliberately: CONTRAST_WRITE_BASELINE=1 CONTRAST_ALLOW_ADD=1)').toEqual([]);
-    expect(stale, 'baseline entries that now pass; remove them with: CONTRAST_WRITE_BASELINE=1 npx vitest run themeContrast').toEqual([]);
-    console.info(`theme contrast: ${keys.length} known failing pairs in the baseline`);
+  it('a minimal user theme passes with the fallback tokens', () => {
+    const css = fs.readFileSync(path.join(process.cwd(), 'src', 'test', 'fixtures', 'user-theme-minimal.css'), 'utf8');
+    const own = parseVarBlock(css.slice(css.indexOf('{')));
+    const t: ThemeFixture = { id: 'user-minimal', file: 'fixture', mode: 'light', vars: { ...schemeRootVars('light'), ...own } };
+    runChecks(t, { base: false, semantic: true, hierarchy: false });
+    // --accent-on-primary is inherited (#111111) and the fixture's accent is light, so it must pass too
+    check(t, 'on-primary', '--accent-on-primary', resolve(t, '--accent-on-primary'), '--accent-primary', resolve(t, '--accent-primary'), AA);
+  });
+
+  it('has no failing pair', () => {
+    const report = failures.map((f) => `${f.key} = ${f.ratio.toFixed(2)}`).sort().join('\n');
+    expect(failures, `contrast failures:\n${report}`).toEqual([]);
   });
 });
