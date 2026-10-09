@@ -145,6 +145,15 @@
   }
 
   // Variable display names
+  // Accessible names for the tokens whose visible label ("Primary", "Secondary") repeats
+  // across groups; the visible label stays short, the field names must be unique.
+  const varAccessibleLabels: Record<string, { get label(): string }> = {
+    '--text-primary': { get label() { return m.theme_textPrimary(); } },
+    '--text-secondary': { get label() { return m.theme_textSecondary(); } },
+    '--accent-primary': { get label() { return m.theme_accentPrimary(); } },
+    '--accent-secondary': { get label() { return m.theme_accentSecondary(); } },
+  };
+
   const varLabels: Record<string, { get label(): string }> = {
     '--bg-base': { get label() { return m.theme_colorBase(); } },
     '--bg-surface': { get label() { return m.theme_colorSurface(); } },
@@ -378,7 +387,7 @@
               <div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted);">{groupName}</div>
               <div class="space-y-2">
                 {#each vars as varName (varName)}
-                  {@const tokenLabel = varLabels[varName]?.label || varName.replace('--', '')}
+                  {@const tokenLabel = varAccessibleLabels[varName]?.label || varLabels[varName]?.label || varName.replace('--', '')}
                   {@const isColorVar = !themeEditorVars[varName]?.startsWith('rgba') && !themeEditorVars[varName]?.includes('px')}
                   <div class="flex items-center gap-2">
                     <span class="text-xs w-20 flex-shrink-0" style="color: var(--text-secondary);">{varLabels[varName]?.label || varName.replace('--', '')}</span>

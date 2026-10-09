@@ -65,8 +65,8 @@ vi.mock('$lib/themeStore', async () => {
     getCurrentThemeVariables: (...args: unknown[]) => mockGetCurrentThemeVars(...args),
     themeVariableGroups: {
       'Backgrounds': ['--bg-base', '--bg-surface'],
-      'Text': ['--text-primary'],
-      'Accent': ['--accent-primary'],
+      'Text': ['--text-primary', '--text-secondary'],
+      'Accent': ['--accent-primary', '--accent-secondary'],
     },
     sanitizeThemeId: (...args: unknown[]) => mockSanitizeThemeId(...args),
     setThemeFamily: (...args: unknown[]) => mockSetThemeFamily(...args),
@@ -425,6 +425,25 @@ describe('ThemeTab', () => {
       return mockSaveCustomTheme.mock.calls[0][3] as Record<string, string>;
     }
 
+    it('gives the text and accent Primary/Secondary fields unique accessible names', async () => {
+      mockGetCurrentThemeVars.mockReturnValue({
+        '--bg-base': '#1a1a2e',
+        '--text-primary': '#111111',
+        '--text-secondary': '#222222',
+        '--accent-primary': '#333333',
+        '--accent-secondary': '#444444',
+      });
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await screen.findByLabelText('Accent primary hex value');
+      for (const name of ['Text primary', 'Text secondary', 'Accent primary', 'Accent secondary']) {
+        expect(screen.getAllByLabelText(`${name} color`)).toHaveLength(1);
+        expect(screen.getAllByLabelText(`${name} hex value`)).toHaveLength(1);
+      }
+      const names = screen.getAllByRole('textbox').map((el) => el.getAttribute('aria-label'));
+      expect(new Set(names).size).toBe(names.length);
+    });
+
     it('writes a computed accent-on-primary when saving a theme', async () => {
       const vars = await saveWithVars({
         '--bg-base': '#1a1a2e',
@@ -443,9 +462,7 @@ describe('ThemeTab', () => {
       mockGetCurrentThemeVars.mockReturnValue({ '--bg-base': '#1a1a2e', '--accent-primary': '#1a237e' });
       render(ThemeTab);
       await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
-      // Text and accent "Primary" share a label, so pick the accent field by its value.
-      const hexInput = (await screen.findAllByLabelText('Primary hex value'))
-        .find((el) => (el as HTMLInputElement).value === '#1a237e')!;
+      const hexInput = await screen.findByLabelText('Accent primary hex value');
       await fireEvent.input(hexInput, { target: { value: '#ffe066' } });
       await fireEvent.input(screen.getByPlaceholderText('Theme name...'), { target: { value: 'My Theme' } });
       await fireEvent.click(screen.getByText('Save Theme'));
@@ -694,8 +711,8 @@ describe('ThemeTab', () => {
 
       // The editor should have color type inputs for hex color variables
       const colorInputs = container.querySelectorAll('input[type="color"]');
-      // --bg-base, --bg-surface, --text-primary, --accent-primary are all hex => 4 color inputs
-      expect(colorInputs.length).toBe(4);
+      // --bg-base, --bg-surface, --text-primary, --text-secondary, --accent-primary, --accent-secondary => 6 color inputs
+      expect(colorInputs.length).toBe(6);
     });
   });
 
