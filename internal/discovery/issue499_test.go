@@ -305,8 +305,9 @@ func TestTick_QuarantinedEntryReplacedByValidDesired(t *testing.T) {
 func TestTick_QuarantinedEntryDroppedWhenContainerGoneInSync(t *testing.T) {
 	set := []ContainerSummary{}
 	p, cfg := swarmPoller(t, &set, config.AutoImportSync)
-	cfg.QuarantineApp(&config.AppConfig{Name: "Gone", DockerKey: "label:gone", DockerAutoImported: true, Enabled: true}, "url is required")
-	cfg.QuarantineSite(&config.GatewaySite{Domain: "gone.example.com", DockerKey: "label:gone"}, "its app is quarantined")
+	ep := cfg.Discovery.Docker.Endpoint
+	cfg.QuarantineApp(&config.AppConfig{Name: "Gone", DockerKey: "label:gone", DockerEndpoint: ep, DockerAutoImported: true, Enabled: true}, "url is required")
+	cfg.QuarantineSite(&config.GatewaySite{Domain: "gone.example.com", DockerKey: "label:gone", DockerEndpoint: ep}, "its app is quarantined")
 	p.tick(context.Background())
 	if len(cfg.Quarantined()) != 2 {
 		t.Fatalf("removal must wait for the grace period: %+v", cfg.Quarantined())
@@ -316,6 +317,21 @@ func TestTick_QuarantinedEntryDroppedWhenContainerGoneInSync(t *testing.T) {
 	}
 	if len(cfg.Quarantined()) != 0 {
 		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+}
+
+// Sync cleans up quarantined entries of the endpoint it polls only: one
+// tracked on another daemon is not "gone" just because this daemon lacks it.
+func TestTick_QuarantinedEntryOfOtherEndpointKeptInSync(t *testing.T) {
+	set := []ContainerSummary{}
+	p, cfg := swarmPoller(t, &set, config.AutoImportSync)
+	cfg.QuarantineApp(&config.AppConfig{Name: "Elsewhere", DockerKey: "label:else", DockerEndpoint: "tcp://other.example.com:2375",
+		DockerAutoImported: true, Enabled: true}, "url is required")
+	for i := 0; i <= syncRemovalGraceTicks+1; i++ {
+		p.tick(context.Background())
+	}
+	if !cfg.HasQuarantined("label:else") {
+		t.Fatalf("quarantined entry of another endpoint dropped: %+v", cfg.Quarantined())
 	}
 }
 
@@ -378,7 +394,8 @@ func TestBuildDesired_SkipsAndRecordsCodes(t *testing.T) {
 }
 
 func TestQuarantinedAppKeys_AppsOnly(t *testing.T) { // ruling 2
-	got := quarantinedAppKeys([]config.QuarantinedEntry{{Kind: "app", Key: "label:a"}, {Kind: "gateway", Key: "label:b"}})
+	got := quarantinedAppKeys([]config.QuarantinedEntry{{Kind: "app", Key: "label:a", Endpoint: "unix:///s"},
+		{Kind: "gateway", Key: "label:b", Endpoint: "unix:///s"}, {Kind: "app", Key: "label:c", Endpoint: "tcp://other:2375"}}, "unix:///s")
 	if !reflect.DeepEqual(got, map[string]bool{"label:a": true}) {
 		t.Fatalf("got %v", got)
 	}

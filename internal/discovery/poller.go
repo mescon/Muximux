@@ -148,14 +148,16 @@ func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) (kept
 	return out, dropped
 }
 
-// quarantinedAppKeys returns the keys of the quarantined APP entries. A
+// quarantinedAppKeys returns the keys of the quarantined APP entries tracked
+// on endpoint (sync only cleans up the daemon it polls, the same rule as the
+// re-key). A
 // quarantined gateway site of a live app is not listed: its app is in the
 // config, so Reconcile treats it as an ordinary current app and the
 // site is replaced by the next Update (ruling 2).
-func quarantinedAppKeys(entries []config.QuarantinedEntry) map[string]bool {
+func quarantinedAppKeys(entries []config.QuarantinedEntry, endpoint string) map[string]bool {
 	out := map[string]bool{}
 	for i := range entries {
-		if entries[i].Kind == "app" {
+		if entries[i].Kind == "app" && entries[i].Endpoint == endpoint {
 			out[entries[i].Key] = true
 		}
 	}
@@ -655,7 +657,7 @@ func (p *Poller) tick(ctx context.Context) {
 			plan := Reconcile(&ReconcileInput{
 				Mode: autoImport, Desired: desired, Skipped: skipped,
 				Current: currentApps, CurrentSites: currentSites,
-				Quarantined: quarantinedAppKeys(quarantinedEntries),
+				Quarantined: quarantinedAppKeys(quarantinedEntries, endpoint),
 			})
 			for i := range plan.Add {
 				batch.addApps = append(batch.addApps, plan.Add[i].App)

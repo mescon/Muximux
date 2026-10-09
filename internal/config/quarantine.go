@@ -19,6 +19,9 @@ type QuarantinedEntry struct {
 	Name   string `json:"name"`   // app name or site domain
 	Key    string `json:"key"`    // DockerKey
 	Reason string `json:"reason"` // validation error
+	// Endpoint is the entry's docker_endpoint. Sync only removes
+	// quarantined entries of the endpoint it polls. Not part of the API.
+	Endpoint string `json:"-"`
 }
 
 // quarantined holds a quarantined entry together with a copy of the app or
@@ -38,7 +41,7 @@ func isDockerOwnedApp(a *AppConfig) bool { return a.DockerKey != "" && a.DockerA
 func (c *Config) QuarantineApp(a *AppConfig, reason string) {
 	cp := *a
 	c.quarantined = append(c.quarantined, quarantined{
-		entry: QuarantinedEntry{Kind: "app", Name: a.Name, Key: a.DockerKey, Reason: reason},
+		entry: QuarantinedEntry{Kind: "app", Name: a.Name, Key: a.DockerKey, Reason: reason, Endpoint: a.DockerEndpoint},
 		app:   &cp,
 	})
 	logging.Warn(quarantineWarn, "source", "config", "kind", "app", "name", a.Name, "key", a.DockerKey, "reason", reason)
@@ -49,7 +52,7 @@ func (c *Config) QuarantineApp(a *AppConfig, reason string) {
 func (c *Config) QuarantineSite(s *GatewaySite, reason string) {
 	cp := *s
 	c.quarantined = append(c.quarantined, quarantined{
-		entry: QuarantinedEntry{Kind: "gateway", Name: s.Domain, Key: s.DockerKey, Reason: reason},
+		entry: QuarantinedEntry{Kind: "gateway", Name: s.Domain, Key: s.DockerKey, Reason: reason, Endpoint: s.DockerEndpoint},
 		site:  &cp,
 	})
 	logging.Warn(quarantineWarn, "source", "config", "kind", "gateway", "name", s.Domain, "key", s.DockerKey, "reason", reason)
