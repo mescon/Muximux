@@ -72,8 +72,9 @@ export function buildForwardAuthRequest(
   headerGroups: string,
   headerName: string,
   logoutUrl: string,
+  adminGroups?: string,
 ): Partial<ChangeAuthMethodRequest> {
-  return {
+  const req: Partial<ChangeAuthMethodRequest> = {
     trusted_proxies: trustedProxies
       .split(/[,\n]/)
       .map(s => s.trim())
@@ -86,4 +87,12 @@ export function buildForwardAuthRequest(
     },
     logout_url: logoutUrl,
   };
+  // Omitted when undefined so the server keeps the stored list.
+  if (adminGroups !== undefined) {
+    req.forward_auth_admin_groups = adminGroups
+      .split(/[,\n]/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+  }
+  return req;
 }

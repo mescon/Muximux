@@ -310,6 +310,8 @@ type clientAuthConfig struct {
 	TrustedProxies []string          `json:"trusted_proxies,omitempty"`
 	Headers        map[string]string `json:"headers,omitempty"`
 	LogoutURL      string            `json:"logout_url,omitempty"`
+
+	ForwardAuthAdminGroups []string `json:"forward_auth_admin_groups,omitempty"`
 }
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
@@ -344,6 +346,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 			authCfg.Headers = cfg.Auth.Headers
 		}
 		authCfg.LogoutURL = cfg.Auth.LogoutURL
+		authCfg.ForwardAuthAdminGroups = cfg.Auth.ForwardAuthAdminGroups
 		resp.Auth = authCfg
 	}
 	resp.Discovery = &clientDiscoveryConfig{

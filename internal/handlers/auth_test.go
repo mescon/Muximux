@@ -2644,3 +2644,166 @@ func TestLogin_LocalLoginDisabled(t *testing.T) {
 		t.Errorf("allowed: got %d %s", w.Code, w.Body.String())
 	}
 }
+
+// putForwardAuth sends a forward_auth PUT /api/auth/method with the given body fields.
+// forwardAuthRole runs a trusted-proxy request carrying the given groups
+// header through the live middleware and returns the role it resolves to.
+func forwardAuthRole(t *testing.T, handler *AuthHandler, groups string) string {
+	t.Helper()
+	var role string
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		if u := auth.GetUserFromContext(r.Context()); u != nil {
+			role = u.Role
+		}
+	})
+	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+	req.RemoteAddr = "10.1.2.3:4567"
+	req.Header.Set("Remote-User", "carol")
+	req.Header.Set("Remote-Groups", groups)
+	handler.authMiddleware.RequireAuth(next).ServeHTTP(httptest.NewRecorder(), req)
+	return role
+}
+
+func putForwardAuth(t *testing.T, handler *AuthHandler, extra map[string]interface{}) {
+	t.Helper()
+	fields := map[string]interface{}{
+		"method":          "forward_auth",
+		"trusted_proxies": []string{"10.0.0.0/8"},
+		"headers":         map[string]string{"user": "Remote-User", "groups": "Remote-Groups"},
+	}
+	for k, v := range extra {
+		fields[k] = v
+	}
+	body, _ := json.Marshal(fields)
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateAuthMethod(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestUpdateAuthMethod_ForwardAuth_AbsentAdminGroupsKept(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	putForwardAuth(t, handler, nil)
+
+	if got := handler.config.Auth.ForwardAuthAdminGroups; len(got) != 1 || got[0] != "dashboard-admins" {
+		t.Errorf("stored admin groups = %v, want [dashboard-admins]", got)
+	}
+	if got := forwardAuthRole(t, handler, "dashboard-admins"); got != auth.RoleAdmin {
+		t.Errorf("middleware role for dashboard-admins = %q, want admin", got)
+	}
+}
+
+func TestUpdateAuthMethod_ForwardAuth_SentAdminGroupsApplied(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	putForwardAuth(t, handler, map[string]interface{}{"forward_auth_admin_groups": []string{"ops"}})
+
+	if got := handler.config.Auth.ForwardAuthAdminGroups; len(got) != 1 || got[0] != "ops" {
+		t.Errorf("stored admin groups = %v, want [ops]", got)
+	}
+	if got := forwardAuthRole(t, handler, "ops"); got != auth.RoleAdmin {
+		t.Errorf("middleware role for ops = %q, want admin", got)
+	}
+	if got := forwardAuthRole(t, handler, "dashboard-admins"); got == auth.RoleAdmin {
+		t.Error("dashboard-admins must no longer be admin after replacement")
+	}
+}
+
+func TestUpdateAuthMethod_ForwardAuth_EmptyListClears(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	putForwardAuth(t, handler, map[string]interface{}{"forward_auth_admin_groups": []string{}})
+
+	if got := handler.config.Auth.ForwardAuthAdminGroups; len(got) != 0 {
+		t.Errorf("stored admin groups = %v, want empty", got)
+	}
+	if got := forwardAuthRole(t, handler, "dashboard-admins"); got == auth.RoleAdmin {
+		t.Error("dashboard-admins must not be admin after clearing")
+	}
+}
+
+// breakConfigSave makes the handler's config path unwritable.
+func breakConfigSave(t *testing.T, configPath string) {
+	t.Helper()
+	dir := filepath.Dir(configPath)
+	if err := os.Chmod(dir, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+	if f, err := os.OpenFile(filepath.Join(dir, "probe"), os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
+		_ = f.Close()
+		t.Skip("directory is writable despite chmod (running as root?)")
+	}
+}
+
+func usernamesOf(users []config.UserConfig) []string {
+	names := make([]string, 0, len(users))
+	for i := range users {
+		names = append(names, users[i].Username)
+	}
+	return names
+}
+
+func TestCreateUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+	handler.config.Auth.Users = []config.UserConfig{{Username: "admin", Role: "admin"}}
+	breakConfigSave(t, configPath)
+
+	body, _ := json.Marshal(map[string]string{"username": "bob", "password": "longenoughpw", "role": "user"})
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/users", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateUser(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500: %s", w.Code, w.Body.String())
+	}
+	if got := usernamesOf(handler.config.Auth.Users); len(got) != 1 || got[0] != "admin" {
+		t.Errorf("config users = %v, want [admin]", got)
+	}
+}
+
+func TestUpdateUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+	handler.config.Auth.Users = []config.UserConfig{{Username: "admin", Role: "admin", Email: "admin@example.com"}}
+	breakConfigSave(t, configPath)
+
+	body, _ := json.Marshal(map[string]string{"email": "changed@example.com"})
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/users/admin", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateUser(w, req)
+
+	if w.Code == http.StatusOK {
+		t.Fatalf("expected failure, got 200")
+	}
+	users := handler.config.Auth.Users
+	if len(users) != 1 || users[0].Email != "admin@example.com" {
+		t.Errorf("config users = %+v, want the prior slice", users)
+	}
+}
+
+func TestDeleteUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{Username: "bob", PasswordHash: hash, Role: "user"}); err != nil {
+		t.Fatal(err)
+	}
+	handler.config.Auth.Users = []config.UserConfig{{Username: "admin", Role: "admin"}, {Username: "bob", Role: "user"}}
+	breakConfigSave(t, configPath)
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/auth/users/bob", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteUser(w, req)
+
+	if w.Code == http.StatusOK {
+		t.Fatalf("expected failure, got 200")
+	}
+	if got := usernamesOf(handler.config.Auth.Users); len(got) != 2 || got[1] != "bob" {
+		t.Errorf("config users = %v, want [admin bob]", got)
+	}
+}

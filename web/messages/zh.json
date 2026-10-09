@@ -239,6 +239,8 @@
   "security_userHeader": "用户头",
   "security_emailHeader": "邮箱头",
   "security_groupsHeader": "分组头",
+  "security_forwardAuthAdminGroups": "Admin groups",
+  "security_forwardAuthAdminGroupsHint": "Users in any of these groups (from the proxy's groups header) are admins. One per line. Leave empty for the defaults admin, admins, administrators.",
   "security_nameHeader": "名称头",
   "security_noAuth": "无认证",
   "security_noAuthDesc": "任何可访问网络的人都拥有完全控制权",

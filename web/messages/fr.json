@@ -239,6 +239,8 @@
   "security_userHeader": "En-tête utilisateur",
   "security_emailHeader": "En-tête e-mail",
   "security_groupsHeader": "En-tête groupes",
+  "security_forwardAuthAdminGroups": "Admin groups",
+  "security_forwardAuthAdminGroupsHint": "Users in any of these groups (from the proxy's groups header) are admins. One per line. Leave empty for the defaults admin, admins, administrators.",
   "security_nameHeader": "En-tête nom",
   "security_noAuth": "Pas d'authentification",
   "security_noAuthDesc": "Toute personne ayant accès au réseau a le contrôle total",

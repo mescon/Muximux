@@ -139,6 +139,7 @@ export interface AuthConfig {
   trusted_proxies?: string[];
   headers?: Record<string, string>;
   logout_url?: string;
+  forward_auth_admin_groups?: string[];
 }
 
 export interface TLSConfig {
@@ -344,6 +345,7 @@ export interface ChangeAuthMethodRequest {
   trusted_proxies?: string[];
   headers?: Record<string, string>;
   logout_url?: string;
+  forward_auth_admin_groups?: string[];
   oidc?: OIDCSettingsUpdate;
 }
 

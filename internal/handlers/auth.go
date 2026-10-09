@@ -647,8 +647,13 @@ func (h *AuthHandler) syncUsersToConfig() error {
 			Groups:       u.Groups,
 		})
 	}
+	prior := h.config.Auth.Users
 	h.config.Auth.Users = cfgUsers
-	return h.config.Save(h.configPath)
+	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Auth.Users = prior
+		return err
+	}
+	return nil
 }
 
 // ListUsers handles GET /api/auth/users
@@ -919,7 +924,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		TrustedProxies         []string             `json:"trusted_proxies"`
 		Headers                map[string]string    `json:"headers"`
 		LogoutURL              string               `json:"logout_url"`
-		ForwardAuthAdminGroups []string             `json:"forward_auth_admin_groups"`
+		ForwardAuthAdminGroups *[]string            `json:"forward_auth_admin_groups"` // nil = keep stored
 		OIDC                   *oidcSettingsRequest `json:"oidc"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -943,10 +948,9 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		authCfg = auth.AuthConfig{
-			Method:                 auth.AuthMethodForwardAuth,
-			TrustedProxies:         req.TrustedProxies,
-			Headers:                auth.ForwardAuthHeadersFromMap(req.Headers),
-			ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
+			Method:         auth.AuthMethodForwardAuth,
+			TrustedProxies: req.TrustedProxies,
+			Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
 		}
 
 	case "oidc":
@@ -1016,7 +1020,12 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			if req.Headers != nil {
 				h.config.Auth.Headers = req.Headers
 			}
-			h.config.Auth.ForwardAuthAdminGroups = req.ForwardAuthAdminGroups
+			// An absent list keeps the stored one; an explicit list
+			// (including an empty one) replaces it.
+			if req.ForwardAuthAdminGroups != nil {
+				h.config.Auth.ForwardAuthAdminGroups = *req.ForwardAuthAdminGroups
+			}
+			authCfg.ForwardAuthAdminGroups = h.config.Auth.ForwardAuthAdminGroups
 		} else {
 			// Clear forward-auth fields so stale values don't linger in YAML
 			h.config.Auth.TrustedProxies = nil

@@ -150,6 +150,7 @@
   let faHeaderGroups = $state('Remote-Groups');
   let faHeaderName = $state('Remote-Name');
   let faLogoutUrl = $state('');
+  let faAdminGroups = $state('');
 
   function selectFaPreset(p: PresetName) {
     faPreset = p;
@@ -258,7 +259,7 @@
     }
     if (selectedAuthMethod === 'forward_auth') {
       Object.assign(req, buildForwardAuthRequest(
-        methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
+        methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl, faAdminGroups,
       ));
     }
     try {
@@ -271,6 +272,7 @@
           localConfig.auth.trusted_proxies = req.trusted_proxies;
           localConfig.auth.headers = req.headers;
           localConfig.auth.logout_url = req.logout_url;
+          localConfig.auth.forward_auth_admin_groups = req.forward_auth_admin_groups;
         }
         // The server owns the auth block (PUT /api/config ignores it), so
         // the change above is already saved: let the dialog know it is not
@@ -316,7 +318,8 @@
     faHeaderEmail !== (localConfig.auth?.headers?.email || 'Remote-Email') ||
     faHeaderGroups !== (localConfig.auth?.headers?.groups || 'Remote-Groups') ||
     faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name') ||
-    faLogoutUrl !== (localConfig.auth?.logout_url || '')
+    faLogoutUrl !== (localConfig.auth?.logout_url || '') ||
+    faAdminGroups !== (localConfig.auth?.forward_auth_admin_groups?.join('\n') ?? '')
   ));
   let oidcFormShown = $derived(selectedAuthMethod === 'oidc' && oidcSettings !== null);
   let showUpdateBtn = $derived(methodChanged || faFieldsChanged || oidcFormShown);
@@ -341,6 +344,7 @@
     const proxies = localConfig.auth?.trusted_proxies;
     methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
     faLogoutUrl = localConfig.auth?.logout_url || '';
+    faAdminGroups = localConfig.auth?.forward_auth_admin_groups?.join('\n') ?? '';
     const h = localConfig.auth?.headers;
     if (h) {
       faHeaderUser = h.user || 'Remote-User';
@@ -636,6 +640,19 @@
                 </div>
               </div>
             {/if}
+
+            <div>
+              <label for="settings-admin-groups" class="block text-sm text-text-muted mb-1">{m.security_forwardAuthAdminGroups()}</label>
+              <textarea
+                id="settings-admin-groups"
+                bind:value={faAdminGroups}
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="admins"
+                rows="2"
+              ></textarea>
+              <p class="text-xs text-text-disabled mt-1">{m.security_forwardAuthAdminGroupsHint()}</p>
+            </div>
           </div>
         {/if}
       </div>

@@ -473,6 +473,30 @@ describe('SecurityTab', () => {
       });
     });
 
+    it('shows the stored admin groups and sends them on update', async () => {
+      const config = makeConfig({ forward_auth_admin_groups: ['dashboard-admins'] });
+      render(SecurityTab, { props: { localConfig: config } });
+
+      await waitFor(() => {
+        const box = screen.getByLabelText('Admin groups') as HTMLTextAreaElement;
+        expect(box.value).toBe('dashboard-admins');
+      });
+
+      const textarea = screen.getByLabelText('Trusted proxy IPs') as HTMLTextAreaElement;
+      await fireEvent.input(textarea, { target: { value: '192.168.1.0/24' } });
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /update method/i })).toBeInTheDocument();
+      });
+      await fireEvent.click(screen.getByRole('button', { name: /update method/i }));
+
+      await waitFor(() => {
+        expect(mockChangeAuthMethod).toHaveBeenCalledWith(
+          expect.objectContaining({ forward_auth_admin_groups: ['dashboard-admins'] }),
+        );
+      });
+      expect(config.auth?.forward_auth_admin_groups).toEqual(['dashboard-admins']);
+    });
+
     it('shows method error message when changeAuthMethod fails', async () => {
       mockChangeAuthMethod.mockResolvedValueOnce({ success: false, message: 'Invalid proxy range' });
       const config = makeConfig({ method: 'none' });

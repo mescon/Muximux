@@ -239,6 +239,8 @@
   "security_userHeader": "Cabecera de usuario",
   "security_emailHeader": "Cabecera de email",
   "security_groupsHeader": "Cabecera de grupos",
+  "security_forwardAuthAdminGroups": "Admin groups",
+  "security_forwardAuthAdminGroupsHint": "Users in any of these groups (from the proxy's groups header) are admins. One per line. Leave empty for the defaults admin, admins, administrators.",
   "security_nameHeader": "Cabecera de nombre",
   "security_noAuth": "Sin autenticación",
   "security_noAuthDesc": "Cualquier persona con acceso a la red tiene control total",

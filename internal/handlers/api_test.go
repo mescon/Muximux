@@ -3853,3 +3853,20 @@ func TestSaveConfig_IgnoresOverriddenLogLevel(t *testing.T) {
 		t.Errorf("file log level = %q, want info", onDisk.Server.LogLevel)
 	}
 }
+
+func TestGetConfig_ExposesForwardAuthAdminGroups(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Auth.Method = "forward_auth"
+	cfg.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	resp := getConfigAs(t, cfg, auth.RoleAdmin)
+	var authCfg struct {
+		Groups []string `json:"forward_auth_admin_groups"`
+	}
+	if err := json.Unmarshal(resp["auth"], &authCfg); err != nil {
+		t.Fatalf("auth missing or malformed: %v", err)
+	}
+	if len(authCfg.Groups) != 1 || authCfg.Groups[0] != "dashboard-admins" {
+		t.Errorf("forward_auth_admin_groups = %v, want [dashboard-admins]", authCfg.Groups)
+	}
+}
