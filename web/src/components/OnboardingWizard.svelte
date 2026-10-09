@@ -1831,7 +1831,7 @@
                               <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                             </svg>
                             <input
-                              aria-label={m.onboarding_groupColorFor({ name: group.name || m.common_rowPosition({ n: i + 1 }) })}
+                              aria-label={m.onboarding_groupColorAt({ n: i + 1 })}
                               type="color"
                               value={group.color}
                               oninput={(e) => updateGroupColor(i, e.currentTarget.value)}
@@ -1855,7 +1855,7 @@
                             </button>
                             <div class="flex-1 min-w-0">
                               <input
-                                aria-label={m.onboarding_groupNameFor({ name: group.name || m.common_rowPosition({ n: i + 1 }) })}
+                                aria-label={m.onboarding_groupNameAt({ n: i + 1 })}
                                 type="text"
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
@@ -1875,7 +1875,7 @@
                             <button
                               class="flex-shrink-0 p-1 text-text-disabled hover:text-danger-text rounded transition-colors"
                               onclick={() => deleteGroup(i)}
-                              aria-label={m.onboarding_removeGroupNamed({ name: group.name || m.common_rowPosition({ n: i + 1 }) })}
+                              aria-label={m.onboarding_removeGroupAt({ n: i + 1 })}
                             >
                               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1918,7 +1918,7 @@
                                       {/if}
                                     </button>
                                     <input
-                                      aria-label={m.onboarding_appNameFor({ name: item.name || m.common_rowPosition({ n: appIdx + 1 }) })}
+                                      aria-label={m.onboarding_appNameAt({ n: appIdx + 1 })}
                                       type="text"
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}

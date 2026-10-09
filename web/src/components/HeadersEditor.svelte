@@ -57,7 +57,7 @@
   {#each rows as row, idx (row.id)}
     <div class="flex gap-2">
       <input
-        aria-label={m.appForm_headerNameInRow({ n: idx + 1 })}
+        aria-label={m.appForm_headerNameAt({ n: idx + 1 })}
         type="text"
         value={row.key}
         placeholder={m.app_http_action_header_name()}
@@ -65,7 +65,7 @@
         class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
       />
       <input
-        aria-label={row.key ? m.appForm_headerValueFor({ name: row.key }) : m.appForm_headerValueInRow({ n: idx + 1 })}
+        aria-label={m.appForm_headerValueAt({ n: idx + 1 })}
         type="text"
         value={row.value}
         placeholder={m.app_http_action_header_value()}
@@ -74,7 +74,7 @@
       />
       <button
         type="button"
-        aria-label={row.key ? m.appForm_removeHeaderNamed({ name: row.key }) : m.appForm_removeHeaderInRow({ n: idx + 1 })}
+        aria-label={m.appForm_removeHeaderAt({ n: idx + 1 })}
         title={m.app_http_action_remove_header()}
         class="px-2 py-1 text-text-muted hover:text-danger-text"
         onclick={() => removeRow(row.id)}

@@ -9,22 +9,31 @@ function setup(initial: Record<string, string> = {}, onChange: (v: Record<string
 describe('HeadersEditor', () => {
   it('names the key and value inputs', () => {
     const { getByRole } = setup({ 'X-Test': 'a' });
-    expect(getByRole('textbox', { name: /header name/i })).toBeTruthy();
-    expect(getByRole('textbox', { name: /header value/i })).toBeTruthy();
+    expect(getByRole('textbox', { name: /header 1 name/i })).toBeTruthy();
+    expect(getByRole('textbox', { name: /header 1 value/i })).toBeTruthy();
   });
 
-  it('names per-row inputs after the row item', async () => {
+  it('names per-row inputs by position and keeps names stable while typing', async () => {
     const { getByRole, getAllByRole } = setup({ 'X-Test': 'a', 'X-Other': 'b' });
-    expect(getByRole('textbox', { name: 'Header name in row 1' })).toBeTruthy();
-    expect(getByRole('textbox', { name: 'Header name in row 2' })).toBeTruthy();
-    expect(getByRole('textbox', { name: 'Header value for X-Test' })).toBeTruthy();
-    expect(getByRole('button', { name: 'Remove header X-Other' })).toBeTruthy();
+    expect(getByRole('textbox', { name: 'Header 1 name' })).toBeTruthy();
+    expect(getByRole('textbox', { name: 'Header 2 value' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Remove header 2' })).toBeTruthy();
+
+    await fireEvent.input(getByRole('textbox', { name: 'Header 1 name' }), { target: { value: 'X-Renamed' } });
+    expect(getByRole('textbox', { name: 'Header 1 name' })).toBeTruthy();
+    expect(getByRole('textbox', { name: 'Header 1 value' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Remove header 1' })).toBeTruthy();
+
+    await fireEvent.input(getByRole('textbox', { name: 'Header 1 name' }), { target: { value: '' } });
+    expect(getByRole('textbox', { name: 'Header 1 value' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Remove header 1' })).toBeTruthy();
+
     await fireEvent.click(getByRole('button', { name: /add header/i }));
     await waitFor(() => {
       expect(getAllByRole('textbox').length).toBe(6);
     });
-    expect(getByRole('textbox', { name: 'Header value in row 3' })).toBeTruthy();
-    expect(getByRole('button', { name: 'Remove header in row 3' })).toBeTruthy();
+    expect(getByRole('textbox', { name: 'Header 3 value' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Remove header 3' })).toBeTruthy();
   });
 
   it('renders one row per entry plus an empty add button', () => {
