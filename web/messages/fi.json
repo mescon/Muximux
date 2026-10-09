@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Lisää ja päivitä",
   "discovery_autoImportSync": "Lisää, päivitä ja poista",
   "health_label": "{app} tila: {status}",
+  "health_statusOnly": "Tila: {status}",
   "health_statusHealthy": "Kunnossa",
   "health_statusUnhealthy": "Vikatilassa",
   "health_statusUnknown": "Tuntematon",

@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Thêm và cập nhật",
   "discovery_autoImportSync": "Thêm, cập nhật và xóa",
   "health_label": "Tình trạng {app}: {status}",
+  "health_statusOnly": "Tình trạng: {status}",
   "health_statusHealthy": "Ổn định",
   "health_statusUnhealthy": "Gặp sự cố",
   "health_statusUnknown": "Không rõ",

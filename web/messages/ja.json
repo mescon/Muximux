@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "追加と更新",
   "discovery_autoImportSync": "追加、更新、削除",
   "health_label": "{app} の状態: {status}",
+  "health_statusOnly": "状態: {status}",
   "health_statusHealthy": "正常",
   "health_statusUnhealthy": "異常",
   "health_statusUnknown": "不明",

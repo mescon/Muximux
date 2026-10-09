@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Legg til og oppdater",
   "discovery_autoImportSync": "Legg til, oppdater og fjern",
   "health_label": "{app} status: {status}",
+  "health_statusOnly": "Status: {status}",
   "health_statusHealthy": "Frisk",
   "health_statusUnhealthy": "Feilet",
   "health_statusUnknown": "Ukjent",

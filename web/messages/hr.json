@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Dodaj i ažuriraj",
   "discovery_autoImportSync": "Dodaj, ažuriraj i ukloni",
   "health_label": "Stanje {app}: {status}",
+  "health_statusOnly": "Stanje: {status}",
   "health_statusHealthy": "Ispravno",
   "health_statusUnhealthy": "Neispravno",
   "health_statusUnknown": "Nepoznato",

@@ -20,6 +20,10 @@ vi.mock('$lib/api', () => ({
 
 import HealthIndicator from './HealthIndicator.svelte';
 
+// The host is described by the tooltip's status rows (not the whole tooltip, so the
+// "Check now" button text stays out of the description).
+const tipDetailsId = () => screen.getByRole('tooltip').querySelector('[id]')!.id;
+
 function makeHealth(overrides: Record<string, unknown> = {}) {
   return {
     name: 'TestApp',
@@ -545,7 +549,7 @@ describe('HealthIndicator', () => {
       render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
       await fireEvent.focus(host);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      expect(host).toHaveAttribute('aria-describedby', screen.getByRole('tooltip').id);
+      expect(host).toHaveAttribute('aria-describedby', tipDetailsId());
       await fireEvent.keyDown(host, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
       host.remove();
@@ -560,6 +564,43 @@ describe('HealthIndicator', () => {
       await fireEvent.blur(dot);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
+    it('names the status only inside a host, which already carries the app name', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const host = document.createElement('button');
+      host.textContent = 'TestApp';
+      document.body.append(host);
+      render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
+      await tick();
+      expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Health: Healthy');
+      expect(screen.getByRole('button', { name: 'TestApp Health: Healthy' })).toBe(host);
+      host.remove();
+    });
+    it('names the app and the status when standalone', () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'TestApp health: Healthy');
+    });
+    it('describes the host by the status rows, without the Check now button', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const host = document.createElement('button');
+      document.body.append(host);
+      render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
+      await fireEvent.focus(host);
+      const details = document.getElementById(host.getAttribute('aria-describedby')!)!;
+      expect(screen.getByRole('tooltip').contains(details)).toBe(true);
+      expect(details.textContent).toContain('Healthy');
+      expect(details.textContent).not.toContain('Check now');
+      expect(screen.getByRole('button', { name: 'Check now' })).toBeInTheDocument();
+      host.remove();
+    });
+    it('shows a neutral uptime badge for an unknown status', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth({ status: 'unknown' })]]));
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      await fireEvent.focus(screen.getByRole('img'));
+      const badge = screen.getByText('100%');
+      expect(badge.className).toContain('badge-default');
+      expect(badge.className).not.toContain('badge-success');
+    });
     it('uptime badge uses the badge classes, not white text', async () => {
       mockHealthData.set(new Map([['TestApp', makeHealth()]]));
       render(HealthIndicator, { props: { appName: 'TestApp' } });
@@ -572,14 +613,14 @@ describe('HealthIndicator', () => {
       host.textContent = 'TestApp';
       document.body.append(host);
       render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
-      const nameBefore = 'TestApp TestApp health: Healthy';
+      const nameBefore = 'TestApp Health: Healthy';
       expect(screen.getByRole('button', { name: nameBefore })).toBe(host);
       expect(host).not.toHaveAttribute('aria-describedby');
 
       await fireEvent.focus(host);
       const tip = screen.getByRole('tooltip');
       expect(host.contains(tip)).toBe(false);
-      expect(host).toHaveAttribute('aria-describedby', tip.id);
+      expect(host).toHaveAttribute('aria-describedby', tipDetailsId());
       expect(screen.getByRole('img')).not.toHaveAttribute('aria-describedby');
       expect(screen.getByRole('button', { name: nameBefore })).toBe(host);
       expect(host.querySelector('button')).toBeNull();
@@ -597,7 +638,7 @@ describe('HealthIndicator', () => {
       document.body.append(host);
       render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
       await fireEvent.focus(host);
-      expect(host.getAttribute('aria-describedby')).toBe(`other ${screen.getByRole('tooltip').id}`);
+      expect(host.getAttribute('aria-describedby')).toBe(`other ${tipDetailsId()}`);
       await fireEvent.blur(host);
       expect(host).toHaveAttribute('aria-describedby', 'other');
       host.remove();

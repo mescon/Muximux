@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Додавати й оновлювати",
   "discovery_autoImportSync": "Додавати, оновлювати й видаляти",
   "health_label": "Стан {app}: {status}",
+  "health_statusOnly": "Стан: {status}",
   "health_statusHealthy": "Справно",
   "health_statusUnhealthy": "Несправно",
   "health_statusUnknown": "Невідомо",

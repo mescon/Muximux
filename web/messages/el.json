@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Προσθήκη και ενημέρωση",
   "discovery_autoImportSync": "Προσθήκη, ενημέρωση και αφαίρεση",
   "health_label": "Κατάσταση {app}: {status}",
+  "health_statusOnly": "Κατάσταση: {status}",
   "health_statusHealthy": "Υγιής",
   "health_statusUnhealthy": "Μη υγιής",
   "health_statusUnknown": "Άγνωστη",

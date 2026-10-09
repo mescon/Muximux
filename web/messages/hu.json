@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Hozzáadás és frissítés",
   "discovery_autoImportSync": "Hozzáadás, frissítés és eltávolítás",
   "health_label": "{app} állapota: {status}",
+  "health_statusOnly": "Állapot: {status}",
   "health_statusHealthy": "Egészséges",
   "health_statusUnhealthy": "Hibás",
   "health_statusUnknown": "Ismeretlen",

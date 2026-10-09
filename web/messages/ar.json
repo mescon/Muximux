@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "إضافة وتحديث",
   "discovery_autoImportSync": "إضافة وتحديث وإزالة",
   "health_label": "حالة {app}: {status}",
+  "health_statusOnly": "الحالة: {status}",
   "health_statusHealthy": "سليم",
   "health_statusUnhealthy": "غير سليم",
   "health_statusUnknown": "غير معروف",

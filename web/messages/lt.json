@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Pridėti ir atnaujinti",
   "discovery_autoImportSync": "Pridėti, atnaujinti ir pašalinti",
   "health_label": "{app} būsena: {status}",
+  "health_statusOnly": "Būsena: {status}",
   "health_statusHealthy": "Veikia",
   "health_statusUnhealthy": "Neveikia",
   "health_statusUnknown": "Nežinoma",

@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Lisa ja uuenda",
   "discovery_autoImportSync": "Lisa, uuenda ja eemalda",
   "health_label": "{app} olek: {status}",
+  "health_statusOnly": "Olek: {status}",
   "health_statusHealthy": "Terve",
   "health_statusUnhealthy": "Häiritud",
   "health_statusUnknown": "Teadmata",

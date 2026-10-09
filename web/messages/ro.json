@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Adaugă și actualizează",
   "discovery_autoImportSync": "Adaugă, actualizează și elimină",
   "health_label": "Starea {app}: {status}",
+  "health_statusOnly": "Stare: {status}",
   "health_statusHealthy": "Funcțional",
   "health_statusUnhealthy": "Nefuncțional",
   "health_statusUnknown": "Necunoscut",

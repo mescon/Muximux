@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "যোগ ও আপডেট করুন",
   "discovery_autoImportSync": "যোগ, আপডেট ও সরান",
   "health_label": "{app} অবস্থা: {status}",
+  "health_statusOnly": "অবস্থা: {status}",
   "health_statusHealthy": "সুস্থ",
   "health_statusUnhealthy": "অসুস্থ",
   "health_statusUnknown": "অজানা",

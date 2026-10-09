@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Dodawaj i aktualizuj",
   "discovery_autoImportSync": "Dodawaj, aktualizuj i usuwaj",
   "health_label": "Stan {app}: {status}",
+  "health_statusOnly": "Stan: {status}",
   "health_statusHealthy": "Sprawny",
   "health_statusUnhealthy": "Niesprawny",
   "health_statusUnknown": "Nieznany",

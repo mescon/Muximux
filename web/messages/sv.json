@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Lägg till och uppdatera",
   "discovery_autoImportSync": "Lägg till, uppdatera och ta bort",
   "health_label": "{app} hälsa: {status}",
+  "health_statusOnly": "Hälsa: {status}",
   "health_statusHealthy": "Frisk",
   "health_statusUnhealthy": "Ohälsosam",
   "health_statusUnknown": "Okänd",

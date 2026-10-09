@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Přidat a aktualizovat",
   "discovery_autoImportSync": "Přidat, aktualizovat a odebrat",
   "health_label": "Stav {app}: {status}",
+  "health_statusOnly": "Stav: {status}",
   "health_statusHealthy": "V pořádku",
   "health_statusUnhealthy": "Nefunkční",
   "health_statusUnknown": "Neznámý",

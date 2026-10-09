@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "추가 및 업데이트",
   "discovery_autoImportSync": "추가, 업데이트 및 제거",
   "health_label": "{app} 상태: {status}",
+  "health_statusOnly": "상태: {status}",
   "health_statusHealthy": "정상",
   "health_statusUnhealthy": "비정상",
   "health_statusUnknown": "알 수 없음",

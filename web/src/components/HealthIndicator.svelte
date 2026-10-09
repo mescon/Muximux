@@ -44,7 +44,13 @@
     return m.health_statusUnknown();
   }
 
-  let label = $derived(m.health_label({ app: appName, status: getStatusLabel(status) }));
+  // Inside a host (nav item, splash card) the host already carries the app name, so the dot
+  // names the status only; a standalone dot names the app too.
+  let label = $derived(
+    host
+      ? m.health_statusOnly({ status: getStatusLabel(status) })
+      : m.health_label({ app: appName, status: getStatusLabel(status) })
+  );
 
   function formatResponseTime(ms: number): string {
     if (ms < 1000) {
@@ -122,9 +128,11 @@
   });
 
   // Focus sits on the host, so the host (not the dot) is described by the open tooltip.
+  // Only presence matters here, so the effect does not re-run on every health poll.
+  let hasHealth = $derived(!!health);
   $effect(() => {
     const h = host;
-    if (!h || !tooltipVisible || !health) return;
+    if (!h || !tooltipVisible || !hasHealth) return;
     const prev = h.getAttribute('aria-describedby');
     h.setAttribute('aria-describedby', prev ? `${prev} ${tipId}` : tipId);
     return () => {
@@ -189,42 +197,44 @@
     {#if tooltipVisible && health}
       <div
         class="health-tooltip"
-        id={tipId}
         role="tooltip"
         style="left: {tooltipX}px; top: {tooltipY}px;"
         onmouseenter={cancelHide}
         onmouseleave={scheduleHide}
       >
-        <div class="flex items-center justify-between mb-1">
-          <span class="font-medium {status === 'healthy' ? 'text-success-text' : status === 'unhealthy' ? 'text-danger-text' : 'text-text-muted'}">
-            {getStatusLabel(status)}
-          </span>
+        <!-- The description covers the status rows only, not the "Check now" button text. -->
+        <div id={tipId}>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-medium {status === 'healthy' ? 'text-success-text' : status === 'unhealthy' ? 'text-danger-text' : 'text-text-muted'}">
+              {getStatusLabel(status)}
+            </span>
+            {#if health.check_count > 0}
+              <span class="badge {status === 'unhealthy' ? 'badge-error' : status === 'healthy' ? 'badge-success' : 'badge-default'}">{health.uptime_percent.toFixed(0)}%</span>
+            {/if}
+          </div>
+
+          {#if health.response_time_ms > 0}
+            <div class="health-detail-row">
+              {m.health_response()}: {formatResponseTime(health.response_time_ms)}
+            </div>
+          {/if}
+
           {#if health.check_count > 0}
-            <span class="badge {status === 'unhealthy' ? 'badge-error' : 'badge-success'}">{health.uptime_percent.toFixed(0)}%</span>
+            <div class="health-detail-row">
+              {m.health_uptime()}: {health.success_count}/{health.check_count}
+            </div>
+          {/if}
+
+          <div class="health-detail-row">
+            {m.health_checked()}: {formatLastCheck(health.last_check)}
+          </div>
+
+          {#if health.last_error}
+            <div class="health-error" title={health.last_error}>
+              {health.last_error}
+            </div>
           {/if}
         </div>
-
-        {#if health.response_time_ms > 0}
-          <div class="health-detail-row">
-            {m.health_response()}: {formatResponseTime(health.response_time_ms)}
-          </div>
-        {/if}
-
-        {#if health.check_count > 0}
-          <div class="health-detail-row">
-            {m.health_uptime()}: {health.success_count}/{health.check_count}
-          </div>
-        {/if}
-
-        <div class="health-detail-row">
-          {m.health_checked()}: {formatLastCheck(health.last_check)}
-        </div>
-
-        {#if health.last_error}
-          <div class="health-error" title={health.last_error}>
-            {health.last_error}
-          </div>
-        {/if}
 
         <button
           class="health-check-btn"

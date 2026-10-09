@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Pievienot un atjaunināt",
   "discovery_autoImportSync": "Pievienot, atjaunināt un noņemt",
   "health_label": "{app} stāvoklis: {status}",
+  "health_statusOnly": "Stāvoklis: {status}",
   "health_statusHealthy": "Darbojas",
   "health_statusUnhealthy": "Nedarbojas",
   "health_statusUnknown": "Nezināms",

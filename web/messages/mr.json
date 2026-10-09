@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "जोडा आणि अपडेट करा",
   "discovery_autoImportSync": "जोडा, अपडेट करा आणि काढा",
   "health_label": "{app} स्थिती: {status}",
+  "health_statusOnly": "स्थिती: {status}",
   "health_statusHealthy": "निरोगी",
   "health_statusUnhealthy": "अस्वस्थ",
   "health_statusUnknown": "अज्ञात",

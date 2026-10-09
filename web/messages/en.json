@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Add and update",
   "discovery_autoImportSync": "Add, update and remove",
   "health_label": "{app} health: {status}",
+  "health_statusOnly": "Health: {status}",
   "health_statusHealthy": "Healthy",
   "health_statusUnhealthy": "Unhealthy",
   "health_statusUnknown": "Unknown",

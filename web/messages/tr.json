@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Ekle ve güncelle",
   "discovery_autoImportSync": "Ekle, güncelle ve kaldır",
   "health_label": "{app} durumu: {status}",
+  "health_statusOnly": "Durum: {status}",
   "health_statusHealthy": "Sağlıklı",
   "health_statusUnhealthy": "Sağlıksız",
   "health_statusUnknown": "Bilinmiyor",

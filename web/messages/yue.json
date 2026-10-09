@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "新增同更新",
   "discovery_autoImportSync": "新增、更新同移除",
   "health_label": "{app} 狀態：{status}",
+  "health_statusOnly": "狀態：{status}",
   "health_statusHealthy": "正常",
   "health_statusUnhealthy": "異常",
   "health_statusUnknown": "唔知",

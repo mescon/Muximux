@@ -1250,6 +1250,27 @@ describe('Navigation', () => {
       expect(container.innerHTML).toContain('Healthy');
     });
 
+    it('names the nav item once: the health dot inside it labels the status only', async () => {
+      mockHealthData.set(new Map([['Self', { status: 'healthy', check_count: 0 }]]));
+      const app = makeApp({ name: 'Self', health_check: true, group: 'Media' });
+      render(Navigation, {
+        props: {
+          apps: [app],
+          currentApp: null,
+          showHealth: true,
+          config: makeConfig({
+            navigation: { position: 'left', show_labels: true },
+            groups: [mediaGroup],
+          }),
+        },
+      });
+      await waitFor(() => expect(screen.getAllByRole('img', { name: 'Health: Healthy' }).length).toBeGreaterThan(0));
+      const dot = screen.getAllByRole('img', { name: 'Health: Healthy' })[0];
+      const host = dot.closest('button')!;
+      expect(host.textContent).toContain('Self');
+      expect(screen.queryByRole('img', { name: /Self health/ })).toBeNull();
+    });
+
     it('dims unhealthy non-current apps in top flat bar', () => {
       const healthMap = new Map();
       healthMap.set('BadApp', { status: 'unhealthy', latency: 0, lastCheck: '' });

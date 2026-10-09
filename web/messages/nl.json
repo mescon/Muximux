@@ -879,6 +879,7 @@
   "discovery_autoImportUpdate": "Toevoegen en bijwerken",
   "discovery_autoImportSync": "Toevoegen, bijwerken en verwijderen",
   "health_label": "Status van {app}: {status}",
+  "health_statusOnly": "Status: {status}",
   "health_statusHealthy": "Gezond",
   "health_statusUnhealthy": "Ongezond",
   "health_statusUnknown": "Onbekend",
