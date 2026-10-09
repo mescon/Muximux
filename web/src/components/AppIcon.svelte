@@ -4,7 +4,7 @@
   import { debug } from '$lib/debug';
   import { safeColor } from '$lib/safeColor';
 
-  let { icon, name, color = '#374151', size = 'md', showBackground = true, forceBackground = false, scale }: {
+  let { icon, name, color = '#374151', size = 'md', showBackground = true, forceBackground = false, scale, decorative = false }: {
     icon: AppIconType;
     name: string;
     color?: string;
@@ -12,6 +12,9 @@
     showBackground?: boolean;
     forceBackground?: boolean;
     scale?: number;
+    // Hide the icon from assistive tech when the surrounding control already
+    // carries the name (visible text or aria-label); otherwise it is announced twice.
+    decorative?: boolean;
   } = $props();
 
   // Size classes
@@ -62,13 +65,14 @@
       <div
         class="w-full h-full {showBackground ? 'p-1.5' : 'p-1'} lucide-icon"
         style="-webkit-mask-image: url({iconUrl}); mask-image: url({iconUrl});{tintColor ? ` background-color: ${tintColor};` : ''}"
-        role="img"
-        aria-label={name}
+        role={decorative ? undefined : 'img'}
+        aria-label={decorative ? undefined : name}
+        aria-hidden={decorative ? 'true' : undefined}
       ></div>
     {:else}
       <img
         src={iconUrl}
-        alt={name}
+        alt={decorative ? '' : name}
         class="w-full h-full object-contain {showBackground ? 'p-1.5' : 'p-1'}"
         style={icon?.invert ? 'filter: invert(1);' : ''}
         loading="lazy"

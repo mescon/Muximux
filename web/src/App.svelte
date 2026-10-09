@@ -1219,6 +1219,7 @@
     {#if $isFullscreen}
       <div class="fixed top-4 end-4 z-50 flex items-center gap-2">
         <button
+          aria-label={m.nav_exitFullscreen()}
           class="fullscreen-exit-btn p-2 rounded-lg backdrop-blur-sm shadow-lg transition-all opacity-30 hover:opacity-100"
           onclick={exitFullscreen}
           title={m.nav_exitFullscreen()}

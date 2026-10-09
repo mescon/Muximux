@@ -95,7 +95,7 @@
     <h3 class="text-sm font-semibold text-text-primary">Currently tracked</h3>
     <button
       type="button"
-      class="text-xs text-brand-400 hover:underline disabled:text-text-muted disabled:cursor-not-allowed"
+      class="text-xs text-accent-text hover:underline disabled:text-text-muted disabled:cursor-not-allowed"
       onclick={load}
       disabled={loading}
       data-testid="tracked-refresh"
@@ -105,7 +105,7 @@
   </div>
 
   {#if loadError}
-    <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-sm">{loadError}</div>
+    <div role="alert" class="notice notice-danger">{loadError}</div>
   {:else if loading && !result}
     <div class="text-sm text-text-muted">Loading tracked entries…</div>
   {:else if result && result.entries.length === 0}
@@ -116,13 +116,13 @@
     <ul class="divide-y divide-border-subtle border border-border-subtle rounded-md overflow-hidden">
       {#each result.entries as e (e.kind + ':' + e.name)}
         <li class="p-3 flex items-center justify-between gap-3 text-sm
-                   {e.endpoint_matches ? '' : 'bg-amber-500/5'}">
+                   {e.endpoint_matches ? '' : 'bg-warning-bg'}">
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
               <span class="text-text-primary font-medium truncate">{e.name}</span>
               <span class="text-xs px-1.5 py-0.5 rounded bg-bg-elevated text-text-muted uppercase tracking-wide">{e.kind}</span>
               {#if !e.endpoint_matches}
-                <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300" title="DockerEndpoint differs from the current discovery endpoint">Endpoint changed</span>
+                <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text" title="DockerEndpoint differs from the current discovery endpoint">Endpoint changed</span>
               {/if}
             </div>
             <div class="text-xs text-text-muted mt-0.5 font-mono truncate">{e.key}</div>
@@ -139,7 +139,7 @@
             {/if}
             <button
               type="button"
-              class="btn btn-secondary btn-xs text-red-400"
+              class="btn btn-secondary btn-xs text-danger-text"
               onclick={() => detach(e)}
               disabled={detachInFlight === e.key}
               data-testid="tracked-detach-btn"

@@ -844,15 +844,15 @@
   {#if !isMobile}
     {#if splitEnabled}
       <div class="flex items-center gap-0.5">
-        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
         </button>
-        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
         </button>
         <div class="flex items-center">
-          <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-          <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+          <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+          <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
         </div>
         <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -878,7 +878,7 @@
     onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
     onmouseenter={() => hoveredGroup = null}
   >
-    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+    <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
     {#if config.navigation.show_labels}
       <span>{app.name}</span>
     {:else}
@@ -925,15 +925,15 @@
   {/if}
   {#if splitEnabled}
     <div class="flex items-center gap-1 px-3 py-1.5">
-      <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+      <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
       </button>
-      <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+      <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
       </button>
       <div class="flex items-center">
-        <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+        <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
       </div>
       <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => { onsplitclose?.(); footerHoverExpand = false; }} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -950,7 +950,7 @@
   {/if}
   {#if hasRealAuth && $isAuthenticated && $currentUser}
     <button
-      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
       onclick={() => { handleLogout(); footerHoverExpand = false; }}
     >
       <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1032,17 +1032,17 @@
         {#if hasIcon(homeIcon)}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
           </button>
         {:else if config.navigation.show_logo}
           <button
             class="flex-shrink-0 hover:opacity-80"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1052,7 +1052,7 @@
         {:else}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -1092,7 +1092,7 @@
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
                 {#if hasIcon(groupConfig?.icon)}
-                  <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
+                  <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
                 <span>{groupName}</span>
                 <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1122,7 +1122,7 @@
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                        <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if navBadgesOn && app.docker_key}
                           {@const ds = $dockerStateStore.get(app.name)}
@@ -1165,7 +1165,7 @@
               >
                 {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
+                    <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
                   </span>
                 {:else}
                   <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
@@ -1240,7 +1240,7 @@
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="p-2 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
+            class="p-2 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover transition-colors"
             onclick={handleLogout}
             title={m.nav_signOut()}
             aria-label={m.nav_signOut()}
@@ -1285,12 +1285,12 @@
              style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
           </button>
         </div>
       {:else if config.navigation.show_logo}
@@ -1298,7 +1298,7 @@
              style="height: 100px;">
           <button
             class="hover:opacity-80 flex items-center justify-center"
-            style="color: var(--accent-primary); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
+            style="color: var(--accent-text); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1311,7 +1311,7 @@
              style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -1361,7 +1361,7 @@
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
               {#if hasIcon(groupConfig?.icon)}
-                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
               {:else if groupConfig?.color}
                 <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
               {:else}
@@ -1404,7 +1404,7 @@
                     <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                    <AppIcon decorative={config.navigation.show_labels} icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
@@ -1484,15 +1484,15 @@
               {#if splitEnabled}
                 <div class="w-full flex items-center py-1.5 gap-1">
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
                   </button>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
                   </button>
                   <div class="flex items-center">
-                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
                   </div>
                   <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1510,7 +1510,7 @@
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
-                class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
                 onclick={handleLogout}
                 title={m.nav_signOut()}
               >
@@ -1590,15 +1590,15 @@
           {#if splitEnabled}
             <div class="w-full flex items-center py-1.5 gap-1" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};">
               <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
               </button>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
               </button>
               <div class="flex items-center">
-                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
               </div>
               <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1616,7 +1616,7 @@
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
             style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
             tabindex={isCollapsed ? -1 : 0}
             onclick={handleLogout}
@@ -1667,7 +1667,7 @@
     <!-- Resize handle - only when not auto-hiding, labels visible, and not manually collapsed -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        class="nav-resize-handle absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -1710,12 +1710,12 @@
              style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
           </button>
         </div>
       {:else if config.navigation.show_logo}
@@ -1723,7 +1723,7 @@
              style="height: 100px;">
           <button
             class="hover:opacity-80 flex items-center justify-center"
-            style="color: var(--accent-primary); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
+            style="color: var(--accent-text); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -1736,7 +1736,7 @@
              style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
           <button
             class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -1786,7 +1786,7 @@
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
               {#if hasIcon(groupConfig?.icon)}
-                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
               {:else if groupConfig?.color}
                 <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
               {:else}
@@ -1828,7 +1828,7 @@
                     <div class="absolute end-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                    <AppIcon decorative={config.navigation.show_labels} icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
@@ -1908,15 +1908,15 @@
               {#if splitEnabled}
                 <div class="w-full flex items-center py-1.5 gap-1">
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
                   </button>
-                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
                   </button>
                   <div class="flex items-center">
-                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
                   </div>
                   <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1934,7 +1934,7 @@
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
-                class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
                 onclick={handleLogout}
                 title={m.nav_signOut()}
               >
@@ -2014,15 +2014,15 @@
           {#if splitEnabled}
             <div class="w-full flex items-center py-1.5 gap-1" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
               <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
               </button>
-              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
               </button>
               <div class="flex items-center">
-                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
               </div>
               <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -2040,7 +2040,7 @@
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover text-sm transition-colors"
             style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
             tabindex={isCollapsedRight ? -1 : 0}
             onclick={handleLogout}
@@ -2091,7 +2091,7 @@
     <!-- Resize handle (left side for right sidebar) - only when not auto-hiding and labels visible -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        class="nav-resize-handle absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -2137,17 +2137,17 @@
         {#if hasIcon(homeIcon)}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
           </button>
         {:else if config.navigation.show_logo}
           <button
             class="flex-shrink-0 hover:opacity-80"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={config.title}
             aria-label={m.nav_goToOverview()}
@@ -2157,7 +2157,7 @@
         {:else}
           <button
             class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
             onclick={() => onsplash?.()}
             title={m.nav_overview()}
             aria-label={m.nav_goToOverview()}
@@ -2197,7 +2197,7 @@
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
                 {#if hasIcon(groupConfig?.icon)}
-                  <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
+                  <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
                 <span>{groupName}</span>
                 <svg class="w-3 h-3 opacity-50 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2227,7 +2227,7 @@
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                        <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if navBadgesOn && app.docker_key}
                           {@const ds = $dockerStateStore.get(app.name)}
@@ -2269,7 +2269,7 @@
               >
                 {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
+                    <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
                   </span>
                 {:else}
                   <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
@@ -2342,7 +2342,7 @@
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="p-2 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
+            class="p-2 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover transition-colors"
             onclick={handleLogout}
             title={m.nav_signOut()}
             aria-label={m.nav_signOut()}
@@ -2403,7 +2403,7 @@
               >
                 <div class="flex-shrink-0 flex items-center justify-center w-6">
                   {#if hasIcon(groupConfig?.icon)}
-                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                    <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
                   {:else if groupConfig?.color}
                     <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
                   {:else}
@@ -2446,7 +2446,7 @@
                         <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                       {/if}
                       <div class="flex-shrink-0 flex items-center justify-center w-6 ms-1" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                        <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                       </div>
                       <span class="truncate ms-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
                       {#if navBadgesOn && app.docker_key}
@@ -2480,17 +2480,17 @@
             {#if hasIcon(homeIcon)}
               <button
                 class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
-                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
                 onclick={() => { onsplash?.(); panelOpen = false; }}
                 title={config.title}
                 aria-label={m.nav_goToOverview()}
               >
-                <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+                <AppIcon decorative icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
               </button>
             {:else if config.navigation.show_logo}
               <button
                 class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-bg-hover"
-                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
                 onclick={() => { onsplash?.(); panelOpen = false; }}
                 title={config.title}
                 aria-label={m.nav_goToOverview()}
@@ -2500,7 +2500,7 @@
             {:else}
               <button
                 class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
-                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                style="color: var(--accent-text); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
                 onclick={() => { onsplash?.(); panelOpen = false; }}
                 title={m.nav_overview()}
                 aria-label={m.nav_goToOverview()}
@@ -2548,15 +2548,15 @@
           {#if !isMobile}
             {#if splitEnabled}
               <div class="flex items-center gap-0.5">
-                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
                 </button>
-                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-accent-text bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
                 </button>
                 <div class="flex items-center">
-                  <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                    <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                  <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                    <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-accent-text' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
                 </div>
                 <button class="p-1 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
@@ -2583,7 +2583,7 @@
           {/if}
           {#if hasRealAuth && $isAuthenticated && $currentUser}
             <button
-              class="p-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
+              class="p-1.5 text-text-muted hover:text-danger-text rounded-md hover:bg-bg-hover transition-colors"
               onclick={() => { handleLogout(); panelOpen = false; }}
               title={m.nav_signOut()}
               aria-label={m.nav_signOut()}
@@ -2611,7 +2611,7 @@
     role="navigation"
   >
     <button
-      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-colors"
+      class="p-4 bg-accent-primary hover:bg-accent-secondary text-accent-on-primary rounded-full shadow-lg transition-colors"
       class:hover:scale-110={!isDraggingFab}
       style="
         opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};
@@ -2751,34 +2751,11 @@
     color: var(--text-muted) !important;
   }
 
-  /* Brand color buttons */
-  :global(.bg-brand-600) {
-    background: var(--accent-primary) !important;
-  }
-
-  :global(.hover\:bg-brand-700:hover) {
-    background: var(--accent-secondary) !important;
-  }
-
-  :global(.ring-brand-500) {
-    outline-color: var(--accent-primary) !important;
-  }
-
   /* Mobile overlay */
   :global(.bg-black\/50) {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-  }
-
-  /* Resize handle */
-  :global(.hover\:bg-brand-500\/50:hover) {
-    background: var(--accent-muted) !important;
-  }
-
-  :global(.active\:bg-brand-500\/70:active) {
-    background: var(--accent-primary) !important;
-    opacity: 0.7;
   }
 
   /* Collapsible footer drawer */
@@ -2811,6 +2788,24 @@
   .footer-drawer-inner {
     overflow: hidden;
     min-height: 0;
+  }
+
+  /* These containers clip their content (overflow hidden or auto) and their items sit
+     flush to the edge (the collapsed sidebar has no padding, the group dropdown none at the
+     sides), and the resize handle is only 8px wide at the sidebar edge, so the global
+     2px-offset focus outline would be cut off. Draw it just inside the element instead.
+     This is scoped on purpose: elsewhere the 2px halo (and offset 0 on inputs) applies. */
+  .sidebar-panel :global(:focus-visible),
+  .floating-panel :global(:focus-visible),
+  .group-dropdown-item:focus-visible,
+  .top-nav-panel :global(:focus-visible),
+  .bottom-nav-panel :global(:focus-visible),
+  .group-apps-wrapper :global(:focus-visible),
+  .footer-drawer-inner :global(:focus-visible),
+  .flat-bar-scroll :global(:focus-visible),
+  .toolbar-drawer-content :global(:focus-visible),
+  .nav-resize-handle:focus-visible {
+    outline-offset: -2px;
   }
 
   /* Smooth expand/collapse for group app lists */

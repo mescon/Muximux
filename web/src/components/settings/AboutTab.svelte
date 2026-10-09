@@ -54,35 +54,35 @@
 <div class="space-y-6">
   {#if aboutLoading}
     <div class="flex items-center justify-center py-16">
-      <svg class="w-6 h-6 text-brand-400 animate-spin" viewBox="0 0 24 24" fill="none">
+      <svg class="w-6 h-6 text-accent-text animate-spin" viewBox="0 0 24 24" fill="none">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
       </svg>
       <span class="ms-3 text-text-muted">{m.about_loadingSystemInfo()}</span>
     </div>
   {:else if aboutError}
-    <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+    <div class="p-4 rounded-lg notice notice-danger" role="alert">
       <div class="flex items-center justify-between">
         <span class="text-sm">{aboutError}</span>
         <button
-          class="px-3 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 rounded text-red-300 transition-colors"
+          class="px-3 py-1 text-xs bg-danger-bg hover:brightness-110 rounded text-danger-text transition-colors"
           onclick={() => { systemInfo = null; loadAboutData(); }}
         >{m.common_retry()}</button>
       </div>
     </div>
   {:else if systemInfo}
     <!-- Version Status -->
-    <div class="rounded-xl border p-5 {updateInfo?.update_available ? 'border-amber-500/30 bg-amber-500/5' : 'border-green-500/30 bg-green-500/5'}">
+    <div class="rounded-xl border p-5 {updateInfo?.update_available ? 'border-warning-border bg-warning-bg' : 'border-success-border bg-success-bg'}">
       <div class="flex items-start gap-4">
         {#if updateInfo?.update_available}
-          <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-warning-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </div>
         {:else}
-          <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="w-10 h-10 rounded-lg bg-success-bg flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-success-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -93,7 +93,7 @@
               {updateInfo?.update_available ? m.about_updateAvailable() : m.about_upToDate()}
             </h3>
             {#if updateInfo?.update_available}
-              <span class="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-300 rounded-full">
+              <span class="px-2 py-0.5 text-xs font-medium bg-warning-bg text-warning-text rounded-full">
                 v{updateInfo.latest_version}
               </span>
             {/if}
@@ -126,7 +126,7 @@
 
     <!-- Release Notes (collapsible) -->
     {#if updateInfo?.changelog}
-      <div class="rounded-xl border border-border overflow-hidden">
+      <div class="focus-inset rounded-xl border border-border overflow-hidden">
         <button
           class="w-full flex items-center justify-between p-4 text-start hover:bg-bg-surface/50 transition-colors"
           onclick={() => changelogExpanded = !changelogExpanded}
@@ -152,7 +152,7 @@
 
     <!-- How to Update (collapsible) -->
     {#if updateInfo}
-      <div class="rounded-xl border border-border overflow-hidden">
+      <div class="focus-inset rounded-xl border border-border overflow-hidden">
         <button
           class="w-full flex items-center justify-between p-4 text-start hover:bg-bg-surface/50 transition-colors"
           onclick={() => updateInstructionsExpanded = !updateInstructionsExpanded}
@@ -166,7 +166,7 @@
           </svg>
         </button>
         {#if updateInstructionsExpanded}
-          <div class="border-t border-border divide-y divide-gray-700/50">
+          <div class="border-t border-border divide-y divide-border-subtle">
             <!-- Docker -->
             <div class="p-4">
               <div class="flex items-center gap-2 mb-2">
@@ -175,7 +175,7 @@
                 </svg>
                 <span class="text-sm font-medium text-text-primary">{m.about_docker()}</span>
                 {#if systemInfo.environment === 'docker'}
-                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-accent-muted text-accent-text rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
                 {/if}
               </div>
               <pre class="text-xs text-text-secondary bg-bg-base/50 rounded-lg p-3 overflow-x-auto font-mono">cd /path/to/muximux
@@ -191,7 +191,7 @@ docker compose up -d</pre>
                 </svg>
                 <span class="text-sm font-medium text-text-primary">{m.about_linux()}</span>
                 {#if systemInfo.environment === 'native' && systemInfo.os === 'linux'}
-                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-accent-muted text-accent-text rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
                 {/if}
               </div>
               <pre class="text-xs text-text-secondary bg-bg-base/50 rounded-lg p-3 overflow-x-auto font-mono"># Stop the running instance, then:
@@ -200,10 +200,10 @@ chmod +x muximux-linux-amd64
 ./muximux-linux-amd64</pre>
               {#if updateInfo.download_urls?.linux_amd64}
                 <div class="flex gap-2 mt-2">
-                  <a href={updateInfo.download_urls.linux_amd64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">{m.about_downloadLinuxAmd64()}</a>
+                  <a href={updateInfo.download_urls.linux_amd64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadLinuxAmd64()}</a>
                   {#if updateInfo.download_urls?.linux_arm64}
                     <span class="text-text-disabled">|</span>
-                    <a href={updateInfo.download_urls.linux_arm64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">{m.about_downloadLinuxArm64()}</a>
+                    <a href={updateInfo.download_urls.linux_arm64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadLinuxArm64()}</a>
                   {/if}
                 </div>
               {/if}
@@ -217,7 +217,7 @@ chmod +x muximux-linux-amd64
                 </svg>
                 <span class="text-sm font-medium text-text-primary">{m.about_macos()}</span>
                 {#if systemInfo.environment === 'native' && systemInfo.os === 'darwin'}
-                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-accent-muted text-accent-text rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
                 {/if}
               </div>
               <pre class="text-xs text-text-secondary bg-bg-base/50 rounded-lg p-3 overflow-x-auto font-mono">curl -LO https://github.com/mescon/Muximux/releases/latest/download/muximux-darwin-arm64
@@ -225,10 +225,10 @@ chmod +x muximux-darwin-arm64
 ./muximux-darwin-arm64</pre>
               {#if updateInfo.download_urls?.darwin_arm64}
                 <div class="flex gap-2 mt-2">
-                  <a href={updateInfo.download_urls.darwin_arm64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">{m.about_downloadDarwinArm64()}</a>
+                  <a href={updateInfo.download_urls.darwin_arm64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadDarwinArm64()}</a>
                   {#if updateInfo.download_urls?.darwin_amd64}
                     <span class="text-text-disabled">|</span>
-                    <a href={updateInfo.download_urls.darwin_amd64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">{m.about_downloadDarwinAmd64()}</a>
+                    <a href={updateInfo.download_urls.darwin_amd64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadDarwinAmd64()}</a>
                   {/if}
                 </div>
               {/if}
@@ -242,7 +242,7 @@ chmod +x muximux-darwin-arm64
                 </svg>
                 <span class="text-sm font-medium text-text-primary">{m.about_windows()}</span>
                 {#if systemInfo.environment === 'native' && systemInfo.os === 'windows'}
-                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-accent-muted text-accent-text rounded uppercase tracking-wider">{m.about_yourPlatform()}</span>
                 {/if}
               </div>
               <pre class="text-xs text-text-secondary bg-bg-base/50 rounded-lg p-3 overflow-x-auto font-mono"># Download muximux-windows-amd64.exe from the release page
@@ -250,7 +250,7 @@ chmod +x muximux-darwin-arm64
 # Restart</pre>
               {#if updateInfo.download_urls?.windows_amd64}
                 <div class="mt-2">
-                  <a href={updateInfo.download_urls.windows_amd64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">{m.about_downloadWindowsAmd64()}</a>
+                  <a href={updateInfo.download_urls.windows_amd64} class="text-xs text-accent-text hover:underline transition-colors">{m.about_downloadWindowsAmd64()}</a>
                 </div>
               {/if}
             </div>
@@ -298,7 +298,7 @@ chmod +x muximux-darwin-arm64
         </div>
       </div>
 
-      <div class="rounded-lg bg-bg-surface border border-border divide-y divide-gray-700/50">
+      <div class="rounded-lg bg-bg-surface border border-border divide-y divide-border-subtle">
         <div class="flex items-center justify-between px-4 py-2.5">
           <span class="text-xs text-text-disabled">{m.about_dataDirectory()}</span>
           <span class="text-xs text-text-secondary font-mono">{systemInfo.data_dir}</span>
@@ -407,14 +407,14 @@ chmod +x muximux-darwin-arm64
   }
 
   .changelog-content :global(code) {
-    background: rgba(255,255,255,0.1);
+    background: var(--bg-elevated);
     padding: 0.15em 0.4em;
     border-radius: 4px;
     font-size: 0.9em;
   }
 
   .changelog-content :global(pre) {
-    background: rgba(0,0,0,0.3);
+    background: var(--bg-base);
     padding: 0.75em 1em;
     border-radius: 6px;
     overflow-x: auto;

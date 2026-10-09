@@ -136,7 +136,7 @@
     href={url}
     target="_blank"
     rel="noopener noreferrer"
-    class="docs-trigger relative ms-1 inline-flex items-center align-middle text-text-disabled hover:text-brand-400"
+    class="docs-trigger relative ms-1 inline-flex items-center align-middle text-text-disabled hover:text-accent-text"
     title={m.common_readMore()}
     onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
   >
@@ -159,12 +159,13 @@
       type="text"
       bind:value={app.name}
       oninput={() => clearError('name')}
-      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {errors.name ? 'border-red-500' : 'border-border-subtle'}"
+      aria-invalid={errors.name ? 'true' : undefined}
+      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.name ? 'border-danger-border' : 'border-border-subtle'}"
       placeholder={m.appForm_placeholderName()}
     />
-    {#if errors.name}<p class="text-red-400 text-xs mt-1">{errors.name}</p>{/if}
+    {#if errors.name}<p class="text-danger-text text-xs mt-1">{errors.name}</p>{/if}
     {#if !errors.name && slugConflictWith}
-      <p class="text-amber-400 text-xs mt-1" data-testid="app-slug-conflict">
+      <p class="text-warning-text text-xs mt-1" data-testid="app-slug-conflict">
         {m.appForm_slugConflict({ other: slugConflictWith, slug: slugify(app.name ?? '') })}
       </p>
     {/if}
@@ -180,13 +181,14 @@
       type="url"
       bind:value={app.url}
       oninput={() => clearError('url')}
+      aria-invalid={errors.url ? 'true' : undefined}
       readonly={!!app.docker_key}
-      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {errors.url ? 'border-red-500' : 'border-border-subtle'} {app.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
+      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.url ? 'border-danger-border' : 'border-border-subtle'} {app.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
       placeholder={m.appForm_placeholderUrl()}
       data-testid="app-form-url"
     />
     {#if app.docker_key}
-      <p class="mt-2 text-xs text-amber-300 flex items-start gap-1.5" data-testid="app-form-docker-locked">
+      <p class="mt-2 text-xs text-warning-text flex items-start gap-1.5" data-testid="app-form-docker-locked">
         <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v2m0 4h.01M5 11V7a7 7 0 0114 0v4M5 11h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
         </svg>
@@ -195,10 +197,10 @@
         </span>
       </p>
     {/if}
-    {#if errors.url}<p class="text-red-400 text-xs mt-1">{errors.url}</p>{/if}
+    {#if errors.url}<p class="text-danger-text text-xs mt-1">{errors.url}</p>{/if}
     {#if app.gateway_domain}
       <p class="mt-2 text-xs text-text-muted flex items-start gap-1.5">
-        <svg class="w-4 h-4 text-brand-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="w-4 h-4 text-accent-text flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-3.829 3.829a4 4 0 01-5.656-5.656l1.106-1.106M10.172 13.828a4 4 0 010-5.656l3.829-3.829a4 4 0 015.656 5.656l-1.106 1.106" />
         </svg>
         <span>
@@ -212,7 +214,7 @@
   <div>
     <span class="block text-sm font-medium text-text-secondary mb-1">{m.appForm_icon()}</span>
     <div class="flex items-center gap-3">
-      <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => onopenicon?.()}>
+      <button aria-label={m.appForm_chooseIcon()} type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => onopenicon?.()}>
         <AppIcon icon={app.icon} name={app.name || 'App'} color={app.color} size="lg" />
       </button>
       <div class="flex-1">
@@ -262,9 +264,10 @@
         class="w-10 h-10 rounded cursor-pointer"
       />
       <input
+        aria-label={m.common_colorValue()}
         type="text"
         bind:value={app.color}
-        class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+        class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
         placeholder="#22c55e"
       />
       {#if app.color && app.color !== '#22c55e'}
@@ -281,7 +284,7 @@
     <select
       id="{prefix}-app-group"
       bind:value={app.group}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
     >
       <option value="">{m.appForm_noGroup()}</option>
       {#each groups as group (group.name)}
@@ -298,7 +301,7 @@
         <input
           type="checkbox"
           bind:checked={app.enabled}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_enabled()}
@@ -316,7 +319,7 @@
               app.default = (e.currentTarget as HTMLInputElement).checked;
               ondefaultchange?.(app.default);
             }}
-            class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+            class="w-4 h-4 rounded border-border-subtle text-accent-text"
           />
           <div>
             <span class="text-sm text-text-primary">{m.appForm_defaultApp()}
@@ -330,7 +333,7 @@
         <input
           type="checkbox"
           bind:checked={app.pinned}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_pinned()}
@@ -347,7 +350,7 @@
         <select
           id="{prefix}-app-mode"
           bind:value={app.open_mode}
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
         >
           {#each openModes as mode (mode.value)}
             <option value={mode.value}>{mode.label}</option>
@@ -365,7 +368,7 @@
               id="{prefix}-app-action-method"
               value={app.http_action_method ?? 'POST'}
               onchange={(e) => { app.http_action_method = e.currentTarget.value as App['http_action_method']; }}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
             >
               <option value="POST">POST</option>
               <option value="GET">GET</option>
@@ -390,7 +393,7 @@
             <input
               type="checkbox"
               bind:checked={app.http_action_confirm}
-              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+              class="w-4 h-4 rounded border-border-subtle text-accent-text"
             />
             <span class="text-sm text-text-primary">{m.app_http_action_confirm_label()}</span>
           </label>
@@ -402,7 +405,7 @@
                 const checked = (e.currentTarget as HTMLInputElement).checked;
                 app.http_action_show_toast = checked ? undefined : false;
               }}
-              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+              class="w-4 h-4 rounded border-border-subtle text-accent-text"
             />
             <span class="text-sm text-text-primary">{m.app_http_action_show_toast_label()}</span>
           </label>
@@ -437,7 +440,7 @@
         <input
           type="checkbox"
           bind:checked={app.proxy}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_useReverseProxy()}
@@ -453,7 +456,7 @@
               type="checkbox"
               checked={app.proxy_skip_tls_verify !== false}
               onchange={(e) => { app.proxy_skip_tls_verify = (e.target as HTMLInputElement).checked ? undefined : false; }}
-              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+              class="w-4 h-4 rounded border-border-subtle text-accent-text"
             />
             <div>
               <span class="text-sm text-text-primary">{m.appForm_skipTls()}
@@ -468,6 +471,7 @@
             {#each Object.entries(app.proxy_headers ?? {}) as [key, value] (key)}
               <div class="flex gap-2 mb-2">
                 <input type="text" value={key} placeholder={m.appForm_headerName()}
+                  aria-label={m.appForm_headerNameFor({ name: key })}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -481,6 +485,7 @@
                   }}
                 />
                 <input type="text" value={value} placeholder={m.appForm_headerValue()}
+                  aria-label={m.appForm_headerValueFor({ name: key })}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -488,7 +493,8 @@
                     app.proxy_headers = headers;
                   }}
                 />
-                <button class="px-2 py-1 text-text-muted hover:text-red-400" title={m.appForm_removeHeader()}
+                <button class="px-2 py-1 text-text-muted hover:text-danger-text" title={m.appForm_removeHeader()}
+                  aria-label={m.appForm_removeHeaderNamed({ name: key })}
                   onclick={() => {
                     const headers = { ...(app.proxy_headers ?? {}) };
                     delete headers[key];
@@ -499,7 +505,7 @@
                 </button>
               </div>
             {/each}
-            <button class="text-xs text-brand-400 hover:text-brand-300"
+            <button class="text-xs text-accent-text hover:underline"
               onclick={() => {
                 app.proxy_headers = { ...(app.proxy_headers ?? {}), '': '' };
               }}
@@ -522,7 +528,7 @@
           onchange={(e) => {
             app.health_check = (e.target as HTMLInputElement).checked ? true : undefined;
           }}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_healthCheck()}
@@ -539,7 +545,7 @@
             type="url"
             bind:value={app.health_url}
             placeholder={app.url || m.appForm_healthCheckUrlPlaceholder()}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
           />
           <p class="text-xs text-text-disabled mt-1">{m.appForm_healthCheckUrlHint()}</p>
         </div>
@@ -552,13 +558,14 @@
           <p class="text-xs text-text-muted">{m.appForm_keyboardShortcutDesc()}</p>
         </div>
         <select
+          aria-label={m.appForm_keyboardShortcut()}
           value={app.shortcut ?? ''}
           onchange={(e) => {
             const val = (e.target as HTMLSelectElement).value;
             const n = val ? parseInt(val, 10) : NaN;
             app.shortcut = Number.isFinite(n) ? n : undefined;
           }}
-          class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500"
+          class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary"
         >
           <option value="">{m.appForm_none()}</option>
           {#each [1,2,3,4,5,6,7,8,9] as n (n)}
@@ -571,7 +578,7 @@
         <input
           type="checkbox"
           bind:checked={app.force_icon_background}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_forceIconBackground()}
@@ -584,7 +591,7 @@
         <input
           type="checkbox"
           bind:checked={app.icon.invert}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_invertIconColors()}
@@ -601,7 +608,7 @@
         <select
           id="{prefix}-app-min-role"
           bind:value={app.min_role}
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
         >
           <option value="">{m.appForm_roleEveryone()}</option>
           <option value="power-user">{m.appForm_rolePowerUser()}</option>
@@ -623,7 +630,7 @@
             app.allowed_groups = parts.length > 0 ? parts : undefined;
           }}
           placeholder="e.g. developers, on-call"
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
         />
         <p class="text-xs text-text-muted mt-1">
           Comma-separated. When set, a user must be in at least one of these groups to see the app. Admins always see every app. Leave empty for no group restriction.
@@ -642,7 +649,7 @@
         type="checkbox"
         checked={allPermissionsSelected}
         onchange={(e) => toggleAllPermissions((e.target as HTMLInputElement).checked)}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <span class="text-text-primary font-medium">{m.appForm_permissionsAll()}</span>
     </label>
@@ -654,7 +661,7 @@
               type="checkbox"
               checked={hasPermission(perm.id)}
               onchange={(e) => togglePermission(perm.id, (e.target as HTMLInputElement).checked)}
-              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+              class="w-4 h-4 rounded border-border-subtle text-accent-text"
             />
             <span class="text-text-primary font-mono text-xs">{perm.id}</span>
           </label>
@@ -667,7 +674,7 @@
       <input
         type="checkbox"
         bind:checked={app.allow_notifications}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <span class="text-sm text-text-primary">{m.appForm_allowNotifications()}

@@ -426,6 +426,29 @@ describe('AppsTab', () => {
     expect(screen.queryByTitle(/Scaled to/)).not.toBeInTheDocument();
   });
 
+  it('names per-row actions after their app and group', () => {
+    const group = withId(makeGroup({ name: 'Media' }));
+    const sonarr = withId(makeApp({ name: 'Sonarr', group: 'Media', order: 0 }));
+    const radarr = withId(makeApp({ name: 'Radarr', group: 'Media', order: 1 }));
+
+    render(AppsTab, {
+      props: {
+        dndGroups: [group],
+        dndGroupedApps: { Media: [sonarr, radarr] },
+        localAppsCount: 2,
+        localGroupsCount: 1,
+        ...defaultHandlers,
+      },
+    });
+
+    expect(screen.getByRole('button', { name: 'Edit Sonarr' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete Sonarr' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit Radarr' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete Radarr' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit group Media' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete group Media' })).toBeInTheDocument();
+  });
+
   // ===== Edit app =====
 
   it('calls onstartEditApp when edit button is clicked on an app', async () => {

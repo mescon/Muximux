@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 
 // Mock $lib/useSwipe
@@ -122,6 +124,36 @@ describe('CommandPalette', () => {
       const dialog = container.querySelector('[role="dialog"]');
       expect(dialog?.getAttribute('aria-modal')).toBe('true');
       expect(dialog?.getAttribute('aria-label')).toBe('Command palette');
+    });
+
+    it('search input has no outline-none class and no focus ring utility', () => {
+      render(CommandPalette, {
+        props: { apps: sampleApps },
+      });
+      const input = screen.getByRole('textbox');
+      expect(input.className).not.toMatch(/outline-none|focus:ring/);
+    });
+
+    it('focused search input gets the global focus outline', () => {
+      // Load app.css's global focus rules (plain CSS, no Tailwind at-rules) into the document.
+      const css = readFileSync(join(process.cwd(), 'src/app.css'), 'utf8');
+      const focusRules = css.slice(css.indexOf(':focus-visible {'), css.indexOf('/* An invalid field'));
+      const style = document.createElement('style');
+      style.textContent = focusRules;
+      document.head.appendChild(style);
+      try {
+        render(CommandPalette, {
+          props: { apps: sampleApps },
+        });
+        const input = screen.getByRole('textbox');
+        input.focus();
+        expect(document.activeElement).toBe(input);
+        expect(input.matches(':focus-visible')).toBe(true);
+        // jsdom keeps the outline shorthand as written and does not expand it to longhands.
+        expect(getComputedStyle(input).outline).toBe('2px solid var(--border-focus)');
+      } finally {
+        style.remove();
+      }
     });
   });
 

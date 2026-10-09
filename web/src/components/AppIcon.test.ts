@@ -427,4 +427,21 @@ describe('AppIcon', () => {
       expect(lucideDiv?.classList.contains('p-1')).toBe(true);
     });
   });
+  describe('decorative', () => {
+    it('empties the alt text of an image icon', () => {
+      render(AppIcon, { props: { icon: makeIcon({ type: 'dashboard', name: 'grafana', variant: 'svg' }), name: 'Grafana', decorative: true } });
+      expect(screen.queryByAltText('Grafana')).toBeNull();
+      expect(document.querySelector('img')?.getAttribute('alt')).toBe('');
+    });
+
+    it('hides a lucide icon from assistive tech instead of naming it', () => {
+      const { container } = render(AppIcon, {
+        props: { icon: makeIcon({ type: 'lucide', name: 'settings' }), name: 'Settings', decorative: true },
+      });
+      const lucideDiv = container.querySelector('.lucide-icon')!;
+      expect(lucideDiv.getAttribute('role')).toBeNull();
+      expect(lucideDiv.getAttribute('aria-label')).toBeNull();
+      expect(lucideDiv.getAttribute('aria-hidden')).toBe('true');
+    });
+  });
 });

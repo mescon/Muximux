@@ -108,7 +108,7 @@
       {#if authMethod === 'forward_auth'}
         <!-- Forward auth: no local login possible -->
         <div class="text-center">
-          <svg class="w-12 h-12 mx-auto mb-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-12 h-12 mx-auto mb-4" style="color: var(--accent-text);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
           <h2 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">{m.login_externalAuth()}</h2>
@@ -121,7 +121,7 @@
         </div>
       {:else}
         {#if ssoError}
-          <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm" role="alert">
+          <div class="mb-4 notice notice-danger" role="alert">
             {ssoError}
           </div>
         {/if}
@@ -156,7 +156,7 @@
       {#if localLogin}
       <form onsubmit={handleSubmit}>
         {#if error}
-          <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm">
+          <div class="mb-4 notice notice-danger" role="alert">
             {error}
           </div>
         {/if}
@@ -170,8 +170,7 @@
             type="text"
             bind:value={username}
             onkeydown={handleKeydown}
-            class="login-input w-full px-4 py-2 rounded-md
-                   focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+            class="login-input w-full px-4 py-2 rounded-md"
             placeholder={m.login_usernamePlaceholder()}
             autocomplete="username"
             disabled={loading}
@@ -187,8 +186,7 @@
             type="password"
             bind:value={password}
             onkeydown={handleKeydown}
-            class="login-input w-full px-4 py-2 rounded-md
-                   focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+            class="login-input w-full px-4 py-2 rounded-md"
             placeholder={m.login_passwordPlaceholder()}
             autocomplete="current-password"
             disabled={loading}
@@ -200,7 +198,7 @@
             <input
               type="checkbox"
               bind:checked={rememberMe}
-              class="w-4 h-4 rounded border-[var(--border-default)] text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+              class="w-4 h-4 rounded border-[var(--border-default)] text-accent-text"
               disabled={loading}
             />
             <span class="ms-2">{m.login_rememberMe()}</span>
@@ -211,8 +209,7 @@
           type="submit"
           disabled={loading}
           class="login-submit w-full py-2 px-4 font-medium rounded-md
-                 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]
-                 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {#if loading}
             <span class="inline-flex items-center">
@@ -240,7 +237,7 @@
     background: var(--bg-base);
   }
   .login-logo {
-    color: var(--accent-primary);
+    color: var(--accent-text);
   }
   .login-subtitle {
     color: var(--text-muted);
@@ -261,7 +258,7 @@
     color: var(--text-muted);
   }
   .login-input:focus {
-    border-color: var(--accent-primary);
+    border-color: var(--border-focus);
   }
   .login-submit {
     background: var(--accent-primary);

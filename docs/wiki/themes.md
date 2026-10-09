@@ -84,6 +84,32 @@ Themes control the visual appearance through CSS custom properties defined on `:
 
 You do not need to override every variable. Any variable you omit will fall back to the base theme's default.
 
+### Status and accent tokens
+
+Status boxes, pills, inline messages and the danger button read these variables. A theme may override any of them; omitted ones fall back to the defaults in `app.css`, which reproduce the colours used before the tokens existed.
+
+| token | used for | fallback |
+|---|---|---|
+| `--success-text`, `--success-bg`, `--success-border` | success notices and pills (text, translucent background, border) | green text, a 10% green tint and a 40% green border |
+| `--warning-text`, `--warning-bg`, `--warning-border` | warnings, "Unsaved changes", the discard prompt | amber text, a 10% amber tint and a 40% amber border |
+| `--danger-text`, `--danger-bg`, `--danger-border` | errors, failed saves, destructive hints | red text, a 10% red tint and a 40% red border |
+| `--info-text`, `--info-bg`, `--info-border` | informational pills | blue text, a 15% blue tint and a 30% blue border |
+| `--danger-solid`, `--danger-solid-hover`, `--danger-on-solid` | the solid danger button fill, its hover fill and its text | red, a lighter red, `#ffffff` |
+| `--accent-text` | the accent used as text: links, the active tab and the active navigation item | `--accent-primary` |
+| `--accent-on-primary` | text on an accent-filled button | `#ffffff` |
+| `--border-focus` | the keyboard focus outline on every control | `--accent-primary` |
+
+For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you.
+
+The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
+
+### Focus, motion and screen readers
+
+- **Focus.** Every focusable element shows the same outline in `--border-focus` while it has keyboard focus. A field with an error keeps its danger border while focused.
+- **Reduced motion.** When your operating system asks for reduced motion, transitions collapse, spinners slow down and pulses stop.
+- **Health indicator.** Each status has its own shape (circle, diamond or ring) so it does not rely on colour alone. The indicator has an accessible name and a tooltip that opens with the keyboard. The "Check now" action in that tooltip is mouse-only for now.
+- **Screen readers.** Errors are announced as alerts and confirmations as status messages. The onboarding wizard announces each step change, and the log level filters report whether they are on or off. Form controls and icon-only buttons have names, and per-row actions name their item or position.
+
 ## Importing and Exporting Themes
 
 Themes are plain CSS files, which makes sharing straightforward:

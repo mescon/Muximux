@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { flip } from 'svelte/animate';
   import { type App, type Group, type DiscoveryDockerStatus, stampUniqueIds } from '$lib/types';
@@ -228,7 +229,7 @@
     <div class="flex items-center gap-2 flex-wrap">
       <span class="font-medium text-text-primary text-sm truncate">{app.name}</span>
       {#if app.default}
-        <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">{m.common_default()}</span>
+        <span class="text-xs bg-accent-muted text-accent-text px-1.5 py-0.5 rounded">{m.common_default()}</span>
       {/if}
       {#if !app.enabled}
         <span class="text-xs bg-bg-overlay text-text-muted px-1.5 py-0.5 rounded">{m.common_disabled()}</span>
@@ -256,7 +257,7 @@
       {/if}
       {#if app.docker_key}
         <span
-          class="app-indicator text-blue-400"
+          class="app-indicator text-info-text"
           title="Auto-managed by Docker discovery. URL refreshes from container {app.docker_key}. Detach via Settings → Discovery → Currently tracked."
           data-testid="docker-managed-badge"
           aria-label="Docker-managed"
@@ -275,7 +276,7 @@
   <!-- App actions -->
   {#if confirmDeleteApp?.name === app.name}
     <div class="flex items-center gap-1">
-      <span class="text-xs text-red-400 me-1">{m.common_deleteConfirm()}</span>
+      <span class="text-xs text-danger-text me-1">{m.common_deleteConfirm()}</span>
       <button class="btn btn-danger btn-sm"
               onclick={confirmDeleteAppAction}>{m.common_yes()}</button>
       <button class="btn btn-secondary btn-sm"
@@ -292,12 +293,14 @@
         () => moveApp(groupName, index, 1)
       )}
       <button class="btn btn-ghost btn-icon btn-sm"
+        aria-label={m.common_editNamed({ name: app.name })}
               onclick={() => onstartEditApp(app)} title={m.common_edit()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
       </button>
-      <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
+      <button class="btn btn-ghost btn-icon btn-sm hover:!text-danger-text"
+        aria-label={m.common_deleteNamed({ name: app.name })}
               onclick={() => handleDeleteApp(app)} title={m.common_delete()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -377,7 +380,7 @@
   <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} onconsider={handleGroupDndConsider} onfinalize={handleGroupDndFinalize}>
     {#each dndGroups as group, groupIndex ((group as Group & Record<string, unknown>).id)}
       {@const appsInGroup = dndGroupedApps[group.name] || []}
-      <div class="rounded-lg border border-border" animate:flip={{duration: flipDurationMs}}>
+      <div class="rounded-lg border border-border" animate:flip={{duration: motionMs(flipDurationMs)}}>
         <!-- Group header -->
         <div class="flex items-center gap-3 p-3 bg-bg-elevated/30 rounded-t-lg cursor-grab active:cursor-grabbing">
           <!-- Drag handle -->
@@ -405,7 +408,7 @@
           <!-- Group actions -->
           {#if confirmDeleteGroup?.name === group.name}
             <div class="flex items-center gap-1">
-              <span class="text-xs text-red-400 me-1">{m.common_deleteConfirm()}</span>
+              <span class="text-xs text-danger-text me-1">{m.common_deleteConfirm()}</span>
               <button class="btn btn-danger btn-sm"
                       onclick={confirmDeleteGroupAction}>{m.common_yes()}</button>
               <button class="btn btn-secondary btn-sm"
@@ -422,12 +425,14 @@
                 () => moveGroup(groupIndex, 1)
               )}
               <button class="btn btn-ghost btn-icon btn-sm"
+                aria-label={m.apps_editGroupNamed({ name: group.name })}
                       onclick={() => onstartEditGroup(group)} title={m.apps_editGroup()}>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
-              <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
+              <button class="btn btn-ghost btn-icon btn-sm hover:!text-danger-text"
+                aria-label={m.apps_deleteGroupNamed({ name: group.name })}
                       onclick={() => handleDeleteGroup(group)} title={m.apps_deleteGroup()}>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -445,7 +450,7 @@
           {#each appsInGroup as app, appIndex ((app as App & Record<string, unknown>).id)}
             <div
               class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
-              animate:flip={{duration: flipDurationMs}}
+              animate:flip={{duration: motionMs(flipDurationMs)}}
             >
               {@render appRowContent(app, group.name, appIndex, appsInGroup.length)}
             </div>
@@ -471,7 +476,7 @@
         {#each ungroupedApps as app, appIndex ((app as App & Record<string, unknown>).id)}
           <div
             class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
-            animate:flip={{duration: flipDurationMs}}
+            animate:flip={{duration: motionMs(flipDurationMs)}}
           >
             {@render appRowContent(app, '', appIndex, ungroupedApps.length)}
           </div>

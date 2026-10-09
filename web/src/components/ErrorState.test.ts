@@ -60,4 +60,12 @@ describe('ErrorState', () => {
     const { container } = render(ErrorState, { props: { icon: 'empty' } });
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
+
+  it('retry button uses the accent fill with on-accent text', async () => {
+    const { getByRole } = render(ErrorState, { props: { icon: 'network', showRetry: true, onretry: vi.fn() } });
+    const btn = getByRole('button');
+    expect(btn.className).toContain('btn-primary');
+    expect(btn.className).not.toContain('text-white');
+    expect(btn.className).not.toContain('bg-brand-600');
+  });
 });

@@ -63,6 +63,15 @@ Your theme file must define a CSS rule that targets `[data-theme="your-theme-id"
   --status-error: #...;
   --status-info: #...;
 
+  /* Optional semantic tokens (omitted ones fall back to the defaults) */
+  --success-text: ...;  --success-bg: ...;  --success-border: ...;
+  --warning-text: ...;  --warning-bg: ...;  --warning-border: ...;
+  --danger-text: ...;   --danger-bg: ...;   --danger-border: ...;
+  --info-text: ...;     --info-bg: ...;     --info-border: ...;
+  --danger-solid: ...;  --danger-solid-hover: ...;  --danger-on-solid: ...;
+  --accent-text: ...;        /* accent used as text; defaults to --accent-primary */
+  --accent-on-primary: ...;  /* text on accent fills: #ffffff or #000000 */
+
   /* Shadows */
   --shadow-sm: ...;
   --shadow-md: ...;
@@ -70,6 +79,8 @@ Your theme file must define a CSS rule that targets `[data-theme="your-theme-id"
   --shadow-glow: ...;
 }
 ```
+
+The semantic tokens are optional. `--accent-on-primary` is written for you by the theme editor when a custom theme is saved; if you edit a file by hand, pick `#ffffff` or `#000000`, whichever has the higher contrast on your accent. `--border-focus` (already listed above) is the keyboard focus outline. See the wiki page on themes for what each token colours.
 
 ### Theme Metadata
 

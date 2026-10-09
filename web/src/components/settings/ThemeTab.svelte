@@ -3,6 +3,7 @@
   import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { toasts } from '$lib/toastStore';
   import * as m from '$lib/paraglide/messages.js';
+  import { parseColor, pickOnColor } from '$lib/contrast';
 
   // Theme delete confirmation
   let confirmDeleteTheme = $state<string | null>(null);
@@ -73,11 +74,17 @@
   async function handleSaveTheme() {
     if (!saveThemeName.trim()) return;
     isSavingTheme = true;
+    // Text on the accent is derived from the accent, so a saved theme always carries a readable pair.
+    // A translucent accent is judged as it shows: over the theme's base background.
+    const mode = $isDarkTheme ? 'dark' : 'light';
+    const accent = parseColor(themeEditorVars['--accent-primary'], themeEditorVars, mode);
+    const base = parseColor(themeEditorVars['--bg-base'], themeEditorVars, mode) ?? undefined;
+    const variables = { ...themeEditorVars, ...(accent ? { '--accent-on-primary': pickOnColor(accent, base) } : {}) };
     const result = await saveCustomThemeToServer(
       saveThemeName.trim(),
       $resolvedTheme,
       $isDarkTheme,
-      themeEditorVars,
+      variables,
       saveThemeDescription.trim(),
       saveThemeAuthor.trim()
     );
@@ -138,6 +145,15 @@
   }
 
   // Variable display names
+  // Accessible names for the tokens whose visible label ("Primary", "Secondary") repeats
+  // across groups; the visible label stays short, the field names must be unique.
+  const varAccessibleLabels: Record<string, { get label(): string }> = {
+    '--text-primary': { get label() { return m.theme_textPrimary(); } },
+    '--text-secondary': { get label() { return m.theme_textSecondary(); } },
+    '--accent-primary': { get label() { return m.theme_accentPrimary(); } },
+    '--accent-secondary': { get label() { return m.theme_accentSecondary(); } },
+  };
+
   const varLabels: Record<string, { get label(): string }> = {
     '--bg-base': { get label() { return m.theme_colorBase(); } },
     '--bg-surface': { get label() { return m.theme_colorSurface(); } },
@@ -171,13 +187,13 @@
         </div>
       </div>
       <!-- Three-way segmented control -->
-      <div class="flex rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
+      <div class="focus-inset flex rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
         {#each (['dark', 'system', 'light'] as const) as mode (mode)}
           <button
             class="px-3 py-1.5 text-xs font-medium transition-colors"
             style="
               background: {$variantMode === mode ? 'var(--accent-primary)' : 'var(--bg-surface)'};
-              color: {$variantMode === mode ? 'white' : 'var(--text-secondary)'};
+              color: {$variantMode === mode ? 'var(--accent-on-primary)' : 'var(--text-secondary)'};
             "
             onclick={() => setVariantMode(mode)}
           >
@@ -219,11 +235,10 @@
           <div class="absolute top-3 end-3 flex items-center gap-1">
             {#if isCustom}
               <button
-                class="w-5 h-5 rounded-full flex items-center justify-center"
-                style="background: var(--status-error); color: white;"
+                class="btn btn-danger w-5 h-5 p-0 gap-0 rounded-full"
                 onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                 title={m.theme_deleteTheme()}
-                aria-label={m.theme_deleteTheme()}
+                aria-label={m.common_deleteNamed({ name: family.name })}
               >
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -233,7 +248,7 @@
             {#if isSelected}
               <div class="w-5 h-5 rounded-full flex items-center justify-center"
                    style="background: var(--accent-primary);">
-                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-3 h-3 text-accent-on-primary" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </div>
@@ -283,7 +298,7 @@
             <span class="font-medium" style="color: var(--text-primary);">{family.name}</span>
             {#if isCustom}
               <span class="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0"
-                    style="background: var(--accent-subtle); color: var(--accent-primary);">
+                    style="background: var(--accent-subtle); color: var(--accent-text);">
                 {m.theme_custom()}
               </span>
             {/if}
@@ -300,8 +315,7 @@
                  onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
                  role="presentation">
                 <span class="text-sm font-medium" style="color: var(--text-primary);">{m.common_deleteConfirm()}</span>
-                <button class="px-3 py-1 rounded text-sm font-medium"
-                        style="background: var(--status-error); color: white;"
+                <button class="btn btn-danger px-3 py-1 rounded text-sm"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteThemeAction(); }}>{m.common_yes()}</button>
                 <button class="btn btn-secondary btn-sm"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteTheme = null; }}>{m.common_no()}</button>
@@ -329,13 +343,12 @@
   <div class="space-y-3">
     {#if !showThemeEditor}
       <button
-        class="w-full p-4 rounded-lg text-start transition-all hover:border-brand-500/50 flex items-center gap-3"
-        style="background: var(--bg-surface); border: 1px solid var(--border-subtle);"
+        class="w-full p-4 rounded-lg text-start transition-all bg-bg-surface border border-border-subtle hover:border-border-strong flex items-center gap-3"
         onclick={openThemeEditor}
       >
         <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
              style="background: var(--accent-subtle);">
-          <svg class="w-4 h-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-4 h-4" style="color: var(--accent-text);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
           </svg>
         </div>
@@ -374,11 +387,13 @@
               <div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted);">{groupName}</div>
               <div class="space-y-2">
                 {#each vars as varName (varName)}
+                  {@const tokenLabel = varAccessibleLabels[varName]?.label || varLabels[varName]?.label || varName.replace('--', '')}
                   {@const isColorVar = !themeEditorVars[varName]?.startsWith('rgba') && !themeEditorVars[varName]?.includes('px')}
                   <div class="flex items-center gap-2">
                     <span class="text-xs w-20 flex-shrink-0" style="color: var(--text-secondary);">{varLabels[varName]?.label || varName.replace('--', '')}</span>
                     {#if isColorVar}
                       <input
+                        aria-label={m.theme_varColor({ token: tokenLabel })}
                         type="color"
                         value={cssColorToHex(themeEditorVars[varName] || '#000000')}
                         oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
@@ -386,6 +401,7 @@
                       />
                     {/if}
                     <input
+                      aria-label={m.theme_varHex({ token: tokenLabel })}
                       type="text"
                       value={themeEditorVars[varName] || ''}
                       oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
@@ -394,6 +410,7 @@
                     />
                     {#if themeEditorVars[varName] !== themeEditorDefaults[varName]}
                       <button
+                        aria-label={m.theme_resetVar({ token: tokenLabel })}
                         class="p-1 rounded transition-colors flex-shrink-0"
                         style="color: var(--text-muted);"
                         onclick={() => resetThemeVar(varName)}
@@ -415,6 +432,7 @@
           <!-- Save as theme -->
           <div class="pt-3 space-y-2" style="border-top: 1px solid var(--border-subtle);">
             <input
+              aria-label={m.theme_nameLabel()}
               type="text"
               bind:value={saveThemeName}
               placeholder={m.theme_namePlaceholder()}
@@ -422,6 +440,7 @@
               style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
             />
             <input
+              aria-label={m.theme_descriptionLabel()}
               type="text"
               bind:value={saveThemeDescription}
               placeholder={m.theme_descriptionPlaceholder()}
@@ -429,6 +448,7 @@
               style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
             />
             <input
+              aria-label={m.theme_authorLabel()}
               type="text"
               bind:value={saveThemeAuthor}
               placeholder={m.theme_authorPlaceholder()}

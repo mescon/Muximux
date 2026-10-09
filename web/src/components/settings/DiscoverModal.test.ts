@@ -557,3 +557,24 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     expect(screen.getByText(/Pick an icon for ATV/i)).toBeInTheDocument();
   });
 });
+
+describe('DiscoverModal confidence pills', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('maps high/medium/low confidence to success/info/neutral tokens', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [
+        makeSuggestion({ key: 'name:a', name: 'A', confidence: 'high' }),
+        makeSuggestion({ key: 'name:b', name: 'B', confidence: 'medium' }),
+        makeSuggestion({ key: 'name:c', name: 'C', confidence: 'low' }),
+      ],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    await waitFor(() => expect(screen.getByDisplayValue('A')).toBeInTheDocument());
+    expect(screen.getByText('label match').className).toMatch(/bg-success-bg text-success-text/);
+    expect(screen.getByText('catalog match').className).toMatch(/bg-info-bg text-info-text/);
+    expect(screen.getByText('guessed').className).toMatch(/bg-bg-active text-text-secondary/);
+  });
+});

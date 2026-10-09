@@ -1250,6 +1250,27 @@ describe('Navigation', () => {
       expect(container.innerHTML).toContain('Healthy');
     });
 
+    it('names the nav item once: the health dot inside it labels the status only', async () => {
+      mockHealthData.set(new Map([['Self', { status: 'healthy', check_count: 0 }]]));
+      const app = makeApp({ name: 'Self', health_check: true, group: 'Media' });
+      render(Navigation, {
+        props: {
+          apps: [app],
+          currentApp: null,
+          showHealth: true,
+          config: makeConfig({
+            navigation: { position: 'left', show_labels: true },
+            groups: [mediaGroup],
+          }),
+        },
+      });
+      await waitFor(() => expect(screen.getAllByRole('img', { name: 'Health: Healthy' }).length).toBeGreaterThan(0));
+      const dot = screen.getAllByRole('img', { name: 'Health: Healthy' })[0];
+      const host = dot.closest('button')!;
+      expect(host.textContent).toContain('Self');
+      expect(screen.queryByRole('img', { name: /Self health/ })).toBeNull();
+    });
+
     it('dims unhealthy non-current apps in top flat bar', () => {
       const healthMap = new Map();
       healthMap.set('BadApp', { status: 'unhealthy', latency: 0, lastCheck: '' });
@@ -2565,7 +2586,7 @@ describe('Navigation', () => {
         },
       });
       const panel1Btn = container.querySelector('[title="Target panel 1"]');
-      expect(panel1Btn!.className).toContain('text-[var(--accent-primary)]');
+      expect(panel1Btn!.className).toContain('text-accent-text');
     });
 
     it('highlights panel 2 when splitActivePanel=1 (vertical)', () => {
@@ -2580,7 +2601,7 @@ describe('Navigation', () => {
         },
       });
       const panel2Btn = container.querySelector('[title="Target panel 2"]');
-      expect(panel2Btn!.className).toContain('text-[var(--accent-primary)]');
+      expect(panel2Btn!.className).toContain('text-accent-text');
     });
 
     it('calls onsplitpanel(0) when panel 1 button clicked', async () => {
@@ -3787,5 +3808,53 @@ describe('Navigation Docker badge', () => {
     expect(badge).not.toBeNull();
     expect(badge!.querySelector('svg')).not.toBeNull();
     expect(badge!.querySelector('.docker-status-dot')).toBeNull();
+  });
+  describe('nav host accessible names', () => {
+    for (const position of ['top', 'bottom', 'left', 'right'] as const) {
+      it(`names the ${position} host once, without repeating the icon alt text`, async () => {
+        mockHealthData.set(new Map([['Self', { status: 'healthy', check_count: 0 }]]));
+        render(Navigation, {
+          props: {
+            apps: [makeApp({ name: 'Self', health_check: true })],
+            currentApp: null,
+            showHealth: true,
+            config: makeConfig({ navigation: { position, show_labels: true } }),
+          },
+        });
+        const host = await screen.findByRole('button', { name: 'Self Health: Healthy' });
+        expect(host.querySelector('img')?.getAttribute('alt')).toBe('');
+        expect(screen.queryByRole('button', { name: /Self Self/ })).toBeNull();
+      });
+    }
+
+    it('names the floating panel host once', async () => {
+      mockHealthData.set(new Map([['Self', { status: 'healthy', check_count: 0 }]]));
+      const { container } = render(Navigation, {
+        props: {
+          apps: [makeApp({ name: 'Self', health_check: true })],
+          currentApp: null,
+          showHealth: true,
+          config: makeConfig({ navigation: { position: 'floating', show_labels: true } }),
+        },
+      });
+      const fab = container.querySelector('[role="navigation"]')!.querySelector('button')!;
+      await fireEvent.pointerDown(fab, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+      document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }));
+      const host = await screen.findByRole('button', { name: 'Self Health: Healthy' });
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('');
+      expect(screen.queryByRole('button', { name: /Self Self/ })).toBeNull();
+    });
+
+    it('keeps the icon alt text when a collapsible sidebar shows no label', async () => {
+      render(Navigation, {
+        props: {
+          apps: [makeApp({ name: 'Self' })],
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'left', show_labels: false } }),
+        },
+      });
+      const host = await screen.findByRole('button', { name: 'Self' });
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('Self');
+    });
   });
 });

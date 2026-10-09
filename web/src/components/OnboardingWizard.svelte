@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount, tick } from 'svelte';
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import { get } from 'svelte/store';
@@ -894,6 +895,18 @@
   };
   const steps = $derived($activeStepOrder.map(s => stepLabelFns[s]()));
 
+  // Live-region text: empty on first load, set only when the step changes.
+  let stepAnnouncement = $state('');
+  let lastAnnouncedStep: number | null = null;
+  $effect(() => {
+    const progress = $stepProgress;
+    if (progress === lastAnnouncedStep) return;
+    if (lastAnnouncedStep !== null) {
+      stepAnnouncement = m.onboarding_stepAnnouncement({ current: progress + 1, total: steps.length, title: steps[progress] ?? '' });
+    }
+    lastAnnouncedStep = progress;
+  });
+
   function handleGlobalKeydown(e: KeyboardEvent) {
     if (e.key !== 'Enter') return;
     // Don't intercept Enter inside textareas, selects, or buttons
@@ -972,7 +985,7 @@
         <div class="stepper-rail-fill" style="transform: scaleX({$stepProgress / (steps.length - 1)}); transform-origin: left;"></div>
 
         {#each steps as step, i (i)}
-          <div class="stepper-node">
+          <div class="stepper-node" aria-current={i === $stepProgress ? 'step' : undefined}>
             <div
               class="stepper-circle transition-all duration-300
                      {i < $stepProgress ? 'completed' : i === $stepProgress ? 'active' : 'pending'}"
@@ -990,6 +1003,9 @@
           </div>
         {/each}
       </div>
+      <div class="sr-only" role="status" data-testid="wizard-step-status">
+        {stepAnnouncement}
+      </div>
     </div>
   </div>
 
@@ -1003,8 +1019,8 @@
         class:flex={$selectedNavigation === 'left' || $selectedNavigation === 'right'}
         class:flex-row={$selectedNavigation === 'left'}
         class:flex-row-reverse={$selectedNavigation === 'right'}
-        in:fly={{ x: 30, duration: 300 }}
-        out:fade={{ duration: 150 }}
+        in:fly={{ x: 30, duration: motionMs(300) }}
+        out:fade={{ duration: motionMs(150) }}
       >
         <!-- Fixed-size wrapper — absolute positioning lets nav span full wizard height/width -->
         {#if $selectedNavigation === 'left' || $selectedNavigation === 'right'}
@@ -1043,7 +1059,7 @@
                 <button
                   class="px-4 py-2 rounded-lg border text-sm font-medium transition-all
                          {$selectedNavigation === pos.value
-                           ? 'border-brand-500 bg-brand-500/15 text-text-primary'
+                           ? 'border-border-focus bg-accent-muted text-text-primary'
                            : 'border-border hover:border-border-strong bg-bg-surface text-text-muted hover:text-text-primary'}"
                   onclick={() => selectedNavigation.set(pos.value)}
                 >
@@ -1062,7 +1078,7 @@
                   <button
                     class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
                            {navBarStyle === style.value
-                             ? 'border-brand-500 bg-brand-500/15 text-text-primary'
+                             ? 'border-border-focus bg-accent-muted text-text-primary'
                              : 'border-border hover:border-border-strong bg-bg-surface text-text-muted hover:text-text-primary'}"
                     onclick={() => navBarStyle = style.value as typeof navBarStyle}
                   >
@@ -1084,7 +1100,7 @@
                   <button
                     class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
                            {navFloatingPosition === fp.value
-                             ? 'border-brand-500 bg-brand-500/15 text-text-primary'
+                             ? 'border-border-focus bg-accent-muted text-text-primary'
                              : 'border-border hover:border-border-strong bg-bg-surface text-text-muted hover:text-text-primary'}"
                     onclick={() => navFloatingPosition = fp.value as typeof navFloatingPosition}
                   >
@@ -1098,7 +1114,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={$showLabels}
-                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
                   <div class="text-xs text-text-muted">{m.general_showLabelsDesc()}</div>
@@ -1107,7 +1123,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowLogo}
-                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_showLogo()}</div>
                   <div class="text-xs text-text-muted">{m.general_showLogoDesc()}</div>
@@ -1116,7 +1132,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowAppColors}
-                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
                   <div class="text-xs text-text-muted">{m.general_appColorAccentsDesc()}</div>
@@ -1125,7 +1141,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowIconBg}
-                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
                   <div class="text-xs text-text-muted">{m.general_iconBackgroundDesc()}</div>
@@ -1135,19 +1151,20 @@
               <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <div class="flex items-center justify-between mb-2">
                   <div>
-                    <div class="text-sm text-text-primary">{m.general_iconSize()}</div>
+                    <div id="wiz-icon-size" class="text-sm text-text-primary">{m.general_iconSize()}</div>
                     <div class="text-xs text-text-muted">{m.general_iconSizeDesc()}</div>
                   </div>
                   <span class="text-sm text-text-secondary tabular-nums">{navIconScale}×</span>
                 </div>
                 <input type="range" min="0.5" max="2" step="0.25"
+                  aria-labelledby="wiz-icon-size"
                   bind:value={navIconScale}
-                  class="w-full accent-brand-500" />
+                  class="w-full accent-accent-primary" />
               </div>
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer sm:col-span-2 sm:max-w-[calc(50%-0.375rem)]">
                 <input type="checkbox" bind:checked={navShowSplash}
-                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
                   <div class="text-xs text-text-muted">{m.general_startOnOverviewDesc()}</div>
@@ -1157,7 +1174,7 @@
               <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <label class="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" bind:checked={navAutoHide}
-                    class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                    class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                   <div class="flex-1">
                     <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
                     <div class="text-xs text-text-muted">{m.general_autoHideMenuDesc()}</div>
@@ -1165,9 +1182,10 @@
                 </label>
                 {#if navAutoHide}
                   <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
-                    <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
+                    <div id="wiz-hide-after" class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
-                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500">
+                      aria-labelledby="wiz-hide-after"
+                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary">
                       <option value="0.25s">0.25s</option>
                       <option value="0.5s">0.5s</option>
                       <option value="1s">1s</option>
@@ -1177,7 +1195,7 @@
                   </div>
                   <label class="flex items-center gap-3 mt-2 ps-7 cursor-pointer">
                     <input type="checkbox" bind:checked={navShowShadow}
-                      class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                      class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                     <div class="text-xs text-text-muted">{m.general_shadow()}</div>
                   </label>
                 {/if}
@@ -1187,7 +1205,7 @@
                 <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                   <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" bind:checked={navHideSidebarFooter}
-                      class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                      class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                     <div class="flex-1">
                       <div class="text-sm text-text-primary">{m.general_collapsibleFooter()}</div>
                       <div class="text-xs text-text-muted">{m.general_collapsibleFooterDesc()}</div>
@@ -1211,7 +1229,7 @@
                   <button
                     class="px-5 py-2 text-sm font-medium rounded-md transition-all
                            {$variantMode === opt.value
-                             ? 'bg-brand-600 text-white shadow-sm'
+                             ? 'bg-accent-primary hover:bg-accent-secondary text-accent-on-primary shadow-sm'
                              : 'text-text-muted hover:text-text-primary'}"
                     onclick={() => setVariantMode(opt.value)}
                   >
@@ -1231,7 +1249,7 @@
                 <button
                   class="relative p-4 rounded-xl border text-start transition-all
                          {isSelected
-                           ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/30'
+                           ? 'border-border-focus bg-accent-subtle ring-1 ring-accent-primary/30'
                            : 'border-border hover:border-border-strong bg-bg-surface'}"
                   onclick={() => setThemeFamily(family.id)}
                 >
@@ -1257,8 +1275,8 @@
 
                   <!-- Selection checkmark -->
                   {#if isSelected}
-                    <div class="absolute top-2 end-2 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
-                      <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="absolute top-2 end-2 w-5 h-5 rounded-full bg-accent-primary flex items-center justify-center">
+                      <svg class="w-3 h-3 text-accent-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
@@ -1280,10 +1298,10 @@
         <div class="max-w-4xl mx-auto" style="display: grid; grid-template: 1fr / 1fr;">
       <!-- Step 1: Welcome -->
       {#if $currentStep === 'welcome'}
-        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <!-- Logo -->
           <div class="mb-8">
-            <svg class="w-48 h-auto mx-auto text-brand-500" viewBox="0 0 341 207" fill="currentColor">
+            <svg class="w-48 h-auto mx-auto text-accent-text" viewBox="0 0 341 207" fill="currentColor">
               <path d="M 64.45 48.00 C 68.63 48.00 72.82 47.99 77.01 48.01 C 80.83 59.09 84.77 70.14 88.54 81.24 C 92.32 70.17 96.13 59.10 99.85 48.00 C 104.04 47.99 108.24 48.00 112.43 48.00 C 113.39 65.67 114.50 83.33 115.49 101.00 C 111.45 101.00 107.40 101.01 103.36 100.99 C 102.89 93.74 102.47 86.48 102.07 79.23 C 99.66 86.49 97.15 93.73 94.71 100.99 C 90.61 100.95 86.50 101.15 82.40 100.85 C 79.93 93.36 77.36 85.90 74.69 78.48 C 74.44 86.00 73.62 93.48 73.36 101.00 C 69.28 101.00 65.19 101.00 61.10 101.00 C 62.17 83.33 63.36 65.67 64.45 48.00 Z" />
               <path d="M 119.60 48.00 C 123.65 48.00 127.69 48.00 131.74 48.01 C 131.74 59.01 131.72 70.01 131.74 81.01 C 131.51 85.47 135.71 89.35 140.10 89.02 C 144.20 88.91 147.64 85.08 147.53 81.02 C 147.55 70.02 147.52 59.01 147.53 48.00 C 151.60 48.00 155.67 48.00 159.74 48.01 C 159.67 59.49 159.85 70.98 159.65 82.46 C 159.14 93.61 147.92 102.57 136.94 100.86 C 127.64 99.76 119.94 91.34 119.62 82.00 C 119.57 70.66 119.61 59.33 119.60 48.00 Z" />
               <path d="M 165.50 48.03 C 170.29 47.97 175.08 48.01 179.87 48.00 C 182.80 52.67 185.72 57.35 188.64 62.03 C 191.39 57.32 194.27 52.69 197.04 47.99 C 201.82 48.01 206.61 47.99 211.39 48.01 C 206.05 56.48 200.92 65.10 195.78 73.69 C 201.49 82.77 206.93 92.03 212.79 101.01 C 207.97 100.97 203.15 101.05 198.33 100.96 C 195.09 95.79 191.93 90.58 188.70 85.42 C 185.48 90.60 182.35 95.83 179.13 101.02 C 174.41 100.98 169.68 101.01 164.96 101.00 C 170.55 91.91 176.00 82.74 181.53 73.62 C 176.00 65.21 171.10 56.40 165.50 48.03 Z" />
@@ -1314,8 +1332,8 @@
           <!-- Feature highlights -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-start">
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
-              <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
-                <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
               </div>
@@ -1324,8 +1342,8 @@
             </div>
 
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
-              <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
-                <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
@@ -1334,8 +1352,8 @@
             </div>
 
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
-              <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
-                <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
@@ -1354,7 +1372,7 @@
                 autocomplete="off"
                 spellcheck="false"
                 placeholder={m.onboarding_setupTokenPlaceholder()}
-                class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary focus:outline-none focus:border-brand-500 font-mono text-sm"
+                class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary font-mono text-sm"
               />
               <p class="text-xs text-text-muted mt-1">
                 {m.onboarding_setupTokenHint({ file: 'data/.setup-token' })}
@@ -1363,7 +1381,7 @@
           {/if}
 
           <button
-            class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="btn btn-primary px-8 py-3 font-medium rounded-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             onclick={nextStep}
             disabled={needsSetup && !setupToken.trim()}
           >
@@ -1373,13 +1391,14 @@
           <div class="mt-6">
             <p class="text-sm text-text-muted mb-2">{m.onboarding_existingConfig()}</p>
             <button
-              class="text-sm text-brand-400 hover:text-brand-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="text-sm text-accent-text hover:underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onclick={() => restoreFileInput?.click()}
               disabled={restoring || (needsSetup && !setupToken.trim())}
             >
               {restoring ? m.onboarding_restoring() : m.onboarding_restoreFromBackup()}
             </button>
             <input
+              aria-label={m.onboarding_restoreFromBackup()}
               bind:this={restoreFileInput}
               type="file"
               accept=".yaml,.yml"
@@ -1387,14 +1406,14 @@
               onchange={handleRestore}
             />
             {#if restoreError}
-              <p class="text-sm text-red-400 mt-2">{restoreError}</p>
+              <p role="alert" class="text-sm text-danger-text mt-2">{restoreError}</p>
             {/if}
           </div>
         </div>
 
       <!-- Security Step -->
       {:else if $currentStep === 'security'}
-        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_secureTitle()}</h2>
             <p class="text-text-muted">{m.onboarding_secureSubtitle()}</p>
@@ -1404,12 +1423,12 @@
             <div class="max-w-2xl mx-auto space-y-3">
               <!-- Builtin password -->
               <div
-                class="rounded-xl border text-start transition-all overflow-hidden
-                       {authMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+                class="focus-inset rounded-xl border text-start transition-all overflow-hidden
+                       {authMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
-                  <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" />
                       <path d="M7 11V7a5 5 0 0110 0v4" />
                     </svg>
@@ -1417,21 +1436,20 @@
                   <div class="flex-1 text-start">
                     <div class="flex items-center gap-2">
                       <h3 class="font-semibold text-text-primary">{m.onboarding_createPassword()}</h3>
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">{m.onboarding_recommended()}</span>
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent-primary text-accent-on-primary uppercase tracking-wider">{m.onboarding_recommended()}</span>
                     </div>
                     <p class="text-sm text-text-muted mt-1">{m.security_passwordAuthDesc()}</p>
                   </div>
                 </button>
                 {#if authMethod === 'builtin'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
                     <div class="border-t border-border pt-4">
                       <label for="setup-username" class="block text-sm text-text-muted mb-1">{m.common_username()}</label>
                       <input
                         id="setup-username"
                         type="text"
                         bind:value={setupUsername}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
                         placeholder="admin"
                         autocomplete="username"
                       />
@@ -1442,13 +1460,12 @@
                         id="setup-password"
                         type="password"
                         bind:value={setupPassword}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
                         placeholder={m.security_minEightChars()}
                         autocomplete="new-password"
                       />
                       {#if setupPassword.length > 0 && setupPassword.length < 8}
-                        <p class="text-red-400 text-xs mt-1">{m.error_passwordTooShort()}</p>
+                        <p role="alert" class="text-danger-text text-xs mt-1">{m.error_passwordTooShort()}</p>
                       {/if}
                     </div>
                     <div>
@@ -1457,13 +1474,12 @@
                         id="setup-confirm"
                         type="password"
                         bind:value={setupConfirmPassword}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
                         placeholder={m.onboarding_reenterPassword()}
                         autocomplete="new-password"
                       />
                       {#if setupConfirmPassword.length > 0 && setupPassword !== setupConfirmPassword}
-                        <p class="text-red-400 text-xs mt-1">{m.error_passwordsMismatch()}</p>
+                        <p role="alert" class="text-danger-text text-xs mt-1">{m.error_passwordsMismatch()}</p>
                       {/if}
                     </div>
                   </div>
@@ -1472,12 +1488,12 @@
 
               <!-- Forward auth -->
               <div
-                class="rounded-xl border text-start transition-all overflow-hidden
-                       {authMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+                class="focus-inset rounded-xl border text-start transition-all overflow-hidden
+                       {authMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
-                  <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                   </div>
@@ -1487,14 +1503,14 @@
                   </div>
                 </button>
                 {#if authMethod === 'forward_auth'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
                     <div class="border-t border-border pt-4">
                       <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
                       <div class="flex gap-2">
                         {#each ['authelia', 'authentik', 'custom'] as p (p)}
                           <button
                             class="flex-1 px-3 py-2 text-sm rounded-md border transition-all
-                                   {faPreset === p ? 'border-brand-500 bg-brand-500/15 text-text-primary' : 'border-border-subtle bg-bg-elevated text-text-muted hover:text-text-primary'}"
+                                   {faPreset === p ? 'border-border-focus bg-accent-muted text-text-primary' : 'border-border-subtle bg-bg-elevated text-text-muted hover:text-text-primary'}"
                             onclick={() => selectFaPreset(p as 'authelia' | 'authentik' | 'custom')}
                           >
                             {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -1508,8 +1524,7 @@
                       <textarea
                         id="setup-proxies"
                         bind:value={faTrustedProxies}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                         placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                         rows="3"
                       ></textarea>
@@ -1522,8 +1537,7 @@
                         id="setup-logout-url"
                         type="url"
                         bind:value={faLogoutUrl}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                         placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
                       />
                       <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
@@ -1540,26 +1554,26 @@
                     </button>
 
                     {#if faShowAdvanced}
-                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: 150 }}>
+                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: motionMs(150) }}>
                         <div>
                           <label for="fa-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                           <input id="fa-header-user" type="text" bind:value={faHeaderUser}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                           <input id="fa-header-email" type="text" bind:value={faHeaderEmail}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                           <input id="fa-header-groups" type="text" bind:value={faHeaderGroups}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                           <input id="fa-header-name" type="text" bind:value={faHeaderName}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                       </div>
                     {/if}
@@ -1569,12 +1583,12 @@
 
               <!-- None -->
               <div
-                class="rounded-xl border text-start transition-all overflow-hidden
-                       {authMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+                class="focus-inset rounded-xl border text-start transition-all overflow-hidden
+                       {authMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
-                  <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <div class="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5 text-warning-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <circle cx="12" cy="12" r="10" />
                       <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
                     </svg>
@@ -1585,24 +1599,24 @@
                   </div>
                 </button>
                 {#if authMethod === 'none'}
-                  <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
                     <div class="border-t border-border pt-4">
-                      <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
+                      <div class="notice notice-warning p-4 rounded-lg mb-4">
                         <div class="flex gap-3">
-                          <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <svg class="w-5 h-5 text-warning-text flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                             <line x1="12" y1="9" x2="12" y2="13" />
                             <line x1="12" y1="17" x2="12.01" y2="17" />
                           </svg>
                           <div>
-                            <h4 class="font-semibold text-amber-400 text-sm mb-1">{m.security_warningLabel()}</h4>
+                            <h4 class="font-semibold text-warning-text text-sm mb-1">{m.security_warningLabel()}</h4>
                             <p class="text-sm text-text-muted">{m.security_noAuthWarning()}</p>
                           </div>
                         </div>
                       </div>
                       <label class="flex items-start gap-3 cursor-pointer">
                         <input id="setup-none-ack" type="checkbox" bind:checked={acknowledgeRisk}
-                          class="mt-1 w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                          class="mt-1 w-4 h-4 rounded border-border-subtle text-accent-text" />
                         <span class="text-sm text-text-muted">{m.onboarding_acknowledgeRisk()}</span>
                       </label>
                     </div>
@@ -1615,7 +1629,7 @@
 
       <!-- Step 2: Add Apps (two-column layout with groups) -->
       {:else if $currentStep === 'apps'}
-        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_appsTitle()}</h2>
             <p class="text-text-muted">{m.onboarding_appsSubtitle()}</p>
@@ -1632,7 +1646,7 @@
                   <input
                     type="checkbox"
                     bind:checked={dockerEnabled}
-                    class="mt-0.5 w-4 h-4 rounded border-border-default text-brand-500 focus:ring-brand-500"
+                    class="mt-0.5 w-4 h-4 rounded border-border-default text-accent-text"
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
@@ -1646,15 +1660,14 @@
                   </div>
                 </label>
                 {#if dockerEnabled}
-                  <div class="mt-3 ps-7 space-y-2" in:fly={{ y: -4, duration: 150 }}>
+                  <div class="mt-3 ps-7 space-y-2" in:fly={{ y: -4, duration: motionMs(150) }}>
                     <div>
                       <label for="docker-endpoint" class="block text-xs text-text-muted mb-1">{m.onboarding_dockerEndpoint()}</label>
                       <input
                         id="docker-endpoint"
                         type="text"
                         bind:value={dockerEndpoint}
-                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                         placeholder="unix:///var/run/docker.sock"
                       />
                       <p class="text-xs text-text-disabled mt-1">{m.onboarding_dockerEndpointHint()}</p>
@@ -1664,8 +1677,7 @@
                       <select
                         id="docker-strategy"
                         bind:value={dockerStrategy}
-                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       >
                         <option value="container_ip">container_ip ({m.onboarding_dockerStrategyContainerIPHint()})</option>
                         <option value="container_dns">container_dns ({m.onboarding_dockerStrategyContainerDNSHint()})</option>
@@ -1695,23 +1707,22 @@
                     id="custom-name"
                     type="text"
                     bind:value={customApp.name}
-                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                     placeholder={m.onboarding_appName()}
                   />
                 </div>
                 <div class="flex-1">
                   <input
+                    aria-label={m.onboarding_appUrl()}
                     id="custom-url"
                     type="url"
                     bind:value={customApp.url}
-                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                     placeholder="http://localhost:8080"
                   />
                 </div>
                 <button
-                  class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50 flex-shrink-0"
+                  class="btn btn-primary text-sm disabled:opacity-50 flex-shrink-0"
                   disabled={!customApp.name || !customApp.url}
                   onclick={addCustomApp}
                 >
@@ -1733,8 +1744,8 @@
                       <div
                         class="relative p-3 rounded-lg border transition-all cursor-pointer
                                {selection?.selected
-                                 ? 'bg-brand-500/10 border-brand-500'
-                                 : 'bg-bg-surface border-border hover:border-border'}"
+                                 ? 'bg-accent-subtle border-border-focus'
+                                 : 'bg-bg-surface border-border hover:border-border-strong'}"
                         onclick={() => toggleApp(app)}
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleApp(app))}
                         role="checkbox"
@@ -1745,20 +1756,21 @@
                         <div class="absolute top-2.5 end-2.5 flex items-center gap-1">
                           {#if selection?.selected}
                             <button
-                              class="w-5 h-5 rounded border border-brand-500 bg-brand-500/20 flex items-center justify-center
-                                     hover:bg-brand-500/40 transition-colors"
+                              aria-label={m.onboarding_addAnotherInstance({ appName: app.name })}
+                              class="w-5 h-5 rounded border border-border-focus bg-accent-muted flex items-center justify-center
+                                     hover:brightness-110 transition-colors"
                               onclick={(e) => { e.stopPropagation(); addInstanceOf(app); }}
                               title={m.onboarding_addAnotherInstance({ appName: app.name })}
                             >
-                              <svg class="w-3 h-3 text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg class="w-3 h-3 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
                               </svg>
                             </button>
                           {/if}
                           <div class="w-5 h-5 rounded border flex items-center justify-center
-                                      {selection?.selected ? 'bg-brand-500 border-brand-500' : 'border-border-subtle'}">
+                                      {selection?.selected ? 'bg-accent-primary border-border-focus' : 'border-border-subtle'}">
                             {#if selection?.selected}
-                              <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg class="w-3 h-3 text-accent-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                               </svg>
                             {/if}
@@ -1788,7 +1800,7 @@
             <div class="apps-right-col">
               <div class="apps-right-sticky space-y-6">
                 <div class="flex items-center gap-2 pb-2 border-b border-border">
-                  <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-5 h-5 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                   <div>
@@ -1812,12 +1824,13 @@
                       {#each wizardGroups as group, i (group.id)}
                         {@const groupApps = dndApps[group.name] || []}
                         <div class="rounded-lg border border-border bg-bg-surface overflow-hidden cursor-grab"
-                             animate:flip={{duration: flipDurationMs}}>
+                             animate:flip={{duration: motionMs(flipDurationMs)}}>
                           <div class="flex items-center gap-2 p-2.5 group/grpdrag">
                             <svg class="w-4 h-4 text-text-disabled group-hover/grpdrag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                               <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                             </svg>
                             <input
+                              aria-label={m.onboarding_groupColorAt({ n: i + 1 })}
                               type="color"
                               value={group.color}
                               oninput={(e) => updateGroupColor(i, e.currentTarget.value)}
@@ -1825,6 +1838,7 @@
                               style="background-color: {group.color}"
                             />
                             <button
+                              aria-label={m.onboarding_changeIconFor({ name: group.name })}
                               class="flex-shrink-0 w-7 h-7 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                               onclick={() => iconBrowserContext = i}
                               title={m.onboarding_changeIcon()}
@@ -1840,12 +1854,11 @@
                             </button>
                             <div class="flex-1 min-w-0">
                               <input
+                                aria-label={m.onboarding_groupNameAt({ n: i + 1 })}
                                 type="text"
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
-                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border
-                                       focus:border-brand-500 text-sm text-text-primary font-medium
-                                       focus:outline-none transition-colors"
+                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border text-sm text-text-primary font-medium transition-colors"
                               />
                             </div>
                             {@render wizardMoveButtons(
@@ -1857,9 +1870,9 @@
                               () => moveWizardGroup(i, 1)
                             )}
                             <button
-                              class="flex-shrink-0 p-1 text-text-disabled hover:text-red-400 rounded transition-colors"
+                              class="flex-shrink-0 p-1 text-text-disabled hover:text-danger-text rounded transition-colors"
                               onclick={() => deleteGroup(i)}
-                              aria-label={m.onboarding_removeGroup()}
+                              aria-label={m.onboarding_removeGroupAt({ n: i + 1 })}
                             >
                               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1875,12 +1888,13 @@
                                 {@const appColor = getAppDisplayColor(item.name)}
                                 {@const appIcon = getAppDisplayIcon(item.name)}
                                 <div class="p-2 rounded bg-bg-surface cursor-grab group/drag text-sm text-text-primary"
-                                     animate:flip={{duration: flipDurationMs}}>
+                                     animate:flip={{duration: motionMs(flipDurationMs)}}>
                                   <div class="flex items-center gap-1.5 min-w-0">
                                     <svg class="w-3.5 h-3.5 text-text-disabled group-hover/drag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                                       <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                                     </svg>
                                     <input
+                                      aria-label={m.onboarding_appColor({ name: item.name })}
                                       type="color"
                                       value={appColor}
                                       oninput={(e) => updateAppColor(item.name, e.currentTarget.value)}
@@ -1901,11 +1915,12 @@
                                       {/if}
                                     </button>
                                     <input
+                                      aria-label={m.onboarding_appNameAt({ n: appIdx + 1 })}
                                       type="text"
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border focus:border-brand-500 focus:outline-none px-0 py-0"
+                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border px-0 py-0"
                                     />
                                     {@render wizardMoveButtons(
                                       m.apps_moveUp({ name: item.name }),
@@ -1916,9 +1931,9 @@
                                       () => moveWizardApp(group.name, appIdx, 1)
                                     )}
                                     <button
-                                      class="p-1 text-text-disabled hover:text-red-400 transition-opacity flex-shrink-0"
+                                      class="p-1 text-text-disabled hover:text-danger-text transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}
-                                      aria-label="Remove {item.name}"
+                                      aria-label={m.common_removeNamed({ name: item.name })}
                                     >
                                       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1926,21 +1941,23 @@
                                     </button>
                                   </div>
                                   <input
+                                    aria-label={m.onboarding_appUrlFor({ name: item.name })}
                                     type="url"
                                     value={getAppUrl(item.name)}
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
                                     onclick={(e) => e.stopPropagation()}
                                     class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-bg-elevated border border-border-subtle rounded
-                                           text-text-secondary placeholder-text-disabled focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                           text-text-secondary placeholder-text-disabled"
                                     placeholder="http://localhost:8080"
                                     style="width: calc(100% - 66px)"
                                   />
                                   <div class="flex items-center gap-2 mt-1 ml-[66px]">
                                     <select
+                                      aria-label={m.onboarding_openModeFor({ name: item.name })}
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-secondary"
                                     >
                                       {#each openModes as mode (mode.value)}
                                         <option value={mode.value}>{mode.label}</option>
@@ -1961,7 +1978,7 @@
                                         checked={getAppProxy(item.name)}
                                         onclick={(e) => e.stopPropagation()}
                                         onchange={(e) => updateAppSetting(item.name, 'proxy', e.currentTarget.checked)}
-                                        class="w-3 h-3 rounded border-border-subtle text-brand-500"
+                                        class="w-3 h-3 rounded border-border-subtle text-accent-text"
                                       />
                                       <span class="text-[11px] text-text-muted">{m.apps_proxy()}</span>
                                       <span class="help-trigger relative ms-0.5" use:positionTooltip>
@@ -2007,9 +2024,9 @@
 
       <!-- Step 5: Complete -->
       {:else if $currentStep === 'complete'}
-        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
-          <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-brand-500/20 flex items-center justify-center">
-            <svg class="w-10 h-10 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
+          <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-accent-muted flex items-center justify-center">
+            <svg class="w-10 h-10 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -2047,7 +2064,7 @@
           </div>
 
           <button
-            class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
+            class="btn btn-primary px-8 py-3 font-medium rounded-lg text-lg"
             onclick={handleComplete}
           >
             {m.onboarding_launchDashboard()}
@@ -2085,7 +2102,7 @@
         {#if $currentStep !== 'welcome' && $currentStep !== 'complete'}
           {#if $currentStep === 'security'}
             <button
-              class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
+              class="btn btn-primary px-6 py-2 disabled:opacity-50"
               disabled={!securityStepValid}
               onclick={handleSecuritySubmit}
             >
@@ -2093,7 +2110,7 @@
             </button>
           {:else}
             <button
-              class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
+              class="btn btn-primary px-6 py-2 disabled:opacity-50"
               disabled={$currentStep === 'apps' && selectedCount + $selectedApps.length === 0}
               onclick={nextStep}
             >
@@ -2188,13 +2205,13 @@
   .stepper-circle.completed {
     background: var(--accent-primary, #6366f1);
     border-color: var(--accent-primary, #6366f1);
-    color: #fff;
+    color: var(--accent-on-primary);
   }
 
   .stepper-circle.active {
     background: var(--bg-surface, #1f2937);
     border-color: var(--accent-primary, #6366f1);
-    color: #fff;
+    color: var(--text-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary, #6366f1) 25%, transparent);
   }
 

@@ -63,7 +63,7 @@
         type="button"
         onclick={onConfirm}
         autofocus
-        class="px-4 py-2 text-sm rounded-md bg-brand-500 hover:bg-brand-600 text-white"
+        class="btn btn-primary text-sm"
       >
         {m.common_confirm()}
       </button>

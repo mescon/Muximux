@@ -382,6 +382,10 @@ describe('SecurityTab', () => {
       expect(screen.getByTestId('reload-prompt')).toHaveTextContent(
         'Applying this method reloads the page. Unsaved changes in other tabs will be lost.',
       );
+      const prompt = screen.getByTestId('reload-prompt');
+      expect(prompt.className).toMatch(/bg-warning-bg/);
+      expect(prompt.className).toMatch(/border-warning-border/);
+      expect(prompt.className).not.toMatch(/yellow-/);
       expect(mockCreateUser).not.toHaveBeenCalled();
       expect(mockChangeAuthMethod).not.toHaveBeenCalled();
       expect(reloadMock).not.toHaveBeenCalled();
@@ -404,6 +408,19 @@ describe('SecurityTab', () => {
       expect(screen.queryByTestId('reload-prompt')).not.toBeInTheDocument();
       expect(mockCreateUser).not.toHaveBeenCalled();
       expect(reloadMock).not.toHaveBeenCalled();
+    });
+
+    it('names the role select and delete button after each user', async () => {
+      mockListUsers.mockResolvedValue([
+        { username: 'alice', role: 'admin', email: '', display_name: '' },
+        { username: 'bob', role: 'user', email: '', display_name: '' },
+      ]);
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'builtin' }), hasUnsavedChanges: false } });
+
+      expect(await screen.findByRole('combobox', { name: 'Role for alice' })).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Role for bob' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete bob' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete alice' })).toBeInTheDocument();
     });
 
     it('asks before Update Method reloads into password auth', async () => {
@@ -652,6 +669,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument();
       });
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent('Network error');
+      expect(alert.className).toContain('notice-danger');
+      expect(alert.className).not.toMatch(/red-/);
     });
   });
 
@@ -767,6 +788,10 @@ describe('SecurityTab', () => {
         expect(mockChangePassword).toHaveBeenCalledWith('oldpassword', 'newpassword123');
         expect(screen.getByText('Password changed successfully')).toBeInTheDocument();
       });
+      // The success arm of cpMessage is a polite status, not an alert.
+      const status = screen.getByText('Password changed successfully');
+      expect(status).toHaveAttribute('role', 'status');
+      expect(status.className).toContain('notice-success');
     });
 
     it('shows error when changePassword fails', async () => {
@@ -786,6 +811,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Incorrect password')).toBeInTheDocument();
       });
+      // The error arm of cpMessage is an alert.
+      const alert = screen.getByText('Incorrect password');
+      expect(alert).toHaveAttribute('role', 'alert');
+      expect(alert.className).toContain('notice-danger');
     });
   });
 
@@ -865,6 +894,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Server down')).toBeInTheDocument();
       });
+      // securityError is announced as an alert, styled as a danger notice.
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent('Server down');
+      expect(alert.className).toContain('notice-danger');
     });
 
     it('shows add user form when Add User button is clicked', async () => {
@@ -1345,6 +1378,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('boom')).toBeInTheDocument();
       });
+      // apiKeyError is announced as an alert, styled as a danger notice.
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent('boom');
+      expect(alert.className).toContain('notice-danger');
     });
 
   });
@@ -1380,6 +1417,7 @@ describe('SecurityTab', () => {
       render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }) } });
       await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
       await waitFor(() => expect(screen.getByTestId('oidc-load-error')).toHaveTextContent('boom'));
+      expect(screen.getByTestId('oidc-load-error')).toBe(screen.getByRole('alert'));
       expect(screen.queryByTestId('oidc-settings')).not.toBeInTheDocument();
     });
 
@@ -1418,6 +1456,8 @@ describe('SecurityTab', () => {
       await fireEvent.click(applyBtn());
 
       await waitFor(() => expect(screen.getByTestId('method-success')).toHaveTextContent(/changed to oidc/));
+      expect(screen.getByRole('status')).toBe(screen.getByTestId('method-success'));
+      expect(screen.getByTestId('method-success').className).toContain('notice-success');
       // Right above the button, not at the top of the tall tab.
       expect(screen.getByTestId('method-success').nextElementSibling).toBe(applyBtn());
     });
