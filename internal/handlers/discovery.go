@@ -384,31 +384,39 @@ func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, http.StatusOK, res)
 }
 
-// annotateTracked marks suggestions the config already tracks (by key,
-// scoped to the current endpoint where the entry carries one) and flags
-// names that collide with an untracked app. The caller holds configMu.
+// annotateTracked marks suggestions the config already tracks and flags
+// names that collide with an untracked app. Matching is by key alone, like
+// ImportDocker's dedupe; an entry on another endpoint is still tracked and
+// carries that endpoint. The caller holds configMu.
 func annotateTracked(cfg *config.Config, sugs []discovery.Suggestion) {
-	endpoint := cfg.Discovery.Docker.Endpoint
-	inScope := func(e string) bool { return e == "" || e == endpoint }
+	current := cfg.Discovery.Docker.Endpoint
+	otherEndpoint := func(e string) string {
+		if e != "" && e != current {
+			return e
+		}
+		return ""
+	}
 	refs := map[string]*discovery.TrackedRef{}
 	// Lowest precedence first so later kinds overwrite: quarantined, site, app.
+	// Quarantined keys are annotated even though ImportDocker's dedupe covers
+	// only apps and sites: a quarantined entry should not be re-offered.
 	for _, q := range cfg.Quarantined() {
-		if q.Key != "" && inScope(q.Endpoint) {
-			refs[q.Key] = &discovery.TrackedRef{Kind: discovery.TrackedQuarantined, Name: q.Name}
+		if q.Key != "" {
+			refs[q.Key] = &discovery.TrackedRef{Kind: discovery.TrackedQuarantined, Name: q.Name, Endpoint: otherEndpoint(q.Endpoint)}
 		}
 	}
 	for i := range cfg.Server.GatewaySites {
 		s := &cfg.Server.GatewaySites[i]
-		if s.DockerKey != "" && inScope(s.DockerEndpoint) {
-			refs[s.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedSite, Name: s.Domain}
+		if s.DockerKey != "" {
+			refs[s.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedSite, Name: s.Domain, Endpoint: otherEndpoint(s.DockerEndpoint)}
 		}
 	}
 	names := make(map[string]bool, len(cfg.Apps))
 	for i := range cfg.Apps {
 		a := &cfg.Apps[i]
 		names[a.Name] = true
-		if a.DockerKey != "" && inScope(a.DockerEndpoint) {
-			refs[a.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedApp, Name: a.Name, AutoImported: a.DockerAutoImported}
+		if a.DockerKey != "" {
+			refs[a.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedApp, Name: a.Name, AutoImported: a.DockerAutoImported, Endpoint: otherEndpoint(a.DockerEndpoint)}
 		}
 	}
 	for i := range sugs {

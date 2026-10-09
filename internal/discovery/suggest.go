@@ -124,6 +124,9 @@ type TrackedRef struct {
 	Kind         string `json:"kind"` // TrackedApp | TrackedSite | TrackedQuarantined
 	Name         string `json:"name"` // app name or site domain
 	AutoImported bool   `json:"auto_imported"`
+	// Endpoint is the entry's docker_endpoint when it differs from the
+	// current one, so the UI can say the container is tracked on another daemon.
+	Endpoint string `json:"endpoint,omitempty"`
 }
 
 // AutoImportSkip explains why a suggestion is not auto-import eligible.

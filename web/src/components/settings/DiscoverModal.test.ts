@@ -653,7 +653,7 @@ describe('DiscoverModal tracked rows', () => {
         makeSuggestion({ key: 'name:c2', name: 'AppTwo', name_taken: true }),
         makeSuggestion({ key: 'name:c3', name: 'AppThree', tracked: { kind: 'site', name: 'three.example.com', auto_imported: false } }),
         makeSuggestion({ key: 'name:c4', name: 'AppFour', tracked: { kind: 'quarantined', name: 'AppFour', auto_imported: false } }),
-        makeSuggestion({ key: 'name:c5', name: 'AppFive', tracked: { kind: 'app', name: 'AppFive', auto_imported: true } }),
+        makeSuggestion({ key: 'name:c5', name: 'AppFive', tracked: { kind: 'app', name: 'AppFive', auto_imported: true, endpoint: 'tcp://other:2375' } }),
       ],
     });
     render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
@@ -665,7 +665,7 @@ describe('DiscoverModal tracked rows', () => {
     expect(chips[0].textContent).toContain('app AppOne');
     expect(chips[1].textContent).toContain('gateway site three.example.com');
     expect(chips[2].textContent).toContain('quarantined entry AppFour');
-    expect(chips[3].textContent).toContain('auto-imported app AppFive');
+    expect(chips[3].textContent).toContain('auto-imported app AppFive on tcp://other:2375');
     expect(screen.getByTestId('name-taken')).toBeInTheDocument();
 
     const one = screen.getByLabelText('Select AppOne') as HTMLInputElement;

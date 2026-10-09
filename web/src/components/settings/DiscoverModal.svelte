@@ -107,6 +107,11 @@
   // Translate the server's auto-import skip code into a short reason.
   // 'disabled' rows are filtered by the server, so there is nothing to show.
   function trackedLabel(t: NonNullable<DiscoverySuggestion['tracked']>): string {
+    const label = trackedKindLabel(t);
+    return t.endpoint ? m.discovery_trackedOnEndpoint({ label, endpoint: t.endpoint }) : label;
+  }
+
+  function trackedKindLabel(t: NonNullable<DiscoverySuggestion['tracked']>): string {
     switch (t.kind) {
       case 'site': return m.discovery_trackedAsSite({ name: t.name });
       case 'quarantined': return m.discovery_trackedQuarantined({ name: t.name });

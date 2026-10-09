@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/mescon/muximux/v3/internal/config"
@@ -54,9 +56,12 @@ func TestAnnotateTracked(t *testing.T) {
 	if sugs[4].Tracked != nil || !sugs[4].NameTaken {
 		t.Errorf("name collision: tracked=%v name_taken=%v", sugs[4].Tracked, sugs[4].NameTaken)
 	}
-	// Entry from another daemon is out of scope: untracked, but its name is taken.
-	if sugs[5].Tracked != nil || !sugs[5].NameTaken {
-		t.Errorf("other endpoint: tracked=%v name_taken=%v", sugs[5].Tracked, sugs[5].NameTaken)
+	// Entry from another daemon is still tracked, and says which endpoint.
+	if tr := sugs[5].Tracked; tr == nil || tr.Endpoint != "tcp://elsewhere" || sugs[5].NameTaken {
+		t.Errorf("other endpoint: tracked=%+v name_taken=%v", tr, sugs[5].NameTaken)
+	}
+	if sugs[0].Tracked.Endpoint != "" || sugs[1].Tracked.Endpoint != "" {
+		t.Error("same-endpoint or empty-endpoint entries must not carry an endpoint")
 	}
 	if sugs[6].Tracked != nil || sugs[6].NameTaken {
 		t.Errorf("fresh: %+v", sugs[6])
@@ -74,5 +79,51 @@ func TestAnnotateTracked(t *testing.T) {
 	}
 	if _, ok := m["name_taken"]; ok {
 		t.Error("name_taken must be omitted when false")
+	}
+}
+
+func TestScanDocker_AnnotatesTracked(t *testing.T) {
+	media := discovery.ContainerNetworks{Networks: map[string]discovery.ContainerNetwork{"media": {IPAddress: "10.0.0.5"}}}
+	socket, cleanup := fakeDockerForLifecycle(t, []discovery.ContainerSummary{
+		{ID: "a", Names: []string{"/one"}, Image: "acme/one", NetworkSettings: media,
+			Labels: map[string]string{"muximux.app.port": "80"}},
+		{ID: "b", Names: []string{"/two"}, Image: "acme/two", NetworkSettings: media,
+			Labels: map[string]string{"muximux.app.port": "80"}},
+	})
+	defer cleanup()
+	h, cfg, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: true, Endpoint: "unix://" + socket,
+		NetworkStrategy: "container_ip", NetworkFilter: "media"})
+	scan := func() discovery.ScanResult {
+		w := httptest.NewRecorder()
+		h.ScanDocker(w, adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan"))
+		var got discovery.ScanResult
+		if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+			t.Fatal(err)
+		}
+		return got
+	}
+	first := scan()
+	if len(first.Suggestions) != 2 {
+		t.Fatalf("got %+v", first)
+	}
+	keyOne, nameTwo := first.Suggestions[0].Key, first.Suggestions[1].Name
+	nameOne := first.Suggestions[0].Name
+	cfg.Apps = []config.AppConfig{
+		{Name: "Tracked One", DockerKey: keyOne},
+		{Name: nameTwo},
+	}
+	got := scan()
+	for i := range got.Suggestions {
+		s := got.Suggestions[i]
+		switch s.Name {
+		case nameOne:
+			if s.Tracked == nil || s.Tracked.Kind != discovery.TrackedApp || s.Tracked.Name != "Tracked One" {
+				t.Errorf("one: %+v", s.Tracked)
+			}
+		case nameTwo:
+			if s.Tracked != nil || !s.NameTaken {
+				t.Errorf("two: tracked=%v name_taken=%v", s.Tracked, s.NameTaken)
+			}
+		}
 	}
 }

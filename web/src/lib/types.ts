@@ -508,6 +508,8 @@ export interface DiscoveryTrackedRef {
   /** App name or site domain. */
   name: string;
   auto_imported: boolean;
+  /** Set when tracked against a different Docker endpoint than the current one. */
+  endpoint?: string;
 }
 
 export interface DiscoverySuggestion {
