@@ -978,6 +978,7 @@
           <!-- Search -->
           <div class="mb-4">
             <input
+              aria-label={m.settings_searchApps()}
               type="text"
               bind:value={addAppSearch}
               class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
@@ -1126,7 +1127,7 @@
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('newGroup')}>
+            <button aria-label={m.settings_chooseIcon()} type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('newGroup')}>
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             </button>
             <button
@@ -1147,6 +1148,7 @@
               class="w-10 h-10 rounded cursor-pointer"
             />
             <input
+              aria-label={m.common_colorValue()}
               type="text"
               bind:value={newGroup.color}
               class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
@@ -1276,7 +1278,7 @@
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('editGroup')}>
+            <button aria-label={m.settings_chooseIcon()} type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('editGroup')}>
               <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
             </button>
             <div class="flex-1">
@@ -1321,6 +1323,7 @@
               class="w-10 h-10 rounded cursor-pointer"
             />
             <input
+              aria-label={m.common_colorValue()}
               type="text"
               bind:value={editingGroup.color}
               class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"

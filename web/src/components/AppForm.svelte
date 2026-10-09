@@ -214,7 +214,7 @@
   <div>
     <span class="block text-sm font-medium text-text-secondary mb-1">{m.appForm_icon()}</span>
     <div class="flex items-center gap-3">
-      <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => onopenicon?.()}>
+      <button aria-label={m.appForm_chooseIcon()} type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => onopenicon?.()}>
         <AppIcon icon={app.icon} name={app.name || 'App'} color={app.color} size="lg" />
       </button>
       <div class="flex-1">
@@ -264,6 +264,7 @@
         class="w-10 h-10 rounded cursor-pointer"
       />
       <input
+        aria-label={m.common_colorValue()}
         type="text"
         bind:value={app.color}
         class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
@@ -470,6 +471,7 @@
             {#each Object.entries(app.proxy_headers ?? {}) as [key, value] (key)}
               <div class="flex gap-2 mb-2">
                 <input type="text" value={key} placeholder={m.appForm_headerName()}
+                  aria-label={m.appForm_headerName()}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -483,6 +485,7 @@
                   }}
                 />
                 <input type="text" value={value} placeholder={m.appForm_headerValue()}
+                  aria-label={m.appForm_headerValue()}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -491,6 +494,7 @@
                   }}
                 />
                 <button class="px-2 py-1 text-text-muted hover:text-danger-text" title={m.appForm_removeHeader()}
+                  aria-label={m.appForm_removeHeader()}
                   onclick={() => {
                     const headers = { ...(app.proxy_headers ?? {}) };
                     delete headers[key];
@@ -554,6 +558,7 @@
           <p class="text-xs text-text-muted">{m.appForm_keyboardShortcutDesc()}</p>
         </div>
         <select
+          aria-label={m.appForm_keyboardShortcut()}
           value={app.shortcut ?? ''}
           onchange={(e) => {
             const val = (e.target as HTMLSelectElement).value;

@@ -1069,6 +1069,7 @@
                   {/if}
                 </div>
                 <select
+                  aria-label={m.common_role()}
                   value={user.role}
                   onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
                   class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary"
@@ -1090,6 +1091,7 @@
                   </div>
                 {:else}
                   <button
+                    aria-label={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.security_deleteUser()}
                     class="p-1.5 text-text-disabled hover:text-danger-text rounded transition-colors"
                     onclick={() => confirmDeleteUser = user.username}
                     disabled={user.username === $currentUser?.username}

@@ -57,6 +57,7 @@
   {#each rows as row (row.id)}
     <div class="flex gap-2">
       <input
+        aria-label={m.app_http_action_header_name()}
         type="text"
         value={row.key}
         placeholder={m.app_http_action_header_name()}
@@ -64,6 +65,7 @@
         class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
       />
       <input
+        aria-label={m.app_http_action_header_value()}
         type="text"
         value={row.value}
         placeholder={m.app_http_action_header_value()}

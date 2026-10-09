@@ -379,6 +379,7 @@
                     <span class="text-xs w-20 flex-shrink-0" style="color: var(--text-secondary);">{varLabels[varName]?.label || varName.replace('--', '')}</span>
                     {#if isColorVar}
                       <input
+                        aria-label={varLabels[varName]?.label || varName.replace('--', '')}
                         type="color"
                         value={cssColorToHex(themeEditorVars[varName] || '#000000')}
                         oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
@@ -386,6 +387,7 @@
                       />
                     {/if}
                     <input
+                      aria-label={varLabels[varName]?.label || varName.replace('--', '')}
                       type="text"
                       value={themeEditorVars[varName] || ''}
                       oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
@@ -394,6 +396,7 @@
                     />
                     {#if themeEditorVars[varName] !== themeEditorDefaults[varName]}
                       <button
+                        aria-label={m.theme_resetToDefault()}
                         class="p-1 rounded transition-colors flex-shrink-0"
                         style="color: var(--text-muted);"
                         onclick={() => resetThemeVar(varName)}
@@ -415,6 +418,7 @@
           <!-- Save as theme -->
           <div class="pt-3 space-y-2" style="border-top: 1px solid var(--border-subtle);">
             <input
+              aria-label={m.theme_nameLabel()}
               type="text"
               bind:value={saveThemeName}
               placeholder={m.theme_namePlaceholder()}
@@ -422,6 +426,7 @@
               style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
             />
             <input
+              aria-label={m.theme_descriptionLabel()}
               type="text"
               bind:value={saveThemeDescription}
               placeholder={m.theme_descriptionPlaceholder()}
@@ -429,6 +434,7 @@
               style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
             />
             <input
+              aria-label={m.theme_authorLabel()}
               type="text"
               bind:value={saveThemeAuthor}
               placeholder={m.theme_authorPlaceholder()}

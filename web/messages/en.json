@@ -888,5 +888,19 @@
   "health_checked": "Checked",
   "health_never": "Never",
   "health_checkNow": "Check now",
-  "health_checking": "Checking..."
+  "health_checking": "Checking...",
+  "common_colorValue": "Color value",
+  "icons_searchLabel": "Search icons",
+  "icons_fetchUrlLabel": "Icon image URL",
+  "onboarding_appUrl": "App URL",
+  "onboarding_groupColor": "Group color",
+  "onboarding_groupName": "Group name",
+  "onboarding_appColor": "{name} color",
+  "onboarding_stepAnnouncement": "Step {current} of {total}: {title}",
+  "discovery_selectApp": "Select {name}",
+  "discovery_appName": "App name",
+  "discovery_gatewayDomain": "Gateway domain",
+  "theme_nameLabel": "Theme name",
+  "theme_descriptionLabel": "Theme description",
+  "theme_authorLabel": "Theme author"
 }

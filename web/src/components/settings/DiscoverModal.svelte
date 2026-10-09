@@ -1,5 +1,6 @@
 <script lang="ts">
   import { focusTrap } from '$lib/focusTrap';
+  import * as m from '$lib/paraglide/messages.js';
   import type { App, DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, GatewaySite, AppIcon as AppIconType } from '$lib/types';
   import { scanDockerContainers, importDockerSuggestions, errorText } from '$lib/api';
   import AppIcon from '../AppIcon.svelte';
@@ -390,7 +391,7 @@
               <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
                           {row.selected ? 'ring-1 ring-accent-primary/50' : ''}">
                 <div class="flex items-start gap-3">
-                  <input type="checkbox" bind:checked={row.selected} class="mt-1" />
+                  <input aria-label={m.discovery_selectApp({ name: row.nameOverride || row.s.name })} type="checkbox" bind:checked={row.selected} class="mt-1" />
 
                   <button
                     type="button"
@@ -405,6 +406,7 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <input
+                        aria-label={m.discovery_appName()}
                         type="text"
                         bind:value={row.nameOverride}
                         class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle px-1"
@@ -493,6 +495,7 @@
                         </span>
                         {#if row.createGateway}
                           <input
+                            aria-label={m.discovery_gatewayDomain()}
                             type="text"
                             bind:value={row.gatewayDomain}
                             placeholder="sonarr.example.com"

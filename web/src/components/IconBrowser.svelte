@@ -307,6 +307,7 @@
   <!-- Search -->
   <div class="p-3 border-b border-border">
     <input
+      aria-label={m.icons_searchLabel()}
       type="text"
       bind:value={searchQuery}
       oninput={handleSearch}
@@ -341,6 +342,7 @@
   {:else if activeTab === 'custom'}
     <div class="px-3 py-2 border-b border-border">
       <input
+        aria-label={m.iconBrowser_uploadCustomIcon()}
         bind:this={fileInput}
         type="file"
         accept=".svg,.png,.jpg,.jpeg,.webp,.gif"
@@ -369,6 +371,7 @@
       {/if}
       <div class="flex gap-2 mt-2">
         <input
+          aria-label={m.icons_fetchUrlLabel()}
           type="text"
           bind:value={fetchUrl}
           placeholder="https://example.com/icon.png"
@@ -422,6 +425,7 @@
         {#each currentIcons as icon, idx (`${icon.name}-${idx}`)}
           <div class="relative group">
             <button
+              aria-label={icon.name}
               class="aspect-square p-2 rounded-lg border transition-all w-full
                      {selectedIcon === icon.name && selectedType === activeTab
                        ? 'border-border-focus bg-accent-subtle'
@@ -465,6 +469,7 @@
                 </div>
               {:else}
                 <button
+                  aria-label={m.common_delete()}
                   class="absolute -top-1 -end-1 w-5 h-5 bg-danger-solid hover:brightness-110 rounded-full
                          text-danger-on-solid flex items-center justify-center text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}

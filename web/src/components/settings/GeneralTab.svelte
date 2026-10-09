@@ -249,6 +249,7 @@
         <span class="text-sm text-text-secondary tabular-nums">{localConfig.navigation.icon_scale}×</span>
       </div>
       <input type="range" min="0.5" max="2" step="0.25"
+        aria-label={m.general_iconSize()}
         bind:value={localConfig.navigation.icon_scale}
         class="w-full" />
     </div>
@@ -295,6 +296,7 @@
         <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border-subtle">
           <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
           <select
+            aria-label={m.general_hideAfter()}
             bind:value={localConfig.navigation.auto_hide_delay}
             class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary"
           >
@@ -428,6 +430,7 @@
         {m.general_importConfig()}
       </button>
       <input
+        aria-label={m.general_importConfig()}
         bind:this={importFileInput}
         type="file"
         accept=".yaml,.yml"

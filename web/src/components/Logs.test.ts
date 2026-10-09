@@ -186,6 +186,17 @@ describe('Logs', () => {
       expect(screen.getByText('ERROR')).toBeInTheDocument();
     });
 
+    it('exposes each level toggle state with aria-pressed', async () => {
+      render(Logs);
+      const info = screen.getByTitle('Hide info messages');
+      expect(info).toHaveAttribute('aria-pressed', 'true');
+      await fireEvent.click(info);
+      await waitFor(() => {
+        expect(screen.getByTitle('Show info messages')).toHaveAttribute('aria-pressed', 'false');
+      });
+      expect(screen.getByTitle('Hide error messages')).toHaveAttribute('aria-pressed', 'true');
+    });
+
     it('hides entries when a level is toggled off', async () => {
       mockLogEntries.set([
         makeLogEntry({ level: 'info', message: 'Info message' }),

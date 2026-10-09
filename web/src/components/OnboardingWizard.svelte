@@ -973,7 +973,7 @@
         <div class="stepper-rail-fill" style="transform: scaleX({$stepProgress / (steps.length - 1)}); transform-origin: left;"></div>
 
         {#each steps as step, i (i)}
-          <div class="stepper-node">
+          <div class="stepper-node" aria-current={i === $stepProgress ? 'step' : undefined}>
             <div
               class="stepper-circle transition-all duration-300
                      {i < $stepProgress ? 'completed' : i === $stepProgress ? 'active' : 'pending'}"
@@ -990,6 +990,9 @@
                          {i <= $stepProgress ? 'text-text-primary' : 'text-text-muted'}">{step}</span>
           </div>
         {/each}
+      </div>
+      <div class="sr-only" role="status" data-testid="wizard-step-status">
+        {m.onboarding_stepAnnouncement({ current: $stepProgress + 1, total: steps.length, title: steps[$stepProgress] ?? '' })}
       </div>
     </div>
   </div>
@@ -1142,6 +1145,7 @@
                   <span class="text-sm text-text-secondary tabular-nums">{navIconScale}×</span>
                 </div>
                 <input type="range" min="0.5" max="2" step="0.25"
+                  aria-label={m.general_iconSize()}
                   bind:value={navIconScale}
                   class="w-full accent-accent-primary" />
               </div>
@@ -1168,6 +1172,7 @@
                   <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
                     <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
+                      aria-label={m.general_hideAfter()}
                       class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary">
                       <option value="0.25s">0.25s</option>
                       <option value="0.5s">0.5s</option>
@@ -1381,6 +1386,7 @@
               {restoring ? m.onboarding_restoring() : m.onboarding_restoreFromBackup()}
             </button>
             <input
+              aria-label={m.onboarding_restoreFromBackup()}
               bind:this={restoreFileInput}
               type="file"
               accept=".yaml,.yml"
@@ -1696,6 +1702,7 @@
                 </div>
                 <div class="flex-1">
                   <input
+                    aria-label={m.onboarding_appUrl()}
                     id="custom-url"
                     type="url"
                     bind:value={customApp.url}
@@ -1738,6 +1745,7 @@
                         <div class="absolute top-2.5 end-2.5 flex items-center gap-1">
                           {#if selection?.selected}
                             <button
+                              aria-label={m.onboarding_addAnotherInstance({ appName: app.name })}
                               class="w-5 h-5 rounded border border-border-focus bg-accent-muted flex items-center justify-center
                                      hover:bg-accent-muted transition-colors"
                               onclick={(e) => { e.stopPropagation(); addInstanceOf(app); }}
@@ -1811,6 +1819,7 @@
                               <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                             </svg>
                             <input
+                              aria-label={m.onboarding_groupColor()}
                               type="color"
                               value={group.color}
                               oninput={(e) => updateGroupColor(i, e.currentTarget.value)}
@@ -1818,6 +1827,7 @@
                               style="background-color: {group.color}"
                             />
                             <button
+                              aria-label={m.onboarding_changeIcon()}
                               class="flex-shrink-0 w-7 h-7 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                               onclick={() => iconBrowserContext = i}
                               title={m.onboarding_changeIcon()}
@@ -1833,6 +1843,7 @@
                             </button>
                             <div class="flex-1 min-w-0">
                               <input
+                                aria-label={m.onboarding_groupName()}
                                 type="text"
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
@@ -1874,6 +1885,7 @@
                                       <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                                     </svg>
                                     <input
+                                      aria-label={m.onboarding_appColor({ name: item.name })}
                                       type="color"
                                       value={appColor}
                                       oninput={(e) => updateAppColor(item.name, e.currentTarget.value)}
@@ -1894,6 +1906,7 @@
                                       {/if}
                                     </button>
                                     <input
+                                      aria-label={m.onboarding_appName()}
                                       type="text"
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}
@@ -1919,6 +1932,7 @@
                                     </button>
                                   </div>
                                   <input
+                                    aria-label={m.onboarding_appUrl()}
                                     type="url"
                                     value={getAppUrl(item.name)}
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
@@ -1930,6 +1944,7 @@
                                   />
                                   <div class="flex items-center gap-2 mt-1 ml-[66px]">
                                     <select
+                                      aria-label={m.appForm_openMode()}
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
                                       onclick={(e) => e.stopPropagation()}

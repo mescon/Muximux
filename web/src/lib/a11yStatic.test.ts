@@ -17,8 +17,8 @@ export const BUDGET: Record<string, number> = {
   tokenAsText: 0,
   arbitraryToken: 0,
   outline: 0,
-  unlabeled: 36,
-  unnamedButtons: 17, // corrected measurement: icon components and {@render} no longer count as a name (was 13)
+  unlabeled: 0,
+  unnamedButtons: 0,
 };
 
 const PALETTE = 'red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone|brand';

@@ -7,6 +7,12 @@ function setup(initial: Record<string, string> = {}, onChange: (v: Record<string
 }
 
 describe('HeadersEditor', () => {
+  it('names the key and value inputs', () => {
+    const { getByRole } = setup({ 'X-Test': 'a' });
+    expect(getByRole('textbox', { name: /header name/i })).toBeTruthy();
+    expect(getByRole('textbox', { name: /header value/i })).toBeTruthy();
+  });
+
   it('renders one row per entry plus an empty add button', () => {
     const { getAllByPlaceholderText, getByRole } = setup({ Authorization: 'Bearer abc', 'X-Tok': '1' });
     expect(getAllByPlaceholderText(/header name/i).length).toBe(2);

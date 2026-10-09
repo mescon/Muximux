@@ -297,6 +297,23 @@ describe('OnboardingWizard', () => {
       expect(screen.getByText('Done')).toBeInTheDocument();
     });
 
+    it('marks the active step with aria-current and announces step changes politely', async () => {
+      const { container } = renderWizard();
+      const current = () => Array.from(container.querySelectorAll('.stepper-node[aria-current="step"]'));
+      expect(current()).toHaveLength(1);
+      expect(current()[0].textContent).toContain('Welcome');
+      const status = screen.getByRole('status');
+      expect(status).toHaveTextContent('Step 1 of 5: Welcome');
+
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      await waitFor(() => {
+        expect(current()).toHaveLength(1);
+        expect(current()[0].textContent).toContain('Apps');
+        expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 5: Apps');
+      });
+    });
+
     it('shows Security step label when needsSetup is true', () => {
       mockActiveStepOrder.set(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
       renderWizard({ needsSetup: true });
