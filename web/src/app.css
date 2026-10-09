@@ -931,8 +931,13 @@ html.theme-transitioning *::after {
 [aria-invalid="true"]:focus-visible, .border-danger-border:focus-visible {
   border-color: var(--danger-border);
 }
-/* Containers that clip their items flush to the edge (the nav lists) draw the outline just
-   inside the item with scoped rules in Navigation.svelte; nothing here insets it globally. */
+/* Containers that clip their items flush to the edge opt in to an outline drawn just inside
+   the item: `focus-inset` on the container (tab strips, segmented controls, cards with
+   overflow hidden), plus scoped rules in Navigation.svelte for the nav lists. Form fields
+   keep offset 0 so their focus border stays visible. Nothing insets the outline globally. */
+.focus-inset :focus-visible:not(input, select, textarea, .input) {
+  outline-offset: -2px;
+}
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SELECTION

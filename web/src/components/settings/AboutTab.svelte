@@ -126,7 +126,7 @@
 
     <!-- Release Notes (collapsible) -->
     {#if updateInfo?.changelog}
-      <div class="rounded-xl border border-border overflow-hidden">
+      <div class="focus-inset rounded-xl border border-border overflow-hidden">
         <button
           class="w-full flex items-center justify-between p-4 text-start hover:bg-bg-surface/50 transition-colors"
           onclick={() => changelogExpanded = !changelogExpanded}
@@ -152,7 +152,7 @@
 
     <!-- How to Update (collapsible) -->
     {#if updateInfo}
-      <div class="rounded-xl border border-border overflow-hidden">
+      <div class="focus-inset rounded-xl border border-border overflow-hidden">
         <button
           class="w-full flex items-center justify-between p-4 text-start hover:bg-bg-surface/50 transition-colors"
           onclick={() => updateInstructionsExpanded = !updateInstructionsExpanded}

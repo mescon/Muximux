@@ -762,6 +762,12 @@ describe('Settings', () => {
       document.head.appendChild(style);
       try {
         renderSettings({ initialTab: 'apps' });
+        // A clipping strip that opts in (the tab bar) draws the outline inside its items.
+        const tab = screen.getByRole('button', { name: 'General' });
+        expect(tab.closest('.focus-inset')).not.toBeNull();
+        tab.focus();
+        expect(tab.matches(':focus-visible')).toBe(true);
+        expect(getComputedStyle(tab).outlineOffset).toBe('-2px');
         await fireEvent.click(screen.getByTestId('trigger-add-app'));
         const input = await screen.findByPlaceholderText('Search apps...');
         expect(input.closest('.overflow-y-auto')).not.toBeNull();

@@ -1423,7 +1423,7 @@
             <div class="max-w-2xl mx-auto space-y-3">
               <!-- Builtin password -->
               <div
-                class="rounded-xl border text-start transition-all overflow-hidden
+                class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
@@ -1488,7 +1488,7 @@
 
               <!-- Forward auth -->
               <div
-                class="rounded-xl border text-start transition-all overflow-hidden
+                class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
@@ -1583,7 +1583,7 @@
 
               <!-- None -->
               <div
-                class="rounded-xl border text-start transition-all overflow-hidden
+                class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>

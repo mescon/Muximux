@@ -178,7 +178,7 @@
         </div>
       </div>
       <!-- Three-way segmented control -->
-      <div class="flex rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
+      <div class="focus-inset flex rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
         {#each (['dark', 'system', 'light'] as const) as mode (mode)}
           <button
             class="px-3 py-1.5 text-xs font-medium transition-colors"

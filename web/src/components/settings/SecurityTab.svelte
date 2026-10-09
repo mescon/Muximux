@@ -456,7 +456,7 @@
     <div class="space-y-3">
       <!-- Password card -->
       <div
-        class="rounded-xl border text-start transition-all overflow-hidden
+        class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'builtin'; }}>
@@ -595,7 +595,7 @@
 
       <!-- Auth Proxy card -->
       <div
-        class="rounded-xl border text-start transition-all overflow-hidden
+        class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
@@ -707,7 +707,7 @@
 
       <!-- Single sign-on (OIDC) card -->
       <div
-        class="rounded-xl border text-start transition-all overflow-hidden
+        class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'oidc' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={selectOidc}>
@@ -747,7 +747,7 @@
 
       <!-- No authentication card -->
       <div
-        class="rounded-xl border text-start transition-all overflow-hidden
+        class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'none'; }}>

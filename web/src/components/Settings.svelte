@@ -841,7 +841,7 @@
     {/if}
 
     <!-- Tabs - scrollable on mobile -->
-    <div class="flex border-b border-border flex-shrink-0 overflow-x-auto scrollbar-hide">
+    <div class="focus-inset flex border-b border-border flex-shrink-0 overflow-x-auto scrollbar-hide">
       {#each [
         { id: 'general', get label() { return m.settings_general(); } },
         { id: 'apps', get label() { return m.settings_appsAndGroups(); } },
