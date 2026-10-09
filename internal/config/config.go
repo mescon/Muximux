@@ -1317,28 +1317,31 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 	if s.BackendURL == "" {
 		return fmt.Errorf("backend_url is required")
 	}
+	// Error reasons name the URL without its userinfo, so a password in
+	// backend_url never reaches the log or the quarantine reason.
+	shown := redactURL(s.BackendURL)
 	u, err := url.Parse(s.BackendURL)
 	if err != nil {
-		return fmt.Errorf("backend_url %q is not a valid URL: %w", s.BackendURL, err)
+		return fmt.Errorf("backend_url %q is not a valid URL: %w", shown, urlErrCause(err))
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("backend_url %q must use http or https", s.BackendURL)
+		return fmt.Errorf("backend_url %q must use http or https", shown)
 	}
 	if u.Host == "" {
-		return fmt.Errorf("backend_url %q is missing a host", s.BackendURL)
+		return fmt.Errorf("backend_url %q is missing a host", shown)
 	}
 	// Caddy's reverse_proxy upstream syntax is scheme://host[:port] only:
 	// path, query, and fragment are not allowed. Catching them here turns
 	// a confusing late-stage Caddy parse error ("invalid upstream") into
 	// a clear validator message at the originating field.
 	if u.Path != "" && u.Path != "/" {
-		return fmt.Errorf("backend_url %q must not include a path; the structured form forwards the inbound request path as-is", s.BackendURL)
+		return fmt.Errorf("backend_url %q must not include a path; the structured form forwards the inbound request path as-is", shown)
 	}
 	if u.RawQuery != "" {
-		return fmt.Errorf("backend_url %q must not include a query string", s.BackendURL)
+		return fmt.Errorf("backend_url %q must not include a query string", shown)
 	}
 	if u.Fragment != "" {
-		return fmt.Errorf("backend_url %q must not include a fragment", s.BackendURL)
+		return fmt.Errorf("backend_url %q must not include a fragment", shown)
 	}
 	// Reject 0.0.0.0 and IPv4 link-local; never legitimate as upstream
 	// targets and easy to type by mistake. Private IPs (10/8, 172.16/12,
@@ -1346,10 +1349,10 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 	// homelab backends live.
 	hostname := u.Hostname()
 	if hostname == "0.0.0.0" {
-		return fmt.Errorf("backend_url %q points at 0.0.0.0; specify a real host or 127.0.0.1", s.BackendURL)
+		return fmt.Errorf("backend_url %q points at 0.0.0.0; specify a real host or 127.0.0.1", shown)
 	}
 	if ip := net.ParseIP(hostname); ip != nil && ip.IsLinkLocalUnicast() {
-		return fmt.Errorf("backend_url %q targets a link-local address; this is rarely intentional", s.BackendURL)
+		return fmt.Errorf("backend_url %q targets a link-local address; this is rarely intentional", shown)
 	}
 	// Reject the obvious self-loop: backend pointing at the Muximux
 	// HTTP listener itself. Letting this through would make every
@@ -1368,7 +1371,7 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 			}
 		}
 		if isSelfLoop(hostname, backendPort, srv.Listen) {
-			return fmt.Errorf("backend_url %q points at Muximux's own listener %q; this would loop the proxy back on itself", s.BackendURL, srv.Listen)
+			return fmt.Errorf("backend_url %q points at Muximux's own listener %q; this would loop the proxy back on itself", shown, srv.Listen)
 		}
 	}
 

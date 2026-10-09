@@ -2509,3 +2509,27 @@ func TestValidateApp_ReasonsOmitURLCredentials(t *testing.T) {
 		t.Fatalf("unparseable must still lose userinfo, got %q", got)
 	}
 }
+
+//nolint:gosec // fake credentials, the test asserts they never reach a reason
+func TestValidateGatewaySite_ReasonsOmitURLCredentials(t *testing.T) {
+	srv := &ServerConfig{Listen: ":8080"}
+	cases := []string{
+		"ftp://user:secret@host",
+		"http://user:secret@host/%zz",
+		"http://user:secret@host/path",
+		"http://user:secret@host?q=1",
+		"http://user:secret@host#f",
+		"http://user:secret@0.0.0.0:80",
+		"http://user:secret@169.254.1.1:80",
+		"http://user:secret@127.0.0.1:8080",
+	}
+	for _, backend := range cases {
+		err := validateGatewaySite(&GatewaySite{Domain: "a.example.com", BackendURL: backend, TLS: "auto"}, srv)
+		if err == nil {
+			t.Fatalf("%s: expected an error", backend)
+		}
+		if strings.Contains(err.Error(), "secret") {
+			t.Fatalf("%s: reason leaks credentials: %v", backend, err)
+		}
+	}
+}
