@@ -211,12 +211,12 @@
   <header>
     <h2 class="text-lg font-semibold text-text-primary">Docker discovery</h2>
     <p class="text-sm text-text-muted mt-1">
-      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">the docs</a> for the full label / strategy reference.
+      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-accent-text hover:underline">the docs</a> for the full label / strategy reference.
     </p>
   </header>
 
   {#if topLevelError}
-    <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-sm">{topLevelError}</div>
+    <div role="alert" class="notice notice-danger">{topLevelError}</div>
   {/if}
 
   {#if loading}
@@ -226,22 +226,22 @@
          above the live status banner so an operator who checks the
          page sees the divergence first. -->
     {#if divergenceBanner}
-      <div class="p-3 rounded-md border text-sm
-                  {divergenceBanner.tone === 'red' ? 'border-red-500/40 bg-red-500/10 text-red-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}">
+      <div role={divergenceBanner.tone === 'red' ? 'alert' : 'status'} class="notice
+                  {divergenceBanner.tone === 'red' ? 'notice-danger' : 'notice-warning'}">
         <strong class="font-semibold">{divergenceBanner.tone === 'red' ? 'Gateway divergence detected' : 'Gateway recovered'}</strong>
         <div class="mt-1 text-xs">{divergenceBanner.text}</div>
       </div>
     {/if}
 
     <!-- Live status banner -->
-    <div class="p-3 rounded-md border text-sm
-                {statusVisual.tone === 'red' ? 'border-red-500/40 bg-red-500/10 text-red-300' : ''}
-                {statusVisual.tone === 'amber' ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' : ''}
-                {statusVisual.tone === 'green' ? 'border-green-500/40 bg-green-500/10 text-green-300' : ''}
-                {statusVisual.tone === 'gray' ? 'border-border bg-bg-elevated text-text-secondary' : ''}">
+    <div class="notice
+                {statusVisual.tone === 'red' ? 'notice-danger' : ''}
+                {statusVisual.tone === 'amber' ? 'notice-warning' : ''}
+                {statusVisual.tone === 'green' ? 'notice-success' : ''}
+                {statusVisual.tone === 'gray' ? 'notice-neutral' : ''}">
       {statusVisual.text}
       {#if status?.tls_warning}
-        <div class="mt-1 text-xs text-amber-300">⚠ {status.tls_warning}</div>
+        <div class="mt-1 text-xs text-warning-text">⚠ {status.tls_warning}</div>
       {/if}
     </div>
 
@@ -339,7 +339,7 @@
                 onclick={() => pickNetwork(net)}
                 class="px-2 py-0.5 rounded border text-xs transition-colors
                        {form.network_filter === net
-                         ? 'bg-brand-500/20 border-brand-500/50 text-brand-200'
+                         ? 'bg-accent-muted border-border-focus text-accent-text'
                          : 'bg-bg-elevated border-border-subtle text-text-secondary hover:bg-bg-hover'}"
                 title="Use Docker network {net}"
               >
@@ -387,9 +387,9 @@
 
         <div class="text-xs">
           {#if status?.socket_writable}
-            <span class="text-green-300">Docker socket: writable</span>
+            <span class="text-success-text">Docker socket: writable</span>
           {:else if status?.reachable}
-            <span class="text-amber-300">Docker socket: read-only - lifecycle disabled</span>
+            <span class="text-warning-text">Docker socket: read-only - lifecycle disabled</span>
           {:else}
             <span class="text-text-muted">Docker socket: unreachable</span>
           {/if}
@@ -461,7 +461,7 @@
             <option value="sync">{m.discovery_autoImportSync()}</option>
           </select>
           {#if autoImportLocked}
-            <p class="text-xs text-amber-300 mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
+            <p class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
           {/if}
           <p class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
         </div>
@@ -499,11 +499,11 @@
 
       <!-- Test result -->
       {#if testResult && testVisual}
-        <div class="p-3 rounded-md border text-sm
-                    {testVisual.tone === 'red' ? 'border-red-500/40 bg-red-500/10 text-red-300' : ''}
-                    {testVisual.tone === 'amber' ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' : ''}
-                    {testVisual.tone === 'green' ? 'border-green-500/40 bg-green-500/10 text-green-300' : ''}
-                    {testVisual.tone === 'gray' ? 'border-border bg-bg-elevated text-text-secondary' : ''}">
+        <div class="notice
+                    {testVisual.tone === 'red' ? 'notice-danger' : ''}
+                    {testVisual.tone === 'amber' ? 'notice-warning' : ''}
+                    {testVisual.tone === 'green' ? 'notice-success' : ''}
+                    {testVisual.tone === 'gray' ? 'notice-neutral' : ''}">
           <span class="font-medium">Test result:</span> {testVisual.text}
           {#if testVisual.tone === 'red' && /permission denied/i.test(testResult?.last_error ?? '')}
             <div class="mt-2 text-xs leading-relaxed opacity-90">
@@ -523,7 +523,7 @@
       {/if}
 
       {#if lastSaveError}
-        <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-sm">{lastSaveError}</div>
+        <div role="alert" class="notice notice-danger">{lastSaveError}</div>
       {/if}
 
       <div class="flex gap-2 justify-end">

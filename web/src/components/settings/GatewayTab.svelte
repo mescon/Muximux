@@ -485,25 +485,25 @@
     </div>
 
     {#if topLevelError}
-      <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+      <div role="alert" class="notice notice-danger rounded-lg">
         {topLevelError}
       </div>
     {/if}
 
     {#if appsLoadError}
-      <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm">
+      <div class="notice notice-warning rounded-lg">
         Could not load the apps list: {appsLoadError}. The "Linked app" dropdown will be empty; editing a site that was previously linked to an app and saving without re-selecting it will unlink the pair. Reload the page or wait for the apps API to recover.
       </div>
     {/if}
 
     {#if restartBanner}
-      <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm">
+      <div class="notice notice-warning rounded-lg">
         Caddy isn't running yet (no TLS or gateway site was configured at startup). Your changes are saved to <code>config.yaml</code> but won't serve traffic until Muximux is restarted.
       </div>
     {/if}
 
     {#if mismatchBanner}
-      <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-200 text-sm">
+      <div role="alert" class="notice notice-danger rounded-lg">
         <strong>Configuration mismatch.</strong> Muximux's running gateway disagrees with what's in <code>config.yaml</code>. This happens when a save failed mid-reload. Restart Muximux to bring the running config back in line with disk.
       </div>
     {/if}
@@ -566,13 +566,13 @@
                   {tlsLabel(site)}
                 </span>
                 {#if site.streaming}
-                  <span class="px-2 py-0.5 rounded bg-blue-500/15 border border-blue-500/30 text-blue-300">streaming</span>
+                  <span class="px-2 py-0.5 rounded bg-info-bg border border-info-border text-info-text">streaming</span>
                 {/if}
                 {#if site.strip_frame_blockers}
-                  <span class="px-2 py-0.5 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300">embeddable</span>
+                  <span class="px-2 py-0.5 rounded bg-accent-subtle border border-accent-primary text-accent-text">embeddable</span>
                 {/if}
                 {#if site.app_name}
-                  <span class="px-2 py-0.5 rounded bg-green-500/15 border border-green-500/30 text-green-300">app: {site.app_name}</span>
+                  <span class="px-2 py-0.5 rounded bg-success-bg border border-success-border text-success-text">app: {site.app_name}</span>
                 {/if}
               </div>
               <button class="btn btn-secondary btn-sm" onclick={() => openEdit(site)} type="button">
@@ -585,7 +585,7 @@
                 </div>
               {:else}
                 <button
-                  class="p-1.5 text-text-disabled hover:text-red-400 rounded transition-colors"
+                  class="p-1.5 text-text-disabled hover:text-danger-text rounded transition-colors"
                   onclick={() => confirmDelete = site.domain}
                   title="Delete this gateway site"
                   type="button"
@@ -630,12 +630,12 @@
 
       <div class="p-5 space-y-4">
         {#if formError}
-          <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div role="alert" class="notice notice-danger rounded-lg">
             {formError}
           </div>
         {/if}
         {#if validationError}
-          <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm">
+          <div class="notice notice-warning rounded-lg">
             {validationError}
           </div>
         {/if}
@@ -666,7 +666,7 @@
             data-testid="gw-form-backend-url"
           />
           {#if form.docker_key}
-            <p class="text-xs text-amber-300 mt-1 flex items-start gap-1.5" data-testid="gw-form-docker-locked">
+            <p class="text-xs text-warning-text mt-1 flex items-start gap-1.5" data-testid="gw-form-docker-locked">
               <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v2m0 4h.01M5 11V7a7 7 0 0114 0v4M5 11h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
               </svg>
@@ -768,7 +768,7 @@
           </label>
 
           {#if form.require_auth && sessionCookieDomain === ''}
-            <div class="p-3 rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs space-y-2"
+            <div class="notice notice-warning text-xs space-y-2"
                  data-testid="gw-require-auth-cookie-warning">
               <p>
                 <strong class="font-medium">server.session_cookie_domain is not set.</strong>
@@ -784,21 +784,21 @@
                   bind:value={cookieScopeDraft}
                   placeholder={form.domain ? '.' + form.domain.split('.').slice(-2).join('.') : '.example.com'}
                   disabled={cookieScopeSaving}
-                  class="flex-1 min-w-[200px] px-2 py-1 bg-bg-base border border-amber-500/40 rounded text-text-primary text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                  class="flex-1 min-w-[200px] px-2 py-1 bg-bg-base border border-warning-border rounded text-text-primary text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/40"
                   data-testid="gw-cookie-scope-input"
                 />
                 <button
                   type="button"
                   onclick={saveSessionCookieDomain}
                   disabled={cookieScopeSaving || cookieScopeDraft.trim() === ''}
-                  class="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded text-amber-200 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-3 py-1 bg-warning-bg hover:brightness-110 border border-warning-border rounded text-warning-text text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                   data-testid="gw-cookie-scope-save"
                 >
                   {cookieScopeSaving ? 'Saving…' : 'Set cookie scope'}
                 </button>
               </div>
               {#if cookieScopeError}
-                <p class="text-red-300" data-testid="gw-cookie-scope-error">{cookieScopeError}</p>
+                <p class="text-danger-text" data-testid="gw-cookie-scope-error">{cookieScopeError}</p>
               {/if}
               <p class="text-text-muted">
                 Restart Muximux after saving so the cookie issuer picks up
@@ -808,7 +808,7 @@
             </div>
           {/if}
           {#if form.require_auth && cookieScopeSaved && sessionCookieDomain !== ''}
-            <div class="p-2 rounded-md border border-green-500/40 bg-green-500/10 text-green-300 text-xs"
+            <div role="status" class="notice notice-success p-2 text-xs"
                  data-testid="gw-require-auth-cookie-saved">
               Cookie scope saved as <code>{sessionCookieDomain}</code>.
               <strong class="font-medium">Restart Muximux</strong> for the

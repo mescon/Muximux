@@ -583,3 +583,53 @@ describe('DiscoveryTab stored values (#494)', () => {
     expect(screen.getByRole('button', { name: /^Save$/i })).toBeDisabled();
   });
 });
+
+describe('DiscoveryTab notice tokens', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
+  });
+
+  it('maps status tones to the notice tokens', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(
+      makeStatus({ reachable: false, last_error: 'connection refused' }),
+    );
+    const { unmount } = render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Daemon unreachable/i)).toBeInTheDocument());
+    expect(screen.getByText(/Daemon unreachable/i).closest('.notice')!.className).toContain('notice-danger');
+    unmount();
+
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    const second = render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Connected to Docker API/i)).toBeInTheDocument());
+    expect(screen.getByText(/Connected to Docker API/i).closest('.notice')!.className).toContain('notice-success');
+    second.unmount();
+
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ configured: false }));
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Discovery is disabled/i)).toBeInTheDocument());
+    expect(screen.getByText(/Discovery is disabled/i).closest('.notice')!.className).toContain('notice-neutral');
+  });
+
+  it('uses notice-warning and role=alert for the red divergence banner, status for recovery', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(
+      makeStatus({ refresh_divergences: 2, last_divergence_at: '2026-05-06T10:00:00Z' }),
+    );
+    const { unmount } = render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Gateway divergence detected/i)).toBeInTheDocument());
+    const red = screen.getByText(/Gateway divergence detected/i).closest('.notice')!;
+    expect(red.className).toContain('notice-danger');
+    expect(red).toHaveAttribute('role', 'alert');
+    unmount();
+
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(
+      makeStatus({ refresh_divergences: 1, last_divergence_at: '2026-05-06T10:00:00Z', recovered_at: '2026-05-06T10:01:30Z' }),
+    );
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Gateway recovered/i)).toBeInTheDocument());
+    const amber = screen.getByText(/Gateway recovered/i).closest('.notice')!;
+    expect(amber.className).toContain('notice-warning');
+    expect(amber).toHaveAttribute('role', 'status');
+  });
+});

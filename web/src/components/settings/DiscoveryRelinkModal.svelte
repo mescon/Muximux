@@ -88,10 +88,10 @@
       {#if probing}
         <div class="text-text-muted">Probing the current Docker endpoint…</div>
       {:else if probeError}
-        <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300">{probeError}</div>
+        <div role="alert" class="notice notice-danger">{probeError}</div>
       {:else if probeResult?.found && probeResult.container}
         {@const c = probeResult.container}
-        <div class="p-3 rounded-md border border-green-500/40 bg-green-500/10 text-green-300">
+        <div role="status" class="notice notice-success">
           Container <strong class="font-semibold">{c.name}</strong> (image <code class="font-mono">{c.image}</code>) found on the current endpoint with the same tracking key. Re-link?
         </div>
         <div class="flex justify-end gap-2">
@@ -129,7 +129,7 @@
         <div class="flex justify-between items-center pt-2">
           <button
             type="button"
-            class="text-xs text-red-400 hover:underline disabled:text-text-muted disabled:cursor-not-allowed"
+            class="text-xs text-danger-text hover:underline disabled:text-text-muted disabled:cursor-not-allowed"
             onclick={detachInstead}
             disabled={confirmInFlight}
             data-testid="relink-detach-btn"
@@ -139,7 +139,7 @@
       {/if}
 
       {#if confirmError}
-        <div class="p-2 rounded border border-red-500/40 bg-red-500/10 text-red-300 text-xs">{confirmError}</div>
+        <div role="alert" class="notice notice-danger p-2 rounded text-xs">{confirmError}</div>
       {/if}
     </div>
   </div>
