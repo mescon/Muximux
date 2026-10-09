@@ -46,6 +46,8 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
 
    If a row's group does not exist yet, the import creates it in the same save (see [Groups are created automatically](#groups-are-created-automatically)).
 
+   A container that is already tracked shows a **Tracked** chip in the Discover dialog, naming what tracks it (an app, an auto-imported app, a gateway site or a quarantined entry, plus the endpoint when it differs). Its row cannot be selected, since it cannot be imported again. A row whose name is used by another app shows "Name already in use by another app".
+
 4. **Settings → Discovery → Currently tracked**: every imported app or gateway site appears here. Per-row **Detach** stops auto-management; **Re-link** appears when the saved `DockerEndpoint` no longer matches the configured endpoint (typical after a daemon migration). A row shows "Container missing since <time>" while its container cannot be found on the daemon. Invalid Docker-owned entries that were not loaded are listed below the table; see [Quarantined entries](#quarantined-entries).
 
 ---
@@ -176,6 +178,8 @@ The remote daemon must expose its API with TLS (`dockerd --tlsverify`), and the 
 | `host_docker_internal` | `http://host.docker.internal:<published-port>` | Muximux runs in a Docker Desktop / WSL container where `host.docker.internal` resolves |
 
 Strategy gating: when Muximux runs natively (not in a container), `container_ip` and `container_dns` need a `network_filter` to substitute for self-identification. The banner above the form tells you whether the chosen strategy is workable in your environment.
+
+`network_filter` applies everywhere Muximux reads containers: the scan and the background refresh list the same filtered set and see the same networks. A container attached to several networks gets its URL from the filtered network only, so a refresh never rewrites it to an address on another network. A tracked container that is not on the filtered network counts as missing. On Swarm, the `/services` endpoint is read once per refresh tick.
 
 ### Labels on your containers
 
