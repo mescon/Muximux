@@ -142,6 +142,9 @@ export function disconnect(): void {
     reconnectTimeout = null;
   }
   reconnectAttempts = maxReconnectAttempts; // Prevent reconnection
+  // A deliberate disconnect (logout) ends the session: the next connect is
+  // a first connection again, not a reconnect.
+  hasConnected = false;
 
   if (ws) {
     ws.close();

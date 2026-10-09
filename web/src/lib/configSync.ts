@@ -31,6 +31,10 @@ export interface ApplyDeps {
   applyLocale: (language?: string) => boolean;
 }
 
+// Bumped per fetch and per direct apply, so a fetch that started before a
+// newer config was applied (a later fetch, or a save) is dropped.
+let fetchSeq = 0;
+
 /**
  * The one copy of the shell's apply step, used by the push path and by the
  * save path. Returns true when applyLocale started a reload.
@@ -41,6 +45,7 @@ export interface ApplyDeps {
  * keybindings; its save comes back through here with showSettings false).
  */
 export function applyConfigToShell(next: Config, state: ShellState, actions: ShellActions, deps: ApplyDeps): boolean {
+  fetchSeq++;
   const { showLogs, showSettings, visited } = state;
   actions.setConfig(next);
   const apps = next.apps ?? [];
@@ -71,12 +76,10 @@ export function applyConfigToShell(next: Config, state: ShellState, actions: She
   return deps.applyLocale(next.language);
 }
 
-// Bumped per fetch, so only the newest of overlapping fetches applies.
-let fetchSeq = 0;
-
 /**
  * Fetches the server config and applies it. Returns null and leaves the
- * shell alone when the fetch fails or a newer fetch started meanwhile.
+ * shell alone when the fetch fails, or when a newer fetch started or a
+ * config was applied directly (a save) meanwhile.
  */
 export async function applyServerConfig(
   fetchConfig: () => Promise<Config>,
@@ -94,6 +97,18 @@ export async function applyServerConfig(
   if (seq !== fetchSeq) return null;
   applyConfigToShell(next, state, actions, deps);
   return next;
+}
+
+/**
+ * Applies the parts of a config that an open Settings dialog held back
+ * (theme, keybindings, locale). Called when Settings closes without saving
+ * after a push changed the config underneath it. Returns true when the
+ * locale started a reload.
+ */
+export function reapplyDeferredPrefs(config: Config, deps: ApplyDeps): boolean {
+  if (config.theme) deps.syncTheme(config.theme);
+  deps.initKeybindings(config.keybindings);
+  return deps.applyLocale(config.language);
 }
 
 /**

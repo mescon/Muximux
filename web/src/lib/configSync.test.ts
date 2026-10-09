@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { App, Config } from './types';
-import { applyConfigToShell, applyServerConfig, homeOnClearedHash, type ShellState, type ShellActions, type ApplyDeps } from './configSync';
+import { applyConfigToShell, applyServerConfig, homeOnClearedHash, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './configSync';
 
 function makeApp(name: string, enabled = true): App {
   return {
@@ -187,6 +187,38 @@ describe('applyServerConfig', () => {
     expect(await first).toBeNull();
     expect(actions.setConfig).toHaveBeenCalledTimes(1);
     expect(actions.setConfig).toHaveBeenCalledWith(newer);
+  });
+});
+
+describe('applyServerConfig after a direct apply', () => {
+  it('drops a fetch that started before a save was applied', async () => {
+    let resolvePush: (c: Config) => void = () => {};
+    const pending = applyServerConfig(() => new Promise<Config>(r => { resolvePush = r; }), state, actions, deps);
+    const saved = makeConfig([makeApp('a')]);
+    applyConfigToShell(saved, { ...state, showSettings: false }, actions, deps);
+    resolvePush(makeConfig([makeApp('stale')]));
+    expect(await pending).toBeNull();
+    expect(actions.setConfig).toHaveBeenCalledTimes(1);
+    expect(actions.setConfig).toHaveBeenCalledWith(saved);
+  });
+});
+
+describe('reapplyDeferredPrefs', () => {
+  it('applies theme, keybindings and locale and reports a reload', () => {
+    deps.applyLocale.mockReturnValue(true);
+    const theme = { family: 'nord', variant: 'dark' as const };
+    const keybindings = { bindings: {} };
+    const reloading = reapplyDeferredPrefs(makeConfig([], { theme, keybindings, language: 'sv' }), deps);
+    expect(deps.syncTheme).toHaveBeenCalledWith(theme);
+    expect(deps.initKeybindings).toHaveBeenCalledWith(keybindings);
+    expect(deps.applyLocale).toHaveBeenCalledWith('sv');
+    expect(reloading).toBe(true);
+  });
+
+  it('skips the theme when the config has none', () => {
+    reapplyDeferredPrefs(makeConfig([]), deps);
+    expect(deps.syncTheme).not.toHaveBeenCalled();
+    expect(deps.initKeybindings).toHaveBeenCalled();
   });
 });
 

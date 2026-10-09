@@ -1,4 +1,4 @@
 <script lang="ts">
-  let _props: Record<string, unknown> = $props();
+  let { onlogout }: { onlogout?: () => void } = $props();
 </script>
-<nav data-testid="nav"></nav>
+<nav data-testid="nav"><button data-testid="logout" onclick={() => onlogout?.()}>logout</button></nav>

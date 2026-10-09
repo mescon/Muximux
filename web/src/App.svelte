@@ -16,7 +16,7 @@
   import { restartHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, onReconnect, connectionState } from './lib/websocketStore';
   import { refreshDockerState } from './lib/dockerStateStore';
-  import { applyConfigToShell, applyServerConfig, homeOnClearedHash, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
+  import { applyConfigToShell, applyServerConfig, homeOnClearedHash, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
@@ -292,8 +292,16 @@
       visited: visitedAppNames,
     };
   }
+  // Set when the config changed while Settings was open: theme, keybindings
+  // and locale were left to the dialog and must be applied if it closes
+  // without saving.
+  let prefsDeferred = false;
   const shellActions: ShellActions = {
-    setConfig: (c) => { config = c; apps = c.apps; },
+    setConfig: (c) => {
+      config = c;
+      apps = c.apps;
+      if (showSettings) prefsDeferred = true;
+    },
     clearPanel: (i) => { splitState.panels[i] = null; },
     showSplash: () => { resetSplit(); showSplash = true; },
   };
@@ -381,11 +389,17 @@
         // Hash cleared (e.g. navigating to /): go home, unless Settings
         // stays open (discard prompt or a save in flight).
         currentNavHash = '';
-        homeOnClearedHash(closeSettings, () => {
+        const wentHome = homeOnClearedHash(closeSettings, () => {
           showLogs = false;
           if (splitState.panels[0] || splitState.panels[1]) resetSplit();
           showSplash = true;
         });
+        if (!wentHome) {
+          // Settings stayed open: put its hash back (replaceState fires no
+          // hashchange, so this does not loop).
+          history.replaceState(null, '', '#settings');
+          currentNavHash = '#settings';
+        }
       }
     });
 
@@ -555,6 +569,7 @@
     visitedOrder = [];
     showSplash = true;
     showSettings = false;
+    prefsDeferred = false;
   }
 
   async function handleOnboardingComplete(detail: {
@@ -627,6 +642,7 @@
       resetSplit();
 
       startServices();
+      registerLiveSync();
 
       // Hide onboarding
       showOnboarding = false;
@@ -761,6 +777,12 @@
 
   function handleSettingsClosed() {
     showSettings = false;
+    // Closed without saving after a push: apply what the dialog held back.
+    // (A save clears the flag; its apply step already covered these.)
+    if (prefsDeferred) {
+      prefsDeferred = false;
+      if (config) reapplyDeferredPrefs(config, shellDeps);
+    }
     settingsInitialTab = 'general';
     settingsEditAppName = null;
     if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); }
@@ -854,6 +876,7 @@
       // closed here (the splash behaves as before). The locale reload, if
       // any, runs last inside the apply step.
       applyConfigToShell(saved, { ...shellState(), showSettings: false }, shellActions, shellDeps);
+      prefsDeferred = false;
       toasts.success(m.toast_settingsSaved());
     } catch (e) {
       console.error('Failed to save config:', e);

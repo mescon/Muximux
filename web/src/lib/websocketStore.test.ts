@@ -457,6 +457,19 @@ describe('websocketStore', () => {
       expect(handler).not.toHaveBeenCalled();
     });
 
+    it('does not fire after a deliberate disconnect and a new connect (logout, login)', async () => {
+      const { connect, disconnect, onReconnect } = await getModule();
+      const handler = vi.fn();
+      onReconnect(handler);
+
+      connect();
+      MockWebSocket.instances[0].simulateOpen();
+      disconnect();
+      connect();
+      MockWebSocket.instances[MockWebSocket.instances.length - 1].simulateOpen();
+      expect(handler).not.toHaveBeenCalled();
+    });
+
     it('keeps notifying other handlers when one throws', async () => {
       const { connect, onReconnect } = await getModule();
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

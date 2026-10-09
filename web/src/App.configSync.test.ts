@@ -22,6 +22,8 @@ vi.mock('./lib/localeStore', async (orig) => ({ ...(await orig<object>()), ...lo
 
 const ws = vi.hoisted(() => ({
   handlers: new Map<string, (p: unknown) => void>(),
+  // Every on() registration, duplicates included.
+  registrations: [] as string[],
   reconnect: [] as (() => void)[],
 }));
 vi.mock('./lib/websocketStore', async () => {
@@ -29,7 +31,11 @@ vi.mock('./lib/websocketStore', async () => {
   return {
     connect: vi.fn(),
     disconnect: vi.fn(),
-    on: vi.fn((type: string, h: (p: unknown) => void) => { ws.handlers.set(type, h); return () => {}; }),
+    on: vi.fn((type: string, h: (p: unknown) => void) => {
+      ws.registrations.push(type);
+      ws.handlers.set(type, h);
+      return () => {};
+    }),
     onReconnect: vi.fn((h: () => void) => { ws.reconnect.push(h); return () => {}; }),
     connectionState: w('disconnected'),
   };
@@ -40,11 +46,8 @@ vi.mock('./lib/dockerStateStore', async (orig) => ({ ...(await orig<object>()), 
 
 vi.mock('./lib/logStore', () => ({ initLogStore: vi.fn() }));
 
-vi.mock('./lib/themeStore', async (orig) => ({
-  ...(await orig<object>()),
-  loadCustomThemesFromServer: vi.fn(),
-  syncFromConfig: vi.fn(),
-}));
+const theme = vi.hoisted(() => ({ loadCustomThemesFromServer: vi.fn(), syncFromConfig: vi.fn() }));
+vi.mock('./lib/themeStore', async (orig) => ({ ...(await orig<object>()), ...theme }));
 
 const auth = vi.hoisted(() => ({ authenticated: null as null | { set: (v: boolean) => void } }));
 vi.mock('./lib/authStore', async () => {
@@ -63,6 +66,7 @@ vi.mock('./components/Login.svelte', async () => ({ default: (await import('./te
 vi.mock('./components/Splash.svelte', async () => ({ default: (await import('./test/shell/SplashStub.svelte')).default }));
 vi.mock('./components/Navigation.svelte', async () => ({ default: (await import('./test/shell/NavigationStub.svelte')).default }));
 vi.mock('./components/AppFrame.svelte', async () => ({ default: (await import('./test/shell/AppFrameStub.svelte')).default }));
+vi.mock('./components/OnboardingWizard.svelte', async () => ({ default: (await import('./test/shell/OnboardingStub.svelte')).default }));
 vi.mock('./components/Settings.svelte', async () => ({ default: (await import('./test/shell/SettingsStub.svelte')).default }));
 
 import AppShell from './App.svelte';
@@ -110,6 +114,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   locale.applyConfigLocale.mockReturnValue(false);
   ws.handlers.clear();
+  ws.registrations.length = 0;
+  (globalThis as Record<string, unknown>).__settingsConfigs = [];
   auth.authenticated?.set(false);
   ws.reconnect.length = 0;
   (globalThis as Record<string, unknown>).__settingsBlockClose = false;
@@ -204,5 +210,123 @@ describe('App cleared hash', () => {
     setHash('');
     await screen.findByTestId('splash');
     expect(screen.queryByTestId('settings')).toBeNull();
+  });
+});
+
+const g = globalThis as Record<string, unknown>;
+
+async function openSettings() {
+  setHash('#settings');
+  await screen.findByTestId('settings', {}, { timeout: 5000 });
+}
+
+function liveRegistrations() {
+  return ws.registrations.filter(t => t === 'config_updated').length;
+}
+
+describe('App onboarding path', () => {
+  it('registers live sync after first-run onboarding', async () => {
+    const empty = makeConfig({ apps: [], auth: { method: 'none' } as Config['auth'] });
+    api.fetchConfig.mockResolvedValueOnce(empty);
+    api.saveConfig.mockResolvedValueOnce(makeConfig({ auth: { method: 'none' } as Config['auth'] }));
+    render(AppShell);
+    await fireEvent.click(await screen.findByTestId('onboarding-done', {}, { timeout: 5000 }));
+    await waitFor(() => expect(liveRegistrations()).toBe(1));
+    expect(ws.reconnect).toHaveLength(1);
+  });
+});
+
+describe('App live push while Settings is open', () => {
+  it('hands the pushed config to Settings and holds back theme and locale', async () => {
+    await loggedIn();
+    await openSettings();
+    theme.syncFromConfig.mockClear();
+    locale.applyConfigLocale.mockClear();
+
+    const pushed = makeConfig({ language: 'sv', theme: { family: 'nord', variant: 'dark' } });
+    api.fetchConfig.mockResolvedValueOnce(pushed);
+    ws.handlers.get('config_updated')!({});
+    await waitFor(() => expect(g.__settingsConfigs as unknown[]).toContainEqual(pushed));
+    expect(theme.syncFromConfig).not.toHaveBeenCalled();
+    expect(locale.applyConfigLocale).not.toHaveBeenCalled();
+    expect(health.restartHealthPolling).toHaveBeenCalled();
+  });
+
+  it('applies the held-back language when Settings is discarded', async () => {
+    await loggedIn();
+    await openSettings();
+    const pushed = makeConfig({ language: 'sv', theme: { family: 'nord', variant: 'dark' } });
+    api.fetchConfig.mockResolvedValueOnce(pushed);
+    ws.handlers.get('config_updated')!({});
+    await waitFor(() => expect(g.__settingsConfigs as unknown[]).toContainEqual(pushed));
+    expect(locale.applyConfigLocale).not.toHaveBeenCalledWith('sv');
+
+    await fireEvent.click(screen.getByTestId('settings-discard'));
+    expect(locale.applyConfigLocale).toHaveBeenCalledWith('sv');
+    expect(theme.syncFromConfig).toHaveBeenLastCalledWith(pushed.theme);
+  });
+
+  it('does not re-apply prefs on a clean close without a push', async () => {
+    await loggedIn();
+    await openSettings();
+    locale.applyConfigLocale.mockClear();
+    theme.syncFromConfig.mockClear();
+    await fireEvent.click(screen.getByTestId('settings-discard'));
+    expect(locale.applyConfigLocale).not.toHaveBeenCalled();
+    expect(theme.syncFromConfig).not.toHaveBeenCalled();
+  });
+
+  it('a push refetch that started before a save cannot overwrite the saved config', async () => {
+    await loggedIn();
+    await openSettings();
+    let resolvePush: (c: Config) => void = () => {};
+    api.fetchConfig.mockImplementationOnce(() => new Promise<Config>(r => { resolvePush = r; }));
+    ws.handlers.get('config_updated')!({});
+
+    const savedHealth = { enabled: true, interval: '2m', timeout: '5s' };
+    api.saveConfig.mockResolvedValueOnce(makeConfig({ health: savedHealth }));
+    await fireEvent.click(screen.getByTestId('settings-save'));
+    await waitFor(() => expect(health.restartHealthPolling).toHaveBeenLastCalledWith(savedHealth));
+
+    resolvePush(makeConfig({ health: { enabled: true, interval: '9m', timeout: '5s' } }));
+    await new Promise(r => setTimeout(r, 0));
+    expect(health.restartHealthPolling).toHaveBeenLastCalledWith(savedHealth);
+  });
+});
+
+describe('App logout and login', () => {
+  it('keeps exactly one live listener and does no extra refetch', async () => {
+    await loggedIn();
+    expect(liveRegistrations()).toBe(1);
+
+    await fireEvent.click(screen.getByTestId('logout'));
+    auth.authenticated!.set(false);
+    const button = await screen.findByTestId('login-stub');
+    const fetches = api.fetchConfig.mock.calls.length;
+    api.fetchConfig.mockResolvedValueOnce(makeConfig());
+    await fireEvent.click(button);
+    auth.authenticated!.set(true);
+    await screen.findByTestId('splash');
+
+    expect(api.fetchConfig.mock.calls.length).toBe(fetches + 1);
+    expect(liveRegistrations()).toBe(1);
+    expect(ws.reconnect).toHaveLength(1);
+    expect(docker.refreshDockerState).not.toHaveBeenCalled();
+  });
+});
+
+describe('App cleared hash while Settings is blocked', () => {
+  it('restores #settings in the URL without another hashchange', async () => {
+    await loggedIn();
+    await openSettings();
+    g.__settingsBlockClose = true;
+    const onHash = vi.fn();
+    addListener('hashchange', onHash);
+    setHash('');
+    await Promise.resolve();
+    expect(location.hash).toBe('#settings');
+    expect(onHash).toHaveBeenCalledTimes(1); // only the test's own event
+    globalThis.removeEventListener('hashchange', onHash);
+    expect(screen.getByTestId('settings')).toBeTruthy();
   });
 });
