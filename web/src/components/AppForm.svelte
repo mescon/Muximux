@@ -159,6 +159,7 @@
       type="text"
       bind:value={app.name}
       oninput={() => clearError('name')}
+      aria-invalid={errors.name ? 'true' : undefined}
       class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.name ? 'border-danger-border' : 'border-border-subtle'}"
       placeholder={m.appForm_placeholderName()}
     />
@@ -180,6 +181,7 @@
       type="url"
       bind:value={app.url}
       oninput={() => clearError('url')}
+      aria-invalid={errors.url ? 'true' : undefined}
       readonly={!!app.docker_key}
       class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.url ? 'border-danger-border' : 'border-border-subtle'} {app.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
       placeholder={m.appForm_placeholderUrl()}

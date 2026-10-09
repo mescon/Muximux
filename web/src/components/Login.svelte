@@ -170,8 +170,7 @@
             type="text"
             bind:value={username}
             onkeydown={handleKeydown}
-            class="login-input w-full px-4 py-2 rounded-md
-"
+            class="login-input w-full px-4 py-2 rounded-md"
             placeholder={m.login_usernamePlaceholder()}
             autocomplete="username"
             disabled={loading}
@@ -187,8 +186,7 @@
             type="password"
             bind:value={password}
             onkeydown={handleKeydown}
-            class="login-input w-full px-4 py-2 rounded-md
-"
+            class="login-input w-full px-4 py-2 rounded-md"
             placeholder={m.login_passwordPlaceholder()}
             autocomplete="current-password"
             disabled={loading}
@@ -261,7 +259,7 @@
     color: var(--text-muted);
   }
   .login-input:focus {
-    border-color: var(--accent-primary);
+    border-color: var(--border-focus);
   }
   .login-submit {
     background: var(--accent-primary);

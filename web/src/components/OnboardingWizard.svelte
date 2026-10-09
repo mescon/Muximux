@@ -1431,8 +1431,7 @@
                         id="setup-username"
                         type="text"
                         bind:value={setupUsername}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
                         placeholder="admin"
                         autocomplete="username"
                       />
@@ -1443,8 +1442,7 @@
                         id="setup-password"
                         type="password"
                         bind:value={setupPassword}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
                         placeholder={m.security_minEightChars()}
                         autocomplete="new-password"
                       />
@@ -1458,8 +1456,7 @@
                         id="setup-confirm"
                         type="password"
                         bind:value={setupConfirmPassword}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
                         placeholder={m.onboarding_reenterPassword()}
                         autocomplete="new-password"
                       />
@@ -1523,8 +1520,7 @@
                         id="setup-logout-url"
                         type="url"
                         bind:value={faLogoutUrl}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                         placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
                       />
                       <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
@@ -1654,8 +1650,7 @@
                         id="docker-endpoint"
                         type="text"
                         bind:value={dockerEndpoint}
-                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                         placeholder="unix:///var/run/docker.sock"
                       />
                       <p class="text-xs text-text-disabled mt-1">{m.onboarding_dockerEndpointHint()}</p>
@@ -1665,8 +1660,7 @@
                       <select
                         id="docker-strategy"
                         bind:value={dockerStrategy}
-                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       >
                         <option value="container_ip">container_ip ({m.onboarding_dockerStrategyContainerIPHint()})</option>
                         <option value="container_dns">container_dns ({m.onboarding_dockerStrategyContainerDNSHint()})</option>
@@ -1696,8 +1690,7 @@
                     id="custom-name"
                     type="text"
                     bind:value={customApp.name}
-                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                     placeholder={m.onboarding_appName()}
                   />
                 </div>
@@ -1706,8 +1699,7 @@
                     id="custom-url"
                     type="url"
                     bind:value={customApp.url}
-                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                     placeholder="http://localhost:8080"
                   />
                 </div>

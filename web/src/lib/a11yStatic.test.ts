@@ -35,9 +35,10 @@ const BLACK_TINT = /rgba?\(\s*0\s*,\s*0\s*,\s*0\s*[,)]/;
 // (?<![\w-]) keeps border-color, outline-color, accent-color and --tw-ring-color out.
 const TOKEN_AS_TEXT = /(?<![\w-])color\s*:\s*var\(--(?:status-(?:success|warning|error|info)|accent-primary)\)/g;
 const ARBITRARY_TOKEN = /(?<![\w-])(?:[\w-]+:)*!?(?:text|bg|border|ring|outline|divide|fill|stroke|decoration|caret|accent)-\[var\(--(?:accent-primary|status-[\w-]+)\)\]/g;
-// Counts every outline-none and outline:none; Task 13 zeroes the count by replacing each
-// one with a visible focus style.
-const OUTLINE = /(?<![\w-])(?:[\w-]+:)*outline-none(?![\w-])|outline\s*:\s*none/g;
+// Counts every way of removing the focus outline: outline-none, outline-hidden and outline-0
+// utilities (any variant) and outline: none / outline: 0 declarations. Task 13 zeroed the
+// count by relying on the global :focus-visible rule in app.css instead.
+const OUTLINE = /(?<![\w-])(?:[\w-]+:)*outline-(?:none|hidden|0)(?![\w-])|(?<![\w-])outline\s*:\s*(?:none|0(?:px)?)(?![\w.%-])/g;
 
 // Decorative uses that carry no information and are not text. `before` is matched against
 // the text just before the class, so the AboutTab rule only covers the three logo svgs
@@ -172,9 +173,10 @@ describe('a11y static guard', () => {
       expect(hits(WHITE_BLACK, 'text-white hover:bg-black/40 border-t-white focus:ring-white')).toHaveLength(4);
       expect(hits(WHITE_BLACK, 'text-whitespace bg-blackish text-white-ish white')).toEqual([]);
     });
-    it('outline flags outline-none and outline: none, not outline-offset or outline-none-ish', () => {
+    it('outline flags outline-none, outline-hidden, outline-0, outline: none and outline: 0, not outline-offset or lookalikes', () => {
       expect(hits(OUTLINE, 'outline-none focus:outline-none .a { outline: none; } .b { outline:none }')).toHaveLength(4);
-      expect(hits(OUTLINE, 'outline-2 outline-offset-2 outline-nonexistent .a { outline: 2px solid red; }')).toEqual([]);
+      expect(hits(OUTLINE, 'outline-hidden focus-visible:outline-hidden outline-0 focus:outline-0 .a { outline: 0; } .b { outline:0px }')).toHaveLength(6);
+      expect(hits(OUTLINE, 'outline-2 outline-offset-2 outline-offset-0 outline-nonexistent outline-01 .a { outline: 2px solid red; } .b { outline-offset: 0; } .c { outline: 0.5px solid red; } --my-outline: none;')).toEqual([]);
     });
     it('inline colour flags text colour only', () => {
       expect(hits(INLINE_COLOUR, 'color: white; color:#fff; color: rgba(1, 2, 3, 0.5)')).toHaveLength(3);
@@ -216,6 +218,12 @@ describe('a11y static guard', () => {
       expect(blankStyle(css)).toHaveLength(css.length);
       expect(blankStyle(css).split('\n')).toHaveLength(3);
     });
+  });
+
+  it('app.css keeps the global :focus-visible outline in the focus colour', () => {
+    const css = fs.readFileSync(path.join(SRC, 'app.css'), 'utf8');
+    expect(css).toMatch(/(?:^|\n):focus-visible\s*\{[^}]*outline:\s*2px solid var\(--border-focus\)/);
+    expect([...blankStyle(css).matchAll(OUTLINE)].map((m) => m[0])).toEqual([]);
   });
 
   it('every component parses', () => {

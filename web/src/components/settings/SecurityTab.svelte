@@ -491,8 +491,7 @@
                       id="cp-current"
                       type="password"
                       bind:value={cpCurrent}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       autocomplete="current-password"
                     />
                   </div>
@@ -502,8 +501,7 @@
                       id="cp-new"
                       type="password"
                       bind:value={cpNew}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       placeholder={m.security_minEightChars()}
                       autocomplete="new-password"
                     />
@@ -517,8 +515,7 @@
                       id="cp-confirm"
                       type="password"
                       bind:value={cpConfirm}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       autocomplete="new-password"
                     />
                     {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
@@ -554,8 +551,7 @@
                       id="setup-username"
                       type="text"
                       bind:value={setupUsername}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       placeholder="admin"
                     />
                   </div>
@@ -565,8 +561,7 @@
                       id="setup-password"
                       type="password"
                       bind:value={setupPassword}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                       placeholder="••••••••"
                     />
                   </div>
@@ -641,8 +636,7 @@
               <textarea
                 id="settings-proxies"
                 bind:value={methodTrustedProxies}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                 placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                 rows="3"
               ></textarea>
@@ -655,8 +649,7 @@
                 id="settings-logout-url"
                 type="url"
                 bind:value={faLogoutUrl}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                 placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
               />
               <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
@@ -702,8 +695,7 @@
               <textarea
                 id="settings-admin-groups"
                 bind:value={faAdminGroups}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                 placeholder="admins"
                 rows="2"
               ></textarea>
@@ -843,7 +835,7 @@
           <li><code>GET /api/appearance</code> for embedded or external apps reading Muximux's active language and theme.</li>
           <li>Any per-app proxy paths an admin has allowlisted with <code>auth_bypass</code> + <code>require_api_key: true</code> in <code>config.yaml</code>. Common case: webhook URLs reaching a proxied app's API.</li>
         </ul>
-        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-accent-text underline hover:underline hover:decoration-2 focus-visible:ring-2 focus-visible:ring-border-focus rounded-sm">authentication wiki</a> for the full list and webhook example.</p>
+        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-accent-text underline hover:underline hover:decoration-2 rounded-sm">authentication wiki</a> for the full list and webhook example.</p>
       </div>
 
       {#if apiKeyError}
@@ -885,7 +877,7 @@
           </div>
           <button
             type="button"
-            class="mt-3 text-xs text-warning-text underline hover:underline hover:decoration-2 focus-visible:ring-2 focus-visible:ring-border-focus rounded-sm"
+            class="mt-3 text-xs text-warning-text underline hover:underline hover:decoration-2 rounded-sm"
             onclick={dismissAPIKeyPlaintext}
           >
             I've saved it, hide the key
@@ -1006,8 +998,7 @@
                 id="new-user-name"
                 type="text"
                 bind:value={newUserName}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                 placeholder="username"
               />
             </div>
@@ -1017,8 +1008,7 @@
                 id="new-user-password"
                 type="password"
                 bind:value={newUserPassword}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
                 placeholder={m.security_minEightCharsShort()}
               />
             </div>
@@ -1028,8 +1018,7 @@
             <select
               id="new-user-role"
               bind:value={newUserRole}
-              class="px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-"
+              class="px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
             >
               <option value="admin">{m.common_roleAdmin()}</option>
               <option value="power-user">{m.common_rolePowerUser()}</option>
@@ -1082,8 +1071,7 @@
                 <select
                   value={user.role}
                   onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
-                  class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
-"
+                  class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary"
                 >
                   <option value="admin">{m.common_roleAdmin()}</option>
                   <option value="power-user">{m.common_rolePowerUser()}</option>
@@ -1128,8 +1116,7 @@
                     }
                   }}
                   placeholder="e.g. developers, on-call"
-                  class="flex-1 px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
-"
+                  class="flex-1 px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary"
                 />
               </div>
             </div>

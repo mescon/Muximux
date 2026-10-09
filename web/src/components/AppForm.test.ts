@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Standard mocks (same pattern as other component tests)
 vi.mock('$lib/api', () => ({ getBase: vi.fn(() => '') }));
@@ -139,6 +141,50 @@ describe('AppForm', () => {
         },
       });
       expect(screen.getByText('Invalid URL')).toBeInTheDocument();
+    });
+
+    it('marks invalid fields with aria-invalid and leaves valid ones unmarked', () => {
+      render(AppForm, {
+        props: {
+          app: makeApp(), mode: 'create', groups: defaultGroups, allApps: [],
+          errors: { name: 'Name is required' },
+        },
+      });
+      expect(document.getElementById('create-app-name')!.getAttribute('aria-invalid')).toBe('true');
+      expect(document.getElementById('create-app-url')!.hasAttribute('aria-invalid')).toBe(false);
+    });
+
+    it('keeps the danger border on a focused invalid field and shows focus with the outline', () => {
+      // app.css's global focus rules are plain CSS; load that section into the document.
+      const css = readFileSync(join(process.cwd(), 'src/app.css'), 'utf8');
+      const start = css.indexOf(':focus-visible {');
+      const end = css.indexOf('/* A clipping ancestor');
+      expect(start).toBeGreaterThan(-1);
+      expect(end).toBeGreaterThan(start);
+      const style = document.createElement('style');
+      // jsdom does not resolve var() in border colours, so substitute literal stand-ins.
+      style.textContent = css.slice(start, end)
+        .replaceAll('var(--danger-border)', 'rgb(255, 0, 0)')
+        .replaceAll('var(--border-focus)', 'rgb(0, 0, 255)');
+      document.head.appendChild(style);
+      try {
+        render(AppForm, {
+          props: {
+            app: makeApp(), mode: 'create', groups: defaultGroups, allApps: [],
+            errors: { url: 'Invalid URL' },
+          },
+        });
+        const invalid = document.getElementById('create-app-url')!;
+        invalid.focus();
+        expect(invalid.matches(':focus-visible')).toBe(true);
+        expect(getComputedStyle(invalid).borderColor).toBe('rgb(255, 0, 0)');
+        expect(getComputedStyle(invalid).outline).toMatch(/^2px solid /);
+        const valid = document.getElementById('create-app-name')!;
+        valid.focus();
+        expect(getComputedStyle(valid).borderColor).toBe('rgb(0, 0, 255)');
+      } finally {
+        style.remove();
+      }
     });
 
     it('calls onclearerror when typing in name field', async () => {

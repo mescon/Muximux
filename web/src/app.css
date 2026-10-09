@@ -552,7 +552,7 @@ html.theme-transitioning *::after {
 
   .input-ghost:focus-visible {
     background: var(--bg-surface);
-    border-color: var(--accent-primary);
+    border-color: var(--border-focus);
   }
 }
 
@@ -925,6 +925,17 @@ html.theme-transitioning *::after {
   outline-offset: 0;
   border-color: var(--border-focus);
   box-shadow: none;
+}
+/* An invalid field keeps its danger border while focused, so the error stays visible;
+   the outline alone shows focus. */
+[aria-invalid="true"]:focus-visible, .border-danger-border:focus-visible {
+  border-color: var(--danger-border);
+}
+/* A clipping ancestor (overflow hidden, auto or scroll) cuts off an outline drawn
+   outside the element, so inside one the outline is drawn just inside the element. */
+:is(.overflow-hidden, .overflow-clip, .overflow-auto, .overflow-scroll,
+    .overflow-x-hidden, .overflow-y-hidden, .overflow-x-auto, .overflow-y-auto) :focus-visible {
+  outline-offset: -2px;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

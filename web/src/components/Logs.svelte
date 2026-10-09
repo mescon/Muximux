@@ -472,7 +472,7 @@
   }
 
   .log-search-input:focus-visible {
-    border-color: var(--accent-primary);
+    border-color: var(--border-focus);
   }
 
   .log-search-clear {

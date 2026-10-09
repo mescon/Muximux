@@ -1127,11 +1127,13 @@ describe('Settings', () => {
       const addBtns = screen.getAllByText('Add Group');
       await fireEvent.click(addBtns.find(b => b.classList.contains('btn-primary'))!);
       await waitFor(() => { expect(screen.getByText('Name is required')).toBeInTheDocument(); });
+      expect(screen.getByLabelText('Name').getAttribute('aria-invalid')).toBe('true');
 
       await fireEvent.input(screen.getByLabelText('Name'), { target: { value: 'M' } });
       await waitFor(() => {
         expect(screen.queryByText('Name is required')).not.toBeInTheDocument();
       });
+      expect(screen.getByLabelText('Name').hasAttribute('aria-invalid')).toBe(false);
     });
   });
 

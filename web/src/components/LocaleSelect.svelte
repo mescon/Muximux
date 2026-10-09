@@ -160,8 +160,7 @@
     aria-controls={listId}
     aria-haspopup="listbox"
     class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-           text-start flex items-center gap-2
-"
+           text-start flex items-center gap-2"
     onclick={toggle}
     onkeydown={handleKeydown}
   >

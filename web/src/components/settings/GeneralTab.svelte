@@ -45,8 +45,7 @@
       id="title"
       type="text"
       bind:value={localConfig.title}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
       placeholder="Muximux"
     />
     <p class="text-xs text-text-disabled mt-1.5">
@@ -387,8 +386,7 @@
         id="log-level"
         bind:value={localConfig.log_level}
         disabled={!!logLevelEnv}
-        class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-"
+        class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
       >
         <option value="debug">{m.general_logDebug()}</option>
         <option value="info">{m.general_logInfo()}</option>
@@ -405,8 +403,7 @@
         type="text"
         bind:value={localConfig.proxy_timeout}
         placeholder="30s"
-        class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-"
+        class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
       />
       <span class="text-xs text-text-disabled">{m.general_proxyTimeoutHint()}</span>
     </div>

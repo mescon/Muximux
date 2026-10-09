@@ -1667,7 +1667,7 @@
     <!-- Resize handle - only when not auto-hiding, labels visible, and not manually collapsed -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
+        class="nav-resize-handle absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -2091,7 +2091,7 @@
     <!-- Resize handle (left side for right sidebar) - only when not auto-hiding and labels visible -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
+        class="nav-resize-handle absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -2788,6 +2788,20 @@
   .footer-drawer-inner {
     overflow: hidden;
     min-height: 0;
+  }
+
+  /* These containers clip their content (overflow hidden or auto), and the resize handle
+     is only 8px wide at the sidebar edge, so the global 2px-offset focus outline would be
+     cut off. Draw it just inside the element instead. Tailwind overflow-* containers get
+     the same treatment from the global rule in app.css. */
+  .top-nav-panel :global(:focus-visible),
+  .bottom-nav-panel :global(:focus-visible),
+  .group-apps-wrapper :global(:focus-visible),
+  .footer-drawer-inner :global(:focus-visible),
+  .flat-bar-scroll :global(:focus-visible),
+  .toolbar-drawer-content :global(:focus-visible),
+  .nav-resize-handle:focus-visible {
+    outline-offset: -2px;
   }
 
   /* Smooth expand/collapse for group app lists */

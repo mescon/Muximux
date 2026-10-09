@@ -1117,6 +1117,7 @@
             type="text"
             bind:value={newGroup.name}
             oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
+            aria-invalid={groupErrors.name ? 'true' : undefined}
             class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {groupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
             placeholder={m.settings_groupNamePlaceholder()}
           />
@@ -1267,6 +1268,7 @@
             type="text"
             bind:value={editingGroup.name}
             oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
+            aria-invalid={editGroupErrors.name ? 'true' : undefined}
             class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {editGroupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
           />
           {#if editGroupErrors.name}<p class="text-danger-text text-xs mt-1">{editGroupErrors.name}</p>{/if}
