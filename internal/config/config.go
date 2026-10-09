@@ -48,6 +48,10 @@ type Config struct {
 	// envRefs records scalars written as ${VAR} references in the loaded
 	// file so Save can write them back. Unexported, so YAML ignores it.
 	envRefs []envRef
+
+	// overrides records fields whose live value came from a flag or an
+	// environment variable, with the file's own value for Save to write.
+	overrides map[OverrideField]override
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -1642,7 +1646,9 @@ func (c *Config) Save(path string) error {
 			return err
 		}
 	}
-	data, err := c.marshalWithEnvRefs()
+	// Write the file's own value for any field a flag or environment
+	// variable overrode, so the override stays in memory only.
+	data, err := c.fileView().marshalWithEnvRefs()
 	if err != nil {
 		return err
 	}

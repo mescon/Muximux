@@ -285,6 +285,11 @@ type clientConfigResponse struct {
 	// sent here; the Settings UI fetches it separately via the
 	// admin-gated /api/discovery endpoints.
 	Discovery *clientDiscoveryConfig `json:"discovery,omitempty"`
+	// EnvOverrides maps each field a flag or environment variable
+	// overrides to that flag or variable's name, so Settings can show
+	// the field as locked. Admins only: it names listen, base_path and
+	// the auto-import variable, which non-admins have no use for.
+	EnvOverrides map[string]string `json:"env_overrides,omitempty"`
 }
 
 // clientDiscoveryConfig is the sanitized discovery config sent to the
@@ -345,6 +350,9 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 		Docker: clientDiscoveryDockerConfig{
 			HealthBadgePlacement: cfg.Discovery.Docker.HealthBadgePlacement,
 		},
+	}
+	if userRole == auth.RoleAdmin {
+		resp.EnvOverrides = cfg.EnvOverrides()
 	}
 	return resp
 }
@@ -512,7 +520,11 @@ func mergeErrorStatus(err error) int {
 func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate, baseApps []ClientAppConfig) {
 	cfg.Server.Title = update.Title
 	cfg.Server.Language = update.Language
-	cfg.Server.LogLevel = update.LogLevel
+	// An overridden log level is owned by the environment: a Settings
+	// save must neither change the live level nor reach the file.
+	if !cfg.IsOverridden(config.OverrideLogLevel) {
+		cfg.Server.LogLevel = update.LogLevel
+	}
 	// Unconditional so an empty value clears the setting; the proxy
 	// handler falls back to its 30s default when it is empty.
 	cfg.Server.ProxyTimeout = update.ProxyTimeout

@@ -3757,3 +3757,84 @@ func assertNoGroupOriginalName(t *testing.T, handler *APIHandler, cfg *config.Co
 		t.Errorf("GET /api/config exposes original_name: %s", w.Body.String())
 	}
 }
+
+func getConfigAs(t *testing.T, cfg *config.Config, role string) map[string]json.RawMessage {
+	t.Helper()
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+	req = req.WithContext(auth.WithUserContext(req.Context(), &auth.User{Username: "u", Role: role}))
+	w := httptest.NewRecorder()
+	handler.GetConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	var resp map[string]json.RawMessage
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+	return resp
+}
+
+func TestGetConfig_ExposesEnvOverrides(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.LogLevel = "info"
+	cfg.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", "debug")
+
+	resp := getConfigAs(t, cfg, auth.RoleAdmin)
+	var overrides map[string]string
+	if err := json.Unmarshal(resp["env_overrides"], &overrides); err != nil {
+		t.Fatalf("env_overrides missing or malformed: %v (%s)", err, resp["env_overrides"])
+	}
+	if overrides["log_level"] != "MUXIMUX_LOG_LEVEL" {
+		t.Errorf("env_overrides.log_level = %q, want MUXIMUX_LOG_LEVEL", overrides["log_level"])
+	}
+}
+
+func TestGetConfig_EnvOverridesAdminOnly(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", "debug")
+	cfg.ApplyOverride(config.OverrideListen, "--listen", ":9999")
+
+	resp := getConfigAs(t, cfg, auth.RoleUser)
+	if raw, ok := resp["env_overrides"]; ok {
+		t.Errorf("non-admin response carries env_overrides: %s", raw)
+	}
+}
+
+func TestSaveConfig_IgnoresOverriddenLogLevel(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.LogLevel = "info"
+	cfg.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", "debug")
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	handler := NewAPIHandler(cfg, path, &sync.RWMutex{})
+
+	update := ClientConfigUpdate{
+		Title:      cfg.Server.Title,
+		LogLevel:   "warn",
+		Navigation: cfg.Navigation,
+		Groups:     cfg.Groups,
+		Apps:       []ClientAppConfig{{Name: "App1", URL: "http://localhost:8080", Enabled: true}},
+	}
+	body, _ := json.Marshal(update)
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+
+	if cfg.Server.LogLevel != "debug" {
+		t.Errorf("live log level = %q, want the override debug", cfg.Server.LogLevel)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var onDisk config.Config
+	if err := yaml.Unmarshal(data, &onDisk); err != nil {
+		t.Fatal(err)
+	}
+	if onDisk.Server.LogLevel != "info" {
+		t.Errorf("file log level = %q, want info", onDisk.Server.LogLevel)
+	}
+}

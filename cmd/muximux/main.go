@@ -47,14 +47,14 @@ func resolveDataDir(dir string) string {
 
 func applyOverrides(cfg *config.Config, listenAddr, basePath string) {
 	if listenAddr != "" {
-		cfg.Server.Listen = listenAddr
+		cfg.ApplyOverride(config.OverrideListen, "--listen", listenAddr)
 	} else if v := os.Getenv("MUXIMUX_LISTEN"); v != "" {
-		cfg.Server.Listen = v
+		cfg.ApplyOverride(config.OverrideListen, "MUXIMUX_LISTEN", v)
 	}
 	if basePath != "" {
-		cfg.Server.BasePath = basePath
+		cfg.ApplyOverride(config.OverrideBasePath, "--base-path", basePath)
 	} else if v := os.Getenv("MUXIMUX_BASE_PATH"); v != "" {
-		cfg.Server.BasePath = v
+		cfg.ApplyOverride(config.OverrideBasePath, "MUXIMUX_BASE_PATH", v)
 	}
 }
 
@@ -153,11 +153,12 @@ func main() {
 	}
 
 	// Environment variable overrides for logging (take precedence over config file)
+	// These stay in memory: Save writes the file's own values.
 	if v := os.Getenv("MUXIMUX_LOG_LEVEL"); v != "" {
-		cfg.Server.LogLevel = v
+		cfg.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", v)
 	}
 	if v := os.Getenv("MUXIMUX_LOG_FORMAT"); v != "" {
-		cfg.Server.LogFormat = v
+		cfg.ApplyOverride(config.OverrideLogFormat, "MUXIMUX_LOG_FORMAT", v)
 	}
 
 	logFile := filepath.Join(*dataDir, "muximux.log")
