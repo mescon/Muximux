@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -2142,5 +2143,22 @@ func TestLoad_OIDCRedirectURL(t *testing.T) {
 	writeFile(t, path, "auth:\n  method: builtin\n  oidc:\n    enabled: true\n    redirect_url: auth/callback\n")
 	if _, err := Load(path); err == nil || !strings.Contains(err.Error(), "auth.oidc.redirect_url") {
 		t.Fatalf("relative redirect_url accepted at load: %v", err)
+	}
+}
+
+func TestHealthConfig_JSONKeysAreSnakeCase(t *testing.T) {
+	out, err := json.Marshal(HealthConfig{Enabled: false, Interval: "2m"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != `{"enabled":false,"interval":"2m","timeout":""}` {
+		t.Errorf("marshal = %s", out)
+	}
+	var h HealthConfig
+	if err := json.Unmarshal([]byte(`{"Enabled":true,"Interval":"1m"}`), &h); err != nil {
+		t.Fatal(err)
+	}
+	if !h.Enabled || h.Interval != "1m" {
+		t.Errorf("legacy capitalised keys not decoded: %+v", h)
 	}
 }

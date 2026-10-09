@@ -587,3 +587,20 @@ func TestFormatLastSeen_NeverSeenReturnsEmpty(t *testing.T) {
 		t.Errorf("never-seen key returned %q, want empty", got)
 	}
 }
+
+func TestDetachTracked_ClearsDockerAuto(t *testing.T) {
+	h, cfg := seedLifecycleHandler(t,
+		[]config.AppConfig{
+			{Name: "auto", URL: "http://10.0.0.1:80", DockerAutoImported: true,
+				DockerKey: "label:foo", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"},
+		}, nil)
+	req := httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:foo", nil)
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, req)
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status %d, want 204", w.Code)
+	}
+	if cfg.Apps[0].DockerAutoImported {
+		t.Error("DockerAutoImported still set after detach")
+	}
+}

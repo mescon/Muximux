@@ -513,9 +513,9 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate, baseApps 
 	cfg.Server.Title = update.Title
 	cfg.Server.Language = update.Language
 	cfg.Server.LogLevel = update.LogLevel
-	if update.ProxyTimeout != "" {
-		cfg.Server.ProxyTimeout = update.ProxyTimeout
-	}
+	// Unconditional so an empty value clears the setting; the proxy
+	// handler falls back to its 30s default when it is empty.
+	cfg.Server.ProxyTimeout = update.ProxyTimeout
 	// SessionCookieDomain is a server-level setting that gates the
 	// gateway auth feature; persist explicit edits so the operator
 	// can flip it from Settings without restarting first. The cookie
@@ -998,6 +998,8 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
+	// OriginalName is transport-only for PUT /api/config; never accept it here.
+	group.OriginalName = ""
 
 	if group.Name == "" {
 		respondError(w, r, http.StatusBadRequest, "Group name is required")
@@ -1036,6 +1038,8 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
+	// OriginalName is transport-only for PUT /api/config; never accept it here.
+	group.OriginalName = ""
 
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -1054,11 +1058,39 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
+	if group.Name != name {
+		for i := range h.config.Groups {
+			if i != idx && h.config.Groups[i].Name == group.Name {
+				respondError(w, r, http.StatusConflict, "Group already exists")
+				return
+			}
+		}
+	}
+
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
+	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
+	priorAllowedGroups := append([]string(nil), h.config.Discovery.Docker.LifecycleAllowedGroups...)
 	h.config.Groups[idx] = group
+
+	// A rename re-points the group's apps and its lifecycle allowlist entry
+	// so neither is left referencing the old name.
+	if group.Name != name {
+		for i := range h.config.Apps {
+			if h.config.Apps[i].Group == name {
+				h.config.Apps[i].Group = group.Name
+			}
+		}
+		for i, g := range h.config.Discovery.Docker.LifecycleAllowedGroups {
+			if g == name {
+				h.config.Discovery.Docker.LifecycleAllowedGroups[i] = group.Name
+			}
+		}
+	}
 
 	// Save config (rollback on disk failure).
 	if err := h.saveOrRollbackGroups(priorGroups, "update", group.Name); err != nil {
+		h.config.Apps = priorApps
+		h.config.Discovery.Docker.LifecycleAllowedGroups = priorAllowedGroups
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}

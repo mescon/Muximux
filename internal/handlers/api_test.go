@@ -3638,3 +3638,123 @@ func TestUpdateApp_PreservesForwardedHeaders(t *testing.T) {
 		t.Errorf("App1 = %+v", a)
 	}
 }
+
+func newGroupTestHandler(t *testing.T, cfg *config.Config) *APIHandler {
+	t.Helper()
+	return NewAPIHandler(cfg, filepath.Join(t.TempDir(), "config.yaml"), &sync.RWMutex{})
+}
+
+func TestSaveConfig_ProxyTimeoutCanBeCleared(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Server.ProxyTimeout = "30s"
+	handler := newGroupTestHandler(t, cfg)
+	update := ClientConfigUpdate{Title: "T", Groups: cfg.Groups, ProxyTimeout: ""}
+	body, _ := json.Marshal(update)
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body)))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	if cfg.Server.ProxyTimeout != "" {
+		t.Errorf("ProxyTimeout = %q, want cleared", cfg.Server.ProxyTimeout)
+	}
+	data, err := os.ReadFile(handler.configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "proxy_timeout: 30s") {
+		t.Errorf("file still has the old timeout:\n%s", data)
+	}
+	// The proxy falls back to its 30s default for an empty value.
+	if NewReverseProxyHandler(nil, "") == nil {
+		t.Error("proxy handler not constructed with empty timeout")
+	}
+}
+
+func TestUpdateGroup_RenameRepointsApps(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"Media"}
+	handler := newGroupTestHandler(t, cfg)
+	body := `{"name":"Video","color":"#ff0000"}`
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, httptest.NewRequest(http.MethodPut, "/api/group/Media", strings.NewReader(body)), "Media")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	if cfg.Apps[0].Group != "Video" {
+		t.Errorf("App1 group = %q, want Video", cfg.Apps[0].Group)
+	}
+	if cfg.Apps[1].Group != "Tools" {
+		t.Errorf("App2 group = %q, want Tools", cfg.Apps[1].Group)
+	}
+	if got := cfg.Discovery.Docker.LifecycleAllowedGroups; len(got) != 1 || got[0] != "Video" {
+		t.Errorf("allowlist = %v, want [Video]", got)
+	}
+}
+
+func TestUpdateGroup_RenameCollisionRejected(t *testing.T) {
+	cfg := createTestConfig()
+	handler := newGroupTestHandler(t, cfg)
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, httptest.NewRequest(http.MethodPut, "/api/group/Media", strings.NewReader(`{"name":"Tools"}`)), "Media")
+	if w.Code != http.StatusConflict {
+		t.Fatalf("status %d, want 409", w.Code)
+	}
+	if cfg.Groups[0].Name != "Media" || cfg.Apps[0].Group != "Media" {
+		t.Error("state changed on rejected rename")
+	}
+}
+
+func TestUpdateGroup_RenameRollsBackAppsOnSaveFailure(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"Media"}
+	blocker := filepath.Join(t.TempDir(), "blocker")
+	if err := os.WriteFile(blocker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, filepath.Join(blocker, "config.yaml"), &sync.RWMutex{})
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, httptest.NewRequest(http.MethodPut, "/api/group/Media", strings.NewReader(`{"name":"Video"}`)), "Media")
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status %d, want 500: %s", w.Code, w.Body.String())
+	}
+	if cfg.Groups[0].Name != "Media" || cfg.Apps[0].Group != "Media" || cfg.Discovery.Docker.LifecycleAllowedGroups[0] != "Media" {
+		t.Error("rename not rolled back")
+	}
+}
+
+func TestCreateGroup_IgnoresOriginalName(t *testing.T) {
+	cfg := createTestConfig()
+	handler := newGroupTestHandler(t, cfg)
+	w := httptest.NewRecorder()
+	handler.CreateGroup(w, httptest.NewRequest(http.MethodPost, "/api/groups", strings.NewReader(`{"name":"New","original_name":"x"}`)))
+	if w.Code != http.StatusCreated {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	assertNoGroupOriginalName(t, handler, cfg, "New")
+}
+
+func TestUpdateGroup_IgnoresOriginalName(t *testing.T) {
+	cfg := createTestConfig()
+	handler := newGroupTestHandler(t, cfg)
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, httptest.NewRequest(http.MethodPut, "/api/group/Media", strings.NewReader(`{"name":"Media","original_name":"x"}`)), "Media")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	assertNoGroupOriginalName(t, handler, cfg, "Media")
+}
+
+func assertNoGroupOriginalName(t *testing.T, handler *APIHandler, cfg *config.Config, name string) {
+	t.Helper()
+	for i := range cfg.Groups {
+		if cfg.Groups[i].Name == name && cfg.Groups[i].OriginalName != "" {
+			t.Errorf("stored group %s has OriginalName %q", name, cfg.Groups[i].OriginalName)
+		}
+	}
+	w := httptest.NewRecorder()
+	handler.GetConfig(w, httptest.NewRequest(http.MethodGet, "/api/config", nil))
+	if strings.Contains(w.Body.String(), "original_name") {
+		t.Errorf("GET /api/config exposes original_name: %s", w.Body.String())
+	}
+}

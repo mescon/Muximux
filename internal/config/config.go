@@ -69,9 +69,9 @@ type KeyCombo struct {
 
 // HealthConfig holds health monitoring settings
 type HealthConfig struct {
-	Enabled  bool   `yaml:"enabled"`
-	Interval string `yaml:"interval"` // Check interval, e.g., "30s", "1m"
-	Timeout  string `yaml:"timeout"`  // Request timeout, e.g., "5s"
+	Enabled  bool   `yaml:"enabled" json:"enabled"`
+	Interval string `yaml:"interval" json:"interval"` // Check interval, e.g., "30s", "1m"
+	Timeout  string `yaml:"timeout" json:"timeout"`   // Request timeout, e.g., "5s"
 }
 
 // DiscoveryConfig is the top-level container for service-discovery
