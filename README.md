@@ -160,7 +160,7 @@ docker run -d \
 
 Open `http://localhost:8080` and an onboarding wizard guides you through security and initial setup.
 
-It asks for a one-time **setup token**, generated on first boot so that nobody who reaches the port before you can claim the instance. The command above runs detached, so read the token from the log or from the mounted data directory:
+It asks for a one-time **setup token**, generated on first boot so that nobody who reaches the port before you can claim the instance. The command above runs detached, so read the token from the container output or from the mounted data directory:
 
 ```bash
 docker logs muximux | grep token

@@ -1277,12 +1277,13 @@ func (s *Server) isSetupAllowed(r *http.Request) bool {
 		return true
 	}
 
-	// Read-only endpoints needed for the onboarding wizard
+	// Read-only endpoints the onboarding wizard needs: the theme list and
+	// the icon browser. Nothing else: with auth none every request runs as
+	// the virtual admin, so the log viewer (whose buffer carries audit
+	// lines), the update check and the admin fields of /api/system/info
+	// stay closed until setup completes.
 	if r.Method == http.MethodGet {
-		return path == apiThemesPath ||
-			strings.HasPrefix(path, "/api/icons/") ||
-			strings.HasPrefix(path, "/api/system/") ||
-			strings.HasPrefix(path, "/api/logs/")
+		return path == apiThemesPath || strings.HasPrefix(path, "/api/icons/")
 	}
 
 	return false
@@ -1333,18 +1334,27 @@ func (s *Server) ensureSetupToken() error {
 	return nil
 }
 
-// logSetupToken writes a prominent log line instructing the operator where
-// to find the setup token. Kept as its own method so tests can silence it.
+// logSetupToken prints the setup token for the operator. The token goes to
+// the console only (stdout, so docker logs or the journal) through
+// logging.Console: it is never written to the log ring buffer, which the
+// log viewer serves, nor to the log file. The regular log only notes where
+// the token file is.
 func (s *Server) logSetupToken(tok string, fresh bool) {
 	verb := "Reusing existing"
 	if fresh {
 		verb = "Generated new"
 	}
-	logging.Info(
+	tokenFile := filepath.Join(s.dataDir, setupTokenFilename)
+	logging.Console(
 		verb+" setup token; present it via X-Setup-Token to complete setup or restore",
 		"source", "server",
 		"token", tok,
-		"token_file", filepath.Join(s.dataDir, setupTokenFilename),
+		"token_file", tokenFile,
+	)
+	logging.Info(
+		"Setup required; the setup token was printed to the console and saved to the token file",
+		"source", "server",
+		"token_file", tokenFile,
 	)
 }
 

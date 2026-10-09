@@ -351,6 +351,11 @@ var (
 	logFilePath   string
 	logWriter     *rotatingWriter
 	primaryFile   *os.File // when cfg.Output is a file path; closed in Close()
+
+	// consoleStderr and consoleJSON describe where and how Console writes.
+	// Set by Init; atomics because Console may run alongside a re-Init.
+	consoleStderr atomic.Bool
+	consoleJSON   atomic.Bool
 )
 
 // Init initializes the global logger with a BroadcastHandler that captures
@@ -361,6 +366,8 @@ func Init(cfg Config) error {
 	buffer = NewLogBuffer(1000)
 
 	levelVar.Set(parseLevel(cfg.Level))
+	consoleStderr.Store(strings.EqualFold(cfg.Output, "stderr"))
+	consoleJSON.Store(strings.EqualFold(cfg.Format, "json"))
 
 	var output io.Writer
 	switch strings.ToLower(cfg.Output) {
@@ -403,6 +410,27 @@ func Init(cfg Config) error {
 	slog.SetDefault(defaultLogger)
 
 	return nil
+}
+
+// Console writes a single log line to the process console only: stderr
+// when Init chose stderr as the output, stdout otherwise (including when
+// the primary output is a file). It bypasses the in-memory ring buffer, the
+// live log stream and every log file, and ignores the configured level.
+// Use it for values the operator must see at startup but that must never
+// be readable through the log viewer API or persisted on disk, such as the
+// one-time setup token. The line uses the configured format (text or JSON).
+func Console(msg string, args ...any) {
+	w := os.Stdout
+	if consoleStderr.Load() {
+		w = os.Stderr
+	}
+	var h slog.Handler
+	if consoleJSON.Load() {
+		h = slog.NewJSONHandler(w, nil)
+	} else {
+		h = slog.NewTextHandler(w, nil)
+	}
+	slog.New(h).Info(msg, args...)
 }
 
 // Close closes the rotating log writer and any primary log file
@@ -558,6 +586,12 @@ func LoadRecentFromFile() {
 		entry, err := parseTextLogLine(scanner.Text())
 		if err != nil {
 			continue // skip unparseable lines
+		}
+		// Releases before the setup token moved to Console wrote it into
+		// the log file. Never replay it into the buffer the log viewer
+		// serves.
+		if strings.Contains(entry.Message, "setup token") {
+			delete(entry.Attrs, "token")
 		}
 		entries = append(entries, entry)
 		// Keep bounded — only store last buffer.size entries

@@ -964,3 +964,90 @@ func TestPreSetup_AdminAuthEndpointsRefused(t *testing.T) {
 		t.Errorf("api-key after setup without a session: got %d, want 401", rec.Code)
 	}
 }
+
+// Before setup an anonymous caller is the virtual admin, so the log viewer
+// and update check must stay closed; the wizard's theme and icon reads stay
+// open.
+func TestPreSetup_LogsAndSystemEndpointsRefused(t *testing.T) {
+	s := newServerForTest(t, nil)
+	if !s.needsSetup.Load() {
+		t.Fatal("expected pre-setup state")
+	}
+	for _, p := range []string{"/api/logs/recent", "/api/logs/recent?limit=1000", "/api/system/updates", "/api/system/info"} {
+		rec := get(t, s, p)
+		if rec.Code != http.StatusServiceUnavailable || !strings.Contains(rec.Body.String(), "setup_required") {
+			t.Errorf("GET %s = %d %q, want 503 setup_required", p, rec.Code, rec.Body.String())
+		}
+		if strings.Contains(rec.Body.String(), s.setupToken) {
+			t.Errorf("GET %s leaked the setup token", p)
+		}
+	}
+	for _, p := range []string{"/api/themes", "/api/icons/custom"} {
+		if rec := get(t, s, p); rec.Code != http.StatusOK {
+			t.Errorf("GET %s = %d, want 200", p, rec.Code)
+		}
+	}
+}
+
+// The setup token is printed to stdout for the operator but never reaches
+// the log ring buffer (served by the log viewer) or the log file.
+func TestSetupToken_ConsoleOnly(t *testing.T) {
+	logFile := filepath.Join(t.TempDir(), "muximux.log")
+	if err := logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout", LogFile: logFile}); err != nil {
+		t.Fatalf("init logging: %v", err)
+	}
+	t.Cleanup(func() {
+		logging.Close()
+		_ = logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout"})
+	})
+
+	stdoutFile, err := os.CreateTemp(t.TempDir(), "stdout")
+	if err != nil {
+		t.Fatal(err)
+	}
+	origStdout := os.Stdout
+	os.Stdout = stdoutFile
+	s := newServerForTest(t, nil)
+	os.Stdout = origStdout
+	_ = stdoutFile.Close()
+
+	tok := s.setupToken
+	if tok == "" {
+		t.Fatal("expected a setup token before setup")
+	}
+	stdout, err := os.ReadFile(stdoutFile.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(stdout), "token="+tok) {
+		t.Errorf("setup token not printed to stdout: %q", stdout)
+	}
+
+	sawNotice := false
+	for _, e := range logging.Buffer().Recent(1000) {
+		if strings.Contains(e.Message, tok) {
+			t.Errorf("setup token in log buffer message: %+v", e)
+		}
+		for k, v := range e.Attrs {
+			if strings.Contains(v, tok) {
+				t.Errorf("setup token in log buffer attr %s: %+v", k, e)
+			}
+		}
+		if strings.Contains(e.Message, "Setup required") {
+			sawNotice = true
+		}
+	}
+	if !sawNotice {
+		t.Error("expected a setup-required notice in the log buffer")
+	}
+	data, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), tok) {
+		t.Error("setup token written to the log file")
+	}
+	if !strings.Contains(string(data), "Setup required") {
+		t.Error("expected the setup-required notice in the log file")
+	}
+}

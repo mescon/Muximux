@@ -2217,6 +2217,8 @@ func TestSetupGuardMiddleware_AuthAllowlist(t *testing.T) {
 		{http.MethodGet, "/api/auth/me"},
 		{http.MethodGet, "/api/auth/oidc/login"},
 		{http.MethodGet, "/api/auth/oidc/callback"},
+		{http.MethodGet, "/api/themes"},
+		{http.MethodGet, "/api/icons/lucide"},
 	}
 	for _, c := range allowed {
 		rec := httptest.NewRecorder()
@@ -2239,6 +2241,12 @@ func TestSetupGuardMiddleware_AuthAllowlist(t *testing.T) {
 		{http.MethodPost, "/api/auth/password"},
 		{http.MethodGet, "/api/auth/forward"},
 		{http.MethodGet, "/api/auth/statusx"},
+		// The log buffer once held the setup token, and with auth none
+		// every caller is the virtual admin: closed until setup completes.
+		{http.MethodGet, "/api/logs/recent"},
+		{http.MethodGet, "/api/system/updates"},
+		{http.MethodGet, "/api/system/info"},
+		{http.MethodPost, "/api/themes"},
 	}
 	for _, c := range blocked {
 		rec := httptest.NewRecorder()
