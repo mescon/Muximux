@@ -842,7 +842,7 @@
           <li><code>GET /api/appearance</code> for embedded or external apps reading Muximux's active language and theme.</li>
           <li>Any per-app proxy paths an admin has allowlisted with <code>auth_bypass</code> + <code>require_api_key: true</code> in <code>config.yaml</code>. Common case: webhook URLs reaching a proxied app's API.</li>
         </ul>
-        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-accent-text underline">authentication wiki</a> for the full list and webhook example.</p>
+        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-accent-text underline hover:underline hover:decoration-2 focus-visible:ring-2 focus-visible:ring-border-focus rounded-sm">authentication wiki</a> for the full list and webhook example.</p>
       </div>
 
       {#if apiKeyError}
@@ -884,7 +884,7 @@
           </div>
           <button
             type="button"
-            class="mt-3 text-xs text-warning-text underline"
+            class="mt-3 text-xs text-warning-text underline hover:underline hover:decoration-2 focus-visible:ring-2 focus-visible:ring-border-focus rounded-sm"
             onclick={dismissAPIKeyPlaintext}
           >
             I've saved it, hide the key
