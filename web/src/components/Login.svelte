@@ -156,7 +156,7 @@
       {#if localLogin}
       <form onsubmit={handleSubmit}>
         {#if error}
-          <div class="mb-4 notice notice-danger">
+          <div class="mb-4 notice notice-danger" role="alert">
             {error}
           </div>
         {/if}

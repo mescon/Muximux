@@ -116,7 +116,7 @@ describe('Login', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid credentials').className).toContain('notice-danger');
+      expect(screen.getByRole('alert').className).toContain('notice-danger');
     });
   });
 
