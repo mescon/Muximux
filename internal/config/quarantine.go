@@ -110,8 +110,63 @@ func (c *Config) QuarantineSnapshot() []quarantined {
 // RestoreQuarantine puts back a list taken with QuarantineSnapshot.
 func (c *Config) RestoreQuarantine(snap []quarantined) { c.quarantined = snap }
 
-// quarantinedApps returns copies of the quarantined apps, for fileView.
+// pruneSupersededQuarantine drops every quarantined entry a live entry has
+// taken over, and returns how many it dropped. A live app with the same name
+// or slug as a quarantined app supersedes it: the operator has resolved the
+// conflict, and writing both back would leave two apps with one name (or one
+// proxy path) in config.yaml. A quarantined site is superseded by a live site
+// with the same domain, or when its app was superseded. Save runs it through
+// fileView, under the caller's write lock, so memory and the file agree.
+func (c *Config) pruneSupersededQuarantine() int {
+	if len(c.quarantined) == 0 {
+		return 0
+	}
+	liveNames := map[string]bool{}
+	liveSlugs := map[string]bool{}
+	for i := range c.Apps {
+		liveNames[c.Apps[i].Name] = true
+		if s := Slugify(c.Apps[i].Name); s != "" {
+			liveSlugs[s] = true
+		}
+	}
+	liveDomains := map[string]bool{}
+	for i := range c.Server.GatewaySites {
+		liveDomains[strings.ToLower(c.Server.GatewaySites[i].Domain)] = true
+	}
+	supersededKeys := map[string]bool{}
+	for i := range c.quarantined {
+		q := &c.quarantined[i]
+		if q.app != nil && (liveNames[q.app.Name] || liveSlugs[Slugify(q.app.Name)]) && q.app.DockerKey != "" {
+			supersededKeys[q.app.DockerKey] = true
+		}
+	}
+	kept := make([]quarantined, 0, len(c.quarantined))
+	for i := range c.quarantined {
+		q := &c.quarantined[i]
+		var superseded bool
+		switch {
+		case q.app != nil:
+			superseded = liveNames[q.app.Name] || liveSlugs[Slugify(q.app.Name)]
+		case q.site != nil:
+			superseded = liveDomains[strings.ToLower(q.site.Domain)] ||
+				(q.site.DockerKey != "" && supersededKeys[q.site.DockerKey])
+		}
+		if superseded {
+			logging.Info("Quarantined entry superseded by a live entry; dropped from config.yaml",
+				"source", "config", "kind", q.entry.Kind, "name", q.entry.Name, "key", q.entry.Key)
+			continue
+		}
+		kept = append(kept, *q)
+	}
+	n := len(c.quarantined) - len(kept)
+	c.quarantined = kept
+	return n
+}
+
+// quarantinedApps returns copies of the quarantined apps for fileView,
+// after dropping the entries a live entry superseded.
 func (c *Config) quarantinedApps() []AppConfig {
+	c.pruneSupersededQuarantine()
 	var out []AppConfig
 	for i := range c.quarantined {
 		if c.quarantined[i].app != nil {
@@ -121,9 +176,10 @@ func (c *Config) quarantinedApps() []AppConfig {
 	return out
 }
 
-// quarantinedSites returns copies of the quarantined gateway sites, for
-// fileView.
+// quarantinedSites returns copies of the quarantined gateway sites for
+// fileView, after dropping the entries a live entry superseded.
 func (c *Config) quarantinedSites() []GatewaySite {
+	c.pruneSupersededQuarantine()
 	var out []GatewaySite
 	for i := range c.quarantined {
 		if c.quarantined[i].site != nil {
@@ -131,6 +187,23 @@ func (c *Config) quarantinedSites() []GatewaySite {
 		}
 	}
 	return out
+}
+
+// gatedSiteReason mirrors validateSessionCookieDomain for one site: a site
+// with require_auth needs server.session_cookie_domain set and its domain
+// under it. Empty means the site passes.
+func gatedSiteReason(s *GatewaySite, srv *ServerConfig) string {
+	if !s.RequireAuth {
+		return ""
+	}
+	if srv.SessionCookieDomain == "" {
+		return "require_auth is set but server.session_cookie_domain is empty"
+	}
+	parent := strings.TrimPrefix(srv.SessionCookieDomain, ".")
+	if parent != "" && !hostIsUnderParent(s.Domain, parent) {
+		return fmt.Sprintf("domain %q is not under server.session_cookie_domain %q", s.Domain, srv.SessionCookieDomain)
+	}
+	return ""
 }
 
 // quarantineReason is the single source of the app rule, shared by load and
@@ -190,22 +263,36 @@ func quarantineInvalidDockerEntries(cfg *Config) {
 }
 
 // settleQuarantinedSites is the single source of the site rule: a
-// docker-owned site of a quarantined app, or one that fails validation, is
+// docker-owned site of a quarantined app, or one that fails validation
+// (including the require_auth / session_cookie_domain rule), is
 // quarantined; a manual site whose app_name names a quarantined app has
-// that app_name cleared with a WARN.
+// that app_name cleared with a WARN. A name a live app still holds is never
+// treated as quarantined.
 func settleQuarantinedSites(cfg *Config) {
+	// A name or key a live app still holds belongs to that app, so it
+	// never counts as quarantined: a site linked to it keeps its link.
+	liveNames := map[string]bool{}
+	liveKeys := map[string]bool{}
+	ownedKeys := map[string]bool{}
+	for i := range cfg.Apps {
+		liveNames[cfg.Apps[i].Name] = true
+		if cfg.Apps[i].DockerKey != "" {
+			liveKeys[cfg.Apps[i].DockerKey] = true
+		}
+		if isDockerOwnedApp(&cfg.Apps[i]) {
+			ownedKeys[cfg.Apps[i].DockerKey] = true
+		}
+	}
 	quarantinedKeys := map[string]bool{}
 	quarantinedNames := map[string]bool{}
 	for i := range cfg.quarantined {
-		if cfg.quarantined[i].app != nil {
-			quarantinedKeys[cfg.quarantined[i].entry.Key] = true
-			quarantinedNames[cfg.quarantined[i].entry.Name] = true
-		}
-	}
-	ownedKeys := map[string]bool{}
-	for i := range cfg.Apps {
-		if isDockerOwnedApp(&cfg.Apps[i]) {
-			ownedKeys[cfg.Apps[i].DockerKey] = true
+		if q := &cfg.quarantined[i]; q.app != nil {
+			if !liveKeys[q.entry.Key] {
+				quarantinedKeys[q.entry.Key] = true
+			}
+			if !liveNames[q.entry.Name] {
+				quarantinedNames[q.entry.Name] = true
+			}
 		}
 	}
 	ownedSite := func(s *GatewaySite) bool {
@@ -228,7 +315,8 @@ func settleQuarantinedSites(cfg *Config) {
 		switch {
 		case !owned:
 			if s.AppName != "" && quarantinedNames[s.AppName] {
-				logging.Warn("Gateway site app_name cleared: its app is quarantined",
+				logging.Warn(fmt.Sprintf("Gateway site %s was linked to quarantined app %s; link removed. "+
+					"Fix the app in Discovery and re-link the site", s.Domain, s.AppName),
 					"source", "config", "domain", s.Domain, "app_name", s.AppName)
 				s.AppName = ""
 			}
@@ -239,6 +327,8 @@ func settleQuarantinedSites(cfg *Config) {
 		default:
 			if err := validateGatewaySites([]GatewaySite{*s}, cfg); err != nil {
 				reason = err.Error()
+			} else {
+				reason = gatedSiteReason(s, &cfg.Server)
 			}
 		}
 		if reason != "" {

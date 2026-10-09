@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -329,4 +330,143 @@ func TestLogQuarantined(t *testing.T) {
 	if n := LogQuarantined(nil); n != 0 {
 		t.Fatalf("LogQuarantined(nil) = %d", n)
 	}
+}
+
+// A quarantined app that shares its name with a live app never unlinks a
+// site from the live app, and Save drops the superseded entry so the file
+// holds one "Sonarr".
+func TestLoad_SameNameLiveAppKeepsSiteLink(t *testing.T) {
+	path := writeTempConfig(t, `
+server:
+  gateway_sites:
+    - domain: sonarr.example.com
+      backend_url: http://sonarr:8989
+      app_name: Sonarr
+apps:
+  - name: Sonarr
+    url: http://sonarr:8989
+    enabled: true
+  - name: Sonarr
+    url: http://sonarr2:8989
+    enabled: true
+    docker_key: "label:sonarr"
+    docker_auto: true
+`)
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() = %v", err)
+	}
+	if len(cfg.Server.GatewaySites) != 1 || cfg.Server.GatewaySites[0].AppName != "Sonarr" {
+		t.Fatalf("site lost its link: %+v", cfg.Server.GatewaySites)
+	}
+	if q := cfg.Quarantined(); len(q) != 1 || q[0].Key != "label:sonarr" {
+		t.Fatalf("quarantined = %+v", q)
+	}
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(path)
+	if n := len(regexp.MustCompile(`(?m)^\s*- name: Sonarr\s*$`).FindAll(raw, -1)); n != 1 {
+		t.Fatalf("file holds %d Sonarr apps:\n%s", n, raw)
+	}
+	if len(cfg.Quarantined()) != 0 {
+		t.Fatalf("superseded entry still in memory: %+v", cfg.Quarantined())
+	}
+	again, err := Load(path)
+	if err != nil || again.Server.GatewaySites[0].AppName != "Sonarr" {
+		t.Fatalf("second load: err=%v sites=%+v", err, again.Server.GatewaySites)
+	}
+}
+
+func TestPruneSupersededQuarantine(t *testing.T) {
+	cfg := defaultConfig()
+	cfg.QuarantineApp(&AppConfig{Name: "Vaultwarden", DockerKey: "label:vw"}, "r")
+	cfg.QuarantineSite(&GatewaySite{Domain: "vw.example.com", DockerKey: "label:vw"}, "r")
+	cfg.QuarantineApp(&AppConfig{Name: "Radarr", DockerKey: "label:r"}, "r")
+	cfg.QuarantineSite(&GatewaySite{Domain: "Taken.example.com", DockerKey: "label:r"}, "r")
+	cfg.QuarantineSite(&GatewaySite{Domain: "free.example.com", DockerKey: "label:r"}, "r")
+	if n := cfg.pruneSupersededQuarantine(); n != 0 {
+		t.Fatalf("nothing live yet, pruned %d", n)
+	}
+	// A live app with the quarantined app's slug supersedes it and its
+	// site; a live site with a quarantined site's domain supersedes it.
+	cfg.Apps = []AppConfig{{Name: "vaultwarden", URL: "http://vw:80", Enabled: true}}
+	cfg.Server.GatewaySites = []GatewaySite{{Domain: "taken.example.com", BackendURL: "http://t:80"}}
+	if n := cfg.pruneSupersededQuarantine(); n != 3 {
+		t.Fatalf("pruned %d, want 3", n)
+	}
+	q := cfg.Quarantined()
+	if len(q) != 2 || q[0].Name != "Radarr" || q[1].Name != "free.example.com" {
+		t.Fatalf("left = %+v", q)
+	}
+	empty := defaultConfig()
+	if n := empty.pruneSupersededQuarantine(); n != 0 {
+		t.Fatalf("empty pruned %d", n)
+	}
+}
+
+// Spec section 2: a docker-owned site with require_auth and no usable
+// session_cookie_domain is quarantined; a manual one still fails Load.
+func TestLoad_QuarantinesGatedDockerSite(t *testing.T) {
+	const apps = `
+apps:
+  - name: A
+    url: http://a:80
+    enabled: true
+    docker_key: "label:a"
+    docker_auto: true
+`
+	t.Run("no cookie domain", func(t *testing.T) {
+		cfg, err := Load(writeTempConfig(t, `
+server:
+  gateway_sites:
+    - domain: a.example.com
+      backend_url: http://a:80
+      require_auth: true
+      docker_key: "label:a"
+`+apps))
+		if err != nil {
+			t.Fatalf("Load() = %v", err)
+		}
+		if q := cfg.Quarantined(); len(q) != 1 || q[0].Kind != "gateway" || !strings.Contains(q[0].Reason, "session_cookie_domain") {
+			t.Fatalf("quarantined = %+v", q)
+		}
+	})
+	t.Run("domain outside cookie domain", func(t *testing.T) {
+		cfg, err := Load(writeTempConfig(t, `
+server:
+  session_cookie_domain: .example.com
+  gateway_sites:
+    - domain: a.other.org
+      backend_url: http://a:80
+      require_auth: true
+      docker_key: "label:a"
+    - domain: b.example.com
+      backend_url: http://a:80
+      require_auth: true
+      docker_key: "label:a"
+`+apps))
+		if err != nil {
+			t.Fatalf("Load() = %v", err)
+		}
+		q := cfg.Quarantined()
+		if len(q) != 1 || q[0].Name != "a.other.org" || !strings.Contains(q[0].Reason, "not under") {
+			t.Fatalf("quarantined = %+v", q)
+		}
+		if len(cfg.Server.GatewaySites) != 1 || cfg.Server.GatewaySites[0].Domain != "b.example.com" {
+			t.Fatalf("live sites = %+v", cfg.Server.GatewaySites)
+		}
+	})
+	t.Run("manual site still fails", func(t *testing.T) {
+		_, err := Load(writeTempConfig(t, `
+server:
+  gateway_sites:
+    - domain: a.example.com
+      backend_url: http://a:80
+      require_auth: true
+`+apps))
+		if err == nil || !strings.Contains(err.Error(), "session_cookie_domain") {
+			t.Fatalf("Load() = %v, want session_cookie_domain error", err)
+		}
+	})
 }
