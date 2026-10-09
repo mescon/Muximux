@@ -226,11 +226,16 @@
          above the live status banner so an operator who checks the
          page sees the divergence first. -->
     {#if divergenceBanner}
-      <div role={divergenceBanner.tone === 'red' ? 'alert' : 'status'} class="notice
-                  {divergenceBanner.tone === 'red' ? 'notice-danger' : 'notice-warning'}">
-        <strong class="font-semibold">{divergenceBanner.tone === 'red' ? 'Gateway divergence detected' : 'Gateway recovered'}</strong>
-        <div class="mt-1 text-xs">{divergenceBanner.text}</div>
-      </div>
+      <!-- Keyed on the tone so a red -> recovered change re-inserts the
+           element; screen readers do not announce a role change on a
+           mounted node. -->
+      {#key divergenceBanner.tone}
+        <div role={divergenceBanner.tone === 'red' ? 'alert' : 'status'} class="notice
+                    {divergenceBanner.tone === 'red' ? 'notice-danger' : 'notice-warning'}">
+          <strong class="font-semibold">{divergenceBanner.tone === 'red' ? 'Gateway divergence detected' : 'Gateway recovered'}</strong>
+          <div class="mt-1 text-xs">{divergenceBanner.text}</div>
+        </div>
+      {/key}
     {/if}
 
     <!-- Live status banner -->
@@ -499,7 +504,7 @@
 
       <!-- Test result -->
       {#if testResult && testVisual}
-        <div class="notice
+        <div role={testVisual.tone === 'red' ? 'alert' : 'status'} class="notice
                     {testVisual.tone === 'red' ? 'notice-danger' : ''}
                     {testVisual.tone === 'amber' ? 'notice-warning' : ''}
                     {testVisual.tone === 'green' ? 'notice-success' : ''}

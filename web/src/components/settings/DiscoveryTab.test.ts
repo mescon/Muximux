@@ -612,24 +612,39 @@ describe('DiscoveryTab notice tokens', () => {
     expect(screen.getByText(/Discovery is disabled/i).closest('.notice')!.className).toContain('notice-neutral');
   });
 
-  it('uses notice-warning and role=alert for the red divergence banner, status for recovery', async () => {
+  it('re-inserts the divergence banner with the right role when the state changes in one mount', async () => {
     mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(
       makeStatus({ refresh_divergences: 2, last_divergence_at: '2026-05-06T10:00:00Z' }),
     );
-    const { unmount } = render(DiscoveryTab);
+    mockApi.updateDiscoveryDockerConfig.mockResolvedValue(
+      makeStatus({ refresh_divergences: 1, last_divergence_at: '2026-05-06T10:00:00Z', recovered_at: '2026-05-06T10:01:30Z' }),
+    );
+    render(DiscoveryTab);
     await waitFor(() => expect(screen.getByText(/Gateway divergence detected/i)).toBeInTheDocument());
     const red = screen.getByText(/Gateway divergence detected/i).closest('.notice')!;
     expect(red.className).toContain('notice-danger');
     expect(red).toHaveAttribute('role', 'alert');
-    unmount();
 
-    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(
-      makeStatus({ refresh_divergences: 1, last_divergence_at: '2026-05-06T10:00:00Z', recovered_at: '2026-05-06T10:01:30Z' }),
-    );
-    render(DiscoveryTab);
+    await fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
     await waitFor(() => expect(screen.getByText(/Gateway recovered/i)).toBeInTheDocument());
     const amber = screen.getByText(/Gateway recovered/i).closest('.notice')!;
     expect(amber.className).toContain('notice-warning');
     expect(amber).toHaveAttribute('role', 'status');
+    expect(amber).not.toBe(red);
+    expect(red.isConnected).toBe(false);
+  });
+
+  it('gives the test result role=status, and role=alert on failure', async () => {
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    mockApi.testDiscoveryDockerConfig.mockResolvedValueOnce(makeStatus());
+    render(DiscoveryTab);
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /test/i }));
+    await waitFor(() => expect(screen.getByText(/Test result:/i)).toBeInTheDocument());
+    expect(screen.getByText(/Test result:/i).closest('.notice')).toHaveAttribute('role', 'status');
+
+    mockApi.testDiscoveryDockerConfig.mockResolvedValueOnce(makeStatus({ reachable: false, last_error: 'nope' }));
+    await fireEvent.click(screen.getByRole('button', { name: /test/i }));
+    await waitFor(() => expect(screen.getByText(/Test result:/i).closest('.notice')).toHaveAttribute('role', 'alert'));
   });
 });
