@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Pievienojiet savu pirmo lietotni, lai sāktu darbu ar paneli.",
   "splash_addApplication": "Pievienot lietotni",
   "logs_title": "Žurnāli",
+  "logs_entriesRegion": "Žurnāla ieraksti",
   "logs_backToDashboard": "Atpakaļ uz paneli",
   "logs_resume": "Atsākt",
   "logs_pause": "Pauzēt",

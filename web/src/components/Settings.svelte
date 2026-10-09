@@ -776,12 +776,17 @@
            {isMobile
              ? 'h-full max-h-full rounded-none'
              : 'rounded-xl max-w-4xl max-h-[90vh]'}"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="settings-title"
+    tabindex="-1"
+    use:focusTrap
     in:fly={{ y: isMobile ? 50 : 20, duration: motionMs(200) }}
     out:fade={{ duration: motionMs(100) }}
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
-      <h2 class="text-lg font-semibold text-text-primary">{m.settings_title()}</h2>
+      <h2 id="settings-title" class="text-lg font-semibold text-text-primary">{m.settings_title()}</h2>
       <div class="flex items-center gap-2">
         {#if hasChanges}
           <span class="text-xs text-warning-text">{m.settings_unsavedChanges()}</span>
@@ -1095,6 +1100,11 @@
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
+      role="dialog"
+      aria-modal="true"
+      aria-label={m.settings_addGroup()}
+      tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 10, duration: motionMs(150) }}
       out:fade={{ duration: motionMs(75) }}
     >
@@ -1248,10 +1258,15 @@
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-group-title"
+      tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
+        <h3 id="edit-group-title" class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={cancelEditGroup}
@@ -1358,11 +1373,16 @@
     <div
       class="bg-bg-surface shadow-2xl w-full border border-border
              {isMobile ? 'h-full max-h-full rounded-none' : 'rounded-xl max-w-3xl'}"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="icon-browser-title"
+      tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 10, duration: motionMs(150) }}
       out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">{m.settings_selectIcon()}</h3>
+        <h3 id="icon-browser-title" class="text-lg font-semibold text-text-primary">{m.settings_selectIcon()}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={() => { showIconBrowser = false; iconBrowserTarget = null; }}
@@ -1392,10 +1412,15 @@
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="import-config-title"
+      tabindex="-1"
+      use:focusTrap
       in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>
+        <h3 id="import-config-title" class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={cancelImport}

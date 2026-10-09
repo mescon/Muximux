@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "添加第一个应用来开始使用仪表盘。",
   "splash_addApplication": "添加应用",
   "logs_title": "日志",
+  "logs_entriesRegion": "日志条目",
   "logs_backToDashboard": "回到仪表盘",
   "logs_resume": "继续",
   "logs_pause": "暂停",

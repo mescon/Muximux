@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/focusTrap';
   import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
@@ -85,6 +86,7 @@
   aria-label={m.shortcuts_title()}
   aria-describedby="shortcuts-subtitle"
   tabindex="-1"
+  use:focusTrap
   transition:fade={{ duration: motionMs(150) }}
 >
   <div

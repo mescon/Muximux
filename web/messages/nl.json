@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Voeg je eerste applicatie toe om aan de slag te gaan met je dashboard.",
   "splash_addApplication": "Applicatie toevoegen",
   "logs_title": "Logs",
+  "logs_entriesRegion": "Logvermeldingen",
   "logs_backToDashboard": "Terug naar dashboard",
   "logs_resume": "Hervatten",
   "logs_pause": "Pauzeren",

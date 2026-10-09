@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Adiciona a tua primeira aplicação para começar a usar o teu painel.",
   "splash_addApplication": "Adicionar aplicação",
   "logs_title": "Logs",
+  "logs_entriesRegion": "Entradas de registo",
   "logs_backToDashboard": "Voltar ao painel",
   "logs_resume": "Retomar",
   "logs_pause": "Pausar",

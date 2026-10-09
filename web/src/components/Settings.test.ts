@@ -713,6 +713,48 @@ describe('Settings', () => {
   // =======================================================================
   // B. Add App Modal Flow
   // =======================================================================
+  describe('Settings dialog focus', () => {
+    it('is a labelled modal dialog and moves focus inside', async () => {
+      renderSettings();
+      const dialog = screen.getByRole('dialog', { name: 'Settings' });
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+      await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+    });
+
+    it('wraps Tab and Shift+Tab inside the dialog', async () => {
+      renderSettings();
+      const dialog = screen.getByRole('dialog', { name: 'Settings' });
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
+      const last = focusable[focusable.length - 1];
+      last.focus();
+      await fireEvent.keyDown(last, { key: 'Tab' });
+      expect(document.activeElement).toBe(focusable[0]);
+      await fireEvent.keyDown(focusable[0], { key: 'Tab', shiftKey: true });
+      expect(document.activeElement).toBe(last);
+    });
+
+    it('makes siblings of the dialog host inert while open', () => {
+      const behind = document.createElement('nav');
+      document.body.appendChild(behind);
+      const { unmount } = renderSettings();
+      expect(behind.hasAttribute('inert')).toBe(true);
+      unmount();
+      expect(behind.hasAttribute('inert')).toBe(false);
+      behind.remove();
+    });
+
+    it('returns focus to the opener on close', () => {
+      const opener = document.createElement('button');
+      document.body.appendChild(opener);
+      opener.focus();
+      const { unmount } = renderSettings();
+      expect(document.activeElement).not.toBe(opener);
+      unmount();
+      expect(document.activeElement).toBe(opener);
+      opener.remove();
+    });
+  });
+
   describe('Add App Modal Flow', () => {
     it('opens Add App modal showing "Add Application" heading', async () => {
       renderSettings({ initialTab: 'apps' });
@@ -728,7 +770,7 @@ describe('Settings', () => {
       renderSettings({ initialTab: 'apps' });
       await fireEvent.click(screen.getByTestId('trigger-add-app'));
 
-      const dialog = await screen.findByRole('dialog');
+      const dialog = await screen.findByRole('dialog', { name: 'Add Application' });
       expect(dialog).toHaveAttribute('aria-modal', 'true');
       // aria-labelledby points at the heading, so the accessible name is set.
       expect(dialog).toHaveAccessibleName('Add Application');
@@ -737,6 +779,16 @@ describe('Settings', () => {
       await waitFor(() => {
         expect(dialog.contains(document.activeElement)).toBe(true);
       });
+    });
+
+    it('traps focus in a nested dialog and makes the Settings panel behind it inert until it closes', async () => {
+      renderSettings({ initialTab: 'apps' });
+      const main = screen.getByRole('dialog', { name: 'Settings' });
+      const backdrop = main.parentElement!;
+      expect(backdrop.hasAttribute('inert')).toBe(false);
+      await fireEvent.click(screen.getByTestId('trigger-add-app'));
+      await screen.findByRole('dialog', { name: 'Add Application' });
+      await waitFor(() => expect(backdrop.hasAttribute('inert')).toBe(true));
     });
 
     it('shows search input and popular apps in choose step', async () => {

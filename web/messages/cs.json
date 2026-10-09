@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Přidejte svou první aplikaci pro začátek s panelem.",
   "splash_addApplication": "Přidat aplikaci",
   "logs_title": "Logy",
+  "logs_entriesRegion": "Záznamy logu",
   "logs_backToDashboard": "Zpět na panel",
   "logs_resume": "Pokračovat",
   "logs_pause": "Pozastavit",

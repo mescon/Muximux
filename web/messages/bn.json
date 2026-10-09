@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "আপনার ড্যাশবোর্ড শুরু করতে আপনার প্রথম অ্যাপ্লিকেশন যোগ করুন।",
   "splash_addApplication": "অ্যাপ্লিকেশন যোগ করুন",
   "logs_title": "লগ",
+  "logs_entriesRegion": "লগ এন্ট্রি",
   "logs_backToDashboard": "ড্যাশবোর্ডে ফিরে যান",
   "logs_resume": "পুনরায় শুরু",
   "logs_pause": "বিরতি",

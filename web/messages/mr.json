@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "तुमच्या डॅशबोर्डसह सुरू करण्यासाठी पहिले अॅप्लिकेशन जोडा.",
   "splash_addApplication": "अॅप्लिकेशन जोडा",
   "logs_title": "लॉग",
+  "logs_entriesRegion": "लॉग नोंदी",
   "logs_backToDashboard": "डॅशबोर्डवर परत",
   "logs_resume": "पुन्हा सुरू करा",
   "logs_pause": "थांबवा",
