@@ -411,6 +411,40 @@ describe('ThemeTab', () => {
       });
     });
 
+    async function saveWithVars(vars: Record<string, string>) {
+      mockGetCurrentThemeVars.mockReturnValue(vars);
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Theme name...')).toBeInTheDocument();
+      });
+      await fireEvent.input(screen.getByPlaceholderText('Theme name...'), { target: { value: 'My Theme' } });
+      await fireEvent.click(screen.getByText('Save Theme'));
+      await waitFor(() => expect(mockSaveCustomTheme).toHaveBeenCalled());
+      return mockSaveCustomTheme.mock.calls[0][3] as Record<string, string>;
+    }
+
+    it('writes a computed accent-on-primary when saving a theme', async () => {
+      const vars = await saveWithVars({
+        '--bg-base': '#1a1a2e',
+        '--accent-primary': '#ffe066',
+        '--accent-on-primary': '#ffffff',
+      });
+      expect(vars['--accent-on-primary']).toBe('#111111');
+    });
+
+    it('computes a light on-colour for a dark accent', async () => {
+      const vars = await saveWithVars({ '--accent-primary': '#1a237e' });
+      expect(vars['--accent-on-primary']).toBe('#ffffff');
+    });
+
+    it('sends the map unchanged when the accent does not parse', async () => {
+      const input = { '--bg-base': '#1a1a2e', '--accent-primary': 'not-a-colour' };
+      const vars = await saveWithVars(input);
+      expect(vars).toEqual(input);
+      expect(vars).not.toHaveProperty('--accent-on-primary');
+    });
+
     it('shows success toast after successful save', async () => {
       render(ThemeTab);
 

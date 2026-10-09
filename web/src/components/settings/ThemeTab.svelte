@@ -3,6 +3,7 @@
   import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { toasts } from '$lib/toastStore';
   import * as m from '$lib/paraglide/messages.js';
+  import { parseColor, pickOnColor } from '$lib/contrast';
 
   // Theme delete confirmation
   let confirmDeleteTheme = $state<string | null>(null);
@@ -73,11 +74,14 @@
   async function handleSaveTheme() {
     if (!saveThemeName.trim()) return;
     isSavingTheme = true;
+    // Text on the accent is derived from the accent, so a saved theme always carries a readable pair
+    const accent = parseColor(themeEditorVars['--accent-primary']);
+    const variables = { ...themeEditorVars, ...(accent ? { '--accent-on-primary': pickOnColor(accent) } : {}) };
     const result = await saveCustomThemeToServer(
       saveThemeName.trim(),
       $resolvedTheme,
       $isDarkTheme,
-      themeEditorVars,
+      variables,
       saveThemeDescription.trim(),
       saveThemeAuthor.trim()
     );

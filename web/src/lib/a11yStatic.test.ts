@@ -1,25 +1,13 @@
 // Static accessibility guard. Scans every component for colour classes and CSS that
 // bypass the theme tokens, for focus outlines removed without replacement, for form
 // controls without a programmatic label and for icon-only buttons without a name.
-// BUDGET holds the counts still allowed while the structure PR migrates the code;
-// the PR's last tasks set every budget to 0 and then remove the budgets.
+// The guard is strict: any finding fails the test and is listed as file:line.
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parse, type AST } from 'svelte/compiler';
 
 const SRC = path.join(process.cwd(), 'src');
-
-export const BUDGET: Record<string, number> = {
-  palette: 0,
-  whiteBlack: 0,
-  styleColours: 0,
-  tokenAsText: 0,
-  arbitraryToken: 0,
-  outline: 0,
-  unlabeled: 0,
-  unnamedButtons: 0,
-};
 
 const PALETTE = 'red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone|brand';
 const PROPS = 'text|bg|border|border-t|border-b|border-l|border-r|border-x|border-y|border-s|border-e|ring|ring-offset|outline|divide|from|via|to|fill|stroke|placeholder|accent|caret|shadow|decoration';
@@ -231,15 +219,9 @@ describe('a11y static guard', () => {
   });
 
   for (const rule of Object.keys(findings)) {
-    it(`${rule}: exactly ${BUDGET[rule]} findings`, () => {
+    it(`${rule}: no findings`, () => {
       const list = findings[rule];
-      const msg = `${rule}: ${list.length} findings (budget ${BUDGET[rule]})\n${list.join('\n')}`;
-      if (BUDGET[rule] === 0) expect(list, msg).toEqual([]);
-      else {
-        expect(list.length, msg).toBeLessThanOrEqual(BUDGET[rule]);
-        expect(list.length, `lower BUDGET.${rule} to ${list.length}`).toBe(BUDGET[rule]);
-      }
-      console.info(`a11y guard ${rule}: ${list.length}`);
+      expect(list, `${rule}: ${list.length} findings\n${list.join('\n')}`).toEqual([]);
     });
   }
 });
