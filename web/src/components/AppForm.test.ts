@@ -416,4 +416,29 @@ describe('AppForm', () => {
       expect(occurrences.length).toBeGreaterThanOrEqual(2);
     });
   });
+
+  // =========================================================================
+  // http_action method default (S-32)
+  // =========================================================================
+  describe('http_action method default', () => {
+    it('does not write a method on mount', async () => {
+      const app = makeApp({ open_mode: 'http_action' });
+      // Ensure http_action_method is undefined initially
+      expect(app.http_action_method).toBeUndefined();
+
+      render(AppForm, { props: { app, mode: 'edit', groups: defaultGroups, allApps: [] } });
+
+      // The select should exist
+      const select = document.getElementById('edit-app-action-method') as HTMLSelectElement;
+      expect(select).toBeInTheDocument();
+
+      // The select should display POST (the default) but not write to app.http_action_method
+      expect(select.value).toBe('POST');
+      expect(app.http_action_method).toBeUndefined();
+
+      // When user chooses GET, it should write GET to the app
+      await fireEvent.change(select, { target: { value: 'GET' } });
+      expect(app.http_action_method).toBe('GET');
+    });
+  });
 });
