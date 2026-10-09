@@ -604,8 +604,11 @@ func TestIssue499_RedeployKeepsOneAppAndState(t *testing.T) { // F-07
 		p.tick(context.Background())
 		cfg.Apps[0].DockerKey = "name:bindery_web.1.71e9k1i0wfiyk5sbbjku668er" // a 3.5.0 install tracked it by task name
 		cfg.Apps[0].Pinned = true
+		// A gap tick: the old task is gone and the new one is not up yet.
+		set = nil
+		p.tick(context.Background())
 		set = []ContainerSummary{swarmTask("bindery_web.1.newtaskidnewtaskidnewtaskid", "bindery/web", map[string]string{"muximux.app.port": "8080"})}
-		for i := 0; i <= syncRemovalGraceTicks; i++ {
+		for i := 0; i < syncRemovalGraceTicks; i++ {
 			p.tick(context.Background())
 			if len(cfg.Apps) != 1 {
 				t.Fatalf("mode %s tick %d: %d apps", mode, i, len(cfg.Apps))
@@ -618,6 +621,9 @@ func TestIssue499_RedeployKeepsOneAppAndState(t *testing.T) { // F-07
 		if p.deps.Service.LastSeen("swarm:bindery_web").IsZero() {
 			t.Fatalf("mode %s: Service records not on the new key", mode)
 		}
+		if !p.deps.Service.MissingSince("swarm:bindery_web").IsZero() {
+			t.Fatalf("mode %s: running app left missing after the gap", mode)
+		}
 	}
 }
 
@@ -626,6 +632,7 @@ func TestIssue499_RedeployKeepsOneAppAndState(t *testing.T) { // F-07
 func TestApplyRefreshBatch_RekeyRenamesServiceOnlyAfterSave(t *testing.T) {
 	cfg := &config.Config{Apps: []config.AppConfig{{Name: "B", URL: "http://b:1", DockerKey: "name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa", DockerManagedURL: "http://b:1", Enabled: true}}}
 	svc := NewService(&config.DiscoveryDockerConfig{})
+	svc.RecordSeen("name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa")
 	svc.MarkMissing("name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa")
 	var mu sync.RWMutex
 	fail := true
@@ -645,7 +652,10 @@ func TestApplyRefreshBatch_RekeyRenamesServiceOnlyAfterSave(t *testing.T) {
 	b = newRefreshBatch()
 	b.rekeys = map[string]string{"name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa": "swarm:b"}
 	p.applyRefreshBatch(b)
-	if cfg.Apps[0].DockerKey != "swarm:b" || svc.MissingSince("swarm:b").IsZero() {
+	// Last-seen moves; the missing record is dropped, since a re-keyed
+	// container is present by construction.
+	if cfg.Apps[0].DockerKey != "swarm:b" || svc.LastSeen("swarm:b").IsZero() ||
+		!svc.MissingSince("swarm:b").IsZero() || !svc.MissingSince("name:b.1.aaaaaaaaaaaaaaaaaaaaaaaaa").IsZero() {
 		t.Fatalf("successful save: key=%q", cfg.Apps[0].DockerKey)
 	}
 }

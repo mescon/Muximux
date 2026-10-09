@@ -387,15 +387,22 @@ func (s *Service) RenameTrackedKey(oldKey, newKey string) {
 	}
 }
 
-// pruneMissing drops the missing record of every key not in keep, so the
-// map cannot outgrow the tracked set.
-func (s *Service) pruneMissing(keep map[string]bool) {
-	s.missingSince.Range(func(k, _ any) bool {
-		if key, ok := k.(string); ok && !keep[key] {
-			s.missingSince.Delete(key)
-		}
-		return true
-	})
+// pruneUntracked drops the last-seen and missing records of every key not
+// in keep, so neither map can outgrow the tracked set.
+func (s *Service) pruneUntracked(keep map[string]bool) {
+	for _, m := range []*sync.Map{&s.lastSeenAt, &s.missingSince} {
+		m.Range(func(k, _ any) bool {
+			if key, ok := k.(string); ok && !keep[key] {
+				m.Delete(key)
+			}
+			return true
+		})
+	}
+}
+
+// clearMissing drops the missing record of key, if any.
+func (s *Service) clearMissing(key string) {
+	s.missingSince.Delete(key)
 }
 
 // LastSeen returns the most recent time the given key was resolved,

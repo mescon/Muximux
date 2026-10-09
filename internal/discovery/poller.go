@@ -300,8 +300,9 @@ func (p *Poller) noteResolve(svc *Service, key string, err error, kind, nameFiel
 	return false
 }
 
-// pruneTrackedState drops per-key resolve state of keys that are no longer
-// tracked, so the maps cannot grow without bound.
+// pruneTrackedState drops per-key resolve state (resolve failures, last-seen
+// and missing records) of keys that are no longer tracked, so the maps
+// cannot grow without bound.
 func (p *Poller) pruneTrackedState(svc *Service, tracked *trackedSet) {
 	keep := make(map[string]bool, len(tracked.apps)+len(tracked.sites))
 	for i := range tracked.apps {
@@ -315,7 +316,7 @@ func (p *Poller) pruneTrackedState(svc *Service, tracked *trackedSet) {
 			delete(p.resolveFailed, k)
 		}
 	}
-	svc.pruneMissing(keep)
+	svc.pruneUntracked(keep)
 }
 
 // gateSyncRemovals applies removal hysteresis to the sync-mode removal
@@ -986,11 +987,11 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 
 	// Re-keys first, so the URL changes and the reconcile plan below
 	// (keyed by the new keys) find their entries.
-	rekeyed, ok := applyRekeysToConfig(p.deps.Config, batch.rekeys, batch.endpoint)
+	rekeyed, conflict, ok := applyRekeysToConfig(p.deps.Config, batch.rekeys, batch.endpoint)
 	if !ok {
 		rollback()
 		logging.Warn("Docker tracking key migration skipped: target key taken since the scan; nothing saved this tick",
-			"source", "discovery")
+			"source", "discovery", "key", conflict)
 		return
 	}
 

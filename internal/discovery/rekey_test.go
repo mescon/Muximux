@@ -1,9 +1,12 @@
 package discovery
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 
@@ -151,8 +154,8 @@ func TestApplyRefreshBatch_RekeyMovesAppAndSiteOnEndpoint(t *testing.T) {
 	if cfg.Apps[0].DockerKey != "swarm:b" || cfg.Server.GatewaySites[0].DockerKey != "swarm:b" || cfg.Apps[1].DockerKey != old {
 		t.Fatalf("apps = %+v sites = %+v", cfg.Apps, cfg.Server.GatewaySites)
 	}
-	if svc.MissingSince("swarm:b").IsZero() || !svc.MissingSince(old).IsZero() {
-		t.Fatal("missing record did not move to the new key")
+	if !svc.MissingSince("swarm:b").IsZero() || !svc.MissingSince(old).IsZero() {
+		t.Fatal("the missing record must be dropped, not carried to the new key")
 	}
 	if p.syncAbsent["swarm:b"] != 2 || p.syncAbsent[old] != 0 || saved != 1 {
 		t.Fatalf("syncAbsent = %v saved = %d", p.syncAbsent, saved)
@@ -176,6 +179,10 @@ func TestApplyRefreshBatch_RekeyTargetTakenAbortsBatch(t *testing.T) {
 		}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			prev := slog.Default()
+			slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+			defer slog.SetDefault(prev)
 			cfg := &config.Config{Apps: []config.AppConfig{{Name: "B", URL: "http://b:1", DockerKey: old, DockerManagedURL: "http://b:1", Enabled: true}}}
 			tc.setup(cfg)
 			saves := 0
@@ -192,6 +199,9 @@ func TestApplyRefreshBatch_RekeyTargetTakenAbortsBatch(t *testing.T) {
 				if cfg.Apps[i].URL == "http://changed:1" {
 					t.Fatalf("batch partly applied: %+v", cfg.Apps)
 				}
+			}
+			if !strings.Contains(buf.String(), "key=swarm:b") {
+				t.Fatalf("abort WARN must name the conflicting key; log=%s", buf.String())
 			}
 		})
 	}
@@ -269,5 +279,41 @@ func TestTick_RekeyRunsWithAutoImportOff(t *testing.T) {
 		if !quarantined && cfg.Apps[0].URL != "http://bindery_web:8080" {
 			t.Fatalf("URL = %q", cfg.Apps[0].URL)
 		}
+	}
+}
+
+// A redeploy with a gap tick (old task gone, new one not up yet, then the
+// new one up and re-keyed) must not leave the running app missing on the
+// new key or log a false recovery on the next tick.
+func TestTick_RekeyAfterGapDoesNotCarryMissing(t *testing.T) {
+	const old = "name:bindery_web.1.71e9k1i0wfiyk5sbbjku668er"
+	var buf bytes.Buffer
+	prev := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	defer slog.SetDefault(prev)
+	var set []ContainerSummary
+	p, cfg := swarmPoller(t, &set, config.AutoImportOff)
+	cfg.Apps = []config.AppConfig{{Name: "Bindery", URL: "http://old:8080", DockerKey: old, DockerEndpoint: cfg.Discovery.Docker.Endpoint,
+		DockerStrategy: string(config.StrategyContainerDNS), DockerManagedURL: "http://old:8080", Enabled: true}}
+	svc := p.deps.Service
+	p.tick(context.Background()) // gap
+	if svc.MissingSince(old).IsZero() {
+		t.Fatal("gap tick must mark the old key missing")
+	}
+	set = []ContainerSummary{swarmTask("bindery_web.1.newtaskidnewtaskidnewtaskid", "bindery/web", map[string]string{"muximux.app.port": "8080"})}
+	for i := 0; i < 2; i++ {
+		p.tick(context.Background())
+		if cfg.Apps[0].DockerKey != "swarm:bindery_web" {
+			t.Fatalf("tick %d: key %q", i, cfg.Apps[0].DockerKey)
+		}
+		if !svc.MissingSince("swarm:bindery_web").IsZero() || !svc.MissingSince(old).IsZero() {
+			t.Fatalf("tick %d: running app shows missing", i)
+		}
+	}
+	if strings.Contains(buf.String(), "found again") {
+		t.Fatalf("false recovery logged: %s", buf.String())
+	}
+	if !svc.LastSeen(old).IsZero() {
+		t.Fatal("the old key's last-seen record must not outlive the re-key")
 	}
 }

@@ -138,12 +138,13 @@ func applyRekeysToTracked(rekeys map[string]string, endpoint string, tracked *tr
 // sites of the batch's endpoint. The caller holds the write lock and has
 // snapshotted apps, sites and the quarantine for rollback. It returns the
 // re-keys that renamed at least one entry (only those move Service records
-// after the save) and false when a target key is now held by an entry the
-// plan did not see (an edit between the tick's snapshot and this commit):
-// the caller then rolls back and saves nothing, and the next tick replans.
-func applyRekeysToConfig(cfg *config.Config, rekeys map[string]string, endpoint string) (applied map[string]string, ok bool) {
+// after the save). When a target key is now held by an entry the plan did
+// not see (an edit between the tick's snapshot and this commit), it returns
+// that key and false without renaming anything: the caller then rolls back
+// and saves nothing, and the next tick replans.
+func applyRekeysToConfig(cfg *config.Config, rekeys map[string]string, endpoint string) (applied map[string]string, conflict string, ok bool) {
 	if len(rekeys) == 0 {
-		return nil, true
+		return nil, "", true
 	}
 	held := map[string]bool{}
 	for i := range cfg.Apps {
@@ -152,9 +153,14 @@ func applyRekeysToConfig(cfg *config.Config, rekeys map[string]string, endpoint 
 	for i := range cfg.Server.GatewaySites {
 		held[cfg.Server.GatewaySites[i].DockerKey] = true
 	}
+	targets := make([]string, 0, len(rekeys))
 	for _, nk := range rekeys {
+		targets = append(targets, nk)
+	}
+	sort.Strings(targets) // name the same conflict on every tick
+	for _, nk := range targets {
 		if held[nk] || cfg.HasQuarantined(nk) {
-			return nil, false
+			return nil, nk, false
 		}
 	}
 	applied = map[string]string{}
@@ -172,14 +178,17 @@ func applyRekeysToConfig(cfg *config.Config, rekeys map[string]string, endpoint 
 			s.DockerKey = nk
 		}
 	}
-	return applied, true
+	return applied, "", true
 }
 
 // finishRekeys runs after a successful save: it moves the Service's
-// last-seen and missing records and the sync absence counter of each old
-// key to its new key, and writes one audit line per re-key. It is never
-// called on a rolled-back tick, so those records stay with the old keys
-// the config was restored to.
+// last-seen record and the sync absence counter of each old key to its new
+// key, and writes one audit line per re-key. The old key's missing record
+// is dropped, not moved: a re-key is planned only for a container that is
+// present this tick, so carrying the record would show a running app as
+// missing and log a false recovery on the next tick. It is never called on
+// a rolled-back tick, so those records stay with the old keys the config
+// was restored to.
 func (p *Poller) finishRekeys(rekeyed map[string]string) {
 	olds := make([]string, 0, len(rekeyed))
 	for old := range rekeyed {
@@ -189,6 +198,7 @@ func (p *Poller) finishRekeys(rekeyed map[string]string) {
 	for _, old := range olds {
 		nk := rekeyed[old]
 		if p.deps.Service != nil {
+			p.deps.Service.clearMissing(old)
 			p.deps.Service.RenameTrackedKey(old, nk)
 		}
 		if n, ok := p.syncAbsent[old]; ok {

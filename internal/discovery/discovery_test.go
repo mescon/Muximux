@@ -407,12 +407,17 @@ func TestService_MissingTransitions(t *testing.T) {
 	}
 }
 
-func TestService_PruneMissing(t *testing.T) {
+func TestService_PruneUntracked(t *testing.T) {
 	s := NewService(&config.DiscoveryDockerConfig{})
+	s.RecordSeen("keep")
+	s.RecordSeen("drop")
 	s.MarkMissing("keep")
 	s.MarkMissing("drop")
-	s.pruneMissing(map[string]bool{"keep": true})
+	s.pruneUntracked(map[string]bool{"keep": true})
 	if s.MissingSince("keep").IsZero() || !s.MissingSince("drop").IsZero() {
-		t.Fatal("pruneMissing must drop only untracked keys")
+		t.Fatal("pruneUntracked must drop only untracked missing records")
+	}
+	if s.LastSeen("keep").IsZero() || !s.LastSeen("drop").IsZero() {
+		t.Fatal("pruneUntracked must drop only untracked last-seen records")
 	}
 }
