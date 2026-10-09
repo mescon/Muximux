@@ -544,7 +544,7 @@ describe('HealthIndicator', () => {
       render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
       await fireEvent.focus(host);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      expect(screen.getByRole('img')).toHaveAttribute('aria-describedby', screen.getByRole('tooltip').id);
+      expect(host).toHaveAttribute('aria-describedby', screen.getByRole('tooltip').id);
       await fireEvent.keyDown(host, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
       host.remove();
@@ -564,6 +564,72 @@ describe('HealthIndicator', () => {
       render(HealthIndicator, { props: { appName: 'TestApp' } });
       await fireEvent.focus(screen.getByRole('img'));
       expect(screen.getByText('100%').className).toContain('badge-success');
+    });
+    it('portals the tooltip out of the host and describes the focused host', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const host = document.createElement('button');
+      host.textContent = 'TestApp';
+      document.body.append(host);
+      render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
+      const nameBefore = 'TestApp TestApp health: Healthy';
+      expect(screen.getByRole('button', { name: nameBefore })).toBe(host);
+      expect(host).not.toHaveAttribute('aria-describedby');
+
+      await fireEvent.focus(host);
+      const tip = screen.getByRole('tooltip');
+      expect(host.contains(tip)).toBe(false);
+      expect(host).toHaveAttribute('aria-describedby', tip.id);
+      expect(screen.getByRole('img')).not.toHaveAttribute('aria-describedby');
+      expect(screen.getByRole('button', { name: nameBefore })).toBe(host);
+      expect(host.querySelector('button')).toBeNull();
+
+      await fireEvent.blur(host);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      expect(host).not.toHaveAttribute('aria-describedby');
+      host.remove();
+    });
+    it('keeps an existing aria-describedby on the host', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const host = document.createElement('a');
+      host.href = '#';
+      host.setAttribute('aria-describedby', 'other');
+      document.body.append(host);
+      render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
+      await fireEvent.focus(host);
+      expect(host.getAttribute('aria-describedby')).toBe(`other ${screen.getByRole('tooltip').id}`);
+      await fireEvent.blur(host);
+      expect(host).toHaveAttribute('aria-describedby', 'other');
+      host.remove();
+    });
+    it('ignores a tabindex="-1" container as host', () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const wrap = document.createElement('div');
+      wrap.tabIndex = -1;
+      document.body.append(wrap);
+      render(HealthIndicator, { target: wrap, props: { appName: 'TestApp' } });
+      expect(screen.getByRole('img')).toHaveAttribute('tabindex', '0');
+      wrap.remove();
+    });
+    it('is not a tab stop when standalone with no data or no tooltip', async () => {
+      const { unmount } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+      const dot = screen.getByRole('img');
+      expect(dot).not.toHaveAttribute('tabindex');
+      await fireEvent.focus(dot);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      unmount();
+
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: false } });
+      expect(screen.getByRole('img')).not.toHaveAttribute('tabindex');
+    });
+    it('removes the portaled tooltip container on unmount', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const { unmount } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+      await fireEvent.focus(screen.getByRole('img'));
+      expect(document.body.querySelector('.health-tooltip')).not.toBeNull();
+      unmount();
+      expect(document.body.querySelector('.health-tooltip-portal')).toBeNull();
+      expect(document.body.querySelector('.health-tooltip')).toBeNull();
     });
   });
 });

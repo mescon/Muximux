@@ -89,7 +89,7 @@
   // host's focus; otherwise (Splash) the dot is focusable itself.
   $effect(() => {
     if (!dotEl) return;
-    const h = dotEl.parentElement?.closest<HTMLElement>('button, a, [tabindex]') ?? null;
+    const h = dotEl.parentElement?.closest<HTMLElement>('button, a, [tabindex]:not([tabindex="-1"])') ?? null;
     host = h;
     if (!h) return;
     h.addEventListener('focus', showTip);
@@ -101,6 +101,32 @@
       h.removeEventListener('keydown', onKey);
     };
   });
+
+  // Focus sits on the host, so the host (not the dot) is described by the open tooltip.
+  $effect(() => {
+    const h = host;
+    if (!h || !tooltipVisible || !health) return;
+    const prev = h.getAttribute('aria-describedby');
+    h.setAttribute('aria-describedby', prev ? `${prev} ${tipId}` : tipId);
+    return () => {
+      if (prev) h.setAttribute('aria-describedby', prev);
+      else h.removeAttribute('aria-describedby');
+    };
+  });
+
+  // A standalone dot is a tab stop only when focusing it can open something.
+  let standaloneFocusable = $derived(!host && showTooltip && !!health);
+
+  // Render the tooltip under document.body so it never sits inside the host button: otherwise
+  // the button's accessible name absorbs the tooltip text and "Check now" nests in a button.
+  function portal(node: HTMLElement) {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      },
+    };
+  }
 
   async function handleCheckNow(e: MouseEvent) {
     e.stopPropagation();
@@ -132,68 +158,69 @@
     bind:this={dotEl}
     role="img"
     aria-label={label}
-    aria-describedby={tooltipVisible && health ? tipId : undefined}
-    tabindex={host ? undefined : 0}
-    onfocus={host ? undefined : showTip}
+    aria-describedby={!host && tooltipVisible && health ? tipId : undefined}
+    tabindex={standaloneFocusable ? 0 : undefined}
+    onfocus={standaloneFocusable ? showTip : undefined}
     onblur={host ? undefined : hideTip}
-    onkeydown={host ? undefined : onKey}
+    onkeydown={standaloneFocusable ? onKey : undefined}
     class="inline-block {sizeClasses[size]} {getStatusClass(status)}"
   ></span>
-</div>
+  <!-- Portal container: moved to document.body on mount; the tooltip is position: fixed. -->
+  <div class="health-tooltip-portal" use:portal>
+    {#if tooltipVisible && health}
+      <div
+        class="health-tooltip"
+        id={tipId}
+        role="tooltip"
+        style="left: {tooltipX}px; top: {tooltipY}px;"
+        onmouseenter={showTip}
+        onmouseleave={hideTip}
+      >
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-medium {status === 'healthy' ? 'text-success-text' : status === 'unhealthy' ? 'text-danger-text' : 'text-text-muted'}">
+            {getStatusLabel(status)}
+          </span>
+          {#if health.check_count > 0}
+            <span class="badge {status === 'unhealthy' ? 'badge-error' : 'badge-success'}">{health.uptime_percent.toFixed(0)}%</span>
+          {/if}
+        </div>
 
-<!-- Fixed-position tooltip, rendered outside all overflow/stacking contexts -->
-{#if tooltipVisible && health}
-  <div
-    class="health-tooltip"
-    id={tipId}
-    role="tooltip"
-    style="left: {tooltipX}px; top: {tooltipY}px;"
-    onmouseenter={showTip}
-    onmouseleave={hideTip}
-  >
-    <div class="flex items-center justify-between mb-1">
-      <span class="font-medium {status === 'healthy' ? 'text-success-text' : status === 'unhealthy' ? 'text-danger-text' : 'text-text-muted'}">
-        {getStatusLabel(status)}
-      </span>
-      {#if health.check_count > 0}
-        <span class="badge {status === 'unhealthy' ? 'badge-error' : 'badge-success'}">{health.uptime_percent.toFixed(0)}%</span>
-      {/if}
-    </div>
+        {#if health.response_time_ms > 0}
+          <div class="health-detail-row">
+            {m.health_response()}: {formatResponseTime(health.response_time_ms)}
+          </div>
+        {/if}
 
-    {#if health.response_time_ms > 0}
-      <div class="health-detail-row">
-        {m.health_response()}: {formatResponseTime(health.response_time_ms)}
+        {#if health.check_count > 0}
+          <div class="health-detail-row">
+            {m.health_uptime()}: {health.success_count}/{health.check_count}
+          </div>
+        {/if}
+
+        <div class="health-detail-row">
+          {m.health_checked()}: {formatLastCheck(health.last_check)}
+        </div>
+
+        {#if health.last_error}
+          <div class="health-error" title={health.last_error}>
+            {health.last_error}
+          </div>
+        {/if}
+
+        <button
+          class="health-check-btn"
+          onclick={handleCheckNow}
+          disabled={checking}
+        >
+          {checking ? m.health_checking() : m.health_checkNow()}
+        </button>
+
+        <!-- Arrow -->
+        <div class="health-tooltip-arrow"></div>
       </div>
     {/if}
-
-    {#if health.check_count > 0}
-      <div class="health-detail-row">
-        {m.health_uptime()}: {health.success_count}/{health.check_count}
-      </div>
-    {/if}
-
-    <div class="health-detail-row">
-      {m.health_checked()}: {formatLastCheck(health.last_check)}
-    </div>
-
-    {#if health.last_error}
-      <div class="health-error" title={health.last_error}>
-        {health.last_error}
-      </div>
-    {/if}
-
-    <button
-      class="health-check-btn"
-      onclick={handleCheckNow}
-      disabled={checking}
-    >
-      {checking ? m.health_checking() : m.health_checkNow()}
-    </button>
-
-    <!-- Arrow -->
-    <div class="health-tooltip-arrow"></div>
   </div>
-{/if}
+</div>
 
 <style>
   .health-tooltip {
