@@ -1,7 +1,9 @@
 // Theme contrast test. Every check the colours PR will enforce strictly runs here
 // already; until that PR lands the known failures are listed in contrastBaseline.json
 // and the test fails on any NEW failure or any STALE baseline entry.
-// Regenerate the baseline with: CONTRAST_WRITE_BASELINE=1 npx vitest run themeContrast
+// Prune fixed entries (remove-only) with: CONTRAST_WRITE_BASELINE=1 npx vitest run themeContrast
+// Adding new known failures is deliberate and needs both flags:
+//   CONTRAST_WRITE_BASELINE=1 CONTRAST_ALLOW_ADD=1 npx vitest run themeContrast
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,7 +17,7 @@ const STATUS = ['success', 'warning', 'danger', 'info'] as const;
 const SEMANTIC_KEYS = /^--(?:(?:success|warning|danger|info)-(?:text|bg|border)|accent-text|danger-solid|danger-solid-hover|danger-on-solid)$/;
 const BASELINE = path.join(process.cwd(), 'src', 'test', 'contrastBaseline.json');
 
-interface Failure { key: string; ratio: number }
+interface Failure { key: string; ratio: number; need: number }
 const failures: Failure[] = [];
 
 function resolve(t: ThemeFixture, name: string): RGBA {
@@ -25,7 +27,7 @@ function resolve(t: ThemeFixture, name: string): RGBA {
 }
 function check(t: ThemeFixture, kind: string, fgName: string, fg: RGBA, bgName: string, bg: RGBA, need: number) {
   const r = contrast(fg, bg);
-  if (r < need) failures.push({ key: `${t.id} | ${fgName} on ${bgName} | ${kind}`, ratio: r });
+  if (r < need) failures.push({ key: `${t.id} | ${fgName} on ${bgName} | ${kind}`, ratio: r, need });
 }
 
 // All checks for one theme (used for the bundled themes and for the fallback simulation).
@@ -36,6 +38,7 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
     for (const b of SIX.slice(0, 4)) check(t, 'text', '--text-muted', resolve(t, '--text-muted'), b, bg(b), AA);
     check(t, 'on-primary', '--accent-on-primary', resolve(t, '--accent-on-primary'), '--accent-primary', resolve(t, '--accent-primary'), AA);
     for (const b of SIX.slice(0, 2)) check(t, 'focus-ring', '--border-focus', resolve(t, '--border-focus'), b, bg(b), NON_TEXT);
+    for (const fg of ['--border-default', '--border-subtle']) for (const b of SIX.slice(0, 2)) check(t, 'neutral-border', fg, over(resolve(t, fg), bg(b)), b, bg(b), NON_TEXT);
     for (const b of PARENTS) check(t, 'health-unknown', '--text-muted', resolve(t, '--text-muted'), b, bg(b), NON_TEXT);
   }
   if (opts.semantic) {
@@ -63,7 +66,7 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
   }
   if (opts.hierarchy && t.mode === 'dark') {
     const L = ['--bg-base', '--bg-surface', '--bg-elevated', '--bg-overlay'].map((n) => luminance(bg(n)));
-    for (let i = 1; i < L.length; i++) if (!(L[i] > L[i - 1])) failures.push({ key: `${t.id} | surface hierarchy | ${['base', 'surface', 'elevated', 'overlay'][i]} not lighter than the one below`, ratio: L[i] - L[i - 1] });
+    for (let i = 1; i < L.length; i++) if (!(L[i] > L[i - 1])) failures.push({ key: `${t.id} | surface hierarchy | ${['base', 'surface', 'elevated', 'overlay'][i]} not lighter than the one below`, ratio: L[i] - L[i - 1], need: 0 });
   }
 }
 
@@ -89,16 +92,24 @@ describe('bundled theme contrast', () => {
   });
 
   it('matches the checked-in baseline of known failures', () => {
-    const keys = [...new Set(failures.map((f) => f.key))].sort();
+    const byKey = new Map(failures.map((f) => [f.key, f]));
+    const keys = [...byKey.keys()].sort();
+    let baseline: string[] = fs.existsSync(BASELINE) ? JSON.parse(fs.readFileSync(BASELINE, 'utf8')) : [];
+    const detail = (k: string) => { const f = byKey.get(k)!; return `${k} = ${f.ratio.toFixed(2)} (needs ${f.need})`; };
+    let added = keys.filter((k) => !baseline.includes(k));
     if (process.env.CONTRAST_WRITE_BASELINE) {
-      fs.writeFileSync(BASELINE, JSON.stringify(keys, null, 2) + '\n');
+      if (process.env.CONTRAST_ALLOW_ADD) {
+        console.info(`contrast baseline: ADDING ${added.length} failing pairs:\n${added.map(detail).join('\n')}`);
+        baseline = keys;
+      } else {
+        baseline = baseline.filter((k) => byKey.has(k)); // remove-only
+      }
+      fs.writeFileSync(BASELINE, JSON.stringify([...baseline].sort(), null, 2) + '\n');
+      added = keys.filter((k) => !baseline.includes(k));
     }
-    const baseline: string[] = fs.existsSync(BASELINE) ? JSON.parse(fs.readFileSync(BASELINE, 'utf8')) : [];
-    const report = failures.map((f) => `${f.key} = ${f.ratio.toFixed(2)}`).sort().join('\n');
-    const added = keys.filter((k) => !baseline.includes(k));
-    const stale = baseline.filter((k) => !keys.includes(k));
-    expect(added, `new contrast failures (full report below)\n${report}`).toEqual([]);
-    expect(stale, 'baseline entries that no longer fail; shrink the baseline').toEqual([]);
+    const stale = baseline.filter((k) => !byKey.has(k));
+    expect(added.map(detail), 'new contrast failures (to accept them deliberately: CONTRAST_WRITE_BASELINE=1 CONTRAST_ALLOW_ADD=1)').toEqual([]);
+    expect(stale, 'baseline entries that now pass; remove them with: CONTRAST_WRITE_BASELINE=1 npx vitest run themeContrast').toEqual([]);
     console.info(`theme contrast: ${keys.length} known failing pairs in the baseline`);
   });
 });
