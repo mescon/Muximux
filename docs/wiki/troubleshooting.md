@@ -210,7 +210,7 @@ Binary content (images, videos, archives, file downloads) is **not** buffered - 
 
 ## Onboarding Wizard Doesn't Appear
 
-The onboarding wizard opens only on a new install (no apps configured and setup not yet completed), and only for an administrator. It never opens for a non-admin or on an established instance.
+The onboarding wizard opens only while the server reports setup as pending (a new install where setup was never completed and no apps, users or auth method are configured), and only for an administrator. It never opens for a non-admin or on an established instance.
 
 If you deleted your `data/config.yaml` but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. The `data/` directory is resolved relative to the binary's location (not the working directory), so make sure you're looking at the correct path. Check the server logs to confirm config loading.
 

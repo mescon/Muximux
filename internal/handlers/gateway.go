@@ -513,8 +513,10 @@ func keepUneditedBackend(updated, stored *config.GatewaySite, base *string) {
 // The tracking fields are server-owned: the edit form never sends them,
 // so a PUT that omits them must not detach the site. Mirrors
 // applyDockerTrackingPreservation for apps. When DockerManagedURL was
-// never recorded, the stored BackendURL is the baseline instead, which
-// matches how Load treats an empty DockerManagedURL. Returns "" when
+// never recorded, the stored BackendURL is the baseline instead. This
+// differs from Load, which grandfathers a site with an empty
+// DockerManagedURL and never detaches it: here the form edited the
+// backend address, so a change is an operator edit. Returns "" when
 // tracking is kept or the site was not tracked.
 func applyGatewayTrackingPreservation(updated, existing *config.GatewaySite) string {
 	updated.DockerKey = existing.DockerKey

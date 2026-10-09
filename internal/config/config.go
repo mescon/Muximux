@@ -61,7 +61,10 @@ type Config struct {
 // SetOnSaved registers the broadcast hook: called after every successful
 // Save, synchronously, while the caller still holds its config lock. It is
 // distinct from the handlers' SetOnConfigSave rebuild callbacks and must not
-// take configMu.
+// take configMu. The server's hook is Hub.BroadcastConfigUpdate, which can
+// block while the hub's event buffer is full; that is safe only because the
+// hub goroutine never takes configMu, so the hub must never read the config
+// (clients refetch it over HTTP instead).
 func (c *Config) SetOnSaved(fn func()) {
 	c.onSaved = fn
 }

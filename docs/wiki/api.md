@@ -268,11 +268,16 @@ POST /api/apps
 | `/api/discovery/docker/relink/confirm` | POST | Admin | Confirm a re-link |
 | `/api/discovery/docker-state` | GET | Any | Current container-state map for tracked apps |
 
-`GET /api/discovery/docker/config` returns the stored values, including fields the Discovery tab does not edit:
+`GET /api/discovery/docker/config` returns the stored values under `config`, including fields the Discovery tab does not edit. `env_overrides` is present only when an environment variable sets a field's live value; it maps the field to the variable's name (the tab shows such fields as locked):
 
 ```json
-{"enabled": true, "endpoint": "unix:///var/run/docker.sock", "network_strategy": "container_ip", "host_ip": "", "refresh_interval": "60s", "auto_import": "off", "health_badge_placement": "overview"}
+{
+  "config": {"enabled": true, "endpoint": "unix:///var/run/docker.sock", "network_strategy": "container_ip", "host_ip": "", "refresh_interval": "60s", "auto_import": "off", "health_badge_placement": "overview"},
+  "env_overrides": {"auto_import": "MUXIMUX_DISCOVERY_AUTO_IMPORT"}
+}
 ```
+
+`PUT` takes the bare config object (without the `config` wrapper).
 
 `PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default.
 
@@ -467,7 +472,7 @@ The declarative `server.gateway_sites:` model is the current gateway path (the l
 |----------|--------|------|-------------|
 | `/api/gateway/sites` | GET | Admin | List configured gateway sites |
 | `/api/gateway/sites` | POST | Admin | Create a gateway site |
-| `/api/gateway/sites/{domain}` | PUT | Admin | Update a gateway site; validated like a startup load. Accepts an optional `base_backend_url` (the backend address the client loaded; if unchanged, the server's current value and Docker tracking are kept) |
+| `/api/gateway/sites/{domain}` | PUT | Admin | Update a gateway site; validated like a startup load. Accepts an optional `base_backend_url` (the backend address the client loaded; if unchanged, the server's current value and Docker tracking are kept). Docker tracking fields (`docker_key`, `docker_endpoint`, `docker_strategy`, `docker_managed_url`) are server-owned and ignored in the payload |
 | `/api/gateway/sites/{domain}` | DELETE | Admin | Delete a gateway site |
 | `/api/gateway/validate` | POST | Admin | Validate a gateway site config without saving |
 

@@ -25,8 +25,9 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
 
 ### Changed
 - **Live updates.** Every open browser receives a `config_updated` event
-  after any config change and reloads; an open Settings dialog keeps unsaved
-  edits and rebases them onto the new state. (#494)
+  after any config change and refetches the config (the page reloads only
+  when the language changed); an open Settings dialog keeps unsaved edits
+  and rebases them onto the new state. (#494)
 - **Settings closes only after a successful save.** On failure it stays open
   with the server's message; every close path asks about unsaved changes and
   is blocked while a save runs. Discard also reverts keybinding and theme

@@ -176,6 +176,11 @@ func (h *Hub) Broadcast(event Event) {
 // BroadcastConfigUpdate tells every client that the config changed. The
 // payload is empty: clients refetch GET /api/config, which filters the
 // config by role, so nothing sensitive travels over the socket.
+//
+// It runs as Config.Save's onSaved hook, under the saver's config write
+// lock, and Broadcast blocks while the event buffer is full. The hub loop
+// never takes configMu, so this cannot deadlock; keep it that way (no
+// config reads in the hub).
 func (h *Hub) BroadcastConfigUpdate() {
 	h.Broadcast(Event{
 		Type:    EventConfigUpdated,
