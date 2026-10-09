@@ -148,7 +148,7 @@
         <span class="text-sm text-red-400">{m.keybindings_resetAllConfirm()}</span>
         <button
           type="button"
-          class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+          class="btn btn-danger px-2 py-1 text-xs rounded"
           onclick={confirmResetAllAction}
         >{m.keybindings_yesReset()}</button>
         <button
@@ -200,7 +200,7 @@
                       <!-- Capturing mode for this combo -->
                       <div class="flex items-center gap-1">
                         {#if capturedCombo}
-                          <kbd class="px-2 py-1 text-xs bg-brand-600 border border-brand-500 rounded text-white font-mono">
+                          <kbd class="px-2 py-1 text-xs bg-accent-primary border border-border-focus rounded text-accent-on-primary font-mono">
                             {formatKeyCombo(capturedCombo)}
                           </kbd>
                         {:else}
@@ -264,7 +264,7 @@
                   <div class="flex items-center gap-1">
                     <span class="text-text-disabled text-xs mx-1">{m.common_or()}</span>
                     {#if capturedCombo}
-                      <kbd class="px-2 py-1 text-xs bg-brand-600 border border-brand-500 rounded text-white font-mono">
+                      <kbd class="px-2 py-1 text-xs bg-accent-primary border border-border-focus rounded text-accent-on-primary font-mono">
                         {formatKeyCombo(capturedCombo)}
                       </kbd>
                     {:else}
@@ -369,7 +369,7 @@
   }
   .keybinding-btn-confirm {
     background: var(--accent-primary);
-    color: #fff;
+    color: var(--accent-on-primary);
   }
   .keybinding-btn-confirm:hover {
     filter: brightness(1.1);

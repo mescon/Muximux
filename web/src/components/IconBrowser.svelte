@@ -323,7 +323,7 @@
         <button
           class="px-3 py-1 text-xs rounded-full transition-colors
                  {selectedVariant === variant
-                   ? 'bg-brand-500 text-white'
+                   ? 'bg-accent-primary text-accent-on-primary'
                    : 'bg-bg-elevated text-text-muted hover:text-text-primary'}"
           onclick={() => selectedVariant = variant}
         >
@@ -355,7 +355,7 @@
         disabled={uploading}
       >
         {#if uploading}
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
           {m.iconBrowser_uploading()}
         {:else}
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -378,13 +378,13 @@
           disabled={fetching}
         />
         <button
-          class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-sm
+          class="btn btn-primary text-sm
                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
           onclick={handleFetchUrl}
           disabled={fetching || !fetchUrl.trim()}
         >
           {#if fetching}
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
             {m.iconBrowser_fetching()}
           {:else}
             {m.iconBrowser_fetch()}
@@ -454,7 +454,7 @@
                   <span class="text-[10px] text-red-400">{m.common_deleteConfirm()}</span>
                   <div class="flex gap-1">
                     <button
-                      class="px-1.5 py-0.5 text-[10px] rounded bg-red-600 hover:bg-red-500 text-white"
+                      class="btn btn-danger px-1.5 py-0.5 text-[10px] rounded"
                       onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIconAction(); }}
                     >{m.common_yes()}</button>
                     <button
@@ -465,8 +465,8 @@
                 </div>
               {:else}
                 <button
-                  class="absolute -top-1 -end-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
-                         text-text-primary flex items-center justify-center text-xs"
+                  class="absolute -top-1 -end-1 w-5 h-5 bg-danger-solid hover:brightness-110 rounded-full
+                         text-danger-on-solid flex items-center justify-center text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}
                   title={m.common_delete()}
                 >
@@ -502,7 +502,7 @@
         {m.common_cancel()}
       </button>
       <button
-        class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
+        class="btn btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
         disabled={!selectedIcon}
         onclick={() => onselect?.({ name: selectedIcon, variant: selectedType === 'dashboard' ? selectedVariant : 'svg', type: selectedType })}
       >

@@ -412,7 +412,7 @@
                       <span class="text-xs px-1.5 py-0.5 rounded cursor-help
                                    {row.s.confidence === 'high' ? 'bg-green-500/15 text-green-300' : ''}
                                    {row.s.confidence === 'medium' ? 'bg-blue-500/15 text-blue-300' : ''}
-                                   {row.s.confidence === 'low' ? 'bg-gray-500/15 text-gray-300' : ''}"
+                                   {row.s.confidence === 'low' ? 'bg-bg-active text-text-secondary' : ''}"
                             title={ch.tip}>
                         {ch.label}
                       </span>

@@ -537,7 +537,7 @@
                     onclick={handleChangePassword}
                   >
                     {#if cpLoading}
-                      <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span class="inline-block w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
                     {/if}
                     {m.security_changePassword()}
                   </button>
@@ -583,7 +583,7 @@
                     onclick={requestCreateFirstUser}
                   >
                     {#if addUserLoading || methodLoading}
-                      <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span class="inline-block w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
                     {/if}
                     {m.security_createUserEnable()}
                   </button>
@@ -815,7 +815,7 @@
         onclick={requestChangeAuthMethod}
       >
         {#if methodLoading}
-          <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          <span class="inline-block w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
         {/if}
         {m.security_updateMethod()}
       </button>
@@ -911,7 +911,7 @@
               disabled={apiKeyLoading}
             >
               {#if apiKeyLoading}
-                <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
               {/if}
               Rotate key
             </button>
@@ -929,7 +929,7 @@
               disabled={apiKeyLoading}
             >
               {#if apiKeyLoading}
-                <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
               {/if}
               Delete key
             </button>
@@ -961,7 +961,7 @@
             disabled={apiKeyLoading}
           >
             {#if apiKeyLoading}
-              <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span class="inline-block w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
             {/if}
             Generate API key
           </button>
@@ -1047,7 +1047,7 @@
               onclick={handleAddUser}
             >
               {#if addUserLoading}
-                <span class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span class="inline-block w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
               {/if}
               {m.common_add()}
             </button>

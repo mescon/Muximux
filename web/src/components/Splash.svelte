@@ -267,7 +267,7 @@
                          entirely when health_badge_placement is 'off'. -->
                     {#if dockerChromeOn}
                       <div class="docker-cluster absolute top-2.5 end-2.5 z-10 flex items-center gap-1">
-                        <DockerLogo size="sm" class="text-slate-500" />
+                        <DockerLogo size="sm" class="text-text-muted" />
                         {#if ds}
                           <DockerStatePill state={ds} />
                         {/if}

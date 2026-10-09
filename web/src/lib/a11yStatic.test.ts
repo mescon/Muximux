@@ -11,9 +11,9 @@ import { parse } from 'svelte/compiler';
 const SRC = path.join(process.cwd(), 'src');
 
 export const BUDGET: Record<string, number> = {
-  palette: 583,
-  whiteBlack: 38,
-  styleColours: 29,
+  palette: 533,
+  whiteBlack: 0,
+  styleColours: 25,
   tokenAsText: 31,
   arbitraryToken: 34,
   outline: 84,

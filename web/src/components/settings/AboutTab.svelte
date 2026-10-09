@@ -166,7 +166,7 @@
           </svg>
         </button>
         {#if updateInstructionsExpanded}
-          <div class="border-t border-border divide-y divide-gray-700/50">
+          <div class="border-t border-border divide-y divide-border-subtle">
             <!-- Docker -->
             <div class="p-4">
               <div class="flex items-center gap-2 mb-2">
@@ -298,7 +298,7 @@ chmod +x muximux-darwin-arm64
         </div>
       </div>
 
-      <div class="rounded-lg bg-bg-surface border border-border divide-y divide-gray-700/50">
+      <div class="rounded-lg bg-bg-surface border border-border divide-y divide-border-subtle">
         <div class="flex items-center justify-between px-4 py-2.5">
           <span class="text-xs text-text-disabled">{m.about_dataDirectory()}</span>
           <span class="text-xs text-text-secondary font-mono">{systemInfo.data_dir}</span>

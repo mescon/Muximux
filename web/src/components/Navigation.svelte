@@ -1667,7 +1667,7 @@
     <!-- Resize handle - only when not auto-hiding, labels visible, and not manually collapsed -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        class="absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -2091,7 +2091,7 @@
     <!-- Resize handle (left side for right sidebar) - only when not auto-hiding and labels visible -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        class="absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-accent-muted active:bg-accent-primary/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -2611,7 +2611,7 @@
     role="navigation"
   >
     <button
-      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-colors"
+      class="p-4 bg-accent-primary hover:bg-accent-secondary text-accent-on-primary rounded-full shadow-lg transition-colors"
       class:hover:scale-110={!isDraggingFab}
       style="
         opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};
@@ -2751,34 +2751,11 @@
     color: var(--text-muted) !important;
   }
 
-  /* Brand color buttons */
-  :global(.bg-brand-600) {
-    background: var(--accent-primary) !important;
-  }
-
-  :global(.hover\:bg-brand-700:hover) {
-    background: var(--accent-secondary) !important;
-  }
-
-  :global(.ring-brand-500) {
-    outline-color: var(--accent-primary) !important;
-  }
-
   /* Mobile overlay */
   :global(.bg-black\/50) {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-  }
-
-  /* Resize handle */
-  :global(.hover\:bg-brand-500\/50:hover) {
-    background: var(--accent-muted) !important;
-  }
-
-  :global(.active\:bg-brand-500\/70:active) {
-    background: var(--accent-primary) !important;
-    opacity: 0.7;
   }
 
   /* Collapsible footer drawer */

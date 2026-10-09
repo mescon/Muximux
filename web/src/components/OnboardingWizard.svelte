@@ -1211,7 +1211,7 @@
                   <button
                     class="px-5 py-2 text-sm font-medium rounded-md transition-all
                            {$variantMode === opt.value
-                             ? 'bg-brand-600 text-white shadow-sm'
+                             ? 'bg-accent-primary hover:bg-accent-secondary text-accent-on-primary shadow-sm'
                              : 'text-text-muted hover:text-text-primary'}"
                     onclick={() => setVariantMode(opt.value)}
                   >
@@ -1257,8 +1257,8 @@
 
                   <!-- Selection checkmark -->
                   {#if isSelected}
-                    <div class="absolute top-2 end-2 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
-                      <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="absolute top-2 end-2 w-5 h-5 rounded-full bg-accent-primary flex items-center justify-center">
+                      <svg class="w-3 h-3 text-accent-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
@@ -1363,7 +1363,7 @@
           {/if}
 
           <button
-            class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="btn btn-primary px-8 py-3 font-medium rounded-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             onclick={nextStep}
             disabled={needsSetup && !setupToken.trim()}
           >
@@ -1417,7 +1417,7 @@
                   <div class="flex-1 text-start">
                     <div class="flex items-center gap-2">
                       <h3 class="font-semibold text-text-primary">{m.onboarding_createPassword()}</h3>
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">{m.onboarding_recommended()}</span>
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent-primary text-accent-on-primary uppercase tracking-wider">{m.onboarding_recommended()}</span>
                     </div>
                     <p class="text-sm text-text-muted mt-1">{m.security_passwordAuthDesc()}</p>
                   </div>
@@ -1711,7 +1711,7 @@
                   />
                 </div>
                 <button
-                  class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50 flex-shrink-0"
+                  class="btn btn-primary text-sm disabled:opacity-50 flex-shrink-0"
                   disabled={!customApp.name || !customApp.url}
                   onclick={addCustomApp}
                 >
@@ -1756,9 +1756,9 @@
                             </button>
                           {/if}
                           <div class="w-5 h-5 rounded border flex items-center justify-center
-                                      {selection?.selected ? 'bg-brand-500 border-brand-500' : 'border-border-subtle'}">
+                                      {selection?.selected ? 'bg-accent-primary border-border-focus' : 'border-border-subtle'}">
                             {#if selection?.selected}
-                              <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg class="w-3 h-3 text-accent-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                               </svg>
                             {/if}
@@ -2047,7 +2047,7 @@
           </div>
 
           <button
-            class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
+            class="btn btn-primary px-8 py-3 font-medium rounded-lg text-lg"
             onclick={handleComplete}
           >
             {m.onboarding_launchDashboard()}
@@ -2085,7 +2085,7 @@
         {#if $currentStep !== 'welcome' && $currentStep !== 'complete'}
           {#if $currentStep === 'security'}
             <button
-              class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
+              class="btn btn-primary px-6 py-2 disabled:opacity-50"
               disabled={!securityStepValid}
               onclick={handleSecuritySubmit}
             >
@@ -2093,7 +2093,7 @@
             </button>
           {:else}
             <button
-              class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
+              class="btn btn-primary px-6 py-2 disabled:opacity-50"
               disabled={$currentStep === 'apps' && selectedCount + $selectedApps.length === 0}
               onclick={nextStep}
             >
@@ -2188,13 +2188,13 @@
   .stepper-circle.completed {
     background: var(--accent-primary, #6366f1);
     border-color: var(--accent-primary, #6366f1);
-    color: #fff;
+    color: var(--accent-on-primary);
   }
 
   .stepper-circle.active {
     background: var(--bg-surface, #1f2937);
     border-color: var(--accent-primary, #6366f1);
-    color: #fff;
+    color: var(--accent-on-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary, #6366f1) 25%, transparent);
   }
 

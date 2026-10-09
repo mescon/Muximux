@@ -73,8 +73,7 @@
     <div class="flex items-center gap-3 mt-2">
       {#if showRetry}
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md
-                 transition-colors flex items-center gap-2"
+          class="btn btn-primary text-sm flex items-center gap-2"
           onclick={() => onretry?.()}
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
