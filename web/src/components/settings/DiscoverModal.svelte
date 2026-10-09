@@ -384,7 +384,7 @@
           </div>
 
           <div class="space-y-2">
-            {#each rows as row (row.s.key)}
+            {#each rows as row, rowIdx (row.s.key)}
               {@const sh = stabilityHint(row.s)}
               {@const ch = confidenceHint(row.s)}
               {@const st = statusFor(row.s.key)}
@@ -406,7 +406,7 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <input
-                        aria-label={m.discovery_appName()}
+                        aria-label={m.discovery_appNameFor({ name: row.s.name || m.common_rowPosition({ n: rowIdx + 1 }) })}
                         type="text"
                         bind:value={row.nameOverride}
                         class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle px-1"
@@ -495,7 +495,7 @@
                         </span>
                         {#if row.createGateway}
                           <input
-                            aria-label={m.discovery_gatewayDomain()}
+                            aria-label={m.discovery_gatewayDomainFor({ name: row.nameOverride || row.s.name || m.common_rowPosition({ n: rowIdx + 1 }) })}
                             type="text"
                             bind:value={row.gatewayDomain}
                             placeholder="sonarr.example.com"

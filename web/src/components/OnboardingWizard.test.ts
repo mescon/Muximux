@@ -2398,6 +2398,19 @@ describe('OnboardingWizard', () => {
       });
     });
 
+    it('names the remove-group button and the group inputs after the group', async () => {
+      renderWizard();
+      await fireEvent.click(screen.getByRole('checkbox', { name: /Plex/i }));
+      await waitFor(() => {
+        const removeBtns = screen.getAllByRole('button', { name: /^Remove group \S/i });
+        expect(removeBtns.length).toBeGreaterThan(0);
+        const label = removeBtns[0].getAttribute('aria-label') as string;
+        const groupName = label.replace(/^Remove group /, '');
+        expect(screen.getByRole('textbox', { name: `Name for group ${groupName}` })).toBeInTheDocument();
+        expect(screen.getByLabelText(`Color for group ${groupName}`)).toBeInTheDocument();
+      });
+    });
+
     it('adds another instance of a selected app via the "+" button', async () => {
       renderWizard();
       // Select Plex first

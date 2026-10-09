@@ -471,7 +471,7 @@
             {#each Object.entries(app.proxy_headers ?? {}) as [key, value] (key)}
               <div class="flex gap-2 mb-2">
                 <input type="text" value={key} placeholder={m.appForm_headerName()}
-                  aria-label={m.appForm_headerName()}
+                  aria-label={m.appForm_headerNameFor({ name: key })}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -485,7 +485,7 @@
                   }}
                 />
                 <input type="text" value={value} placeholder={m.appForm_headerValue()}
-                  aria-label={m.appForm_headerValue()}
+                  aria-label={m.appForm_headerValueFor({ name: key })}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };

@@ -13,6 +13,20 @@ describe('HeadersEditor', () => {
     expect(getByRole('textbox', { name: /header value/i })).toBeTruthy();
   });
 
+  it('names per-row inputs after the row item', async () => {
+    const { getByRole, getAllByRole } = setup({ 'X-Test': 'a', 'X-Other': 'b' });
+    expect(getByRole('textbox', { name: 'Header name in row 1' })).toBeTruthy();
+    expect(getByRole('textbox', { name: 'Header name in row 2' })).toBeTruthy();
+    expect(getByRole('textbox', { name: 'Header value for X-Test' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Remove header X-Other' })).toBeTruthy();
+    await fireEvent.click(getByRole('button', { name: /add header/i }));
+    await waitFor(() => {
+      expect(getAllByRole('textbox').length).toBe(6);
+    });
+    expect(getByRole('textbox', { name: 'Header value in row 3' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Remove header in row 3' })).toBeTruthy();
+  });
+
   it('renders one row per entry plus an empty add button', () => {
     const { getAllByPlaceholderText, getByRole } = setup({ Authorization: 'Bearer abc', 'X-Tok': '1' });
     expect(getAllByPlaceholderText(/header name/i).length).toBe(2);
