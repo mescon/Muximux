@@ -1423,3 +1423,58 @@ func TestClose_ClosesWriter(t *testing.T) {
 		t.Error("expected logWriter to be nil after Close")
 	}
 }
+
+// ---------------------------------------------------------------------------
+// WarnMissingEnvVars tests
+// ---------------------------------------------------------------------------
+
+// initTestBuffer installs a fresh logger and buffer for the test and puts
+// the previous globals back afterwards.
+func initTestBuffer(t *testing.T) *LogBuffer {
+	t.Helper()
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	t.Cleanup(func() {
+		Close()
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	})
+	buffer = nil
+	defaultLogger = nil
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: filepath.Join(t.TempDir(), "test.log")}); err != nil {
+		t.Fatal(err)
+	}
+	return Buffer()
+}
+
+func TestWarnMissingEnvVars_NoopWhenEmpty(t *testing.T) {
+	buf := initTestBuffer(t)
+	before := len(buf.Recent(1000))
+	WarnMissingEnvVars(nil)
+	WarnMissingEnvVars([]string{})
+	if after := len(buf.Recent(1000)); after != before {
+		t.Errorf("empty list logged %d entries", after-before)
+	}
+}
+
+func TestWarnMissingEnvVars_LogsNames(t *testing.T) {
+	buf := initTestBuffer(t)
+	WarnMissingEnvVars([]string{"MX_A", "MX_B"})
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	e := entries[0]
+	if e.Level != "WARN" && e.Level != "warn" {
+		t.Errorf("level = %q, want warn", e.Level)
+	}
+	if e.Source != "config" {
+		t.Errorf("source = %q, want config", e.Source)
+	}
+	if e.Attrs["missing"] != "MX_A,MX_B" {
+		t.Errorf("missing = %q, want MX_A,MX_B", e.Attrs["missing"])
+	}
+	if !strings.Contains(e.Message, "environment variables that are not set") {
+		t.Errorf("message = %q", e.Message)
+	}
+}

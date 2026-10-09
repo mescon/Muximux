@@ -626,6 +626,18 @@ func Warn(msg string, args ...any) {
 	Logger().Warn(msg, args...)
 }
 
+// WarnMissingEnvVars warns about ${VAR} references in config.yaml whose
+// environment variable is not set, so the literal ${VAR} stays in those
+// fields. Shared by boot and restore; a no-op for an empty list.
+func WarnMissingEnvVars(names []string) {
+	if len(names) == 0 {
+		return
+	}
+	Warn("Config references environment variables that are not set; the literal ${VAR} stays in those fields",
+		"source", "config",
+		"missing", strings.Join(names, ","))
+}
+
 // Error logs at error level
 func Error(msg string, args ...any) {
 	Logger().Error(msg, args...)

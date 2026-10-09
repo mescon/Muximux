@@ -663,6 +663,52 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	cfg, err := decodeConfig(data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
+	// declarative server.gateway_sites: form. Runs once before
+	// validate() so the migrated sites participate in the same
+	// invariant checks as a hand-written gateway_sites: block. On
+	// success the original config.yaml + Caddyfile are backed up to
+	// .pre-3.1.0.bak alongside the originals; on lossy conversion
+	// the hook returns an error pointing the operator at the
+	// migrate-gateway CLI for manual handling. The migration needs the
+	// file path and writes backup files, so it runs only here and
+	// never in Parse.
+	if cfg.Server.Gateway != "" {
+		if err := autoMigrateGateway(cfg, path); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := finishConfig(cfg); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// Parse turns config.yaml bytes into a validated Config exactly as boot does:
+// env-ref recording, ${VAR} expansion (MissingEnvVars), strict decode onto
+// defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
+// ApplyAutoImportEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
+// It never runs the legacy server.gateway migration, so such input fails validate().
+func Parse(data []byte) (*Config, error) {
+	cfg, err := decodeConfig(data)
+	if err != nil {
+		return nil, err
+	}
+	if err := finishConfig(cfg); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// decodeConfig is the shared front half of Load and Parse: everything from
+// recording ${VAR} references up to and including ApplyAutoImportEnv.
+func decodeConfig(data []byte) (*Config, error) {
 	// A failure here (e.g. ${VAR} inside a flow collection, which only
 	// parses after expansion) just means no references are remembered.
 	refs, err := recordEnvRefs(data)
@@ -714,20 +760,12 @@ func Load(path string) (*Config, error) {
 	// operator-set MUXIMUX_DISCOVERY_AUTO_IMPORT wins over config.yaml.
 	ApplyAutoImportEnv(cfg, os.LookupEnv)
 
-	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
-	// declarative server.gateway_sites: form. Runs once before
-	// validate() so the migrated sites participate in the same
-	// invariant checks as a hand-written gateway_sites: block. On
-	// success the original config.yaml + Caddyfile are backed up to
-	// .pre-3.1.0.bak alongside the originals; on lossy conversion
-	// the hook returns an error pointing the operator at the
-	// migrate-gateway CLI for manual handling.
-	if cfg.Server.Gateway != "" {
-		if err := autoMigrateGateway(cfg, path); err != nil {
-			return nil, err
-		}
-	}
+	return cfg, nil
+}
 
+// finishConfig is the shared back half of Load and Parse: hand-edit
+// detection for Docker-tracked apps, then validation.
+func finishConfig(cfg *Config) error {
 	// Auto-detach Docker tracking for entries whose url was
 	// hand-edited in config.yaml since the poller last wrote it.
 	// Mirrors what applyDockerTrackingPreservation does on the API
@@ -736,11 +774,7 @@ func Load(path string) (*Config, error) {
 	// tracking is dropped.
 	autoDetachEditedDockerEntries(cfg)
 
-	if err := cfg.validate(); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
+	return cfg.validate()
 }
 
 // detachIfHandEdited clears all Docker tracking fields on a single
@@ -976,8 +1010,9 @@ func (c *Config) validate() error {
 		// Removed in v3.1.0: the file-based gateway is no longer
 		// supported. Load() auto-migrates on boot (see
 		// autoMigrateGateway), so reaching this branch means a
-		// caller is constructing a Config directly or pushing one
-		// in through SaveConfig. Refuse to persist either way.
+		// caller is constructing a Config directly, pushing one in
+		// through SaveConfig, or restoring one through Parse (which
+		// never migrates). Refuse to persist in every case.
 		return fmt.Errorf("server.gateway is no longer supported (removed in v3.1.0).\n\n"+
 			"Boot-time auto-migration would have converted this; if you see this\n"+
 			"error you are likely setting server.gateway via the API. Use\n"+
@@ -1307,10 +1342,10 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 		if s.TLSCert == "" || s.TLSKey == "" {
 			return fmt.Errorf("tls=%q requires both tls_cert and tls_key", TLSModeCustom)
 		}
-		if _, err := os.Stat(s.TLSCert); err != nil {
+		if _, err := os.Stat(s.TLSCert); err != nil { //nolint:gosec // operator-supplied path from config.yaml
 			return fmt.Errorf("tls_cert %q not readable: %w", s.TLSCert, err)
 		}
-		if _, err := os.Stat(s.TLSKey); err != nil {
+		if _, err := os.Stat(s.TLSKey); err != nil { //nolint:gosec // operator-supplied path from config.yaml
 			return fmt.Errorf("tls_key %q not readable: %w", s.TLSKey, err)
 		}
 	default:

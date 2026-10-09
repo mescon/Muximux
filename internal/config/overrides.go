@@ -106,3 +106,17 @@ func (c *Config) fileView() *Config {
 	}
 	return &v
 }
+
+// InheritRuntime carries the live runtime state of prev onto c: the save hook
+// and every recorded override (c records its own parsed value as the file value,
+// the live value stays prev's override). A config parsed for a restore uses it
+// so the restored file replaces only what config.yaml holds.
+func (c *Config) InheritRuntime(prev *Config) {
+	if prev == nil {
+		return
+	}
+	c.onSaved = prev.onSaved
+	for field, o := range prev.overrides {
+		c.ApplyOverride(field, o.source, prev.overrideValue(field))
+	}
+}

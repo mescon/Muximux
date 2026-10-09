@@ -184,11 +184,7 @@ func main() {
 	// a sensitive field, which then surfaces as a confusing
 	// downstream failure (IdP rejects the wrong secret, Caddy can't
 	// load a non-existent cert path, etc.).
-	if len(cfg.MissingEnvVars) > 0 {
-		logging.Warn("Config references environment variables that are not set; the literal ${VAR} stays in those fields",
-			"source", "config",
-			"missing", strings.Join(cfg.MissingEnvVars, ","))
-	}
+	logging.WarnMissingEnvVars(cfg.MissingEnvVars)
 
 	// Create and start server
 	srv, err := server.New(cfg, *configPath, *dataDir, version, commit, buildDate)

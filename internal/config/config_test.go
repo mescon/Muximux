@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -2254,5 +2255,135 @@ func TestSave_CallsOnSaved(t *testing.T) {
 	}
 	if calls != 2 {
 		t.Fatalf("cleared hook still called, got %d calls", calls)
+	}
+}
+
+// parseTestYAML exercises every step decodeConfig and finishConfig run:
+// a ${VAR} reference, discovery defaults, icon-scale normalisation and a
+// hand-edited Docker-tracked app.
+const parseTestYAML = `server:
+  listen: ":8080"
+  title: ${MX_TITLE}
+auth:
+  method: none
+navigation:
+  icon_scale: 0
+discovery:
+  docker:
+    enabled: true
+apps:
+  - name: Sonarr
+    url: http://my-stable-host:8989
+    color: "#fff"
+    group: Media
+    docker_key: "label:sonarr"
+    docker_endpoint: unix:///var/run/docker.sock
+    docker_strategy: container_ip
+    docker_managed_url: http://10.0.0.5:8989
+groups:
+  - name: Media
+    color: "#fff"
+`
+
+// OP-7: Parse runs the same pipeline as Load.
+func TestParse_MatchesLoad(t *testing.T) {
+	t.Setenv("MX_TITLE", "Home")
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte(parseTestYAML), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	parsed, err := Parse([]byte(parseTestYAML))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if !reflect.DeepEqual(parsed, loaded) {
+		t.Errorf("Parse result differs from Load:\nparse: %+v\nload:  %+v", parsed, loaded)
+	}
+	// Guard against a vacuous match: the pipeline steps really ran.
+	if parsed.Server.Title != "Home" || len(parsed.envRefs) == 0 {
+		t.Errorf("env expansion/recording missing: title %q, refs %v", parsed.Server.Title, parsed.envRefs)
+	}
+	if parsed.Navigation.IconScale != 1.0 {
+		t.Errorf("icon scale = %v, want 1.0", parsed.Navigation.IconScale)
+	}
+	if parsed.Discovery.Docker.Endpoint == "" || parsed.Discovery.Docker.NetworkStrategy == "" {
+		t.Errorf("discovery defaults not applied: %+v", parsed.Discovery.Docker)
+	}
+	if parsed.Apps[0].DockerKey != "" {
+		t.Errorf("hand-edited tracked app was not detached: %q", parsed.Apps[0].DockerKey)
+	}
+}
+
+// OP-7: a config built by Parse writes its ${VAR} references back on Save.
+func TestParse_KeepsEnvRefOnSave(t *testing.T) {
+	t.Setenv("MX_TITLE", "Home")
+	cfg, err := Parse([]byte("server:\n  listen: \":8080\"\n  title: ${MX_TITLE}\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if cfg.Server.Title != "Home" {
+		t.Fatalf("live title = %q, want Home", cfg.Server.Title)
+	}
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "${MX_TITLE}") {
+		t.Errorf("saved file lost the ${MX_TITLE} reference:\n%s", data)
+	}
+}
+
+func TestParse_LegacyGatewayRejected(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+	_, err := Parse([]byte("server:\n  listen: \":8080\"\n  gateway: /etc/caddy/Caddyfile\n"))
+	if err == nil || !strings.Contains(err.Error(), "no longer supported") {
+		t.Fatalf("want legacy gateway rejection, got %v", err)
+	}
+	if err := filepath.WalkDir(dir, func(p string, _ os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if strings.HasSuffix(p, ".pre-3.1.0.bak") {
+			t.Errorf("Parse wrote a migration backup: %s", p)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestParse_RecordsMissingEnvVars(t *testing.T) {
+	t.Setenv("MX_UNSET_494", "")
+	os.Unsetenv("MX_UNSET_494")
+	cfg, err := Parse([]byte("server:\n  listen: \":8080\"\n  title: ${MX_UNSET_494}\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	found := false
+	for _, n := range cfg.MissingEnvVars {
+		if n == "MX_UNSET_494" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("MissingEnvVars = %v, want MX_UNSET_494", cfg.MissingEnvVars)
+	}
+}
+
+func TestParse_InvalidYAMLAndUnknownField(t *testing.T) {
+	if _, err := Parse([]byte("server: [unclosed")); err == nil {
+		t.Error("invalid YAML: want error")
+	}
+	if _, err := Parse([]byte("server:\n  listen: \":8080\"\n  no_such_field: 1\n")); err == nil {
+		t.Error("unknown field: want error")
 	}
 }

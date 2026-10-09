@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -181,5 +182,74 @@ func TestApplyOverride_KeepsEnvReference(t *testing.T) {
 	out, _ = os.ReadFile(path)
 	if !strings.Contains(string(out), "log_level: ${LVL}") {
 		t.Errorf("second save lost the ${LVL} reference:\n%s", out)
+	}
+}
+
+func TestInheritRuntime_KeepsOverridesAndHook(t *testing.T) {
+	prev, err := Parse([]byte("server: {listen: \":8080\", log_level: info}\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	prev.ApplyOverride(OverrideLogLevel, "MUXIMUX_LOG_LEVEL", "debug")
+	calls := 0
+	prev.SetOnSaved(func() { calls++ })
+
+	next, err := Parse([]byte("server: {listen: \":8080\", log_level: warn}\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	next.InheritRuntime(prev)
+
+	if next.Server.LogLevel != "debug" {
+		t.Errorf("live log level = %q, want debug", next.Server.LogLevel)
+	}
+	if got := next.EnvOverrides()["log_level"]; got != "MUXIMUX_LOG_LEVEL" {
+		t.Errorf("EnvOverrides()[log_level] = %q, want MUXIMUX_LOG_LEVEL", got)
+	}
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := next.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	reloaded, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Server.LogLevel != "warn" {
+		t.Errorf("saved log level = %q, want warn (the restored file's value)", reloaded.Server.LogLevel)
+	}
+	if calls != 1 {
+		t.Errorf("save hook calls = %d, want 1", calls)
+	}
+}
+
+// The auto-import override is recorded by Parse itself when the variable is
+// set; inheriting it again keeps the restored file's own value for Save.
+func TestInheritRuntime_AutoImportKeepsRestoredFileValue(t *testing.T) {
+	t.Setenv(EnvAutoImport, "sync")
+	prev, err := Parse([]byte(overrideTestYAML))
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, err := Parse([]byte(strings.Replace(overrideTestYAML, "auto_import: add", "auto_import: off", 1)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	next.InheritRuntime(prev)
+	if next.Discovery.Docker.AutoImport != AutoImportSync {
+		t.Errorf("live auto-import = %q, want sync", next.Discovery.Docker.AutoImport)
+	}
+	if got := next.fileView().Discovery.Docker.AutoImport; got != AutoImportOff {
+		t.Errorf("file auto-import = %q, want off", got)
+	}
+}
+
+func TestInheritRuntime_NilPrev(t *testing.T) {
+	next, err := Parse([]byte("server: {listen: \":8080\", log_level: warn}\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	next.InheritRuntime(nil)
+	if next.Server.LogLevel != "warn" || next.IsOverridden(OverrideLogLevel) {
+		t.Errorf("nil prev changed the config: %q", next.Server.LogLevel)
 	}
 }
