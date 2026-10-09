@@ -2456,3 +2456,14 @@ func TestTick_SiteNotFoundAndResolveFailedTransitions(t *testing.T) {
 		t.Fatal("site recovery not recorded")
 	}
 }
+
+func TestNoteResolve_NotFoundClearsResolveFailed(t *testing.T) {
+	svc := NewService(&config.DiscoveryDockerConfig{})
+	p := &Poller{resolveFailed: map[string]string{"k": "boom"}}
+	if !p.noteResolve(svc, "k", ErrContainerNotFound, "app", "name", "n") {
+		t.Fatal("not found must skip the key")
+	}
+	if _, ok := p.resolveFailed["k"]; ok {
+		t.Fatal("not-found must clear the logged resolve error so it logs again")
+	}
+}

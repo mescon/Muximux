@@ -576,6 +576,8 @@ func TestIssue499_AbsentContainerRemovedOnlyBySyncOfAutoImported(t *testing.T) {
 		{config.AutoImportSync, true, 0},
 		{config.AutoImportSync, false, 1},
 		{config.AutoImportOff, true, 1},
+		{config.AutoImportAdd, true, 1},
+		{config.AutoImportUpdate, true, 1},
 	} {
 		set := []ContainerSummary{}
 		p, cfg := swarmPoller(t, &set, tc.mode)
@@ -584,7 +586,7 @@ func TestIssue499_AbsentContainerRemovedOnlyBySyncOfAutoImported(t *testing.T) {
 			DockerKey: "name:bindery_web.1.71e9k1i0wfiyk5sbbjku668er", DockerEndpoint: cfg.Discovery.Docker.Endpoint,
 			DockerStrategy: "container_dns", DockerAutoImported: tc.auto, Enabled: true,
 		}}
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 6; i++ {
 			p.tick(context.Background())
 		}
 		if len(cfg.Apps) != tc.wantApps {

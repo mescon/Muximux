@@ -271,6 +271,7 @@ func (p *Poller) warnSkipOnce(sug *Suggestion, skip *AutoImportSkip) {
 // failed to resolve and the caller should skip it.
 func (p *Poller) noteResolve(svc *Service, key string, err error, kind, nameField, name string) bool {
 	if errors.Is(err, ErrContainerNotFound) {
+		delete(p.resolveFailed, key)
 		if svc.MarkMissing(key) {
 			logging.Warn("Tracked docker container not found",
 				"source", "discovery", "kind", kind, nameField, name, "key", key)
