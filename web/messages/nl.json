@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Uit",
   "discovery_autoImportAdd": "Nieuwe containers toevoegen",
   "discovery_autoImportUpdate": "Toevoegen en bijwerken",
-  "discovery_autoImportSync": "Toevoegen, bijwerken en verwijderen"
+  "discovery_autoImportSync": "Toevoegen, bijwerken en verwijderen",
+  "health_label": "Status van {app}: {status}",
+  "health_statusHealthy": "Gezond",
+  "health_statusUnhealthy": "Ongezond",
+  "health_statusUnknown": "Onbekend",
+  "health_response": "Reactietijd",
+  "health_uptime": "Uptime",
+  "health_checked": "Gecontroleerd",
+  "health_never": "Nooit",
+  "health_checkNow": "Nu controleren",
+  "health_checking": "Controleren..."
 }

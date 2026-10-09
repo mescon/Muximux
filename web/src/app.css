@@ -890,9 +890,9 @@ html.theme-transitioning *::after {
   .notice-neutral { background: var(--bg-elevated); border-color: var(--border-default); color: var(--text-secondary); }
 
   /* Health dot shapes: circle = healthy, diamond = unhealthy, hollow ring = unknown */
-  .health-dot-healthy   { background: var(--status-success); }
+  .health-dot-healthy   { background: var(--status-success); border-radius: 9999px; }
   .health-dot-unhealthy { background: var(--status-error); transform: rotate(45deg); border-radius: 1px; }
-  .health-dot-unknown   { background: transparent; border: 2px solid var(--text-muted); }
+  .health-dot-unknown   { background: transparent; border: 2px solid var(--text-muted); border-radius: 9999px; }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

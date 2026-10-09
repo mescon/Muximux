@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "बंद",
   "discovery_autoImportAdd": "नए कंटेनर जोड़ें",
   "discovery_autoImportUpdate": "जोड़ें और अपडेट करें",
-  "discovery_autoImportSync": "जोड़ें, अपडेट करें और हटाएँ"
+  "discovery_autoImportSync": "जोड़ें, अपडेट करें और हटाएँ",
+  "health_label": "{app} स्थिति: {status}",
+  "health_statusHealthy": "स्वस्थ",
+  "health_statusUnhealthy": "अस्वस्थ",
+  "health_statusUnknown": "अज्ञात",
+  "health_response": "प्रतिक्रिया",
+  "health_uptime": "अपटाइम",
+  "health_checked": "जाँचा गया",
+  "health_never": "कभी नहीं",
+  "health_checkNow": "अभी जाँचें",
+  "health_checking": "जाँच हो रही है..."
 }

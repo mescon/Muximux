@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "إيقاف",
   "discovery_autoImportAdd": "إضافة الحاويات الجديدة",
   "discovery_autoImportUpdate": "إضافة وتحديث",
-  "discovery_autoImportSync": "إضافة وتحديث وإزالة"
+  "discovery_autoImportSync": "إضافة وتحديث وإزالة",
+  "health_label": "حالة {app}: {status}",
+  "health_statusHealthy": "سليم",
+  "health_statusUnhealthy": "غير سليم",
+  "health_statusUnknown": "غير معروف",
+  "health_response": "الاستجابة",
+  "health_uptime": "مدة التشغيل",
+  "health_checked": "آخر فحص",
+  "health_never": "أبدًا",
+  "health_checkNow": "افحص الآن",
+  "health_checking": "جارٍ الفحص..."
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/svelte';
+import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 
 const { mockHealthData, mockTriggerHealthCheck } = vi.hoisted(() => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -42,7 +42,7 @@ describe('HealthIndicator', () => {
 
   it('renders status dot', () => {
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toBeInTheDocument();
   });
 
@@ -50,7 +50,7 @@ describe('HealthIndicator', () => {
     mockHealthData.set(new Map([['TestApp', makeHealth()]]));
 
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('health-dot-healthy');
   });
 
@@ -66,31 +66,31 @@ describe('HealthIndicator', () => {
     ]));
 
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('health-dot-unhealthy');
   });
 
   it('shows unknown class when no health data exists', () => {
     const { container } = render(HealthIndicator, { props: { appName: 'UnknownApp' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('health-dot-unknown');
   });
 
   it('applies correct size class for sm', () => {
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp', size: 'sm' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('w-2', 'h-2');
   });
 
   it('applies correct size class for md', () => {
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp', size: 'md' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('w-3', 'h-3');
   });
 
   it('applies correct size class for lg', () => {
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp', size: 'lg' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('w-4', 'h-4');
   });
 
@@ -98,7 +98,7 @@ describe('HealthIndicator', () => {
 
   it('defaults to sm size when not specified', () => {
     const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-    const dot = container.querySelector('span.rounded-full');
+    const dot = container.querySelector('span[role="img"]');
     expect(dot).toHaveClass('w-2', 'h-2');
   });
 
@@ -120,7 +120,7 @@ describe('HealthIndicator', () => {
       const wrapper = container.querySelector('.inline-flex')!;
 
       // Mock getBoundingClientRect on the dot element
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100,
         top: 200,
@@ -147,7 +147,7 @@ describe('HealthIndicator', () => {
 
       const wrapper = container.querySelector('.inline-flex')!;
 
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
         right: 108, bottom: 208, x: 100, y: 200, toJSON: () => {},
@@ -196,7 +196,7 @@ describe('HealthIndicator', () => {
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
       const wrapper = container.querySelector('.inline-flex')!;
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
         right: 108, bottom: 208, x: 100, y: 200, toJSON: () => {},
@@ -261,7 +261,7 @@ describe('HealthIndicator', () => {
       const container = await openTooltip({ uptime_percent: 95, check_count: 20, success_count: 19 });
 
       await waitFor(() => {
-        const badge = container.ownerDocument.querySelector('.health-uptime-badge');
+        const badge = container.ownerDocument.querySelector('.health-tooltip .badge');
         expect(badge).toBeInTheDocument();
         expect(badge!.textContent).toContain('95%');
       });
@@ -272,7 +272,7 @@ describe('HealthIndicator', () => {
 
       await waitFor(() => {
         const tooltip = container.ownerDocument.querySelector('.health-tooltip');
-        expect(tooltip!.textContent).toContain('Uptime: 18/20 checks');
+        expect(tooltip!.textContent).toContain('Uptime: 18/20');
       });
     });
 
@@ -280,7 +280,7 @@ describe('HealthIndicator', () => {
       const container = await openTooltip({ check_count: 0, success_count: 0 });
 
       await waitFor(() => {
-        const badge = container.ownerDocument.querySelector('.health-uptime-badge');
+        const badge = container.ownerDocument.querySelector('.health-tooltip .badge');
         expect(badge).not.toBeInTheDocument();
 
         const tooltip = container.ownerDocument.querySelector('.health-tooltip');
@@ -331,7 +331,7 @@ describe('HealthIndicator', () => {
       await waitFor(() => {
         const btn = container.ownerDocument.querySelector('.health-check-btn');
         expect(btn).toBeInTheDocument();
-        expect(btn!.textContent).toContain('Check Now');
+        expect(btn!.textContent).toContain('Check now');
       });
     });
   });
@@ -347,7 +347,7 @@ describe('HealthIndicator', () => {
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
       const wrapper = container.querySelector('.inline-flex')!;
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
         right: 108, bottom: 208, x: 100, y: 200, toJSON: () => {},
@@ -376,7 +376,7 @@ describe('HealthIndicator', () => {
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
       const wrapper = container.querySelector('.inline-flex')!;
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
         right: 108, bottom: 208, x: 100, y: 200, toJSON: () => {},
@@ -408,7 +408,7 @@ describe('HealthIndicator', () => {
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
       const wrapper = container.querySelector('.inline-flex')!;
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
         right: 108, bottom: 208, x: 100, y: 200, toJSON: () => {},
@@ -455,7 +455,7 @@ describe('HealthIndicator', () => {
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
       const wrapper = container.querySelector('.inline-flex')!;
-      const dot = container.querySelector('span.rounded-full')!;
+      const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
         right: 108, bottom: 208, x: 100, y: 200, toJSON: () => {},
@@ -519,6 +519,51 @@ describe('HealthIndicator', () => {
     it('uses health-dot-unknown when no health data present', () => {
       const { container } = render(HealthIndicator, { props: { appName: 'NoApp' } });
       expect(container.querySelector('.health-dot-unknown')).toBeInTheDocument();
+    });
+  });
+
+  // ─── Accessibility: role, name, shape and keyboard tooltip ────────────────
+
+  describe('accessibility', () => {
+    it('names the status and uses a shape class per state', () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth({ status: 'unhealthy' })]]));
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      const dot = screen.getByRole('img');
+      expect(dot).toHaveAttribute('aria-label', 'TestApp health: Unhealthy');
+      expect(dot.className).toContain('health-dot-unhealthy');
+    });
+    it('reports unknown when there is no data', () => {
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'TestApp health: Unknown');
+      expect(screen.getByRole('img').className).toContain('health-dot-unknown');
+    });
+    it('opens on host focus and closes on Escape when nested in a button', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const host = document.createElement('button');
+      document.body.append(host);
+      render(HealthIndicator, { target: host, props: { appName: 'TestApp' } });
+      await fireEvent.focus(host);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      expect(screen.getByRole('img')).toHaveAttribute('aria-describedby', screen.getByRole('tooltip').id);
+      await fireEvent.keyDown(host, { key: 'Escape' });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+    it('is focusable and opens on its own focus when it has no host', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      const dot = screen.getByRole('img');
+      expect(dot).toHaveAttribute('tabindex', '0');
+      await fireEvent.focus(dot);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await fireEvent.blur(dot);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+    it('uptime badge uses the badge classes, not white text', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      await fireEvent.focus(screen.getByRole('img'));
+      expect(screen.getByText('100%').className).toContain('badge-success');
     });
   });
 });

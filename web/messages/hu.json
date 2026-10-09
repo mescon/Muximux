@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Ki",
   "discovery_autoImportAdd": "Új konténerek hozzáadása",
   "discovery_autoImportUpdate": "Hozzáadás és frissítés",
-  "discovery_autoImportSync": "Hozzáadás, frissítés és eltávolítás"
+  "discovery_autoImportSync": "Hozzáadás, frissítés és eltávolítás",
+  "health_label": "{app} állapota: {status}",
+  "health_statusHealthy": "Egészséges",
+  "health_statusUnhealthy": "Hibás",
+  "health_statusUnknown": "Ismeretlen",
+  "health_response": "Válaszidő",
+  "health_uptime": "Rendelkezésre állás",
+  "health_checked": "Ellenőrizve",
+  "health_never": "Soha",
+  "health_checkNow": "Ellenőrzés most",
+  "health_checking": "Ellenőrzés..."
 }

@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Izklopljeno",
   "discovery_autoImportAdd": "Dodaj nove vsebnike",
   "discovery_autoImportUpdate": "Dodaj in posodobi",
-  "discovery_autoImportSync": "Dodaj, posodobi in odstrani"
+  "discovery_autoImportSync": "Dodaj, posodobi in odstrani",
+  "health_label": "Stanje {app}: {status}",
+  "health_statusHealthy": "Deluje",
+  "health_statusUnhealthy": "Ne deluje",
+  "health_statusUnknown": "Neznano",
+  "health_response": "Odziv",
+  "health_uptime": "Razpoložljivost",
+  "health_checked": "Preverjeno",
+  "health_never": "Nikoli",
+  "health_checkNow": "Preveri zdaj",
+  "health_checking": "Preverjanje..."
 }

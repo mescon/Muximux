@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Vypnuté",
   "discovery_autoImportAdd": "Pridať nové kontajnery",
   "discovery_autoImportUpdate": "Pridať a aktualizovať",
-  "discovery_autoImportSync": "Pridať, aktualizovať a odstrániť"
+  "discovery_autoImportSync": "Pridať, aktualizovať a odstrániť",
+  "health_label": "Stav {app}: {status}",
+  "health_statusHealthy": "V poriadku",
+  "health_statusUnhealthy": "Nefunkčný",
+  "health_statusUnknown": "Neznámy",
+  "health_response": "Odozva",
+  "health_uptime": "Dostupnosť",
+  "health_checked": "Skontrolované",
+  "health_never": "Nikdy",
+  "health_checkNow": "Skontrolovať teraz",
+  "health_checking": "Kontrolujem..."
 }

@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Dezactivat",
   "discovery_autoImportAdd": "Adaugă containere noi",
   "discovery_autoImportUpdate": "Adaugă și actualizează",
-  "discovery_autoImportSync": "Adaugă, actualizează și elimină"
+  "discovery_autoImportSync": "Adaugă, actualizează și elimină",
+  "health_label": "Starea {app}: {status}",
+  "health_statusHealthy": "Funcțional",
+  "health_statusUnhealthy": "Nefuncțional",
+  "health_statusUnknown": "Necunoscut",
+  "health_response": "Răspuns",
+  "health_uptime": "Disponibilitate",
+  "health_checked": "Verificat",
+  "health_never": "Niciodată",
+  "health_checkNow": "Verifică acum",
+  "health_checking": "Se verifică..."
 }

@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Вимк.",
   "discovery_autoImportAdd": "Додавати нові контейнери",
   "discovery_autoImportUpdate": "Додавати й оновлювати",
-  "discovery_autoImportSync": "Додавати, оновлювати й видаляти"
+  "discovery_autoImportSync": "Додавати, оновлювати й видаляти",
+  "health_label": "Стан {app}: {status}",
+  "health_statusHealthy": "Справно",
+  "health_statusUnhealthy": "Несправно",
+  "health_statusUnknown": "Невідомо",
+  "health_response": "Відгук",
+  "health_uptime": "Доступність",
+  "health_checked": "Перевірено",
+  "health_never": "Ніколи",
+  "health_checkNow": "Перевірити зараз",
+  "health_checking": "Перевірка..."
 }

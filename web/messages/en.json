@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Off",
   "discovery_autoImportAdd": "Add new containers",
   "discovery_autoImportUpdate": "Add and update",
-  "discovery_autoImportSync": "Add, update and remove"
+  "discovery_autoImportSync": "Add, update and remove",
+  "health_label": "{app} health: {status}",
+  "health_statusHealthy": "Healthy",
+  "health_statusUnhealthy": "Unhealthy",
+  "health_statusUnknown": "Unknown",
+  "health_response": "Response",
+  "health_uptime": "Uptime",
+  "health_checked": "Checked",
+  "health_never": "Never",
+  "health_checkNow": "Check now",
+  "health_checking": "Checking..."
 }

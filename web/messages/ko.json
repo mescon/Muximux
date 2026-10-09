@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "끔",
   "discovery_autoImportAdd": "새 컨테이너 추가",
   "discovery_autoImportUpdate": "추가 및 업데이트",
-  "discovery_autoImportSync": "추가, 업데이트 및 제거"
+  "discovery_autoImportSync": "추가, 업데이트 및 제거",
+  "health_label": "{app} 상태: {status}",
+  "health_statusHealthy": "정상",
+  "health_statusUnhealthy": "비정상",
+  "health_statusUnknown": "알 수 없음",
+  "health_response": "응답",
+  "health_uptime": "가동률",
+  "health_checked": "확인됨",
+  "health_never": "없음",
+  "health_checkNow": "지금 확인",
+  "health_checking": "확인 중..."
 }

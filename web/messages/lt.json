@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Išjungta",
   "discovery_autoImportAdd": "Pridėti naujus konteinerius",
   "discovery_autoImportUpdate": "Pridėti ir atnaujinti",
-  "discovery_autoImportSync": "Pridėti, atnaujinti ir pašalinti"
+  "discovery_autoImportSync": "Pridėti, atnaujinti ir pašalinti",
+  "health_label": "{app} būsena: {status}",
+  "health_statusHealthy": "Veikia",
+  "health_statusUnhealthy": "Neveikia",
+  "health_statusUnknown": "Nežinoma",
+  "health_response": "Atsakas",
+  "health_uptime": "Veikimo laikas",
+  "health_checked": "Patikrinta",
+  "health_never": "Niekada",
+  "health_checkNow": "Tikrinti dabar",
+  "health_checking": "Tikrinama..."
 }

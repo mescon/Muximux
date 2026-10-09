@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Izslēgts",
   "discovery_autoImportAdd": "Pievienot jaunus konteinerus",
   "discovery_autoImportUpdate": "Pievienot un atjaunināt",
-  "discovery_autoImportSync": "Pievienot, atjaunināt un noņemt"
+  "discovery_autoImportSync": "Pievienot, atjaunināt un noņemt",
+  "health_label": "{app} stāvoklis: {status}",
+  "health_statusHealthy": "Darbojas",
+  "health_statusUnhealthy": "Nedarbojas",
+  "health_statusUnknown": "Nezināms",
+  "health_response": "Atbilde",
+  "health_uptime": "Darbspējas laiks",
+  "health_checked": "Pārbaudīts",
+  "health_never": "Nekad",
+  "health_checkNow": "Pārbaudīt tagad",
+  "health_checking": "Pārbauda..."
 }

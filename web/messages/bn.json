@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "বন্ধ",
   "discovery_autoImportAdd": "নতুন কন্টেইনার যোগ করুন",
   "discovery_autoImportUpdate": "যোগ ও আপডেট করুন",
-  "discovery_autoImportSync": "যোগ, আপডেট ও সরান"
+  "discovery_autoImportSync": "যোগ, আপডেট ও সরান",
+  "health_label": "{app} অবস্থা: {status}",
+  "health_statusHealthy": "সুস্থ",
+  "health_statusUnhealthy": "অসুস্থ",
+  "health_statusUnknown": "অজানা",
+  "health_response": "প্রতিক্রিয়া",
+  "health_uptime": "আপটাইম",
+  "health_checked": "যাচাই করা হয়েছে",
+  "health_never": "কখনও না",
+  "health_checkNow": "এখনই যাচাই করুন",
+  "health_checking": "যাচাই করা হচ্ছে..."
 }

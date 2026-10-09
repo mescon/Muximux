@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Desactivada",
   "discovery_autoImportAdd": "Añadir contenedores nuevos",
   "discovery_autoImportUpdate": "Añadir y actualizar",
-  "discovery_autoImportSync": "Añadir, actualizar y eliminar"
+  "discovery_autoImportSync": "Añadir, actualizar y eliminar",
+  "health_label": "Estado de {app}: {status}",
+  "health_statusHealthy": "Correcto",
+  "health_statusUnhealthy": "Con fallos",
+  "health_statusUnknown": "Desconocido",
+  "health_response": "Respuesta",
+  "health_uptime": "Disponibilidad",
+  "health_checked": "Comprobado",
+  "health_never": "Nunca",
+  "health_checkNow": "Comprobar ahora",
+  "health_checking": "Comprobando..."
 }

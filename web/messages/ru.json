@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Выкл.",
   "discovery_autoImportAdd": "Добавлять новые контейнеры",
   "discovery_autoImportUpdate": "Добавлять и обновлять",
-  "discovery_autoImportSync": "Добавлять, обновлять и удалять"
+  "discovery_autoImportSync": "Добавлять, обновлять и удалять",
+  "health_label": "Состояние {app}: {status}",
+  "health_statusHealthy": "Исправно",
+  "health_statusUnhealthy": "Неисправно",
+  "health_statusUnknown": "Неизвестно",
+  "health_response": "Отклик",
+  "health_uptime": "Доступность",
+  "health_checked": "Проверено",
+  "health_never": "Никогда",
+  "health_checkNow": "Проверить сейчас",
+  "health_checking": "Проверка..."
 }

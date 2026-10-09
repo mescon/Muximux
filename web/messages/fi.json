@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Pois",
   "discovery_autoImportAdd": "Lisää uudet kontit",
   "discovery_autoImportUpdate": "Lisää ja päivitä",
-  "discovery_autoImportSync": "Lisää, päivitä ja poista"
+  "discovery_autoImportSync": "Lisää, päivitä ja poista",
+  "health_label": "{app} tila: {status}",
+  "health_statusHealthy": "Kunnossa",
+  "health_statusUnhealthy": "Vikatilassa",
+  "health_statusUnknown": "Tuntematon",
+  "health_response": "Vasteaika",
+  "health_uptime": "Käytettävyys",
+  "health_checked": "Tarkistettu",
+  "health_never": "Ei koskaan",
+  "health_checkNow": "Tarkista nyt",
+  "health_checking": "Tarkistetaan..."
 }

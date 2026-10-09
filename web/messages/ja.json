@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "オフ",
   "discovery_autoImportAdd": "新しいコンテナを追加",
   "discovery_autoImportUpdate": "追加と更新",
-  "discovery_autoImportSync": "追加、更新、削除"
+  "discovery_autoImportSync": "追加、更新、削除",
+  "health_label": "{app} の状態: {status}",
+  "health_statusHealthy": "正常",
+  "health_statusUnhealthy": "異常",
+  "health_statusUnknown": "不明",
+  "health_response": "応答",
+  "health_uptime": "稼働率",
+  "health_checked": "確認日時",
+  "health_never": "なし",
+  "health_checkNow": "今すぐ確認",
+  "health_checking": "確認中..."
 }

@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "关闭",
   "discovery_autoImportAdd": "添加新容器",
   "discovery_autoImportUpdate": "添加并更新",
-  "discovery_autoImportSync": "添加、更新并删除"
+  "discovery_autoImportSync": "添加、更新并删除",
+  "health_label": "{app} 状态：{status}",
+  "health_statusHealthy": "正常",
+  "health_statusUnhealthy": "异常",
+  "health_statusUnknown": "未知",
+  "health_response": "响应",
+  "health_uptime": "在线率",
+  "health_checked": "检查时间",
+  "health_never": "从未",
+  "health_checkNow": "立即检查",
+  "health_checking": "检查中..."
 }

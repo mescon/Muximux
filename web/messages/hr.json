@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Isključeno",
   "discovery_autoImportAdd": "Dodaj nove kontejnere",
   "discovery_autoImportUpdate": "Dodaj i ažuriraj",
-  "discovery_autoImportSync": "Dodaj, ažuriraj i ukloni"
+  "discovery_autoImportSync": "Dodaj, ažuriraj i ukloni",
+  "health_label": "Stanje {app}: {status}",
+  "health_statusHealthy": "Ispravno",
+  "health_statusUnhealthy": "Neispravno",
+  "health_statusUnknown": "Nepoznato",
+  "health_response": "Odziv",
+  "health_uptime": "Dostupnost",
+  "health_checked": "Provjereno",
+  "health_never": "Nikad",
+  "health_checkNow": "Provjeri sada",
+  "health_checking": "Provjeravam..."
 }

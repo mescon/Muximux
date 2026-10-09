@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Fra",
   "discovery_autoImportAdd": "Tilføj nye containere",
   "discovery_autoImportUpdate": "Tilføj og opdater",
-  "discovery_autoImportSync": "Tilføj, opdater og fjern"
+  "discovery_autoImportSync": "Tilføj, opdater og fjern",
+  "health_label": "{app} status: {status}",
+  "health_statusHealthy": "Sund",
+  "health_statusUnhealthy": "Usund",
+  "health_statusUnknown": "Ukendt",
+  "health_response": "Svartid",
+  "health_uptime": "Oppetid",
+  "health_checked": "Tjekket",
+  "health_never": "Aldrig",
+  "health_checkNow": "Tjek nu",
+  "health_checking": "Tjekker..."
 }

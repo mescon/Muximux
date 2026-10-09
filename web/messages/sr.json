@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Искључено",
   "discovery_autoImportAdd": "Додај нове контејнере",
   "discovery_autoImportUpdate": "Додај и ажурирај",
-  "discovery_autoImportSync": "Додај, ажурирај и уклони"
+  "discovery_autoImportSync": "Додај, ажурирај и уклони",
+  "health_label": "Стање {app}: {status}",
+  "health_statusHealthy": "Исправно",
+  "health_statusUnhealthy": "Неисправно",
+  "health_statusUnknown": "Непознато",
+  "health_response": "Одзив",
+  "health_uptime": "Доступност",
+  "health_checked": "Проверено",
+  "health_never": "Никад",
+  "health_checkNow": "Провери сада",
+  "health_checking": "Провера..."
 }

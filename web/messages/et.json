@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Väljas",
   "discovery_autoImportAdd": "Lisa uued konteinerid",
   "discovery_autoImportUpdate": "Lisa ja uuenda",
-  "discovery_autoImportSync": "Lisa, uuenda ja eemalda"
+  "discovery_autoImportSync": "Lisa, uuenda ja eemalda",
+  "health_label": "{app} olek: {status}",
+  "health_statusHealthy": "Terve",
+  "health_statusUnhealthy": "Häiritud",
+  "health_statusUnknown": "Teadmata",
+  "health_response": "Vastus",
+  "health_uptime": "Tööaeg",
+  "health_checked": "Kontrollitud",
+  "health_never": "Mitte kunagi",
+  "health_checkNow": "Kontrolli kohe",
+  "health_checking": "Kontrollin..."
 }

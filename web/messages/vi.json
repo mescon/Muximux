@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Tắt",
   "discovery_autoImportAdd": "Thêm container mới",
   "discovery_autoImportUpdate": "Thêm và cập nhật",
-  "discovery_autoImportSync": "Thêm, cập nhật và xóa"
+  "discovery_autoImportSync": "Thêm, cập nhật và xóa",
+  "health_label": "Tình trạng {app}: {status}",
+  "health_statusHealthy": "Ổn định",
+  "health_statusUnhealthy": "Gặp sự cố",
+  "health_statusUnknown": "Không rõ",
+  "health_response": "Phản hồi",
+  "health_uptime": "Thời gian hoạt động",
+  "health_checked": "Đã kiểm tra",
+  "health_never": "Chưa bao giờ",
+  "health_checkNow": "Kiểm tra ngay",
+  "health_checking": "Đang kiểm tra..."
 }

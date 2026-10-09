@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "關",
   "discovery_autoImportAdd": "新增新容器",
   "discovery_autoImportUpdate": "新增同更新",
-  "discovery_autoImportSync": "新增、更新同移除"
+  "discovery_autoImportSync": "新增、更新同移除",
+  "health_label": "{app} 狀態：{status}",
+  "health_statusHealthy": "正常",
+  "health_statusUnhealthy": "異常",
+  "health_statusUnknown": "唔知",
+  "health_response": "回應",
+  "health_uptime": "在線率",
+  "health_checked": "檢查時間",
+  "health_never": "從未",
+  "health_checkNow": "即刻檢查",
+  "health_checking": "檢查緊..."
 }

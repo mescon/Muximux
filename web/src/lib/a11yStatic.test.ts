@@ -13,8 +13,8 @@ const SRC = path.join(process.cwd(), 'src');
 export const BUDGET: Record<string, number> = {
   palette: 0,
   whiteBlack: 0,
-  styleColours: 1,
-  tokenAsText: 4,
+  styleColours: 0,
+  tokenAsText: 0,
   arbitraryToken: 0,
   outline: 0,
   unlabeled: 36,

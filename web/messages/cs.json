@@ -878,5 +878,15 @@
   "discovery_autoImportOff": "Vypnuto",
   "discovery_autoImportAdd": "Přidat nové kontejnery",
   "discovery_autoImportUpdate": "Přidat a aktualizovat",
-  "discovery_autoImportSync": "Přidat, aktualizovat a odebrat"
+  "discovery_autoImportSync": "Přidat, aktualizovat a odebrat",
+  "health_label": "Stav {app}: {status}",
+  "health_statusHealthy": "V pořádku",
+  "health_statusUnhealthy": "Nefunkční",
+  "health_statusUnknown": "Neznámý",
+  "health_response": "Odezva",
+  "health_uptime": "Dostupnost",
+  "health_checked": "Kontrolováno",
+  "health_never": "Nikdy",
+  "health_checkNow": "Zkontrolovat nyní",
+  "health_checking": "Kontroluji..."
 }
