@@ -43,6 +43,15 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   at once. Listen address, TLS, base-path routing and session cookie
   settings still need a restart. A backup with the legacy `server.gateway`
   setting is refused with 400. (#494)
+- **Status colours come from theme tokens.** Warnings, errors, success and
+  info notices, pills and the danger button read `--success-*`,
+  `--warning-*`, `--danger-*`, `--info-*`, `--accent-text`,
+  `--accent-on-primary` and `--danger-solid` instead of fixed Tailwind
+  shades, so themes can set them; omitted tokens fall back to the defaults.
+  The theme editor writes the text colour for accent fills when a custom
+  theme is saved. Colours are otherwise unchanged, apart from small shifts
+  such as buttons sharing the standard button style and one-shade accent
+  changes.
 
 ### Fixed
 - **Custom apps added in the onboarding wizard appear on the dashboard.**
@@ -86,6 +95,15 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   replacing a custom icon in another format shows at once. (#494)
 - Restoring a backup with the legacy `server.gateway` setting (string or
   map) explains how to convert it instead of reporting invalid YAML. (#494)
+- **Accessibility groundwork.** Every focusable element shows the same
+  visible focus outline, and a field with an error keeps its danger border
+  while focused. The health indicator has a name, a distinct shape per
+  status and a tooltip that opens with the keyboard ("Check now" in it is
+  still mouse-only). Errors are announced as alerts and confirmations as
+  status messages, the onboarding wizard announces step changes, the log
+  level filters report on or off, and form controls and icon-only buttons
+  have names, including per-row actions. Transitions, spinners and pulses
+  calm down when the operating system asks for reduced motion.
 
 ### Security
 - **`golang.org/x/net` v0.60.0** -- fixes GO-2026-6603, GO-2026-6610,
