@@ -430,17 +430,11 @@ func TestDockerConfig_RejectsOtherMethods(t *testing.T) {
 
 func TestUpdateDockerConfig_MergesOntoStored(t *testing.T) {
 	h, cfg, configPath := newTestDiscoveryHandler(t, storedDockerConfig())
-	// The body the Discovery tab sent in the reproduction: no auto_import,
-	// no host_ip (hidden by the strategy), no TLS paths.
-	w := putDockerConfig(t, h, `{
-		"enabled": true,
-		"endpoint": "unix:///tmp/never-exists.sock",
-		"tls": {"enabled": false},
-		"network_strategy": "container_ip",
-		"network_filter": "host",
-		"refresh_interval": "60s",
-		"health_badge_placement": "off"
-	}`)
+	// The body the Discovery tab sent in the reproduction (scenario A),
+	// without host_ip: no auto_import, no TLS paths.
+	w := putDockerConfig(t, h, `{"enabled":true,"endpoint":"unix:///tmp/never-exists.sock","tls":{"enabled":false},`+
+		`"network_strategy":"host_port","network_filter":"host","refresh_interval":"60s","lifecycle_enabled":false,`+
+		`"lifecycle_min_role":"admin","lifecycle_allowed_groups":[],"health_badge_placement":"off"}`)
 	if w.Code != http.StatusOK {
 		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
 	}
