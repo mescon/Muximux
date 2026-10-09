@@ -52,6 +52,18 @@ type Config struct {
 	// overrides records fields whose live value came from a flag or an
 	// environment variable, with the file's own value for Save to write.
 	overrides map[OverrideField]override
+
+	// onSaved is the broadcast hook Save calls after a successful write.
+	// Unexported, so YAML ignores it.
+	onSaved func()
+}
+
+// SetOnSaved registers the broadcast hook: called after every successful
+// Save, synchronously, while the caller still holds its config lock. It is
+// distinct from the handlers' SetOnConfigSave rebuild callbacks and must not
+// take configMu.
+func (c *Config) SetOnSaved(fn func()) {
+	c.onSaved = fn
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -1697,6 +1709,9 @@ func (c *Config) Save(path string) error {
 			_ = d.Sync()
 			_ = d.Close()
 		}
+	}
+	if c.onSaved != nil {
+		c.onSaved()
 	}
 	return nil
 }

@@ -142,11 +142,11 @@ func TestHub_BroadcastConfigUpdate(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
 
-	client := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
+	client := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: false}
 	hub.Register(client)
 	time.Sleep(50 * time.Millisecond)
 
-	hub.BroadcastConfigUpdate(map[string]string{"title": "New Title"})
+	hub.BroadcastConfigUpdate()
 	time.Sleep(50 * time.Millisecond)
 
 	select {

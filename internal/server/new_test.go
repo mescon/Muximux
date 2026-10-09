@@ -1,15 +1,19 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	gws "github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/websocket"
 )
 
 // newServerForTest builds a Server through New, exactly as main does, from
@@ -278,4 +282,160 @@ func TestOIDCSettingsRoutes_RequireAdmin(t *testing.T) {
 			t.Errorf("form POST without CSRF marker = %d, want 403", rec.Code)
 		}
 	})
+}
+
+// dialWS opens a WebSocket to srv's /ws endpoint with the given session
+// cookies, the way a browser tab does, and returns the event types it
+// receives. A reader goroutine owns the connection: gorilla connections are
+// unusable after a read deadline expires, so the 300 ms quiet window lives
+// on the channel instead.
+func dialWS(t *testing.T, srv *httptest.Server, cookies []*http.Cookie) <-chan string {
+	t.Helper()
+	header := http.Header{"Origin": []string{srv.URL}}
+	for _, c := range cookies {
+		header.Add("Cookie", c.String())
+	}
+	conn, resp, err := gws.DefaultDialer.Dial("ws"+strings.TrimPrefix(srv.URL, "http")+"/ws", header)
+	if err != nil {
+		t.Fatalf("dial /ws: %v", err)
+	}
+	resp.Body.Close()
+	t.Cleanup(func() { conn.Close() })
+	events := make(chan string, 64)
+	go func() {
+		defer close(events)
+		for {
+			_, msg, readErr := conn.ReadMessage()
+			if readErr != nil {
+				return
+			}
+			var ev struct {
+				Type string `json:"type"`
+			}
+			if json.Unmarshal(msg, &ev) == nil {
+				events <- ev.Type
+			}
+		}
+	}()
+	return events
+}
+
+// countConfigUpdates drains events until they are quiet for 300 ms and
+// returns how many config_updated events arrived. Other types are ignored.
+func countConfigUpdates(events <-chan string) int {
+	n := 0
+	for {
+		select {
+		case typ, ok := <-events:
+			if !ok {
+				return n
+			}
+			if typ == "config_updated" {
+				n++
+			}
+		case <-time.After(300 * time.Millisecond):
+			return n
+		}
+	}
+}
+
+// S-03: every config mutation, whichever handler makes it, reaches every
+// connected client, admin or not, as exactly one config_updated event.
+func TestInstallConfigSaveHook_BroadcastsOnEveryMutation(t *testing.T) {
+	s := newServerForTest(t, completeSetup(t))
+	go s.wsHub.Run()
+	t.Cleanup(s.wsHub.Close)
+	s.installConfigSaveHook()
+	s.installConfigSaveHook() // idempotent
+	srv := httptest.NewServer(s.httpServer.Handler)
+	defer srv.Close()
+
+	admin := loginCookies(t, s, "admin", "correct horse")
+	if rec := doJSON(s, http.MethodPost, "/api/auth/users",
+		`{"username":"viewer","password":"viewer-password","role":"user"}`, admin, true); rec.Code != http.StatusOK && rec.Code != http.StatusCreated {
+		t.Fatalf("create viewer = %d %s", rec.Code, rec.Body.String())
+	}
+	viewer := loginCookies(t, s, "viewer", "viewer-password")
+
+	adminConn := dialWS(t, srv, admin)
+	viewerConn := dialWS(t, srv, viewer)
+	time.Sleep(50 * time.Millisecond)
+	if got := s.wsHub.ClientCount(); got != 2 {
+		t.Fatalf("expected 2 ws clients, got %d", got)
+	}
+	// The viewer creation above saved before either socket connected, so
+	// nothing is queued yet; drain anyway to start from a clean slate.
+	countConfigUpdates(adminConn)
+	countConfigUpdates(viewerConn)
+
+	current := doJSON(s, http.MethodGet, "/api/config", "", admin, true)
+	if current.Code != http.StatusOK {
+		t.Fatalf("GET /api/config = %d", current.Code)
+	}
+
+	mutations := []struct{ method, path, body string }{
+		{http.MethodPut, "/api/config", current.Body.String()},
+		{http.MethodPost, "/api/apps", `{"name":"Hooked","url":"http://hooked.local:8080","enabled":true}`},
+		{http.MethodPut, "/api/discovery/docker/config", `{"enabled":false}`},
+		{http.MethodPost, "/api/gateway/sites", `{"domain":"hooked.example.test","backend_url":"http://10.0.0.5:8080"}`},
+		{http.MethodPut, "/api/auth/method", `{"method":"builtin"}`},
+		{http.MethodPost, "/api/auth/users", `{"username":"second","password":"second-password","role":"user"}`},
+	}
+	for _, m := range mutations {
+		rec := doJSON(s, m.method, m.path, m.body, admin, true)
+		if rec.Code < 200 || rec.Code > 299 {
+			t.Fatalf("%s %s = %d %s", m.method, m.path, rec.Code, rec.Body.String())
+		}
+		if got := countConfigUpdates(adminConn); got != 1 {
+			t.Errorf("%s %s: admin got %d config_updated, want 1", m.method, m.path, got)
+		}
+		if got := countConfigUpdates(viewerConn); got != 1 {
+			t.Errorf("%s %s: viewer got %d config_updated, want 1", m.method, m.path, got)
+		}
+	}
+}
+
+// A restore swaps the whole config struct; the save hook must survive it so
+// later saves still broadcast.
+func TestHandleConfigRestore_KeepsSaveHook(t *testing.T) {
+	tmpDir := t.TempDir()
+	s := &Server{
+		config:     defaultTestConfig(),
+		configPath: filepath.Join(tmpDir, "config.yaml"),
+		dataDir:    tmpDir,
+		wsHub:      websocket.NewHub(),
+	}
+	go s.wsHub.Run()
+	t.Cleanup(s.wsHub.Close)
+	s.installConfigSaveHook()
+	s.needsSetup.Store(true)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		websocket.ServeWs(s.wsHub, w, r, false)
+	}))
+	defer srv.Close()
+	events := dialWS(t, srv, nil)
+	time.Sleep(50 * time.Millisecond)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader("server:\n  title: \"Restored\"\napps: []\n"))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	withSetupToken(s, req)
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	if got := countConfigUpdates(events); got != 1 {
+		t.Fatalf("restore save: got %d config_updated, want 1", got)
+	}
+
+	s.configMu.Lock()
+	err := s.config.Save(s.configPath)
+	s.configMu.Unlock()
+	if err != nil {
+		t.Fatalf("Save after restore: %v", err)
+	}
+	if got := countConfigUpdates(events); got != 1 {
+		t.Fatalf("save after restore: got %d config_updated, want 1", got)
+	}
 }

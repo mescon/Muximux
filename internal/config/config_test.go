@@ -2162,3 +2162,60 @@ func TestHealthConfig_JSONKeysAreSnakeCase(t *testing.T) {
 		t.Errorf("legacy capitalised keys not decoded: %+v", h)
 	}
 }
+
+// S-03: the broadcast hook fires once per successful Save and never for a
+// save that failed to reach disk.
+func TestSave_CallsOnSaved(t *testing.T) {
+	cfg := defaultConfig()
+	calls := 0
+	cfg.SetOnSaved(func() { calls++ })
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	if err := cfg.Save(path); err != nil {
+		t.Fatalf("second Save: %v", err)
+	}
+	if calls != 2 {
+		t.Fatalf("expected 2 calls after 2 saves, got %d", calls)
+	}
+
+	// A regular file where a directory should be: the directory is
+	// missing and cannot be created, so Save fails before writing.
+	blocker := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(blocker, []byte("x"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.Save(filepath.Join(blocker, "sub", "config.yaml")); err == nil {
+		t.Fatal("expected Save into an uncreatable directory to fail")
+	}
+	if calls != 2 {
+		t.Fatalf("failed Save must not call the hook, got %d calls", calls)
+	}
+
+	// The target is a directory, so the final rename fails after the temp
+	// file was written: still no hook, and no temp file left behind.
+	dirTarget := filepath.Join(t.TempDir(), "cfgdir")
+	if err := os.MkdirAll(dirTarget, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.Save(dirTarget); err == nil {
+		t.Fatal("expected Save over a directory to fail")
+	}
+	if calls != 2 {
+		t.Fatalf("failed rename must not call the hook, got %d calls", calls)
+	}
+	if left, _ := filepath.Glob(filepath.Join(filepath.Dir(dirTarget), ".config-*.yaml")); len(left) != 0 {
+		t.Fatalf("temp file left behind: %v", left)
+	}
+
+	// No hook registered: Save still succeeds.
+	cfg.SetOnSaved(nil)
+	if err := cfg.Save(path); err != nil {
+		t.Fatalf("Save without hook: %v", err)
+	}
+	if calls != 2 {
+		t.Fatalf("cleared hook still called, got %d calls", calls)
+	}
+}

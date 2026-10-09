@@ -173,14 +173,13 @@ func (h *Hub) Broadcast(event Event) {
 	}
 }
 
-// BroadcastConfigUpdate sends a config update event. Restricted to admin
-// clients because the payload includes user records, API-key hashes, and
-// trusted-proxy networks.
-func (h *Hub) BroadcastConfigUpdate(config interface{}) {
+// BroadcastConfigUpdate tells every client that the config changed. The
+// payload is empty: clients refetch GET /api/config, which filters the
+// config by role, so nothing sensitive travels over the socket.
+func (h *Hub) BroadcastConfigUpdate() {
 	h.Broadcast(Event{
-		Type:      EventConfigUpdated,
-		Payload:   config,
-		adminOnly: true,
+		Type:    EventConfigUpdated,
+		Payload: struct{}{},
 	})
 }
 

@@ -71,6 +71,9 @@ type Server struct {
 	// on the same trigger. Nil only before New finishes setup.
 	rebuildProxyRoutes func()
 	needsSetup         atomic.Bool
+	// saveHookInstalled records that installConfigSaveHook ran, so a
+	// restore that swaps the whole config struct can carry the hook over.
+	saveHookInstalled  atomic.Bool
 	setupMu            sync.Mutex // serializes setup requests
 	setupToken         string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
 	loginLimiter       *rateLimiter
@@ -1561,6 +1564,10 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	s.configMu.Lock()
 	previous := *s.config
 	*s.config = cfg
+	if s.saveHookInstalled.Load() {
+		// The swap replaced the struct, hook included.
+		s.config.SetOnSaved(s.wsHub.BroadcastConfigUpdate)
+	}
 	err = s.config.Save(s.configPath)
 	if err != nil {
 		*s.config = previous // roll back in-memory snapshot
@@ -1695,6 +1702,7 @@ func (s *Server) setupNone() {
 func (s *Server) Start() error {
 	// Start WebSocket hub
 	go s.wsHub.Run()
+	s.installConfigSaveHook()
 
 	// Bridge log entries to WebSocket
 	if buf := logging.Buffer(); buf != nil {
@@ -1761,6 +1769,17 @@ func (s *Server) Start() error {
 	}
 
 	return s.httpServer.ListenAndServe()
+}
+
+// installConfigSaveHook makes every successful config.Save broadcast a
+// config_updated event, whichever handler or background task saved. The
+// hub must already be running, since the hook fires under the saver's
+// config lock. Calling it again is harmless.
+func (s *Server) installConfigSaveHook() {
+	s.configMu.Lock()
+	defer s.configMu.Unlock()
+	s.config.SetOnSaved(s.wsHub.BroadcastConfigUpdate)
+	s.saveHookInstalled.Store(true)
 }
 
 // appAccessRestricted reports whether the named app has a per-app
