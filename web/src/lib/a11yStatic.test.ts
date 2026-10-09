@@ -2,6 +2,15 @@
 // bypass the theme tokens, for focus outlines removed without replacement, for form
 // controls without a programmatic label and for icon-only buttons without a name.
 // The guard is strict: any finding fails the test and is listed as file:line.
+//
+// Scope: .svelte components (class strings, <style> blocks, style="..." and style={...}
+// text colours, style:color directives) and the class rules over every non-test .ts file
+// under src/ (a class map in a store would otherwise pass). Out of scope, on purpose:
+// - background/border colours in inline styles: the inline style= sites carry user app and
+//   group colours (Navigation, AppIcon, theme previews), which are data, not theme colours;
+// - gradients: only the theme preview swatches use them, built from theme values;
+// - colours in .ts string values outside class names (hex defaults for user-picked app and
+//   group colours, the contrast maths); only Tailwind class names are checked there.
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,8 +21,8 @@ const SRC = path.join(process.cwd(), 'src');
 const PALETTE = 'red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone|brand';
 const PROPS = 'text|bg|border|border-t|border-b|border-l|border-r|border-x|border-y|border-s|border-e|ring|ring-offset|outline|divide|from|via|to|fill|stroke|placeholder|accent|caret|shadow|decoration';
 const PALETTE_CLASS = new RegExp(String.raw`(?<![\w-])(?:[\w-]+:)*!?(?:${PROPS})-(?:${PALETTE})-\d{2,3}(?:/\d{1,3})?(?![\w-])`, 'g');
-// Arbitrary hex values, e.g. text-[#fff]; counted with the palette rule.
-const HEX_CLASS = new RegExp(String.raw`(?<![\w-])(?:[\w-]+:)*!?(?:${PROPS})-\[#[0-9a-fA-F]{3,8}\](?![\w-])`, 'g');
+// Arbitrary colour values, e.g. text-[#fff] or bg-[rgb(1,2,3)]; counted with the palette rule.
+const HEX_CLASS = new RegExp(String.raw`(?<![\w-])(?:[\w-]+:)*!?(?:${PROPS})-\[(?:#[0-9a-fA-F]{3,8}|(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb)\([^\]\s]*\))\](?![\w-])`, 'g');
 const WHITE_BLACK = new RegExp(String.raw`(?<![\w-])(?:[\w-]+:)*!?(?:${PROPS})-(?:white|black)(?:/\d{1,3})?(?![\w-])`, 'g');
 // A whole declaration (up to ";"), so the black-tint exemption below sees all of it.
 const STYLE_COLOUR = /(?<![\w-])(?:color|background(?:-color)?|border(?:-top|-right|-bottom|-left)?(?:-color)?|fill|stroke|outline(?:-color)?)\s*:[^;{}]*?(?:#[0-9a-f]{3,8}\b|\brgba?\(|\b(?:white|black)\b)[^;{}]*/gi;
@@ -26,6 +35,8 @@ const ARBITRARY_TOKEN = /(?<![\w-])(?:[\w-]+:)*!?(?:text|bg|border|ring|outline|
 // Counts every way of removing the focus outline: outline-none, outline-hidden and outline-0
 // utilities (any variant) and outline: none / outline: 0 declarations. Task 13 zeroed the
 // count by relying on the global :focus-visible rule in app.css instead.
+// A focus ring utility is a second focus indicator on top of the global outline (spec S7).
+const FOCUS_RING = /(?<![\w-])(?:[\w-]+:)*focus(?:-visible|-within)?:ring(?:-[\w/.[\]()-]+)?(?![\w-])/g;
 const OUTLINE = /(?<![\w-])(?:[\w-]+:)*outline-(?:none|hidden|0)(?![\w-])|(?<![\w-])outline\s*:\s*(?:none|0(?:px)?)(?![\w.%-])/g;
 
 // A hover utility identical to the element's own base utility changes nothing, so pointer
@@ -75,19 +86,52 @@ function styleHits(src: string): Array<[number, string]> {
   return out;
 }
 
-function walk(dir: string): string[] {
+function walk(dir: string, ext: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) return e.name === 'paraglide' ? [] : walk(p);
-    return p.endsWith('.svelte') && !/\.test\./.test(p) ? [p] : [];
+    if (e.isDirectory()) return e.name === 'paraglide' || e.name === 'test' ? [] : walk(p, ext);
+    return p.endsWith(ext) && !/\.test\./.test(p) && !p.endsWith('.d.ts') ? [p] : [];
   });
 }
-const files = walk(SRC);
+const files = walk(SRC, '.svelte');
+const tsFiles = walk(SRC, '.ts');
+
+// Text colour in style={...} expressions and colour literals in style:color directives.
+function styleExprHits(src: string): Array<[number, string]> {
+  const out: Array<[number, string]> = [];
+  for (const a of src.matchAll(/\sstyle=\{/g)) {
+    const start = a.index! + a[0].length;
+    let depth = 1, i = start;
+    for (; i < src.length && depth > 0; i++) {
+      if (src[i] === '{') depth++;
+      else if (src[i] === '}') depth--;
+    }
+    const expr = src.slice(start, i - 1);
+    for (const m of expr.matchAll(INLINE_COLOUR)) out.push([start + m.index!, `style={}: ${m[0]}`]);
+  }
+  for (const m of src.matchAll(/\sstyle:color(?:=(?:"([^"]*)"|\{([^}]*)\}))?/g)) {
+    const v = m[1] ?? m[2] ?? '';
+    if (/#[0-9a-f]{3,8}\b|\brgba?\(|\b(?:white|black)\b/i.test(v)) out.push([m.index! + 1, m[0].trim()]);
+  }
+  return out;
+}
 const rel = (f: string) => path.relative(SRC, f);
 const lineOf = (src: string, idx: number) => src.slice(0, idx).split('\n').length;
 
 type Finding = string;
-const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], noOpHover: [], unlabeled: [], unnamedButtons: [] };
+const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], focusRing: [], noOpHover: [], unlabeled: [], unnamedButtons: [] };
+
+// Class rules over .ts files: a class map or a class string built in a store or helper.
+for (const f of tsFiles) {
+  const src = fs.readFileSync(f, 'utf8');
+  const add = (rule: string, idx: number, text: string) => findings[rule].push(`${rel(f)}:${lineOf(src, idx)} ${text.trim()}`);
+  for (const m of src.matchAll(PALETTE_CLASS)) add('palette', m.index!, m[0]);
+  for (const m of src.matchAll(HEX_CLASS)) add('palette', m.index!, m[0]);
+  for (const m of src.matchAll(WHITE_BLACK)) if (!isAllowed(f, m[0], '')) add('whiteBlack', m.index!, m[0]);
+  for (const m of src.matchAll(ARBITRARY_TOKEN)) add('arbitraryToken', m.index!, m[0]);
+  for (const m of src.matchAll(FOCUS_RING)) add('focusRing', m.index!, m[0]);
+  for (const [idx, text] of noOpHovers(src)) add('noOpHover', idx, text);
+}
 const parseFailures: string[] = [];
 
 type Obj = Record<string, unknown>;
@@ -103,6 +147,8 @@ for (const f of files) {
   for (const m of src.matchAll(TOKEN_AS_TEXT)) add('tokenAsText', m.index!, m[0]);
   for (const m of src.matchAll(ARBITRARY_TOKEN)) add('arbitraryToken', m.index!, m[0]);
   for (const m of src.matchAll(OUTLINE)) add('outline', m.index!, m[0]);
+  for (const m of src.matchAll(FOCUS_RING)) add('focusRing', m.index!, m[0]);
+  for (const [idx, text] of styleExprHits(src)) add('styleColours', idx, text);
   for (const [idx, text] of styleHits(src)) add('styleColours', idx, text);
   for (const [idx, text] of noOpHovers(src)) add('noOpHover', idx, text);
   for (const a of src.matchAll(/\sstyle="([^"]*)"/g)) {
@@ -176,6 +222,18 @@ describe('a11y static guard', () => {
       expect(hits(HEX_CLASS, 'text-[#fff] hover:bg-[#1a2b3c]')).toHaveLength(2);
       expect(hits(HEX_CLASS, 'text-[var(--x)] w-[#abc]')).toEqual([]);
     });
+    it('palette also flags arbitrary rgb/hsl/oklch colour values', () => {
+      expect(hits(HEX_CLASS, 'bg-[rgb(1,2,3)] text-[oklch(0.5_0.1_20)] hover:border-[hsl(0_0%_50%)]')).toHaveLength(3);
+      expect(hits(HEX_CLASS, 'bg-[var(--x)] w-[calc(100%-2px)] text-[14px]')).toEqual([]);
+    });
+    it('focusRing flags focus ring utilities with any variant, not decorative rings', () => {
+      expect(hits(FOCUS_RING, 'focus:ring-2 focus-visible:ring-accent-primary sm:focus:ring focus-within:ring-[var(--x)]')).toHaveLength(4);
+      expect(hits(FOCUS_RING, 'ring-2 ring-accent-primary hover:ring-1 focus:outline-offset-2 my-focus:ring-2x')).toEqual([]);
+    });
+    it('styleColours covers style={...} text colours and style:color literals', () => {
+      const src = '<a style={x ? `color: #fff` : "color: var(--text-primary)"}></a>\n<b style:color="#000"></b><i style:color={c}></i><u style={`border-bottom: 2px solid ${c}`}></u>';
+      expect(styleExprHits(src).map(([i, t]) => [lineOf(src, i), t])).toEqual([[1, 'style={}: color: #fff'], [2, 'style:color="#000"']]);
+    });
     it('whiteBlack flags white and black utilities with variants, not bg-black/50 lookalikes', () => {
       expect(hits(WHITE_BLACK, 'text-white hover:bg-black/40 border-t-white focus:ring-white')).toHaveLength(4);
       expect(hits(WHITE_BLACK, 'text-whitespace bg-blackish text-white-ish white')).toEqual([]);
@@ -246,6 +304,12 @@ describe('a11y static guard', () => {
     const css = fs.readFileSync(path.join(SRC, 'app.css'), 'utf8');
     expect(css).toMatch(/(?:^|\n):focus-visible\s*\{[^}]*outline:\s*2px solid var\(--border-focus\)/);
     expect([...blankStyle(css).matchAll(OUTLINE)].map((m) => m[0])).toEqual([]);
+  });
+
+  it('scans components and non-test .ts files', () => {
+    expect(files.length).toBeGreaterThan(30);
+    expect(tsFiles.some((f) => f.endsWith(path.join('lib', 'themeStore.ts')))).toBe(true);
+    expect(tsFiles.some((f) => /\.test\.ts$/.test(f))).toBe(false);
   });
 
   it('every component parses', () => {
