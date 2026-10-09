@@ -10,7 +10,7 @@
   import ErrorState from './components/ErrorState.svelte';
   import { wantsNewTab } from './lib/appOpen';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
-  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
+  import { ApiError, fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
   import { slugify } from './lib/slug';
   import { toasts } from './lib/toastStore';
   import { restartHealthPolling, stopHealthPolling } from './lib/healthStore';
@@ -592,7 +592,7 @@
             return;
           }
         } catch (e) {
-          if (!(e instanceof Error && e.message.includes('Setup already completed'))) throw e;
+          if (!(e instanceof ApiError && e.status === 409)) throw e;
           // Someone else finished setup. If that enabled auth, this browser
           // has no session: close the wizard and let Login take over.
           await checkAuthStatus();

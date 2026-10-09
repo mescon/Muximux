@@ -152,8 +152,11 @@ export async function submitSetup(data: SetupRequest, setupToken?: string): Prom
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`API error: ${response.status} ${text}`);
+    // An ApiError, so callers branch on the status (409: setup was already
+    // completed) rather than on the server's wording.
+    const friendly = extractFriendlyErrorMessage(await response.text());
+    const message = friendly ? `API error: ${response.status} ${friendly}` : `API error: ${response.status}`;
+    throw new ApiError(response.status, message, friendly);
   }
   return response.json();
 }

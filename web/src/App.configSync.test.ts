@@ -6,6 +6,11 @@ import type { App, Config } from './lib/types';
 // pushes and the cleared-hash route. Heavy children are stubbed.
 
 const api = vi.hoisted(() => ({
+  ApiError: class ApiError extends Error {
+    constructor(public readonly status: number, message: string) {
+      super(message);
+    }
+  },
   fetchConfig: vi.fn(),
   saveConfig: vi.fn(),
   submitSetup: vi.fn(),
@@ -321,7 +326,7 @@ describe('App onboarding path', () => {
       auth.setupRequired!.set(false);
       // Setup finished elsewhere without auth: this browser has a session.
       auth.authenticated!.set(true);
-      throw new Error('API error: 409 {"error":"Setup already completed"}');
+      throw new api.ApiError(409, 'API error: 409 Setup was finished by someone else');
     });
     api.saveConfig.mockResolvedValueOnce(makeConfig());
     await fireEvent.click(done);
@@ -337,7 +342,7 @@ describe('App onboarding path', () => {
     const done = await firstRun(makeConfig({ apps: [] }));
     api.submitSetup.mockImplementationOnce(async () => {
       auth.setupRequired!.set(false);
-      throw new Error('API error: 409 {"error":"Setup already completed"}');
+      throw new api.ApiError(409, 'API error: 409 Setup was finished by someone else');
     });
     await fireEvent.click(done);
     await screen.findByTestId('login-stub');

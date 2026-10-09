@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
+  submitSetup,
   parseImportedConfig,
   exportConfig,
   fetchConfig,
@@ -1058,6 +1059,19 @@ describe('ApiError detail and errorText', () => {
     const err = await fetchConfig().catch((e: unknown) => e);
     expect((err as ApiError).detail).toBe('API error: 502');
     expect(errorText(err, 'fallback')).toBe('API error: 502');
+  });
+
+  it('submitSetup throws an ApiError carrying the status', async () => {
+    globalThis.fetch = mockFetchError(409, 'Conflict', '{"error":"Setup already completed"}');
+    const err = await submitSetup({ method: 'none' }, 'tok').catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(409);
+    expect((err as ApiError).detail).toBe('Setup already completed');
+
+    globalThis.fetch = mockFetchError(502, 'Bad Gateway', '<html>502</html>');
+    const bare = await submitSetup({ method: 'none' }).catch((e: unknown) => e);
+    expect((bare as ApiError).status).toBe(502);
+    expect((bare as ApiError).message).toBe('API error: 502');
   });
 
   it('uses the message of other errors and the fallback for non-errors', () => {
