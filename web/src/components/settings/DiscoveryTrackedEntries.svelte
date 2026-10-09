@@ -52,8 +52,6 @@
       await detachDockerTracked(entry.key);
       ontrackingchanged?.();
       await load();
-      detachInFlight = null;
-      await focusAfterRemoval('[data-testid="tracked-detach-btn"]', idx, trackedHeading);
     } catch (e) {
       // Treat 404 (already detached by a concurrent caller) as
       // success since the desired state was reached. Branch on the
@@ -71,6 +69,8 @@
     } finally {
       detachInFlight = null;
     }
+    // After the buttons are enabled again, so the target can take focus.
+    await focusAfterRemoval('[data-testid="tracked-detach-btn"]', idx, trackedHeading);
   }
 
   const quarantined = $derived(result?.quarantined ?? []);

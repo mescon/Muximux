@@ -68,6 +68,21 @@ func TestCollapseDuplicateKeys(t *testing.T) { // ruling 8: any duplicate key
 	}
 }
 
+func TestCollapseDuplicateKeys_PrefersEligible(t *testing.T) {
+	in := []Suggestion{
+		{Key: "swarm:a", ContainerName: "a.1.x", AutoImportSkip: &AutoImportSkip{Code: SkipNoPort}},
+		{Key: "swarm:a", ContainerName: "a.2.y"},
+		{Key: "swarm:a", ContainerName: "a.3.z"},
+	}
+	out := collapseDuplicateKeys(in)
+	if len(out) != 1 || out[0].ContainerName != "a.2.y" || out[0].AutoImportSkip != nil {
+		t.Fatalf("eligible replica must win, lowest name breaking ties: %+v", out)
+	}
+	if len(out[0].Notes) != 1 || !strings.Contains(out[0].Notes[0], "3 containers share this key") {
+		t.Fatalf("notes = %v", out[0].Notes)
+	}
+}
+
 func TestMergeSwarmServices_NilLabelsAndNoPorts(t *testing.T) {
 	cs := []ContainerSummary{
 		{ID: "nil", Names: []string{"/nil"}}, // nil Labels: never a task, even against an empty service ID

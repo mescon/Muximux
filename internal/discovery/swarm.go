@@ -100,8 +100,12 @@ func mergeSwarmServices(containers []ContainerSummary, services []ServiceSummary
 
 // collapseDuplicateKeys keeps one suggestion per tracking key, whatever the
 // source (swarm replicas, a scaled compose service, two containers sharing a
-// discovery id): the lowest ContainerName wins and gets the note
-// "N containers share this key; one app is imported".
+// discovery id): a suggestion that is eligible for auto-import
+// (AutoImportSkip == nil) wins over an ineligible one, ties go to the lowest
+// ContainerName, and the survivor gets the note
+// "N containers share this key; one app is imported". Callers should compute
+// AutoImportSkip before collapsing so an ineligible replica cannot hide an
+// importable one.
 func collapseDuplicateKeys(suggestions []Suggestion) []Suggestion {
 	idx := make(map[string]int, len(suggestions))
 	var groups [][]int
@@ -117,7 +121,11 @@ func collapseDuplicateKeys(suggestions []Suggestion) []Suggestion {
 	out := make([]Suggestion, 0, len(groups))
 	for _, members := range groups {
 		sort.SliceStable(members, func(a, b int) bool {
-			return suggestions[members[a]].ContainerName < suggestions[members[b]].ContainerName
+			sa, sb := &suggestions[members[a]], &suggestions[members[b]]
+			if ea, eb := sa.AutoImportSkip == nil, sb.AutoImportSkip == nil; ea != eb {
+				return ea
+			}
+			return sa.ContainerName < sb.ContainerName
 		})
 		s := suggestions[members[0]]
 		if len(members) > 1 {

@@ -650,14 +650,14 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 		if note != "" && swarmServiceName(&containers[i]) != "" {
 			sug.Notes = append(sug.Notes, note)
 		}
+		sug.AutoImportSkip = autoImportSkipReason(&sug, cfg.RequireExplicitEnable)
 		out.Suggestions = append(out.Suggestions, sug)
 	}
 	// Replicas of one service (or a scaled compose service) share a key;
-	// eligibility is computed on the survivor only.
+	// eligibility is computed first so an importable replica wins.
 	out.Suggestions = collapseDuplicateKeys(out.Suggestions)
 	for i := range out.Suggestions {
 		sug := &out.Suggestions[i]
-		sug.AutoImportSkip = autoImportSkipReason(sug, cfg.RequireExplicitEnable)
 		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {
 			out.OptedOut++
 		}

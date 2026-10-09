@@ -306,6 +306,20 @@ describe('DiscoveryTrackedEntries', () => {
     await waitFor(() => expect(screen.getByTestId('quarantined-remove-btn')).toHaveFocus());
   });
 
+  it('restores focus to a detach button after a failed detach', async () => {
+    const e = (n: string) => ({ kind: 'app', name: n, key: 'label:' + n, strategy: 'container_ip', endpoint: 'unix:///s', url: 'http://x', endpoint_matches: true });
+    mockApi.listDockerTracked
+      .mockResolvedValueOnce({ entries: [e('a'), e('b')], current_endpoint: 'unix:///s' })
+      .mockResolvedValueOnce({ entries: [e('a'), e('b')], current_endpoint: 'unix:///s' });
+    mockApi.detachDockerTracked.mockRejectedValue(new mockApi.ApiError('Internal Server Error', 500));
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(DiscoveryTrackedEntries);
+    const btns = await screen.findAllByTestId('tracked-detach-btn');
+    await fireEvent.click(btns[1]);
+    await screen.findByRole('alert');
+    await waitFor(() => expect(screen.getAllByTestId('tracked-detach-btn')[1]).toHaveFocus());
+  });
+
   it('focuses the next detach button after a successful detach', async () => {
     const e = (n: string) => ({ kind: 'app', name: n, key: 'label:' + n, strategy: 'container_ip', endpoint: 'unix:///s', url: 'http://x', endpoint_matches: true });
     mockApi.listDockerTracked
