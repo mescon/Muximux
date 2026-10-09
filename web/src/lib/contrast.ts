@@ -87,77 +87,108 @@ function fnArgs(str: string, name: string): string | null {
 const pct = (s: string | undefined, fallback = 1) =>
   s === undefined ? fallback : s.endsWith('%') ? parseFloat(s) / 100 : parseFloat(s);
 
+function parseVar(inner: string, vars: Vars, mode: Mode, depth: number): RGBA | null {
+  const [name, ...rest] = splitArgs(inner);
+  const value = vars[name];
+  if (value === undefined && rest.length === 0) return null;
+  return parseInner(value ?? rest.join(','), vars, mode, depth + 1);
+}
+
+function parseLightDark(inner: string, vars: Vars, mode: Mode, depth: number): RGBA | null {
+  const [light, dark] = splitArgs(inner);
+  return parseInner(mode === 'dark' ? dark : light, vars, mode, depth + 1);
+}
+
+// One color-mix() operand: "<color> [<percentage>%]". A missing percentage is NaN.
+function mixPart(s: string) {
+  const m = s.match(/^(.*?)\s+([\d.]+)%$/);
+  return m ? { c: m[1], p: parseFloat(m[2]) / 100 } : { c: s, p: NaN };
+}
+
+// Fills in omitted percentages: both omitted is 50/50, one omitted is the complement.
+function mixWeights(p1: number, p2: number): [number, number] {
+  if (Number.isNaN(p1) && Number.isNaN(p2)) return [0.5, 0.5];
+  if (Number.isNaN(p1)) return [1 - p2, p2];
+  if (Number.isNaN(p2)) return [p1, 1 - p1];
+  return [p1, p2];
+}
+
+function mixColors(space: string, ca: RGBA, cb: RGBA, p1: number, p2: number): RGBA | null {
+  const sum = p1 + p2;
+  if (sum <= 0) return null;
+  const w1 = p1 / sum, w2 = p2 / sum;
+  const alpha = ca.a * w1 + cb.a * w2;
+  const outA = alpha * Math.min(sum, 1);
+  if (alpha === 0) return { r: 0, g: 0, b: 0, a: outA };
+  if (space.endsWith('oklab')) {
+    const la = srgbToOklab(ca), lb = srgbToOklab(cb);
+    const mix = (k: 'L' | 'a' | 'b') => (la[k] * ca.a * w1 + lb[k] * cb.a * w2) / alpha;
+    return { ...oklabToSrgb(mix('L'), mix('a'), mix('b')), a: outA };
+  }
+  const ch = (k: 'r' | 'g' | 'b') => (ca[k] * ca.a * w1 + cb[k] * cb.a * w2) / alpha;
+  return { r: ch('r'), g: ch('g'), b: ch('b'), a: outA };
+}
+
+// Mixing follows CSS Color 4: premultiplied alpha, interpolated in the named space
+// (srgb or oklab); percentages that sum below 100% scale the alpha.
+function parseColorMix(inner: string, vars: Vars, mode: Mode, depth: number): RGBA | null {
+  const [space, a, b] = splitArgs(inner);
+  if (!/^in\s+(srgb|oklab)$/.test(space) || !a || !b) return null;
+  const pa = mixPart(a), pb = mixPart(b);
+  const [p1, p2] = mixWeights(pa.p, pb.p);
+  const ca = parseInner(pa.c, vars, mode, depth + 1), cb = parseInner(pb.c, vars, mode, depth + 1);
+  if (!ca || !cb) return null;
+  return mixColors(space, ca, cb, p1, p2);
+}
+
+function parseHex(str: string): RGBA | null {
+  const m = str.match(/^#([0-9a-f]{3,8})$/i);
+  if (!m) return null;
+  let h = m[1];
+  if (h.length <= 4) h = [...h].map((c) => c + c).join('');
+  if (h.length !== 6 && h.length !== 8) return null;
+  const n = (i: number) => parseInt(h.slice(i, i + 2), 16) / 255;
+  return { r: n(0), g: n(2), b: n(4), a: h.length === 8 ? n(6) : 1 };
+}
+
+function parseRgb(str: string): RGBA | null {
+  const m = str.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)$/);
+  return m ? { r: +m[1] / 255, g: +m[2] / 255, b: +m[3] / 255, a: pct(m[4]) } : null;
+}
+
+function parseOklch(str: string): RGBA | null {
+  const m = str.match(/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)$/);
+  if (!m) return null;
+  const L = m[2] ? parseFloat(m[1]) / 100 : parseFloat(m[1]);
+  return { ...oklchToSrgbClamped(L, parseFloat(m[3]), parseFloat(m[4])), a: pct(m[5]) };
+}
+
+function parseHsl(str: string): RGBA | null {
+  const m = str.match(/^hsla?\(\s*([\d.]+)[\s,]+([\d.]+)%[\s,]+([\d.]+)%(?:[\s,/]+([\d.]+%?))?\s*\)$/);
+  return m ? { ...hslToRgb(+m[1], +m[2], +m[3]), a: pct(m[4]) } : null;
+}
+
+const KEYWORDS: Record<string, RGBA> = {
+  transparent: { r: 0, g: 0, b: 0, a: 0 },
+  white: { r: 1, g: 1, b: 1, a: 1 },
+  black: { r: 0, g: 0, b: 0, a: 1 },
+};
+
 function parseInner(input: string, vars: Vars, mode: Mode, depth: number): RGBA | null {
   if (depth > 32) return null;
   const str = input.trim().replace(/\s*!important$/, '');
   if (!str) return null;
 
-  let inner = fnArgs(str, 'var');
-  if (inner !== null) {
-    const [name, ...rest] = splitArgs(inner);
-    const value = vars[name];
-    if (value === undefined && rest.length === 0) return null;
-    return parseInner(value ?? rest.join(','), vars, mode, depth + 1);
-  }
-  inner = fnArgs(str, 'light-dark');
-  if (inner !== null) {
-    const [light, dark] = splitArgs(inner);
-    return parseInner(mode === 'dark' ? dark : light, vars, mode, depth + 1);
-  }
-  inner = fnArgs(str, 'color-mix');
-  if (inner !== null) {
-    const [space, a, b] = splitArgs(inner);
-    // Mixing follows CSS Color 4: premultiplied alpha, interpolated in the named space
-    // (srgb or oklab); percentages that sum below 100% scale the alpha.
-    if (!/^in\s+(srgb|oklab)$/.test(space) || !a || !b) return null;
-    const part = (s: string) => {
-      const m = s.match(/^(.*?)\s+([\d.]+)%$/);
-      return m ? { c: m[1], p: parseFloat(m[2]) / 100 } : { c: s, p: NaN };
-    };
-    const pa = part(a), pb = part(b);
-    let p1 = pa.p, p2 = pb.p;
-    if (Number.isNaN(p1) && Number.isNaN(p2)) { p1 = 0.5; p2 = 0.5; }
-    else if (Number.isNaN(p1)) p1 = 1 - p2;
-    else if (Number.isNaN(p2)) p2 = 1 - p1;
-    const ca = parseInner(pa.c, vars, mode, depth + 1), cb = parseInner(pb.c, vars, mode, depth + 1);
-    if (!ca || !cb) return null;
-    const sum = p1 + p2;
-    if (sum <= 0) return null;
-    const w1 = p1 / sum, w2 = p2 / sum;
-    const alpha = ca.a * w1 + cb.a * w2;
-    const outA = alpha * (sum < 1 ? sum : 1);
-    if (alpha === 0) return { r: 0, g: 0, b: 0, a: outA };
-    if (space.endsWith('oklab')) {
-      const la = srgbToOklab(ca), lb = srgbToOklab(cb);
-      const mix = (k: 'L' | 'a' | 'b') => (la[k] * ca.a * w1 + lb[k] * cb.a * w2) / alpha;
-      return { ...oklabToSrgb(mix('L'), mix('a'), mix('b')), a: outA };
-    }
-    const ch = (k: 'r' | 'g' | 'b') => (ca[k] * ca.a * w1 + cb[k] * cb.a * w2) / alpha;
-    return { r: ch('r'), g: ch('g'), b: ch('b'), a: outA };
+  const fnParsers: [string, (inner: string, vars: Vars, mode: Mode, depth: number) => RGBA | null][] = [
+    ['var', parseVar], ['light-dark', parseLightDark], ['color-mix', parseColorMix],
+  ];
+  for (const [name, parse] of fnParsers) {
+    const inner = fnArgs(str, name);
+    if (inner !== null) return parse(inner, vars, mode, depth);
   }
 
-  if (str === 'transparent') return { r: 0, g: 0, b: 0, a: 0 };
-  if (str === 'white') return { r: 1, g: 1, b: 1, a: 1 };
-  if (str === 'black') return { r: 0, g: 0, b: 0, a: 1 };
-
-  let m = str.match(/^#([0-9a-f]{3,8})$/i);
-  if (m) {
-    let h = m[1];
-    if (h.length <= 4) h = [...h].map((c) => c + c).join('');
-    if (h.length !== 6 && h.length !== 8) return null;
-    const n = (i: number) => parseInt(h.slice(i, i + 2), 16) / 255;
-    return { r: n(0), g: n(2), b: n(4), a: h.length === 8 ? n(6) : 1 };
-  }
-  m = str.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)$/);
-  if (m) return { r: +m[1] / 255, g: +m[2] / 255, b: +m[3] / 255, a: pct(m[4]) };
-  m = str.match(/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)$/);
-  if (m) {
-    const L = m[2] ? parseFloat(m[1]) / 100 : parseFloat(m[1]);
-    return { ...oklchToSrgbClamped(L, parseFloat(m[3]), parseFloat(m[4])), a: pct(m[5]) };
-  }
-  m = str.match(/^hsla?\(\s*([\d.]+)[\s,]+([\d.]+)%[\s,]+([\d.]+)%(?:[\s,/]+([\d.]+%?))?\s*\)$/);
-  if (m) return { ...hslToRgb(+m[1], +m[2], +m[3]), a: pct(m[4]) };
-  return null;
+  if (Object.hasOwn(KEYWORDS, str)) return { ...KEYWORDS[str] };
+  return parseHex(str) ?? parseRgb(str) ?? parseOklch(str) ?? parseHsl(str);
 }
 
 export function parseColor(input: string | null | undefined, vars: Vars = {}, mode: Mode = 'dark'): RGBA | null {

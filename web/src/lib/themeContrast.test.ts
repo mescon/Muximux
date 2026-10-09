@@ -25,7 +25,9 @@ function resolve(t: ThemeFixture, name: string): RGBA {
   if (!c) throw new Error(`${t.id}: cannot resolve ${name} = ${t.vars[name]}`);
   return c;
 }
+let checked = 0;
 function check(t: ThemeFixture, kind: string, fgName: string, fg: RGBA, bgName: string, bg: RGBA, need: number) {
+  checked++;
   const r = contrast(fg, bg);
   if (r < need) failures.push({ key: `${t.id} | ${fgName} on ${bgName} | ${kind}`, ratio: r, need });
 }
@@ -75,7 +77,13 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
 const THEMES = loadBundledThemes();
 
 describe('bundled theme contrast', () => {
-  for (const t of THEMES) runChecks(t, { base: true, semantic: true, hierarchy: true });
+  for (const t of THEMES) {
+    it(`${t.id} resolves every token and runs its checks`, () => {
+      const before = checked;
+      runChecks(t, { base: true, semantic: true, hierarchy: true });
+      expect(checked).toBeGreaterThan(before);
+    });
+  }
 
   it('fallback tokens pass for every bundled theme without its own semantic tokens', () => {
     const fallback = Object.fromEntries(Object.entries(rootVars()).filter(([k]) => SEMANTIC_KEYS.test(k)));

@@ -30,7 +30,7 @@ describe('HeadersEditor', () => {
 
     await fireEvent.click(getByRole('button', { name: /add header/i }));
     await waitFor(() => {
-      expect(getAllByRole('textbox').length).toBe(6);
+      expect(getAllByRole('textbox')).toHaveLength(6);
     });
     expect(getByRole('textbox', { name: 'Header 3 value' })).toBeTruthy();
     expect(getByRole('button', { name: 'Remove header 3' })).toBeTruthy();
@@ -38,13 +38,13 @@ describe('HeadersEditor', () => {
 
   it('renders one row per entry plus an empty add button', () => {
     const { getAllByPlaceholderText, getByRole } = setup({ Authorization: 'Bearer abc', 'X-Tok': '1' });
-    expect(getAllByPlaceholderText(/header name/i).length).toBe(2);
+    expect(getAllByPlaceholderText(/header name/i)).toHaveLength(2);
     expect(getByRole('button', { name: /add header/i })).toBeTruthy();
   });
 
   it('renders zero rows when value is empty', () => {
     const { queryAllByPlaceholderText, getByRole } = setup({});
-    expect(queryAllByPlaceholderText(/header name/i).length).toBe(0);
+    expect(queryAllByPlaceholderText(/header name/i)).toHaveLength(0);
     expect(getByRole('button', { name: /add header/i })).toBeTruthy();
   });
 
@@ -52,7 +52,7 @@ describe('HeadersEditor', () => {
     const { getByRole, getAllByPlaceholderText } = setup({});
     await fireEvent.click(getByRole('button', { name: /add header/i }));
     await waitFor(() => {
-      expect(getAllByPlaceholderText(/header name/i).length).toBe(1);
+      expect(getAllByPlaceholderText(/header name/i)).toHaveLength(1);
     });
   });
 

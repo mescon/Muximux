@@ -712,7 +712,7 @@ describe('ThemeTab', () => {
       // The editor should have color type inputs for hex color variables
       const colorInputs = container.querySelectorAll('input[type="color"]');
       // --bg-base, --bg-surface, --text-primary, --text-secondary, --accent-primary, --accent-secondary => 6 color inputs
-      expect(colorInputs.length).toBe(6);
+      expect(colorInputs).toHaveLength(6);
     });
   });
 

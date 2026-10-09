@@ -1,29 +1,50 @@
 // Screenshots of the key screens for the accessibility work, plus a pixelmatch diff
 // between two runs. Not part of the test suite and adds no dependency to the repo.
 //
-// Setup (once):
-//   mkdir -p /tmp/mxa11y && cd /tmp/mxa11y && npm init -y >/dev/null \
+// Setup (once, from the repo root; web/.a11y-shots is gitignored):
+//   mkdir -p web/.a11y-shots && cd web/.a11y-shots && npm init -y >/dev/null \
 //     && npm i playwright pixelmatch pngjs && npx playwright install chromium
 //
 // Two phases, because the onboarding wizard needs a fresh instance and the rest needs a
 // configured one (builtin auth, a few apps and groups, user admin / a11y-pass-word):
-//   1. fresh data dir:   node a11y-shots.mjs --phase onboarding --base http://127.0.0.1:18411 \
-//                          --data /tmp/mxa11y/data-fresh --out /tmp/mxa11y/after
-//   2. seeded data dir:  node a11y-shots.mjs --phase login --base http://127.0.0.1:18411 --out /tmp/mxa11y/after
-//                        node a11y-shots.mjs --phase main --themes <one theme> --base http://127.0.0.1:18411 \
-//                          --out /tmp/mxa11y/after
+//   1. fresh data dir:   node web/scripts/a11y-shots.mjs --phase onboarding --base http://127.0.0.1:18411 \
+//                          --data web/.a11y-shots/data-fresh --out web/.a11y-shots/after
+//   2. seeded data dir:  node web/scripts/a11y-shots.mjs --phase login --base http://127.0.0.1:18411 --out web/.a11y-shots/after
+//                        node web/scripts/a11y-shots.mjs --phase main --themes <one theme> --base http://127.0.0.1:18411 \
+//                          --out web/.a11y-shots/after
 //                        (main logs in and uses the theme from the data dir's config.yaml, so restart the
 //                         instance with theme.family / theme.variant set for each theme)
-//   3. compare:          node a11y-shots.mjs --phase diff --out /tmp/mxa11y/after --diff /tmp/mxa11y/before
-// Common options: --themes muximux,muximux-light,solarized-light,gruvbox  [--axe]
+//   3. compare:          node web/scripts/a11y-shots.mjs --phase diff --out web/.a11y-shots/after --diff web/.a11y-shots/before
+// Common options: --themes muximux,muximux-light,solarized-light,gruvbox  [--axe]  [--help]
+//
+// Every path given on the command line must resolve to a location inside the repository (or
+// inside MXA11Y_DIR, the tool directory holding playwright); anything else is refused.
 //
 // Animations are disabled (reduced motion plus an injected zero-duration stylesheet) so the
 // two runs are comparable.
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const require = createRequire(path.join(process.env.MXA11Y_DIR ?? '/tmp/mxa11y', 'package.json'));
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const TOOLS_DIR = path.resolve(process.env.MXA11Y_DIR ?? path.join(REPO_ROOT, 'web', '.a11y-shots'));
+const ALLOWED_ROOTS = [REPO_ROOT, TOOLS_DIR];
+
+// Resolves a user-supplied path and refuses anything outside the allowed roots.
+function safePath(input, label) {
+  if (typeof input !== 'string' || input === '') {
+    console.error(`a11y-shots: --${label} needs a path`);
+    process.exit(2);
+  }
+  const resolved = path.resolve(input);
+  if (!ALLOWED_ROOTS.some((root) => resolved === root || resolved.startsWith(root + path.sep))) {
+    console.error(`a11y-shots: --${label} must stay inside ${ALLOWED_ROOTS.join(' or ')} (got ${resolved})`);
+    process.exit(2);
+  }
+  return resolved;
+}
+
 const args = {};
 for (let i = 2; i < process.argv.length; i++) {
   const a = process.argv[i];
@@ -31,8 +52,15 @@ for (let i = 2; i < process.argv.length; i++) {
   const next = process.argv[i + 1];
   args[a.slice(2)] = next === undefined || next.startsWith('--') ? true : next;
 }
-const OUT = args.out;
+if (args.help) {
+  console.log('usage: node web/scripts/a11y-shots.mjs --phase onboarding|login|main|diff --out <dir> [--base <url>] [--data <dir>] [--diff <dir>] [--themes a,b] [--axe]');
+  process.exit(0);
+}
+const require = createRequire(path.join(TOOLS_DIR, 'package.json'));
+const OUT = safePath(args.out, 'out');
 const PHASE = args.phase ?? 'main';
+const DIFF_DIR = PHASE === 'diff' ? safePath(args.diff, 'diff') : undefined;
+const DATA_DIR = PHASE === 'onboarding' ? safePath(args.data, 'data') : undefined;
 fs.mkdirSync(OUT, { recursive: true });
 
 if (PHASE === 'diff') {
@@ -41,7 +69,7 @@ if (PHASE === 'diff') {
   const pixelmatch = pm.default ?? pm;
   const rows = ['| screenshot | differing px | note |', '|---|---|---|'];
   for (const f of fs.readdirSync(OUT).filter((f) => f.endsWith('.png') && !f.endsWith('.diff.png')).sort()) {
-    const a = path.join(args.diff, f);
+    const a = path.join(DIFF_DIR, f);
     if (!fs.existsSync(a)) { rows.push(`| ${f} | - | no before image |`); continue; }
     const img1 = PNG.sync.read(fs.readFileSync(a));
     const img2 = PNG.sync.read(fs.readFileSync(path.join(OUT, f)));
@@ -104,7 +132,7 @@ async function forceTheme(id) {
 const click = async (re) => { await page.waitForTimeout(120); await page.getByRole('button', { name: re }).first().evaluate((el) => el.click()); };
 
 if (PHASE === 'onboarding') {
-  const token = fs.readFileSync(path.join(args.data, '.setup-token'), 'utf8').trim();
+  const token = fs.readFileSync(path.join(DATA_DIR, '.setup-token'), 'utf8').trim();
   await page.goto(BASE);
   for (const t of THEMES) {
     await page.goto(BASE);
