@@ -179,7 +179,7 @@ for (const f of files) {
   const attr = (n: WithAttrs, name: string): AST.Attribute | undefined =>
     n.attributes.find((a): a is AST.Attribute => a.type === 'Attribute' && a.name === name);
   const isInteractive = (n: AST.RegularElement): boolean => interactiveElement(n, (name) => attr(n, name), attrText);
-const hasSpread = (n: WithAttrs) => n.attributes.some((a) => a.type === 'SpreadAttribute');
+  const hasSpread = (n: WithAttrs) => n.attributes.some((a) => a.type === 'SpreadAttribute');
   const attrText = (a: AST.Attribute | undefined) => (a ? src.slice(a.start, a.end).replace(/^[\w-]+=/, '').replace(/["']/g, '') : '');
   const labelFor = new Set<string>();
   const inputs: Array<{ n: AST.RegularElement; inLabel: boolean }> = [];

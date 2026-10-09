@@ -962,7 +962,7 @@
   </button>
 {/snippet}
 
-<div class="fixed inset-0 z-50 bg-bg-base overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-modal="true" aria-label="Setup wizard" tabindex="0" use:focusTrap>
+<div class="fixed inset-0 z-50 bg-bg-base overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-modal="true" aria-label="Setup wizard" tabindex="-1" use:focusTrap>
   <!-- Top bar nav preview — rendered as wizard root flex child so it sits above the stepper -->
   {#if ($currentStep === 'navigation' || $currentStep === 'theme') && $selectedNavigation === 'top'}
     <div class="flex-shrink-0" style="z-index: 20;">
