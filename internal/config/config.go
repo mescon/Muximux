@@ -1000,7 +1000,7 @@ func (c *Config) validate() error {
 		return err
 	}
 
-	if err := ValidateDiscoveryLifecycle(&c.Discovery.Docker, c.Groups); err != nil {
+	if err := ValidateDiscoveryLifecycle(&c.Discovery.Docker); err != nil {
 		return err
 	}
 
@@ -1103,7 +1103,7 @@ func validateGatewayListen(addr string) error {
 // fields. Unknown role / placement values are rejected up front so a
 // hand-edited config.yaml typo surfaces at boot instead of at the
 // first action click.
-func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) error {
+func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig) error {
 	switch d.LifecycleMinRole {
 	case "", "admin", "power-user", "user":
 	default:
@@ -1114,15 +1114,11 @@ func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) 
 	default:
 		return fmt.Errorf("discovery.docker.health_badge_placement %q is not one of off, overview, overview_and_nav", d.HealthBadgePlacement)
 	}
-	if len(d.LifecycleAllowedGroups) > 0 {
-		known := make(map[string]struct{}, len(groups))
-		for i := range groups {
-			known[groups[i].Name] = struct{}{}
-		}
-		for _, g := range d.LifecycleAllowedGroups {
-			if _, ok := known[g]; !ok {
-				return fmt.Errorf("discovery.docker.lifecycle_allowed_groups references unknown group %q", g)
-			}
+	// Allowed groups are user/IdP groups (matched against the session's
+	// groups), not dashboard groups, so only reject blank entries.
+	for _, g := range d.LifecycleAllowedGroups {
+		if strings.TrimSpace(g) == "" {
+			return fmt.Errorf("discovery.docker.lifecycle_allowed_groups entries must not be empty")
 		}
 	}
 	return nil

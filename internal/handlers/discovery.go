@@ -212,10 +212,7 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 	// would fail OPEN -- HasMinRole against an unknown role is level 0,
 	// i.e. every authenticated user passes) or an allowed_groups entry
 	// that bricks the next restart's load-time validation.
-	h.configMu.RLock()
-	groups := h.config.Groups
-	h.configMu.RUnlock()
-	if err := config.ValidateDiscoveryLifecycle(&newCfg, groups); err != nil {
+	if err := config.ValidateDiscoveryLifecycle(&newCfg); err != nil {
 		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
 		return
 	}

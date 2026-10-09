@@ -537,10 +537,8 @@ func TestDeleteGroup(t *testing.T) {
 	})
 }
 
-func TestDeleteGroup_CascadeClearsLifecycleAllowlist(t *testing.T) {
+func TestDeleteGroup_LeavesLifecycleGroupsAlone(t *testing.T) {
 	cfg := createTestConfig()
-	// Reference the to-be-deleted group ("Media") and a surviving one
-	// ("Tools") in the Docker lifecycle allowlist.
 	cfg.Discovery.Docker.LifecycleEnabled = true
 	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"Media", "Tools"}
 	tmpFile, err := os.CreateTemp("", "config-*.yaml")
@@ -558,8 +556,8 @@ func TestDeleteGroup_CascadeClearsLifecycleAllowlist(t *testing.T) {
 		t.Fatalf("status = %d, want 204: %s", w.Code, w.Body.String())
 	}
 	got := cfg.Discovery.Docker.LifecycleAllowedGroups
-	if len(got) != 1 || got[0] != "Tools" {
-		t.Fatalf("lifecycle allowlist after delete = %v, want [Tools] (dangling 'Media' must be cascaded out)", got)
+	if len(got) != 2 || got[0] != "Media" || got[1] != "Tools" {
+		t.Fatalf("lifecycle allowlist after delete = %v, want [Media Tools] unchanged (user/IdP groups)", got)
 	}
 }
 
@@ -3488,6 +3486,23 @@ func TestSaveConfig_GroupRenameRepointsApps(t *testing.T) {
 	raw, _ := os.ReadFile(path)
 	if strings.Contains(string(raw), "original_name") {
 		t.Errorf("original_name written to file:\n%s", raw)
+	}
+}
+
+func TestSaveConfig_GroupRenameDoesNotTouchLifecycleGroups(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"admins", "Media"}
+	update := clientSnapshot(t, cfg)
+	update.Groups[0].Name = "Video"
+	update.Groups[0].OriginalName = "Media"
+
+	w, h, _ := putConfigForTest(t, cfg, &update)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	got := h.config.Discovery.Docker.LifecycleAllowedGroups
+	if len(got) != 2 || got[0] != "admins" || got[1] != "Media" {
+		t.Errorf("lifecycle_allowed_groups = %v, want [admins Media]", got)
 	}
 }
 

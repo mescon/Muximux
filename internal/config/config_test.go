@@ -1886,15 +1886,22 @@ func TestValidate_HealthBadgePlacement_RejectsUnknown(t *testing.T) {
 	}
 }
 
-func TestValidate_LifecycleAllowedGroups_RejectsUnknownGroupName(t *testing.T) {
-	c := &Config{
-		Groups: []GroupConfig{{Name: "family"}},
-	}
+func TestValidate_LifecycleAllowedGroups_AcceptsAnyNonEmptyName(t *testing.T) {
+	c := &Config{}
 	c.Discovery.Docker.LifecycleEnabled = true
-	c.Discovery.Docker.LifecycleAllowedGroups = []string{"family", "ghosts"}
+	c.Discovery.Docker.LifecycleAllowedGroups = []string{"admins", "idp-ops"}
+	if err := c.validate(); err != nil {
+		t.Fatalf("expected user/IdP group names to validate without dashboard groups, got %v", err)
+	}
+}
+
+func TestValidate_LifecycleAllowedGroups_RejectsBlank(t *testing.T) {
+	c := &Config{}
+	c.Discovery.Docker.LifecycleEnabled = true
+	c.Discovery.Docker.LifecycleAllowedGroups = []string{" "}
 	err := c.validate()
-	if err == nil || !strings.Contains(err.Error(), "ghosts") {
-		t.Fatalf("expected unknown-group error mentioning ghosts, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "must not be empty") {
+		t.Fatalf("expected must-not-be-empty error, got %v", err)
 	}
 }
 
