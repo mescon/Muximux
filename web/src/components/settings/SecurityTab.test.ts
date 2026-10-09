@@ -382,6 +382,10 @@ describe('SecurityTab', () => {
       expect(screen.getByTestId('reload-prompt')).toHaveTextContent(
         'Applying this method reloads the page. Unsaved changes in other tabs will be lost.',
       );
+      const prompt = screen.getByTestId('reload-prompt');
+      expect(prompt.className).toMatch(/bg-warning-bg/);
+      expect(prompt.className).toMatch(/border-warning-border/);
+      expect(prompt.className).not.toMatch(/yellow-/);
       expect(mockCreateUser).not.toHaveBeenCalled();
       expect(mockChangeAuthMethod).not.toHaveBeenCalled();
       expect(reloadMock).not.toHaveBeenCalled();
@@ -652,6 +656,10 @@ describe('SecurityTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument();
       });
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent('Network error');
+      expect(alert.className).toContain('notice-danger');
+      expect(alert.className).not.toMatch(/red-/);
     });
   });
 
@@ -1380,6 +1388,7 @@ describe('SecurityTab', () => {
       render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }) } });
       await fireEvent.click(screen.getAllByText('Single sign-on (OIDC)')[0].closest('button')!);
       await waitFor(() => expect(screen.getByTestId('oidc-load-error')).toHaveTextContent('boom'));
+      expect(screen.getByTestId('oidc-load-error')).toBe(screen.getByRole('alert'));
       expect(screen.queryByTestId('oidc-settings')).not.toBeInTheDocument();
     });
 
@@ -1418,6 +1427,8 @@ describe('SecurityTab', () => {
       await fireEvent.click(applyBtn());
 
       await waitFor(() => expect(screen.getByTestId('method-success')).toHaveTextContent(/changed to oidc/));
+      expect(screen.getByRole('status')).toBe(screen.getByTestId('method-success'));
+      expect(screen.getByTestId('method-success').className).toContain('notice-success');
       // Right above the button, not at the top of the tall tab.
       expect(screen.getByTestId('method-success').nextElementSibling).toBe(applyBtn());
     });

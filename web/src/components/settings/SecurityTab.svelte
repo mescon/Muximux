@@ -437,8 +437,8 @@
 </script>
 
 {#snippet reloadPrompt()}
-  <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-lg bg-yellow-600/20 border border-yellow-600/40" role="alert" data-testid="reload-prompt">
-    <span class="text-sm text-yellow-200">{m.security_reloadDiscardsEdits()}</span>
+  <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-lg bg-warning-bg border border-warning-border" role="alert" data-testid="reload-prompt">
+    <span class="text-sm text-warning-text">{m.security_reloadDiscardsEdits()}</span>
     <div class="flex gap-2">
       <button class="btn btn-secondary btn-sm" onclick={() => confirmReload = null}>{m.common_cancel()}</button>
       <button class="btn btn-danger btn-sm" onclick={continueReload}>{m.security_continueAnyway()}</button>
@@ -456,11 +456,11 @@
       <!-- Password card -->
       <div
         class="rounded-xl border text-start transition-all overflow-hidden
-               {selectedAuthMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+               {selectedAuthMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'builtin'; }}>
-          <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2" />
               <path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
@@ -469,7 +469,7 @@
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.security_passwordAuth()}</h3>
               {#if currentMethod === 'builtin'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-success-bg text-success-text uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
             <p class="text-sm text-text-muted mt-1">{m.security_passwordAuthDesc()}</p>
@@ -507,7 +507,7 @@
                       autocomplete="new-password"
                     />
                     {#if cpNew.length > 0 && cpNew.length < 8}
-                      <p class="text-red-400 text-xs mt-1">{m.error_passwordTooShort()}</p>
+                      <p class="text-danger-text text-xs mt-1">{m.error_passwordTooShort()}</p>
                     {/if}
                   </div>
                   <div>
@@ -521,12 +521,12 @@
                       autocomplete="new-password"
                     />
                     {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
-                      <p class="text-red-400 text-xs mt-1">{m.error_passwordsMismatch()}</p>
+                      <p class="text-danger-text text-xs mt-1">{m.error_passwordsMismatch()}</p>
                     {/if}
                   </div>
 
                   {#if cpMessage}
-                    <div class="p-3 rounded-lg text-sm {cpMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}">
+                    <div class="notice rounded-lg {cpMessage.type === 'success' ? 'notice-success' : 'notice-danger'}" role={cpMessage.type === 'success' ? 'status' : 'alert'}>
                       {cpMessage.text}
                     </div>
                   {/if}
@@ -570,12 +570,12 @@
                     />
                   </div>
                   {#if addUserError}
-                    <p class="text-red-400 text-xs">{addUserError}</p>
+                    <p class="text-danger-text text-xs">{addUserError}</p>
                   {/if}
                   {#if !setupUsername.trim() && setupPassword.length > 0}
-                    <p class="text-amber-400 text-xs">{m.error_usernameRequired()}</p>
+                    <p class="text-warning-text text-xs">{m.error_usernameRequired()}</p>
                   {:else if setupUsername.trim() && setupPassword.length > 0 && setupPassword.length < 8}
-                    <p class="text-amber-400 text-xs">{m.error_passwordTooShortCount({ count: `${setupPassword.length}` })}</p>
+                    <p class="text-warning-text text-xs">{m.error_passwordTooShortCount({ count: `${setupPassword.length}` })}</p>
                   {/if}
                   <button
                     class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
@@ -600,11 +600,11 @@
       <!-- Auth Proxy card -->
       <div
         class="rounded-xl border text-start transition-all overflow-hidden
-               {selectedAuthMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+               {selectedAuthMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
-          <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
@@ -612,7 +612,7 @@
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.security_authProxy()}</h3>
               {#if currentMethod === 'forward_auth'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-success-bg text-success-text uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
             <p class="text-sm text-text-muted mt-1">{m.security_authProxyDesc()}</p>
@@ -626,7 +626,7 @@
                 {#each ['authelia', 'authentik', 'custom'] as p (p)}
                   <button
                     class="flex-1 px-3 py-2 text-sm rounded-md border transition-all
-                           {faPreset === p ? 'border-brand-500 bg-brand-500/15 text-text-primary' : 'border-border-subtle bg-bg-elevated text-text-muted hover:text-text-primary'}"
+                           {faPreset === p ? 'border-border-focus bg-accent-muted text-text-primary' : 'border-border-subtle bg-bg-elevated text-text-muted hover:text-text-primary'}"
                     onclick={() => selectFaPreset(p as 'authelia' | 'authentik' | 'custom')}
                   >
                     {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -715,11 +715,11 @@
       <!-- Single sign-on (OIDC) card -->
       <div
         class="rounded-xl border text-start transition-all overflow-hidden
-               {selectedAuthMethod === 'oidc' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+               {selectedAuthMethod === 'oidc' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={selectOidc}>
-          <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
               <polyline points="10 17 15 12 10 7" />
               <line x1="15" y1="12" x2="3" y2="12" />
@@ -729,7 +729,7 @@
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.oidc_card_title()}</h3>
               {#if currentMethod === 'oidc'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-success-bg text-success-text uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
             <p class="text-sm text-text-muted mt-1">{m.oidc_card_desc()}</p>
@@ -739,7 +739,7 @@
           <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
               {#if oidcLoadError}
-                <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm" data-testid="oidc-load-error">
+                <div class="notice notice-danger rounded-lg" role="alert" data-testid="oidc-load-error">
                   {oidcLoadError}
                 </div>
               {:else if oidcSettings}
@@ -755,11 +755,11 @@
       <!-- No authentication card -->
       <div
         class="rounded-xl border text-start transition-all overflow-hidden
-               {selectedAuthMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
+               {selectedAuthMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'none'; }}>
-          <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-warning-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10" />
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
             </svg>
@@ -768,7 +768,7 @@
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.security_noAuth()}</h3>
               {#if currentMethod === 'none'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-success-bg text-success-text uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
             <p class="text-sm text-text-muted mt-1">{m.security_noAuthDesc()}</p>
@@ -777,15 +777,15 @@
         {#if selectedAuthMethod === 'none'}
           <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
-              <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <div class="notice notice-warning p-4 rounded-lg">
                 <div class="flex gap-3">
-                  <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="w-5 h-5 text-warning-text flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                   <div>
-                    <h4 class="font-semibold text-amber-400 text-sm mb-1">{m.security_warningLabel()}</h4>
+                    <h4 class="font-semibold text-warning-text text-sm mb-1">{m.security_warningLabel()}</h4>
                     <p class="text-sm text-text-muted">{m.security_noAuthWarning()}</p>
                   </div>
                 </div>
@@ -797,13 +797,13 @@
     </div>
 
     {#if methodError}
-      <div class="p-3 mt-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+      <div class="notice notice-danger mt-4 rounded-lg" role="alert">
         {methodError}
       </div>
     {/if}
 
     {#if methodSuccess}
-      <div class="p-3 mt-4 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm" data-testid="method-success">
+      <div class="notice notice-success mt-4 rounded-lg" role="status" data-testid="method-success">
         {methodSuccess}
       </div>
     {/if}
@@ -842,24 +842,24 @@
           <li><code>GET /api/appearance</code> for embedded or external apps reading Muximux's active language and theme.</li>
           <li>Any per-app proxy paths an admin has allowlisted with <code>auth_bypass</code> + <code>require_api_key: true</code> in <code>config.yaml</code>. Common case: webhook URLs reaching a proxied app's API.</li>
         </ul>
-        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline">authentication wiki</a> for the full list and webhook example.</p>
+        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-accent-text underline">authentication wiki</a> for the full list and webhook example.</p>
       </div>
 
       {#if apiKeyError}
-        <div class="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+        <div class="notice notice-danger mb-3 rounded-lg" role="alert">
           {apiKeyError}
         </div>
       {/if}
 
       {#if apiKeyPlaintext}
-        <div class="mb-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+        <div class="notice notice-warning mb-4 p-4 rounded-lg">
           <div class="flex items-start gap-2 mb-3">
-            <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-5 h-5 text-warning-text flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.5 0L3.16 16.25A2 2 0 005 19z" />
             </svg>
             <div class="flex-1">
-              <p class="text-sm font-semibold text-amber-200 mb-1">This is the only time the key will be shown.</p>
-              <p class="text-xs text-amber-300/80">Copy it somewhere safe now. Muximux stores only a hash and cannot show it again. If you lose it, generate a new one.</p>
+              <p class="text-sm font-semibold text-warning-text mb-1">This is the only time the key will be shown.</p>
+              <p class="text-xs text-warning-text">Copy it somewhere safe now. Muximux stores only a hash and cannot show it again. If you lose it, generate a new one.</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -870,7 +870,7 @@
               onclick={copyAPIKeyToClipboard}
             >
               {#if apiKeyCopied}
-                <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg class="w-4 h-4 text-success-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 Copied
@@ -884,7 +884,7 @@
           </div>
           <button
             type="button"
-            class="mt-3 text-xs text-amber-300/80 hover:text-amber-200 underline"
+            class="mt-3 text-xs text-warning-text underline"
             onclick={dismissAPIKeyPlaintext}
           >
             I've saved it, hide the key
@@ -895,7 +895,7 @@
       {:else if apiKeyConfigured}
         <div class="flex items-center gap-3 mb-3">
           <div class="flex items-center gap-2 text-sm text-text-secondary">
-            <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <svg class="w-4 h-4 text-success-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             An API key is configured.
@@ -946,7 +946,7 @@
             >Rotate</button>
             <button
               type="button"
-              class="btn btn-ghost btn-sm text-red-400 hover:bg-red-500/10"
+              class="btn btn-ghost btn-sm text-danger-text hover:bg-danger-bg"
               onclick={() => { confirmDeleteApiKey = true; }}
             >Delete</button>
           {/if}
@@ -990,7 +990,7 @@
       </div>
 
       {#if securityError}
-        <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+        <div class="notice notice-danger mb-4 rounded-lg" role="alert">
           {securityError}
         </div>
       {/if}
@@ -1037,7 +1037,7 @@
           </div>
 
           {#if addUserError}
-            <p class="text-red-400 text-sm">{addUserError}</p>
+            <p class="text-danger-text text-sm">{addUserError}</p>
           {/if}
 
           <div class="flex gap-2">
@@ -1101,7 +1101,7 @@
                   </div>
                 {:else}
                   <button
-                    class="p-1.5 text-text-disabled hover:text-red-400 rounded transition-colors"
+                    class="p-1.5 text-text-disabled hover:text-danger-text rounded transition-colors"
                     onclick={() => confirmDeleteUser = user.username}
                     disabled={user.username === $currentUser?.username}
                     title={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.security_deleteUser()}
