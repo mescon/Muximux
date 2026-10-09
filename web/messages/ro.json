@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Adaugă prima aplicație pentru a începe cu panoul de control.",
   "splash_addApplication": "Adaugă aplicație",
   "logs_title": "Jurnale",
+  "logs_entriesRegion": "Intrări de jurnal",
   "logs_backToDashboard": "Înapoi la panou",
   "logs_resume": "Reia",
   "logs_pause": "Pauză",

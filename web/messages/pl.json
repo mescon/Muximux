@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Dodaj pierwszą aplikację, aby rozpocząć pracę z panelem.",
   "splash_addApplication": "Dodaj aplikację",
   "logs_title": "Logi",
+  "logs_entriesRegion": "Wpisy dziennika",
   "logs_backToDashboard": "Powrót do panelu",
   "logs_resume": "Wznów",
   "logs_pause": "Wstrzymaj",

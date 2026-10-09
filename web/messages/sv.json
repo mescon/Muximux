@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Lägg till din första applikation för att komma igång med din panel.",
   "splash_addApplication": "Lägg till applikation",
   "logs_title": "Loggar",
+  "logs_entriesRegion": "Loggposter",
   "logs_backToDashboard": "Tillbaka till panelen",
   "logs_resume": "Återuppta",
   "logs_pause": "Pausa",

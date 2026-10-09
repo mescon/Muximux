@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "أضف أول تطبيق للبدء مع لوحة التحكم.",
   "splash_addApplication": "إضافة تطبيق",
   "logs_title": "السجلات",
+  "logs_entriesRegion": "إدخالات السجل",
   "logs_backToDashboard": "العودة إلى لوحة التحكم",
   "logs_resume": "استئناف",
   "logs_pause": "إيقاف مؤقت",

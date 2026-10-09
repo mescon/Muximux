@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "대시보드를 시작하려면 첫 번째 애플리케이션을 추가하세요.",
   "splash_addApplication": "애플리케이션 추가",
   "logs_title": "로그",
+  "logs_entriesRegion": "로그 항목",
   "logs_backToDashboard": "대시보드로 돌아가기",
   "logs_resume": "재개",
   "logs_pause": "일시 정지",

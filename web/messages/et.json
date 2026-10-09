@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Lisage oma esimene rakendus, et alustada töölaua kasutamist.",
   "splash_addApplication": "Lisa rakendus",
   "logs_title": "Logid",
+  "logs_entriesRegion": "Logikirjed",
   "logs_backToDashboard": "Tagasi töölauale",
   "logs_resume": "Jätka",
   "logs_pause": "Peata",

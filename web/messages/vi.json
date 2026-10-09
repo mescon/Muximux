@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Thêm ứng dụng đầu tiên để bắt đầu sử dụng bảng điều khiển.",
   "splash_addApplication": "Thêm ứng dụng",
   "logs_title": "Nhật ký",
+  "logs_entriesRegion": "Mục nhật ký",
   "logs_backToDashboard": "Quay lại bảng điều khiển",
   "logs_resume": "Tiếp tục",
   "logs_pause": "Tạm dừng",

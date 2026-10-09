@@ -657,6 +657,7 @@
   "splash_noAppsDesc": "Add your first application to get started with your dashboard.",
   "splash_addApplication": "Add Application",
   "logs_title": "Logs",
+  "logs_entriesRegion": "Log entries",
   "logs_backToDashboard": "Back to dashboard",
   "logs_resume": "Resume",
   "logs_pause": "Pause",

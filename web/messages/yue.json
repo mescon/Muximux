@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "新增你嘅第一個應用程式嚟開始使用儀表板。",
   "splash_addApplication": "新增應用程式",
   "logs_title": "日誌",
+  "logs_entriesRegion": "日誌條目",
   "logs_backToDashboard": "返回儀表板",
   "logs_resume": "繼續",
   "logs_pause": "暫停",

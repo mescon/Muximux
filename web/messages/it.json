@@ -658,6 +658,7 @@
   "splash_noAppsDesc": "Aggiungi la tua prima applicazione per iniziare con la tua dashboard.",
   "splash_addApplication": "Aggiungi applicazione",
   "logs_title": "Log",
+  "logs_entriesRegion": "Voci del log",
   "logs_backToDashboard": "Torna alla dashboard",
   "logs_resume": "Riprendi",
   "logs_pause": "Pausa",
