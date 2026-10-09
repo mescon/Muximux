@@ -37,6 +37,12 @@ export interface App {
   docker_key?: string;
   docker_endpoint?: string;
   docker_strategy?: string;
+  // Server-owned: the URL the Docker poller last wrote, so a later
+  // manual edit can be told apart from a poller refresh.
+  docker_managed_url?: string;
+  // Transport-only rename identity: the name this app had in the base a
+  // save was made against. Never stored.
+  original_name?: string;
 }
 
 export function getEffectiveUrl(app: App): string {
@@ -64,6 +70,8 @@ export interface Group {
   color: string;
   order: number;
   expanded: boolean;
+  // Transport-only rename identity, as on App.original_name.
+  original_name?: string;
 }
 
 // Factory functions for consistent object construction. Use these instead of
@@ -194,9 +202,17 @@ export interface Config {
   gateway?: string;
   keybindings?: KeybindingsConfig;
   discovery?: DiscoveryConfig;
+  // Field path -> flag or environment variable that overrides it; such
+  // fields are read-only in Settings.
+  env_overrides?: Record<string, string>;
   groups: Group[];
   apps: App[];
 }
+
+// ConfigSaveRequest is the PUT /api/config body. `base` is the config the
+// edits were made against; with it the server merges three ways instead of
+// replacing what changed on its side meanwhile.
+export type ConfigSaveRequest = Config & { base?: Config };
 
 // DiscoveryConfig mirrors config.DiscoveryConfig. Currently only the
 // Docker sub-config is surfaced to the UI; the nav and overview read
@@ -432,6 +448,15 @@ export interface DiscoveryDockerConfig {
   lifecycle_min_role?: 'admin' | 'power-user' | 'user' | '';
   lifecycle_allowed_groups?: string[];
   health_badge_placement?: 'off' | 'overview' | 'overview_and_nav' | '';
+  auto_import?: 'off' | 'add' | 'update' | 'sync';
+}
+
+// DiscoveryDockerConfigResponse is the body of GET
+// /api/discovery/docker/config. env_overrides names the environment
+// variable behind each field the tab must show as locked.
+export interface DiscoveryDockerConfigResponse {
+  config: DiscoveryDockerConfig;
+  env_overrides?: Record<string, string>;
 }
 
 export interface DiscoveryTLSConfig {

@@ -130,8 +130,8 @@
   // Save server.session_cookie_domain via /api/config without
   // disturbing whatever else the operator is editing in this tab.
   // We fetch the current full config, patch just our field, and PUT
-  // it back. Other settings tabs follow the same load-mutate-save
-  // pattern, so concurrent edits across tabs don't get reordered.
+  // it back with the fetched config as the merge base, so the server
+  // keeps anything that changed between the fetch and the save.
   async function saveSessionCookieDomain() {
     const trimmed = cookieScopeDraft.trim();
     if (trimmed === '') {
@@ -144,7 +144,7 @@
     try {
       const current = await fetchConfig();
       const updated = { ...current, session_cookie_domain: trimmed };
-      const saved = await saveConfig(updated);
+      const saved = await saveConfig(updated, current);
       sessionCookieDomain = saved.session_cookie_domain ?? trimmed;
       cookieScopeSaved = true;
       cookieScopeDraft = '';

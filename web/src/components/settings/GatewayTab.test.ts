@@ -12,6 +12,7 @@ const mockValidateGatewaySite = vi.fn();
 
 const mockFetchApps = vi.fn();
 const mockFetchConfig = vi.fn();
+const mockSaveConfigApi = vi.fn();
 
 vi.mock('$lib/api', async (importOriginal) => ({
   errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
@@ -23,6 +24,7 @@ vi.mock('$lib/api', async (importOriginal) => ({
   validateGatewaySite: (...args: unknown[]) => mockValidateGatewaySite(...args),
   fetchApps: (...args: unknown[]) => mockFetchApps(...args),
   fetchConfig: (...args: unknown[]) => mockFetchConfig(...args),
+  saveConfig: (...args: unknown[]) => mockSaveConfigApi(...args),
 }));
 
 vi.mock('$lib/authStore', async () => {
@@ -678,5 +680,30 @@ describe('GatewayTab state consistency', () => {
     });
     // The form stays open so the operator can correct the input.
     expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+  });
+});
+
+describe('GatewayTab cookie scope save', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockListGatewaySites.mockResolvedValue([]);
+    mockFetchApps.mockResolvedValue([]);
+  });
+
+  it('cookie scope save sends the fetched config as base', async () => {
+    const current = { title: 'T', session_cookie_domain: '', apps: [], groups: [] };
+    mockFetchConfig.mockResolvedValue(current);
+    mockSaveConfigApi.mockResolvedValue({ ...current, session_cookie_domain: '.example.com' });
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByRole('button', { name: /add gateway site/i })).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+    const requireAuth = screen.getByTestId('gw-require-auth').querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await fireEvent.click(requireAuth);
+
+    await fireEvent.input(screen.getByTestId('gw-cookie-scope-input'), { target: { value: '.example.com' } });
+    await fireEvent.click(screen.getByTestId('gw-cookie-scope-save'));
+
+    await waitFor(() => expect(mockSaveConfigApi).toHaveBeenCalledTimes(1));
+    expect(mockSaveConfigApi).toHaveBeenCalledWith({ ...current, session_cookie_domain: '.example.com' }, current);
   });
 });

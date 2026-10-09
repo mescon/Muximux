@@ -4,6 +4,7 @@ import {
   exportConfig,
   fetchConfig,
   saveConfig,
+  fetchDiscoveryDockerConfig,
   fetchApps,
   fetchGroups,
   getApp,
@@ -48,6 +49,7 @@ import {
   errorText,
   updateGatewaySite,
 } from './api';
+import { makeApp, makeGroup } from './types';
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult } from './types';
 
 // --- Helpers ---
@@ -192,6 +194,23 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       });
     });
 
+    it('sends base in the body when given', async () => {
+      const config = makeConfig({ title: 'Mine' });
+      const base = makeConfig({ title: 'Base' });
+      globalThis.fetch = mockFetchOk(config);
+      await saveConfig(config, base);
+      const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+      expect(body.title).toBe('Mine');
+      expect(body.base).toEqual(base);
+    });
+
+    it('omits base when not given', async () => {
+      globalThis.fetch = mockFetchOk(makeConfig());
+      await saveConfig(makeConfig());
+      const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+      expect('base' in body).toBe(false);
+    });
+
     it('throws on non-OK response with body text', async () => {
       globalThis.fetch = mockFetchError(400, 'Bad Request', 'Validation failed');
       await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 400 Validation failed');
@@ -214,6 +233,15 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
         text: () => Promise.resolve(JSON.stringify({ error: 'Internal failure (request_id: zyx987)' })),
       });
       await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 500 Internal failure');
+    });
+  });
+
+  describe('fetchDiscoveryDockerConfig', () => {
+    it('GETs /discovery/docker/config', async () => {
+      const resp = { config: { enabled: true, auto_import: 'add' }, env_overrides: { auto_import: 'MUXIMUX_AUTO_IMPORT' } };
+      globalThis.fetch = mockFetchOk(resp);
+      expect(await fetchDiscoveryDockerConfig()).toEqual(resp);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/discovery/docker/config', { method: 'GET' });
     });
   });
 
@@ -269,7 +297,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
 
   describe('updateApp', () => {
     it('sends PUT to /app/:name', async () => {
-      const app = { name: 'Updated', url: 'http://up.com' };
+      const app = makeApp({ name: 'Updated', url: 'http://up.com' });
       globalThis.fetch = mockFetchOk(app);
       const result = await updateApp('MyApp', app);
       expect(result).toEqual(app);
@@ -348,7 +376,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
 
   describe('updateGroup', () => {
     it('sends PUT to /group/:name', async () => {
-      const group = { name: 'Updated' };
+      const group = makeGroup({ name: 'Updated' });
       globalThis.fetch = mockFetchOk(group);
       const result = await updateGroup('MyGroup', group);
       expect(result).toEqual(group);

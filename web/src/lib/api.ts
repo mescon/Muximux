@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult, DockerState } from './types';
+import type { Config, ConfigSaveRequest, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryDockerConfigResponse, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult, DockerState } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -240,8 +240,15 @@ export async function fetchConfig(): Promise<Config> {
   return fetchJSON<Config>('/config');
 }
 
-export async function saveConfig(config: Config): Promise<Config> {
-  return putJSON<Config, Config>('/config', config);
+/**
+ * Saves the whole config. With `base` (the config the edits were made
+ * against) the server merges three ways, so a change made on its side
+ * since `base` was loaded survives unless this save also changed it.
+ * Without `base` the payload replaces the stored config.
+ */
+export async function saveConfig(config: Config, base?: Config): Promise<Config> {
+  const body: ConfigSaveRequest = base === undefined ? config : { ...config, base };
+  return putJSON<ConfigSaveRequest, Config>('/config', body);
 }
 
 export async function fetchApps(): Promise<App[]> {
@@ -261,8 +268,9 @@ export async function createApp(app: Partial<App>): Promise<App> {
   return postJSON<Partial<App>, App>('/apps', app);
 }
 
-export async function updateApp(name: string, app: Partial<App>): Promise<App> {
-  return putJSON<Partial<App>, App>(`/app/${encodeURIComponent(name)}`, app);
+// Full replace: fields the payload omits are cleared on the server.
+export async function updateApp(name: string, app: App): Promise<App> {
+  return putJSON<App, App>(`/app/${encodeURIComponent(name)}`, app);
 }
 
 export async function deleteApp(name: string): Promise<void> {
@@ -388,8 +396,9 @@ export async function createGroup(group: Partial<Group>): Promise<Group> {
   return postJSON<Partial<Group>, Group>('/groups', group);
 }
 
-export async function updateGroup(name: string, group: Partial<Group>): Promise<Group> {
-  return putJSON<Partial<Group>, Group>(`/group/${encodeURIComponent(name)}`, group);
+// Full replace, like updateApp.
+export async function updateGroup(name: string, group: Group): Promise<Group> {
+  return putJSON<Group, Group>(`/group/${encodeURIComponent(name)}`, group);
 }
 
 export async function deleteGroup(name: string): Promise<void> {
@@ -596,6 +605,10 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
 }
 
 // Discovery (Docker auto-discovery).
+export async function fetchDiscoveryDockerConfig(): Promise<DiscoveryDockerConfigResponse> {
+  return fetchJSON<DiscoveryDockerConfigResponse>('/discovery/docker/config');
+}
+
 export async function fetchDiscoveryDockerStatus(): Promise<DiscoveryDockerStatus> {
   return fetchJSON<DiscoveryDockerStatus>('/discovery/docker/status');
 }
