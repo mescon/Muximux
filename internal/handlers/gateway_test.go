@@ -105,6 +105,24 @@ func TestGateway_CreateSite_Success(t *testing.T) {
 	}
 }
 
+func TestGateway_CreateSite_DropsDockerTracking(t *testing.T) {
+	h, cfg, _ := setupGatewayHandler(t)
+	body, _ := json.Marshal(config.GatewaySite{
+		Domain: "plex.example.com", BackendURL: "http://plex:32400",
+		DockerKey: "name:victim", DockerEndpoint: "unix:///var/run/docker.sock",
+		DockerStrategy: "host_port", DockerManagedURL: "http://plex:32400",
+	})
+	w := httptest.NewRecorder()
+	h.CreateSite(w, httptest.NewRequest(http.MethodPost, "/api/gateway/sites", bytes.NewReader(body)))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+	s := cfg.Server.GatewaySites[0]
+	if s.DockerKey != "" || s.DockerEndpoint != "" || s.DockerStrategy != "" || s.DockerManagedURL != "" {
+		t.Errorf("tracking accepted from the payload: %+v", s)
+	}
+}
+
 func TestGateway_CreateSite_ValidationError_DoesNotMutate(t *testing.T) {
 	h, cfg, configPath := setupGatewayHandler(t)
 

@@ -214,7 +214,7 @@ Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
 | `/api/apps` | GET | Any | List apps visible to the caller, projected for their role (admins see everything; others see enabled apps that pass `min_role` and `allowed_groups`, with `proxy_headers`, `http_action_headers`, `docker_endpoint` and URL credentials removed) |
-| `/api/apps` | POST | Admin | Create a new app |
+| `/api/apps` | POST | Admin | Create a new app (Docker tracking fields in the payload are ignored; only discovery import attaches an app to a container) |
 | `/api/app/{name}` | GET | Any | Get one app, with the same visibility rule and role projection as the list; answers 404 for an app the caller could not list |
 | `/api/app/{name}` | PUT | Admin | Update app (full replace; omitted fields are reset) |
 | `/api/app/{name}` | DELETE | Admin | Delete app |
@@ -471,7 +471,7 @@ The declarative `server.gateway_sites:` model is the current gateway path (the l
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
 | `/api/gateway/sites` | GET | Admin | List configured gateway sites |
-| `/api/gateway/sites` | POST | Admin | Create a gateway site |
+| `/api/gateway/sites` | POST | Admin | Create a gateway site (Docker tracking fields in the payload are ignored) |
 | `/api/gateway/sites/{domain}` | PUT | Admin | Update a gateway site; validated like a startup load. Accepts an optional `base_backend_url` (the backend address the client loaded; if unchanged, the server's current value and Docker tracking are kept). Docker tracking fields (`docker_key`, `docker_endpoint`, `docker_strategy`, `docker_managed_url`) are server-owned and ignored in the payload |
 | `/api/gateway/sites/{domain}` | DELETE | Admin | Delete a gateway site |
 | `/api/gateway/validate` | POST | Admin | Validate a gateway site config without saving |

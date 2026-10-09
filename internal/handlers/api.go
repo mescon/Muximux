@@ -835,9 +835,12 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Create new app config
+	// Create new app config. Docker tracking is server-owned: only
+	// discovery's import attaches an app to a container, so a payload's
+	// tracking fields are dropped, as PUT /api/config does for new apps.
 	newApp := clientAppToConfig(&clientApp)
 	newApp.Order = len(h.config.Apps) // Add at end
+	newApp.DockerKey, newApp.DockerEndpoint, newApp.DockerStrategy, newApp.DockerManagedURL = "", "", "", ""
 
 	// Validate before persisting: Config.Save does not validate, so an
 	// invalid http_action would be written to disk and only rejected on

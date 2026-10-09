@@ -32,6 +32,10 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   with the server's message; every close path asks about unsaved changes and
   is blocked while a save runs. Discard also reverts keybinding and theme
   previews. (#494)
+- **Docker tracking is server-owned on every endpoint.** `POST /api/apps`
+  and `POST /api/gateway/sites` ignore `docker_*` fields in the payload, as
+  the PUTs already do; only discovery's import attaches an app or site to a
+  container. (#494)
 - **`lifecycle_allowed_groups`** are user and identity-provider group names;
   renaming or deleting a dashboard group no longer touches them. (#494)
 - **Restore uses the startup load path.** `${VAR}` expansion, defaults and

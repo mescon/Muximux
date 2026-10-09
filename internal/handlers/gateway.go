@@ -151,6 +151,9 @@ func (h *GatewayHandler) CreateSite(w http.ResponseWriter, r *http.Request) {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
+	// Docker tracking is server-owned (only discovery's import attaches a
+	// site to a container), as on the site PUT.
+	site.DockerKey, site.DockerEndpoint, site.DockerStrategy, site.DockerManagedURL = "", "", "", ""
 
 	h.configMu.Lock()
 	defer h.configMu.Unlock()

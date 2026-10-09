@@ -1557,6 +1557,26 @@ func TestCreateApp_RejectsSlugCollision(t *testing.T) {
 	}
 }
 
+func TestCreateApp_DropsDockerTracking(t *testing.T) {
+	cfg := &config.Config{}
+	tmpFile, err := os.CreateTemp(t.TempDir(), "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+	body := `{"name":"Forged","url":"http://x:1","enabled":true,"docker_key":"name:victim",` +
+		`"docker_endpoint":"unix:///var/run/docker.sock","docker_strategy":"host_port","docker_managed_url":"http://x:1"}`
+	w := httptest.NewRecorder()
+	handler.CreateApp(w, httptest.NewRequest(http.MethodPost, "/api/apps", strings.NewReader(body)))
+	if w.Code != http.StatusCreated && w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	a := cfg.Apps[0]
+	if a.DockerKey != "" || a.DockerEndpoint != "" || a.DockerStrategy != "" || a.DockerManagedURL != "" {
+		t.Errorf("tracking accepted from the payload: %+v", a)
+	}
+}
+
 func TestCreateAppSaveFails(t *testing.T) {
 	cfg := createTestConfig()
 	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
