@@ -461,6 +461,7 @@
             id="dd-autoimport"
             bind:value={form.auto_import}
             disabled={!!autoImportLocked}
+            aria-describedby={autoImportLocked ? 'dd-autoimport-env dd-autoimport-hint' : 'dd-autoimport-hint'}
             class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm disabled:opacity-60"
           >
             <option value="off">{m.discovery_autoImportOff()}</option>
@@ -469,20 +470,20 @@
             <option value="sync">{m.discovery_autoImportSync()}</option>
           </select>
           {#if autoImportLocked}
-            <p class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
+            <p id="dd-autoimport-env" class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
           {/if}
-          <p class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
+          <p id="dd-autoimport-hint" class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
         </div>
 
         <div>
           <label class="flex items-start gap-2 cursor-pointer text-sm">
-            <input type="checkbox" bind:checked={form.require_explicit_enable} disabled={!!requireExplicitLocked} class="mt-0.5" />
+            <input type="checkbox" bind:checked={form.require_explicit_enable} disabled={!!requireExplicitLocked} aria-describedby={requireExplicitLocked ? 'dd-explicit-env dd-explicit-hint' : 'dd-explicit-hint'} class="mt-0.5" />
             <span class="text-text-secondary">{m.discovery_requireExplicitEnable()}</span>
           </label>
           {#if requireExplicitLocked}
-            <p class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: requireExplicitLocked })}</p>
+            <p id="dd-explicit-env" class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: requireExplicitLocked })}</p>
           {/if}
-          <p class="text-xs text-text-muted mt-1">{m.discovery_requireExplicitEnableHint()}</p>
+          <p id="dd-explicit-hint" class="text-xs text-text-muted mt-1">{m.discovery_requireExplicitEnableHint()}</p>
         </div>
       </div>
 

@@ -682,3 +682,31 @@ describe('DiscoveryTab explicit opt-in', () => {
     expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalledWith(expect.objectContaining({ require_explicit_enable: true }));
   });
 });
+
+describe('DiscoveryTab toggle descriptions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
+  });
+
+  it('describes the unlocked controls by their hints only', async () => {
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({ config: makeStored() });
+    render(DiscoveryTab);
+    const box = await screen.findByLabelText('Require explicit opt-in');
+    expect(box).toHaveAccessibleDescription('Auto-import only containers labelled muximux.app.enabled=true.');
+    expect(screen.getByLabelText('Auto-import')).toHaveAccessibleDescription(/^Add, update or remove apps/);
+  });
+
+  it('adds the env note to the description when locked', async () => {
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({
+      config: makeStored(),
+      env_overrides: { require_explicit_enable: 'ENV_A', auto_import: 'ENV_B' },
+    });
+    render(DiscoveryTab);
+    const box = await screen.findByLabelText('Require explicit opt-in');
+    expect(box).toHaveAccessibleDescription(/^From ENV_A Auto-import only/);
+    expect(screen.getByLabelText('Auto-import')).toHaveAccessibleDescription(/^From ENV_B Add, update/);
+  });
+});

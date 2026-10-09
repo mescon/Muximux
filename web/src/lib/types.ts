@@ -535,7 +535,7 @@ export interface DiscoverySuggestion {
   http_action_confirm?: boolean;
   http_action_show_toast?: boolean;
   suggested_gateway?: SuggestedGatewayConfig;
-  labeled?: boolean;
+  labeled: boolean;
   label_enabled?: boolean;
   auto_import_skip?: DiscoveryAutoImportSkip;
   health_check?: boolean;

@@ -629,3 +629,14 @@ describe('DiscoverModal auto-import eligibility', () => {
     expect(mockApi.importDockerSuggestions.mock.calls[0][0].items[0].app.health_check).toBe(true);
   });
 });
+
+describe('DiscoverModal skipReason fallback', () => {
+  it('shows no chip for an unknown skip code', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [makeSuggestion({ key: 'u1', name: 'U1', auto_import_skip: { code: 'future_code' as never } })],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    await screen.findByDisplayValue('U1');
+    expect(screen.queryByTestId('not-importable')).not.toBeInTheDocument();
+  });
+});
