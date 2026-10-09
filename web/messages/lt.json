@@ -259,6 +259,8 @@
   "security_deleteUser": "Ištrinti naudotoją",
   "security_cantDeleteSelf": "Negalima ištrinti savęs",
   "security_minEightCharsShort": "Min. 8 simboliai",
+  "security_reloadDiscardsEdits": "Pritaikius šį metodą puslapis bus įkeltas iš naujo. Neišsaugoti pakeitimai kituose skirtukuose bus prarasti.",
+  "security_continueAnyway": "Tęsti",
   "theme_appearance": "Išvaizda",
   "theme_appearanceDesc": "Pasirinkite tamsią, šviesią arba sekti sistemą",
   "theme_dark": "Tamsi",

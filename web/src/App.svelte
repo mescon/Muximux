@@ -348,7 +348,7 @@
       } else {
         // Hash cleared (e.g. navigating to /) — go home
         currentNavHash = '';
-        showSettings = false;
+        closeSettings();
         showLogs = false;
         if (splitState.panels[0] || splitState.panels[1]) resetSplit();
         showSplash = true;
@@ -738,10 +738,29 @@
     }
   }
 
+  /**
+   * Closes Settings through its unsaved-changes prompt. Returns false while
+   * the prompt is showing (or a save is in flight) and Settings stays open.
+   * Settings calls onclose, which flips showSettings and fixes the hash.
+   */
+  function closeSettings(): boolean {
+    if (!showSettings) return true;
+    // Still loading: nothing to lose yet.
+    if (!settingsRef?.requestClose) { handleSettingsClosed(); return true; }
+    return settingsRef.requestClose() !== false;
+  }
+
+  function handleSettingsClosed() {
+    showSettings = false;
+    settingsInitialTab = 'general';
+    settingsEditAppName = null;
+    if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); }
+  }
+
   function navigateHome() {
+    if (!closeSettings()) return;
     showSplash = true;
     showLogs = false;
-    showSettings = false;
     resetSplit();
     clearHash();
   }
@@ -925,7 +944,7 @@
       if (event.key === 'Escape') {
         if (showCommandPalette) showCommandPalette = false;
         else if (showSettings) {
-          if (!settingsRef?.handleEscape()) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); }
+          if (!settingsRef?.handleEscape()) closeSettings();
         }
       }
       return;
@@ -936,7 +955,7 @@
       if (showCommandPalette) showCommandPalette = false;
       else if (showSettings) {
         // Let Settings close its sub-modals first; only close Settings itself if no sub-modal was open
-        if (!settingsRef?.handleEscape()) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); }
+        if (!settingsRef?.handleEscape()) closeSettings();
       }
       else if (showShortcuts) showShortcuts = false;
       else if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); }
@@ -962,7 +981,7 @@
         loadCommandPalette().then(() => showCommandPalette = true);
         break;
       case 'settings':
-        if ($isAdmin) { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }
+        if ($isAdmin) { if (showSettings) closeSettings(); else openSettings(); }
         break;
       case 'shortcuts':
         if (showShortcuts) { showShortcuts = false; } else { loadShortcutsHelp().then(() => showShortcuts = true); }
@@ -1065,7 +1084,7 @@
         oneditapp={(app) => { settingsInitialTab = 'apps'; settingsEditAppName = app.name; openSettings(); }}
         onsearch={() => { loadCommandPalette().then(() => showCommandPalette = true); }}
         onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { navigateHome(); } }}
-        onsettings={() => { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }}
+        onsettings={() => { if (showSettings) closeSettings(); else openSettings(); }}
         onlogs={() => { if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); } else openLogs(); }}
         onlogout={handleLogout}
         splitEnabled={splitState.enabled}
@@ -1202,7 +1221,7 @@
       {apps}
       initialTab={settingsInitialTab}
       initialEditAppName={settingsEditAppName}
-      onclose={() => { showSettings = false; settingsInitialTab = 'general'; settingsEditAppName = null; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
+      onclose={handleSettingsClosed}
       onsave={(c: Config, b: Config) => handleSaveConfig(c, b)}
       onauthchange={(auth: Config['auth']) => { if (config) config.auth = auth; }}
     />

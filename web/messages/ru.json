@@ -259,6 +259,8 @@
   "security_deleteUser": "Удалить пользователя",
   "security_cantDeleteSelf": "Вы не можете удалить себя",
   "security_minEightCharsShort": "Мин. 8 символов",
+  "security_reloadDiscardsEdits": "Применение этого способа перезагрузит страницу. Несохранённые изменения на других вкладках будут потеряны.",
+  "security_continueAnyway": "Продолжить",
   "theme_appearance": "Внешний вид",
   "theme_appearanceDesc": "Выберите тёмную, светлую тему или следуйте системной",
   "theme_dark": "Тёмная",

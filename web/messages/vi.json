@@ -259,6 +259,8 @@
   "security_deleteUser": "Xóa người dùng",
   "security_cantDeleteSelf": "Không thể xóa chính mình",
   "security_minEightCharsShort": "Tối thiểu 8 ký tự",
+  "security_reloadDiscardsEdits": "Áp dụng phương thức này sẽ tải lại trang. Các thay đổi chưa lưu ở các thẻ khác sẽ bị mất.",
+  "security_continueAnyway": "Tiếp tục",
   "theme_appearance": "Giao diện",
   "theme_appearanceDesc": "Chọn tối, sáng hoặc theo hệ thống",
   "theme_dark": "Tối",

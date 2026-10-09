@@ -259,6 +259,8 @@
   "security_deleteUser": "Kullanıcıyı sil",
   "security_cantDeleteSelf": "Kendinizi silemezsiniz",
   "security_minEightCharsShort": "En az 8 karakter",
+  "security_reloadDiscardsEdits": "Bu yöntemi uygulamak sayfayı yeniden yükler. Diğer sekmelerdeki kaydedilmemiş değişiklikler kaybolur.",
+  "security_continueAnyway": "Devam",
   "theme_appearance": "Görünüm",
   "theme_appearanceDesc": "Koyu, açık tema seçin veya sisteminizi takip edin",
   "theme_dark": "Koyu",

@@ -259,6 +259,8 @@
   "security_deleteUser": "Supprimer l'utilisateur",
   "security_cantDeleteSelf": "Tu ne peux pas te supprimer toi-même",
   "security_minEightCharsShort": "8 caractères min.",
+  "security_reloadDiscardsEdits": "Appliquer cette méthode recharge la page. Les modifications non enregistrées des autres onglets seront perdues.",
+  "security_continueAnyway": "Continuer",
   "theme_appearance": "Apparence",
   "theme_appearanceDesc": "Choisis sombre, clair ou suis ton système",
   "theme_dark": "Sombre",

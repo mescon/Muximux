@@ -259,6 +259,8 @@
   "security_deleteUser": "Διαγραφή χρήστη",
   "security_cantDeleteSelf": "Δεν μπορείτε να διαγράψετε τον εαυτό σας",
   "security_minEightCharsShort": "Τουλάχιστον 8 χαρακτήρες",
+  "security_reloadDiscardsEdits": "Η εφαρμογή αυτής της μεθόδου επαναφορτώνει τη σελίδα. Οι μη αποθηκευμένες αλλαγές σε άλλες καρτέλες θα χαθούν.",
+  "security_continueAnyway": "Συνέχεια",
   "theme_appearance": "Εμφάνιση",
   "theme_appearanceDesc": "Επιλέξτε σκούρο, ανοιχτό ή ακολουθήστε το σύστημα",
   "theme_dark": "Σκούρο",

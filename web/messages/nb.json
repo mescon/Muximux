@@ -259,6 +259,8 @@
   "security_deleteUser": "Slett bruker",
   "security_cantDeleteSelf": "Kan ikke slette deg selv",
   "security_minEightCharsShort": "Min 8 tegn",
+  "security_reloadDiscardsEdits": "Når denne metoden tas i bruk, lastes siden inn på nytt. Ulagrede endringer i andre faner går tapt.",
+  "security_continueAnyway": "Fortsett",
   "theme_appearance": "Utseende",
   "theme_appearanceDesc": "Velg mørkt, lyst, eller følg systemet",
   "theme_dark": "Mørkt",

@@ -259,6 +259,8 @@
   "security_deleteUser": "Gebruiker verwijderen",
   "security_cantDeleteSelf": "Je kunt jezelf niet verwijderen",
   "security_minEightCharsShort": "Min. 8 tekens",
+  "security_reloadDiscardsEdits": "Het toepassen van deze methode herlaadt de pagina. Niet-opgeslagen wijzigingen in andere tabbladen gaan verloren.",
+  "security_continueAnyway": "Doorgaan",
   "theme_appearance": "Uiterlijk",
   "theme_appearanceDesc": "Kies donker, licht of volg je systeem",
   "theme_dark": "Donker",

@@ -259,6 +259,8 @@
   "security_deleteUser": "Șterge utilizator",
   "security_cantDeleteSelf": "Nu te poți șterge pe tine",
   "security_minEightCharsShort": "Min. 8 caractere",
+  "security_reloadDiscardsEdits": "Aplicarea acestei metode reîncarcă pagina. Modificările nesalvate din celelalte file se vor pierde.",
+  "security_continueAnyway": "Continuă",
   "theme_appearance": "Aspect",
   "theme_appearanceDesc": "Alege tema întunecată, luminoasă sau urmează sistemul",
   "theme_dark": "Întunecată",

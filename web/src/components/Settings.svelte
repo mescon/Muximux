@@ -2,7 +2,7 @@
   import { iconLabel } from '$lib/iconUrl';
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import { type App, type Config, type Group, makeApp, makeGroup, stampUniqueIds } from '$lib/types';
+  import { type App, type Config, type Group, type KeybindingsConfig, makeApp, makeGroup, stampUniqueIds } from '$lib/types';
   import { rebaseConfig, stampOriginalNames, type MergeConflict } from '$lib/configMerge';
   import { refreshDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
   import IconBrowser from './IconBrowser.svelte';
@@ -24,7 +24,7 @@
   import { exportConfig, parseImportedConfig, fetchConfig, errorText, type ImportedConfig } from '$lib/api';
   import { slugify, findSlugConflict } from '$lib/slug';
   import { toasts } from '$lib/toastStore';
-  import { getKeybindingsForConfig } from '$lib/keybindingsStore';
+  import { customBindings, getKeybindingsForConfig, initKeybindings } from '$lib/keybindingsStore';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
   import { popularApps, templateToApp, type PopularAppTemplate } from '$lib/popularApps';
   import * as m from '$lib/paraglide/messages.js';
@@ -49,8 +49,10 @@
     onauthchange?: (auth: NonNullable<Config['auth']>) => void;
   } = $props();
 
-  // Exported: returns true if Escape was consumed by closing an inner sub-modal.
+  // Exported: returns true if Escape was consumed by closing an inner sub-modal,
+  // or while a save is in flight (the dialog must stay open until it settles).
   export function handleEscape(): boolean {
+    if (saving) return true;
     if (showIconBrowser) { showIconBrowser = false; iconBrowserTarget = null; return true; }
     if (editingApp) { cancelEditApp(); return true; }
     if (editingGroup) { cancelEditGroup(); return true; }
@@ -128,9 +130,6 @@
   // Icon browser state
   let showIconBrowser = $state(false);
   let iconBrowserTarget = $state<'newApp' | 'editApp' | 'newGroup' | 'editGroup' | 'homeIcon' | null>(null);
-
-  // Track keybindings changes
-  let keybindingsChanged = $state(false);
 
   // Track if changes have been made (declared below after snapshot variables)
 
@@ -223,10 +222,23 @@
   const initialFamily = untrack(() => get(selectedFamily));
   const initialVariant = untrack(() => get(variantMode));
 
+  // Keybinding edits go straight into the global store (the editor and the
+  // live shortcuts read it), so they are compared against the bindings the
+  // dialog opened with, normalised like getKeybindingsForConfig.
+  function keybindingsKey(kb?: KeybindingsConfig): string {
+    const bindings = Object.entries(kb?.bindings ?? {}).filter(([, combos]) => combos && combos.length > 0);
+    return stateKey(Object.fromEntries(bindings));
+  }
+  let initialKeybindings = $state(untrack(() => keybindingsKey(getKeybindingsForConfig())));
+  let keybindingsDirty = $derived.by(() => {
+    void $customBindings;
+    return keybindingsKey(getKeybindingsForConfig()) !== initialKeybindings;
+  });
+
   // Track if changes have been made
   let hasChanges = $derived(configKey(localConfig) !== initialConfigSnapshot ||
                   appsKey(localApps) !== initialAppsSnapshot ||
-                  keybindingsChanged ||
+                  keybindingsDirty ||
                   $selectedFamily !== initialFamily ||
                   $variantMode !== initialVariant);
 
@@ -301,6 +313,7 @@
   function applyRebase(theirsIn: Config) {
     const theirs = clone(theirsIn);
     const hadEdits = hasChanges;
+    const hadKeybindingEdits = keybindingsDirty;
     const beforeConfig = configKey(localConfig);
     const beforeApps = appsKey(localApps);
     const { config: merged, apps: mergedApps, conflicts: found } = rebaseConfig({
@@ -321,6 +334,10 @@
     initialConfigSnapshot = configKey(fresh.config);
     initialAppsSnapshot = appsKey(fresh.apps);
     rebaseConflicts = found;
+    // Untouched keybindings follow the server; edited ones stay and are
+    // compared against the server's from now on.
+    if (!hadKeybindingEdits) initKeybindings(theirs.keybindings);
+    initialKeybindings = keybindingsKey(theirs.keybindings);
     rebuildDndArrays();
     configRevision += 1;
     if (hadEdits && (configKey(localConfig) !== beforeConfig || appsKey(localApps) !== beforeApps)) {
@@ -378,6 +395,19 @@
     void refreshDockerTracking(editingApp ? [localApps, [editingApp]] : [localApps], fetchConfig);
   }
 
+  // The config sent to the server: without the client-only dnd `id` that
+  // stampUniqueIds puts on every app and group.
+  function savePayload(): Config {
+    const c = $state.snapshot(localConfig) as Config;
+    const strip = <T extends object>(item: T): T => {
+      const { id: _id, ...rest } = item as T & { id?: unknown };
+      return rest as T;
+    };
+    c.apps = (c.apps ?? []).map(strip);
+    c.groups = (c.groups ?? []).map(strip);
+    return c;
+  }
+
   // Closes only after the save succeeded. On failure the dialog stays open
   // with every edit and shows the server's message.
   async function handleSave() {
@@ -393,10 +423,10 @@
         variant: get(variantMode)
       };
       // Include keybindings if changed
-      if (keybindingsChanged) {
+      if (keybindingsDirty) {
         localConfig.keybindings = getKeybindingsForConfig();
       }
-      await onsave?.($state.snapshot(localConfig) as Config, $state.snapshot(baseConfig) as Config);
+      await onsave?.(savePayload(), $state.snapshot(baseConfig) as Config);
       closed = true;
       pendingRebase = null;
       onclose?.();
@@ -422,18 +452,31 @@
   // Inline confirmation state
   let confirmClose = $state(false);
 
-  function handleClose() {
+  /**
+   * Every way of closing the dialog goes through here. Returns true when it
+   * closed (nothing unsaved), false when it showed the discard prompt or a
+   * save is still in flight. Closing reverts the previewed theme and any
+   * keybinding edits.
+   */
+  export function requestClose(): boolean {
+    if (saving) return false;
     if (hasChanges) {
       confirmClose = true;
-      return;
+      return false;
     }
-    revertTheme();
-    onclose?.();
+    discardAndClose();
+    return true;
   }
 
   function confirmCloseDiscard() {
+    if (saving) return;
     confirmClose = false;
+    discardAndClose();
+  }
+
+  function discardAndClose() {
     revertTheme();
+    initKeybindings($state.snapshot(baseConfig.keybindings) as KeybindingsConfig | undefined);
     onclose?.();
   }
 
@@ -729,7 +772,8 @@
         </button>
         <button
           class="btn btn-ghost btn-icon btn-sm"
-          onclick={handleClose}
+          onclick={() => requestClose()}
+          disabled={saving}
           aria-label={m.settings_closeSettings()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -766,6 +810,7 @@
           >{m.settings_keepEditing()}</button>
           <button
             class="btn btn-danger btn-sm"
+            disabled={saving}
             onclick={confirmCloseDiscard}
           >{m.settings_discard()}</button>
         </div>
@@ -826,11 +871,11 @@
 
       <!-- Keybindings Settings -->
       {:else if activeTab === 'keybindings'}
-        <KeybindingsEditor onchange={() => keybindingsChanged = true} />
+        <KeybindingsEditor />
 
       <!-- Security Settings -->
       {:else if activeTab === 'security'}
-        <SecurityTab {localConfig} onmethodapplied={handleAuthMethodApplied} />
+        <SecurityTab {localConfig} hasUnsavedChanges={hasChanges} onmethodapplied={handleAuthMethodApplied} />
 
       <!-- Gateway sites -->
       {:else if activeTab === 'gateway'}

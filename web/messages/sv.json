@@ -259,6 +259,8 @@
   "security_deleteUser": "Ta bort användare",
   "security_cantDeleteSelf": "Kan inte ta bort dig själv",
   "security_minEightCharsShort": "Minst 8 tecken",
+  "security_reloadDiscardsEdits": "När metoden tillämpas laddas sidan om. Osparade ändringar i andra flikar går förlorade.",
+  "security_continueAnyway": "Fortsätt",
   "theme_appearance": "Utseende",
   "theme_appearanceDesc": "Välj mörkt, ljust eller följ systemet",
   "theme_dark": "Mörkt",

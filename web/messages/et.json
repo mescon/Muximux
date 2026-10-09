@@ -259,6 +259,8 @@
   "security_deleteUser": "Kustuta kasutaja",
   "security_cantDeleteSelf": "Ei saa iseennast kustutada",
   "security_minEightCharsShort": "Min 8 tähemärki",
+  "security_reloadDiscardsEdits": "Selle meetodi rakendamine laadib lehe uuesti. Teiste vahekaartide salvestamata muudatused lähevad kaotsi.",
+  "security_continueAnyway": "Jätka",
   "theme_appearance": "Välimus",
   "theme_appearanceDesc": "Valige tume, hele või järgige süsteemi eelistust",
   "theme_dark": "Tume",

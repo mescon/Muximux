@@ -259,6 +259,8 @@
   "security_deleteUser": "ব্যবহারকারী মুছুন",
   "security_cantDeleteSelf": "নিজেকে মুছতে পারবেন না",
   "security_minEightCharsShort": "সর্বনিম্ন ৮ অক্ষর",
+  "security_reloadDiscardsEdits": "এই পদ্ধতি প্রয়োগ করলে পৃষ্ঠাটি পুনরায় লোড হবে। অন্য ট্যাবের অসংরক্ষিত পরিবর্তনগুলি হারিয়ে যাবে।",
+  "security_continueAnyway": "চালিয়ে যান",
   "theme_appearance": "চেহারা",
   "theme_appearanceDesc": "গাঢ়, হালকা থিম চয়ন করুন বা আপনার সিস্টেম অনুসরণ করুন",
   "theme_dark": "গাঢ়",

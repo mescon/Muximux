@@ -259,6 +259,8 @@
   "security_deleteUser": "Poista käyttäjä",
   "security_cantDeleteSelf": "Et voi poistaa itseäsi",
   "security_minEightCharsShort": "Väh. 8 merkkiä",
+  "security_reloadDiscardsEdits": "Tämän menetelmän käyttöönotto lataa sivun uudelleen. Muiden välilehtien tallentamattomat muutokset menetetään.",
+  "security_continueAnyway": "Jatka",
   "theme_appearance": "Ulkoasu",
   "theme_appearanceDesc": "Valitse tumma, vaalea tai seuraa järjestelmää",
   "theme_dark": "Tumma",

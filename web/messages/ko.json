@@ -259,6 +259,8 @@
   "security_deleteUser": "사용자 삭제",
   "security_cantDeleteSelf": "자기 자신은 삭제할 수 없습니다",
   "security_minEightCharsShort": "최소 8자",
+  "security_reloadDiscardsEdits": "이 방식을 적용하면 페이지가 새로고침됩니다. 다른 탭의 저장되지 않은 변경사항은 사라집니다.",
+  "security_continueAnyway": "계속",
   "theme_appearance": "외관",
   "theme_appearanceDesc": "다크, 라이트 또는 시스템 설정 따르기 중에서 선택하세요",
   "theme_dark": "다크",

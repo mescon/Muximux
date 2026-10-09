@@ -259,6 +259,8 @@
   "security_deleteUser": "Vymazať používateľa",
   "security_cantDeleteSelf": "Nemôžete vymazať seba",
   "security_minEightCharsShort": "Min. 8 znakov",
+  "security_reloadDiscardsEdits": "Použitie tejto metódy znova načíta stránku. Neuložené zmeny na ostatných kartách sa stratia.",
+  "security_continueAnyway": "Pokračovať",
   "theme_appearance": "Vzhľad",
   "theme_appearanceDesc": "Zvoľte tmavý, svetlý alebo systémový",
   "theme_dark": "Tmavý",

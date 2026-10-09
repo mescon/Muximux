@@ -259,6 +259,8 @@
   "security_deleteUser": "Видалити користувача",
   "security_cantDeleteSelf": "Не можна видалити себе",
   "security_minEightCharsShort": "Мін. 8 символів",
+  "security_reloadDiscardsEdits": "Застосування цього способу перезавантажить сторінку. Незбережені зміни на інших вкладках буде втрачено.",
+  "security_continueAnyway": "Продовжити",
   "theme_appearance": "Зовнішній вигляд",
   "theme_appearanceDesc": "Оберіть темний, світлий або слідувати за системою",
   "theme_dark": "Темна",

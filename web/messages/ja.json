@@ -259,6 +259,8 @@
   "security_deleteUser": "ユーザーを削除",
   "security_cantDeleteSelf": "自分自身は削除できません",
   "security_minEightCharsShort": "8文字以上",
+  "security_reloadDiscardsEdits": "この方式を適用するとページが再読み込みされます。他のタブの未保存の変更は失われます。",
+  "security_continueAnyway": "続行",
   "theme_appearance": "外観",
   "theme_appearanceDesc": "ダーク、ライト、またはシステムに従う",
   "theme_dark": "ダーク",

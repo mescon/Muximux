@@ -259,6 +259,8 @@
   "security_deleteUser": "删除用户",
   "security_cantDeleteSelf": "无法删除自己",
   "security_minEightCharsShort": "至少 8 个字符",
+  "security_reloadDiscardsEdits": "应用此方式会重新加载页面。其他标签页中未保存的更改将会丢失。",
+  "security_continueAnyway": "继续",
   "theme_appearance": "外观",
   "theme_appearanceDesc": "选择深色、浅色或跟随系统",
   "theme_dark": "深色",

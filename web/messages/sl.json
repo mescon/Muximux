@@ -259,6 +259,8 @@
   "security_deleteUser": "Izbriši uporabnika",
   "security_cantDeleteSelf": "Ne morete izbrisati sami sebe",
   "security_minEightCharsShort": "Najmanj 8 znakov",
+  "security_reloadDiscardsEdits": "Uporaba te metode znova naloži stran. Neshranjene spremembe na drugih zavihkih bodo izgubljene.",
+  "security_continueAnyway": "Nadaljuj",
   "theme_appearance": "Videz",
   "theme_appearanceDesc": "Izberite temno, svetlo ali sledite sistemu",
   "theme_dark": "Temno",

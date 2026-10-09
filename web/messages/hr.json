@@ -259,6 +259,8 @@
   "security_deleteUser": "Obriši korisnika",
   "security_cantDeleteSelf": "Ne možete obrisati sami sebe",
   "security_minEightCharsShort": "Najmanje 8 znakova",
+  "security_reloadDiscardsEdits": "Primjena ove metode ponovno učitava stranicu. Nespremljene promjene na drugim karticama bit će izgubljene.",
+  "security_continueAnyway": "Nastavi",
   "theme_appearance": "Izgled",
   "theme_appearanceDesc": "Odaberite tamno, svijetlo ili pratite sustav",
   "theme_dark": "Tamno",

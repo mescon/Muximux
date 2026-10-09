@@ -18,6 +18,8 @@ const {
   mockIsMobileViewport,
   mockTemplateToApp,
   mockFetchConfig,
+  mockCustomBindings,
+  mockInitKeybindings,
 } = vi.hoisted(() => {
   function makeStore<T>(initial: T) {
     const subs = new Set<(v: T) => void>();
@@ -36,8 +38,16 @@ const {
         value = updater(value);
         subs.forEach(fn => fn(value));
       },
+      get(): T {
+        return value;
+      },
     };
   }
+
+  // Stands in for the keybindings store: Settings reads customBindings and
+  // getKeybindingsForConfig, and discard calls initKeybindings.
+  type Bindings = Record<string, { key: string; ctrl?: boolean }[]>;
+  const mockCustomBindings = makeStore<Bindings>({});
 
   const mockIsMobileViewport = { fn: (() => false) as () => boolean };
 
@@ -55,7 +65,12 @@ const {
       info: vi.fn(),
     },
     mockFetchConfig: vi.fn(),
-    mockGetKeybindingsForConfig: vi.fn(() => ({ bindings: {} })),
+    mockCustomBindings,
+    mockInitKeybindings: vi.fn((kb?: { bindings?: Bindings }) => mockCustomBindings.set(kb?.bindings ?? {})),
+    mockGetKeybindingsForConfig: vi.fn(() => {
+      const b = Object.fromEntries(Object.entries(mockCustomBindings.get()).filter(([, c]) => c.length > 0));
+      return { bindings: Object.keys(b).length > 0 ? b : undefined };
+    }),
     mockAppSchemaSafeParse: vi.fn(() => ({ success: true })),
     mockGroupSchemaSafeParse: vi.fn(() => ({ success: true })),
     mockExtractErrors: vi.fn(() => ({})),
@@ -114,11 +129,12 @@ vi.mock('$lib/toastStore', () => ({
 }));
 
 vi.mock('$lib/keybindingsStore', () => ({
+  customBindings: mockCustomBindings,
   getKeybindingsForConfig: (...args: unknown[]) => mockGetKeybindingsForConfig(...args),
   keybindings: { subscribe: (fn: (v: unknown[]) => void) => { fn([]); return () => {}; } },
   formatKeybinding: vi.fn(() => ''),
   formatKeyCombo: vi.fn(() => ''),
-  initKeybindings: vi.fn(),
+  initKeybindings: (...args: unknown[]) => mockInitKeybindings(...(args as [])),
 }));
 
 vi.mock('$lib/schemas', () => ({
@@ -182,6 +198,7 @@ function resolveArgs(args: unknown[]): { target: Node | null; props: Record<stri
 let appsTabProps: Record<string, unknown> = {};
 let gatewayTabProps: Record<string, unknown> = {};
 let discoverModalProps: Record<string, unknown> = {};
+let securityTabProps: Record<string, unknown> = {};
 
 function makeMockAppsTab(...args: unknown[]) {
   const { target, props } = resolveArgs(args);
@@ -263,18 +280,17 @@ function makeMockGeneralTab(...args: unknown[]) {
 vi.mock('./settings/GeneralTab.svelte', () => ({ default: makeMockGeneralTab }));
 
 function makeMockKeybindingsEditor(...args: unknown[]) {
-  const { target, props } = resolveArgs(args);
+  const { target } = resolveArgs(args);
   if (!target) return { $destroy() {} };
   const div = document.createElement('div');
   div.dataset.testid = 'mock-keybindings-editor';
 
-  if (props.onchange) {
-    const btn = document.createElement('button');
-    btn.textContent = 'Change Keybinding';
-    btn.dataset.testid = 'trigger-keybinding-change';
-    btn.onclick = props.onchange;
-    div.appendChild(btn);
-  }
+  // The real editor writes straight into the keybindings store.
+  const btn = document.createElement('button');
+  btn.textContent = 'Change Keybinding';
+  btn.dataset.testid = 'trigger-keybinding-change';
+  btn.onclick = () => mockCustomBindings.set({ test: [{ key: 't' }] });
+  div.appendChild(btn);
   target.appendChild(div);
   return { $destroy() { div.remove(); } };
 }
@@ -462,6 +478,7 @@ function makeMockSecurityTab(...args: unknown[]) {
   if (!target) return { $destroy() {} };
   const div = document.createElement('div');
   div.dataset.testid = 'mock-security-tab';
+  securityTabProps = props;
   const localConfig = props.localConfig as Config;
   const onmethodapplied = props.onmethodapplied as (() => void) | undefined;
   const add = (testid: string, onclick: () => void) => {
@@ -618,6 +635,7 @@ describe('Settings', () => {
     vi.clearAllMocks();
     mockSelectedFamily.set('default');
     mockVariantMode.set('dark');
+    mockCustomBindings.set({});
     mockIsMobileViewport.fn = () => false;
     mockAppSchemaSafeParse.mockReturnValue({ success: true });
     mockGroupSchemaSafeParse.mockReturnValue({ success: true });
@@ -1502,9 +1520,8 @@ describe('Settings', () => {
       expect(savedConfig.theme?.variant).toBe('light');
     });
 
-    it('includes keybindings in save when keybindingsChanged', async () => {
+    it('includes keybindings in save when they were edited', async () => {
       const onsave = vi.fn();
-      mockGetKeybindingsForConfig.mockReturnValue({ bindings: { test: [] } });
 
       renderSettings({ onsave, initialTab: 'keybindings' });
       await fireEvent.click(screen.getByTestId('trigger-keybinding-change'));
@@ -1513,7 +1530,7 @@ describe('Settings', () => {
       await fireEvent.click(screen.getByText('Save Changes'));
 
       const savedConfig = onsave.mock.calls[0][0] as Config;
-      expect(savedConfig.keybindings).toEqual({ bindings: { test: [] } });
+      expect(savedConfig.keybindings).toEqual({ bindings: { test: [{ key: 't' }] } });
     });
 
     it('save includes localApps in config.apps', async () => {
@@ -2095,6 +2112,249 @@ describe('Settings', () => {
 
       expect(await screen.findByTestId('settings-conflicts')).toHaveTextContent('Two groups are named "Tools". Rename one of them before saving.');
       expect(screen.getByText('Save Changes')).toBeDisabled();
+    });
+  });
+  // =======================================================================
+  // Close paths, keybinding discard, in-flight save (S-17, S-31)
+  // =======================================================================
+  describe('Close paths and discard', () => {
+    function idsIn(list: unknown[]): unknown[] {
+      return list.filter(i => Object.prototype.hasOwnProperty.call(i, 'id'));
+    }
+
+    it('keybinding edits make the dialog dirty and discard reverts them', async () => {
+      const keybindings = { bindings: { search: [{ key: 'j' }] } };
+      // The shell initialised the store from the server config before opening.
+      mockCustomBindings.set({ search: [{ key: 'j' }] });
+      const onclose = vi.fn();
+      const { component } = render(Settings, {
+        props: { config: makeConfig({ keybindings }), apps: sampleApps, initialTab: 'keybindings', onclose },
+      });
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+
+      mockCustomBindings.set({ search: [{ key: 'x', ctrl: true }] });
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+
+      // Undoing the edit by hand makes the dialog clean again (not sticky).
+      mockCustomBindings.set({ search: [{ key: 'j' }] });
+      await waitFor(() => expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument());
+
+      mockCustomBindings.set({ search: [{ key: 'x', ctrl: true }] });
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+
+      expect(component.requestClose()).toBe(false);
+      await fireEvent.click(await screen.findByText('Discard'));
+
+      expect(mockInitKeybindings).toHaveBeenCalledWith(keybindings);
+      expect(mockCustomBindings.get()).toEqual(keybindings.bindings);
+      expect(onclose).toHaveBeenCalledTimes(1);
+    });
+
+    it('an emptied binding list reads as no binding', async () => {
+      renderSettings({ initialTab: 'keybindings' });
+      mockCustomBindings.set({ search: [] });
+      await Promise.resolve();
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+      expect(screen.getByText('Save Changes')).toBeDisabled();
+    });
+
+    it('requestClose returns false and shows the prompt when dirty; true and reverts theme when clean', async () => {
+      const onclose = vi.fn();
+      const dirty = renderSettings({ onclose });
+      mockSelectedFamily.set('nord');
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+
+      expect(dirty.component.requestClose()).toBe(false);
+      expect(await screen.findByText('You have unsaved changes. Discard?')).toBeInTheDocument();
+      expect(onclose).not.toHaveBeenCalled();
+      dirty.unmount();
+
+      // A clean dialog closes at once and still puts the theme back: the
+      // preview store is reset to the family the dialog opened with.
+      mockSelectedFamily.set('default');
+      mockSetThemeFamily.mockClear();
+      const clean = renderSettings({ onclose });
+      expect(clean.component.requestClose()).toBe(true);
+      expect(onclose).toHaveBeenCalledTimes(1);
+      expect(mockSetThemeFamily).toHaveBeenCalledWith('default');
+      expect(mockSetVariantMode).toHaveBeenCalledWith('dark');
+      expect(mockInitKeybindings).toHaveBeenCalledWith(undefined);
+    });
+
+    it('tells the Security tab whether there are unsaved changes', async () => {
+      securityTabProps = {};
+      renderSettings({ initialTab: 'security' });
+      expect(securityTabProps.hasUnsavedChanges).toBe(false);
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      await waitFor(() => expect(securityTabProps.hasUnsavedChanges).toBe(true));
+    });
+
+    it('keeps the dialog open on every close path while a save is in flight', async () => {
+      let reject!: (e: Error) => void;
+      const onsave = vi.fn(() => new Promise<void>((_, r) => { reject = r; }));
+      const onclose = vi.fn();
+      const { component, container } = render(Settings, {
+        props: { config: makeConfig(), apps: sampleApps, initialTab: 'security', onsave, onclose },
+      });
+
+      await fireEvent.click(screen.getByTestId('trigger-title-edit'));
+      // Open the discard prompt first, then save from it.
+      expect(component.requestClose()).toBe(false);
+      await screen.findByText('Discard');
+      await fireEvent.click(screen.getByText('Save Changes'));
+      expect(screen.getByText('Saving...')).toBeDisabled();
+
+      // Escape: consumed, so the shell does not close Settings.
+      expect(component.handleEscape()).toBe(true);
+      // Gear, keybinding, navigateHome, hashchange: all go through requestClose.
+      expect(component.requestClose()).toBe(false);
+      // X button and Discard are disabled and do nothing.
+      const closeBtn = container.querySelector('[aria-label="Close settings"]') as HTMLButtonElement;
+      expect(closeBtn).toBeDisabled();
+      await fireEvent.click(closeBtn);
+      const discard = screen.getByText('Discard') as HTMLButtonElement;
+      expect(discard).toBeDisabled();
+      await fireEvent.click(discard);
+      expect(onclose).not.toHaveBeenCalled();
+      expect(mockSetThemeFamily).not.toHaveBeenCalled();
+
+      // The save fails: the dialog is still open with the edit.
+      reject(new Error('bad'));
+      expect(await screen.findByText('Save failed: bad')).toBeInTheDocument();
+      expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+      expect(onclose).not.toHaveBeenCalled();
+      expect(component.handleEscape()).toBe(false);
+      expect(discard).not.toBeDisabled();
+    });
+
+    it('sends apps and groups without the client-only id', async () => {
+      const onsave = vi.fn().mockResolvedValue(undefined);
+      appsTabProps = {};
+      renderSettings({
+        onsave,
+        initialTab: 'apps',
+        config: { groups: [makeGroup({ name: 'Media' })] },
+        apps: [makeApp({ name: 'Plex', group: 'Media' }), makeApp({ name: 'Loose', order: 1 })],
+      });
+      // The dialog stamps ids for drag and drop.
+      expect(idsIn(appsTabProps.dndGroups as Group[])).toHaveLength(1);
+      expect(idsIn(Object.values(appsTabProps.dndGroupedApps as Record<string, App[]>).flat())).toHaveLength(2);
+
+      mockSelectedFamily.set('nord');
+      await waitFor(() => expect(screen.getByText('Save Changes')).not.toBeDisabled());
+      await fireEvent.click(screen.getByText('Save Changes'));
+      await waitFor(() => expect(onsave).toHaveBeenCalledTimes(1));
+
+      const [saved] = onsave.mock.calls[0] as [Config, Config];
+      expect(saved.apps.map(a => a.name).sort()).toEqual(['Loose', 'Plex']);
+      expect(saved.groups.map(g => g.name)).toEqual(['Media']);
+      expect(idsIn(saved.apps)).toEqual([]);
+      expect(idsIn(saved.groups)).toEqual([]);
+      expect(JSON.stringify(saved)).not.toContain('"id"');
+    });
+
+    describe('sparse server config', () => {
+      // Shaped like GET /api/config: omitempty fields absent, icons partial.
+      function sparseConfig(plexUrl = 'http://plex:32400'): Config {
+        const apps = [
+          {
+            name: 'Plex', url: plexUrl,
+            icon: { type: 'dashboard', name: 'plex', color: '', background: '' },
+            color: '#E5A00D', group: 'Media', order: 0, enabled: true, default: false,
+            open_mode: 'iframe', proxy: false, scale: 1,
+          },
+          {
+            name: 'Sonarr', url: 'http://sonarr:8989', health_check: true,
+            icon: { type: 'lucide', name: 'tv', color: '', background: '' },
+            color: '#35C5F4', group: '', order: 0, enabled: true, default: true,
+            open_mode: 'new_tab', proxy: true, scale: 1, min_role: 'admin',
+          },
+        ] as unknown as App[];
+        return {
+          title: 'Home',
+          navigation: makeNav(),
+          groups: [{ name: 'Media', icon: { type: 'dashboard', color: '', background: '' }, color: '#3498db', order: 0, expanded: true }] as unknown as Group[],
+          apps,
+          auth: { method: 'none' },
+        } as Config;
+      }
+
+      beforeEach(() => {
+        appsTabProps = {};
+        discoverModalProps = {};
+      });
+
+      function renderSparse(config: Config, onclose = vi.fn()) {
+        return render(Settings, { props: { config, apps: config.apps, initialTab: 'apps', onclose } });
+      }
+      function media(): App[] {
+        return (appsTabProps.dndGroupedApps as Record<string, App[]>).Media ?? [];
+      }
+
+      it('starts clean', () => {
+        renderSparse(sparseConfig());
+        expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+        expect(screen.getByText('Save Changes')).toBeDisabled();
+      });
+
+      it('a push that changes the URL of an untouched app shows the new URL and stays clean', async () => {
+        const { rerender } = renderSparse(sparseConfig());
+
+        const theirs = sparseConfig('http://plex.lan:32400');
+        await rerender({ config: theirs, apps: theirs.apps });
+
+        await waitFor(() => expect(media()[0].url).toBe('http://plex.lan:32400'));
+        expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+        expect(screen.getByText('Save Changes')).toBeDisabled();
+        expect(mockToasts.info).not.toHaveBeenCalled();
+      });
+
+      it('an import with no edits stays clean', async () => {
+        const fresh = sparseConfig();
+        fresh.apps = [...fresh.apps, {
+          name: 'Jellyfin', url: 'http://jellyfin:8096',
+          icon: { type: 'dashboard', name: 'jellyfin', color: '', background: '' },
+          color: '#00A4DC', group: 'Media', order: 1, enabled: true, default: false,
+          open_mode: 'iframe', proxy: false, scale: 1, docker_key: 'name:jellyfin',
+        } as unknown as App];
+        mockFetchConfig.mockResolvedValue(fresh);
+        const onclose = vi.fn();
+        const { container } = renderSparse(sparseConfig(), onclose);
+
+        (appsTabProps.ondiscoveryscan as () => void)();
+        await waitFor(() => expect(discoverModalProps.open).toBe(true));
+        await (discoverModalProps.onimported as () => Promise<void>)();
+
+        await waitFor(() => expect(media().map(a => a.name)).toEqual(['Plex', 'Jellyfin']));
+        expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+        expect(screen.getByText('Save Changes')).toBeDisabled();
+        await fireEvent.click(container.querySelector('[aria-label="Close settings"]')!);
+        expect(screen.queryByText('You have unsaved changes. Discard?')).not.toBeInTheDocument();
+        expect(onclose).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('a push takes untouched keybindings from the server and keeps edited ones', async () => {
+      const { rerender } = render(Settings, { props: { config: makeConfig(), apps: sampleApps } });
+
+      // Untouched: the server's new bindings replace the store, still clean.
+      const pushed = makeConfig({ keybindings: { bindings: { search: [{ key: 'k' }] } } });
+      await rerender({ config: pushed, apps: sampleApps });
+      expect(mockCustomBindings.get()).toEqual({ search: [{ key: 'k' }] });
+      expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+
+      // Edited: the edit survives the next push and is compared against it.
+      mockCustomBindings.set({ search: [{ key: 'q' }] });
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+      const again = makeConfig({ title: 'Other', keybindings: { bindings: { search: [{ key: 'k' }] } } });
+      await rerender({ config: again, apps: sampleApps });
+      expect(mockCustomBindings.get()).toEqual({ search: [{ key: 'q' }] });
+      expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+
+      // Setting it to the server's value leaves nothing to save.
+      mockCustomBindings.set({ search: [{ key: 'k' }] });
+      await waitFor(() => expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument());
     });
   });
 });

@@ -259,6 +259,8 @@
   "security_deleteUser": "Eliminar usuario",
   "security_cantDeleteSelf": "No puedes eliminarte a ti mismo",
   "security_minEightCharsShort": "Mín. 8 caracteres",
+  "security_reloadDiscardsEdits": "Aplicar este método recarga la página. Se perderán los cambios sin guardar en otras pestañas.",
+  "security_continueAnyway": "Continuar",
   "theme_appearance": "Apariencia",
   "theme_appearanceDesc": "Elige oscuro, claro o seguir el sistema",
   "theme_dark": "Oscuro",

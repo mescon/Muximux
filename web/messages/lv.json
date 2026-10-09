@@ -259,6 +259,8 @@
   "security_deleteUser": "Dzēst lietotāju",
   "security_cantDeleteSelf": "Nevar dzēst sevi",
   "security_minEightCharsShort": "Min 8 rakstzīmes",
+  "security_reloadDiscardsEdits": "Lietojot šo metodi, lapa tiks pārlādēta. Nesaglabātās izmaiņas citās cilnēs tiks zaudētas.",
+  "security_continueAnyway": "Turpināt",
   "theme_appearance": "Izskats",
   "theme_appearanceDesc": "Izvēlieties tumšo, gaišo vai sekojiet sistēmas iestatījumam",
   "theme_dark": "Tumšs",

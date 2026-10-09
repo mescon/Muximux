@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/svelte';
 import SecurityTab from './SecurityTab.svelte';
 import type { Config, OIDCSettings } from '$lib/types';
 import { ApiError } from '$lib/api';
@@ -336,6 +336,124 @@ describe('SecurityTab', () => {
         setItemSpy.mockRestore();
         Object.defineProperty(window, 'location', { configurable: true, value: origLocation });
       }
+    });
+  });
+
+  // ─── Reload prompt (S-18) ─────────────────────────────────────────────────
+
+  describe('reload prompt with unsaved changes', () => {
+    let reloadMock: ReturnType<typeof vi.fn>;
+    const origLocation = window.location;
+
+    beforeEach(() => {
+      reloadMock = vi.fn();
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...origLocation, reload: reloadMock },
+      });
+    });
+    afterEach(() => {
+      Object.defineProperty(window, 'location', { configurable: true, value: origLocation });
+    });
+
+    async function pickPassword() {
+      await waitFor(() => expect(screen.getByText('Password authentication')).toBeInTheDocument());
+      await fireEvent.click(screen.getByText('Password authentication').closest('button')!);
+    }
+
+    async function fillFirstUser() {
+      const userInput = await screen.findByLabelText('Username');
+      const passInput = document.getElementById('setup-password') as HTMLInputElement;
+      await fireEvent.input(userInput, { target: { value: 'admin' } });
+      await fireEvent.input(passInput, { target: { value: 'sup3rsecret!' } });
+    }
+
+    it('asks before a reload when there are unsaved changes', async () => {
+      mockListUsers.mockReset();
+      mockListUsers
+        .mockResolvedValueOnce([])
+        .mockResolvedValue([{ username: 'admin', role: 'admin', email: '', display_name: '' }]);
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }), hasUnsavedChanges: true } });
+
+      await pickPassword();
+      await fillFirstUser();
+      await fireEvent.click(screen.getByRole('button', { name: /create user & enable/i }));
+
+      expect(screen.getByTestId('reload-prompt')).toHaveTextContent(
+        'Applying this method reloads the page. Unsaved changes in other tabs will be lost.',
+      );
+      expect(mockCreateUser).not.toHaveBeenCalled();
+      expect(mockChangeAuthMethod).not.toHaveBeenCalled();
+      expect(reloadMock).not.toHaveBeenCalled();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      await waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1));
+      expect(mockChangeAuthMethod).toHaveBeenCalledWith({ method: 'builtin' });
+      expect(screen.queryByTestId('reload-prompt')).not.toBeInTheDocument();
+    });
+
+    it('Cancel leaves the method unchanged and does not reload', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }), hasUnsavedChanges: true } });
+
+      await pickPassword();
+      await fillFirstUser();
+      await fireEvent.click(screen.getByRole('button', { name: /create user & enable/i }));
+      await fireEvent.click(within(screen.getByTestId('reload-prompt')).getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.queryByTestId('reload-prompt')).not.toBeInTheDocument();
+      expect(mockCreateUser).not.toHaveBeenCalled();
+      expect(reloadMock).not.toHaveBeenCalled();
+    });
+
+    it('asks before Update Method reloads into password auth', async () => {
+      mockListUsers.mockResolvedValue([{ username: 'admin', role: 'admin', email: '', display_name: '' }]);
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }), hasUnsavedChanges: true } });
+
+      await pickPassword();
+      await fireEvent.click(await screen.findByRole('button', { name: /update method/i }));
+
+      expect(screen.getByTestId('reload-prompt')).toBeInTheDocument();
+      expect(mockChangeAuthMethod).not.toHaveBeenCalled();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      await waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1));
+      expect(mockChangeAuthMethod).toHaveBeenCalledWith({ method: 'builtin' });
+    });
+
+    it('a different card dismisses the prompt', async () => {
+      mockListUsers.mockResolvedValue([{ username: 'admin', role: 'admin', email: '', display_name: '' }]);
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }), hasUnsavedChanges: true } });
+
+      await pickPassword();
+      await fireEvent.click(await screen.findByRole('button', { name: /update method/i }));
+      expect(screen.getByTestId('reload-prompt')).toBeInTheDocument();
+
+      await fireEvent.click(screen.getByText('Auth proxy').closest('button')!);
+      await waitFor(() => expect(screen.queryByTestId('reload-prompt')).not.toBeInTheDocument());
+    });
+
+    it('does not ask when the change does not reload', async () => {
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'forward_auth' }), hasUnsavedChanges: true } });
+
+      await waitFor(() => expect(screen.getByText('No authentication')).toBeInTheDocument());
+      await fireEvent.click(screen.getByText('No authentication').closest('button')!);
+      await fireEvent.click(await screen.findByRole('button', { name: /update method/i }));
+
+      expect(screen.queryByTestId('reload-prompt')).not.toBeInTheDocument();
+      await waitFor(() => expect(mockChangeAuthMethod).toHaveBeenCalledWith({ method: 'none' }));
+      expect(reloadMock).not.toHaveBeenCalled();
+    });
+
+    it('does not ask when there are no unsaved changes', async () => {
+      mockListUsers.mockResolvedValue([{ username: 'admin', role: 'admin', email: '', display_name: '' }]);
+      render(SecurityTab, { props: { localConfig: makeConfig({ method: 'none' }) } });
+
+      await pickPassword();
+      await fireEvent.click(await screen.findByRole('button', { name: /update method/i }));
+
+      expect(screen.queryByTestId('reload-prompt')).not.toBeInTheDocument();
+      await waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1));
     });
   });
 

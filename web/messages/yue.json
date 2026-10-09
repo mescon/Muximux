@@ -259,6 +259,8 @@
   "security_deleteUser": "刪除使用者",
   "security_cantDeleteSelf": "唔可以刪除自己",
   "security_minEightCharsShort": "至少 8 個字元",
+  "security_reloadDiscardsEdits": "套用呢個方式會重新載入頁面。其他分頁未儲存嘅變更會冇咗。",
+  "security_continueAnyway": "繼續",
   "theme_appearance": "外觀",
   "theme_appearanceDesc": "揀選深色、淺色或跟隨系統",
   "theme_dark": "深色",

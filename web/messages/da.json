@@ -259,6 +259,8 @@
   "security_deleteUser": "Slet bruger",
   "security_cantDeleteSelf": "Kan ikke slette dig selv",
   "security_minEightCharsShort": "Min 8 tegn",
+  "security_reloadDiscardsEdits": "Når denne metode anvendes, genindlæses siden. Ugemte ændringer på andre faner går tabt.",
+  "security_continueAnyway": "Fortsæt",
   "theme_appearance": "Udseende",
   "theme_appearanceDesc": "Vælg mørkt, lyst eller følg systemet",
   "theme_dark": "Mørkt",

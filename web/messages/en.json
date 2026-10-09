@@ -259,6 +259,8 @@
   "security_deleteUser": "Delete user",
   "security_cantDeleteSelf": "Can't delete yourself",
   "security_minEightCharsShort": "Min 8 characters",
+  "security_reloadDiscardsEdits": "Applying this method reloads the page. Unsaved changes in other tabs will be lost.",
+  "security_continueAnyway": "Continue",
   "theme_appearance": "Appearance",
   "theme_appearanceDesc": "Choose dark, light, or follow your system",
   "theme_dark": "Dark",

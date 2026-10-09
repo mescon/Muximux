@@ -259,6 +259,8 @@
   "security_deleteUser": "वापरकर्ता हटवा",
   "security_cantDeleteSelf": "स्वतःला हटवता येत नाही",
   "security_minEightCharsShort": "किमान ८ अक्षरे",
+  "security_reloadDiscardsEdits": "ही पद्धत लागू केल्यावर पेज पुन्हा लोड होईल. इतर टॅबमधील जतन न केलेले बदल गमावले जातील.",
+  "security_continueAnyway": "सुरू ठेवा",
   "theme_appearance": "दिसावट",
   "theme_appearanceDesc": "गडद, हलके, किंवा सिस्टम अनुसरण निवडा",
   "theme_dark": "गडद",

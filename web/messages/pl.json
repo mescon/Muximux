@@ -259,6 +259,8 @@
   "security_deleteUser": "Usuń użytkownika",
   "security_cantDeleteSelf": "Nie można usunąć samego siebie",
   "security_minEightCharsShort": "Min. 8 znaków",
+  "security_reloadDiscardsEdits": "Zastosowanie tej metody przeładuje stronę. Niezapisane zmiany w innych kartach zostaną utracone.",
+  "security_continueAnyway": "Kontynuuj",
   "theme_appearance": "Wygląd",
   "theme_appearanceDesc": "Wybierz ciemny, jasny lub zgodny z systemem",
   "theme_dark": "Ciemny",

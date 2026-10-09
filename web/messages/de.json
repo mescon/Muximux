@@ -259,6 +259,8 @@
   "security_deleteUser": "Benutzer löschen",
   "security_cantDeleteSelf": "Sie können sich nicht selbst löschen",
   "security_minEightCharsShort": "Mind. 8 Zeichen",
+  "security_reloadDiscardsEdits": "Das Anwenden dieser Methode lädt die Seite neu. Ungespeicherte Änderungen in anderen Tabs gehen verloren.",
+  "security_continueAnyway": "Fortfahren",
   "theme_appearance": "Erscheinungsbild",
   "theme_appearanceDesc": "Wählen Sie dunkel, hell oder folgen Sie Ihrem System",
   "theme_dark": "Dunkel",

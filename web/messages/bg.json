@@ -259,6 +259,8 @@
   "security_deleteUser": "Изтрий потребител",
   "security_cantDeleteSelf": "Не можеш да изтриеш себе си",
   "security_minEightCharsShort": "Мин. 8 символа",
+  "security_reloadDiscardsEdits": "Прилагането на този метод презарежда страницата. Незапазените промени в другите раздели ще бъдат загубени.",
+  "security_continueAnyway": "Продължи",
   "theme_appearance": "Външен вид",
   "theme_appearanceDesc": "Изберете тъмна, светла тема или следвайте системата",
   "theme_dark": "Тъмна",

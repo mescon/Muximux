@@ -259,6 +259,8 @@
   "security_deleteUser": "Felhasználó törlése",
   "security_cantDeleteSelf": "Saját magát nem törölheti",
   "security_minEightCharsShort": "Min. 8 karakter",
+  "security_reloadDiscardsEdits": "A módszer alkalmazása újratölti az oldalt. A többi lapon lévő nem mentett változtatások elvesznek.",
+  "security_continueAnyway": "Folytatás",
   "theme_appearance": "Megjelenés",
   "theme_appearanceDesc": "Válasszon sötét, világos vagy rendszer témát",
   "theme_dark": "Sötét",

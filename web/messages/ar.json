@@ -259,6 +259,8 @@
   "security_deleteUser": "حذف المستخدم",
   "security_cantDeleteSelf": "لا يمكنك حذف نفسك",
   "security_minEightCharsShort": "8 أحرف كحد أدنى",
+  "security_reloadDiscardsEdits": "تطبيق هذه الطريقة يعيد تحميل الصفحة. ستُفقد التغييرات غير المحفوظة في علامات التبويب الأخرى.",
+  "security_continueAnyway": "متابعة",
   "theme_appearance": "المظهر",
   "theme_appearanceDesc": "اختر السمة الداكنة أو الفاتحة أو اتبع نظامك",
   "theme_dark": "داكن",

@@ -259,6 +259,8 @@
   "security_deleteUser": "उपयोगकर्ता हटाएं",
   "security_cantDeleteSelf": "स्वयं को हटा नहीं सकते",
   "security_minEightCharsShort": "न्यूनतम 8 अक्षर",
+  "security_reloadDiscardsEdits": "इस विधि को लागू करने से पेज फिर से लोड होगा। अन्य टैब में सहेजे नहीं गए परिवर्तन खो जाएंगे।",
+  "security_continueAnyway": "जारी रखें",
   "theme_appearance": "दिखावट",
   "theme_appearanceDesc": "गहरी, हल्की थीम चुनें या अपने सिस्टम का अनुसरण करें",
   "theme_dark": "गहरी",
