@@ -3671,7 +3671,7 @@ func TestSaveConfig_ProxyTimeoutCanBeCleared(t *testing.T) {
 	}
 }
 
-func TestUpdateGroup_RenameRepointsApps(t *testing.T) {
+func TestUpdateGroup_RenameRepointsAppsAndLeavesLifecycleAllowedGroups(t *testing.T) {
 	cfg := createTestConfig()
 	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"Media"}
 	handler := newGroupTestHandler(t, cfg)
@@ -3687,8 +3687,8 @@ func TestUpdateGroup_RenameRepointsApps(t *testing.T) {
 	if cfg.Apps[1].Group != "Tools" {
 		t.Errorf("App2 group = %q, want Tools", cfg.Apps[1].Group)
 	}
-	if got := cfg.Discovery.Docker.LifecycleAllowedGroups; len(got) != 1 || got[0] != "Video" {
-		t.Errorf("allowlist = %v, want [Video]", got)
+	if got := cfg.Discovery.Docker.LifecycleAllowedGroups; len(got) != 1 || got[0] != "Media" {
+		t.Errorf("lifecycle_allowed_groups = %v, want unchanged [Media] (user/IdP groups, not dashboard groups)", got)
 	}
 }
 
@@ -3707,7 +3707,6 @@ func TestUpdateGroup_RenameCollisionRejected(t *testing.T) {
 
 func TestUpdateGroup_RenameRollsBackAppsOnSaveFailure(t *testing.T) {
 	cfg := createTestConfig()
-	cfg.Discovery.Docker.LifecycleAllowedGroups = []string{"Media"}
 	blocker := filepath.Join(t.TempDir(), "blocker")
 	if err := os.WriteFile(blocker, nil, 0o600); err != nil {
 		t.Fatal(err)
@@ -3718,7 +3717,7 @@ func TestUpdateGroup_RenameRollsBackAppsOnSaveFailure(t *testing.T) {
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status %d, want 500: %s", w.Code, w.Body.String())
 	}
-	if cfg.Groups[0].Name != "Media" || cfg.Apps[0].Group != "Media" || cfg.Discovery.Docker.LifecycleAllowedGroups[0] != "Media" {
+	if cfg.Groups[0].Name != "Media" || cfg.Apps[0].Group != "Media" {
 		t.Error("rename not rolled back")
 	}
 }

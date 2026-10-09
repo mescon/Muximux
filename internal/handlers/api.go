@@ -1069,20 +1069,15 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
-	priorAllowedGroups := append([]string(nil), h.config.Discovery.Docker.LifecycleAllowedGroups...)
 	h.config.Groups[idx] = group
 
-	// A rename re-points the group's apps and its lifecycle allowlist entry
-	// so neither is left referencing the old name.
+	// A rename re-points the group's apps so none is left referencing the
+	// old name. lifecycle_allowed_groups holds user/IdP group names, not
+	// dashboard groups, so it is deliberately left alone.
 	if group.Name != name {
 		for i := range h.config.Apps {
 			if h.config.Apps[i].Group == name {
 				h.config.Apps[i].Group = group.Name
-			}
-		}
-		for i, g := range h.config.Discovery.Docker.LifecycleAllowedGroups {
-			if g == name {
-				h.config.Discovery.Docker.LifecycleAllowedGroups[i] = group.Name
 			}
 		}
 	}
@@ -1090,7 +1085,6 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 	// Save config (rollback on disk failure).
 	if err := h.saveOrRollbackGroups(priorGroups, "update", group.Name); err != nil {
 		h.config.Apps = priorApps
-		h.config.Discovery.Docker.LifecycleAllowedGroups = priorAllowedGroups
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}
