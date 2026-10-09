@@ -67,6 +67,16 @@ type Poller struct {
 	// recovers, instead of every tick for the duration of an outage.
 	// Only touched from tick().
 	daemonDown bool
+	// skipWarned records, per tracking key, the auto-import skip code
+	// last logged for it, so a skipped container is logged once per
+	// (key, code) transition instead of every tick. Only touched from
+	// tick().
+	skipWarned map[string]string
+	// reconcileInvalid is the last Validate error that rolled a
+	// reconcile back ("" when the last apply was valid). It dedupes the
+	// ERROR to one line per distinct error. Only touched under the
+	// config write lock in applyRefreshBatch.
+	reconcileInvalid string
 }
 
 // syncRemovalGraceTicks is how many consecutive successful scans a
@@ -96,9 +106,11 @@ func nameKey(name string) string {
 // lower-key container of the same name would be added immediately and
 // briefly coexist with the incumbent. Within the desired set the winner
 // is the lowest DockerKey (deterministic across ticks); against the
-// existing config the incumbent always keeps its name. The operator is
-// warned to give colliding containers distinct names.
-func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) []Desired {
+// existing config the incumbent always keeps its name. The keys it drops
+// are returned with the reason, so the caller can record them as skipped
+// (a running container must never look vanished to sync) and warn the
+// operator once to give colliding containers distinct names.
+func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) (kept []Desired, dropped map[string]string) {
 	// Names already held in the config -> the owning DockerKey ("" for a
 	// manual/hand-detached app). A desired entry under a different key
 	// must not reuse the name.
@@ -110,25 +122,105 @@ func dedupeDesiredNames(desired []Desired, currentApps []config.AppConfig) []Des
 		return desired[i].App.DockerKey < desired[j].App.DockerKey
 	})
 	seen := make(map[string]string, len(desired)) // name -> winning DockerKey
+	dropped = map[string]string{}
 	out := desired[:0]
 	for i := range desired {
 		name := desired[i].App.Name
 		key := desired[i].App.DockerKey
 		slug := nameKey(name)
 		if owner, held := taken[slug]; held && owner != key {
-			logging.Warn("Discovery auto-import: app name already in use; skipping container",
-				"source", "discovery", "name", name, "owner_key", owner, "skipped_key", key)
+			dropped[key] = fmt.Sprintf("duplicate name %q: already used by app with key %q", name, owner)
 			continue
 		}
 		if winner, dup := seen[slug]; dup {
-			logging.Warn("Discovery auto-import: duplicate app name; skipping the second container",
-				"source", "discovery", "name", name, "kept_key", winner, "skipped_key", key)
+			dropped[key] = fmt.Sprintf("duplicate name %q: also used by container with key %q", name, winner)
 			continue
 		}
 		seen[slug] = key
 		out = append(out, desired[i])
 	}
+	return out, dropped
+}
+
+// quarantinedAppKeys returns the keys of the quarantined APP entries. A
+// quarantined gateway site of a live app is not listed: its app is in the
+// config, so Reconcile treats it as an ordinary current app and the
+// site is replaced by the next Update (ruling 2).
+func quarantinedAppKeys(entries []config.QuarantinedEntry) map[string]bool {
+	out := map[string]bool{}
+	for i := range entries {
+		if entries[i].Kind == "app" {
+			out[entries[i].Key] = true
+		}
+	}
 	return out
+}
+
+// buildDesired turns the scan into the desired set for Reconcile. Only
+// eligible suggestions (AutoImportSkip == nil) whose app passes
+// config.ValidateApp, and whose gateway site (if any) has a backend URL,
+// become Desired. Every other scanned key is returned in skipped with its
+// code, so sync never treats a present container as vanished. Names the
+// slug dedupe drops are recorded as invalid for the same reason.
+func (p *Poller) buildDesired(scan *ScanResult, endpoint string, currentApps []config.AppConfig) (desired []Desired, skipped map[string]string) {
+	desired = make([]Desired, 0, len(scan.Suggestions))
+	skipped = map[string]string{}
+	for i := range scan.Suggestions {
+		sug := &scan.Suggestions[i]
+		skip := sug.AutoImportSkip
+		var d Desired
+		if skip == nil {
+			d = BuildDesired(sug, endpoint)
+			if err := config.ValidateApp(&d.App); err != nil {
+				skip = &AutoImportSkip{Code: SkipInvalid, Detail: err.Error()}
+			} else if d.Site != nil && d.Site.BackendURL == "" {
+				skip = &AutoImportSkip{Code: SkipNoURL, Detail: "gateway site has no backend URL"}
+			}
+		}
+		if skip != nil {
+			skipped[sug.Key] = skip.Code
+			p.warnSkipOnce(sug, skip)
+			continue
+		}
+		desired = append(desired, d)
+	}
+	kept, dropped := dedupeDesiredNames(desired, currentApps)
+	// Ruling 4: a name dropped by dedupe belongs to a present container;
+	// record it so sync never treats it as vanished. Iterate the scan
+	// (stable order) rather than the map.
+	for i := range scan.Suggestions {
+		sug := &scan.Suggestions[i]
+		if detail, ok := dropped[sug.Key]; ok {
+			skipped[sug.Key] = SkipInvalid
+			p.warnSkipOnce(sug, &AutoImportSkip{Code: SkipInvalid, Detail: detail})
+		}
+	}
+	for i := range kept {
+		delete(p.skipWarned, kept[i].App.DockerKey)
+	}
+	return kept, skipped
+}
+
+// warnSkipOnce logs a skipped container once per (key, code) transition.
+// unlabeled, disabled and not_enabled are the normal state of most
+// containers and go to Debug; no_port, no_url and invalid are a WARN,
+// since they mean a container that asked to be imported could not be.
+func (p *Poller) warnSkipOnce(sug *Suggestion, skip *AutoImportSkip) {
+	if p.skipWarned == nil {
+		p.skipWarned = map[string]string{}
+	}
+	if p.skipWarned[sug.Key] == skip.Code {
+		return
+	}
+	p.skipWarned[sug.Key] = skip.Code
+	if skip.Code == SkipUnlabeled || skip.Code == SkipDisabled || skip.Code == SkipNotEnabled {
+		logging.Debug("Discovery auto-import ignored container",
+			"source", "discovery", "container", sug.ContainerName, "key", sug.Key, "reason", skip.Code)
+		return
+	}
+	logging.Warn("Discovery auto-import skipped container",
+		"source", "discovery", "container", sug.ContainerName, "key", sug.Key,
+		"reason", skip.Code, "detail", skip.Detail)
 }
 
 // gateSyncRemovals applies removal hysteresis to the sync-mode removal
@@ -280,9 +372,11 @@ func (p *Poller) tick(ctx context.Context) {
 	// label change is detected. Only relevant when auto-import is active.
 	var currentApps []config.AppConfig
 	var currentSites []config.GatewaySite
+	var quarantinedEntries []config.QuarantinedEntry
 	if autoImport != config.AutoImportOff {
 		currentApps = append([]config.AppConfig(nil), p.deps.Config.Apps...)
 		currentSites = append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
+		quarantinedEntries = p.deps.Config.Quarantined()
 	}
 	p.deps.ConfigMu.RUnlock()
 
@@ -444,12 +538,18 @@ func (p *Poller) tick(ctx context.Context) {
 			logging.Warn("Discovery auto-import skipped: scan did not complete",
 				"source", "discovery", "error", scan.Error, "blocked", scan.ScanBlocked)
 		} else {
-			desired := make([]Desired, 0, len(scan.Suggestions))
-			for i := range scan.Suggestions {
-				desired = append(desired, BuildDesired(&scan.Suggestions[i], endpoint))
-			}
-			desired = dedupeDesiredNames(desired, currentApps)
-			plan := Reconcile(&ReconcileInput{Mode: autoImport, Desired: desired, Current: currentApps, CurrentSites: currentSites})
+			// Only eligible, valid containers become Desired; every other
+			// scanned key is in skipped so sync never mistakes a present
+			// container for a vanished one. Quarantined holds APP entries
+			// only (ruling 2): a desired key with a quarantined app is
+			// re-added, and under sync one whose container is gone is
+			// removed through the same grace gate.
+			desired, skipped := p.buildDesired(&scan, endpoint, currentApps)
+			plan := Reconcile(&ReconcileInput{
+				Mode: autoImport, Desired: desired, Skipped: skipped,
+				Current: currentApps, CurrentSites: currentSites,
+				Quarantined: quarantinedAppKeys(quarantinedEntries),
+			})
 			for i := range plan.Add {
 				batch.addApps = append(batch.addApps, plan.Add[i].App)
 				if plan.Add[i].Site != nil {
@@ -463,6 +563,9 @@ func (p *Poller) tick(ctx context.Context) {
 				}
 			}
 			batch.removeKeys = append(batch.removeKeys, p.gateSyncRemovals(plan.RemoveKeys)...)
+			for _, k := range plan.DetachKeys {
+				batch.detach[k] = skipped[k] // the reason code for the audit line
+			}
 		}
 	}
 
@@ -706,6 +809,10 @@ type refreshBatch struct {
 	updateApps  []config.AppConfig
 	updateSites []config.GatewaySite
 	removeKeys  []string
+	// detach clears DockerAutoImported on apps whose container is present
+	// but no longer opted in: key -> skip code (unlabeled | not_enabled),
+	// carried into the audit line.
+	detach map[string]string
 }
 
 func newRefreshBatch() *refreshBatch {
@@ -713,21 +820,33 @@ func newRefreshBatch() *refreshBatch {
 		appURLChanges:    map[string]string{},
 		appHealthChanges: map[string]string{},
 		siteURLChanges:   map[string]string{},
+		detach:           map[string]string{},
 	}
+}
+
+// clearReconcile drops the auto-import part of the batch, leaving the
+// URL refresh. Used when the reconcile produced an invalid config.
+func (b *refreshBatch) clearReconcile() {
+	b.addApps = nil
+	b.addSites = nil
+	b.updateApps = nil
+	b.updateSites = nil
+	b.removeKeys = nil
+	b.detach = nil
 }
 
 func (b *refreshBatch) empty() bool {
 	return len(b.appURLChanges) == 0 && len(b.appHealthChanges) == 0 && len(b.siteURLChanges) == 0 &&
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
-		len(b.removeKeys) == 0
+		len(b.removeKeys) == 0 && len(b.detach) == 0
 }
 
 // reconcileChangesApps reports whether the auto-import plan touches any
-// app (added, updated, or removed). Used to fire the route-table
+// app (added, updated, removed or detached). Used to fire the route-table
 // rebuild hook the same way an app URL change does.
 func (b *refreshBatch) reconcileChangesApps() bool {
-	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0
+	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0
 }
 
 func (b *refreshBatch) touchesGateway() bool {
@@ -745,12 +864,24 @@ type appRefresh struct {
 	health           bool
 }
 
+// appDetach records one app detached from auto-import so the audit line
+// is logged only after the save succeeds.
+type appDetach struct {
+	name, key, reason string
+}
+
 func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	p.deps.ConfigMu.Lock()
 	defer p.deps.ConfigMu.Unlock()
 
 	priorApps := append([]config.AppConfig(nil), p.deps.Config.Apps...)
 	priorSites := append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
+	priorQuarantine := p.deps.Config.QuarantineSnapshot()
+	rollback := func() {
+		p.deps.Config.Apps = priorApps
+		p.deps.Config.Server.GatewaySites = priorSites
+		p.deps.Config.RestoreQuarantine(priorQuarantine)
+	}
 
 	// Apply changes in memory. Mirror each URL write into
 	// DockerManagedURL so Load() can detect operator hand-edits
@@ -791,7 +922,34 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// Fold the auto-import reconcile plan into the same in-memory
 	// transaction. Returns whether it added/updated/removed any gateway
 	// site so the Caddy reload below fires for auto-import too.
-	reconcileTouchedGateway := p.applyReconcile(batch)
+	//
+	// Belt and braces: the poller must never persist a config the loader
+	// refuses. Snapshot the refreshed state, apply the plan, validate, and
+	// on failure roll the reconcile part (apps, sites, quarantine) back and
+	// keep only the URL refresh for this tick.
+	refreshedApps := append([]config.AppConfig(nil), p.deps.Config.Apps...)
+	refreshedSites := append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
+	refreshedQuarantine := p.deps.Config.QuarantineSnapshot()
+	reconcileTouchedGateway, detached := p.applyReconcile(batch)
+	if err := p.deps.Config.Validate(); err != nil {
+		p.deps.Config.Apps = refreshedApps
+		p.deps.Config.Server.GatewaySites = refreshedSites
+		p.deps.Config.RestoreQuarantine(refreshedQuarantine)
+		reconcileTouchedGateway = false
+		detached = nil
+		batch.clearReconcile()
+		if p.reconcileInvalid != err.Error() { // log on transition only
+			p.reconcileInvalid = err.Error()
+			logging.Error("Discovery auto-import produced an invalid config; reconcile skipped this tick",
+				"source", "audit", "error", err)
+		}
+		if batch.empty() {
+			p.deps.Service.RecordRefreshTickSuccess()
+			return
+		}
+	} else {
+		p.reconcileInvalid = ""
+	}
 	gatewayTouched := batch.touchesGateway() || reconcileTouchedGateway
 
 	// Caddy reload, batched once for the whole tick. Only fires when
@@ -807,8 +965,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 			// running before the candidate. Never leave in-memory
 			// drifting from disk: subsequent reads would lie.
 			if errors.Is(err, proxy.ErrDiverged) {
-				p.deps.Config.Apps = priorApps
-				p.deps.Config.Server.GatewaySites = priorSites
+				rollback()
 				p.deps.Service.RecordDivergence()
 				logging.Error("Docker refresh divergence; in-memory restored to prior shape",
 					"source", "audit",
@@ -818,8 +975,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 			// Reload-rejected-but-rolled-back: in-memory + disk
 			// match prior; Caddy is also serving prior. Restore
 			// in-memory and skip the Save (no change to persist).
-			p.deps.Config.Apps = priorApps
-			p.deps.Config.Server.GatewaySites = priorSites
+			rollback()
 			logging.Warn("Caddy reload during refresh failed; rolled back",
 				"source", "discovery",
 				"error", err)
@@ -840,8 +996,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		if gatewayTouched && p.deps.Proxy != nil {
 			candidateProxy = proxy.ConfigGatewaySitesToProxy(p.deps.Config.Server.GatewaySites)
 		}
-		p.deps.Config.Apps = priorApps
-		p.deps.Config.Server.GatewaySites = priorSites
+		rollback()
 		if gatewayTouched && p.deps.Proxy != nil {
 			reassertErr := p.deps.Proxy.ApplyGatewaySites(
 				proxy.ConfigGatewaySitesToProxy(priorSites),
@@ -912,17 +1067,26 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		logging.Info("Docker auto-imported entry removed (container vanished)",
 			"source", "audit", "key", k)
 	}
+	for _, d := range detached {
+		logging.Info("Docker auto-imported app detached from auto-import (container no longer labelled for it)",
+			"source", "audit", "app", d.name, "key", d.key, "reason", d.reason)
+	}
 }
 
 // applyReconcile folds the auto-import plan carried on the batch into
 // the live config. The caller (applyRefreshBatch) already holds the
 // write lock and has snapshotted priorApps/priorSites for rollback, so
-// this mutates p.deps.Config in place. Returns true when it added,
-// updated, or removed any gateway site, so the caller knows to reload
-// Caddy.
-func (p *Poller) applyReconcile(batch *refreshBatch) bool {
+// this mutates p.deps.Config in place. touchedGateway is true when it
+// added, updated, or removed any gateway site, so the caller knows to
+// reload Caddy; detached lists the apps it detached from auto-import so
+// the caller can log them after the save succeeds.
+//
+// Quarantine resolution: a removal, an update or an addition by key drops
+// every quarantined entry with that key. A re-added app replaces its
+// quarantined copy, an updated live app replaces its quarantined site, and
+// a removed key leaves nothing behind in config.yaml.
+func (p *Poller) applyReconcile(batch *refreshBatch) (touchedGateway bool, detached []appDetach) {
 	cfg := p.deps.Config
-	touchedGateway := false
 
 	// Removals first: drop vanished auto-imported apps and any gateway
 	// site sharing their DockerKey.
@@ -930,6 +1094,7 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 		remove := make(map[string]bool, len(batch.removeKeys))
 		for _, k := range batch.removeKeys {
 			remove[k] = true
+			cfg.DropQuarantined(k)
 		}
 		keptApps := cfg.Apps[:0]
 		for i := range cfg.Apps {
@@ -955,6 +1120,7 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 	// gateway domain to an already-tracked app).
 	for i := range batch.updateApps {
 		na := &batch.updateApps[i]
+		cfg.DropQuarantined(na.DockerKey)
 		for j := range cfg.Apps {
 			if cfg.Apps[j].DockerKey == na.DockerKey {
 				cfg.Apps[j] = mergeManagedFields(&cfg.Apps[j], na)
@@ -1014,14 +1180,35 @@ func (p *Poller) applyReconcile(batch *refreshBatch) bool {
 		cfg.Server.GatewaySites = keptSites
 	}
 
-	// Additions.
+	// Additions. A re-added key replaces its quarantined entries.
+	for i := range batch.addApps {
+		cfg.DropQuarantined(batch.addApps[i].DockerKey)
+	}
 	cfg.Apps = append(cfg.Apps, batch.addApps...)
 	if len(batch.addSites) > 0 {
 		cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, batch.addSites...)
 		touchedGateway = true
 	}
 
-	return touchedGateway
+	// Detaches: the container is present but no longer opted in. Clear
+	// DockerAutoImported only; tracking stays, so the URL keeps
+	// refreshing and sync never removes the app. Sorted for a stable
+	// audit order.
+	detachKeys := make([]string, 0, len(batch.detach))
+	for k := range batch.detach {
+		detachKeys = append(detachKeys, k)
+	}
+	sort.Strings(detachKeys)
+	for _, k := range detachKeys {
+		for j := range cfg.Apps {
+			if cfg.Apps[j].DockerKey == k && cfg.Apps[j].DockerAutoImported {
+				cfg.Apps[j].DockerAutoImported = false
+				detached = append(detached, appDetach{name: cfg.Apps[j].Name, key: k, reason: batch.detach[k]})
+			}
+		}
+	}
+
+	return touchedGateway, detached
 }
 
 // save invokes the configured save function (typically Config.Save).

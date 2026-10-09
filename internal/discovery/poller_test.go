@@ -1682,6 +1682,9 @@ func TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates(t *testing.T) {
 	defer cleanup()
 
 	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
+	// A require_auth site is only valid with a session cookie domain;
+	// without it the reconcile is rolled back as an invalid config.
+	cfg.Server.SessionCookieDomain = "example.com"
 	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
 
 	var mu sync.RWMutex
@@ -1884,7 +1887,7 @@ func TestDedupeDesiredNames(t *testing.T) {
 		{App: config.AppConfig{Name: "Radarr", DockerKey: "label:c"}},
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:a"}},
 	}
-	out := dedupeDesiredNames(in, nil)
+	out, _ := dedupeDesiredNames(in, nil)
 	if len(out) != 2 {
 		t.Fatalf("want 2 unique names, got %d: %+v", len(out), out)
 	}
@@ -1915,7 +1918,7 @@ func TestDedupeDesiredNames_RespectsIncumbent(t *testing.T) {
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:b"}},  // incumbent, still present
 		{App: config.AppConfig{Name: "Grafana", DockerKey: "label:g"}}, // collides with a manual app
 	}
-	out := dedupeDesiredNames(in, current)
+	out, _ := dedupeDesiredNames(in, current)
 
 	byName := map[string]string{}
 	for _, e := range out {
@@ -2263,7 +2266,7 @@ func TestDedupeDesiredNames_BySlug(t *testing.T) { // F-10
 		{App: config.AppConfig{Name: "sonarr", DockerKey: "label:s1"}},
 		{App: config.AppConfig{Name: "Sonarr", DockerKey: "label:s2"}},
 	}
-	got := dedupeDesiredNames(desired, current)
+	got, _ := dedupeDesiredNames(desired, current)
 	if len(got) != 1 || got[0].App.DockerKey != "label:s1" {
 		t.Fatalf("got %+v", got)
 	}
