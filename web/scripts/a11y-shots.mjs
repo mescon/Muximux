@@ -61,12 +61,6 @@ if (PHASE === 'diff') {
 
 const BASE = args.base;
 const THEMES = String(args.themes ?? 'muximux,muximux-light,solarized-light,gruvbox').split(',');
-const THEME_STORE = {
-  muximux: ['default', 'dark'],
-  'muximux-light': ['default', 'light'],
-  'solarized-light': ['solarized', 'light'],
-  gruvbox: ['gruvbox', 'dark'],
-};
 const USER = 'admin';
 const PASS = 'a11y-pass-word';
 const { chromium } = require('playwright');
@@ -88,14 +82,6 @@ async function shot(name) {
     const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     axeResults.push({ name, violations: r.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })) });
   }
-}
-async function setTheme(id, url) {
-  const [family, variant] = THEME_STORE[id];
-  await page.evaluate(([f, v]) => { localStorage.setItem('muximux_theme_family', f); localStorage.setItem('muximux_theme_variant', v); }, [family, variant]);
-  await page.goto(url ?? page.url());
-  await page.waitForTimeout(800);
-  const got = await page.evaluate(() => document.documentElement.dataset.theme);
-  console.log(`theme ${id}: data-theme=${got}`);
 }
 // The onboarding wizard resets the stored theme, so there the theme is forced on the document
 // directly (stylesheet plus data-theme), as the shared theme CSS files are plain attribute selectors.
