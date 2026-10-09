@@ -24,6 +24,28 @@ function oklchToSrgb(L: number, C: number, H: number) {
   return { r: enc(lr), g: enc(lg), b: enc(lb) };
 }
 
+const linear = (x: number) => (x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4);
+
+function srgbToOklab(c: { r: number; g: number; b: number }) {
+  const r = linear(c.r), g = linear(c.g), b = linear(c.b);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return {
+    L: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    a: 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  };
+}
+
+// oklab -> sRGB through the oklch path (same matrices), so out-of-gamut results are
+// chroma-reduced like any other oklch colour.
+function oklabToSrgb(L: number, a: number, b: number) {
+  const C = Math.hypot(a, b);
+  const H = (Math.atan2(b, a) * 180) / Math.PI;
+  return oklchToSrgbClamped(L, C, H);
+}
+
 const inGamut = (c: { r: number; g: number; b: number }) =>
   [c.r, c.g, c.b].every((v) => v >= -0.0005 && v <= 1.0005);
 
@@ -85,8 +107,8 @@ function parseInner(input: string, vars: Vars, mode: Mode, depth: number): RGBA 
   inner = fnArgs(str, 'color-mix');
   if (inner !== null) {
     const [space, a, b] = splitArgs(inner);
-    // oklab mixing is only exact here when one side is transparent (alpha-only); app.css uses
-    // oklab for Tailwind-style tints and srgb everywhere else.
+    // Mixing follows CSS Color 4: premultiplied alpha, interpolated in the named space
+    // (srgb or oklab); percentages that sum below 100% scale the alpha.
     if (!/^in\s+(srgb|oklab)$/.test(space) || !a || !b) return null;
     const part = (s: string) => {
       const m = s.match(/^(.*?)\s+([\d.]+)%$/);
@@ -103,8 +125,15 @@ function parseInner(input: string, vars: Vars, mode: Mode, depth: number): RGBA 
     if (sum <= 0) return null;
     const w1 = p1 / sum, w2 = p2 / sum;
     const alpha = ca.a * w1 + cb.a * w2;
-    const ch = (k: 'r' | 'g' | 'b') => (alpha === 0 ? 0 : (ca[k] * ca.a * w1 + cb[k] * cb.a * w2) / alpha);
-    return { r: ch('r'), g: ch('g'), b: ch('b'), a: alpha * (sum < 1 ? sum : 1) };
+    const outA = alpha * (sum < 1 ? sum : 1);
+    if (alpha === 0) return { r: 0, g: 0, b: 0, a: outA };
+    if (space.endsWith('oklab')) {
+      const la = srgbToOklab(ca), lb = srgbToOklab(cb);
+      const mix = (k: 'L' | 'a' | 'b') => (la[k] * ca.a * w1 + lb[k] * cb.a * w2) / alpha;
+      return { ...oklabToSrgb(mix('L'), mix('a'), mix('b')), a: outA };
+    }
+    const ch = (k: 'r' | 'g' | 'b') => (ca[k] * ca.a * w1 + cb[k] * cb.a * w2) / alpha;
+    return { r: ch('r'), g: ch('g'), b: ch('b'), a: outA };
   }
 
   if (str === 'transparent') return { r: 0, g: 0, b: 0, a: 0 };
@@ -142,10 +171,8 @@ export function over(fg: RGBA, bg: RGBA): RGBA {
   return { r: ch('r'), g: ch('g'), b: ch('b'), a };
 }
 
-const lin = (x: number) => (x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4);
-
 export function luminance(c: RGBA): number {
-  return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
+  return 0.2126 * linear(c.r) + 0.7152 * linear(c.g) + 0.0722 * linear(c.b);
 }
 
 export function contrast(fg: RGBA, bg: RGBA): number {
@@ -159,8 +186,13 @@ export function hex(c: RGBA): string {
 }
 
 const WHITE: RGBA = { r: 1, g: 1, b: 1, a: 1 };
-const INK: RGBA = { r: 17 / 255, g: 17 / 255, b: 17 / 255, a: 1 };
+const BLACK: RGBA = { r: 0, g: 0, b: 0, a: 1 };
 
-export function pickOnColor(bg: RGBA): '#ffffff' | '#111111' {
-  return contrast(WHITE, bg) >= contrast(INK, bg) ? '#ffffff' : '#111111';
+// Text colour for a fill: whichever of pure white and pure black has the higher WCAG
+// contrast. Pure black (not a softer ink) keeps every fill at 4.58:1 or better; the worst
+// case is a fill near luminance 0.179, where both sides are about equal. A translucent fill
+// is composited over `base` (the page background it sits on) first.
+export function pickOnColor(fill: RGBA, base: RGBA = WHITE): '#ffffff' | '#000000' {
+  const bg = fill.a < 1 ? over(fill, { ...base, a: 1 }) : fill;
+  return contrast(WHITE, bg) >= contrast(BLACK, bg) ? '#ffffff' : '#000000';
 }

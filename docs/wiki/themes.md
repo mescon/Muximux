@@ -99,7 +99,7 @@ Status boxes, pills, inline messages and the danger button read these variables.
 | `--accent-on-primary` | text on an accent-filled button | `#ffffff` |
 | `--border-focus` | the keyboard focus outline on every control | `--accent-primary` |
 
-For `--accent-on-primary`, use `#ffffff` or `#111111`, whichever reads better on your accent. When you save a custom theme, the theme editor works this out from your accent colour and writes it for you.
+For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you.
 
 The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
 

@@ -74,9 +74,12 @@
   async function handleSaveTheme() {
     if (!saveThemeName.trim()) return;
     isSavingTheme = true;
-    // Text on the accent is derived from the accent, so a saved theme always carries a readable pair
-    const accent = parseColor(themeEditorVars['--accent-primary']);
-    const variables = { ...themeEditorVars, ...(accent ? { '--accent-on-primary': pickOnColor(accent) } : {}) };
+    // Text on the accent is derived from the accent, so a saved theme always carries a readable pair.
+    // A translucent accent is judged as it shows: over the theme's base background.
+    const mode = $isDarkTheme ? 'dark' : 'light';
+    const accent = parseColor(themeEditorVars['--accent-primary'], themeEditorVars, mode);
+    const base = parseColor(themeEditorVars['--bg-base'], themeEditorVars, mode) ?? undefined;
+    const variables = { ...themeEditorVars, ...(accent ? { '--accent-on-primary': pickOnColor(accent, base) } : {}) };
     const result = await saveCustomThemeToServer(
       saveThemeName.trim(),
       $resolvedTheme,

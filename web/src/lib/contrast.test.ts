@@ -45,6 +45,23 @@ describe('parseColor', () => {
     expect(weighted.a).toBe(1);
     expect(luminance(weighted)).toBeLessThan(luminance(parseColor('#22c55e')!));
   });
+  it('interpolates opaque color-mix() in oklab, not as an sRGB blend', () => {
+    // Reference values from the CSS Color 4 algorithm (premultiplied oklab):
+    // mixing black and white 50/50 in oklab gives L=0.5, i.e. #636363, not srgb's #808080.
+    const grey = parseColor('color-mix(in oklab, #000000 50%, #ffffff)')!;
+    expect(hex(grey)).toBe('#636363');
+    expect(hex(parseColor('color-mix(in srgb, #000000 50%, #ffffff)')!)).toBe('#808080');
+    // A 60/40 border mix of a red and a dark surface: oklab result is lighter than sRGB's.
+    const vars = { '--s': '#ef4444', '--b': '#1f2937' };
+    const ok = parseColor('color-mix(in oklab, var(--s) 60%, var(--b))', vars)!;
+    const rgb = parseColor('color-mix(in srgb, var(--s) 60%, var(--b))', vars)!;
+    expect(ok.a).toBe(1);
+    expect(luminance(ok)).toBeGreaterThan(luminance(rgb));
+    // Endpoints round-trip exactly.
+    expect(hex(parseColor('color-mix(in oklab, #22c55e 100%, #000000)')!)).toBe('#22c55e');
+    // Percentages below 100% in total scale the alpha.
+    expect(parseColor('color-mix(in oklab, #22c55e 30%, #000000 30%)')!.a).toBeCloseTo(0.6, 5);
+  });
   it('returns null for unknown input', () => {
     expect(parseColor('')).toBeNull();
     expect(parseColor('not-a-colour')).toBeNull();
@@ -63,9 +80,52 @@ describe('contrast maths', () => {
     expect(hex(onBlack)).toBe('#808080');
     expect(contrast(half, parseColor('#000')!)).toBeCloseTo(contrast(onBlack, parseColor('#000')!), 6);
   });
-  it('picks the darker or lighter on-colour', () => {
-    expect(pickOnColor(parseColor('#2dd4bf')!)).toBe('#111111');
+  it('matches the #777 reference and reads short hex like the long form', () => {
+    // #777777 on white is the classic just-below-AA pair (4.48:1).
+    expect(near(contrast(parseColor('#777')!, parseColor('#fff')!), 4.48)).toBe(true);
+    expect(contrast(parseColor('#777')!, parseColor('#fff')!)).toBeLessThan(4.5);
+    expect(hex(parseColor('#777')!)).toBe('#777777');
+    expect(parseColor('#7778')!.a).toBeCloseTo(0x88 / 255, 5);
+  });
+  it('resolves light-mode values from a theme map', () => {
+    const vars = { '--fg': 'light-dark(#1f2937, #f3f4f6)', '--bg': 'light-dark(#ffffff, #111827)' };
+    const light = contrast(parseColor('var(--fg)', vars, 'light')!, parseColor('var(--bg)', vars, 'light')!);
+    const dark = contrast(parseColor('var(--fg)', vars, 'dark')!, parseColor('var(--bg)', vars, 'dark')!);
+    expect(hex(parseColor('var(--bg)', vars, 'light')!)).toBe('#ffffff');
+    expect(light).toBeGreaterThan(4.5);
+    expect(dark).toBeGreaterThan(4.5);
+    expect(light).not.toBeCloseTo(dark, 2);
+  });
+});
+
+describe('pickOnColor', () => {
+  const best = (fill: string) => {
+    const bg = parseColor(fill)!;
+    return contrast(parseColor(pickOnColor(bg))!, bg);
+  };
+  it('picks pure black or pure white', () => {
+    expect(pickOnColor(parseColor('#2dd4bf')!)).toBe('#000000');
     expect(pickOnColor(parseColor('#1a1a1a')!)).toBe('#ffffff');
+  });
+  it('reaches 4.5:1 on the worst-case mid-tone accents', () => {
+    // Fills near luminance 0.18, where white and black are about equal; a #111111 ink
+    // would only reach about 4.35:1 here.
+    for (const fill of ['#d4651f', '#3b9e5a']) {
+      expect(best(fill)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+  it('never drops below 4.58:1 across a grey ramp', () => {
+    for (let v = 0; v <= 255; v++) {
+      const h = v.toString(16).padStart(2, '0');
+      expect(best(`#${h}${h}${h}`)).toBeGreaterThanOrEqual(4.58);
+    }
+  });
+  it('composites a translucent fill over the base before picking', () => {
+    const tint = parseColor('rgba(255, 224, 102, 0.3)')!;
+    expect(pickOnColor(tint, parseColor('#000000')!)).toBe('#ffffff');
+    expect(pickOnColor(tint, parseColor('#ffffff')!)).toBe('#000000');
+    // Without a base the fill is judged over white.
+    expect(pickOnColor(tint)).toBe('#000000');
   });
 });
 

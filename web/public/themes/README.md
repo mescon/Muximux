@@ -70,7 +70,7 @@ Your theme file must define a CSS rule that targets `[data-theme="your-theme-id"
   --info-text: ...;     --info-bg: ...;     --info-border: ...;
   --danger-solid: ...;  --danger-solid-hover: ...;  --danger-on-solid: ...;
   --accent-text: ...;        /* accent used as text; defaults to --accent-primary */
-  --accent-on-primary: ...;  /* text on accent fills: #ffffff or #111111 */
+  --accent-on-primary: ...;  /* text on accent fills: #ffffff or #000000 */
 
   /* Shadows */
   --shadow-sm: ...;
@@ -80,7 +80,7 @@ Your theme file must define a CSS rule that targets `[data-theme="your-theme-id"
 }
 ```
 
-The semantic tokens are optional. `--accent-on-primary` is written for you by the theme editor when a custom theme is saved; if you edit a file by hand, pick `#ffffff` or `#111111`, whichever reads better on your accent. `--border-focus` (already listed above) is the keyboard focus outline. See the wiki page on themes for what each token colours.
+The semantic tokens are optional. `--accent-on-primary` is written for you by the theme editor when a custom theme is saved; if you edit a file by hand, pick `#ffffff` or `#000000`, whichever has the higher contrast on your accent. `--border-focus` (already listed above) is the keyboard focus outline. See the wiki page on themes for what each token colours.
 
 ### Theme Metadata
 

@@ -66,6 +66,7 @@ vi.mock('$lib/themeStore', async () => {
     themeVariableGroups: {
       'Backgrounds': ['--bg-base', '--bg-surface'],
       'Text': ['--text-primary'],
+      'Accent': ['--accent-primary'],
     },
     sanitizeThemeId: (...args: unknown[]) => mockSanitizeThemeId(...args),
     setThemeFamily: (...args: unknown[]) => mockSetThemeFamily(...args),
@@ -430,12 +431,37 @@ describe('ThemeTab', () => {
         '--accent-primary': '#ffe066',
         '--accent-on-primary': '#ffffff',
       });
-      expect(vars['--accent-on-primary']).toBe('#111111');
+      expect(vars['--accent-on-primary']).toBe('#000000');
     });
 
     it('computes a light on-colour for a dark accent', async () => {
       const vars = await saveWithVars({ '--accent-primary': '#1a237e' });
       expect(vars['--accent-on-primary']).toBe('#ffffff');
+    });
+
+    it('recomputes the on-colour after the user edits the accent, then saves', async () => {
+      mockGetCurrentThemeVars.mockReturnValue({ '--bg-base': '#1a1a2e', '--accent-primary': '#1a237e' });
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      // Text and accent "Primary" share a label, so pick the accent field by its value.
+      const hexInput = (await screen.findAllByLabelText('Primary hex value'))
+        .find((el) => (el as HTMLInputElement).value === '#1a237e')!;
+      await fireEvent.input(hexInput, { target: { value: '#ffe066' } });
+      await fireEvent.input(screen.getByPlaceholderText('Theme name...'), { target: { value: 'My Theme' } });
+      await fireEvent.click(screen.getByText('Save Theme'));
+      await waitFor(() => expect(mockSaveCustomTheme).toHaveBeenCalled());
+      const vars = mockSaveCustomTheme.mock.calls[0][3] as Record<string, string>;
+      expect(vars['--accent-primary']).toBe('#ffe066');
+      expect(vars['--accent-on-primary']).toBe('#000000');
+    });
+
+    it('judges a translucent accent over the base background', async () => {
+      const onDark = await saveWithVars({ '--bg-base': '#000000', '--accent-primary': 'rgba(255, 224, 102, 0.3)' });
+      expect(onDark['--accent-on-primary']).toBe('#ffffff');
+      mockSaveCustomTheme.mockClear();
+      document.body.innerHTML = '';
+      const onLight = await saveWithVars({ '--bg-base': '#ffffff', '--accent-primary': 'rgba(255, 224, 102, 0.3)' });
+      expect(onLight['--accent-on-primary']).toBe('#000000');
     });
 
     it('sends the map unchanged when the accent does not parse', async () => {
@@ -661,8 +687,8 @@ describe('ThemeTab', () => {
 
       // The editor should have color type inputs for hex color variables
       const colorInputs = container.querySelectorAll('input[type="color"]');
-      // --bg-base, --bg-surface, --text-primary are all hex => 3 color inputs
-      expect(colorInputs.length).toBe(3);
+      // --bg-base, --bg-surface, --text-primary, --accent-primary are all hex => 4 color inputs
+      expect(colorInputs.length).toBe(4);
     });
   });
 
