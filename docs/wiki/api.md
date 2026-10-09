@@ -263,7 +263,7 @@ POST /api/apps
 | `/api/discovery/docker/scan` | GET | Admin | Scan the daemon, return importable containers (with `labeled`, `label_enabled` and `auto_import_skip`) |
 | `/api/discovery/docker/import` | POST | Admin | Import selected containers as apps |
 | `/api/discovery/docker/tracked` | GET | Admin | List apps currently tracked from Docker, and quarantined entries |
-| `/api/discovery/docker/track/{key}` | DELETE | Admin | Detach tracking for a key; also deletes quarantined entries for the key on any endpoint |
+| `/api/discovery/docker/track/{key}` | DELETE | Admin | Detach tracking for a key; also deletes quarantined entries for the key on any endpoint. `?scope=quarantined` deletes only the quarantined entries |
 | `/api/discovery/docker/relink/probe` | POST | Admin | Probe a container to re-link a detached app |
 | `/api/discovery/docker/relink/confirm` | POST | Admin | Confirm a re-link |
 | `/api/discovery/docker-state` | GET | Any | Current container-state map for tracked apps |
@@ -283,7 +283,7 @@ POST /api/apps
 
 `GET /api/discovery/docker/scan` returns per container: `labeled` (any `muximux.*` label), `label_enabled` (the value of `muximux.app.enabled`, absent when unset) and `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container; codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`). Containers opted out with `muximux.app.enabled=false` are omitted from the rows and counted in `opted_out`.
 
-`GET /api/discovery/docker/tracked` returns `entries` (each with an optional `missing_since` timestamp, set while the container cannot be found) and `quarantined`, an array of `{kind, name, key, reason}` for invalid Docker-owned entries kept in `config.yaml` but not loaded. Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint.
+`GET /api/discovery/docker/tracked` returns `entries` (each with an optional `missing_since` timestamp, set while the container cannot be found) and `quarantined`, an array of `{kind, name, key, reason}` for invalid Docker-owned entries kept in `config.yaml` but not loaded. Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint. Add `?scope=quarantined` to remove only the quarantined entries: a live app or gateway site with the same key stays tracked, and the call returns 404 when no quarantined entry has the key. Any other `scope` value is a 400.
 
 Apps carry a server-owned `docker_managed_health_check` field (the value of `muximux.app.health_check`); it is returned to admins and ignored in request payloads.
 

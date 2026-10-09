@@ -89,7 +89,7 @@
     try {
       for (const key of keys) {
         try {
-          await detachDockerTracked(key);
+          await detachDockerTracked(key, 'quarantined');
         } catch (e) {
           // 404 means it is already gone, which is the state we want.
           if (!(e instanceof ApiError && e.status === 404)) {

@@ -213,7 +213,7 @@ describe('DiscoveryTrackedEntries', () => {
     expect(screen.getByText(/url is required/)).toBeInTheDocument();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     await fireEvent.click(screen.getByTestId('quarantined-remove-btn'));
-    await waitFor(() => expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('swarm:vw'));
+    await waitFor(() => expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('swarm:vw', 'quarantined'));
     await waitFor(() => expect(mockApi.listDockerTracked).toHaveBeenCalledTimes(2));
   });
 
@@ -231,8 +231,8 @@ describe('DiscoveryTrackedEntries', () => {
     confirm.mockReturnValue(true);
     await fireEvent.click(removeAll);
     await waitFor(() => expect(mockApi.detachDockerTracked).toHaveBeenCalledTimes(2));
-    expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('compose:p:a');
-    expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('label:b');
+    expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('compose:p:a', 'quarantined');
+    expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('label:b', 'quarantined');
   });
 
   it('treats a 404 on quarantined removal as done and alerts on other failures', async () => {

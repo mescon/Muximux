@@ -732,3 +732,42 @@ func TestDetachTracked_ClearsMissingSince(t *testing.T) {
 		t.Fatal("missing_since must be cleared after a successful detach")
 	}
 }
+
+func TestDetachTracked_QuarantinedScopeLeavesLiveApp(t *testing.T) {
+	h, cfg := seedLifecycleHandler(t, []config.AppConfig{{Name: "VW", URL: "http://10.0.0.1:80", Enabled: true,
+		DockerKey: "compose:vault:vw", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip",
+		DockerAutoImported: true}}, nil)
+	cfg.QuarantineSite(&config.GatewaySite{Domain: "vw.example.com", DockerKey: "compose:vault:vw"}, "require_auth needs auth")
+	svc := h.Service()
+	svc.MarkMissing("compose:vault:vw")
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/compose:vault:vw?scope=quarantined", nil))
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status %d, body=%s", w.Code, w.Body.String())
+	}
+	if len(cfg.Quarantined()) != 0 {
+		t.Fatalf("quarantined = %+v", cfg.Quarantined())
+	}
+	a := cfg.Apps[0]
+	if a.DockerKey != "compose:vault:vw" || !a.DockerAutoImported || a.DockerEndpoint == "" {
+		t.Fatalf("live app detached: %+v", a)
+	}
+	if svc.MissingSince("compose:vault:vw").IsZero() {
+		t.Fatal("live app's missing state must survive a quarantined-only removal")
+	}
+	// Nothing quarantined left: the scoped call is a 404, not a live detach.
+	w = httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/compose:vault:vw?scope=quarantined", nil))
+	if w.Code != http.StatusNotFound || cfg.Apps[0].DockerKey == "" {
+		t.Fatalf("status %d app %+v", w.Code, cfg.Apps[0])
+	}
+}
+
+func TestDetachTracked_UnknownScopeIs400(t *testing.T) {
+	h, _ := seedLifecycleHandler(t, nil, nil)
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:x?scope=live", nil))
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d", w.Code)
+	}
+}
