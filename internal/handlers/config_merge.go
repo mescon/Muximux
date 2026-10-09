@@ -148,6 +148,90 @@ func appsEqual(a, b *ClientAppConfig) bool {
 	return jsonEqual(&sa, &sb)
 }
 
+// MergeConflictError reports that the three-way merge would leave two apps
+// or two groups with the same name. Kind is "app" or "group"; RenamedFrom
+// is set when the clash comes from a rename in the payload.
+type MergeConflictError struct {
+	Kind        string
+	Name        string
+	RenamedFrom string
+}
+
+func (e *MergeConflictError) Error() string {
+	article := "a"
+	if e.Kind == "app" {
+		article = "an"
+	}
+	if e.RenamedFrom != "" {
+		return fmt.Sprintf("%s %s named %q was added on the server while this save renamed %q to %q; reload Settings and try again",
+			article, e.Kind, e.Name, e.RenamedFrom, e.Name)
+	}
+	return fmt.Sprintf("%s %s named %q was added on the server while this save also added one; reload Settings and try again",
+		article, e.Kind, e.Name)
+}
+
+// renamedFrom is the payload item's old name when it was renamed, else "".
+func renamedFrom(orig, name string) string {
+	if orig != "" && orig != name {
+		return orig
+	}
+	return ""
+}
+
+// claimMatches pairs each mine item with its base and theirs counterparts.
+// Items carrying an original name claim first, so a rename keeps its item
+// even when another payload item has since taken the old name; the rest
+// match by name against items not yet claimed. An item whose match was
+// already claimed gets nil and is treated as brand new.
+func claimMatches[T any](mine []T, orig func(*T) string, name func(*T) string,
+	lookupBase, lookupTheirs func(string) *T) (bases, theirs []*T) {
+	bases = make([]*T, len(mine))
+	theirs = make([]*T, len(mine))
+	claimed := map[*T]bool{}
+	claim := func(p *T) *T {
+		if p == nil || claimed[p] {
+			return nil
+		}
+		claimed[p] = true
+		return p
+	}
+	for pass := 0; pass < 2; pass++ {
+		for i := range mine {
+			o := orig(&mine[i])
+			if (pass == 0) != (o != "") {
+				continue
+			}
+			id := o
+			if id == "" {
+				id = name(&mine[i])
+			}
+			bases[i] = claim(lookupBase(id))
+			theirs[i] = claim(lookupTheirs(id))
+		}
+	}
+	return bases, theirs
+}
+
+// checkUniqueNames returns a MergeConflictError for the first name that
+// occurs twice. renamed[i] is the old name of names[i] when the payload
+// renamed it.
+func checkUniqueNames(kind string, names, renamed []string) error {
+	first := make(map[string]int, len(names))
+	for i, n := range names {
+		j, dup := first[n]
+		if !dup {
+			first[n] = i
+			continue
+		}
+		from := renamed[i]
+		if from == "" {
+			from = renamed[j]
+		}
+		return &MergeConflictError{Kind: kind, Name: n, RenamedFrom: from}
+	}
+	return nil
+}
+
 func indexApps(apps []ClientAppConfig) map[string]*ClientAppConfig {
 	m := make(map[string]*ClientAppConfig, len(apps))
 	for i := range apps {
@@ -156,12 +240,19 @@ func indexApps(apps []ClientAppConfig) map[string]*ClientAppConfig {
 	return m
 }
 
-// mergeApps merges the app lists. mine is matched to base by appIdentity,
-// base to theirs by name with a docker-key fallback for the server's own
-// renames. Merged and server-added apps carry OriginalName = theirs' name
-// so the preservation step finds the stored app; apps without a server
-// match carry no server-owned fields.
-func mergeApps(base, mine, theirs []ClientAppConfig) []ClientAppConfig {
+func appOriginalName(a *ClientAppConfig) string { return a.OriginalName }
+func appName(a *ClientAppConfig) string         { return a.Name }
+
+// mergeApps merges the app lists. mine is matched to base by appIdentity
+// (renames claim first, see claimMatches), base to theirs by name with a
+// docker-key fallback for the server's own renames. Merged and
+// server-added apps carry OriginalName = theirs' name so the preservation
+// step finds the stored app; apps without a server match carry no
+// server-owned fields. A payload app that is new while the server also
+// added one of that name, or a result with two apps of one name, is a
+// MergeConflictError: both sides created the name independently and
+// neither copy can be dropped silently.
+func mergeApps(base, mine, theirs []ClientAppConfig) ([]ClientAppConfig, error) {
 	baseByName := indexApps(base)
 	theirsByName := indexApps(theirs)
 	theirsByKey := map[string]*ClientAppConfig{}
@@ -176,7 +267,8 @@ func mergeApps(base, mine, theirs []ClientAppConfig) []ClientAppConfig {
 			baseKeys[k] = true
 		}
 	}
-	resolveTheirs := func(id string) *ClientAppConfig {
+	lookupBase := func(id string) *ClientAppConfig { return baseByName[id] }
+	lookupTheirs := func(id string) *ClientAppConfig {
 		if t, ok := theirsByName[id]; ok {
 			return t
 		}
@@ -185,21 +277,20 @@ func mergeApps(base, mine, theirs []ClientAppConfig) []ClientAppConfig {
 		}
 		return nil
 	}
+	bases, matched := claimMatches(mine, appOriginalName, appName, lookupBase, lookupTheirs)
 	consumed := map[*ClientAppConfig]bool{}
 	out := make([]ClientAppConfig, 0, len(mine)+len(theirs))
+	renamed := make([]string, 0, len(mine)+len(theirs))
 	for i := range mine {
-		m := &mine[i]
-		id := appIdentity(m)
-		b := baseByName[id]
-		t := resolveTheirs(id)
+		m, b, t := &mine[i], bases[i], matched[i]
+		if t != nil {
+			consumed[t] = true
+		}
 		switch {
 		case b == nil && t == nil: // brand new; a save never creates tracking
 			out = append(out, stripServerOwned(m))
-		case b == nil: // new in mine, name collides with a server-added app
-			a := mergeFields(&ClientAppConfig{}, m, t, serverOwnedAppFields)
-			a.OriginalName = t.Name
-			consumed[t] = true
-			out = append(out, a)
+		case b == nil: // new in mine while the server added the same name
+			return nil, &MergeConflictError{Kind: "app", Name: m.Name, RenamedFrom: renamedFrom(m.OriginalName, m.Name)}
 		case t == nil: // removed by the server
 			if appsEqual(m, b) {
 				continue
@@ -208,9 +299,9 @@ func mergeApps(base, mine, theirs []ClientAppConfig) []ClientAppConfig {
 		default:
 			a := mergeFields(b, m, t, serverOwnedAppFields)
 			a.OriginalName = t.Name
-			consumed[t] = true
 			out = append(out, a)
 		}
+		renamed = append(renamed, renamedFrom(m.OriginalName, m.Name))
 	}
 	for i := range theirs {
 		t := &theirs[i]
@@ -223,8 +314,16 @@ func mergeApps(base, mine, theirs []ClientAppConfig) []ClientAppConfig {
 		a := *t
 		a.OriginalName = t.Name
 		out = append(out, a)
+		renamed = append(renamed, "")
 	}
-	return out
+	names := make([]string, len(out))
+	for i := range out {
+		names[i] = out[i].Name
+	}
+	if err := checkUniqueNames("app", names, renamed); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func indexGroups(groups []config.GroupConfig) map[string]*config.GroupConfig {
@@ -242,30 +341,34 @@ func groupsEqual(a, b *config.GroupConfig) bool {
 	return jsonEqual(&ca, &cb)
 }
 
+func groupOriginalName(g *config.GroupConfig) string { return g.OriginalName }
+func groupName(g *config.GroupConfig) string         { return g.Name }
+
 // mergeGroups merges the group lists with the same rules as mergeApps,
 // matching base to theirs by name only. Merged and server-added groups
 // carry OriginalName = theirs' name; cascadeGroupRenames uses it to
 // re-point apps after the merge.
-func mergeGroups(base, mine, theirs []config.GroupConfig) []config.GroupConfig {
+func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig, error) {
 	baseByName := indexGroups(base)
 	theirsByName := indexGroups(theirs)
+	lookupBase := func(id string) *config.GroupConfig { return baseByName[id] }
+	lookupTheirs := func(id string) *config.GroupConfig { return theirsByName[id] }
+	bases, matched := claimMatches(mine, groupOriginalName, groupName, lookupBase, lookupTheirs)
 	consumed := map[*config.GroupConfig]bool{}
 	out := make([]config.GroupConfig, 0, len(mine)+len(theirs))
+	renamed := make([]string, 0, len(mine)+len(theirs))
 	for i := range mine {
-		m := &mine[i]
-		id := groupIdentity(m)
-		b := baseByName[id]
-		t := theirsByName[id]
+		m, b, t := &mine[i], bases[i], matched[i]
+		if t != nil {
+			consumed[t] = true
+		}
 		switch {
 		case b == nil && t == nil: // brand new
 			g := *m
 			g.OriginalName = ""
 			out = append(out, g)
-		case b == nil: // new in mine, name collides with a server-added group
-			g := mergeFields(&config.GroupConfig{}, m, t, groupSkip)
-			g.OriginalName = t.Name
-			consumed[t] = true
-			out = append(out, g)
+		case b == nil: // new in mine while the server added the same name
+			return nil, &MergeConflictError{Kind: "group", Name: m.Name, RenamedFrom: renamedFrom(m.OriginalName, m.Name)}
 		case t == nil: // removed by the server
 			if groupsEqual(m, b) {
 				continue
@@ -276,9 +379,9 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) []config.GroupConfig {
 		default:
 			g := mergeFields(b, m, t, groupSkip)
 			g.OriginalName = t.Name
-			consumed[t] = true
 			out = append(out, g)
 		}
+		renamed = append(renamed, renamedFrom(m.OriginalName, m.Name))
 	}
 	for i := range theirs {
 		t := &theirs[i]
@@ -291,8 +394,16 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) []config.GroupConfig {
 		g := *t
 		g.OriginalName = t.Name
 		out = append(out, g)
+		renamed = append(renamed, "")
 	}
-	return out
+	names := make([]string, len(out))
+	for i := range out {
+		names[i] = out[i].Name
+	}
+	if err := checkUniqueNames("group", names, renamed); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 // cascadeGroupRenames re-points apps that still carry a renamed group's old
@@ -312,19 +423,57 @@ func cascadeGroupRenames(groups []config.GroupConfig, apps []ClientAppConfig) {
 	}
 }
 
+// ungroupDeletedGroups moves apps out of groups the payload deleted, the
+// same way the Apps tab ungroups the apps of a group it deletes
+// (AppsTab.svelte confirmDeleteGroupAction sets group = ""). It catches
+// apps the server added to such a group meanwhile. A deleted group is a
+// base group no payload group claims by identity; a merged group that
+// still bears the name (a new group of that name) keeps its apps.
+func ungroupDeletedGroups(base, mine, merged []config.GroupConfig, apps []ClientAppConfig) {
+	kept := make(map[string]bool, len(mine)+len(merged))
+	for i := range mine {
+		kept[groupIdentity(&mine[i])] = true
+	}
+	for i := range merged {
+		kept[merged[i].Name] = true
+	}
+	deleted := map[string]bool{}
+	for i := range base {
+		if !kept[base[i].Name] {
+			deleted[base[i].Name] = true
+		}
+	}
+	for i := range apps {
+		if deleted[apps[i].Group] {
+			apps[i].Group = ""
+		}
+	}
+}
+
 // mergeThreeWay merges base (what the client loaded), mine (the payload)
 // and theirs (the server's current config) per field. It does not cascade
-// group renames; merged groups carry OriginalName = theirs' name.
-func mergeThreeWay(base, mine, theirs *ClientConfigUpdate) *ClientConfigUpdate {
+// group renames; merged groups carry OriginalName = theirs' name. It does
+// ungroup apps left in a group the payload deleted. A name clash between
+// the sides is returned as a *MergeConflictError.
+func mergeThreeWay(base, mine, theirs *ClientConfigUpdate) (*ClientConfigUpdate, error) {
+	groups, err := mergeGroups(base.Groups, mine.Groups, theirs.Groups)
+	if err != nil {
+		return nil, err
+	}
+	apps, err := mergeApps(base.Apps, mine.Apps, theirs.Apps)
+	if err != nil {
+		return nil, err
+	}
+	ungroupDeletedGroups(base.Groups, mine.Groups, groups, apps)
 	out := mergeFields(base, mine, theirs, topLevelSkip)
 	out.Navigation = mergeFields(&base.Navigation, &mine.Navigation, &theirs.Navigation, nil)
 	out.Theme = mergeFields(&base.Theme, &mine.Theme, &theirs.Theme, nil)
 	out.Health = mergeHealth(base.Health, mine.Health, theirs.Health)
 	out.Keybindings = mergeKeybindings(base.Keybindings, mine.Keybindings, theirs.Keybindings)
-	out.Groups = mergeGroups(base.Groups, mine.Groups, theirs.Groups)
-	out.Apps = mergeApps(base.Apps, mine.Apps, theirs.Apps)
+	out.Groups = groups
+	out.Apps = apps
 	out.Base = nil
-	return &out
+	return &out, nil
 }
 
 // updateFromResponse renders the server's client-shaped config as an

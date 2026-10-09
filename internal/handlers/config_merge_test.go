@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"math"
 	"reflect"
 	"strings"
@@ -31,7 +32,7 @@ func TestMergeThreeWay_ConflictMineWins(t *testing.T) { // Review Focus 1
 	base := &ClientConfigUpdate{Title: "A", Language: "en"}
 	mine := &ClientConfigUpdate{Title: "B", Language: "en"}
 	theirs := &ClientConfigUpdate{Title: "C", Language: "sv"}
-	got := mergeThreeWay(base, mine, theirs)
+	got := mustMergeThreeWay(t, base, mine, theirs)
 	if got.Title != "B" || got.Language != "sv" || got.Base != nil {
 		t.Errorf("got %+v", got)
 	}
@@ -43,7 +44,7 @@ func TestMergeApps_UntouchedURLKeepsTheirs(t *testing.T) { // S-04
 	mine[0].Color = "#fff"
 	theirs := []ClientAppConfig{testApp("Whoami", "http://172.17.0.9")}
 	theirs[0].DockerKey = "k1"
-	got := mergeApps(base, mine, theirs)
+	got := mustMergeApps(t, base, mine, theirs)
 	if len(got) != 1 || got[0].URL != "http://172.17.0.9" || got[0].Color != "#fff" || got[0].DockerKey != "k1" || got[0].OriginalName != "Whoami" {
 		t.Errorf("got %+v", got)
 	}
@@ -53,7 +54,7 @@ func TestMergeApps_EditedURLWins(t *testing.T) {
 	base := []ClientAppConfig{testApp("W", "http://a")}
 	mine := []ClientAppConfig{testApp("W", "http://manual")}
 	theirs := []ClientAppConfig{testApp("W", "http://b")}
-	if got := mergeApps(base, mine, theirs); got[0].URL != "http://manual" {
+	if got := mustMergeApps(t, base, mine, theirs); got[0].URL != "http://manual" {
 		t.Errorf("got %+v", got)
 	}
 }
@@ -62,7 +63,7 @@ func TestMergeApps_ServerAddedKept_UserDeletedDropped(t *testing.T) { // S-05, S
 	base := []ClientAppConfig{testApp("Keep", "u"), testApp("Gone", "u")}
 	mine := []ClientAppConfig{testApp("Keep", "u")}
 	theirs := []ClientAppConfig{testApp("Keep", "u"), testApp("Gone", "u"), testApp("New", "u")}
-	got := mergeApps(base, mine, theirs)
+	got := mustMergeApps(t, base, mine, theirs)
 	names := []string{}
 	for i := range got {
 		names = append(names, got[i].Name)
@@ -76,7 +77,7 @@ func TestMergeApps_ServerRemovedDroppedUnlessEdited(t *testing.T) { // S-05 sync
 	base := []ClientAppConfig{testApp("Old", "u"), testApp("Edited", "u")}
 	mine := []ClientAppConfig{testApp("Old", "u"), testApp("Edited", "u2")}
 	mine[1].DockerKey = "stale"
-	got := mergeApps(base, mine, nil)
+	got := mustMergeApps(t, base, mine, nil)
 	if len(got) != 1 || got[0].Name != "Edited" || got[0].URL != "u2" || got[0].DockerKey != "" || got[0].OriginalName != "" {
 		t.Errorf("got %+v", got)
 	}
@@ -88,12 +89,12 @@ func TestMergeApps_EmptyVsNilIsUnchanged(t *testing.T) { // nil vs empty must no
 	mine[0].AllowedGroups = []string{}
 	mine[0].Permissions = []string{}
 	mine[0].ProxyHeaders = map[string]string{}
-	if got := mergeApps(base, mine, nil); len(got) != 0 {
+	if got := mustMergeApps(t, base, mine, nil); len(got) != 0 {
 		t.Errorf("untouched app with empty slices counted as edited: %+v", got)
 	}
 	theirs := []ClientAppConfig{testApp("Gone", "u")}
 	theirs[0].AllowedGroups = []string{"ops"}
-	got := mergeApps(base, mine, theirs)
+	got := mustMergeApps(t, base, mine, theirs)
 	if len(got) != 1 || len(got[0].AllowedGroups) != 1 || got[0].AllowedGroups[0] != "ops" {
 		t.Errorf("empty mine overrode theirs: %+v", got)
 	}
@@ -105,7 +106,7 @@ func TestMergeApps_RenameWithServerURLRefresh(t *testing.T) { // Review Focus 2,
 	mine[0].OriginalName = "Old"
 	theirs := []ClientAppConfig{testApp("Old", "http://b")}
 	theirs[0].DockerKey = "k"
-	got := mergeApps(base, mine, theirs)
+	got := mustMergeApps(t, base, mine, theirs)
 	if got[0].Name != "New" || got[0].URL != "http://b" || got[0].OriginalName != "Old" || got[0].DockerKey != "k" {
 		t.Errorf("got %+v", got)
 	}
@@ -118,7 +119,7 @@ func TestMergeApps_ServerRenameMatchedByDockerKey(t *testing.T) {
 	mine[0].Pinned = true
 	theirs := []ClientAppConfig{testApp("Whoami Pretty", "u")}
 	theirs[0].DockerKey = "k"
-	got := mergeApps(base, mine, theirs)
+	got := mustMergeApps(t, base, mine, theirs)
 	if len(got) != 1 || got[0].Name != "Whoami Pretty" || !got[0].Pinned || got[0].OriginalName != "Whoami Pretty" {
 		t.Errorf("got %+v", got)
 	}
@@ -127,7 +128,7 @@ func TestMergeApps_ServerRenameMatchedByDockerKey(t *testing.T) {
 func TestMergeApps_DeleteBeatsServerUpdate(t *testing.T) { // Review Focus 3
 	base := []ClientAppConfig{testApp("X", "http://a")}
 	theirs := []ClientAppConfig{testApp("X", "http://b")}
-	if got := mergeApps(base, nil, theirs); len(got) != 0 {
+	if got := mustMergeApps(t, base, nil, theirs); len(got) != 0 {
 		t.Errorf("got %+v", got)
 	}
 }
@@ -135,7 +136,7 @@ func TestMergeApps_DeleteBeatsServerUpdate(t *testing.T) { // Review Focus 3
 func TestMergeApps_NewInMineStripsTracking(t *testing.T) {
 	mine := []ClientAppConfig{testApp("Brand", "u")}
 	mine[0].DockerKey = "forged"
-	got := mergeApps(nil, mine, nil)
+	got := mustMergeApps(t, nil, mine, nil)
 	if got[0].DockerKey != "" {
 		t.Errorf("tracking accepted from a new app: %+v", got[0])
 	}
@@ -145,7 +146,7 @@ func TestMergeGroups_RenameKeepsTheirsNameAsOriginal(t *testing.T) {
 	base := []config.GroupConfig{{Name: "Media", Color: "#111"}}
 	mine := []config.GroupConfig{{Name: "Video", OriginalName: "Media", Color: "#111"}}
 	theirs := []config.GroupConfig{{Name: "Media", Color: "#222"}}
-	got := mergeGroups(base, mine, theirs)
+	got := mustMergeGroups(t, base, mine, theirs)
 	if len(got) != 1 || got[0].Name != "Video" || got[0].OriginalName != "Media" || got[0].Color != "#222" {
 		t.Errorf("got %+v", got)
 	}
@@ -298,27 +299,12 @@ func TestMergeKeybindings_NilSides(t *testing.T) {
 	}
 }
 
-func TestMergeApps_NewInMineCollidesWithServerAdded(t *testing.T) {
-	mine := []ClientAppConfig{testApp("Same", "http://mine")}
-	mine[0].DockerKey = "forged"
-	theirs := []ClientAppConfig{testApp("Same", "http://theirs")}
-	theirs[0].DockerKey = "real"
-	theirs[0].Color = "#abc"
-	got := mergeApps(nil, mine, theirs)
-	if len(got) != 1 {
-		t.Fatalf("collision duplicated: %+v", got)
-	}
-	if got[0].URL != "http://mine" || got[0].Color != "#abc" || got[0].DockerKey != "real" || got[0].OriginalName != "Same" {
-		t.Errorf("got %+v", got[0])
-	}
-}
-
 func TestMergeApps_UserDeletedServerRenamedByKey(t *testing.T) {
 	base := []ClientAppConfig{testApp("whoami", "u")}
 	base[0].DockerKey = "k"
 	theirs := []ClientAppConfig{testApp("Whoami Pretty", "u")}
 	theirs[0].DockerKey = "k"
-	if got := mergeApps(base, nil, theirs); len(got) != 0 {
+	if got := mustMergeApps(t, base, nil, theirs); len(got) != 0 {
 		t.Errorf("user-deleted app resurrected under its server rename: %+v", got)
 	}
 }
@@ -328,7 +314,7 @@ func TestMergeApps_BaseKeyWithoutServerMatchIsRemoved(t *testing.T) {
 	base[0].DockerKey = "gone"
 	mine := []ClientAppConfig{testApp("tracked", "u")}
 	mine[0].DockerKey = "gone"
-	if got := mergeApps(base, mine, nil); len(got) != 0 {
+	if got := mustMergeApps(t, base, mine, nil); len(got) != 0 {
 		t.Errorf("server-removed untouched app kept: %+v", got)
 	}
 }
@@ -345,22 +331,20 @@ func TestMergeGroups_AllBranches(t *testing.T) {
 		{Name: "ServerRemoved"},
 		{Name: "ServerRemovedEdited", OriginalName: "ServerRemovedEdited", Color: "#2"},
 		{Name: "Brand", OriginalName: "bogus-but-unknown"},
-		{Name: "Collide", Color: "#mine"},
 	}
 	theirs := []config.GroupConfig{
 		{Name: "Keep", Color: "#9"},
 		{Name: "UserDeleted"},
-		{Name: "Collide", Color: "#theirs", Expanded: true},
 		{Name: "ServerAdded"},
 	}
-	got := mergeGroups(base, mine, theirs)
+	got := mustMergeGroups(t, base, mine, theirs)
 	byName := map[string]config.GroupConfig{}
 	names := []string{}
 	for i := range got {
 		byName[got[i].Name] = got[i]
 		names = append(names, got[i].Name)
 	}
-	if strings.Join(names, ",") != "Keep,ServerRemovedEdited,Brand,Collide,ServerAdded" {
+	if strings.Join(names, ",") != "Keep,ServerRemovedEdited,Brand,ServerAdded" {
 		t.Fatalf("names = %v", names)
 	}
 	if g := byName["Keep"]; g.Color != "#9" || g.Order != 5 || g.OriginalName != "Keep" {
@@ -371,9 +355,6 @@ func TestMergeGroups_AllBranches(t *testing.T) {
 	}
 	if g := byName["Brand"]; g.OriginalName != "" {
 		t.Errorf("Brand = %+v", g)
-	}
-	if g := byName["Collide"]; g.Color != "#mine" || !g.Expanded || g.OriginalName != "Collide" {
-		t.Errorf("Collide = %+v", g)
 	}
 	if g := byName["ServerAdded"]; g.OriginalName != "ServerAdded" {
 		t.Errorf("ServerAdded = %+v", g)
@@ -414,7 +395,7 @@ func TestMergeThreeWay_NestedSections(t *testing.T) {
 		Groups:     []config.GroupConfig{{Name: "G"}},
 		Apps:       []ClientAppConfig{testApp("X", "u2"), testApp("Y", "u")},
 	}
-	got := mergeThreeWay(base, mine, theirs)
+	got := mustMergeThreeWay(t, base, mine, theirs)
 	if got.Base != nil {
 		t.Error("Base leaked into the merge result")
 	}
@@ -432,5 +413,239 @@ func TestMergeThreeWay_NestedSections(t *testing.T) {
 	}
 	if len(got.Apps) != 2 || got.Apps[0].URL != "u2" || got.Apps[1].Name != "Y" {
 		t.Errorf("apps = %+v", got.Apps)
+	}
+}
+
+// --- Fix round 1: helpers and claim, conflict and dangling-group cases. ---
+
+func mustMergeApps(t *testing.T, base, mine, theirs []ClientAppConfig) []ClientAppConfig {
+	t.Helper()
+	got, err := mergeApps(base, mine, theirs)
+	if err != nil {
+		t.Fatalf("mergeApps: %v", err)
+	}
+	return got
+}
+
+func mustMergeGroups(t *testing.T, base, mine, theirs []config.GroupConfig) []config.GroupConfig {
+	t.Helper()
+	got, err := mergeGroups(base, mine, theirs)
+	if err != nil {
+		t.Fatalf("mergeGroups: %v", err)
+	}
+	return got
+}
+
+func mustMergeThreeWay(t *testing.T, base, mine, theirs *ClientConfigUpdate) *ClientConfigUpdate {
+	t.Helper()
+	got, err := mergeThreeWay(base, mine, theirs)
+	if err != nil {
+		t.Fatalf("mergeThreeWay: %v", err)
+	}
+	return got
+}
+
+func asConflict(t *testing.T, err error) *MergeConflictError {
+	t.Helper()
+	var ce *MergeConflictError
+	if !errors.As(err, &ce) {
+		t.Fatalf("want *MergeConflictError, got %v", err)
+	}
+	return ce
+}
+
+func TestMergeApps_RenameClaimsBeforeNameMatch(t *testing.T) {
+	renamed := testApp("Y", "http://mine")
+	renamed.OriginalName = "X"
+	fresh := testApp("X", "http://fresh")
+	fresh.DockerKey = "forged"
+	orders := map[string][]ClientAppConfig{
+		"rename first": {renamed, fresh},
+		"rename last":  {fresh, renamed},
+	}
+	for label, mine := range orders {
+		base := []ClientAppConfig{testApp("X", "http://a")}
+		theirs := []ClientAppConfig{testApp("X", "http://a")}
+		theirs[0].DockerKey = "k"
+		theirs[0].Color = "#srv"
+		got := mustMergeApps(t, base, mine, theirs)
+		byName := map[string]ClientAppConfig{}
+		for i := range got {
+			byName[got[i].Name] = got[i]
+		}
+		if len(got) != 2 {
+			t.Fatalf("%s: got %+v", label, got)
+		}
+		y := byName["Y"]
+		if y.OriginalName != "X" || y.DockerKey != "k" || y.Color != "#srv" || y.URL != "http://mine" {
+			t.Errorf("%s: Y not merged against server X: %+v", label, y)
+		}
+		x := byName["X"]
+		if x.OriginalName != "" || x.DockerKey != "" || x.URL != "http://fresh" {
+			t.Errorf("%s: new X not treated as new: %+v", label, x)
+		}
+	}
+}
+
+func TestMergeGroups_RenameClaimsBeforeNameMatch(t *testing.T) {
+	renamed := config.GroupConfig{Name: "Y", OriginalName: "X", Color: "#1"}
+	fresh := config.GroupConfig{Name: "X", Color: "#new"}
+	for label, mine := range map[string][]config.GroupConfig{
+		"rename first": {renamed, fresh},
+		"rename last":  {fresh, renamed},
+	} {
+		base := []config.GroupConfig{{Name: "X", Color: "#1"}}
+		theirs := []config.GroupConfig{{Name: "X", Color: "#1", Expanded: true}}
+		got := mustMergeGroups(t, base, mine, theirs)
+		byName := map[string]config.GroupConfig{}
+		for i := range got {
+			byName[got[i].Name] = got[i]
+		}
+		if len(got) != 2 {
+			t.Fatalf("%s: got %+v", label, got)
+		}
+		if y := byName["Y"]; y.OriginalName != "X" || !y.Expanded {
+			t.Errorf("%s: Y = %+v", label, y)
+		}
+		if x := byName["X"]; x.OriginalName != "" || x.Color != "#new" || x.Expanded {
+			t.Errorf("%s: X = %+v", label, x)
+		}
+	}
+}
+
+func TestMergeApps_RenameOntoServerAddedNameConflicts(t *testing.T) {
+	base := []ClientAppConfig{testApp("A", "u")}
+	mine := []ClientAppConfig{testApp("B", "u")}
+	mine[0].OriginalName = "A"
+	theirs := []ClientAppConfig{testApp("A", "u"), testApp("B", "u")}
+	_, err := mergeApps(base, mine, theirs)
+	ce := asConflict(t, err)
+	if ce.Kind != "app" || ce.Name != "B" || ce.RenamedFrom != "A" {
+		t.Errorf("conflict = %+v", ce)
+	}
+	want := `an app named "B" was added on the server while this save renamed "A" to "B"; reload Settings and try again`
+	if err.Error() != want {
+		t.Errorf("message = %q", err.Error())
+	}
+}
+
+func TestMergeGroups_RenameOntoServerAddedNameConflicts(t *testing.T) {
+	base := []config.GroupConfig{{Name: "A"}}
+	mine := []config.GroupConfig{{Name: "B", OriginalName: "A"}}
+	theirs := []config.GroupConfig{{Name: "A"}, {Name: "B"}}
+	_, err := mergeGroups(base, mine, theirs)
+	ce := asConflict(t, err)
+	if ce.Kind != "group" || ce.Name != "B" || ce.RenamedFrom != "A" {
+		t.Errorf("conflict = %+v", ce)
+	}
+}
+
+func TestMergeApps_BothSidesAddSameNameConflicts(t *testing.T) {
+	// Both sides created "Same" independently. Merging the payload against
+	// an empty base would let the server's values win wherever the payload
+	// left a zero value, so the merge refuses instead.
+	mine := []ClientAppConfig{testApp("Same", "http://mine")}
+	theirs := []ClientAppConfig{testApp("Same", "http://theirs")}
+	_, err := mergeApps(nil, mine, theirs)
+	ce := asConflict(t, err)
+	if ce.Kind != "app" || ce.Name != "Same" || ce.RenamedFrom != "" {
+		t.Errorf("conflict = %+v", ce)
+	}
+	want := `an app named "Same" was added on the server while this save also added one; reload Settings and try again`
+	if err.Error() != want {
+		t.Errorf("message = %q", err.Error())
+	}
+}
+
+func TestMergeGroups_BothSidesAddSameNameConflicts(t *testing.T) {
+	_, err := mergeGroups(nil, []config.GroupConfig{{Name: "G"}}, []config.GroupConfig{{Name: "G"}})
+	if ce := asConflict(t, err); ce.Kind != "group" || ce.Name != "G" {
+		t.Errorf("conflict = %+v", ce)
+	}
+	if want := `a group named "G" was added on the server while this save also added one; reload Settings and try again`; err.Error() != want {
+		t.Errorf("message = %q", err.Error())
+	}
+}
+
+func TestMergeApps_DuplicateInPayloadConflicts(t *testing.T) {
+	// Two brand-new payload apps of one name reach the final uniqueness
+	// check with no rename on either side.
+	mine := []ClientAppConfig{testApp("Dup", "u"), testApp("Dup", "v")}
+	_, err := mergeApps(nil, mine, nil)
+	if ce := asConflict(t, err); ce.Name != "Dup" || ce.RenamedFrom != "" {
+		t.Errorf("conflict = %+v", ce)
+	}
+}
+
+func TestCheckUniqueNames_RenameOnFirstOccurrence(t *testing.T) {
+	err := checkUniqueNames("app", []string{"B", "B"}, []string{"A", ""})
+	if ce := asConflict(t, err); ce.RenamedFrom != "A" {
+		t.Errorf("conflict = %+v", ce)
+	}
+	if err := checkUniqueNames("app", []string{"A", "B"}, []string{"", ""}); err != nil {
+		t.Errorf("unique names reported: %v", err)
+	}
+}
+
+func TestMergeThreeWay_PropagatesConflicts(t *testing.T) {
+	base := &ClientConfigUpdate{Groups: []config.GroupConfig{{Name: "A"}}, Apps: []ClientAppConfig{testApp("A", "u")}}
+	groupClash := &ClientConfigUpdate{Groups: []config.GroupConfig{{Name: "B", OriginalName: "A"}}, Apps: base.Apps}
+	theirs := &ClientConfigUpdate{Groups: []config.GroupConfig{{Name: "A"}, {Name: "B"}}, Apps: []ClientAppConfig{testApp("A", "u"), testApp("B", "u")}}
+	if _, err := mergeThreeWay(base, groupClash, theirs); asConflict(t, err).Kind != "group" {
+		t.Errorf("group conflict not returned: %v", err)
+	}
+	renamedApp := testApp("B", "u")
+	renamedApp.OriginalName = "A"
+	appClash := &ClientConfigUpdate{Groups: base.Groups, Apps: []ClientAppConfig{renamedApp}}
+	theirs.Groups = base.Groups
+	if _, err := mergeThreeWay(base, appClash, theirs); asConflict(t, err).Kind != "app" {
+		t.Errorf("app conflict not returned: %v", err)
+	}
+}
+
+func TestMergeThreeWay_ServerAddedAppInDeletedGroupIsUngrouped(t *testing.T) {
+	inG := testApp("Mine", "u")
+	inG.Group = "G"
+	base := &ClientConfigUpdate{
+		Groups: []config.GroupConfig{{Name: "G"}, {Name: "Keep"}},
+		Apps:   []ClientAppConfig{inG},
+	}
+	minesApp := inG
+	minesApp.Group = "" // the Apps tab ungroups a deleted group's apps
+	mine := &ClientConfigUpdate{Groups: []config.GroupConfig{{Name: "Keep"}}, Apps: []ClientAppConfig{minesApp}}
+	added := testApp("Added", "u")
+	added.Group = "G"
+	inKeep := testApp("Kept", "u")
+	inKeep.Group = "Keep"
+	theirs := &ClientConfigUpdate{
+		Groups: []config.GroupConfig{{Name: "G"}, {Name: "Keep"}},
+		Apps:   []ClientAppConfig{inG, added, inKeep},
+	}
+	got := mustMergeThreeWay(t, base, mine, theirs)
+	if len(got.Groups) != 1 || got.Groups[0].Name != "Keep" {
+		t.Fatalf("groups = %+v", got.Groups)
+	}
+	groupOf := map[string]string{}
+	for i := range got.Apps {
+		groupOf[got.Apps[i].Name] = got.Apps[i].Group
+	}
+	if g, ok := groupOf["Added"]; !ok || g != "" {
+		t.Errorf("server-added app left in deleted group: %q (present %v)", g, ok)
+	}
+	if groupOf["Mine"] != "" || groupOf["Kept"] != "Keep" {
+		t.Errorf("apps = %+v", got.Apps)
+	}
+}
+
+func TestUngroupDeletedGroups_RenamedOrRecreatedGroupKeepsApps(t *testing.T) {
+	base := []config.GroupConfig{{Name: "Old"}, {Name: "Re"}}
+	mine := []config.GroupConfig{{Name: "New", OriginalName: "Old"}}
+	merged := []config.GroupConfig{{Name: "New", OriginalName: "Old"}, {Name: "Re", OriginalName: "Re"}}
+	apps := []ClientAppConfig{testApp("A", "u"), testApp("B", "u")}
+	apps[0].Group = "Old" // cascadeGroupRenames re-points it later
+	apps[1].Group = "Re"  // a group of that name survives the merge
+	ungroupDeletedGroups(base, mine, merged, apps)
+	if apps[0].Group != "Old" || apps[1].Group != "Re" {
+		t.Errorf("apps = %+v", apps)
 	}
 }
