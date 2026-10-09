@@ -1,10 +1,13 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -12,7 +15,9 @@ import (
 	gws "github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 	"github.com/mescon/muximux/v3/internal/websocket"
 )
 
@@ -398,17 +403,10 @@ func TestInstallConfigSaveHook_BroadcastsOnEveryMutation(t *testing.T) {
 // A restore swaps the whole config struct; the save hook must survive it so
 // later saves still broadcast.
 func TestHandleConfigRestore_KeepsSaveHook(t *testing.T) {
-	tmpDir := t.TempDir()
-	s := &Server{
-		config:     defaultTestConfig(),
-		configPath: filepath.Join(tmpDir, "config.yaml"),
-		dataDir:    tmpDir,
-		wsHub:      websocket.NewHub(),
-	}
+	s := newServerForTest(t, nil)
 	go s.wsHub.Run()
 	t.Cleanup(s.wsHub.Close)
 	s.installConfigSaveHook()
-	s.needsSetup.Store(true)
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(s.wsHub, w, r, false)
@@ -470,5 +468,372 @@ func TestDiscoveryDockerConfigRoute_GetRequiresAdmin(t *testing.T) {
 	}
 	if _, ok := body.Config["enabled"]; !ok {
 		t.Errorf("config.enabled missing from %s", rec.Body.String())
+	}
+}
+
+// postRestore sends a backup to /api/config/restore through the full
+// handler chain with the server's setup token, as the onboarding UI does.
+func postRestore(s *Server, body string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	req.Header.Set(setupTokenHeader, s.setupToken)
+	rec := httptest.NewRecorder()
+	s.httpServer.Handler.ServeHTTP(rec, req)
+	return rec
+}
+
+const restoredPassword = "restored-password"
+
+// builtinBackup is a backup with builtin auth and one admin, "owner", whose
+// password is restoredPassword. extra is appended as more top-level keys.
+func builtinBackup(t *testing.T, extra string) string {
+	t.Helper()
+	hash, err := bcrypt.GenerateFromPassword([]byte(restoredPassword), bcrypt.MinCost)
+	if err != nil {
+		t.Fatalf("bcrypt: %v", err)
+	}
+	return "auth:\n  method: builtin\n  users:\n    - username: owner\n      password_hash: \"" + string(hash) +
+		"\"\n      role: admin\n      email: owner@example.test\n" + extra
+}
+
+// saveInitialConfig writes the live config to disk and returns the bytes,
+// so a test can check that a rejected restore leaves the file alone.
+func saveInitialConfig(t *testing.T, s *Server) []byte {
+	t.Helper()
+	s.configMu.Lock()
+	err := s.config.Save(s.configPath)
+	s.configMu.Unlock()
+	if err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	data, err := os.ReadFile(s.configPath)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	return data
+}
+
+func readConfigFile(t *testing.T, s *Server) string {
+	t.Helper()
+	data, err := os.ReadFile(s.configPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	return string(data)
+}
+
+// S-01: restoring a builtin backup on a fresh install (auth none) switches
+// the running instance to builtin auth at once, as a restart would.
+func TestConfigRestore_BuiltinBackupRequiresLogin(t *testing.T) {
+	s := newServerForTest(t, nil)
+	go s.wsHub.Run()
+	t.Cleanup(s.wsHub.Close)
+	s.installConfigSaveHook()
+	wsSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		websocket.ServeWs(s.wsHub, w, r, false)
+	}))
+	defer wsSrv.Close()
+	events := dialWS(t, wsSrv, nil)
+	time.Sleep(50 * time.Millisecond)
+	stale, err := s.sessionStore.Create("owner", "owner", "admin")
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+
+	if rec := postRestore(s, builtinBackup(t, "")); rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	if s.sessionStore.Get(stale.ID) != nil {
+		t.Error("a session from before the restore survived it")
+	}
+	if got := countConfigUpdates(events); got != 1 {
+		t.Errorf("restore save: got %d config_updated, want 1", got)
+	}
+	if s.needsSetup.Load() {
+		t.Error("setup still pending after restore")
+	}
+
+	if rec := doJSON(s, http.MethodGet, "/api/config", "", nil, false); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("anonymous GET /api/config = %d, want 401 (auth none still active?)", rec.Code)
+	}
+	found := false
+	for _, u := range s.userStore.List() {
+		if u.Username == "owner" && u.Role == "admin" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("user store does not hold the restored admin: %+v", s.userStore.List())
+	}
+
+	cookies := loginCookies(t, s, "owner", restoredPassword)
+	countConfigUpdates(events) // a login may rehash the MinCost password and save
+	current := doJSON(s, http.MethodGet, "/api/config", "", cookies, false)
+	if current.Code != http.StatusOK {
+		t.Fatalf("GET /api/config as restored admin = %d", current.Code)
+	}
+	if rec := doJSON(s, http.MethodPut, "/api/config", current.Body.String(), cookies, true); rec.Code != http.StatusOK {
+		t.Fatalf("PUT /api/config as restored admin = %d %s", rec.Code, rec.Body.String())
+	}
+	if got := countConfigUpdates(events); got != 1 {
+		t.Errorf("save after restore: got %d config_updated, want 1 (hook not inherited)", got)
+	}
+}
+
+func TestConfigRestore_InvalidConfigIs400(t *testing.T) {
+	s := newServerForTest(t, nil)
+	before := saveInitialConfig(t, s)
+	title := s.config.Server.Title
+
+	backup := builtinBackup(t, `server:
+  title: Gated
+  gateway_sites:
+    - domain: app.example.test
+      backend_url: http://10.0.0.5:8080
+      require_auth: true
+`)
+	rec := postRestore(s, backup)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("restore = %d %s, want 400", rec.Code, rec.Body.String())
+	}
+	if s.config.Server.Title != title || s.config.Auth.Method == "builtin" {
+		t.Errorf("in-memory config changed: title %q method %q", s.config.Server.Title, s.config.Auth.Method)
+	}
+	if after := readConfigFile(t, s); after != string(before) {
+		t.Errorf("config file changed by a rejected restore:\n%s", after)
+	}
+	if !s.needsSetup.Load() {
+		t.Error("setup no longer pending after a rejected restore")
+	}
+}
+
+func TestConfigRestore_ProxyRoutesRebuilt(t *testing.T) {
+	s := newServerForTest(t, nil)
+	if rec := get(t, s, "/proxy/proxied/"); rec.Code != http.StatusNotFound {
+		t.Fatalf("before restore /proxy/proxied/ = %d, want 404", rec.Code)
+	}
+	backup := `auth:
+  method: none
+apps:
+  - name: Proxied
+    url: http://127.0.0.1:1
+    enabled: true
+    proxy: true
+`
+	if rec := postRestore(s, backup); rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := get(t, s, "/proxy/proxied/"); rec.Code == http.StatusNotFound {
+		t.Fatalf("/proxy/proxied/ still 404 after restore: %s", rec.Body.String())
+	}
+}
+
+// OP-7: a restored ${VAR} is expanded at runtime and stays a reference on
+// disk, through the restore and a later save.
+func TestConfigRestore_ExpandsEnvRefs(t *testing.T) {
+	t.Setenv("MX_TITLE", "Home")
+	s := newServerForTest(t, nil)
+	if rec := postRestore(s, builtinBackup(t, "server:\n  title: ${MX_TITLE}\n")); rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	if s.config.Server.Title != "Home" {
+		t.Errorf("live title = %q, want Home", s.config.Server.Title)
+	}
+	if file := readConfigFile(t, s); !strings.Contains(file, "${MX_TITLE}") {
+		t.Fatalf("restore wrote the expanded value:\n%s", file)
+	}
+
+	cookies := loginCookies(t, s, "owner", restoredPassword)
+	current := doJSON(s, http.MethodGet, "/api/config", "", cookies, false)
+	if rec := doJSON(s, http.MethodPut, "/api/config", current.Body.String(), cookies, true); rec.Code != http.StatusOK {
+		t.Fatalf("PUT /api/config = %d %s", rec.Code, rec.Body.String())
+	}
+	if file := readConfigFile(t, s); !strings.Contains(file, "${MX_TITLE}") {
+		t.Errorf("save after restore wrote the expanded value:\n%s", file)
+	}
+}
+
+// OP-7: an environment override stays live across a restore, and the file
+// gets the backup's own value.
+func TestConfigRestore_KeepsEnvOverrides(t *testing.T) {
+	s := newServerForTest(t, nil)
+	s.configMu.Lock()
+	s.config.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", "debug")
+	s.configMu.Unlock()
+
+	if rec := postRestore(s, "auth:\n  method: none\nserver:\n  log_level: warn\n"); rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	if s.config.Server.LogLevel != "debug" {
+		t.Errorf("live log level = %q, want the override debug", s.config.Server.LogLevel)
+	}
+	rec := doJSON(s, http.MethodGet, "/api/config", "", nil, false)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("GET /api/config = %d", rec.Code)
+	}
+	var body struct {
+		EnvOverrides map[string]string `json:"env_overrides"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if body.EnvOverrides["log_level"] != "MUXIMUX_LOG_LEVEL" {
+		t.Errorf("env_overrides = %v, want log_level from MUXIMUX_LOG_LEVEL", body.EnvOverrides)
+	}
+	if file := readConfigFile(t, s); !strings.Contains(file, "log_level: warn") {
+		t.Errorf("file does not hold the backup's log level:\n%s", file)
+	}
+}
+
+// OP-7: restore does not migrate a legacy server.gateway backup.
+func TestConfigRestore_LegacyGatewayIs400(t *testing.T) {
+	s := newServerForTest(t, nil)
+	rec := postRestore(s, "server:\n  gateway: /etc/caddy/Caddyfile\n")
+	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "no longer supported") {
+		t.Fatalf("restore = %d %s, want 400 no longer supported", rec.Code, rec.Body.String())
+	}
+	if _, err := os.Stat(s.configPath); !os.IsNotExist(err) {
+		t.Errorf("config file written by a rejected restore (err=%v)", err)
+	}
+}
+
+// OP-7: an unresolved ${VAR} in a backup is logged as at boot.
+func TestConfigRestore_MissingEnvVarWarns(t *testing.T) {
+	if logging.Buffer() == nil {
+		if err := logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout"}); err != nil {
+			t.Fatalf("init logging: %v", err)
+		}
+	}
+	t.Setenv("MX_UNSET_494", "")
+	os.Unsetenv("MX_UNSET_494")
+	s := newServerForTest(t, nil)
+	if rec := postRestore(s, "auth:\n  method: none\nserver:\n  title: ${MX_UNSET_494}\n"); rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	for _, e := range logging.Buffer().Recent(50) {
+		if e.Level == "warn" && strings.Contains(e.Attrs["missing"], "MX_UNSET_494") {
+			return
+		}
+	}
+	t.Error("no warning naming MX_UNSET_494 in the log buffer")
+}
+
+func oidcDiscoveryServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/.well-known/openid-configuration" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"issuer": srv.URL, "authorization_endpoint": srv.URL + "/authorize",
+			"token_endpoint": srv.URL + "/token", "userinfo_endpoint": srv.URL + "/userinfo",
+			"jwks_uri": srv.URL + "/jwks",
+		})
+	}))
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+// Section 9: a restore whose OIDC provider cannot be built clears the
+// provider from the previous config instead of keeping it (fail closed).
+func TestConfigRestore_OIDCDiscoveryFailureClearsProvider(t *testing.T) {
+	s := newServerForTest(t, nil)
+	idp := oidcDiscoveryServer(t)
+	prior := config.OIDCConfig{Enabled: true, IssuerURL: idp.URL, ClientID: "old", RedirectURL: "http://localhost:8080/api/auth/oidc/callback"}
+	if err := s.authHandler.ReplaceOIDCProvider(context.Background(), &prior, ""); err != nil {
+		t.Fatalf("install prior provider: %v", err)
+	}
+	t.Cleanup(func() { _ = s.authHandler.CloseOIDC() })
+	if rec := get(t, s, "/api/auth/oidc/login"); rec.Code != http.StatusFound {
+		t.Fatalf("prior provider login = %d, want 302", rec.Code)
+	}
+
+	backup := builtinBackup(t, "") + `  oidc:
+    enabled: true
+    issuer_url: http://127.0.0.1:1
+    client_id: muximux
+    client_secret: secret
+    redirect_url: http://localhost:8080/api/auth/oidc/callback
+`
+	if rec := postRestore(s, backup); rec.Code != http.StatusOK {
+		t.Fatalf("restore = %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := get(t, s, "/api/auth/oidc/login"); rec.Code == http.StatusFound {
+		t.Fatalf("OIDC login still redirects to %q after a failed provider rebuild", rec.Header().Get("Location"))
+	}
+}
+
+func TestSetupAuth_UsesConfigHelpers(t *testing.T) {
+	users := []config.UserConfig{{
+		Username: "u", PasswordHash: "h", Role: "admin",
+		Email: "u@example.test", DisplayName: "U", Groups: []string{"g1", "g2"},
+	}}
+	got := usersFromConfig(users)
+	want := []auth.UserConfig{{
+		Username: "u", PasswordHash: "h", Role: "admin",
+		Email: "u@example.test", DisplayName: "U", Groups: []string{"g1", "g2"},
+	}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("usersFromConfig = %+v, want %+v", got, want)
+	}
+	if len(usersFromConfig(nil)) != 0 {
+		t.Error("usersFromConfig(nil) not empty")
+	}
+
+	cfg := &config.Config{}
+	cfg.Server.BasePath = "muximux/"
+	cfg.Auth.Method = "forward_auth"
+	cfg.Auth.TrustedProxies = []string{"10.0.0.0/8"}
+	cfg.Auth.APIKeyHash = "sha256:abc"
+	cfg.Auth.Headers = map[string]string{"user": "X-User"}
+	cfg.Auth.ForwardAuthAdminGroups = []string{"ops"}
+	ac := authConfigFromConfig(cfg)
+	if ac.Method != auth.AuthMethodForwardAuth || ac.APIKeyHash != "sha256:abc" ||
+		!reflect.DeepEqual(ac.TrustedProxies, cfg.Auth.TrustedProxies) ||
+		!reflect.DeepEqual(ac.ForwardAuthAdminGroups, cfg.Auth.ForwardAuthAdminGroups) ||
+		ac.Headers != auth.ForwardAuthHeadersFromMap(cfg.Auth.Headers) {
+		t.Errorf("authConfigFromConfig = %+v", ac)
+	}
+	if ac.BasePath != cfg.Server.NormalizedBasePath() || ac.BasePath != "/muximux" {
+		t.Errorf("base path = %q, want normalised /muximux", ac.BasePath)
+	}
+	if !reflect.DeepEqual(ac.BypassRules, defaultBypassRules) {
+		t.Error("authConfigFromConfig does not use defaultBypassRules")
+	}
+}
+
+// The setup rollback rebuilds the user store and the middleware snapshot
+// through the shared helpers when the config cannot be saved.
+func TestHandleSetup_RollbackOnSaveFailure(t *testing.T) {
+	s := newServerForTest(t, nil)
+	s.configPath = t.TempDir() // a directory: Save cannot rename over it
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup",
+		strings.NewReader(`{"method":"builtin","username":"owner","password":"long-enough-pw"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(setupTokenHeader, s.setupToken)
+	rec := httptest.NewRecorder()
+	s.httpServer.Handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Fatalf("setup = %d %s, want 500", rec.Code, rec.Body.String())
+	}
+	if m := s.authMiddleware.Method(); m != auth.AuthMethodNone {
+		t.Errorf("middleware method = %q, want none after rollback", m)
+	}
+	if n := len(s.userStore.List()); n != 0 {
+		t.Errorf("user store holds %d users after rollback", n)
+	}
+	if s.config.Auth.Method != "none" || len(s.config.Auth.Users) != 0 {
+		t.Errorf("config not rolled back: method %q users %d", s.config.Auth.Method, len(s.config.Auth.Users))
+	}
+	if s.sessionStore.Count() != 0 {
+		t.Error("setup session kept after rollback")
+	}
+	if !s.needsSetup.Load() {
+		t.Error("setup no longer pending after a failed save")
 	}
 }

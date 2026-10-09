@@ -26,8 +26,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
@@ -526,23 +524,34 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 		sessionStore.SetCookieDomain(cfg.Server.SessionCookieDomain)
 	}
 	userStore := auth.NewUserStore()
+	userStore.LoadFromConfig(usersFromConfig(cfg.Auth.Users))
+	authMiddleware := auth.NewMiddleware(authConfigFromConfig(cfg), sessionStore, userStore)
 
-	// Load users from config
-	userConfigs := make([]auth.UserConfig, 0, len(cfg.Auth.Users))
-	for _, u := range cfg.Auth.Users {
-		userConfigs = append(userConfigs, auth.UserConfig{
-			Username:     u.Username,
-			PasswordHash: u.PasswordHash,
-			Role:         u.Role,
-			Email:        u.Email,
-			DisplayName:  u.DisplayName,
-			Groups:       u.Groups,
+	return sessionStore, userStore, authMiddleware
+}
+
+// usersFromConfig converts the configured users into the user store's
+// input. Boot, the setup rollback and a restore all load users through it.
+func usersFromConfig(users []config.UserConfig) []auth.UserConfig {
+	out := make([]auth.UserConfig, 0, len(users))
+	for i := range users {
+		out = append(out, auth.UserConfig{
+			Username:     users[i].Username,
+			PasswordHash: users[i].PasswordHash,
+			Role:         users[i].Role,
+			Email:        users[i].Email,
+			DisplayName:  users[i].DisplayName,
+			Groups:       users[i].Groups,
 		})
 	}
-	userStore.LoadFromConfig(userConfigs)
+	return out
+}
 
-	// Create auth middleware with default bypass rules
-	authConfig := auth.AuthConfig{
+// authConfigFromConfig builds the auth middleware snapshot for cfg with the
+// default bypass rules. When cfg is the live config the caller holds
+// configMu.
+func authConfigFromConfig(cfg *config.Config) *auth.AuthConfig {
+	return &auth.AuthConfig{
 		Method:                 auth.AuthMethod(cfg.Auth.Method),
 		TrustedProxies:         cfg.Auth.TrustedProxies,
 		APIKeyHash:             cfg.Auth.APIKeyHash,
@@ -551,9 +560,6 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 		ForwardAuthAdminGroups: cfg.Auth.ForwardAuthAdminGroups,
 		BypassRules:            defaultBypassRules,
 	}
-	authMiddleware := auth.NewMiddleware(&authConfig, sessionStore, userStore)
-
-	return sessionStore, userStore, authMiddleware
 }
 
 // setupOIDC configures and returns the OIDC provider.
@@ -1419,10 +1425,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	priorHeaders := s.config.Auth.Headers
 	priorLogoutURL := s.config.Auth.LogoutURL
 	priorFwAdminGroups := append([]string(nil), s.config.Auth.ForwardAuthAdminGroups...)
-	priorAPIKeyHash := s.config.Auth.APIKeyHash
-	priorBasePath := s.config.Server.NormalizedBasePath()
 	s.configMu.Unlock()
-	priorUserStore := s.userStore.ListWithHashes()
 
 	var newSession *auth.Session
 	switch req.Method {
@@ -1457,30 +1460,13 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.config.Auth.Headers = priorHeaders
 		s.config.Auth.LogoutURL = priorLogoutURL
 		s.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+		// Rebuild the user store and the auth-middleware snapshot from
+		// the restored fields. Setup never touches the API key hash or
+		// the base path, so this is the snapshot from before setup.
+		priorAuthCfg := authConfigFromConfig(s.config)
 		s.configMu.Unlock()
-		// Rebuild the user store from the prior snapshot.
-		priorUsersForStore := make([]auth.UserConfig, 0, len(priorUserStore))
-		for _, u := range priorUserStore {
-			priorUsersForStore = append(priorUsersForStore, auth.UserConfig{
-				Username:     u.Username,
-				PasswordHash: u.PasswordHash,
-				Role:         u.Role,
-				Email:        u.Email,
-				DisplayName:  u.DisplayName,
-				Groups:       u.Groups,
-			})
-		}
-		s.userStore.LoadFromConfig(priorUsersForStore)
-		// Restore the prior auth-middleware snapshot.
-		s.authMiddleware.UpdateConfig(&auth.AuthConfig{
-			Method:                 auth.AuthMethod(priorMethod),
-			TrustedProxies:         priorTrustedProxies,
-			Headers:                auth.ForwardAuthHeadersFromMap(priorHeaders),
-			ForwardAuthAdminGroups: priorFwAdminGroups,
-			BypassRules:            defaultBypassRules,
-			APIKeyHash:             priorAPIKeyHash,
-			BasePath:               priorBasePath,
-		})
+		s.userStore.LoadFromConfig(usersFromConfig(priorUsers))
+		s.authMiddleware.UpdateConfig(priorAuthCfg)
 		// Discard any session we created on the way in - it points
 		// at a user-store entry that no longer exists.
 		if newSession != nil {
@@ -1536,16 +1522,13 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Strict decode: unknown fields reject the import rather than being
-	// silently ignored (findings.md M7). Without this, a backup that
-	// carried fields not yet known to this Muximux version would load
-	// as a "success" with the unknown fields quietly dropped, and a
-	// future code change that added one of those names as a sensitive
-	// field would inherit them unexpectedly.
-	var cfg config.Config
-	dec := yaml.NewDecoder(bytes.NewReader(body))
-	dec.KnownFields(true)
-	if err := dec.Decode(&cfg); err != nil {
+	// The backup goes through the same parse path as boot: ${VAR}
+	// expansion with the references remembered, a strict decode onto the
+	// defaults (unknown fields are rejected, findings.md M7), discovery
+	// defaults, auto-detach and validation. A legacy server.gateway
+	// backup is not migrated here and fails validation.
+	cfg, err := config.Parse(body)
+	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid YAML: %s", err.Error())})
 		return
 	}
@@ -1561,18 +1544,25 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	// restart does not find disk and memory describing different
 	// instances (findings.md H9). Save writes to a temp file and
 	// renames, so a failure here leaves config.yaml unchanged.
+	//
+	// The restored config inherits the live save hook and every flag
+	// or environment override, so the override stays live and Save
+	// writes the backup's own value. On success the auth state is
+	// switched before the lock is released: no request handler sees the
+	// restored config while the middleware still enforces the old auth
+	// method.
 	s.configMu.Lock()
 	previous := *s.config
-	*s.config = cfg
-	if s.saveHookInstalled.Load() {
-		// The swap replaced the struct, hook included.
-		s.config.SetOnSaved(s.wsHub.BroadcastConfigUpdate)
-	}
+	cfg.InheritRuntime(s.config)
+	*s.config = *cfg
 	err = s.config.Save(s.configPath)
 	if err != nil {
 		*s.config = previous // roll back in-memory snapshot
+	} else {
+		s.applyAuthStateLocked()
 	}
 	s.configMu.Unlock()
+	logging.WarnMissingEnvVars(cfg.MissingEnvVars)
 
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to save restored config; reverted", "source", "config", "error", err)
@@ -1580,11 +1570,63 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.reinitRuntimeFromConfig(r.Context())
+
 	logging.From(r.Context()).Info("Config restored from backup", "source", "config", "apps", len(cfg.Apps), "groups", len(cfg.Groups))
 	s.needsSetup.Store(false)
 	s.clearSetupToken()
 
 	writeJSON(w, http.StatusOK, map[string]string{"success": "true"})
+}
+
+// applyAuthStateLocked switches the security-relevant runtime state to the
+// live config, as a restart would: it drops every session (they belong to
+// the instance that was replaced), sets the session cookie domain, reloads
+// the user store, updates the auth middleware and removes the OIDC provider
+// built from the previous config. reinitRuntimeFromConfig installs the new
+// provider afterwards; until then OIDC login is unavailable. The caller
+// holds configMu for writing.
+func (s *Server) applyAuthStateLocked() {
+	s.sessionStore.DeleteMatching(func(*auth.Session) bool { return true })
+	s.sessionStore.SetCookieDomain(s.config.Server.SessionCookieDomain)
+	s.userStore.LoadFromConfig(usersFromConfig(s.config.Auth.Users))
+	s.authMiddleware.UpdateConfig(authConfigFromConfig(s.config))
+	s.authHandler.ClearOIDCProvider()
+}
+
+// reinitRuntimeFromConfig brings the rest of the runtime in line with the
+// live config after a restore, as a restart would: the OIDC provider,
+// discovery, proxy routes and health apps, the gateway and the save hook.
+// applyAuthStateLocked has already switched the auth state. A provider that
+// cannot be built is cleared (fail closed): OIDC login stays unavailable
+// until the settings are fixed.
+func (s *Server) reinitRuntimeFromConfig(ctx context.Context) {
+	s.configMu.RLock()
+	warnOIDCRedirectMismatch(s.config)
+	oidc := s.config.Auth.OIDC
+	basePath := s.config.Server.NormalizedBasePath()
+	docker := s.config.Discovery.Docker
+	sites := append([]config.GatewaySite(nil), s.config.Server.GatewaySites...)
+	s.rebuildProxyRoutes()
+	s.configMu.RUnlock()
+
+	if err := s.authHandler.ReplaceOIDCProvider(ctx, &oidc, basePath); err != nil {
+		logging.Error("OIDC provider could not be set up from the restored config; OIDC login is unavailable until the settings are fixed",
+			"source", "auth", "error", err)
+		s.authHandler.ClearOIDCProvider()
+	}
+	s.discoveryService.Reconfigure(&docker)
+	if s.proxyServer != nil && s.proxyServer.IsRunning() {
+		s.proxyServer.SetGatewaySites(proxy.ConfigGatewaySitesToProxy(sites))
+		if err := s.proxyServer.Reload(); err != nil {
+			logging.Error("Failed to reload the gateway after a restore", "source", "server", "error", err)
+		}
+	}
+	// The restored config inherited the hook; re-installing it is a
+	// harmless safety net, and only valid once Start has run the hub.
+	if s.saveHookInstalled.Load() {
+		s.installConfigSaveHook()
+	}
 }
 
 // setupBuiltin mutates live auth state and returns the session that

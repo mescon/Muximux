@@ -2385,6 +2385,42 @@ func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
 	_ = h.CloseOIDC()
 }
 
+func TestClearOIDCProvider_ClosesCurrent(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	if err := h.ReplaceOIDCProvider(context.Background(), &cfg, ""); err != nil {
+		t.Fatal(err)
+	}
+	installed := h.provider()
+
+	var closed []*auth.OIDCProvider
+	prev := closeOIDCProvider
+	closeOIDCProvider = func(p *auth.OIDCProvider) error {
+		closed = append(closed, p)
+		return prev(p)
+	}
+	t.Cleanup(func() { closeOIDCProvider = prev })
+
+	h.ClearOIDCProvider()
+	if h.provider() != nil {
+		t.Error("provider still installed after ClearOIDCProvider")
+	}
+	if len(closed) != 1 || closed[0] != installed {
+		t.Fatalf("closed = %v, want exactly the installed provider", closed)
+	}
+
+	h.ClearOIDCProvider() // nothing installed: nothing to close
+	if len(closed) != 1 {
+		t.Errorf("clearing an empty slot closed %d providers", len(closed)-1)
+	}
+	rec := httptest.NewRecorder()
+	h.OIDCLogin(rec, httptest.NewRequest(http.MethodGet, "/api/auth/oidc/login", nil))
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("OIDC login after clear = %d, want 404", rec.Code)
+	}
+}
+
 func TestPrepareOIDCProvider_DoesNotSwap(t *testing.T) {
 	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
 	srv := mockOIDCDiscoveryServer(t)

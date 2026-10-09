@@ -135,6 +135,10 @@ func (h *AuthHandler) prepareOIDCProvider(ctx context.Context, cfg *config.OIDCC
 	return p, nil
 }
 
+// closeOIDCProvider stops a provider that was swapped out. A variable so
+// tests can observe which provider was closed.
+var closeOIDCProvider = (*auth.OIDCProvider).Close
+
 // swapOIDCProvider installs next and closes the previous provider.
 func (h *AuthHandler) swapOIDCProvider(next *auth.OIDCProvider) {
 	h.oidcMu.Lock()
@@ -142,8 +146,15 @@ func (h *AuthHandler) swapOIDCProvider(next *auth.OIDCProvider) {
 	h.oidcProvider = next
 	h.oidcMu.Unlock()
 	if old != nil && old != next {
-		_ = old.Close()
+		_ = closeOIDCProvider(old)
 	}
+}
+
+// ClearOIDCProvider removes and closes the current provider, so OIDC login
+// is unavailable until a provider is installed again. A restore uses it to
+// fail closed when the restored settings cannot be applied.
+func (h *AuthHandler) ClearOIDCProvider() {
+	h.swapOIDCProvider(nil)
 }
 
 // ReplaceOIDCProvider builds a provider from cfg, checks the identity

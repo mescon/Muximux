@@ -2425,15 +2425,10 @@ apps: []
 }
 
 func TestHandleConfigRestore_Success(t *testing.T) {
-	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "config.yaml")
-	cfg := defaultTestConfig()
-	s := &Server{
-		config:     cfg,
-		configPath: configPath,
-		dataDir:    tmpDir,
-	}
-	s.needsSetup.Store(true)
+	// A successful restore reinitialises the runtime, so it needs a
+	// server assembled by New.
+	s := newServerForTest(t, nil)
+	configPath := s.configPath
 
 	yamlContent := `server:
   listen: ":8080"
