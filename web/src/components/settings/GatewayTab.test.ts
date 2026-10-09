@@ -707,3 +707,17 @@ describe('GatewayTab cookie scope save', () => {
     expect(mockSaveConfigApi).toHaveBeenCalledWith({ ...current, session_cookie_domain: '.example.com' }, current);
   });
 });
+
+describe('GatewayTab site pills', () => {
+  it('uses the info, accent and success tokens', async () => {
+    mockListGatewaySites.mockResolvedValue([
+      makeSite({ domain: 'plex.example.com', backend_url: 'http://plex:32400', streaming: true }),
+      makeSite({ domain: 'sonarr.example.com', strip_frame_blockers: true, app_name: 'Sonarr' }),
+    ]);
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByText('streaming')).toBeInTheDocument());
+    expect(screen.getByText('streaming').className).toMatch(/bg-info-bg border border-info-border text-info-text/);
+    expect(screen.getByText('embeddable').className).toMatch(/bg-accent-subtle border border-accent-primary text-accent-text/);
+    expect(screen.getByText(/^app: /).className).toMatch(/bg-success-bg border border-success-border text-success-text/);
+  });
+});

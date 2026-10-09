@@ -54,9 +54,10 @@
 </script>
 
 <div class="space-y-2">
-  {#each rows as row (row.id)}
+  {#each rows as row, idx (row.id)}
     <div class="flex gap-2">
       <input
+        aria-label={m.appForm_headerNameAt({ n: idx + 1 })}
         type="text"
         value={row.key}
         placeholder={m.app_http_action_header_name()}
@@ -64,6 +65,7 @@
         class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
       />
       <input
+        aria-label={m.appForm_headerValueAt({ n: idx + 1 })}
         type="text"
         value={row.value}
         placeholder={m.app_http_action_header_value()}
@@ -72,9 +74,9 @@
       />
       <button
         type="button"
-        aria-label={m.app_http_action_remove_header()}
+        aria-label={m.appForm_removeHeaderAt({ n: idx + 1 })}
         title={m.app_http_action_remove_header()}
-        class="px-2 py-1 text-text-muted hover:text-red-400"
+        class="px-2 py-1 text-text-muted hover:text-danger-text"
         onclick={() => removeRow(row.id)}
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,7 +89,7 @@
     type="button"
     aria-label={m.app_http_action_add_header()}
     onclick={addRow}
-    class="text-xs text-brand-400 hover:text-brand-300"
+    class="text-xs text-accent-text hover:underline"
   >
     {m.app_http_action_add_header()}
   </button>

@@ -45,8 +45,7 @@
       id="title"
       type="text"
       bind:value={localConfig.title}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
       placeholder="Muximux"
     />
     <p class="text-xs text-text-disabled mt-1.5">
@@ -58,7 +57,7 @@
           type="checkbox"
           checked={localConfig.navigation.dynamic_tab_branding ?? false}
           onchange={(e) => { localConfig.navigation.dynamic_tab_branding = (e.currentTarget as HTMLInputElement).checked; }}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
           data-testid="dynamic-tab-branding"
         />
         <div>
@@ -90,7 +89,7 @@
         <button
           class="p-3 rounded-lg border text-start transition-colors
                  {localConfig.navigation.position === pos.value
-                   ? 'border-brand-500 bg-brand-500/10 text-text-primary'
+                   ? 'border-border-focus bg-accent-subtle text-text-primary'
                    : 'border-border-subtle hover:border-border-strong text-text-secondary'}"
           onclick={() => localConfig.navigation.position = pos.value}
         >
@@ -115,7 +114,7 @@
           <button
             class="p-3 rounded-lg border text-start transition-colors
                    {(localConfig.navigation.bar_style || 'grouped') === style.value
-                     ? 'border-brand-500 bg-brand-500/10 text-text-primary'
+                     ? 'border-border-focus bg-accent-subtle text-text-primary'
                      : 'border-border-subtle hover:border-border-strong text-text-secondary'}"
             onclick={() => localConfig.navigation.bar_style = style.value as 'grouped' | 'flat'}
           >
@@ -143,7 +142,7 @@
           <button
             class="p-2 rounded-lg border text-center text-sm transition-colors
                    {(localConfig.navigation.floating_position || 'bottom-right') === fp.value
-                     ? 'border-brand-500 bg-brand-500/10 text-text-primary'
+                     ? 'border-border-focus bg-accent-subtle text-text-primary'
                      : 'border-border-subtle hover:border-border-strong text-text-secondary'}"
             onclick={() => localConfig.navigation.floating_position = fp.value as 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'}
           >
@@ -160,7 +159,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_labels}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
@@ -174,7 +173,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <!-- Hidden -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {!localConfig.navigation.show_home_button ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {!localConfig.navigation.show_home_button ? 'border-border-focus bg-accent-subtle' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = false; localConfig.navigation.show_splash_on_startup = false; }}
         >
           <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -184,7 +183,7 @@
         </button>
         <!-- Muximux Logo -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.show_logo && !hasIcon(localConfig.navigation.home_icon) ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.show_logo && !hasIcon(localConfig.navigation.home_icon) ? 'border-border-focus bg-accent-subtle' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = true; localConfig.navigation.show_logo = true; localConfig.navigation.home_icon = undefined; }}
         >
           <MuximuxLogo height="20" />
@@ -192,17 +191,17 @@
         </button>
         <!-- House Icon -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && !localConfig.navigation.show_logo && !hasIcon(localConfig.navigation.home_icon) ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && !localConfig.navigation.show_logo && !hasIcon(localConfig.navigation.home_icon) ? 'border-border-focus bg-accent-subtle' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = true; localConfig.navigation.show_logo = false; localConfig.navigation.home_icon = undefined; }}
         >
-          <svg class="w-5 h-5" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="w-5 h-5" style="color: var(--accent-text);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
           </svg>
           <span class="text-xs text-text-muted">{m.general_overviewHouse()}</span>
         </button>
         <!-- Custom Icon -->
         <button
-          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && hasIcon(localConfig.navigation.home_icon) ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && hasIcon(localConfig.navigation.home_icon) ? 'border-border-focus bg-accent-subtle' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
           onclick={() => { localConfig.navigation.show_home_button = true; onopenhomeicon?.(); }}
         >
           {#if hasIcon(localConfig.navigation.home_icon)}
@@ -221,7 +220,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_app_colors}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
@@ -233,7 +232,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_icon_background}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
@@ -244,12 +243,13 @@
     <div class="p-3 bg-bg-hover rounded-lg sm:col-span-2">
       <div class="flex items-center justify-between mb-2">
         <div>
-          <div class="text-sm text-text-primary">{m.general_iconSize()}</div>
+          <div id="gen-icon-size" class="text-sm text-text-primary">{m.general_iconSize()}</div>
           <div class="text-xs text-text-muted">{m.general_iconSizeDesc()}</div>
         </div>
         <span class="text-sm text-text-secondary tabular-nums">{localConfig.navigation.icon_scale}×</span>
       </div>
       <input type="range" min="0.5" max="2" step="0.25"
+        aria-labelledby="gen-icon-size"
         bind:value={localConfig.navigation.icon_scale}
         class="w-full" />
     </div>
@@ -266,7 +266,7 @@
               localApps.forEach(a => a.default = false);
             }
           }}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
@@ -274,7 +274,7 @@
         </div>
       </label>
       {#if localApps.find(a => a.default) && !localConfig.navigation.show_splash_on_startup}
-        <p class="text-xs text-brand-400 mt-1 ps-7">
+        <p class="text-xs text-accent-text mt-1 ps-7">
           {m.general_defaultAppDisabled({ appName: localApps.find(a => a.default)?.name || '' })}
         </p>
       {/if}
@@ -285,7 +285,7 @@
         <input
           type="checkbox"
           bind:checked={localConfig.navigation.auto_hide}
-          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div class="flex-1">
           <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
@@ -294,10 +294,11 @@
       </label>
       {#if localConfig.navigation.auto_hide}
         <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border-subtle">
-          <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
+          <div id="gen-hide-after" class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
           <select
+            aria-labelledby="gen-hide-after"
             bind:value={localConfig.navigation.auto_hide_delay}
-            class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary focus:ring-brand-500 focus:border-brand-500"
+            class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary"
           >
             <option value="0.25s">0.25s</option>
             <option value="0.5s">0.5s</option>
@@ -310,7 +311,7 @@
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.show_shadow}
-            class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+            class="w-4 h-4 rounded border-border-subtle text-accent-text"
           />
           <div class="text-xs text-text-muted">{m.general_shadow()}</div>
         </label>
@@ -323,7 +324,7 @@
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.hide_sidebar_footer}
-            class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+            class="w-4 h-4 rounded border-border-subtle text-accent-text"
           />
           <div class="flex-1">
             {#if localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
@@ -387,8 +388,7 @@
         id="log-level"
         bind:value={localConfig.log_level}
         disabled={!!logLevelEnv}
-        class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-               focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+        class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
       >
         <option value="debug">{m.general_logDebug()}</option>
         <option value="info">{m.general_logInfo()}</option>
@@ -405,8 +405,7 @@
         type="text"
         bind:value={localConfig.proxy_timeout}
         placeholder="30s"
-        class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-               focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+        class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
       />
       <span class="text-xs text-text-disabled">{m.general_proxyTimeoutHint()}</span>
     </div>
@@ -431,6 +430,7 @@
         {m.general_importConfig()}
       </button>
       <input
+        aria-label={m.general_importConfig()}
         bind:this={importFileInput}
         type="file"
         accept=".yaml,.yml"

@@ -66,7 +66,7 @@
       <button type="button" class="btn" disabled={loading} onclick={() => oncancel?.()}>{m.common_cancel()}</button>
       <button type="button" class="btn btn-primary" autofocus disabled={loading} onclick={() => onconfirm?.()}>
         {#if loading}
-          <span class="inline-block w-4 h-4 me-2 border-2 border-white/30 border-t-white rounded-full animate-spin align-[-2px]"></span>
+          <span class="inline-block w-4 h-4 me-2 border-2 border-current/30 border-t-current rounded-full animate-spin align-[-2px]"></span>
         {/if}
         {m.common_confirm()}
       </button>

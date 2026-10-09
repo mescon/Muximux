@@ -235,13 +235,14 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
+          aria-label={m.logs_filterLabel()}
           type="text"
           placeholder={m.logs_filterPlaceholder()}
           bind:value={searchQuery}
           class="log-search-input"
         />
         {#if searchQuery}
-          <button class="log-search-clear" onclick={() => searchQuery = ''} aria-label="Clear search">
+          <button class="log-search-clear" onclick={() => searchQuery = ''} aria-label={m.logs_clearSearch()}>
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -253,6 +254,7 @@
           <button
             class="log-level-btn {levelBtnClass(level)}"
             onclick={() => toggleLevel(level)}
+            aria-pressed={enabledLevels[level]}
             title={enabledLevels[level] ? m.logs_hideLevel({ level }) : m.logs_showLevel({ level })}
           >
             {level.toUpperCase()}
@@ -416,7 +418,7 @@
 
   .log-action-btn-active {
     background: var(--accent-muted);
-    color: var(--accent-primary);
+    color: var(--accent-text);
     border-color: var(--accent-primary);
   }
 
@@ -464,7 +466,6 @@
     color: var(--text-primary);
     background: var(--bg-overlay);
     border: 1px solid var(--border-subtle);
-    outline: none;
     transition: border-color 0.15s ease;
   }
 
@@ -472,8 +473,8 @@
     color: var(--text-disabled);
   }
 
-  .log-search-input:focus {
-    border-color: var(--accent-primary);
+  .log-search-input:focus-visible {
+    border-color: var(--border-focus);
   }
 
   .log-search-clear {
@@ -523,27 +524,27 @@
   }
 
   .log-btn-debug-active {
-    background: rgba(156, 163, 175, 0.15);
-    color: #9ca3af;
-    border-color: rgba(156, 163, 175, 0.3);
+    background: var(--bg-active);
+    color: var(--text-secondary);
+    border-color: var(--border-strong);
   }
 
   .log-btn-info-active {
-    background: rgba(96, 165, 250, 0.15);
-    color: #60a5fa;
-    border-color: rgba(96, 165, 250, 0.3);
+    background: var(--info-bg);
+    color: var(--info-text);
+    border-color: var(--info-border);
   }
 
   .log-btn-warn-active {
-    background: rgba(251, 191, 36, 0.15);
-    color: #fbbf24;
-    border-color: rgba(251, 191, 36, 0.3);
+    background: var(--warning-bg);
+    color: var(--warning-text);
+    border-color: var(--warning-border);
   }
 
   .log-btn-error-active {
-    background: rgba(248, 113, 113, 0.15);
-    color: #f87171;
-    border-color: rgba(248, 113, 113, 0.3);
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--danger-border);
   }
 
   .log-source-label {
@@ -571,7 +572,7 @@
 
   .log-source-pill-active {
     background: var(--accent-muted);
-    color: var(--accent-primary);
+    color: var(--accent-text);
     border-color: var(--accent-primary);
   }
 
@@ -623,23 +624,23 @@
   }
 
   .log-level-debug {
-    color: #9ca3af;
-    background: rgba(156, 163, 175, 0.1);
+    color: var(--text-secondary);
+    background: var(--bg-active);
   }
 
   .log-level-info {
-    color: #60a5fa;
-    background: rgba(96, 165, 250, 0.1);
+    color: var(--info-text);
+    background: var(--info-bg);
   }
 
   .log-level-warn {
-    color: #fbbf24;
-    background: rgba(251, 191, 36, 0.1);
+    color: var(--warning-text);
+    background: var(--warning-bg);
   }
 
   .log-level-error {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.1);
+    color: var(--danger-text);
+    background: var(--danger-bg);
   }
 
   .log-source {
@@ -699,13 +700,13 @@
   }
 
   .log-paused-badge {
-    color: var(--accent-primary);
+    color: var(--accent-text);
     font-weight: 600;
     letter-spacing: 0.05em;
   }
 
   .log-scroll-btn {
-    color: var(--accent-primary);
+    color: var(--accent-text);
     background: transparent;
     border: none;
     cursor: pointer;

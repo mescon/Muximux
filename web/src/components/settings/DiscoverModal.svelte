@@ -1,5 +1,6 @@
 <script lang="ts">
   import { focusTrap } from '$lib/focusTrap';
+  import * as m from '$lib/paraglide/messages.js';
   import type { App, DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, GatewaySite, AppIcon as AppIconType } from '$lib/types';
   import { scanDockerContainers, importDockerSuggestions, errorText } from '$lib/api';
   import AppIcon from '../AppIcon.svelte';
@@ -359,12 +360,12 @@
         {#if scanning}
           <div class="text-text-muted text-sm">Scanning Docker daemon…</div>
         {:else if scanBlocked}
-          <div class="p-3 rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-300 text-sm">
+          <div class="notice notice-warning">
             <div class="font-medium mb-1">Scan blocked</div>
             <div>{scanBlocked}</div>
           </div>
         {:else if scanError}
-          <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-sm">
+          <div role="alert" class="notice notice-danger">
             <div class="font-medium mb-1">Scan failed</div>
             <div>{scanError}</div>
           </div>
@@ -388,13 +389,13 @@
               {@const ch = confidenceHint(row.s)}
               {@const st = statusFor(row.s.key)}
               <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
-                          {row.selected ? 'ring-1 ring-brand-500/50' : ''}">
+                          {row.selected ? 'ring-1 ring-accent-primary/50' : ''}">
                 <div class="flex items-start gap-3">
-                  <input type="checkbox" bind:checked={row.selected} class="mt-1" />
+                  <input aria-label={m.discovery_selectApp({ name: row.nameOverride || row.s.name })} type="checkbox" bind:checked={row.selected} class="mt-1" />
 
                   <button
                     type="button"
-                    class="shrink-0 cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all"
+                    class="shrink-0 cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all"
                     onclick={() => openIconPicker(row.s.key)}
                     title="Pick an icon for this app"
                     aria-label="Pick icon for {row.nameOverride || row.s.name}"
@@ -405,32 +406,33 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <input
+                        aria-label={m.discovery_appNameFor({ name: row.s.name })}
                         type="text"
                         bind:value={row.nameOverride}
-                        class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle focus:border-brand-500 focus:outline-none px-1"
+                        class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle px-1"
                       />
                       <span class="text-xs px-1.5 py-0.5 rounded cursor-help
-                                   {row.s.confidence === 'high' ? 'bg-green-500/15 text-green-300' : ''}
-                                   {row.s.confidence === 'medium' ? 'bg-blue-500/15 text-blue-300' : ''}
-                                   {row.s.confidence === 'low' ? 'bg-gray-500/15 text-gray-300' : ''}"
+                                   {row.s.confidence === 'high' ? 'bg-success-bg text-success-text' : ''}
+                                   {row.s.confidence === 'medium' ? 'bg-info-bg text-info-text' : ''}
+                                   {row.s.confidence === 'low' ? 'bg-bg-active text-text-secondary' : ''}"
                             title={ch.tip}>
                         {ch.label}
                       </span>
                       {#if sh.tone !== 'gray'}
                         <span class="text-xs px-1.5 py-0.5 rounded
-                                     {sh.tone === 'amber' ? 'bg-amber-500/15 text-amber-300' : ''}
-                                     {sh.tone === 'red' ? 'bg-red-500/15 text-red-300' : ''}"
+                                     {sh.tone === 'amber' ? 'bg-warning-bg text-warning-text' : ''}
+                                     {sh.tone === 'red' ? 'bg-danger-bg text-danger-text' : ''}"
                               title={sh.tip}>
                           {row.s.stability}
                         </span>
                       {/if}
                       {#if st}
                         <span class="text-xs px-1.5 py-0.5 rounded font-medium
-                                     {st.status === 'created' ? 'bg-green-500/15 text-green-300' : ''}
-                                     {st.status === 'skipped_exists' ? 'bg-blue-500/15 text-blue-300' : ''}
-                                     {st.status === 'validation_failed' ? 'bg-red-500/15 text-red-300' : ''}
-                                     {st.status === 'name_collision_in_batch' ? 'bg-red-500/15 text-red-300' : ''}
-                                     {st.status === 'aborted_by_batch_failure' ? 'bg-amber-500/15 text-amber-300' : ''}"
+                                     {st.status === 'created' ? 'bg-success-bg text-success-text' : ''}
+                                     {st.status === 'skipped_exists' ? 'bg-info-bg text-info-text' : ''}
+                                     {st.status === 'validation_failed' ? 'bg-danger-bg text-danger-text' : ''}
+                                     {st.status === 'name_collision_in_batch' ? 'bg-danger-bg text-danger-text' : ''}
+                                     {st.status === 'aborted_by_batch_failure' ? 'bg-warning-bg text-warning-text' : ''}"
                               title={st.error || st.status}>
                           {st.status.replace(/_/g, ' ')}
                         </span>
@@ -448,7 +450,7 @@
                         <span class="text-text-muted">URL:</span> <code>{row.s.url}</code>
                       </div>
                     {:else}
-                      <div class="mt-1 text-xs text-amber-300">
+                      <div class="mt-1 text-xs text-warning-text">
                         ⚠ No URL could be built - fix port / strategy in Settings → Discovery before importing.
                       </div>
                     {/if}
@@ -493,10 +495,11 @@
                         </span>
                         {#if row.createGateway}
                           <input
+                            aria-label={m.discovery_gatewayDomainFor({ name: row.s.name })}
                             type="text"
                             bind:value={row.gatewayDomain}
                             placeholder="sonarr.example.com"
-                            class="text-xs px-2 py-0.5 bg-bg-base border border-border-subtle rounded text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            class="text-xs px-2 py-0.5 bg-bg-base border border-border-subtle rounded text-text-primary"
                           />
                         {/if}
                       </div>
@@ -537,11 +540,11 @@
       <footer class="px-5 py-3 border-t border-border flex items-center justify-between gap-2">
         <span class="text-xs">
           {#if importTopError}
-            <span class="text-red-300">{importTopError}</span>
+            <span class="text-danger-text" role="alert">{importTopError}</span>
           {:else if importResult && importResult.success}
-            <span class="text-green-300">Import succeeded ({importResult.items.length} items)</span>
+            <span class="text-success-text" role="status">Import succeeded ({importResult.items.length} items)</span>
           {:else if importResult && !importResult.success}
-            <span class="text-red-300">{importResult.error || 'Import failed - see per-row status'}</span>
+            <span class="text-danger-text" role="alert">{importResult.error || 'Import failed - see per-row status'}</span>
           {:else}
             <span class="text-text-muted">{selectedCount} of {rows.length} selected</span>
           {/if}

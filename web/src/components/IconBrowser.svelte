@@ -275,7 +275,7 @@
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'dashboard'
-               ? 'text-brand-400 border-brand-400'
+               ? 'text-accent-text border-border-focus'
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'dashboard'}
     >
@@ -285,7 +285,7 @@
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'lucide'
-               ? 'text-brand-400 border-brand-400'
+               ? 'text-accent-text border-border-focus'
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'lucide'}
     >
@@ -295,7 +295,7 @@
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'custom'
-               ? 'text-brand-400 border-brand-400'
+               ? 'text-accent-text border-border-focus'
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'custom'}
     >
@@ -307,12 +307,12 @@
   <!-- Search -->
   <div class="p-3 border-b border-border">
     <input
+      aria-label={m.icons_searchLabel()}
       type="text"
       bind:value={searchQuery}
       oninput={handleSearch}
       placeholder={m.iconBrowser_searchPlaceholder()}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-             focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
     />
   </div>
 
@@ -323,7 +323,7 @@
         <button
           class="px-3 py-1 text-xs rounded-full transition-colors
                  {selectedVariant === variant
-                   ? 'bg-brand-500 text-white'
+                   ? 'bg-accent-primary text-accent-on-primary'
                    : 'bg-bg-elevated text-text-muted hover:text-text-primary'}"
           onclick={() => selectedVariant = variant}
         >
@@ -341,6 +341,7 @@
   {:else if activeTab === 'custom'}
     <div class="px-3 py-2 border-b border-border">
       <input
+        aria-label={m.iconBrowser_uploadCustomIcon()}
         bind:this={fileInput}
         type="file"
         accept=".svg,.png,.jpg,.jpeg,.webp,.gif"
@@ -355,7 +356,7 @@
         disabled={uploading}
       >
         {#if uploading}
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
           {m.iconBrowser_uploading()}
         {:else}
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -365,26 +366,26 @@
         {/if}
       </button>
       {#if uploadError}
-        <p class="text-xs text-red-400 mt-1">{uploadError}</p>
+        <p class="text-xs text-danger-text mt-1">{uploadError}</p>
       {/if}
       <div class="flex gap-2 mt-2">
         <input
+          aria-label={m.icons_fetchUrlLabel()}
           type="text"
           bind:value={fetchUrl}
           placeholder="https://example.com/icon.png"
-          class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+          class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
           onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') handleFetchUrl(); }}
           disabled={fetching}
         />
         <button
-          class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-sm
+          class="btn btn-primary text-sm
                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
           onclick={handleFetchUrl}
           disabled={fetching || !fetchUrl.trim()}
         >
           {#if fetching}
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
             {m.iconBrowser_fetching()}
           {:else}
             {m.iconBrowser_fetch()}
@@ -392,7 +393,7 @@
         </button>
       </div>
       {#if fetchError}
-        <p class="text-xs text-red-400 mt-1">{fetchError}</p>
+        <p class="text-xs text-danger-text mt-1">{fetchError}</p>
       {/if}
     </div>
   {/if}
@@ -422,10 +423,11 @@
         {#each currentIcons as icon, idx (`${icon.name}-${idx}`)}
           <div class="relative group">
             <button
+              aria-label={icon.name}
               class="aspect-square p-2 rounded-lg border transition-all w-full
                      {selectedIcon === icon.name && selectedType === activeTab
-                       ? 'border-brand-500 bg-brand-500/10'
-                       : 'border-border hover:border-border hover:bg-bg-hover'}"
+                       ? 'border-border-focus bg-accent-subtle'
+                       : 'border-border hover:border-border-strong hover:bg-bg-hover'}"
               onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
             >
@@ -451,10 +453,10 @@
               {#if confirmDeleteIcon === icon.name}
                 <!-- Inline confirmation overlay -->
                 <div class="absolute inset-0 rounded-lg bg-bg-base/90 flex flex-col items-center justify-center gap-1 z-10">
-                  <span class="text-[10px] text-red-400">{m.common_deleteConfirm()}</span>
+                  <span class="text-[10px] text-danger-text">{m.common_deleteConfirm()}</span>
                   <div class="flex gap-1">
                     <button
-                      class="px-1.5 py-0.5 text-[10px] rounded bg-red-600 hover:bg-red-500 text-white"
+                      class="btn btn-danger px-1.5 py-0.5 text-[10px] rounded"
                       onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIconAction(); }}
                     >{m.common_yes()}</button>
                     <button
@@ -465,8 +467,9 @@
                 </div>
               {:else}
                 <button
-                  class="absolute -top-1 -end-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
-                         text-text-primary flex items-center justify-center text-xs"
+                  aria-label={m.common_deleteNamed({ name: icon.name })}
+                  class="absolute -top-1 -end-1 w-5 h-5 bg-danger-solid hover:brightness-110 rounded-full
+                         text-danger-on-solid flex items-center justify-center text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}
                   title={m.common_delete()}
                 >
@@ -502,7 +505,7 @@
         {m.common_cancel()}
       </button>
       <button
-        class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
+        class="btn btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
         disabled={!selectedIcon}
         onclick={() => onselect?.({ name: selectedIcon, variant: selectedType === 'dashboard' ? selectedVariant : 'svg', type: selectedType })}
       >

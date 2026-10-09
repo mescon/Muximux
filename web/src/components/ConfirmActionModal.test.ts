@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/svelte';
+import { render, fireEvent, waitFor, screen } from '@testing-library/svelte';
 import ConfirmActionModal from './ConfirmActionModal.svelte';
 import type { App } from '$lib/types';
 
@@ -71,5 +71,12 @@ describe('ConfirmActionModal', () => {
     const { getByTestId } = render(ConfirmActionModal, { props: { app: makeApp(), onConfirm, onCancel } });
     await fireEvent.click(getByTestId('confirm-modal-backdrop'));
     expect(onCancel).toHaveBeenCalled();
+  });
+
+  it('confirm button uses btn-primary, not a brand fill', () => {
+    render(ConfirmActionModal, { props: { app: makeApp(), onConfirm: vi.fn(), onCancel: vi.fn() } });
+    const confirm = screen.getByRole('button', { name: /confirm/i });
+    expect(confirm.className).toContain('btn-primary');
+    expect(confirm.className).not.toMatch(/text-white|bg-brand-/);
   });
 });

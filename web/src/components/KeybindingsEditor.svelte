@@ -145,10 +145,10 @@
     </p>
     {#if confirmResetAll}
       <div class="flex items-center gap-2">
-        <span class="text-sm text-red-400">{m.keybindings_resetAllConfirm()}</span>
+        <span class="text-sm text-danger-text">{m.keybindings_resetAllConfirm()}</span>
         <button
           type="button"
-          class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+          class="btn btn-danger px-2 py-1 text-xs rounded"
           onclick={confirmResetAllAction}
         >{m.keybindings_yesReset()}</button>
         <button
@@ -179,13 +179,13 @@
         {#each bindings as binding (binding.action)}
           <div
             class="flex items-center justify-between p-3 bg-bg-hover rounded-lg
-                   {isCustomized(binding.action) ? 'ring-1 ring-brand-500/30' : ''}"
+                   {isCustomized(binding.action) ? 'ring-1 ring-accent-primary/30' : ''}"
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="text-text-primary">{binding.label}</span>
                 {#if isCustomized(binding.action)}
-                  <span class="text-xs text-brand-400">{m.keybindings_customized()}</span>
+                  <span class="text-xs text-accent-text">{m.keybindings_customized()}</span>
                 {/if}
               </div>
               <p class="text-xs text-text-disabled mt-0.5">{binding.description}</p>
@@ -200,7 +200,7 @@
                       <!-- Capturing mode for this combo -->
                       <div class="flex items-center gap-1">
                         {#if capturedCombo}
-                          <kbd class="px-2 py-1 text-xs bg-brand-600 border border-brand-500 rounded text-white font-mono">
+                          <kbd class="px-2 py-1 text-xs bg-accent-primary border border-border-focus rounded text-accent-on-primary font-mono">
                             {formatKeyCombo(capturedCombo)}
                           </kbd>
                         {:else}
@@ -226,7 +226,7 @@
                         {#if binding.editable && binding.combos.length > 1}
                           <span
                             role="button"
-                            class="p-0.5 text-text-disabled hover:text-red-400 cursor-pointer"
+                            class="p-0.5 text-text-disabled hover:text-danger-text cursor-pointer"
                             onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
                             tabindex="0"
@@ -248,6 +248,7 @@
                 <!-- Add new combo button -->
                 {#if binding.editable && capturingAction !== binding.action}
                   <button
+                    aria-label={m.keybindings_addAlternativeFor({ name: binding.label })}
                     type="button"
                     class="p-1 text-text-disabled hover:text-text-secondary transition-colors"
                     onclick={() => startCapture(binding.action, null)}
@@ -264,7 +265,7 @@
                   <div class="flex items-center gap-1">
                     <span class="text-text-disabled text-xs mx-1">{m.common_or()}</span>
                     {#if capturedCombo}
-                      <kbd class="px-2 py-1 text-xs bg-brand-600 border border-brand-500 rounded text-white font-mono">
+                      <kbd class="px-2 py-1 text-xs bg-accent-primary border border-border-focus rounded text-accent-on-primary font-mono">
                         {formatKeyCombo(capturedCombo)}
                       </kbd>
                     {:else}
@@ -279,8 +280,9 @@
               <!-- Reset button (shown if customized) -->
               {#if isCustomized(binding.action)}
                 <button
+                  aria-label={m.keybindings_resetFor({ name: binding.label })}
                   type="button"
-                  class="p-1 text-text-disabled hover:text-yellow-400 transition-colors"
+                  class="p-1 text-text-disabled hover:text-warning-text transition-colors"
                   onclick={() => handleResetBinding(binding.action)}
                   title={m.keybindings_resetToDefault()}
                 >
@@ -314,8 +316,8 @@
         </div>
 
         {#if conflicts.length > 0}
-          <div class="keybinding-conflict rounded-lg p-3 mb-4">
-            <p class="text-sm font-medium mb-1" style="color: var(--status-warning);">
+          <div class="notice notice-warning rounded-lg mb-4">
+            <p class="text-sm font-medium mb-1 text-warning-text">
               {m.keybindings_conflictDetected()}
             </p>
             <p class="text-xs" style="color: var(--text-secondary);">
@@ -356,10 +358,6 @@
     border: 1px solid var(--border-default);
     color: var(--text-primary);
   }
-  .keybinding-conflict {
-    background: color-mix(in srgb, var(--status-warning) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--status-warning) 30%, transparent);
-  }
   .keybinding-btn-cancel {
     background: var(--bg-elevated);
     color: var(--text-secondary);
@@ -369,7 +367,7 @@
   }
   .keybinding-btn-confirm {
     background: var(--accent-primary);
-    color: #fff;
+    color: var(--accent-on-primary);
   }
   .keybinding-btn-confirm:hover {
     filter: brightness(1.1);

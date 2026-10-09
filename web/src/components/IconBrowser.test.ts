@@ -118,7 +118,7 @@ describe('IconBrowser', () => {
       render(IconBrowser);
       await waitFor(() => {
         const dashboardBtn = screen.getByText('Dashboard Icons').closest('button');
-        expect(dashboardBtn?.className).toContain('text-brand-400');
+        expect(dashboardBtn?.className).toContain('text-accent-text');
       });
     });
 
@@ -132,7 +132,7 @@ describe('IconBrowser', () => {
       await fireEvent.click(lucideBtn);
 
       await waitFor(() => {
-        expect(lucideBtn.className).toContain('text-brand-400');
+        expect(lucideBtn.className).toContain('text-accent-text');
       });
     });
 
@@ -146,7 +146,7 @@ describe('IconBrowser', () => {
       await fireEvent.click(customBtn);
 
       await waitFor(() => {
-        expect(customBtn.className).toContain('text-brand-400');
+        expect(customBtn.className).toContain('text-accent-text');
       });
     });
   });
@@ -267,7 +267,7 @@ describe('IconBrowser', () => {
 
       const iconBtn = screen.getByTitle('grafana');
       await waitFor(() => {
-        expect(iconBtn.className).toContain('border-brand-500');
+        expect(iconBtn.className).toContain('border-border-focus');
       });
     });
   });
@@ -423,7 +423,7 @@ describe('IconBrowser', () => {
       });
       await waitFor(() => {
         const lucideBtn = screen.getByText('Lucide').closest('button');
-        expect(lucideBtn?.className).toContain('text-brand-400');
+        expect(lucideBtn?.className).toContain('text-accent-text');
       });
     });
 
@@ -433,7 +433,7 @@ describe('IconBrowser', () => {
       });
       await waitFor(() => {
         const customBtn = screen.getByText('Custom').closest('button');
-        expect(customBtn?.className).toContain('text-brand-400');
+        expect(customBtn?.className).toContain('text-accent-text');
       });
     });
   });

@@ -104,6 +104,22 @@ describe('Login', () => {
     });
   });
 
+  it('shows the error as a danger notice', async () => {
+    vi.mocked(login).mockResolvedValueOnce({ success: false, message: 'Invalid credentials' });
+
+    render(Login);
+    await waitFor(() => {
+      expect(screen.getByLabelText('Username')).toBeInTheDocument();
+    });
+    await fireEvent.input(screen.getByLabelText('Username'), { target: { value: 'admin' } });
+    await fireEvent.input(screen.getByLabelText('Password'), { target: { value: 'wrong' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert').className).toContain('notice-danger');
+    });
+  });
+
   it('shows OIDC button when oidc_enabled', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,

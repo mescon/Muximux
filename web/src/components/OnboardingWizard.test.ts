@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
+import { tick } from 'svelte';
 
 // --- Hoisted store values and mock fns ---
 const {
@@ -297,6 +298,30 @@ describe('OnboardingWizard', () => {
       expect(screen.getByText('Done')).toBeInTheDocument();
     });
 
+    it('marks the active step with aria-current and announces step changes politely', async () => {
+      const { container } = renderWizard();
+      const current = () => Array.from(container.querySelectorAll('.stepper-node[aria-current="step"]'));
+      expect(current()).toHaveLength(1);
+      expect(current()[0].textContent).toContain('Welcome');
+      expect(screen.getByRole('status')).toHaveTextContent('');
+      expect(screen.getByRole('status').textContent?.trim()).toBe('');
+
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      await waitFor(() => {
+        expect(current()).toHaveLength(1);
+        expect(current()[0].textContent).toContain('Apps');
+        expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 5: Apps');
+      });
+
+      // Re-setting the same step must not re-announce it.
+      const node = screen.getByRole('status').firstChild;
+      mockStepProgress.set(1);
+      await tick();
+      expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 5: Apps');
+      expect(screen.getByRole('status').firstChild).toBe(node);
+    });
+
     it('shows Security step label when needsSetup is true', () => {
       mockActiveStepOrder.set(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
       renderWizard({ needsSetup: true });
@@ -470,6 +495,7 @@ describe('OnboardingWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Invalid config format')).toBeInTheDocument();
       });
+      expect(screen.getByRole('alert')).toHaveTextContent('Invalid config format');
     });
 
     it('shows generic error when restore response has no JSON body', async () => {
@@ -621,6 +647,7 @@ describe('OnboardingWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
       });
+      expect(screen.getByRole('alert')).toHaveTextContent('Password must be at least 8 characters');
     });
 
     it('shows password mismatch error when passwords differ', async () => {
@@ -636,6 +663,7 @@ describe('OnboardingWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
       });
+      expect(screen.getByRole('alert')).toHaveTextContent('Passwords do not match');
     });
 
     it('Continue is enabled when builtin form is valid', async () => {
@@ -734,6 +762,16 @@ describe('OnboardingWizard', () => {
         expect(screen.getByText('Security warning')).toBeInTheDocument();
         expect(screen.getByText(/understand the risks/)).toBeInTheDocument();
       });
+    });
+
+    it('the "no authentication" choice shows a warning notice', async () => {
+      renderWizard({ needsSetup: true });
+      await fireEvent.click(screen.getByText('No authentication'));
+      await waitFor(() => {
+        expect(screen.getByText('Security warning')).toBeInTheDocument();
+      });
+      const card = screen.getByText('Security warning').closest('.notice')!;
+      expect(card.className).toContain('notice-warning');
     });
 
     it('Continue is disabled on no-auth until risk acknowledged', async () => {
@@ -2358,6 +2396,23 @@ describe('OnboardingWizard', () => {
         const removeBtn = screen.queryAllByRole('button', { name: /Remove group/i });
         expect(removeBtn.length).toBeGreaterThan(0);
       });
+    });
+
+    it('keeps group input and remove-button names stable while typing, including an empty name', async () => {
+      renderWizard();
+      await fireEvent.click(screen.getByRole('checkbox', { name: /Plex/i }));
+      const nameInput = await screen.findByRole('textbox', { name: 'Group 1 name' });
+      expect(screen.getByLabelText('Group 1 color')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Remove group 1' })).toBeInTheDocument();
+
+      await fireEvent.input(nameInput, { target: { value: 'Media Stuff' } });
+      expect(screen.getByRole('textbox', { name: 'Group 1 name' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Group 1 color')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Remove group 1' })).toBeInTheDocument();
+
+      await fireEvent.input(screen.getByRole('textbox', { name: 'Group 1 name' }), { target: { value: '' } });
+      expect(screen.getByRole('textbox', { name: 'Group 1 name' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Remove group 1' })).toBeInTheDocument();
     });
 
     it('adds another instance of a selected app via the "+" button', async () => {

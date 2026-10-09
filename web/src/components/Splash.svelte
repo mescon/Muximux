@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import type { App, Config, DockerState } from '$lib/types';
@@ -177,8 +178,8 @@
 <div
   class="h-full overflow-auto scrollbar-styled"
   style="background: var(--bg-base);"
-  in:fade={{ duration: 200, delay: 50 }}
-  out:fade={{ duration: 150 }}
+  in:fade={{ duration: motionMs(200), delay: 50 }}
+  out:fade={{ duration: motionMs(150) }}
 >
   <!-- Subtle gradient overlay for depth -->
   <div class="absolute inset-0 pointer-events-none opacity-50"
@@ -189,7 +190,7 @@
     <!-- Header -->
     <header class="text-center mb-10 md:mb-14">
       <div class="flex justify-center mb-4">
-        <MuximuxLogo height="80" class="text-[var(--accent-primary)]" />
+        <MuximuxLogo height="80" class="text-accent-text" />
       </div>
       <p class="text-sm md:text-base" style="color: var(--text-muted);">
         {m.splash_selectApp()}
@@ -267,7 +268,7 @@
                          entirely when health_badge_placement is 'off'. -->
                     {#if dockerChromeOn}
                       <div class="docker-cluster absolute top-2.5 end-2.5 z-10 flex items-center gap-1">
-                        <DockerLogo size="sm" class="text-slate-500" />
+                        <DockerLogo size="sm" class="text-text-muted" />
                         {#if ds}
                           <DockerStatePill state={ds} />
                         {/if}
@@ -529,7 +530,7 @@
     color: var(--text-primary);
   }
   .docker-action-btn.start:hover {
-    color: var(--status-success, #22c55e);
+    color: var(--success-text);
   }
   .docker-action-btn svg {
     width: 0.875rem;

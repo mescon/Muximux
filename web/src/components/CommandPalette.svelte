@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { App } from '$lib/types';
@@ -360,7 +361,7 @@
   aria-modal="true"
   aria-label={m.command_commandPalette()}
   tabindex="-1"
-  transition:fade={{ duration: 150 }}
+  transition:fade={{ duration: motionMs(150) }}
 >
   <!-- Command palette modal -->
   <div
@@ -370,8 +371,8 @@
              : 'max-w-xl rounded-xl mx-4'}"
     onclick={(e) => e.stopPropagation()}
     role="presentation"
-    in:fly={{ y: isMobile ? 100 : -20, duration: 200 }}
-    out:fade={{ duration: 100 }}
+    in:fly={{ y: isMobile ? 100 : -20, duration: motionMs(200) }}
+    out:fade={{ duration: motionMs(100) }}
   >
     <!-- Mobile drag handle -->
     {#if isMobile}
@@ -383,15 +384,16 @@
     <!-- Search input -->
     <div class="p-4 border-b" style="border-color: var(--border-subtle);">
       <div class="flex items-center space-x-3">
-        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--accent-text);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
+          aria-label={m.command_searchPlaceholder()}
           bind:this={inputElement}
           bind:value={query}
           type="text"
           placeholder={m.command_searchPlaceholder()}
-          class="command-palette-input flex-1 bg-transparent outline-none text-lg min-w-0"
+          class="command-palette-input flex-1 bg-transparent text-lg min-w-0"
         />
         <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">{m.command_hintEsc()}</kbd>
       </div>

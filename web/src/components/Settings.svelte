@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { iconLabel } from '$lib/iconUrl';
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
@@ -768,22 +769,22 @@
 
 <div
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
-  transition:fade={{ duration: 150 }}
+  transition:fade={{ duration: motionMs(150) }}
 >
   <div
     class="bg-bg-surface shadow-2xl w-full overflow-hidden border border-border flex flex-col
            {isMobile
              ? 'h-full max-h-full rounded-none'
              : 'rounded-xl max-w-4xl max-h-[90vh]'}"
-    in:fly={{ y: isMobile ? 50 : 20, duration: 200 }}
-    out:fade={{ duration: 100 }}
+    in:fly={{ y: isMobile ? 50 : 20, duration: motionMs(200) }}
+    out:fade={{ duration: motionMs(100) }}
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
       <h2 class="text-lg font-semibold text-text-primary">{m.settings_title()}</h2>
       <div class="flex items-center gap-2">
         {#if hasChanges}
-          <span class="text-xs text-yellow-400">{m.settings_unsavedChanges()}</span>
+          <span class="text-xs text-warning-text">{m.settings_unsavedChanges()}</span>
         {/if}
         <button
           class="btn btn-primary btn-sm disabled:opacity-50"
@@ -807,14 +808,14 @@
 
     <!-- Save failure: the dialog stays open with every edit -->
     {#if saveError}
-      <div class="px-4 py-2 bg-red-600/20 border-b border-red-600/40 text-sm text-red-200" role="alert">
+      <div class="px-4 py-2 bg-danger-bg border-b border-danger-border text-sm text-danger-text" role="alert" data-testid="settings-save-error">
         {m.settings_saveFailed({ error: saveError })}
       </div>
     {/if}
 
     <!-- Name conflicts a rebase kept: Save stays blocked until one is renamed -->
     {#if conflicts.length > 0}
-      <div class="px-4 py-2 bg-red-600/20 border-b border-red-600/40 text-sm text-red-200 space-y-1" role="alert" data-testid="settings-conflicts">
+      <div class="px-4 py-2 bg-danger-bg border-b border-danger-border text-sm text-danger-text space-y-1" role="alert" data-testid="settings-conflicts">
         {#each conflicts as c (`${c.kind}:${c.name}`)}
           <p title={c.message}>{c.kind === 'app' ? m.settings_conflictApp({ name: c.name }) : m.settings_conflictGroup({ name: c.name })}</p>
         {/each}
@@ -823,8 +824,8 @@
 
     <!-- Unsaved changes confirmation banner -->
     {#if confirmClose}
-      <div class="flex items-center justify-between px-4 py-2 bg-yellow-600/20 border-b border-yellow-600/40">
-        <span class="text-sm text-yellow-200">{m.settings_discardPrompt()}</span>
+      <div class="flex items-center justify-between px-4 py-2 bg-warning-bg border-b border-warning-border">
+        <span class="text-sm text-warning-text">{m.settings_discardPrompt()}</span>
         <div class="flex gap-2">
           <button
             class="btn btn-secondary btn-sm"
@@ -840,7 +841,7 @@
     {/if}
 
     <!-- Tabs - scrollable on mobile -->
-    <div class="flex border-b border-border flex-shrink-0 overflow-x-auto scrollbar-hide">
+    <div class="focus-inset flex border-b border-border flex-shrink-0 overflow-x-auto scrollbar-hide">
       {#each [
         { id: 'general', get label() { return m.settings_general(); } },
         { id: 'apps', get label() { return m.settings_appsAndGroups(); } },
@@ -854,7 +855,7 @@
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
                  {activeTab === tab.id
-                   ? 'text-brand-400 border-brand-400'
+                   ? 'text-accent-text border-border-focus'
                    : 'text-text-muted border-transparent hover:text-text-secondary hover:border-border'}"
           onclick={() => activeTab = tab.id as typeof activeTab}
         >
@@ -933,7 +934,7 @@
 {#if showAddApp}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    transition:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full border border-border {addAppStep === 'choose' ? 'max-w-2xl' : 'max-w-lg'}"
@@ -942,8 +943,8 @@
       aria-labelledby="add-app-title"
       tabindex="-1"
       use:focusTrap
-      in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
+      out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <div class="flex items-center gap-2">
@@ -977,9 +978,10 @@
           <!-- Search -->
           <div class="mb-4">
             <input
+              aria-label={m.settings_searchApps()}
               type="text"
               bind:value={addAppSearch}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
               placeholder={m.settings_searchApps()}
             />
           </div>
@@ -987,7 +989,7 @@
           <!-- Custom App card -->
           {#if !addAppSearch}
             <button
-              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-start"
+              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-border-strong hover:bg-bg-hover transition-colors text-start"
               onclick={startCustomApp}
             >
               <div class="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center flex-shrink-0">
@@ -1089,12 +1091,12 @@
 {#if showAddGroup}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    transition:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
-      in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
+      out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_addGroup()}</h3>
@@ -1116,15 +1118,16 @@
             type="text"
             bind:value={newGroup.name}
             oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
+            aria-invalid={groupErrors.name ? 'true' : undefined}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {groupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
             placeholder={m.settings_groupNamePlaceholder()}
           />
-          {#if groupErrors.name}<p class="text-red-400 text-xs mt-1">{groupErrors.name}</p>{/if}
+          {#if groupErrors.name}<p class="text-danger-text text-xs mt-1">{groupErrors.name}</p>{/if}
         </div>
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newGroup')}>
+            <button aria-label={m.settings_chooseIcon()} type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('newGroup')}>
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             </button>
             <button
@@ -1145,9 +1148,10 @@
               class="w-10 h-10 rounded cursor-pointer"
             />
             <input
+              aria-label={m.common_colorValue()}
               type="text"
               bind:value={newGroup.color}
-              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
             />
           </div>
         </div>
@@ -1174,7 +1178,7 @@
 {#if editingApp}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    in:fade={{ duration: 100 }}
+    in:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-lg border border-border"
@@ -1183,7 +1187,7 @@
       aria-labelledby="edit-app-title"
       tabindex="-1"
       use:focusTrap
-      in:fly={{ y: 10, duration: 150 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 id="edit-app-title" class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
@@ -1240,11 +1244,11 @@
 {#if editingGroup}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    in:fade={{ duration: 100 }}
+    in:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
-      in:fly={{ y: 10, duration: 150 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
@@ -1266,14 +1270,15 @@
             type="text"
             bind:value={editingGroup.name}
             oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editGroupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
+            aria-invalid={editGroupErrors.name ? 'true' : undefined}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {editGroupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
           />
-          {#if editGroupErrors.name}<p class="text-red-400 text-xs mt-1">{editGroupErrors.name}</p>{/if}
+          {#if editGroupErrors.name}<p class="text-danger-text text-xs mt-1">{editGroupErrors.name}</p>{/if}
         </div>
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editGroup')}>
+            <button aria-label={m.settings_chooseIcon()} type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-accent-primary transition-all" onclick={() => openIconBrowser('editGroup')}>
               <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
             </button>
             <div class="flex-1">
@@ -1318,9 +1323,10 @@
               class="w-10 h-10 rounded cursor-pointer"
             />
             <input
+              aria-label={m.common_colorValue()}
               type="text"
               bind:value={editingGroup.color}
-              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
             />
           </div>
         </div>
@@ -1347,13 +1353,13 @@
 {#if showIconBrowser}
   <div
     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
-    transition:fade={{ duration: 100 }}
+    transition:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface shadow-2xl w-full border border-border
              {isMobile ? 'h-full max-h-full rounded-none' : 'rounded-xl max-w-3xl'}"
-      in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
+      out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_selectIcon()}</h3>
@@ -1382,11 +1388,11 @@
 {#if showImportConfirm && pendingImport}
   <div
     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
-    in:fade={{ duration: 100 }}
+    in:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
-      in:fly={{ y: 10, duration: 150 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>
@@ -1411,7 +1417,7 @@
             {m.settings_importSummary({ appCount: pendingImport.apps.length, groupCount: pendingImport.groups.length })}
           </div>
         </div>
-        <p class="text-yellow-400 text-sm flex items-center gap-2">
+        <p class="text-warning-text text-sm flex items-center gap-2">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -1536,10 +1542,5 @@
   /* Range inputs: use theme accent color */
   .settings :global(input[type="range"]) {
     accent-color: var(--accent-primary);
-  }
-
-  /* Focus rings: use theme accent instead of hardcoded brand-500 */
-  .settings :global(*:focus) {
-    --tw-ring-color: var(--accent-primary) !important;
   }
 </style>

@@ -65,7 +65,8 @@ vi.mock('$lib/themeStore', async () => {
     getCurrentThemeVariables: (...args: unknown[]) => mockGetCurrentThemeVars(...args),
     themeVariableGroups: {
       'Backgrounds': ['--bg-base', '--bg-surface'],
-      'Text': ['--text-primary'],
+      'Text': ['--text-primary', '--text-secondary'],
+      'Accent': ['--accent-primary', '--accent-secondary'],
     },
     sanitizeThemeId: (...args: unknown[]) => mockSanitizeThemeId(...args),
     setThemeFamily: (...args: unknown[]) => mockSetThemeFamily(...args),
@@ -235,6 +236,7 @@ describe('ThemeTab', () => {
       render(ThemeTab);
 
       expect(screen.getByTitle('Delete theme')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete My Custom' })).toBeInTheDocument();
     });
   });
 
@@ -250,6 +252,19 @@ describe('ThemeTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Theme Editor')).toBeInTheDocument();
       });
+    });
+
+    it('gives each token a distinct colour and hex name', async () => {
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await waitFor(() => {
+        expect(screen.getAllByLabelText(/ color$/).length).toBeGreaterThan(0);
+        expect(screen.getAllByLabelText(/ hex value$/).length).toBeGreaterThan(0);
+      });
+      const picker = screen.getAllByLabelText(/ color$/)[0] as HTMLInputElement;
+      const hex = screen.getAllByLabelText(/ hex value$/)[0] as HTMLInputElement;
+      expect(picker.type).toBe('color');
+      expect(hex.type).toBe('text');
     });
 
     it('shows variable groups in the editor', async () => {
@@ -397,6 +412,82 @@ describe('ThemeTab', () => {
       });
     });
 
+    async function saveWithVars(vars: Record<string, string>) {
+      mockGetCurrentThemeVars.mockReturnValue(vars);
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Theme name...')).toBeInTheDocument();
+      });
+      await fireEvent.input(screen.getByPlaceholderText('Theme name...'), { target: { value: 'My Theme' } });
+      await fireEvent.click(screen.getByText('Save Theme'));
+      await waitFor(() => expect(mockSaveCustomTheme).toHaveBeenCalled());
+      return mockSaveCustomTheme.mock.calls[0][3] as Record<string, string>;
+    }
+
+    it('gives the text and accent Primary/Secondary fields unique accessible names', async () => {
+      mockGetCurrentThemeVars.mockReturnValue({
+        '--bg-base': '#1a1a2e',
+        '--text-primary': '#111111',
+        '--text-secondary': '#222222',
+        '--accent-primary': '#333333',
+        '--accent-secondary': '#444444',
+      });
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await screen.findByLabelText('Accent primary hex value');
+      for (const name of ['Text primary', 'Text secondary', 'Accent primary', 'Accent secondary']) {
+        expect(screen.getAllByLabelText(`${name} color`)).toHaveLength(1);
+        expect(screen.getAllByLabelText(`${name} hex value`)).toHaveLength(1);
+      }
+      const names = screen.getAllByRole('textbox').map((el) => el.getAttribute('aria-label'));
+      expect(new Set(names).size).toBe(names.length);
+    });
+
+    it('writes a computed accent-on-primary when saving a theme', async () => {
+      const vars = await saveWithVars({
+        '--bg-base': '#1a1a2e',
+        '--accent-primary': '#ffe066',
+        '--accent-on-primary': '#ffffff',
+      });
+      expect(vars['--accent-on-primary']).toBe('#000000');
+    });
+
+    it('computes a light on-colour for a dark accent', async () => {
+      const vars = await saveWithVars({ '--accent-primary': '#1a237e' });
+      expect(vars['--accent-on-primary']).toBe('#ffffff');
+    });
+
+    it('recomputes the on-colour after the user edits the accent, then saves', async () => {
+      mockGetCurrentThemeVars.mockReturnValue({ '--bg-base': '#1a1a2e', '--accent-primary': '#1a237e' });
+      render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      const hexInput = await screen.findByLabelText('Accent primary hex value');
+      await fireEvent.input(hexInput, { target: { value: '#ffe066' } });
+      await fireEvent.input(screen.getByPlaceholderText('Theme name...'), { target: { value: 'My Theme' } });
+      await fireEvent.click(screen.getByText('Save Theme'));
+      await waitFor(() => expect(mockSaveCustomTheme).toHaveBeenCalled());
+      const vars = mockSaveCustomTheme.mock.calls[0][3] as Record<string, string>;
+      expect(vars['--accent-primary']).toBe('#ffe066');
+      expect(vars['--accent-on-primary']).toBe('#000000');
+    });
+
+    it('judges a translucent accent over the base background', async () => {
+      const onDark = await saveWithVars({ '--bg-base': '#000000', '--accent-primary': 'rgba(255, 224, 102, 0.3)' });
+      expect(onDark['--accent-on-primary']).toBe('#ffffff');
+      mockSaveCustomTheme.mockClear();
+      document.body.innerHTML = '';
+      const onLight = await saveWithVars({ '--bg-base': '#ffffff', '--accent-primary': 'rgba(255, 224, 102, 0.3)' });
+      expect(onLight['--accent-on-primary']).toBe('#000000');
+    });
+
+    it('sends the map unchanged when the accent does not parse', async () => {
+      const input = { '--bg-base': '#1a1a2e', '--accent-primary': 'not-a-colour' };
+      const vars = await saveWithVars(input);
+      expect(vars).toEqual(input);
+      expect(vars).not.toHaveProperty('--accent-on-primary');
+    });
+
     it('shows success toast after successful save', async () => {
       render(ThemeTab);
 
@@ -503,6 +594,24 @@ describe('ThemeTab', () => {
       ]);
     });
 
+    it('gives the customize button a working hover border (no inline border overriding it)', () => {
+      render(ThemeTab);
+      const btn = screen.getByText('Customize Current Theme').closest('button')!;
+      expect(btn).toHaveClass('border', 'border-border-subtle', 'hover:border-border-strong');
+      expect(btn.getAttribute('style') ?? '').not.toMatch(/border/);
+    });
+
+    it('uses the danger button style for delete and confirm, not status colours inline', async () => {
+      render(ThemeTab);
+      const deleteBtn = screen.getByTitle('Delete theme');
+      expect(deleteBtn).toHaveClass('btn', 'btn-danger', 'w-5', 'h-5', 'p-0', 'rounded-full');
+      expect(deleteBtn.getAttribute('style') ?? '').not.toContain('--status-error');
+      await fireEvent.click(deleteBtn);
+      const yes = await screen.findByText('Yes');
+      expect(yes).toHaveClass('btn', 'btn-danger', 'px-3', 'py-1');
+      expect(yes.getAttribute('style') ?? '').not.toContain('--status-error');
+    });
+
     it('shows delete confirmation when delete button is clicked', async () => {
       render(ThemeTab);
 
@@ -602,8 +711,8 @@ describe('ThemeTab', () => {
 
       // The editor should have color type inputs for hex color variables
       const colorInputs = container.querySelectorAll('input[type="color"]');
-      // --bg-base, --bg-surface, --text-primary are all hex => 3 color inputs
-      expect(colorInputs.length).toBe(3);
+      // --bg-base, --bg-surface, --text-primary, --text-secondary, --accent-primary, --accent-secondary => 6 color inputs
+      expect(colorInputs).toHaveLength(6);
     });
   });
 
