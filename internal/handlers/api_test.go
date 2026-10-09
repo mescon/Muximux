@@ -3257,10 +3257,103 @@ func TestSaveConfig_ThreeWay_StaleURLKeptAndTracked(t *testing.T) {
 	if loaded.Server.Title != "Renamed Dashboard" {
 		t.Errorf("title = %q", loaded.Server.Title)
 	}
-	// The auto-detach audit line is emitted exactly when the merge hands
-	// back a detach key; the merged app keeps the stored URL, so none is.
-	if _, key := mergeClientApp(&ClientAppConfig{Name: "App1", URL: "http://172.17.0.9"}, &cfg.Apps[0]); key != "" {
-		t.Errorf("detach key = %q, want none", key)
+	// No auto-detach: the live config the PUT left behind is still tracked
+	// against the server's URL (a detach clears every tracking field).
+	if live := findApp(cfg, "App1"); live == nil || live.DockerKey != "k" || live.DockerManagedURL != "http://172.17.0.9" {
+		t.Errorf("live app detached by a stale URL: %+v", live)
+	}
+}
+
+// S-04, health_url half: the server's health_url changed after the client
+// loaded; a payload echoing the stale base value keeps the server's.
+func TestSaveConfig_ThreeWay_StaleHealthURLKept(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].DockerKey = "k"
+	cfg.Apps[0].DockerManagedURL = cfg.Apps[0].URL
+	cfg.Apps[0].HealthURL = "http://172.17.0.2/health"
+	base := clientSnapshot(t, cfg)
+	cfg.Apps[0].HealthURL = "http://172.17.0.9/health"
+	mine := base
+	mine.Apps = append([]ClientAppConfig(nil), base.Apps...)
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	a := findApp(loaded, "App1")
+	if a == nil || a.HealthURL != "http://172.17.0.9/health" {
+		t.Errorf("stale health_url reverted the server's: %+v", a)
+	}
+	if a == nil || a.DockerKey != "k" || a.DockerManagedURL != a.URL {
+		t.Errorf("tracking lost: %+v", a)
+	}
+}
+
+// A manual URL edit (mine differs from base and theirs) on the three-way
+// path still auto-detaches, as TestSaveConfig_AutoDetachesOnURLChange
+// checks for the two-way path.
+func TestSaveConfig_ThreeWay_ManualURLEditDetaches(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].URL = "http://172.17.0.2"
+	cfg.Apps[0].DockerKey = "label:sonarr-stable"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+	cfg.Apps[0].DockerManagedURL = "http://172.17.0.2"
+	base := clientSnapshot(t, cfg)
+	cfg.Apps[0].URL = "http://172.17.0.9" // the poller refreshed it meanwhile
+	cfg.Apps[0].DockerManagedURL = "http://172.17.0.9"
+	mine := clientSnapshot(t, cfg)
+	mine.Apps = append([]ClientAppConfig(nil), base.Apps...)
+	mine.Apps[0].URL = "http://manual:9999"
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	for _, a := range []*config.AppConfig{findApp(cfg, "App1"), findApp(loaded, "App1")} {
+		if a == nil || a.URL != "http://manual:9999" {
+			t.Fatalf("manual URL not stored: %+v", a)
+		}
+		if a.DockerKey != "" || a.DockerEndpoint != "" || a.DockerStrategy != "" || a.DockerManagedURL != "" {
+			t.Errorf("expected auto-detach to clear tracking fields, got %+v", a)
+		}
+	}
+}
+
+// S-05: the server removed an app the client still holds unchanged from
+// base; the save must not resurrect it.
+func TestSaveConfig_ThreeWay_ServerRemovedAppNotResurrected(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	mine := clientSnapshot(t, cfg)
+	mine.Base = &base
+	cfg.Apps = cfg.Apps[1:] // the server deleted App1
+
+	loaded := putConfigOK(t, cfg, &mine)
+	if findApp(loaded, "App1") != nil {
+		t.Errorf("server-removed app resurrected: %+v", loaded.Apps)
+	}
+	if findApp(loaded, "App2") == nil {
+		t.Errorf("apps = %+v", loaded.Apps)
+	}
+}
+
+// S-11: the server added an app and a gateway site pointing at it while
+// the dialog was open; the save passes validation and keeps both.
+func TestSaveConfig_ThreeWay_ServerAddedAppWithGatewaySite(t *testing.T) {
+	cfg := createTestConfig()
+	base := clientSnapshot(t, cfg)
+	cfg.Apps = append(cfg.Apps, config.AppConfig{Name: "Added", URL: "http://added:80", Enabled: true})
+	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "added.example.com", BackendURL: "http://added:80", AppName: "Added"}}
+	mine := base
+	mine.Title = "Edited"
+	mine.Base = &base
+
+	loaded := putConfigOK(t, cfg, &mine)
+	if findApp(loaded, "Added") == nil {
+		t.Errorf("server-added app dropped: %+v", loaded.Apps)
+	}
+	if len(loaded.Server.GatewaySites) != 1 || loaded.Server.GatewaySites[0].AppName != "Added" {
+		t.Errorf("gateway sites = %+v", loaded.Server.GatewaySites)
+	}
+	if loaded.Server.Title != "Edited" {
+		t.Errorf("title = %q", loaded.Server.Title)
 	}
 }
 
