@@ -312,7 +312,7 @@
       oninput={handleSearch}
       placeholder={m.iconBrowser_searchPlaceholder()}
       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-             focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+ text-sm"
     />
   </div>
 
@@ -373,7 +373,7 @@
           bind:value={fetchUrl}
           placeholder="https://example.com/icon.png"
           class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+ text-sm"
           onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') handleFetchUrl(); }}
           disabled={fetching}
         />

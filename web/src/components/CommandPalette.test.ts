@@ -123,6 +123,14 @@ describe('CommandPalette', () => {
       expect(dialog?.getAttribute('aria-modal')).toBe('true');
       expect(dialog?.getAttribute('aria-label')).toBe('Command palette');
     });
+
+    it('search input has no outline-none class and no focus ring utility', () => {
+      render(CommandPalette, {
+        props: { apps: sampleApps },
+      });
+      const input = screen.getByRole('textbox');
+      expect(input.className).not.toMatch(/outline-none|focus:ring/);
+    });
   });
 
   describe('app listing', () => {

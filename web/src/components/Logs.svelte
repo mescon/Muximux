@@ -464,7 +464,6 @@
     color: var(--text-primary);
     background: var(--bg-overlay);
     border: 1px solid var(--border-subtle);
-    outline: none;
     transition: border-color 0.15s ease;
   }
 
@@ -472,7 +471,7 @@
     color: var(--text-disabled);
   }
 
-  .log-search-input:focus {
+  .log-search-input:focus-visible {
     border-color: var(--accent-primary);
   }
 

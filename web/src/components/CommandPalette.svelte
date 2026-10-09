@@ -392,7 +392,7 @@
           bind:value={query}
           type="text"
           placeholder={m.command_searchPlaceholder()}
-          class="command-palette-input flex-1 bg-transparent outline-none text-lg min-w-0"
+          class="command-palette-input flex-1 bg-transparent text-lg min-w-0"
         />
         <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">{m.command_hintEsc()}</kbd>
       </div>

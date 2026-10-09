@@ -1099,7 +1099,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={$showLabels}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
                   <div class="text-xs text-text-muted">{m.general_showLabelsDesc()}</div>
@@ -1108,7 +1108,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowLogo}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_showLogo()}</div>
                   <div class="text-xs text-text-muted">{m.general_showLogoDesc()}</div>
@@ -1117,7 +1117,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowAppColors}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
                   <div class="text-xs text-text-muted">{m.general_appColorAccentsDesc()}</div>
@@ -1126,7 +1126,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowIconBg}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
                   <div class="text-xs text-text-muted">{m.general_iconBackgroundDesc()}</div>
@@ -1148,7 +1148,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer sm:col-span-2 sm:max-w-[calc(50%-0.375rem)]">
                 <input type="checkbox" bind:checked={navShowSplash}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
                   <div class="text-xs text-text-muted">{m.general_startOnOverviewDesc()}</div>
@@ -1158,7 +1158,7 @@
               <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <label class="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" bind:checked={navAutoHide}
-                    class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                    class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                   <div class="flex-1">
                     <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
                     <div class="text-xs text-text-muted">{m.general_autoHideMenuDesc()}</div>
@@ -1168,7 +1168,7 @@
                   <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
                     <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
-                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500">
+                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary">
                       <option value="0.25s">0.25s</option>
                       <option value="0.5s">0.5s</option>
                       <option value="1s">1s</option>
@@ -1178,7 +1178,7 @@
                   </div>
                   <label class="flex items-center gap-3 mt-2 ps-7 cursor-pointer">
                     <input type="checkbox" bind:checked={navShowShadow}
-                      class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                      class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                     <div class="text-xs text-text-muted">{m.general_shadow()}</div>
                   </label>
                 {/if}
@@ -1188,7 +1188,7 @@
                 <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                   <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" bind:checked={navHideSidebarFooter}
-                      class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                      class="w-4 h-4 rounded border-border-subtle text-accent-text" />
                     <div class="flex-1">
                       <div class="text-sm text-text-primary">{m.general_collapsibleFooter()}</div>
                       <div class="text-xs text-text-muted">{m.general_collapsibleFooterDesc()}</div>
@@ -1355,7 +1355,7 @@
                 autocomplete="off"
                 spellcheck="false"
                 placeholder={m.onboarding_setupTokenPlaceholder()}
-                class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary focus:outline-none focus:border-brand-500 font-mono text-sm"
+                class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary font-mono text-sm"
               />
               <p class="text-xs text-text-muted mt-1">
                 {m.onboarding_setupTokenHint({ file: 'data/.setup-token' })}
@@ -1432,7 +1432,7 @@
                         type="text"
                         bind:value={setupUsername}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                         placeholder="admin"
                         autocomplete="username"
                       />
@@ -1444,7 +1444,7 @@
                         type="password"
                         bind:value={setupPassword}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                         placeholder={m.security_minEightChars()}
                         autocomplete="new-password"
                       />
@@ -1459,7 +1459,7 @@
                         type="password"
                         bind:value={setupConfirmPassword}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                         placeholder={m.onboarding_reenterPassword()}
                         autocomplete="new-password"
                       />
@@ -1510,7 +1510,7 @@
                         id="setup-proxies"
                         bind:value={faTrustedProxies}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-                               focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+ text-sm"
                         placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                         rows="3"
                       ></textarea>
@@ -1524,7 +1524,7 @@
                         type="url"
                         bind:value={faLogoutUrl}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                         placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
                       />
                       <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
@@ -1545,22 +1545,22 @@
                         <div>
                           <label for="fa-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                           <input id="fa-header-user" type="text" bind:value={faHeaderUser}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                           <input id="fa-header-email" type="text" bind:value={faHeaderEmail}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                           <input id="fa-header-groups" type="text" bind:value={faHeaderGroups}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                           <input id="fa-header-name" type="text" bind:value={faHeaderName}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                         </div>
                       </div>
                     {/if}
@@ -1603,7 +1603,7 @@
                       </div>
                       <label class="flex items-start gap-3 cursor-pointer">
                         <input id="setup-none-ack" type="checkbox" bind:checked={acknowledgeRisk}
-                          class="mt-1 w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500" />
+                          class="mt-1 w-4 h-4 rounded border-border-subtle text-accent-text" />
                         <span class="text-sm text-text-muted">{m.onboarding_acknowledgeRisk()}</span>
                       </label>
                     </div>
@@ -1633,7 +1633,7 @@
                   <input
                     type="checkbox"
                     bind:checked={dockerEnabled}
-                    class="mt-0.5 w-4 h-4 rounded border-border-default text-accent-text focus:ring-brand-500"
+                    class="mt-0.5 w-4 h-4 rounded border-border-default text-accent-text"
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
@@ -1655,7 +1655,7 @@
                         type="text"
                         bind:value={dockerEndpoint}
                         class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                         placeholder="unix:///var/run/docker.sock"
                       />
                       <p class="text-xs text-text-disabled mt-1">{m.onboarding_dockerEndpointHint()}</p>
@@ -1666,7 +1666,7 @@
                         id="docker-strategy"
                         bind:value={dockerStrategy}
                         class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                       >
                         <option value="container_ip">container_ip ({m.onboarding_dockerStrategyContainerIPHint()})</option>
                         <option value="container_dns">container_dns ({m.onboarding_dockerStrategyContainerDNSHint()})</option>
@@ -1697,7 +1697,7 @@
                     type="text"
                     bind:value={customApp.name}
                     class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                     placeholder={m.onboarding_appName()}
                   />
                 </div>
@@ -1707,7 +1707,7 @@
                     type="url"
                     bind:value={customApp.url}
                     class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                     placeholder="http://localhost:8080"
                   />
                 </div>
@@ -1845,8 +1845,8 @@
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
                                 class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border
-                                       focus:border-brand-500 text-sm text-text-primary font-medium
-                                       focus:outline-none transition-colors"
+ text-sm text-text-primary font-medium
+ transition-colors"
                               />
                             </div>
                             {@render wizardMoveButtons(
@@ -1906,7 +1906,7 @@
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border focus:border-brand-500 focus:outline-none px-0 py-0"
+                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border px-0 py-0"
                                     />
                                     {@render wizardMoveButtons(
                                       m.apps_moveUp({ name: item.name }),
@@ -1932,7 +1932,7 @@
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
                                     onclick={(e) => e.stopPropagation()}
                                     class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-bg-elevated border border-border-subtle rounded
-                                           text-text-secondary placeholder-text-disabled focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                           text-text-secondary placeholder-text-disabled"
                                     placeholder="http://localhost:8080"
                                     style="width: calc(100% - 66px)"
                                   />
@@ -1941,7 +1941,7 @@
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-secondary"
                                     >
                                       {#each openModes as mode (mode.value)}
                                         <option value={mode.value}>{mode.label}</option>

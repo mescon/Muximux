@@ -46,7 +46,7 @@
       type="text"
       bind:value={localConfig.title}
       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+"
       placeholder="Muximux"
     />
     <p class="text-xs text-text-disabled mt-1.5">
@@ -58,7 +58,7 @@
           type="checkbox"
           checked={localConfig.navigation.dynamic_tab_branding ?? false}
           onchange={(e) => { localConfig.navigation.dynamic_tab_branding = (e.currentTarget as HTMLInputElement).checked; }}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
           data-testid="dynamic-tab-branding"
         />
         <div>
@@ -160,7 +160,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_labels}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
@@ -221,7 +221,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_app_colors}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
@@ -233,7 +233,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_icon_background}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+        class="w-4 h-4 rounded border-border-subtle text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
@@ -266,7 +266,7 @@
               localApps.forEach(a => a.default = false);
             }
           }}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div>
           <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
@@ -285,7 +285,7 @@
         <input
           type="checkbox"
           bind:checked={localConfig.navigation.auto_hide}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+          class="w-4 h-4 rounded border-border-subtle text-accent-text"
         />
         <div class="flex-1">
           <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
@@ -297,7 +297,7 @@
           <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
           <select
             bind:value={localConfig.navigation.auto_hide_delay}
-            class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary focus:ring-brand-500 focus:border-brand-500"
+            class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary"
           >
             <option value="0.25s">0.25s</option>
             <option value="0.5s">0.5s</option>
@@ -310,7 +310,7 @@
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.show_shadow}
-            class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+            class="w-4 h-4 rounded border-border-subtle text-accent-text"
           />
           <div class="text-xs text-text-muted">{m.general_shadow()}</div>
         </label>
@@ -323,7 +323,7 @@
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.hide_sidebar_footer}
-            class="w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500"
+            class="w-4 h-4 rounded border-border-subtle text-accent-text"
           />
           <div class="flex-1">
             {#if localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
@@ -388,7 +388,7 @@
         bind:value={localConfig.log_level}
         disabled={!!logLevelEnv}
         class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-               focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+"
       >
         <option value="debug">{m.general_logDebug()}</option>
         <option value="info">{m.general_logInfo()}</option>
@@ -406,7 +406,7 @@
         bind:value={localConfig.proxy_timeout}
         placeholder="30s"
         class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-               focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+"
       />
       <span class="text-xs text-text-disabled">{m.general_proxyTimeoutHint()}</span>
     </div>

@@ -459,11 +459,6 @@ html.theme-transitioning *::after {
     border-radius: var(--radius-md);
     transition: all var(--transition-base);
     cursor: pointer;
-    outline: none;
-  }
-
-  .btn:focus-visible {
-    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-primary);
   }
 
   .btn-primary {
@@ -535,7 +530,6 @@ html.theme-transitioning *::after {
     border-radius: var(--radius-md);
     font-size: 0.875rem;
     transition: all var(--transition-fast);
-    outline: none;
   }
 
   .input::placeholder {
@@ -544,11 +538,6 @@ html.theme-transitioning *::after {
 
   .input:hover {
     border-color: var(--border-strong);
-  }
-
-  .input:focus {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-subtle);
   }
 
   .input-ghost {
@@ -561,7 +550,7 @@ html.theme-transitioning *::after {
     border-color: transparent;
   }
 
-  .input-ghost:focus {
+  .input-ghost:focus-visible {
     background: var(--bg-surface);
     border-color: var(--accent-primary);
   }
@@ -926,9 +915,16 @@ html.theme-transitioning *::after {
 /* ─────────────────────────────────────────────────────────────────────────────
    FOCUS RING
    ───────────────────────────────────────────────────────────────────────────── */
-.focus-ring:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-primary);
+/* One focus indicator for everything: a 2px outline in the theme's focus colour.
+   Components must not remove it (the static guard bans outline-none). */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+.input:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline-offset: 0;
+  border-color: var(--border-focus);
+  box-shadow: none;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

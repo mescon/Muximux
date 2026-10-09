@@ -9,9 +9,9 @@
     onchange: (update: OIDCSettingsUpdate, valid: boolean) => void;
   } = $props();
 
-  const inputClass = 'w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 read-only:opacity-70';
+  const inputClass = 'w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm read-only:opacity-70';
   const checkboxRowClass = 'flex items-center gap-3 cursor-pointer';
-  const checkboxClass = 'w-4 h-4 rounded border-border-subtle text-accent-text focus:ring-brand-500';
+  const checkboxClass = 'w-4 h-4 rounded border-border-subtle text-accent-text';
 
   // The form is initialised once from the loaded settings; later edits stay local.
   const initial = untrack(() => settings);

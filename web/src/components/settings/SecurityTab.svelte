@@ -492,7 +492,7 @@
                       type="password"
                       bind:value={cpCurrent}
                       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                             focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                       autocomplete="current-password"
                     />
                   </div>
@@ -503,7 +503,7 @@
                       type="password"
                       bind:value={cpNew}
                       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                             focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                       placeholder={m.security_minEightChars()}
                       autocomplete="new-password"
                     />
@@ -518,7 +518,7 @@
                       type="password"
                       bind:value={cpConfirm}
                       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                             focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                       autocomplete="new-password"
                     />
                     {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
@@ -555,7 +555,7 @@
                       type="text"
                       bind:value={setupUsername}
                       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                             focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                       placeholder="admin"
                     />
                   </div>
@@ -566,7 +566,7 @@
                       type="password"
                       bind:value={setupPassword}
                       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                             focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                       placeholder="••••••••"
                     />
                   </div>
@@ -642,7 +642,7 @@
                 id="settings-proxies"
                 bind:value={methodTrustedProxies}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                 placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                 rows="3"
               ></textarea>
@@ -656,7 +656,7 @@
                 type="url"
                 bind:value={faLogoutUrl}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                 placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
               />
               <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
@@ -677,22 +677,22 @@
                 <div>
                   <label for="settings-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                   <input id="settings-header-user" type="text" bind:value={faHeaderUser}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                 </div>
                 <div>
                   <label for="settings-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                   <input id="settings-header-email" type="text" bind:value={faHeaderEmail}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                 </div>
                 <div>
                   <label for="settings-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                   <input id="settings-header-groups" type="text" bind:value={faHeaderGroups}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                 </div>
                 <div>
                   <label for="settings-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                   <input id="settings-header-name" type="text" bind:value={faHeaderName}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
                 </div>
               </div>
             {/if}
@@ -703,7 +703,7 @@
                 id="settings-admin-groups"
                 bind:value={faAdminGroups}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                 placeholder="admins"
                 rows="2"
               ></textarea>
@@ -1007,7 +1007,7 @@
                 type="text"
                 bind:value={newUserName}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                 placeholder="username"
               />
             </div>
@@ -1018,7 +1018,7 @@
                 type="password"
                 bind:value={newUserPassword}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
                 placeholder={m.security_minEightCharsShort()}
               />
             </div>
@@ -1029,7 +1029,7 @@
               id="new-user-role"
               bind:value={newUserRole}
               class="px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
-                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+"
             >
               <option value="admin">{m.common_roleAdmin()}</option>
               <option value="power-user">{m.common_rolePowerUser()}</option>
@@ -1083,7 +1083,7 @@
                   value={user.role}
                   onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
                   class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
-                         focus:outline-none focus:ring-1 focus:ring-brand-500"
+"
                 >
                   <option value="admin">{m.common_roleAdmin()}</option>
                   <option value="power-user">{m.common_rolePowerUser()}</option>
@@ -1129,7 +1129,7 @@
                   }}
                   placeholder="e.g. developers, on-call"
                   class="flex-1 px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
-                         focus:outline-none focus:ring-1 focus:ring-brand-500"
+"
                 />
               </div>
             </div>

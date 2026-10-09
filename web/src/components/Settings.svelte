@@ -980,7 +980,7 @@
             <input
               type="text"
               bind:value={addAppSearch}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
               placeholder={m.settings_searchApps()}
             />
           </div>
@@ -1117,7 +1117,7 @@
             type="text"
             bind:value={newGroup.name}
             oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {groupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
             placeholder={m.settings_groupNamePlaceholder()}
           />
           {#if groupErrors.name}<p class="text-danger-text text-xs mt-1">{groupErrors.name}</p>{/if}
@@ -1148,7 +1148,7 @@
             <input
               type="text"
               bind:value={newGroup.color}
-              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
             />
           </div>
         </div>
@@ -1267,7 +1267,7 @@
             type="text"
             bind:value={editingGroup.name}
             oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editGroupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {editGroupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
           />
           {#if editGroupErrors.name}<p class="text-danger-text text-xs mt-1">{editGroupErrors.name}</p>{/if}
         </div>
@@ -1321,7 +1321,7 @@
             <input
               type="text"
               bind:value={editingGroup.color}
-              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
             />
           </div>
         </div>
@@ -1537,10 +1537,5 @@
   /* Range inputs: use theme accent color */
   .settings :global(input[type="range"]) {
     accent-color: var(--accent-primary);
-  }
-
-  /* Focus rings: use theme accent instead of hardcoded brand-500 */
-  .settings :global(*:focus) {
-    --tw-ring-color: var(--accent-primary) !important;
   }
 </style>
