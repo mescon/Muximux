@@ -878,7 +878,7 @@
     onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
     onmouseenter={() => hoveredGroup = null}
   >
-    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+    <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
     {#if config.navigation.show_labels}
       <span>{app.name}</span>
     {:else}
@@ -1037,7 +1037,7 @@
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
           </button>
         {:else if config.navigation.show_logo}
           <button
@@ -1092,7 +1092,7 @@
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
                 {#if hasIcon(groupConfig?.icon)}
-                  <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
+                  <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
                 <span>{groupName}</span>
                 <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1122,7 +1122,7 @@
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                        <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if navBadgesOn && app.docker_key}
                           {@const ds = $dockerStateStore.get(app.name)}
@@ -1165,7 +1165,7 @@
               >
                 {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
+                    <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
                   </span>
                 {:else}
                   <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
@@ -1290,7 +1290,7 @@
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
           </button>
         </div>
       {:else if config.navigation.show_logo}
@@ -1361,7 +1361,7 @@
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
               {#if hasIcon(groupConfig?.icon)}
-                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
               {:else if groupConfig?.color}
                 <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
               {:else}
@@ -1404,7 +1404,7 @@
                     <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                    <AppIcon decorative={config.navigation.show_labels} icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
@@ -1715,7 +1715,7 @@
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
           </button>
         </div>
       {:else if config.navigation.show_logo}
@@ -1786,7 +1786,7 @@
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
               {#if hasIcon(groupConfig?.icon)}
-                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
               {:else if groupConfig?.color}
                 <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
               {:else}
@@ -1828,7 +1828,7 @@
                     <div class="absolute end-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                    <AppIcon decorative={config.navigation.show_labels} icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
@@ -2142,7 +2142,7 @@
             title={config.title}
             aria-label={m.nav_goToOverview()}
           >
-            <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+            <AppIcon decorative icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
           </button>
         {:else if config.navigation.show_logo}
           <button
@@ -2197,7 +2197,7 @@
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
                 {#if hasIcon(groupConfig?.icon)}
-                  <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
+                  <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
                 {/if}
                 <span>{groupName}</span>
                 <svg class="w-3 h-3 opacity-50 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2227,7 +2227,7 @@
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                        <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if navBadgesOn && app.docker_key}
                           {@const ds = $dockerStateStore.get(app.name)}
@@ -2269,7 +2269,7 @@
               >
                 {#if hasIcon(groupConfig?.icon)}
                   <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
+                    <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
                   </span>
                 {:else}
                   <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
@@ -2403,7 +2403,7 @@
               >
                 <div class="flex-shrink-0 flex items-center justify-center w-6">
                   {#if hasIcon(groupConfig?.icon)}
-                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                    <AppIcon decorative icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
                   {:else if groupConfig?.color}
                     <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
                   {:else}
@@ -2446,7 +2446,7 @@
                         <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                       {/if}
                       <div class="flex-shrink-0 flex items-center justify-center w-6 ms-1" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
+                        <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                       </div>
                       <span class="truncate ms-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
                       {#if navBadgesOn && app.docker_key}
@@ -2485,7 +2485,7 @@
                 title={config.title}
                 aria-label={m.nav_goToOverview()}
               >
-                <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+                <AppIcon decorative icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
               </button>
             {:else if config.navigation.show_logo}
               <button

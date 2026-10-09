@@ -3809,4 +3809,52 @@ describe('Navigation Docker badge', () => {
     expect(badge!.querySelector('svg')).not.toBeNull();
     expect(badge!.querySelector('.docker-status-dot')).toBeNull();
   });
+  describe('nav host accessible names', () => {
+    for (const position of ['top', 'bottom', 'left', 'right'] as const) {
+      it(`names the ${position} host once, without repeating the icon alt text`, async () => {
+        mockHealthData.set(new Map([['Self', { status: 'healthy', check_count: 0 }]]));
+        render(Navigation, {
+          props: {
+            apps: [makeApp({ name: 'Self', health_check: true })],
+            currentApp: null,
+            showHealth: true,
+            config: makeConfig({ navigation: { position, show_labels: true } }),
+          },
+        });
+        const host = await screen.findByRole('button', { name: 'Self Health: Healthy' });
+        expect(host.querySelector('img')?.getAttribute('alt')).toBe('');
+        expect(screen.queryByRole('button', { name: /Self Self/ })).toBeNull();
+      });
+    }
+
+    it('names the floating panel host once', async () => {
+      mockHealthData.set(new Map([['Self', { status: 'healthy', check_count: 0 }]]));
+      const { container } = render(Navigation, {
+        props: {
+          apps: [makeApp({ name: 'Self', health_check: true })],
+          currentApp: null,
+          showHealth: true,
+          config: makeConfig({ navigation: { position: 'floating', show_labels: true } }),
+        },
+      });
+      const fab = container.querySelector('[role="navigation"]')!.querySelector('button')!;
+      await fireEvent.pointerDown(fab, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+      document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }));
+      const host = await screen.findByRole('button', { name: 'Self Health: Healthy' });
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('');
+      expect(screen.queryByRole('button', { name: /Self Self/ })).toBeNull();
+    });
+
+    it('keeps the icon alt text when a collapsible sidebar shows no label', async () => {
+      render(Navigation, {
+        props: {
+          apps: [makeApp({ name: 'Self' })],
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'left', show_labels: false } }),
+        },
+      });
+      const host = await screen.findByRole('button', { name: 'Self' });
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('Self');
+    });
+  });
 });
