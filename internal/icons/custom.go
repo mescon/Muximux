@@ -78,15 +78,36 @@ func (m *CustomIconsManager) SaveIcon(name string, data []byte, contentType stri
 		return fmt.Errorf("invalid icon name")
 	}
 
-	// Save file
-	filename := name + ext
-	path := filepath.Join(m.storageDir, filename)
-
-	if err := os.WriteFile(path, data, 0600); err != nil {
+	// Save file through a temp file and a rename, so a failed write never
+	// leaves a truncated icon in place of the one being replaced.
+	if err := writeFileAtomic(m.storageDir, name+ext, data); err != nil {
 		return err
 	}
 	m.removeOtherExtensions(name, ext)
 	return nil
+}
+
+// writeFileAtomic writes data to dir/filename (mode 0600) by writing a temp
+// file in dir and renaming it over the target. The temp file is removed on
+// any failure.
+func writeFileAtomic(dir, filename string, data []byte) error {
+	tmp, err := os.CreateTemp(dir, "."+filename+".tmp-*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	_, werr := tmp.Write(data)
+	cerr := tmp.Close()
+	if werr == nil {
+		werr = cerr
+	}
+	if werr == nil {
+		werr = os.Rename(tmpPath, filepath.Join(dir, filename))
+	}
+	if werr != nil {
+		_ = os.Remove(tmpPath)
+	}
+	return werr
 }
 
 // removeOtherExtensions deletes any stored file for name whose extension

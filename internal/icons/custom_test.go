@@ -518,6 +518,75 @@ func TestSaveIcon_ReplacesOtherExtension(t *testing.T) {
 	}
 }
 
+func TestSaveIcon_LeavesOtherNamesAlone(t *testing.T) {
+	dir := t.TempDir()
+	m, err := NewCustomIconsManager(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range []string{"logo2.png", "logo-dark.svg", "mylogo.webp"} {
+		if err := os.WriteFile(filepath.Join(dir, f), []byte("x"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := m.SaveIcon("logo", []byte("<svg/>"), "image/svg+xml"); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range []string{"logo2.png", "logo-dark.svg", "mylogo.webp", "logo.svg"} {
+		if _, err := os.Stat(filepath.Join(dir, f)); err != nil {
+			t.Errorf("%s: %v", f, err)
+		}
+	}
+}
+
+func TestSaveIcon_SameExtensionReplacesAtomically(t *testing.T) {
+	dir := t.TempDir()
+	m, err := NewCustomIconsManager(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.SaveIcon("logo", []byte("old"), "image/png"); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.SaveIcon("logo", []byte("new"), "image/png"); err != nil {
+		t.Fatal(err)
+	}
+	entries, _ := os.ReadDir(dir)
+	if len(entries) != 1 || entries[0].Name() != "logo.png" {
+		t.Fatalf("expected only logo.png (no temp files), got %v", entries)
+	}
+	data, _, err := m.GetIcon("logo")
+	if err != nil || string(data) != "new" {
+		t.Fatalf("GetIcon = %q, %v", data, err)
+	}
+	info, _ := os.Stat(filepath.Join(dir, "logo.png"))
+	if info.Mode().Perm() != 0600 {
+		t.Errorf("mode = %v, want 0600", info.Mode().Perm())
+	}
+}
+
+func TestWriteFileAtomic_FailedRenameKeepsTargetAndCleansUp(t *testing.T) {
+	dir := t.TempDir()
+	// A non-empty directory at the target path makes the rename fail.
+	target := filepath.Join(dir, "logo.png")
+	if err := os.MkdirAll(filepath.Join(target, "child"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeFileAtomic(dir, "logo.png", []byte("new")); err == nil {
+		t.Fatal("expected a rename error")
+	}
+	entries, _ := os.ReadDir(dir)
+	if len(entries) != 1 || entries[0].Name() != "logo.png" || !entries[0].IsDir() {
+		t.Errorf("temp file left behind or target touched: %v", entries)
+	}
+}
+
+func TestWriteFileAtomic_MissingDir(t *testing.T) {
+	if err := writeFileAtomic(filepath.Join(t.TempDir(), "gone"), "logo.png", []byte("x")); err == nil {
+		t.Fatal("expected an error for a missing directory")
+	}
+}
+
 func TestAllowedExtensions_SortedAndUnique(t *testing.T) {
 	if len(allowedExtensions) == 0 {
 		t.Fatal("empty")
