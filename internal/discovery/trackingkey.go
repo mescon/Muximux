@@ -7,11 +7,15 @@ import (
 
 // TrackingKey identifies a docker container across restarts using the
 // "<source>:<value>" prefix vocabulary the discovery feature speaks.
-// Three sources, in stability order:
+// Five sources, in stability order:
 //
 //   - label (KeySourceLabel) - reads muximux.discovery.id from the
 //     container labels. Set explicitly by the operator and survives
 //     docker-compose --force-recreate or swarm reschedule.
+//   - swarm (KeySourceSwarm) - the Swarm service name from the
+//     com.docker.swarm.service.name label; stable across task reschedules.
+//   - compose (KeySourceCompose) - "<project>:<service>" from the
+//     Compose labels; stable across recreate.
 //   - name (KeySourceName) - matches the container name. Reliable
 //     for hand-managed containers, fragile under compose's numeric
 //     suffix on recreate.
@@ -31,14 +35,16 @@ type TrackingKey struct {
 	Value  string
 }
 
-// KeySource enumerates the three valid tracking-key prefixes. Defined
+// KeySource enumerates the valid tracking-key prefixes. Defined
 // type so a typo in a comparison or switch case is a compile error.
 type KeySource string
 
 const (
-	KeySourceLabel KeySource = "label"
-	KeySourceName  KeySource = "name"
-	KeySourceID    KeySource = "id"
+	KeySourceLabel   KeySource = "label"
+	KeySourceSwarm   KeySource = "swarm"   // value: service name
+	KeySourceCompose KeySource = "compose" // value: <project>:<service> (never "/": DetachTracked rejects it)
+	KeySourceName    KeySource = "name"
+	KeySourceID      KeySource = "id"
 )
 
 // errMalformedTrackingKey is the sentinel returned by ParseTrackingKey
@@ -53,6 +59,9 @@ var errMalformedTrackingKey = errors.New("malformed tracking key (no source pref
 //   - empty value ("label:")
 //   - unknown source ("magic:foo")
 //
+// Valid sources are label, swarm, compose, name and id. The split is
+// at the first colon, so "compose:p:s" has value "p:s".
+//
 // The wire format on disk and over the API is unchanged; this is the
 // boundary check that lets the rest of the codebase work with a
 // well-formed value.
@@ -65,7 +74,9 @@ func ParseTrackingKey(raw string) (TrackingKey, error) {
 		return TrackingKey{}, errMalformedTrackingKey
 	}
 	src := KeySource(source)
-	if src != KeySourceLabel && src != KeySourceName && src != KeySourceID {
+	switch src {
+	case KeySourceLabel, KeySourceSwarm, KeySourceCompose, KeySourceName, KeySourceID:
+	default:
 		return TrackingKey{}, errMalformedTrackingKey
 	}
 	return TrackingKey{Source: src, Value: value}, nil
@@ -84,6 +95,8 @@ func (k TrackingKey) String() string {
 //
 //   - label: container has the muximux.discovery.id label with this
 //     exact value
+//   - swarm: container's swarm service name label equals this value
+//   - compose: container's compose "<project>:<service>" equals this value
 //   - name:  container's primary name (without leading "/") equals
 //     this exact value
 //   - id:    container ID equals this value OR begins with it
@@ -92,6 +105,10 @@ func (k TrackingKey) MatchContainer(c *ContainerSummary) bool {
 	switch k.Source {
 	case KeySourceLabel:
 		return c.Labels[LabelDiscoveryID] == k.Value
+	case KeySourceSwarm:
+		return swarmServiceName(c) == k.Value
+	case KeySourceCompose:
+		return composeKeyValue(c) == k.Value
 	case KeySourceName:
 		return c.PrimaryName() == k.Value
 	case KeySourceID:

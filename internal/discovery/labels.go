@@ -12,6 +12,12 @@ import (
 const (
 	LabelDiscoveryID = "muximux.discovery.id" // operator-supplied stable tracking key
 
+	// Docker-owned labels used for stable swarm and compose keys.
+	LabelSwarmServiceID   = "com.docker.swarm.service.id"
+	LabelSwarmServiceName = "com.docker.swarm.service.name"
+	LabelComposeProject   = "com.docker.compose.project"
+	LabelComposeService   = "com.docker.compose.service"
+
 	// muximux.app.* namespace - per-app fields. Anything an operator
 	// would normally set in the App edit form can be pinned here.
 	LabelAppEnabled            = "muximux.app.enabled" // "true" to opt in; defaults true when image matches catalog
@@ -369,8 +375,10 @@ var swarmTaskPattern = regexp.MustCompile(`\.\d+\.[a-z0-9]{20,}$`)
 // stable first):
 //
 //  1. operator label muximux.discovery.id  -> "label:<value>"
-//  2. plain container name                  -> "name:<name>"   (with stability hint)
-//  3. container ID (full SHA)               -> "id:<id>"        (last resort)
+//  2. swarm service name label             -> "swarm:<service>"
+//  3. compose project + service labels      -> "compose:<project>:<service>"
+//  4. plain container name                  -> "name:<name>"   (with stability hint)
+//  5. container ID (full SHA)               -> "id:<id>"        (last resort)
 //
 // The returned stability lets the modal surface a warning when the
 // chosen key will likely shift on docker-compose --force-recreate or
@@ -378,6 +386,12 @@ var swarmTaskPattern = regexp.MustCompile(`\.\d+\.[a-z0-9]{20,}$`)
 func KeyForContainer(c *ContainerSummary) (key string, stability Stability) {
 	if v, ok := c.Labels[LabelDiscoveryID]; ok && strings.TrimSpace(v) != "" {
 		return "label:" + strings.TrimSpace(v), StabilityStable
+	}
+	if svc := swarmServiceName(c); svc != "" {
+		return "swarm:" + svc, StabilityStable
+	}
+	if v := composeKeyValue(c); v != "" {
+		return "compose:" + v, StabilityStable
 	}
 	name := c.PrimaryName()
 	if name != "" {

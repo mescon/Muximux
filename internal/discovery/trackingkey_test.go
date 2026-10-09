@@ -98,3 +98,27 @@ func TestTrackingKey_MatchContainer(t *testing.T) {
 		})
 	}
 }
+
+func TestTrackingKey_ParseAndMatchSwarmCompose(t *testing.T) {
+	c := ContainerSummary{ID: "1", Names: []string{"/p_s.1.abc"}, Labels: map[string]string{LabelSwarmServiceName: "p_s", LabelComposeProject: "p", LabelComposeService: "s"}}
+	for _, raw := range []string{"swarm:p_s", "compose:p:s"} {
+		k, err := ParseTrackingKey(raw)
+		if err != nil || !k.MatchContainer(&c) || k.String() != raw {
+			t.Fatalf("%s: err=%v match=%v", raw, err, k.MatchContainer(&c))
+		}
+	}
+	if k, _ := ParseTrackingKey("compose:p:s"); k.Source != KeySourceCompose || k.Value != "p:s" {
+		t.Fatalf("parse cuts at the first colon: %+v", k)
+	}
+	k, _ := ParseTrackingKey("swarm:other")
+	if k.MatchContainer(&c) {
+		t.Fatal("wrong service matched")
+	}
+	k, err := ParseTrackingKey("compose:p")
+	if err != nil {
+		t.Fatal("a compose value without a service part is still a well-formed key (it just never matches)")
+	}
+	if k.MatchContainer(&c) {
+		t.Fatal("compose:p must not match project p, service s")
+	}
+}
