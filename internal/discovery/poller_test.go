@@ -1683,7 +1683,7 @@ func TestTick_AutoImportUpdate_GatewayOnlyLabelChangePropagates(t *testing.T) {
 
 	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportAdd)
 	// A require_auth site is only valid with a session cookie domain;
-	// without it the reconcile is rolled back as an invalid config.
+	// without it the container is skipped as invalid.
 	cfg.Server.SessionCookieDomain = "example.com"
 	pxy := newProxyForBatchTest([]proxy.GatewaySite{}, func() error { return nil })
 

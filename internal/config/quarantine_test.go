@@ -470,3 +470,32 @@ server:
 		}
 	})
 }
+
+func TestDockerSiteReason(t *testing.T) {
+	ok := GatewaySite{Domain: "a.example.com", BackendURL: "http://a:80", DockerKey: "label:a"}
+	gated := ok
+	gated.RequireAuth = true
+	noBackend := ok
+	noBackend.BackendURL = ""
+	srv := &ServerConfig{}
+	cookie := &ServerConfig{SessionCookieDomain: "example.com"}
+	cases := []struct {
+		name string
+		s    *GatewaySite
+		srv  *ServerConfig
+		want string // substring; "" means valid
+	}{
+		{"valid", &ok, srv, ""},
+		{"valid nil server", &ok, nil, ""},
+		{"gated nil server skips the cookie rule", &gated, nil, ""},
+		{"per-site rule", &noBackend, srv, "backend_url is required"},
+		{"gated without cookie domain", &gated, srv, "session_cookie_domain is empty"},
+		{"gated with cookie domain", &gated, cookie, ""},
+	}
+	for _, tc := range cases {
+		got := DockerSiteReason(tc.s, tc.srv)
+		if (tc.want == "") != (got == "") || !strings.Contains(got, tc.want) {
+			t.Errorf("%s: got %q, want %q", tc.name, got, tc.want)
+		}
+	}
+}

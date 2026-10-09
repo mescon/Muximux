@@ -74,7 +74,7 @@ func saveAndLoad(t *testing.T, cfg *config.Config) *config.Config {
 // Original reproduction (symptoms 1 + 2), inverted: unlabelled Swarm tasks
 // and tasks with no EXPOSEd port must not be auto-imported, so nothing is
 // written with an empty URL and the saved file loads.
-func TestIssue499_UnlabeledNoPortImportedWithEmptyURL(t *testing.T) {
+func TestIssue499_UnlabeledSwarmTasksNotImported(t *testing.T) {
 	set := []ContainerSummary{
 		swarmTask("authentik_server.1.iigxo04fr5oc1ej3g25xnhblo", "ghcr.io/goauthentik/server:2025.8.1", nil),
 		swarmTask("vaultwarden_app.1.aaaaaaaaaaaaaaaaaaaaaaaaa", "vaultwarden/server:latest", nil, 80),
@@ -93,35 +93,6 @@ func TestIssue499_UnlabeledNoPortImportedWithEmptyURL(t *testing.T) {
 		if a := findAppByKey(cfg, key); a != nil {
 			t.Fatalf("unlabelled container %s imported: %+v", key, a)
 		}
-	}
-	if err := cfg.Validate(); err != nil {
-		t.Fatalf("Validate() = %v", err)
-	}
-	saveAndLoad(t, cfg)
-}
-
-// Original reproduction, inverted: losing the port must not blank the URL
-// of an existing auto-imported app under update.
-func TestIssue499_UpdateBlanksURL(t *testing.T) {
-	c := swarmTask("homarr_homarr.1.zzzzzzzzzzzzzzzzzzzzzzzzz", "ghcr.io/homarr-labs/homarr:latest",
-		map[string]string{"muximux.app.name": "Homarr", "muximux.app.port": "7575", LabelDiscoveryID: "homarr"})
-	set := []ContainerSummary{c}
-	p, cfg := swarmPoller(t, &set, config.AutoImportUpdate)
-	p.tick(context.Background())
-	a := findAppByKey(cfg, "label:homarr")
-	if a == nil || a.URL == "" {
-		t.Fatalf("first import failed: %+v", cfg.Apps)
-	}
-	before := a.URL
-	// Operator drops the port label (or image loses EXPOSE).
-	delete(set[0].Labels, "muximux.app.port")
-	p.tick(context.Background())
-	a = findAppByKey(cfg, "label:homarr")
-	if a == nil || a.URL != before {
-		t.Fatalf("after: %+v, want url %q kept", a, before)
-	}
-	if p.skipWarned["label:homarr"] != SkipNoPort {
-		t.Fatalf("skipWarned = %v, want no_port recorded", p.skipWarned)
 	}
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("Validate() = %v", err)
@@ -170,6 +141,8 @@ func TestIssue499_UnlabeledNoPortNotImported(t *testing.T) { // F-01, F-04, Revi
 	}
 }
 
+// Ported from the original UpdateBlanksURL reproduction: losing the port
+// must not blank the URL of an existing auto-imported app under update.
 func TestIssue499_UpdateKeepsURLWhenPortLost(t *testing.T) { // F-03
 	c := swarmTask("homarr_homarr.1.zzzzzzzzzzzzzzzzzzzzzzzzz", "ghcr.io/homarr-labs/homarr:latest",
 		map[string]string{"muximux.app.name": "Homarr", "muximux.app.port": "7575", LabelDiscoveryID: "homarr"})
@@ -183,9 +156,13 @@ func TestIssue499_UpdateKeepsURLWhenPortLost(t *testing.T) { // F-03
 	if a == nil || a.URL != before || a.DockerManagedURL != before || !a.DockerAutoImported {
 		t.Fatalf("after: %+v (want url %q kept)", a, before)
 	}
+	if p.skipWarned["label:homarr"] != SkipNoPort {
+		t.Fatalf("skipWarned = %v, want no_port recorded", p.skipWarned)
+	}
 	if err := cfg.Validate(); err != nil {
 		t.Fatal(err)
 	}
+	saveAndLoad(t, cfg)
 }
 
 // Scan-level: labelled containers with no port, or whose URL cannot be
@@ -374,7 +351,7 @@ func TestBuildDesired_SkipsAndRecordsCodes(t *testing.T) {
 		{Key: "label:ha2", Name: "Home-Assistant", URL: "http://ha2:8123", Labeled: true},
 	}}
 	current := []config.AppConfig{{Name: "Home Assistant", URL: "http://ha:8123", Enabled: true}}
-	desired, skipped := p.buildDesired(&scan, "unix:///s", current)
+	desired, skipped := p.buildDesired(&scan, "unix:///s", current, nil)
 	if len(desired) != 1 || desired[0].App.DockerKey != "label:ok" {
 		t.Fatalf("desired = %+v", desired)
 	}
@@ -386,14 +363,14 @@ func TestBuildDesired_SkipsAndRecordsCodes(t *testing.T) {
 		t.Fatalf("skipWarned = %v", p.skipWarned)
 	}
 	// A repeat of the same skip does not log again (the record is unchanged).
-	p.buildDesired(&scan, "unix:///s", current)
+	p.buildDesired(&scan, "unix:///s", current, nil)
 	if p.skipWarned["label:bad"] != SkipInvalid {
 		t.Fatalf("skipWarned = %v", p.skipWarned)
 	}
 	// Eligible again: the warned record clears so a later skip warns again.
 	scan.Suggestions = scan.Suggestions[:1]
 	scan.Suggestions[0].Key = "label:bad"
-	p.buildDesired(&scan, "unix:///s", nil)
+	p.buildDesired(&scan, "unix:///s", nil, nil)
 	if _, ok := p.skipWarned["label:bad"]; ok {
 		t.Fatal("skipWarned not cleared on recovery")
 	}
@@ -429,7 +406,8 @@ func TestApplyReconcile_DetachClearsAutoOnly(t *testing.T) {
 	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(&config.DiscoveryDockerConfig{}), OnSave: func() error { return nil }})
 	b := newRefreshBatch()
 	b.detach = map[string]string{"label:a": SkipUnlabeled, "label:m": SkipUnlabeled}
-	_, detached := p.applyReconcile(b)
+	_, rec := p.applyReconcile(b)
+	detached := rec.detached
 	if cfg.Apps[0].DockerAutoImported || cfg.Apps[0].DockerKey != "label:a" || cfg.Apps[1].DockerKey != "label:m" {
 		t.Fatalf("apps = %+v", cfg.Apps)
 	}
@@ -450,42 +428,112 @@ func TestApplyRefreshBatch_RollsBackInvalidReconcile(t *testing.T) {
 		return b
 	}
 	p.applyRefreshBatch(batch())
-	if findAppByKey(cfg, "label:q") != nil || cfg.Apps[0].URL != "http://new" || cfg.Validate() != nil {
+	// The whole candidate is rolled back, the URL refresh included.
+	if findAppByKey(cfg, "label:q") != nil || cfg.Apps[0].URL != "http://old" || cfg.Validate() != nil {
 		t.Fatalf("apps = %+v", cfg.Apps)
 	}
 	if !cfg.HasQuarantined("label:q") {
 		t.Fatal("rollback must restore the quarantine the Add dropped")
 	}
-	if p.reconcileInvalid == "" {
+	if p.candidateInvalid == "" {
 		t.Fatal("rollback not recorded (the ERROR is logged on this transition only)")
 	}
-	first := p.reconcileInvalid
+	first := p.candidateInvalid
 	p.applyRefreshBatch(batch())
-	if p.reconcileInvalid != first {
-		t.Fatalf("reconcileInvalid changed on a repeat: %q -> %q", first, p.reconcileInvalid)
+	if p.candidateInvalid != first {
+		t.Fatalf("candidateInvalid changed on a repeat: %q -> %q", first, p.candidateInvalid)
 	}
 	ok := newRefreshBatch()
 	ok.appURLChanges["label:keep"] = "http://newer"
 	p.applyRefreshBatch(ok)
-	if p.reconcileInvalid != "" {
-		t.Fatal("a valid apply must clear reconcileInvalid")
+	if p.candidateInvalid != "" {
+		t.Fatal("a valid apply must clear candidateInvalid")
 	}
 }
 
-// A reconcile-only batch that fails validation leaves nothing to save: the
-// apply returns without calling OnSave and the config is unchanged.
-func TestApplyRefreshBatch_InvalidReconcileOnlySkipsSave(t *testing.T) {
-	cfg := &config.Config{Apps: []config.AppConfig{{Name: "Keep", URL: "http://old", Enabled: true}}}
+// An invalid candidate config is never saved: OnSave is not called and the
+// URL refresh in the same batch is rolled back with the reconcile.
+func TestApplyRefreshBatch_InvalidCandidateSkipsSave(t *testing.T) {
+	cfg := &config.Config{Apps: []config.AppConfig{{Name: "Keep", URL: "http://old", DockerKey: "label:keep", DockerManagedURL: "http://old", Enabled: true}}}
 	var mu sync.RWMutex
 	saves := 0
 	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(&config.DiscoveryDockerConfig{}),
 		OnSave: func() error { saves++; return nil }})
 	b := newRefreshBatch()
+	b.appURLChanges["label:keep"] = "http://new"
 	b.addApps = []config.AppConfig{{Name: "Broken", URL: "", DockerKey: "label:x", DockerAutoImported: true, Enabled: true}}
 	p.applyRefreshBatch(b)
-	if saves != 0 || len(cfg.Apps) != 1 || p.reconcileInvalid == "" {
-		t.Fatalf("saves=%d apps=%+v invalid=%q", saves, cfg.Apps, p.reconcileInvalid)
+	if saves != 0 || len(cfg.Apps) != 1 || cfg.Apps[0].URL != "http://old" || p.candidateInvalid == "" {
+		t.Fatalf("saves=%d apps=%+v invalid=%q", saves, cfg.Apps, p.candidateInvalid)
 	}
+}
+
+// A desired gateway site that fails the per-site load rule is skipped as
+// invalid for that container only.
+func TestBuildDesired_InvalidSiteSkipsOnlyThatKey(t *testing.T) {
+	p := NewPoller(PollerDeps{})
+	authOn := true
+	scan := ScanResult{Suggestions: []Suggestion{
+		{Key: "label:ok", Name: "Ok", URL: "http://ok:1", BackendURL: "http://ok:1", Labeled: true,
+			GatewayRequested: true, SuggestedDomain: "ok.example.com"},
+		{Key: "label:gated", Name: "Gated", URL: "http://gated:1", BackendURL: "http://gated:1", Labeled: true,
+			GatewayRequested: true, SuggestedDomain: "gated.example.com",
+			SuggestedGateway: &SuggestedGatewayConfig{RequireAuth: &authOn}},
+		{Key: "label:clash", Name: "Clash", URL: "http://clash:1", BackendURL: "http://clash:1", Labeled: true,
+			GatewayRequested: true, SuggestedDomain: "dash.example.com"},
+	}}
+	srv := &config.ServerConfig{TLS: config.TLSConfig{Domain: "dash.example.com"}}
+	desired, skipped := p.buildDesired(&scan, "unix:///s", nil, srv)
+	if len(desired) != 1 || desired[0].App.DockerKey != "label:ok" {
+		t.Fatalf("desired = %+v", desired)
+	}
+	if !reflect.DeepEqual(skipped, map[string]string{"label:gated": SkipInvalid, "label:clash": SkipInvalid}) {
+		t.Fatalf("skipped = %v", skipped)
+	}
+}
+
+// skipWarned only holds keys present in the latest scan.
+func TestBuildDesired_PrunesVanishedSkipWarned(t *testing.T) {
+	p := NewPoller(PollerDeps{})
+	scan := ScanResult{Suggestions: []Suggestion{
+		{Key: "label:a", Name: "A", AutoImportSkip: &AutoImportSkip{Code: SkipNoPort}},
+		{Key: "label:b", Name: "B", AutoImportSkip: &AutoImportSkip{Code: SkipUnlabeled}},
+	}}
+	p.buildDesired(&scan, "unix:///s", nil, nil)
+	if len(p.skipWarned) != 2 {
+		t.Fatalf("skipWarned = %v", p.skipWarned)
+	}
+	scan.Suggestions = scan.Suggestions[1:]
+	p.buildDesired(&scan, "unix:///s", nil, nil)
+	if !reflect.DeepEqual(p.skipWarned, map[string]string{"label:b": SkipUnlabeled}) {
+		t.Fatalf("skipWarned = %v, want label:a pruned", p.skipWarned)
+	}
+}
+
+// One container with an invalid gateway site must not block the others:
+// the good container is imported and the bad one is skipped, every tick.
+func TestTick_BadSiteDoesNotBlockGoodContainer(t *testing.T) {
+	bad := gwSonarr()
+	bad.ID = "auto-bad"
+	bad.Names = []string{"/bad"}
+	bad.Labels = map[string]string{LabelDiscoveryID: "bad", "muximux.app.name": "Bad",
+		LabelAppGatewayDomain: "bad.example.com", LabelGatewayRequireAuth: "true"} // no session_cookie_domain
+	set := []ContainerSummary{labeledSonarr(), bad}
+	socket, cleanup := mutableDaemonForPoller(t, &set)
+	defer cleanup()
+	cfg, dockerCfg := autoImportCfg(socket, config.AutoImportSync)
+	var mu sync.RWMutex
+	p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(dockerCfg), OnSave: func() error { return nil }})
+	for i := 0; i <= syncRemovalGraceTicks; i++ {
+		p.tick(context.Background())
+	}
+	if findAppByKey(cfg, "label:sonarr-auto") == nil || findAppByKey(cfg, "label:bad") != nil || findSiteByKey(cfg, "label:bad") != nil {
+		t.Fatalf("apps=%+v sites=%+v", cfg.Apps, cfg.Server.GatewaySites)
+	}
+	if p.skipWarned["label:bad"] != SkipInvalid || p.candidateInvalid != "" {
+		t.Fatalf("skipWarned=%v candidateInvalid=%q", p.skipWarned, p.candidateInvalid)
+	}
+	saveAndLoad(t, cfg)
 }
 
 // A failed save rolls the quarantine back with the apps: a re-added key
@@ -513,9 +561,5 @@ func TestRefreshBatch_DetachCountsAsAppChange(t *testing.T) {
 	b.detach["label:a"] = SkipUnlabeled
 	if b.empty() || !b.reconcileChangesApps() {
 		t.Fatal("a detach must make the batch non-empty and touch apps")
-	}
-	b.clearReconcile()
-	if !b.empty() {
-		t.Fatal("clearReconcile must drop the detach")
 	}
 }

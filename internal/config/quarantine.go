@@ -206,6 +206,21 @@ func gatedSiteReason(s *GatewaySite, srv *ServerConfig) string {
 	return ""
 }
 
+// DockerSiteReason returns why a docker-owned gateway site on its own would
+// be quarantined at load: the per-site checks (domain, backend URL,
+// collision with server.tls.domain, self-loop) and the require_auth /
+// session_cookie_domain rule. Cross-site checks (duplicate domains, app_name
+// links) are not covered. Empty means the site passes. srv may be nil.
+func DockerSiteReason(s *GatewaySite, srv *ServerConfig) string {
+	if err := validateGatewaySite(s, srv); err != nil {
+		return err.Error()
+	}
+	if srv == nil {
+		return ""
+	}
+	return gatedSiteReason(s, srv)
+}
+
 // quarantineReason is the single source of the app rule, shared by load and
 // SaveConfig: ValidateApp, then the slug collision against the enabled apps
 // kept so far (slugs maps slug -> first kept name). An empty result means
