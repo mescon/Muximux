@@ -115,6 +115,7 @@ export function mergeObject<T extends object>(base: T, mine: T, theirs: T, skip?
 export const SERVER_OWNED_APP_FIELDS: ReadonlySet<keyof App> = new Set<keyof App>([
   'original_name', 'proxyUrl', 'gateway_domain',
   'docker_key', 'docker_endpoint', 'docker_strategy', 'docker_managed_url',
+  'docker_managed_health_check',
 ]);
 
 /** Keys only the client adds: the svelte-dnd-action `id` stamp. */

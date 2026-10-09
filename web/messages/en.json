@@ -966,5 +966,12 @@
   "onboarding_appNameAt": "App {n} name",
   "appForm_headerNameAt": "Header {n} name",
   "appForm_headerValueAt": "Header {n} value",
-  "appForm_removeHeaderAt": "Remove header {n}"
+  "appForm_removeHeaderAt": "Remove header {n}",
+  "discovery_quarantinedTitle": "Not loaded: invalid auto-imported entries",
+  "discovery_quarantinedHint": "These entries are kept in config.yaml but not loaded. Fix the container's labels, or remove the entry.",
+  "discovery_quarantinedRemove": "Remove",
+  "discovery_quarantinedRemoveAll": "Remove all",
+  "discovery_quarantinedRemoveNamed": "Remove {name} ({kind})",
+  "discovery_missingSince": "Container not found since {when}",
+  "appForm_healthCheckDockerManaged": "Docker-managed: set by label muximux.app.health_check"
 }

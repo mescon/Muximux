@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { DiscoveryTrackedEntry, DiscoveryTrackedListResult } from '$lib/types';
+  import type { DiscoveryQuarantinedEntry, DiscoveryTrackedEntry, DiscoveryTrackedListResult } from '$lib/types';
   import { listDockerTracked, detachDockerTracked, ApiError, errorText } from '$lib/api';
+  import * as m from '$lib/paraglide/messages.js';
   import DiscoveryRelinkModal from './DiscoveryRelinkModal.svelte';
 
   // Refresh signal: parent bumps refreshKey to force a reload after a
@@ -63,6 +64,40 @@
     }
   }
 
+  const quarantined = $derived(result?.quarantined ?? []);
+  let removeInFlight = $state(false);
+
+  async function removeQuarantined(keys: string[]) {
+    removeInFlight = true;
+    try {
+      for (const key of keys) {
+        try {
+          await detachDockerTracked(key);
+        } catch (e) {
+          // 404 means it is already gone, which is the state we want.
+          if (!(e instanceof ApiError && e.status === 404)) {
+            alert(`Remove failed: ${errorText(e, String(e))}`);
+            break;
+          }
+        }
+      }
+      ontrackingchanged?.();
+      await load();
+    } finally {
+      removeInFlight = false;
+    }
+  }
+
+  async function removeOne(q: DiscoveryQuarantinedEntry) {
+    if (!confirm(`${m.discovery_quarantinedRemove()}: "${q.name}"?`)) return;
+    await removeQuarantined([q.key]);
+  }
+
+  async function removeAll() {
+    if (!confirm(`${m.discovery_quarantinedRemoveAll()}?`)) return;
+    await removeQuarantined([...new Set(quarantined.map((q) => q.key))]);
+  }
+
   function startRelink(entry: DiscoveryTrackedEntry) {
     relinkKey = entry.key;
   }
@@ -121,6 +156,9 @@
             <div class="flex items-center gap-2">
               <span class="text-text-primary font-medium truncate">{e.name}</span>
               <span class="text-xs px-1.5 py-0.5 rounded bg-bg-elevated text-text-muted uppercase tracking-wide">{e.kind}</span>
+              {#if e.missing_since}
+                <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text">{m.discovery_missingSince({ when: ago(e.missing_since) })}</span>
+              {/if}
               {#if !e.endpoint_matches}
                 <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text" title="DockerEndpoint differs from the current discovery endpoint">Endpoint changed</span>
               {/if}
@@ -148,6 +186,33 @@
         </li>
       {/each}
     </ul>
+  {/if}
+
+  {#if quarantined.length > 0}
+    <div class="notice notice-warning space-y-2" role="status" data-testid="quarantined-entries">
+      <div class="flex items-center justify-between gap-3">
+        <h4 class="text-sm font-semibold">{m.discovery_quarantinedTitle()}</h4>
+        <button type="button" class="btn btn-secondary btn-xs" onclick={removeAll} disabled={removeInFlight}
+          data-testid="quarantined-remove-all-btn">{m.discovery_quarantinedRemoveAll()}</button>
+      </div>
+      <p class="text-xs">{m.discovery_quarantinedHint()}</p>
+      <ul class="space-y-1">
+        {#each quarantined as q (q.kind + ':' + q.name + ':' + q.key)}
+          <li class="flex items-center justify-between gap-3 text-sm">
+            <div class="min-w-0 flex-1">
+              <span class="font-medium">{q.name}</span>
+              <span class="text-xs uppercase tracking-wide">{q.kind}</span>
+              <div class="text-xs font-mono truncate">{q.key}</div>
+              <div class="text-xs">{q.reason}</div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-xs shrink-0" onclick={() => removeOne(q)}
+              disabled={removeInFlight}
+              aria-label={m.discovery_quarantinedRemoveNamed({ name: q.name, kind: q.kind })}
+              data-testid="quarantined-remove-btn">{m.discovery_quarantinedRemove()}</button>
+          </li>
+        {/each}
+      </ul>
+    </div>
   {/if}
 </section>
 

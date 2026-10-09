@@ -204,5 +204,74 @@ describe('DiscoveryTrackedEntries', () => {
       expect(screen.getByText(/last seen \d+s ago/i)).toBeInTheDocument(),
     );
   });
-});
 
+  it('lists quarantined entries with their reason and removes one through the detach endpoint', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///s',
+      quarantined: [{ kind: 'app', name: 'Vaultwarden', key: 'swarm:vw', reason: 'url is required' }] });
+    mockApi.detachDockerTracked.mockResolvedValue(undefined);
+    render(DiscoveryTrackedEntries);
+    expect(await screen.findByText('Not loaded: invalid auto-imported entries')).toBeInTheDocument();
+    expect(screen.getByText(/url is required/)).toBeInTheDocument();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await fireEvent.click(screen.getByTestId('quarantined-remove-btn'));
+    await waitFor(() => expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('swarm:vw'));
+    await waitFor(() => expect(mockApi.listDockerTracked).toHaveBeenCalledTimes(2));
+  });
+
+  it('Remove all detaches every quarantined key, and cancel does nothing', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///s', quarantined: [
+      { kind: 'app', name: 'A', key: 'compose:p:a', reason: 'r' },
+      { kind: 'gateway', name: 'a.example.com', key: 'compose:p:a', reason: 'its app is quarantined' },
+      { kind: 'app', name: 'B', key: 'label:b', reason: 'r' }] });
+    mockApi.detachDockerTracked.mockResolvedValue(undefined);
+    render(DiscoveryTrackedEntries);
+    const removeAll = await screen.findByText('Remove all');
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    await fireEvent.click(removeAll);
+    expect(mockApi.detachDockerTracked).not.toHaveBeenCalled();
+    confirm.mockReturnValue(true);
+    await fireEvent.click(removeAll);
+    await waitFor(() => expect(mockApi.detachDockerTracked).toHaveBeenCalledTimes(2));
+    expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('compose:p:a');
+    expect(mockApi.detachDockerTracked).toHaveBeenCalledWith('label:b');
+  });
+
+  it('treats a 404 on quarantined removal as done and alerts on other failures', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///s',
+      quarantined: [{ kind: 'app', name: 'A', key: 'label:a', reason: 'r' }] });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    render(DiscoveryTrackedEntries);
+    const btn = await screen.findByTestId('quarantined-remove-btn');
+    mockApi.detachDockerTracked.mockRejectedValueOnce(new mockApi.ApiError('gone', 404));
+    await fireEvent.click(btn);
+    await waitFor(() => expect(mockApi.listDockerTracked).toHaveBeenCalledTimes(2));
+    expect(alertSpy).not.toHaveBeenCalled();
+    mockApi.detachDockerTracked.mockRejectedValueOnce(new Error('boom'));
+    await fireEvent.click(await screen.findByTestId('quarantined-remove-btn'));
+    await waitFor(() => expect(alertSpy).toHaveBeenCalled());
+  });
+
+  it('declining the single Remove confirm does nothing', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///s',
+      quarantined: [{ kind: 'app', name: 'A', key: 'label:a', reason: 'r' }] });
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    render(DiscoveryTrackedEntries);
+    await fireEvent.click(await screen.findByTestId('quarantined-remove-btn'));
+    expect(mockApi.detachDockerTracked).not.toHaveBeenCalled();
+  });
+
+  it('renders no quarantined section when the field is absent', async () => {
+    render(DiscoveryTrackedEntries);
+    await waitFor(() => expect(mockApi.listDockerTracked).toHaveBeenCalled());
+    expect(screen.queryByText('Not loaded: invalid auto-imported entries')).not.toBeInTheDocument();
+  });
+
+  it('shows a missing badge for entries with missing_since', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({ current_endpoint: 'unix:///s', entries: [
+      { kind: 'app', name: 'sonarr', key: 'label:sonarr', strategy: 'container_ip', endpoint: 'unix:///s',
+        url: 'http://10.0.0.42:8989', endpoint_matches: true, missing_since: new Date(Date.now() - 3600_000).toISOString() }] });
+    render(DiscoveryTrackedEntries);
+    expect(await screen.findByText(/Container not found since/)).toBeInTheDocument();
+  });
+});
