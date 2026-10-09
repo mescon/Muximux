@@ -1,10 +1,13 @@
 package discovery
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -2304,5 +2307,36 @@ func TestApplyRefreshBatch_MatchesAppsByKey(t *testing.T) { // F-11
 	}
 	if cfg.Apps[2].URL != "http://manual" {
 		t.Fatalf("untracked app rewritten: %+v", cfg.Apps[2])
+	}
+}
+
+func TestApplyRefreshBatch_LogsRefreshOnlyAfterSave(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		saveErr error
+		want    bool
+	}{{"save ok", nil, true}, {"save fails", errors.New("disk full"), false}} {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			prev := slog.Default()
+			slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+			defer slog.SetDefault(prev)
+			cfg := &config.Config{Apps: []config.AppConfig{
+				{Name: "alpha", URL: "http://old", DockerKey: "label:alpha", DockerManagedURL: "http://old"},
+			}}
+			var mu sync.RWMutex
+			p := NewPoller(PollerDeps{Config: cfg, ConfigMu: &mu, Service: NewService(&config.DiscoveryDockerConfig{}), OnSave: func() error { return tc.saveErr }})
+			b := newRefreshBatch()
+			b.appURLChanges["label:alpha"] = "http://new"
+			b.appHealthChanges["label:alpha"] = "http://health"
+			p.applyRefreshBatch(b)
+			got := strings.Contains(buf.String(), "Docker app URL refreshed") && strings.Contains(buf.String(), "Docker health address refreshed")
+			if got != tc.want {
+				t.Fatalf("logged=%v want %v; log=%s", got, tc.want, buf.String())
+			}
+			if !tc.want && strings.Contains(buf.String(), "refreshed") {
+				t.Fatalf("refresh logged despite failed save: %s", buf.String())
+			}
+		})
 	}
 }

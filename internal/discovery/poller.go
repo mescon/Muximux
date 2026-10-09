@@ -738,6 +738,13 @@ func (b *refreshBatch) touchesGateway() bool {
 // dev/docker-discovery-plan.md "applyRefreshBatch" for the full
 // pseudocode. Acquires configMu.Lock for the whole transaction and
 // rolls back on every failure mode.
+// appRefresh records one applied app refresh so it is logged only after
+// the save succeeds.
+type appRefresh struct {
+	name, key, value string
+	health           bool
+}
+
 func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	p.deps.ConfigMu.Lock()
 	defer p.deps.ConfigMu.Unlock()
@@ -749,28 +756,26 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// DockerManagedURL so Load() can detect operator hand-edits
 	// at next startup: the invariant "URL == DockerManagedURL"
 	// holds whenever this tracking entry is poller-managed.
+	var refreshed []appRefresh
 	for i := range p.deps.Config.Apps {
 		a := &p.deps.Config.Apps[i]
-		newURL, ok := batch.appURLChanges[a.DockerKey]
 		if a.DockerKey == "" {
-			ok = false
+			continue
 		}
-		if ok {
+		if newURL, ok := batch.appURLChanges[a.DockerKey]; ok {
 			a.URL = newURL
-			logging.Info("Docker app URL refreshed",
-				"source", "discovery", "app", a.Name, "key", a.DockerKey, "new_url", newURL)
 			a.DockerManagedURL = newURL
-		} else if a.DockerKey != "" && a.DockerManagedURL == "" {
+			refreshed = append(refreshed, appRefresh{name: a.Name, key: a.DockerKey, value: newURL})
+		} else if a.DockerManagedURL == "" {
 			// Grandfather: tracked entry from a pre-3.1.0 build
 			// has no managed-URL baseline yet. Record the current
 			// URL as the baseline so the next operator edit is
 			// detectable.
 			a.DockerManagedURL = a.URL
 		}
-		if h, ok := batch.appHealthChanges[a.DockerKey]; ok && a.DockerKey != "" {
+		if h, ok := batch.appHealthChanges[a.DockerKey]; ok {
 			a.HealthURL = h
-			logging.Info("Docker health address refreshed",
-				"source", "discovery", "app", a.Name, "key", a.DockerKey, "health_url", h)
+			refreshed = append(refreshed, appRefresh{name: a.Name, key: a.DockerKey, value: h, health: true})
 		}
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -881,6 +886,15 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// don't touch the route table).
 	if (len(batch.appURLChanges) > 0 || len(batch.appHealthChanges) > 0 || batch.reconcileChangesApps()) && p.deps.OnConfigSaved != nil {
 		p.deps.OnConfigSaved()
+	}
+	for _, r := range refreshed {
+		if r.health {
+			logging.Info("Docker health address refreshed",
+				"source", "discovery", "app", r.name, "key", r.key, "health_url", r.value)
+		} else {
+			logging.Info("Docker app URL refreshed",
+				"source", "discovery", "app", r.name, "key", r.key, "new_url", r.value)
+		}
 	}
 	for domain, url := range batch.siteURLChanges {
 		logging.Info("Docker gateway-site URL refreshed",
