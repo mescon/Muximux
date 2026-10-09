@@ -45,6 +45,11 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   setting is refused with 400. (#494)
 
 ### Fixed
+- **Custom apps added in the onboarding wizard appear on the dashboard.**
+  An app added through the wizard's custom app form was saved in an "Other"
+  group that was never created, so it stayed hidden until the group was
+  added by hand. Finishing the wizard now also creates any group an app
+  refers to.
 - **Settings keeps what you changed and nothing else.** Saving from Settings
   merges your edits onto the current server config instead of replacing it,
   so apps added by Docker auto-import or an import, URLs refreshed by the
