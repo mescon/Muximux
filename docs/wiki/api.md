@@ -260,10 +260,10 @@ POST /api/apps
 | `/api/discovery/docker/config` | GET | Admin | Read the stored discovery config (incl. auto_import mode) |
 | `/api/discovery/docker/config` | PUT | Admin | Update discovery config; merges onto the stored config (incl. auto_import mode, lifecycle_enabled) |
 | `/api/discovery/docker/test` | POST | Admin | Test a discovery config without saving |
-| `/api/discovery/docker/scan` | GET | Admin | Scan the daemon, return importable containers |
+| `/api/discovery/docker/scan` | GET | Admin | Scan the daemon, return importable containers (with `labeled`, `label_enabled` and `auto_import_skip`) |
 | `/api/discovery/docker/import` | POST | Admin | Import selected containers as apps |
-| `/api/discovery/docker/tracked` | GET | Admin | List apps currently tracked from Docker |
-| `/api/discovery/docker/track/{name}` | DELETE | Admin | Detach an app from Docker tracking |
+| `/api/discovery/docker/tracked` | GET | Admin | List apps currently tracked from Docker, and quarantined entries |
+| `/api/discovery/docker/track/{key}` | DELETE | Admin | Detach tracking for a key; also deletes quarantined entries for the key on any endpoint |
 | `/api/discovery/docker/relink/probe` | POST | Admin | Probe a container to re-link a detached app |
 | `/api/discovery/docker/relink/confirm` | POST | Admin | Confirm a re-link |
 | `/api/discovery/docker-state` | GET | Any | Current container-state map for tracked apps |
@@ -272,14 +272,20 @@ POST /api/apps
 
 ```json
 {
-  "config": {"enabled": true, "endpoint": "unix:///var/run/docker.sock", "network_strategy": "container_ip", "host_ip": "", "refresh_interval": "60s", "auto_import": "off", "health_badge_placement": "overview"},
-  "env_overrides": {"auto_import": "MUXIMUX_DISCOVERY_AUTO_IMPORT"}
+  "config": {"enabled": true, "endpoint": "unix:///var/run/docker.sock", "network_strategy": "container_ip", "host_ip": "", "refresh_interval": "60s", "auto_import": "off", "require_explicit_enable": false, "health_badge_placement": "overview"},
+  "env_overrides": {"auto_import": "MUXIMUX_DISCOVERY_AUTO_IMPORT", "require_explicit_enable": "MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE"}
 }
 ```
 
 `PUT` takes the bare config object (without the `config` wrapper).
 
 `PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default.
+
+`GET /api/discovery/docker/scan` returns per container: `labeled` (any `muximux.*` label), `label_enabled` (the value of `muximux.app.enabled`, absent when unset) and `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container; codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`). Containers opted out with `muximux.app.enabled=false` are omitted from the rows and counted in `opted_out`.
+
+`GET /api/discovery/docker/tracked` returns `entries` (each with an optional `missing_since` timestamp, set while the container cannot be found) and `quarantined`, an array of `{kind, name, key, reason}` for invalid Docker-owned entries kept in `config.yaml` but not loaded. Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint.
+
+Apps carry a server-owned `docker_managed_health_check` field (the value of `muximux.app.health_check`); it is returned to admins and ignored in request payloads.
 
 Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`, or `sync`). The discovery configuration is also part of the full configuration object, so it can be set via `PUT /api/config` as well as `PUT /api/discovery/docker/config`.
 
