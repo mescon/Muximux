@@ -93,16 +93,23 @@ func (c *Config) setOverrideValue(field OverrideField, value string) {
 }
 
 // fileView returns a shallow copy of c with every overridden field set
-// back to the value the file held, which is what Save writes. The copy
+// back to the value the file held and every quarantined app and gateway
+// site appended, which is what Save writes. The copy
 // keeps c's recorded ${VAR} references, so a field that was a reference in
 // the file is written back as that reference.
 func (c *Config) fileView() *Config {
-	if len(c.overrides) == 0 {
+	if len(c.overrides) == 0 && len(c.quarantined) == 0 {
 		return c
 	}
 	v := *c
 	for field, o := range c.overrides {
 		v.setOverrideValue(field, o.fileValue)
+	}
+	if len(c.quarantined) > 0 {
+		// Fresh slices: appending to c.Apps directly could write the
+		// quarantined entries into the live slice's spare capacity.
+		v.Apps = append(append([]AppConfig(nil), c.Apps...), c.quarantinedApps()...)
+		v.Server.GatewaySites = append(append([]GatewaySite(nil), c.Server.GatewaySites...), c.quarantinedSites()...)
 	}
 	return &v
 }

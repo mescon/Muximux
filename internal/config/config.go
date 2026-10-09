@@ -57,6 +57,11 @@ type Config struct {
 	// onSaved is the broadcast hook Save calls after a successful write.
 	// Unexported, so YAML ignores it.
 	onSaved func()
+
+	// quarantined holds docker-owned apps and gateway sites that failed
+	// validation at load. They are not live, but Save writes them back
+	// so config.yaml keeps them. Unexported, so YAML ignores it.
+	quarantined []quarantined
 }
 
 // SetOnSaved registers the broadcast hook: called after every successful
@@ -811,6 +816,9 @@ func finishConfig(cfg *Config) error {
 	// all have consistent semantics: operator's URL edit wins,
 	// tracking is dropped.
 	autoDetachEditedDockerEntries(cfg)
+	// Set aside docker-owned entries that would fail validate(), so an
+	// invalid entry written by auto-import can never stop startup.
+	quarantineInvalidDockerEntries(cfg)
 	warnStrayHTTPActionFields(cfg.Apps)
 
 	return cfg.validate()
