@@ -401,6 +401,48 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     );
   });
 
+  it('hands a successful import to the parent and waits for its refresh', async () => {
+    // The parent (Settings) refetches, rebases and closes the modal in
+    // onimported; Import stays busy until that finishes.
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [makeSuggestion()],
+    });
+    mockApi.importDockerSuggestions.mockResolvedValue({
+      success: true,
+      items: [{ key: 'name:c1', status: 'created', app_name: 'C1' }],
+    });
+    let finish!: () => void;
+    const onimported = vi.fn(() => new Promise<void>(r => { finish = r; }));
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {}, onimported });
+    await waitFor(() => expect(screen.getByDisplayValue('C1')).toBeInTheDocument());
+
+    const rowCheckbox = screen.getAllByRole('checkbox')[1] as HTMLInputElement;
+    await fireEvent.click(rowCheckbox);
+    await fireEvent.click(screen.getByText(/Import 1 selected/i));
+
+    await waitFor(() => expect(onimported).toHaveBeenCalledTimes(1));
+    expect(screen.getByText('Importing…')).toBeInTheDocument();
+    finish();
+    await waitFor(() => expect(screen.queryByText('Importing…')).not.toBeInTheDocument());
+  });
+
+  it('does not hand a failed import to the parent', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [makeSuggestion()],
+    });
+    mockApi.importDockerSuggestions.mockResolvedValue({ success: false, items: [], error: 'refused' });
+    const onimported = vi.fn();
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {}, onimported });
+    await waitFor(() => expect(screen.getByDisplayValue('C1')).toBeInTheDocument());
+
+    const rowCheckbox = screen.getAllByRole('checkbox')[1] as HTMLInputElement;
+    await fireEvent.click(rowCheckbox);
+    await fireEvent.click(screen.getByText(/Import 1 selected/i));
+
+    await waitFor(() => expect(screen.getByText(/refused/i)).toBeInTheDocument());
+    expect(onimported).not.toHaveBeenCalled();
+  });
+
   it('falls back to a generic "see per-row status" message when success=false without an error', async () => {
     mockApi.scanDockerContainers.mockResolvedValue({
       suggestions: [makeSuggestion()],

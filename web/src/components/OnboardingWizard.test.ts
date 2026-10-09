@@ -247,7 +247,13 @@ function noopComponent() {
 }
 vi.mock('./AppIcon.svelte', () => ({ default: noopComponent }));
 vi.mock('./Navigation.svelte', () => ({ default: noopComponent }));
-vi.mock('./IconBrowser.svelte', () => ({ default: noopComponent }));
+const { iconBrowserProps } = vi.hoisted(() => ({ iconBrowserProps: [] as Record<string, unknown>[] }));
+vi.mock('./IconBrowser.svelte', () => ({
+  default: (_anchor: unknown, props: Record<string, unknown>) => {
+    iconBrowserProps.push(props);
+    return { $destroy: vi.fn() };
+  },
+}));
 
 import OnboardingWizard from './OnboardingWizard.svelte';
 
@@ -1724,6 +1730,56 @@ describe('OnboardingWizard', () => {
     });
   });
 
+  describe('Custom app added through the form', () => {
+    it('finishes with every app group present in groups', async () => {
+      mockSelectedApps.set([]);
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      const oncomplete = vi.fn();
+      renderWizard({ oncomplete });
+      await fireEvent.input(screen.getByPlaceholderText('App name'), { target: { value: 'MyApp' } });
+      await fireEvent.input(screen.getByPlaceholderText('http://localhost:8080'), { target: { value: 'http://localhost:3000' } });
+      await fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+      mockCurrentStep.set('complete');
+      mockStepProgress.set(4);
+      await fireEvent.click(await screen.findByText('Launch Dashboard'));
+      const arg = oncomplete.mock.calls[0][0] as { apps: Array<{ group: string }>; groups: Array<{ name: string; order: number }> };
+      const names = new Set(arg.groups.map(g => g.name));
+      for (const a of arg.apps) {
+        expect(names.has(a.group)).toBe(true);
+      }
+    });
+  });
+
+  describe('Group consistency on finish', () => {
+    it('appends a group an app references but the wizard does not hold', async () => {
+      mockCurrentStep.set('complete');
+      mockStepProgress.set(4);
+      mockSelectedApps.set([
+        {
+          name: 'Ghosted',
+          url: 'http://localhost:3000',
+          icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
+          color: '#22c55e',
+          group: 'Ghost',
+          order: 0,
+          enabled: true,
+          default: false,
+          open_mode: 'iframe',
+          proxy: false,
+          scale: 1,
+        },
+      ]);
+      const oncomplete = vi.fn();
+      renderWizard({ oncomplete });
+      await fireEvent.click(screen.getByText('Launch Dashboard'));
+      const arg = oncomplete.mock.calls[0][0] as { apps: Array<{ group: string }>; groups: Array<{ name: string; order: number }> };
+      const names = arg.groups.map(g => g.name);
+      for (const a of arg.apps) expect(names).toContain(a.group);
+      expect(new Set(arg.groups.map(g => g.order)).size).toBe(arg.groups.length);
+    });
+  });
+
   // =======================================================================
   // 14. Footer status text
   // =======================================================================
@@ -2524,6 +2580,42 @@ describe('OnboardingWizard', () => {
       await fireEvent.click(screen.getByLabelText('Move Media up'));
       expect(screen.getByLabelText('Move Media up').getAttribute('aria-disabled')).toBe('true');
       expect(screen.getByLabelText('Move Downloads up').getAttribute('aria-disabled')).toBe('false');
+    });
+  });
+
+  describe('Setup gating', () => {
+    async function openGroupIconBrowser(needsSetup: boolean) {
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      renderWizard({ needsSetup });
+      await fireEvent.click(screen.getByRole('checkbox', { name: /Plex/i }));
+      await waitFor(() => expect(screen.getAllByTitle('Change icon').length).toBeGreaterThan(0));
+      iconBrowserProps.length = 0;
+      await fireEvent.click(screen.getAllByTitle('Change icon')[0]);
+      await waitFor(() => expect(iconBrowserProps.length).toBeGreaterThan(0));
+      return iconBrowserProps[iconBrowserProps.length - 1];
+    }
+
+    it('passes allowCustomManagement false to the icon browser while setup is required', async () => {
+      const props = await openGroupIconBrowser(true);
+      expect(props.allowCustomManagement).toBe(false);
+    });
+
+    it('allows custom icon management once setup is complete', async () => {
+      const props = await openGroupIconBrowser(false);
+      expect(props.allowCustomManagement).toBe(true);
+    });
+
+    it('emits the chosen language on the setup path', async () => {
+      mockCurrentStep.set('complete');
+      mockStepProgress.set(5);
+      mockActiveStepOrder.set(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
+      const oncomplete = vi.fn();
+      renderWizard({ oncomplete, needsSetup: true });
+      await fireEvent.click(screen.getByText('Launch Dashboard'));
+      expect(oncomplete).toHaveBeenCalledTimes(1);
+      const arg = oncomplete.mock.calls[0][0] as Record<string, unknown>;
+      expect(arg.language).toBe('en');
     });
   });
 });

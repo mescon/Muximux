@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -537,5 +538,40 @@ func TestSessionStore_CreateWithData(t *testing.T) {
 	empty, err := store.CreateWithData("bob", "bob", RoleUser, nil)
 	if err != nil || empty.Data == nil || len(empty.Data) != 0 {
 		t.Errorf("nil data: session=%+v err=%v", empty, err)
+	}
+}
+
+func TestSessionStore_GenerationGuardsCreate(t *testing.T) {
+	ss := NewSessionStore("test", time.Hour, false)
+	defer ss.Close()
+
+	gen := ss.Generation()
+	if _, err := ss.Create("a", "a", RoleAdmin); err != nil {
+		t.Fatal(err)
+	}
+	ok, err := ss.CreateWithDataAt(gen, "b", "b", RoleUser, map[string]interface{}{"k": "v"})
+	if err != nil || ok == nil || ss.Get(ok.ID) == nil {
+		t.Fatalf("create at the current generation: %v %v", ok, err)
+	}
+
+	if n := ss.InvalidateAll(); n != 2 {
+		t.Errorf("InvalidateAll removed %d sessions, want 2", n)
+	}
+	if ss.Count() != 0 || ss.Get(ok.ID) != nil {
+		t.Error("sessions survived InvalidateAll")
+	}
+	if ss.Generation() != gen+1 {
+		t.Errorf("generation = %d, want %d", ss.Generation(), gen+1)
+	}
+
+	stale, err := ss.CreateWithDataAt(gen, "c", "c", RoleAdmin, nil)
+	if !errors.Is(err, ErrSessionGenerationChanged) || stale != nil {
+		t.Fatalf("create at a stale generation = %v %v, want ErrSessionGenerationChanged", stale, err)
+	}
+	if ss.Count() != 0 {
+		t.Error("a stale create published a session")
+	}
+	if _, err := ss.Create("d", "d", RoleUser); err != nil {
+		t.Errorf("plain Create after a reset: %v", err)
 	}
 }

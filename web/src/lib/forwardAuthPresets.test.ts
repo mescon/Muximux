@@ -123,5 +123,22 @@ describe('forwardAuthPresets', () => {
       const result = buildForwardAuthRequest('10.0.0.0/8', 'u', 'e', 'g', 'n', '');
       expect(result.logout_url).toBe('');
     });
+
+    it('splits adminGroups on commas and newlines', () => {
+      const result = buildForwardAuthRequest(
+        '10.0.0.0/8', 'u', 'e', 'g', 'n', '', 'ops, dev\n\n  admins  ',
+      );
+      expect(result.forward_auth_admin_groups).toEqual(['ops', 'dev', 'admins']);
+    });
+
+    it('gives an empty list for an empty adminGroups string', () => {
+      const result = buildForwardAuthRequest('10.0.0.0/8', 'u', 'e', 'g', 'n', '', '');
+      expect(result.forward_auth_admin_groups).toEqual([]);
+    });
+
+    it('omits forward_auth_admin_groups when adminGroups is undefined', () => {
+      const result = buildForwardAuthRequest('10.0.0.0/8', 'u', 'e', 'g', 'n', '');
+      expect('forward_auth_admin_groups' in result).toBe(false);
+    });
   });
 });

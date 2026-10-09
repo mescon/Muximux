@@ -1423,3 +1423,236 @@ func TestClose_ClosesWriter(t *testing.T) {
 		t.Error("expected logWriter to be nil after Close")
 	}
 }
+
+// ---------------------------------------------------------------------------
+// WarnMissingEnvVars tests
+// ---------------------------------------------------------------------------
+
+// initTestBuffer installs a fresh logger and buffer for the test and puts
+// the previous globals back afterwards.
+func initTestBuffer(t *testing.T) *LogBuffer {
+	t.Helper()
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	t.Cleanup(func() {
+		Close()
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	})
+	buffer = nil
+	defaultLogger = nil
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: filepath.Join(t.TempDir(), "test.log")}); err != nil {
+		t.Fatal(err)
+	}
+	return Buffer()
+}
+
+func TestWarnMissingEnvVars_NoopWhenEmpty(t *testing.T) {
+	buf := initTestBuffer(t)
+	before := len(buf.Recent(1000))
+	WarnMissingEnvVars(nil)
+	WarnMissingEnvVars([]string{})
+	if after := len(buf.Recent(1000)); after != before {
+		t.Errorf("empty list logged %d entries", after-before)
+	}
+}
+
+func TestWarnMissingEnvVars_LogsNames(t *testing.T) {
+	buf := initTestBuffer(t)
+	WarnMissingEnvVars([]string{"MX_A", "MX_B"})
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	e := entries[0]
+	if e.Level != "WARN" && e.Level != "warn" {
+		t.Errorf("level = %q, want warn", e.Level)
+	}
+	if e.Source != "config" {
+		t.Errorf("source = %q, want config", e.Source)
+	}
+	if e.Attrs["missing"] != "MX_A,MX_B" {
+		t.Errorf("missing = %q, want MX_A,MX_B", e.Attrs["missing"])
+	}
+	if !strings.Contains(e.Message, "environment variables that are not set") {
+		t.Errorf("message = %q", e.Message)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Console tests
+// ---------------------------------------------------------------------------
+
+// captureStd swaps *target (os.Stdout or os.Stderr) for a temp file while fn
+// runs and returns what was written to it.
+func captureStd(t *testing.T, target **os.File, fn func()) string {
+	t.Helper()
+	f, err := os.CreateTemp(t.TempDir(), "console")
+	if err != nil {
+		t.Fatal(err)
+	}
+	orig := *target
+	*target = f
+	defer func() { *target = orig }()
+	fn()
+	_ = f.Close()
+	data, err := os.ReadFile(f.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(data)
+}
+
+func TestConsole_BypassesBufferAndLogFile(t *testing.T) {
+	t.Cleanup(Close)
+	const secret = "console-secret-0123456789"
+	logFile := filepath.Join(t.TempDir(), "muximux.log")
+	if err := Init(Config{Level: LevelError, Format: "text", Output: "stdout", LogFile: logFile}); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captureStd(t, &os.Stdout, func() {
+		Console("Generated new setup token", "source", "server", "token", secret)
+	})
+	if !strings.Contains(out, "token="+secret) || !strings.Contains(out, "level=INFO") {
+		t.Errorf("stdout missing the console line (written despite level=error): %q", out)
+	}
+	for _, e := range Buffer().Recent(1000) {
+		if strings.Contains(e.Message, secret) || strings.Contains(fmt.Sprint(e.Attrs), secret) {
+			t.Errorf("console line reached the ring buffer: %+v", e)
+		}
+	}
+	data, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), secret) {
+		t.Errorf("console line reached the log file: %q", data)
+	}
+}
+
+func TestConsole_JSONToStderr(t *testing.T) {
+	t.Cleanup(Close)
+	if err := Init(Config{Level: LevelInfo, Format: "json", Output: "stderr"}); err != nil {
+		t.Fatal(err)
+	}
+	var stdout string
+	stderr := captureStd(t, &os.Stderr, func() {
+		stdout = captureStd(t, &os.Stdout, func() {
+			Console("hello", "token", "abc")
+		})
+	})
+	if !strings.Contains(stderr, `"token":"abc"`) {
+		t.Errorf("stderr = %q, want a JSON console line", stderr)
+	}
+	if stdout != "" {
+		t.Errorf("stdout = %q, want nothing", stdout)
+	}
+}
+
+func TestLoadRecentFromFile_DropsLegacySetupToken(t *testing.T) {
+	oldBuffer, oldPath := buffer, logFilePath
+	defer func() { buffer, logFilePath = oldBuffer, oldPath }()
+
+	logFile := filepath.Join(t.TempDir(), "muximux.log")
+	lines := `time=2026-03-05T10:00:00.000+01:00 level=INFO msg="Generated new setup token; present it via X-Setup-Token to complete setup or restore" source=server token=deadbeef token_file=/app/data/.setup-token
+time=2026-03-05T10:01:00.000+01:00 level=INFO msg="other" source=api token=keep
+`
+	if err := os.WriteFile(logFile, []byte(lines), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	buffer = NewLogBuffer(10)
+	defer buffer.Close()
+	logFilePath = logFile
+
+	LoadRecentFromFile()
+
+	entries := buffer.Recent(10)
+	if len(entries) != 2 {
+		t.Fatalf("expected 2 entries, got %d", len(entries))
+	}
+	if _, ok := entries[0].Attrs["token"]; ok {
+		t.Errorf("legacy setup token replayed into the buffer: %+v", entries[0])
+	}
+	if entries[0].Attrs["token_file"] == "" {
+		t.Errorf("other attrs of the setup line should survive: %+v", entries[0])
+	}
+	if entries[1].Attrs["token"] != "keep" {
+		t.Errorf("unrelated token attr dropped: %+v", entries[1])
+	}
+}
+
+func TestLogFilesContain(t *testing.T) {
+	oldPath := logFilePath
+	defer func() { logFilePath = oldPath }()
+
+	logFilePath = ""
+	if LogFilesContain("x") {
+		t.Error("no log file configured: want false")
+	}
+
+	logFilePath = filepath.Join(t.TempDir(), "muximux.log")
+	if LogFilesContain("needle") {
+		t.Error("missing files: want false")
+	}
+	if err := os.WriteFile(logFilePath, []byte("nothing here\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if LogFilesContain("needle") || LogFilesContain("") {
+		t.Error("needle absent or empty: want false")
+	}
+	if err := os.WriteFile(logFilePath+".2", []byte("a needle in .2\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if !LogFilesContain("needle") {
+		t.Error("needle in a rotated copy: want true")
+	}
+}
+
+func TestRotatingWriter_NewFileIsPrivate(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "muximux.log")
+	w, err := newRotatingWriter(path, 10, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	if _, err := w.Write([]byte("more than ten bytes\n")); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{path, path + ".1"} {
+		info, err := os.Stat(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if mode := info.Mode().Perm(); mode != 0o600 {
+			t.Errorf("%s mode = %o, want 0600", p, mode)
+		}
+	}
+}
+
+func TestInit_WithoutLogFileClearsPrevious(t *testing.T) {
+	t.Cleanup(Close)
+	if err := Init(Config{Level: LevelInfo, Output: "stdout", LogFile: filepath.Join(t.TempDir(), "a.log")}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Init(Config{Level: LevelInfo, Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+	if logFilePath != "" || logWriter != nil {
+		t.Errorf("previous log file kept: %q", logFilePath)
+	}
+}
+
+func TestNewRotatingWriter_Errors(t *testing.T) {
+	dir := t.TempDir()
+	blocker := filepath.Join(dir, "file")
+	if err := os.WriteFile(blocker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := newRotatingWriter(filepath.Join(blocker, "sub", "x.log"), 10, 1); err == nil {
+		t.Error("parent is a file: want an error")
+	}
+	if _, err := newRotatingWriter(dir, 10, 1); err == nil {
+		t.Error("path is a directory: want an error")
+	}
+}

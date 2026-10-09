@@ -20,9 +20,15 @@
   let {
     ondiscoveryconfigure,
     ondiscoveryscan,
+    configRevision = 0,
   }: {
     ondiscoveryconfigure?: () => void;
     ondiscoveryscan?: () => void;
+    // Bumped by Settings on every rebase onto the server config. A
+    // change after mount reloads sites and apps, so sites imported or
+    // edited elsewhere (Discover in gateway mode, another tab) show up
+    // without switching tabs.
+    configRevision?: number;
   } = $props();
 
   // Sites loaded from /api/gateway/sites. The list view is sorted by
@@ -60,6 +66,10 @@
   // tracks the prior domain for the update path so a rename works.
   let showForm = $state(false);
   let editing = $state<string | null>(null); // null => create mode
+  // backend_url the edit form was loaded with. Sent as
+  // base_backend_url so the server can tell an untouched (possibly
+  // stale) value from a real edit.
+  let editingBaseBackend = $state<string | undefined>(undefined);
   let formError = $state<string | null>(null);
   let formSubmitting = $state(false);
   let validationError = $state<string | null>(null);
@@ -120,8 +130,8 @@
   // Save server.session_cookie_domain via /api/config without
   // disturbing whatever else the operator is editing in this tab.
   // We fetch the current full config, patch just our field, and PUT
-  // it back. Other settings tabs follow the same load-mutate-save
-  // pattern, so concurrent edits across tabs don't get reordered.
+  // it back with the fetched config as the merge base, so the server
+  // keeps anything that changed between the fetch and the save.
   async function saveSessionCookieDomain() {
     const trimmed = cookieScopeDraft.trim();
     if (trimmed === '') {
@@ -134,7 +144,7 @@
     try {
       const current = await fetchConfig();
       const updated = { ...current, session_cookie_domain: trimmed };
-      const saved = await saveConfig(updated);
+      const saved = await saveConfig(updated, current);
       sessionCookieDomain = saved.session_cookie_domain ?? trimmed;
       cookieScopeSaved = true;
       cookieScopeDraft = '';
@@ -186,7 +196,15 @@
 
   function openEdit(site: GatewaySite) {
     editing = site.domain;
-    form = { ...site, proxy_headers: { ...(site.proxy_headers ?? {}) } };
+    editingBaseBackend = site.backend_url;
+    form = {
+      ...site,
+      proxy_headers: { ...(site.proxy_headers ?? {}) },
+      // forwarded_headers is a *bool on the server where nil means on;
+      // stored sites usually omit it, so seed the checkbox from the
+      // effective value rather than the raw (undefined) field.
+      forwarded_headers: site.forwarded_headers ?? true,
+    };
     proxyHeadersRaw = serializeHeaders(site.proxy_headers ?? {});
     allowedGroupsRaw = (site.allowed_groups ?? []).join(', ');
     // If the site is linked to an app that still exists, pin that
@@ -296,7 +314,7 @@
       }
 
       const result = editing
-        ? await updateGatewaySite(editing, candidate)
+        ? await updateGatewaySite(editing, candidate, editingBaseBackend)
         : await createGatewaySite(candidate);
 
       if (!result.success) {
@@ -442,6 +460,17 @@
         // discovery is configured.
         console.warn('discovery status fetch failed in GatewayTab:', e);
       }
+    }
+  });
+
+  // Reload when Settings rebases (configRevision bumped). The initial
+  // value is handled by onMount, so only a later change triggers this.
+  // svelte-ignore state_referenced_locally
+  let lastRevision = configRevision;
+  $effect(() => {
+    if (configRevision !== lastRevision) {
+      lastRevision = configRevision;
+      if ($isAdmin) void load();
     }
   });
 </script>

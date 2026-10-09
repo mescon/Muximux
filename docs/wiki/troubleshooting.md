@@ -210,9 +210,15 @@ Binary content (images, videos, archives, file downloads) is **not** buffered - 
 
 ## Onboarding Wizard Doesn't Appear
 
-The onboarding wizard appears automatically whenever no apps are configured (the `apps` list in config.yaml is empty or absent).
+The onboarding wizard opens only while the server reports setup as pending (a new install where setup was never completed and no apps, users or auth method are configured), and only for an administrator. It never opens for a non-admin or on an established instance.
 
 If you deleted your `data/config.yaml` but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. The `data/` directory is resolved relative to the binary's location (not the working directory), so make sure you're looking at the correct path. Check the server logs to confirm config loading.
+
+---
+
+## Settings Shows Values I Did Not Set
+
+A field shown locked ("From VAR") is overridden by an environment variable or command-line flag (`MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`). The override applies in memory only and is never written to `config.yaml`; unset the variable to see the file's value. Settings -> Discovery shows the stored values, including the auto-import mode. If Save is blocked with a name conflict, rename one of the two apps or groups with the same name.
 
 ---
 

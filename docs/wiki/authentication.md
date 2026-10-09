@@ -166,6 +166,8 @@ auth:
     - dashboard-admins
 ```
 
+The admin groups can also be edited in Settings -> Security, and they are kept when other forward-auth settings are saved.
+
 ### Direct Access Behavior
 
 When forward auth is enabled, Muximux will not show a login form. Instead, users who reach Muximux without being authenticated (e.g., by accessing the internal IP directly instead of through the reverse proxy) see an informational message explaining that authentication is handled by an external provider.
@@ -391,6 +393,8 @@ OIDC users inherit groups from their IdP claim, so the work happens on the IdP s
 - [Zitadel](oidc-zitadel) -- create project roles, point `groups_claim` at `urn:zitadel:iam:org:project:roles`
 - [Authelia](forward-auth-authelia) -- groups arrive via `Remote-Groups` (forward auth) or the `groups` claim (OIDC)
 
+If you restore a backup whose OIDC provider cannot be reached, Muximux clears the OIDC provider and OIDC login stays off until you fix the issuer in Settings -> Security.
+
 ### What if a user has no groups?
 
 A user with no groups passes the role gate but fails any non-empty `allowed_groups` gate. So apps without `allowed_groups` stay visible; apps with `allowed_groups` become invisible. This is intentional: it means a misconfigured IdP claim defaults to "no access" rather than "access to everything", which is the safer side to land on.
@@ -555,7 +559,7 @@ To stop an attacker on the same network from racing the legitimate operator thro
 
 Find the token one of two ways:
 
-- **Server log / stdout.** At first boot, Muximux prints a log line tagged with the token, for example via `docker logs muximux` or the systemd journal. Look for `Generated new setup token` or `Reusing existing setup token` (the latter appears on restarts that happen before setup is complete).
+- **Container/console output.** At first boot, Muximux prints a line tagged with the token to stdout, for example via `docker logs muximux` or the systemd journal. Look for `Generated new setup token` or `Reusing existing setup token` (the latter appears on restarts that happen before setup is complete). The token is printed to the console only: it is never written to `muximux.log` or shown in the in-app log viewer. If an older release left the token in `muximux.log`, Muximux issues a new token at startup and prints that one instead.
 - **Filesystem.** The token is also written to `<dataDir>/.setup-token` with mode `0600`. On a default Docker deployment that's `/app/data/.setup-token` inside the container.
 
 Paste the token into the **Setup token** field on the onboarding wizard's welcome screen. The wizard sends it as an `X-Setup-Token` HTTP header on the underlying setup and restore requests. Once setup is complete the token file is removed and the header is no longer accepted -- the setup endpoints reject every request after that point.

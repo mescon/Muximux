@@ -162,13 +162,19 @@ Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` require
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
 | `/api/config` | GET | Any | Get full configuration |
-| `/api/config` | PUT | Admin | Update full configuration |
+| `/api/config` | PUT | Admin | Update the configuration (three-way merge when `base` is sent) |
 | `/api/config/export` | GET | Admin | Download config as YAML (sensitive data stripped) |
 | `/api/config/import` | POST | Admin | Parse and validate uploaded YAML, returns preview |
-| `/api/config/restore` | POST | Pre-setup only (requires `X-Setup-Token`) | Replace the live config with an uploaded YAML during first-run onboarding |
+| `/api/config/restore` | POST | Pre-setup only (requires `X-Setup-Token`) | Replace the live config with an uploaded YAML during first-run onboarding; parsed like `config.yaml` at startup |
 | `/api/appearance` | GET | Any authenticated user, or any caller with `X-Api-Key` | Read-only snapshot of language + theme + colors for embedded apps |
 
-The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) require a restart. Auth method changes can be made live via `PUT /api/auth/method`.
+The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) require a restart.
+
+**Saving with `base` (three-way merge).** The request body may carry an optional `base`: the config the client loaded before editing. When it is present, Muximux merges the edit onto the current server config. Only the fields you changed are applied; everything else keeps the server's value, so changes made while you were editing (a Docker URL refresh, auto-import, a gateway cookie scope, another tab's save) are kept. If the merge would produce two apps or two groups with the same name, the save is refused with `409 Conflict` and a message naming the conflict. Without `base`, the payload replaces the config (the old two-way behaviour): omitted fields are reset, and an omitted `proxy_timeout` clears it. Scripts that `PUT /api/config` without `base` keep working unchanged.
+
+Apps and groups in the payload may carry `original_name`, the name they had when loaded. It tells the merge which server item an edited item corresponds to, so a rename keeps the app's access rules, Docker tracking and forwarded-headers setting. `original_name` is ignored by `POST /api/groups` and `PUT /api/group/{name}`.
+
+The admin `GET /api/config` response includes `env_overrides`, a map of field to environment variable name for settings currently overridden from the environment or a command-line flag (for example `server.listen` from `MUXIMUX_LISTEN`). Overrides apply in memory only and are never written to `config.yaml`. The Settings dialog shows these fields as locked. Auth method changes can be made live via `PUT /api/auth/method`.
 
 **Export config:**
 ```
@@ -193,7 +199,7 @@ X-Setup-Token: <token from server stdout or data/.setup-token>
 
 (YAML body, max 1 MB)
 ```
-Replaces the live config during the initial onboarding flow. Only accepted while the instance is in the pre-setup state; subsequent calls return `409 Conflict`. Missing or invalid `X-Setup-Token` returns `401`. See [Authentication > First-Run Setup](authentication.md#first-run-setup) for how to find the token.
+Replaces the live config during the initial onboarding flow. The uploaded YAML goes through the same load path as `config.yaml` at startup: `${VAR}` references are expanded (and kept as references in the file), defaults are applied and the result is validated. A backup that still uses the legacy `server.gateway` setting is refused with `400`. An OIDC provider that cannot be reached is cleared, so OIDC login stays off until it is fixed. Users, auth, OIDC, discovery and proxy routes are reloaded immediately, all sessions are dropped, and a login in progress during the restore is refused. Listen address, TLS, base-path routing and session cookie settings still need a restart. Only accepted while the instance is in the pre-setup state; subsequent calls return `409 Conflict`. Missing or invalid `X-Setup-Token` returns `401`. See [Authentication > First-Run Setup](authentication.md#first-run-setup) for how to find the token.
 
 **Appearance (read-only):**
 ```
@@ -208,9 +214,9 @@ Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
 | `/api/apps` | GET | Any | List apps visible to the caller, projected for their role (admins see everything; others see enabled apps that pass `min_role` and `allowed_groups`, with `proxy_headers`, `http_action_headers`, `docker_endpoint` and URL credentials removed) |
-| `/api/apps` | POST | Admin | Create a new app |
+| `/api/apps` | POST | Admin | Create a new app (Docker tracking fields in the payload are ignored; only discovery import attaches an app to a container) |
 | `/api/app/{name}` | GET | Any | Get one app, with the same visibility rule and role projection as the list; answers 404 for an app the caller could not list |
-| `/api/app/{name}` | PUT | Admin | Update app |
+| `/api/app/{name}` | PUT | Admin | Update app (full replace; omitted fields are reset) |
 | `/api/app/{name}` | DELETE | Admin | Delete app |
 | `/api/app-action/{name}` | POST | Per-app role gate | Fire the app's configured http_action HTTP request |
 | `/api/app-docker/{name}/{start\|stop\|restart}` | POST | Role-gated | Control a Docker-tracked container (requires lifecycle_enabled + :rw socket) |
@@ -240,7 +246,7 @@ POST /api/apps
 | `/api/groups` | GET | Any | List all groups |
 | `/api/groups` | POST | Admin | Create a new group |
 | `/api/group/{name}` | GET | Any | Get group by name |
-| `/api/group/{name}` | PUT | Admin | Update group |
+| `/api/group/{name}` | PUT | Admin | Update group (full replace; omitted fields are reset) |
 | `/api/group/{name}` | DELETE | Admin | Delete group |
 
 ---
@@ -251,7 +257,8 @@ POST /api/apps
 |----------|--------|------|-------------|
 | `/api/discovery/docker/status` | GET | Admin | Docker daemon reachability + discovery config |
 | `/api/discovery/docker/networks` | GET | Admin | List Docker networks for URL resolution |
-| `/api/discovery/docker/config` | PUT | Admin | Update discovery config (incl. auto_import mode, lifecycle_enabled) |
+| `/api/discovery/docker/config` | GET | Admin | Read the stored discovery config (incl. auto_import mode) |
+| `/api/discovery/docker/config` | PUT | Admin | Update discovery config; merges onto the stored config (incl. auto_import mode, lifecycle_enabled) |
 | `/api/discovery/docker/test` | POST | Admin | Test a discovery config without saving |
 | `/api/discovery/docker/scan` | GET | Admin | Scan the daemon, return importable containers |
 | `/api/discovery/docker/import` | POST | Admin | Import selected containers as apps |
@@ -260,6 +267,19 @@ POST /api/apps
 | `/api/discovery/docker/relink/probe` | POST | Admin | Probe a container to re-link a detached app |
 | `/api/discovery/docker/relink/confirm` | POST | Admin | Confirm a re-link |
 | `/api/discovery/docker-state` | GET | Any | Current container-state map for tracked apps |
+
+`GET /api/discovery/docker/config` returns the stored values under `config`, including fields the Discovery tab does not edit. `env_overrides` is present only when an environment variable sets a field's live value; it maps the field to the variable's name (the tab shows such fields as locked):
+
+```json
+{
+  "config": {"enabled": true, "endpoint": "unix:///var/run/docker.sock", "network_strategy": "container_ip", "host_ip": "", "refresh_interval": "60s", "auto_import": "off", "health_badge_placement": "overview"},
+  "env_overrides": {"auto_import": "MUXIMUX_DISCOVERY_AUTO_IMPORT"}
+}
+```
+
+`PUT` takes the bare config object (without the `config` wrapper).
+
+`PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default.
 
 Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`, or `sync`). The discovery configuration is also part of the full configuration object, so it can be set via `PUT /api/config` as well as `PUT /api/discovery/docker/config`.
 
@@ -451,8 +471,8 @@ The declarative `server.gateway_sites:` model is the current gateway path (the l
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
 | `/api/gateway/sites` | GET | Admin | List configured gateway sites |
-| `/api/gateway/sites` | POST | Admin | Create a gateway site |
-| `/api/gateway/sites/{domain}` | PUT | Admin | Update a gateway site |
+| `/api/gateway/sites` | POST | Admin | Create a gateway site (Docker tracking fields in the payload are ignored) |
+| `/api/gateway/sites/{domain}` | PUT | Admin | Update a gateway site; validated like a startup load. Accepts an optional `base_backend_url` (the backend address the client loaded; if unchanged, the server's current value and Docker tracking are kept). Docker tracking fields (`docker_key`, `docker_endpoint`, `docker_strategy`, `docker_managed_url`) are server-owned and ignored in the payload |
 | `/api/gateway/sites/{domain}` | DELETE | Admin | Delete a gateway site |
 | `/api/gateway/validate` | POST | Admin | Validate a gateway site config without saving |
 
@@ -469,7 +489,7 @@ The declarative `server.gateway_sites:` model is the current gateway path (the l
 Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
 
 ```json
-{"type": "config_updated", "payload": {...}}
+{"type": "config_updated", "payload": {}}
 {"type": "health_changed", "payload": [...]}
 {"type": "app_health_changed", "payload": {"app": "Sonarr", "health": {"status": "healthy", ...}}}
 ```
@@ -478,7 +498,7 @@ Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
 
 | Type | Payload | Description |
 |------|---------|-------------|
-| `config_updated` | Full config object | Configuration was changed (via Settings panel or API) |
+| `config_updated` | Empty | Configuration was changed (Settings, API, import, auto-import). Sent to every connected client, which refetches `GET /api/config`. An open Settings dialog keeps unsaved edits and rebases them onto the new state |
 | `health_changed` | Array of health statuses | Health status changed for one or more apps |
 | `app_health_changed` | `{"app": "name", "health": {...}}` | Health status changed for a specific app |
 | `docker_state_changed` | `{"app_name": "name", "state": {...}}` | Container state changed for a Docker-tracked app (status, health, restart count, etc.) |

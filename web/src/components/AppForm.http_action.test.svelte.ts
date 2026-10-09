@@ -38,7 +38,7 @@ describe('AppForm http_action conditional rendering', () => {
     const methodSelect = getByLabelText(/method/i) as HTMLSelectElement;
     expect(methodSelect.tagName).toBe('SELECT');
     const options = Array.from(methodSelect.options).map((o) => o.value);
-    expect(options).toEqual(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
+    expect(options).toEqual(['POST', 'GET', 'PUT', 'DELETE', 'PATCH']);
   });
 
   it('shows confirm and show-toast checkboxes when http_action', () => {

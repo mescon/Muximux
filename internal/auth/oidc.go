@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -278,6 +279,10 @@ func pkceS256Challenge(verifier string) string {
 
 // HandleCallback processes the OIDC callback
 func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
+	// A restore that runs while this callback talks to the IdP bumps the
+	// session generation; the session below is then refused.
+	gen := p.sessionStore.Generation()
+
 	// Check for errors from provider
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		errDesc := r.URL.Query().Get("error_description")
@@ -426,7 +431,12 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create session
-	session, err := p.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
+	session, err := p.sessionStore.CreateWithDataAt(gen, user.ID, user.Username, user.Role, data)
+	if errors.Is(err, ErrSessionGenerationChanged) {
+		logging.From(r.Context()).Warn("OIDC: login refused, auth settings were replaced while it was in progress", "source", "audit", "user", username)
+		p.failCallback(w, r, callbackErrFailed)
+		return
+	}
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
 		p.failCallback(w, r, callbackErrFailed)

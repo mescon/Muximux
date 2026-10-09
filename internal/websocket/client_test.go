@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -115,7 +116,7 @@ func TestClient_ReceiveBroadcast(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	// Broadcast a message
-	hub.BroadcastConfigUpdate(map[string]string{"title": "Updated"})
+	hub.BroadcastConfigUpdate()
 
 	// Read the message from WebSocket
 	if err = conn.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
@@ -166,7 +167,7 @@ func TestClient_MultipleConnections(t *testing.T) {
 	}
 
 	// Broadcast to all
-	hub.BroadcastConfigUpdate("test-broadcast")
+	hub.BroadcastConfigUpdate()
 
 	// All should receive
 	for i, conn := range connections {
@@ -252,8 +253,8 @@ func TestUpgrader_OriginCheck(t *testing.T) {
 }
 
 // TestBroadcast_FilterByRole covers the gating introduced for findings.md
-// C3: admin-only events (config snapshot, log entries) must not reach
-// non-admin subscribers, while health updates continue to reach everyone.
+// C3: admin-only events (raw log entries) must not reach non-admin
+// subscribers, while health updates continue to reach everyone.
 func TestBroadcast_FilterByRole(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
@@ -289,7 +290,7 @@ func TestBroadcast_FilterByRole(t *testing.T) {
 	// most the health update (the admin-only event was filtered before the
 	// send channel). Then assert the admin saw both in order and the user
 	// saw exactly the health update.
-	hub.BroadcastConfigUpdate(map[string]string{"title": "sensitive"})
+	hub.BroadcastLogEntry(map[string]string{"message": "sensitive"})
 	hub.BroadcastAppHealthUpdate("sonarr", map[string]string{"status": "up"}, false)
 	time.Sleep(200 * time.Millisecond)
 
@@ -318,17 +319,62 @@ func TestBroadcast_FilterByRole(t *testing.T) {
 		return n
 	}
 
-	if countContains(adminMsgs, "config_updated") != 1 {
-		t.Errorf("admin expected 1 config_updated, got %d (%v)", countContains(adminMsgs, "config_updated"), adminMsgs)
+	if countContains(adminMsgs, "log_entry") != 1 {
+		t.Errorf("admin expected 1 log_entry, got %d (%v)", countContains(adminMsgs, "log_entry"), adminMsgs)
 	}
 	if countContains(adminMsgs, "app_health_changed") != 1 {
 		t.Errorf("admin expected 1 app_health_changed, got %d (%v)", countContains(adminMsgs, "app_health_changed"), adminMsgs)
 	}
-	if countContains(userMsgs, "config_updated") != 0 {
+	if countContains(userMsgs, "log_entry") != 0 {
 		t.Errorf("non-admin received admin-only broadcast: %v", userMsgs)
 	}
 	if countContains(userMsgs, "app_health_changed") != 1 {
 		t.Errorf("non-admin expected 1 app_health_changed, got %v", userMsgs)
+	}
+}
+
+// S-03: config_updated carries no config, so it goes to every client,
+// including non-admins, who refetch the role-filtered GET /api/config.
+func TestBroadcastConfigUpdate_ReachesNonAdmin(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+	defer hub.Close()
+
+	srv := testWSServerAs(t, hub, false)
+	defer srv.Close()
+
+	wsURL := "ws" + strings.TrimPrefix(srv.URL, "http") + "/"
+	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, http.Header{
+		"Origin": []string{srv.URL},
+	})
+	if err != nil {
+		t.Fatalf("dial failed: %v", err)
+	}
+	resp.Body.Close()
+	defer conn.Close()
+
+	time.Sleep(50 * time.Millisecond)
+	hub.BroadcastConfigUpdate()
+
+	if err = conn.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatalf("failed to set read deadline: %v", err)
+	}
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("non-admin did not receive config_updated: %v", err)
+	}
+	var event struct {
+		Type    EventType       `json:"type"`
+		Payload json.RawMessage `json:"payload"`
+	}
+	if err := json.Unmarshal(msg, &event); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if event.Type != EventConfigUpdated {
+		t.Errorf("expected %s, got %s", EventConfigUpdated, event.Type)
+	}
+	if string(event.Payload) != "{}" {
+		t.Errorf("expected empty payload, got %s", event.Payload)
 	}
 }
 

@@ -10,15 +10,17 @@
   import ErrorState from './components/ErrorState.svelte';
   import { wantsNewTab } from './lib/appOpen';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
-  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
+  import { ApiError, fetchConfig, saveConfig, submitSetup, fetchSystemInfo, fireAppAction } from './lib/api';
   import { slugify } from './lib/slug';
   import { toasts } from './lib/toastStore';
-  import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
-  import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, connectionState } from './lib/websocketStore';
+  import { restartHealthPolling, stopHealthPolling } from './lib/healthStore';
+  import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, onReconnect, connectionState } from './lib/websocketStore';
+  import { refreshDockerState } from './lib/dockerStateStore';
+  import { applyConfigToShell, applyServerConfig, settingsAllowHashChange, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
-  import { resetOnboarding } from './lib/onboardingStore';
+  import { mergeOnboardingResult } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
@@ -28,8 +30,7 @@
   import { resolveIconUrl } from './lib/iconUrl';
   import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
-  import { syncLocaleFromConfig } from './lib/localeStore';
-  import { getLocale } from '$lib/paraglide/runtime.js';
+  import { applyConfigLocale } from './lib/localeStore';
   import * as m from '$lib/paraglide/messages.js';
   import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
@@ -135,7 +136,13 @@
   let authChecked = $state(false);
 
   // Onboarding state
+  // The wizard opens only during setup, so while it is shown the setup flow
+  // is in progress even after submitSetup lowered $setupRequired (a failed
+  // config save keeps it open with the setup-time restrictions).
   let showOnboarding = $state(false);
+  // True once submitSetup succeeded (or answered 409, setup already done):
+  // a retry after a failed config save goes straight to the save.
+  let setupSubmitted = $state(false);
 
   // Version info (fetched after auth)
   let appVersion = $state('');
@@ -229,16 +236,6 @@
   let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
 
 
-  function parseIntervalMs(intervalStr: string, fallback = 30000): number {
-    const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);
-    if (!match) return fallback;
-    const value = parseInt(match[1], 10);
-    const unit = match[2] || 's';
-    if (unit === 'ms') return value;
-    if (unit === 'm') return value * 60 * 1000;
-    return value * 1000;
-  }
-
   function showDefaultApp() {
     // Hash deep-link takes priority (e.g. /#Plex)
     if (selectAppFromHash()) return;
@@ -251,10 +248,7 @@
 
   function startServices() {
     if (!config) return;
-    if (config.health?.enabled !== false) {
-      const intervalMs = parseIntervalMs(config.health?.interval || '30s');
-      startHealthPolling(intervalMs);
-    }
+    restartHealthPolling(config.health);
     connectWs();
     // /api/logs/recent is admin-only because the ring buffer carries
     // audit lines, panic stacks, and full client IPs. Only init the
@@ -290,6 +284,57 @@
     maxDuration: 400,
     minVelocity: 0.25,
   });
+
+  // Live view of the shell for configSync: getters, so a refetch that
+  // resolves later still sees the current panels and dialogs.
+  function shellState(): ShellState {
+    return {
+      get config() { return config; },
+      get apps() { return apps; },
+      get panels() { return splitState.panels; },
+      get showLogs() { return showLogs; },
+      get showSettings() { return showSettings; },
+      visited: visitedAppNames,
+    };
+  }
+  // Set when the config changed while Settings was open: theme, keybindings
+  // and locale were left to the dialog and must be applied if it closes
+  // without saving.
+  let prefsDeferred = false;
+  const shellActions: ShellActions = {
+    setConfig: (c) => {
+      config = c;
+      apps = c.apps;
+      if (showSettings) prefsDeferred = true;
+    },
+    clearPanel: (i) => { splitState.panels[i] = null; },
+    showSplash: () => { resetSplit(); showSplash = true; },
+  };
+  const shellDeps: ApplyDeps = {
+    syncTheme: syncFromConfig,
+    initKeybindings,
+    restartHealth: restartHealthPolling,
+    applyLocale: applyConfigLocale,
+  };
+
+  function resyncConfig() {
+    void applyServerConfig(fetchConfig, shellState(), shellActions, shellDeps);
+  }
+
+  // config_updated carries no payload: refetch GET /api/config (filtered
+  // for this user's role) and apply it. A reconnect may have missed pushes
+  // and docker events, so it resyncs both. Registered once, from the mount
+  // path or after a later login.
+  let liveSyncRegistered = false;
+  function registerLiveSync() {
+    if (liveSyncRegistered) return;
+    liveSyncRegistered = true;
+    onWsEvent('config_updated', () => resyncConfig());
+    onReconnect(() => {
+      resyncConfig();
+      void refreshDockerState();
+    });
+  }
 
   onMount(async () => {
     // Safety net: if Muximux is loaded inside an iframe (e.g. browser back
@@ -341,14 +386,22 @@
     // Sync currentNavHash BEFORE calling selectAppFromHash so that the
     // selectApp → updateHash chain sees matching hashes and uses
     // replaceState (avoiding a duplicate pushState entry).
+    // While Settings is open, any other hash (back to an app, a cleared
+    // hash) goes through its unsaved-changes prompt first. If Settings stays
+    // open (prompt or a save in flight), nothing else changes and its hash
+    // is put back (replaceState fires no hashchange, so this does not loop).
     window.addEventListener('hashchange', () => {
+      if (!settingsAllowHashChange(location.hash, showSettings, closeSettings)) {
+        history.replaceState(null, '', '#settings');
+        currentNavHash = '#settings';
+        return;
+      }
       if (location.hash) {
         currentNavHash = location.hash;
         selectAppFromHash();
       } else {
-        // Hash cleared (e.g. navigating to /) — go home
+        // Hash cleared (e.g. navigating to /): go home.
         currentNavHash = '';
-        showSettings = false;
         showLogs = false;
         if (splitState.panels[0] || splitState.panels[1]) resetSplit();
         showSplash = true;
@@ -385,10 +438,7 @@
       }
 
       // Sync locale from server config (may trigger reload if different from localStorage)
-      if (config.language && config.language !== getLocale()) {
-        syncLocaleFromConfig(config.language);
-        return; // reload will re-run onMount
-      }
+      if (applyConfigLocale(config.language)) return; // reload will re-run onMount
 
       // Inject PWA manifest now that auth has passed — deferred from index.html
       // so forward-auth proxies don't redirect the manifest fetch to a login page.
@@ -405,15 +455,6 @@
 
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
-
-      // Show onboarding when no apps are configured
-      if (apps.length === 0) {
-        resetOnboarding();
-        await loadOnboardingWizard();
-        showOnboarding = true;
-        loading = false;
-        return;
-      }
 
       // Fetch version info (non-blocking)
       fetchSystemInfo().then(info => appVersion = info.version).catch(() => {});
@@ -442,33 +483,7 @@
         }
       });
 
-      // Listen for config updates via WebSocket
-      onWsEvent('config_updated', (payload) => {
-        const newConfig = payload as Config;
-        config = newConfig;
-        apps = newConfig.apps;
-        debug('config', 'updated via ws', { apps: newConfig.apps.length });
-        // Sync theme if changed from another session
-        if (newConfig.theme) {
-          syncFromConfig(newConfig.theme);
-        }
-        // Reset panels if their apps no longer exist
-        if (splitState.panels[0] && !apps.find(a => a.name === splitState.panels[0]?.name)) {
-          splitState.panels[0] = null;
-        }
-        if (splitState.panels[1] && !apps.find(a => a.name === splitState.panels[1]?.name)) {
-          splitState.panels[1] = null;
-        }
-        if (!splitState.panels[0] && !splitState.panels[1]) {
-          resetSplit();
-          showSplash = true;
-        }
-        // Prune cached iframes for apps that no longer exist or are disabled
-        const validNames = new Set(apps.filter(a => a.enabled).map(a => a.name));
-        for (const name of visitedAppNames) {
-          if (!validNames.has(name)) visitedAppNames.delete(name);
-        }
-      });
+      registerLiveSync();
 
       loading = false;
     } catch (e) {
@@ -509,6 +524,9 @@
         syncFromConfig(config.theme);
       }
 
+      // Apply the server locale (reloads the page when it differs)
+      if (applyConfigLocale(config.language)) return;
+
       // Load custom themes from server
       loadCustomThemesFromServer();
 
@@ -528,6 +546,7 @@
 
       showDefaultApp();
       startServices();
+      registerLiveSync();
     } catch (e) {
       error = e instanceof Error ? e.message : m.error_failedLoadConfig();
     }
@@ -546,6 +565,7 @@
     visitedOrder = [];
     showSplash = true;
     showSettings = false;
+    prefsDeferred = false;
   }
 
   async function handleOnboardingComplete(detail: {
@@ -553,20 +573,39 @@
     navigation: NavigationConfig;
     groups: Group[];
     theme: ThemeConfig;
+    language: string;
     setup?: import('./lib/types').SetupRequest;
     setupToken?: string;
     docker?: { enabled: boolean; endpoint: string; network_strategy: 'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal' };
   }) {
-    const { apps: newApps, navigation, groups, theme, setup, setupToken, docker } = detail;
+    const { apps: newApps, navigation, groups, theme, language, setup, setupToken, docker } = detail;
 
     try {
-      // Submit security setup first (if this was initial setup)
-      if (setup) {
-        const resp = await submitSetup(setup, setupToken);
-        if (!resp.success) {
-          toasts.error(resp.error || m.toast_securitySetupFailed());
-          return;
+      // Submit security setup first (if this was initial setup). Skipped on
+      // a retry once it went through, so a failed config save below does
+      // not leave the wizard stuck on 409.
+      if (setup && !setupSubmitted) {
+        try {
+          const resp = await submitSetup(setup, setupToken);
+          if (!resp.success) {
+            toasts.error(resp.error || m.toast_securitySetupFailed());
+            return;
+          }
+        } catch (e) {
+          if (!(e instanceof ApiError && e.status === 409)) throw e;
+          // Someone else finished setup. If that enabled auth, this browser
+          // has no session: close the wizard and let Login take over.
+          await checkAuthStatus();
+          if (!get(isAuthenticated)) {
+            showOnboarding = false;
+            authRequired = true;
+            toasts.info(m.toast_setupCompletedElsewhere());
+            return;
+          }
         }
+        setupSubmitted = true;
+      }
+      if (setupSubmitted) {
         // Re-check auth status and load config now that guard is down
         await checkAuthStatus();
         config = await fetchConfig();
@@ -576,36 +615,24 @@
 
       if (!config) return;
 
-      // Update config with onboarding selections
-      const newConfig: Config = {
-        ...config,
-        language: getLocale(),
-        navigation: {
-          ...config.navigation,
-          ...navigation
-        },
-        theme,
-        groups,
-        apps: newApps
-      };
-
-      const saved = await saveConfig(newConfig);
-      config = saved;
-      apps = saved.apps;
+      // Merge the onboarding picks onto the loaded config: groups, apps,
+      // navigation and every other section already stored are kept.
+      const base = config;
+      const newConfig = mergeOnboardingResult(base, { apps: newApps, groups, navigation, theme, language });
+      const saved = await saveConfig(newConfig, base);
 
       // Persist Docker discovery config if the operator opted in
-      // during the wizard. Best-effort: a failure here doesn't roll
-      // back the rest of onboarding, since the operator can always
-      // re-enable from Settings -> Discovery later.
+      // during the wizard. The PUT merges onto the stored block, so only
+      // the fields the wizard sets are sent. Best-effort: a failure here
+      // doesn't roll back the rest of onboarding, since the operator can
+      // always re-enable from Settings -> Discovery later.
       if (docker?.enabled) {
         try {
           const { updateDiscoveryDockerConfig } = await import('./lib/api');
           await updateDiscoveryDockerConfig({
             enabled: true,
             endpoint: docker.endpoint,
-            tls: { enabled: false },
             network_strategy: docker.network_strategy,
-            refresh_interval: '60s',
           });
         } catch (e) {
           console.error('Failed to enable Docker discovery during onboarding:', e);
@@ -613,14 +640,18 @@
         }
       }
 
+      // Hide onboarding, then apply the saved config the same way a
+      // Settings save does (theme, keybindings, health, locale).
+      showOnboarding = false;
+      if (applyConfigToShell(saved, shellState(), shellActions, shellDeps)) return;
+
       // After onboarding, always show the overview (splash) page
       showSplash = true;
       resetSplit();
 
       startServices();
+      registerLiveSync();
 
-      // Hide onboarding
-      showOnboarding = false;
       toasts.success(m.toast_dashboardSetupComplete());
     } catch (e) {
       console.error('Failed to save onboarding config:', e);
@@ -738,10 +769,35 @@
     }
   }
 
+  /**
+   * Closes Settings through its unsaved-changes prompt. Returns false while
+   * the prompt is showing (or a save is in flight) and Settings stays open.
+   * Settings calls onclose, which flips showSettings and fixes the hash.
+   */
+  function closeSettings(): boolean {
+    if (!showSettings) return true;
+    // Still loading: nothing to lose yet.
+    if (!settingsRef?.requestClose) { handleSettingsClosed(); return true; }
+    return settingsRef.requestClose() !== false;
+  }
+
+  function handleSettingsClosed() {
+    showSettings = false;
+    // Closed without saving after a push: apply what the dialog held back.
+    // (A save clears the flag; its apply step already covered these.)
+    if (prefsDeferred) {
+      prefsDeferred = false;
+      if (config) reapplyDeferredPrefs(config, shellDeps);
+    }
+    settingsInitialTab = 'general';
+    settingsEditAppName = null;
+    if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); }
+  }
+
   function navigateHome() {
+    if (!closeSettings()) return;
     showSplash = true;
     showLogs = false;
-    showSettings = false;
     resetSplit();
     clearHash();
   }
@@ -816,37 +872,22 @@
     return false;
   }
 
-  async function handleSaveConfig(newConfig: Config) {
+  // base is the config the Settings dialog loaded; the server merges the
+  // save three-way against it. Rethrows on failure so Settings stays open
+  // with the user's edits.
+  async function handleSaveConfig(newConfig: Config, base?: Config): Promise<void> {
     try {
-      const saved = await saveConfig(newConfig);
-      config = saved;
-      apps = saved.apps;
-      // Reset panels if their apps no longer exist
-      if (splitState.panels[0] && !apps.find(a => a.name === splitState.panels[0]?.name)) {
-        splitState.panels[0] = null;
-      }
-      if (splitState.panels[1] && !apps.find(a => a.name === splitState.panels[1]?.name)) {
-        splitState.panels[1] = null;
-      }
-      if (!splitState.panels[0] && !splitState.panels[1]) {
-        resetSplit();
-        showSplash = true;
-      }
-      // Prune cached iframes for apps that no longer exist or are disabled
-      const validNames = new Set(apps.filter(a => a.enabled).map(a => a.name));
-      for (const name of visitedAppNames) {
-        if (!validNames.has(name)) visitedAppNames.delete(name);
-      }
+      const saved = await saveConfig(newConfig, base);
+      // Settings closes right after a successful save, so it counts as
+      // closed here (the splash behaves as before). The locale reload, if
+      // any, runs last inside the apply step.
+      applyConfigToShell(saved, { ...shellState(), showSettings: false }, shellActions, shellDeps);
+      prefsDeferred = false;
       toasts.success(m.toast_settingsSaved());
-
-      // If language changed, sync locale and reload
-      if (saved.language && saved.language !== getLocale()) {
-        syncLocaleFromConfig(saved.language);
-        return; // reload will happen
-      }
     } catch (e) {
       console.error('Failed to save config:', e);
       toasts.error(m.toast_failedSaveConfig());
+      throw e;
     }
   }
 
@@ -921,7 +962,7 @@
       if (event.key === 'Escape') {
         if (showCommandPalette) showCommandPalette = false;
         else if (showSettings) {
-          if (!settingsRef?.handleEscape()) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); }
+          if (!settingsRef?.handleEscape()) closeSettings();
         }
       }
       return;
@@ -932,7 +973,7 @@
       if (showCommandPalette) showCommandPalette = false;
       else if (showSettings) {
         // Let Settings close its sub-modals first; only close Settings itself if no sub-modal was open
-        if (!settingsRef?.handleEscape()) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); }
+        if (!settingsRef?.handleEscape()) closeSettings();
       }
       else if (showShortcuts) showShortcuts = false;
       else if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); }
@@ -958,7 +999,7 @@
         loadCommandPalette().then(() => showCommandPalette = true);
         break;
       case 'settings':
-        if ($isAdmin) { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }
+        if ($isAdmin) { if (showSettings) closeSettings(); else openSettings(); }
         break;
       case 'shortcuts':
         if (showShortcuts) { showShortcuts = false; } else { loadShortcutsHelp().then(() => showShortcuts = true); }
@@ -1025,7 +1066,7 @@
   </div>
 {:else if ($setupRequired || showOnboarding) && OnboardingWizardComponent}
   <OnboardingWizardComponent
-    needsSetup={$setupRequired}
+    needsSetup={$setupRequired || showOnboarding}
     oncomplete={handleOnboardingComplete}
   />
 {:else if authRequired && !$isAuthenticated}
@@ -1061,7 +1102,7 @@
         oneditapp={(app) => { settingsInitialTab = 'apps'; settingsEditAppName = app.name; openSettings(); }}
         onsearch={() => { loadCommandPalette().then(() => showCommandPalette = true); }}
         onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { navigateHome(); } }}
-        onsettings={() => { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }}
+        onsettings={() => { if (showSettings) closeSettings(); else openSettings(); }}
         onlogs={() => { if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); } else openLogs(); }}
         onlogout={handleLogout}
         splitEnabled={splitState.enabled}
@@ -1198,8 +1239,8 @@
       {apps}
       initialTab={settingsInitialTab}
       initialEditAppName={settingsEditAppName}
-      onclose={() => { showSettings = false; settingsInitialTab = 'general'; settingsEditAppName = null; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
-      onsave={(newConfig: Config) => handleSaveConfig(newConfig)}
+      onclose={handleSettingsClosed}
+      onsave={(c: Config, b: Config) => handleSaveConfig(c, b)}
       onauthchange={(auth: Config['auth']) => { if (config) config.auth = auth; }}
     />
   {/if}

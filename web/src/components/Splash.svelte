@@ -9,7 +9,7 @@
   import DockerLogo from './DockerLogo.svelte';
   import DockerStatePill from './DockerStatePill.svelte';
   import ConfirmDockerActionModal from './ConfirmDockerActionModal.svelte';
-  import { dockerStateStore, refreshDockerState } from '$lib/dockerStateStore';
+  import { dockerStateStore, refreshDockerState, applyDockerStateChange, getDockerStateFor } from '$lib/dockerStateStore';
   import { currentUser } from '$lib/authStore';
   import { dockerStart, dockerStop, dockerRestart } from '$lib/api';
   import { toasts } from '$lib/toastStore';
@@ -104,6 +104,13 @@
     } else {
       const verb = action === 'start' ? 'Started' : action === 'stop' ? 'Stopped' : 'Restarted';
       toasts.success(`${verb} ${app.name} (${res.latency_ms}ms)`);
+      const prev = getDockerStateFor(app.name);
+      if (res.status && prev) {
+        applyDockerStateChange(app.name, { ...prev, status: res.status as DockerState['status'] });
+      } else if (res.status) {
+        // No prior state to extend: do not fabricate health/image, fetch the real snapshot.
+        void refreshDockerState();
+      }
     }
   }
 

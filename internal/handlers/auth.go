@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -135,6 +136,14 @@ func (h *AuthHandler) prepareOIDCProvider(ctx context.Context, cfg *config.OIDCC
 	return p, nil
 }
 
+// loginCredentialsChecked runs in Login right after the password check. A
+// no-op; tests replace it to reset the session store at that exact point.
+var loginCredentialsChecked = func() {}
+
+// closeOIDCProvider stops a provider that was swapped out. A variable so
+// tests can observe which provider was closed.
+var closeOIDCProvider = (*auth.OIDCProvider).Close
+
 // swapOIDCProvider installs next and closes the previous provider.
 func (h *AuthHandler) swapOIDCProvider(next *auth.OIDCProvider) {
 	h.oidcMu.Lock()
@@ -142,8 +151,15 @@ func (h *AuthHandler) swapOIDCProvider(next *auth.OIDCProvider) {
 	h.oidcProvider = next
 	h.oidcMu.Unlock()
 	if old != nil && old != next {
-		_ = old.Close()
+		_ = closeOIDCProvider(old)
 	}
+}
+
+// ClearOIDCProvider removes and closes the current provider, so OIDC login
+// is unavailable until a provider is installed again. A restore uses it to
+// fail closed when the restored settings cannot be applied.
+func (h *AuthHandler) ClearOIDCProvider() {
+	h.swapOIDCProvider(nil)
 }
 
 // ReplaceOIDCProvider builds a provider from cfg, checks the identity
@@ -316,8 +332,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Capture the session generation before checking the password: a
+	// restore that swaps the users while bcrypt runs bumps it, and the
+	// session below is then refused instead of outliving the restore.
+	gen := h.sessionStore.Generation()
+
 	// Authenticate
 	user, rehashed, err := h.userStore.Authenticate(req.Username, req.Password)
+	loginCredentialsChecked()
 	if err != nil {
 		// Warn (not Info) so default-warn production logging
 		// captures every failed attempt, which is the only signal
@@ -355,8 +377,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		data = map[string]interface{}{"groups": user.Groups}
 	}
 
-	// Create session
-	session, err := h.sessionStore.CreateWithData(user.ID, user.Username, user.Role, data)
+	// Create session, unless the store was reset since gen was taken.
+	session, err := h.sessionStore.CreateWithDataAt(gen, user.ID, user.Username, user.Role, data)
+	if errors.Is(err, auth.ErrSessionGenerationChanged) {
+		logging.From(r.Context()).Warn("Login refused: users were replaced while it was in progress", "source", "audit", "user", req.Username)
+		sendJSON(w, http.StatusUnauthorized, LoginResponse{
+			Success: false,
+			Message: "Invalid username or password",
+		})
+		return
+	}
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
 		sendJSON(w, http.StatusInternalServerError, LoginResponse{
@@ -647,8 +677,13 @@ func (h *AuthHandler) syncUsersToConfig() error {
 			Groups:       u.Groups,
 		})
 	}
+	prior := h.config.Auth.Users
 	h.config.Auth.Users = cfgUsers
-	return h.config.Save(h.configPath)
+	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Auth.Users = prior
+		return err
+	}
+	return nil
 }
 
 // ListUsers handles GET /api/auth/users
@@ -919,7 +954,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		TrustedProxies         []string             `json:"trusted_proxies"`
 		Headers                map[string]string    `json:"headers"`
 		LogoutURL              string               `json:"logout_url"`
-		ForwardAuthAdminGroups []string             `json:"forward_auth_admin_groups"`
+		ForwardAuthAdminGroups *[]string            `json:"forward_auth_admin_groups"` // nil = keep stored
 		OIDC                   *oidcSettingsRequest `json:"oidc"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -943,10 +978,9 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		authCfg = auth.AuthConfig{
-			Method:                 auth.AuthMethodForwardAuth,
-			TrustedProxies:         req.TrustedProxies,
-			Headers:                auth.ForwardAuthHeadersFromMap(req.Headers),
-			ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
+			Method:         auth.AuthMethodForwardAuth,
+			TrustedProxies: req.TrustedProxies,
+			Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
 		}
 
 	case "oidc":
@@ -1016,7 +1050,12 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			if req.Headers != nil {
 				h.config.Auth.Headers = req.Headers
 			}
-			h.config.Auth.ForwardAuthAdminGroups = req.ForwardAuthAdminGroups
+			// An absent list keeps the stored one; an explicit list
+			// (including an empty one) replaces it.
+			if req.ForwardAuthAdminGroups != nil {
+				h.config.Auth.ForwardAuthAdminGroups = *req.ForwardAuthAdminGroups
+			}
+			authCfg.ForwardAuthAdminGroups = h.config.Auth.ForwardAuthAdminGroups
 		} else {
 			// Clear forward-auth fields so stale values don't linger in YAML
 			h.config.Auth.TrustedProxies = nil

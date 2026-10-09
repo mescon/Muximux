@@ -173,14 +173,18 @@ func (h *Hub) Broadcast(event Event) {
 	}
 }
 
-// BroadcastConfigUpdate sends a config update event. Restricted to admin
-// clients because the payload includes user records, API-key hashes, and
-// trusted-proxy networks.
-func (h *Hub) BroadcastConfigUpdate(config interface{}) {
+// BroadcastConfigUpdate tells every client that the config changed. The
+// payload is empty: clients refetch GET /api/config, which filters the
+// config by role, so nothing sensitive travels over the socket.
+//
+// It runs as Config.Save's onSaved hook, under the saver's config write
+// lock, and Broadcast blocks while the event buffer is full. The hub loop
+// never takes configMu, so this cannot deadlock; keep it that way (no
+// config reads in the hub).
+func (h *Hub) BroadcastConfigUpdate() {
 	h.Broadcast(Event{
-		Type:      EventConfigUpdated,
-		Payload:   config,
-		adminOnly: true,
+		Type:    EventConfigUpdated,
+		Payload: struct{}{},
 	})
 }
 

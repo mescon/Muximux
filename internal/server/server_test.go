@@ -2163,13 +2163,29 @@ func TestSetupGuardMiddleware(t *testing.T) {
 		s.needsSetup.Store(true)
 		handler := s.setupGuardMiddleware(inner)
 
-		for _, path := range []string{"/", "/login", "/assets/style.css", "/themes/dark.css"} {
+		for _, path := range []string{"/", "/login", "/assets/style.css", "/themes/dark.css", "/icons/lucide/home.svg", "/sw.js", "/wsx", "/proxyish"} {
 			req := httptest.NewRequest(http.MethodGet, path, nil)
 			rec := httptest.NewRecorder()
 			handler.ServeHTTP(rec, req)
 
 			if rec.Code != http.StatusOK {
 				t.Errorf("path %s: expected 200, got %d", path, rec.Code)
+			}
+		}
+	})
+
+	t.Run("blocks dynamic non-API routes during setup", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(true)
+		handler := s.setupGuardMiddleware(inner)
+
+		for _, path := range []string{"/ws", "/ws/", "/proxy", "/proxy/", "/proxy/app/", "/proxy/app/admin"} {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusServiceUnavailable || !strings.Contains(rec.Body.String(), "setup_required") {
+				t.Errorf("path %s: expected 503 setup_required, got %d", path, rec.Code)
 			}
 		}
 	})
@@ -2197,6 +2213,64 @@ func TestSetupGuardMiddleware(t *testing.T) {
 			}
 		}
 	})
+}
+
+// S-53: before setup, auth is none and every request runs as the virtual
+// admin, so only the login, setup and OIDC sign-in endpoints are open.
+func TestSetupGuardMiddleware_AuthAllowlist(t *testing.T) {
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	s := &Server{}
+	s.needsSetup.Store(true)
+	handler := s.setupGuardMiddleware(inner)
+
+	allowed := []struct{ method, path string }{
+		{http.MethodGet, "/api/auth/status"},
+		{http.MethodPost, "/api/auth/setup"},
+		{http.MethodPost, "/api/auth/login"},
+		{http.MethodPost, "/api/auth/logout"},
+		{http.MethodGet, "/api/auth/me"},
+		{http.MethodGet, "/api/auth/oidc/login"},
+		{http.MethodGet, "/api/auth/oidc/callback"},
+		{http.MethodGet, "/api/themes"},
+		{http.MethodGet, "/api/icons/lucide"},
+	}
+	for _, c := range allowed {
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, httptest.NewRequest(c.method, c.path, nil))
+		if rec.Code != http.StatusOK {
+			t.Errorf("%s %s: expected 200, got %d", c.method, c.path, rec.Code)
+		}
+	}
+
+	blocked := []struct{ method, path string }{
+		{http.MethodPost, "/api/auth/users"},
+		{http.MethodGet, "/api/auth/users"},
+		{http.MethodPut, "/api/auth/users/bob"},
+		{http.MethodPost, "/api/auth/api-key"},
+		{http.MethodGet, "/api/auth/api-key"},
+		{http.MethodPut, "/api/auth/method"},
+		{http.MethodGet, "/api/auth/settings/oidc"},
+		{http.MethodPut, "/api/auth/settings/oidc"},
+		{http.MethodPost, "/api/auth/settings/oidc/test"},
+		{http.MethodPost, "/api/auth/password"},
+		{http.MethodGet, "/api/auth/forward"},
+		{http.MethodGet, "/api/auth/statusx"},
+		// The log buffer once held the setup token, and with auth none
+		// every caller is the virtual admin: closed until setup completes.
+		{http.MethodGet, "/api/logs/recent"},
+		{http.MethodGet, "/api/system/updates"},
+		{http.MethodGet, "/api/system/info"},
+		{http.MethodPost, "/api/themes"},
+	}
+	for _, c := range blocked {
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, httptest.NewRequest(c.method, c.path, nil))
+		if rec.Code != http.StatusServiceUnavailable {
+			t.Errorf("%s %s: expected 503, got %d", c.method, c.path, rec.Code)
+		}
+	}
 }
 
 func TestSetupGuardMiddleware_AllowsConfigRestore(t *testing.T) {
@@ -2425,15 +2499,10 @@ apps: []
 }
 
 func TestHandleConfigRestore_Success(t *testing.T) {
-	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "config.yaml")
-	cfg := defaultTestConfig()
-	s := &Server{
-		config:     cfg,
-		configPath: configPath,
-		dataDir:    tmpDir,
-	}
-	s.needsSetup.Store(true)
+	// A successful restore reinitialises the runtime, so it needs a
+	// server assembled by New.
+	s := newServerForTest(t, nil)
+	configPath := s.configPath
 
 	yamlContent := `server:
   listen: ":8080"

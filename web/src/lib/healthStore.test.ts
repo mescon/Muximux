@@ -9,6 +9,8 @@ import {
   stopHealthPolling,
   getAppHealthStatus,
   createAppHealthStore,
+  parseIntervalMs,
+  restartHealthPolling,
 } from './healthStore';
 
 // Mock the api module
@@ -252,6 +254,41 @@ describe('healthStore', () => {
       healthData.set(healthMap);
 
       expect(get(myAppHealth)?.status).toBe('unhealthy');
+    });
+  });
+
+  describe('parseIntervalMs and restartHealthPolling', () => {
+    it('parseIntervalMs handles ms, s, m and falls back', () => {
+      expect(parseIntervalMs('500ms')).toBe(500);
+      expect(parseIntervalMs('30s')).toBe(30000);
+      expect(parseIntervalMs('2m')).toBe(120000);
+      expect(parseIntervalMs('15')).toBe(15000);
+      expect(parseIntervalMs('bogus')).toBe(30000);
+      expect(parseIntervalMs('bogus', 5000)).toBe(5000);
+    });
+
+    it('restartHealthPolling stops when disabled and restarts with the new interval', async () => {
+      mockFetchAllAppHealth.mockResolvedValue([]);
+      const spy = mockFetchAllAppHealth;
+      spy.mockClear();
+      {
+        restartHealthPolling({ enabled: true, interval: '10s', timeout: '5s' });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(spy).toHaveBeenCalledTimes(1);
+        await vi.advanceTimersByTimeAsync(10000);
+        expect(spy).toHaveBeenCalledTimes(2);
+
+        restartHealthPolling({ enabled: false, interval: '10s', timeout: '5s' });
+        await vi.advanceTimersByTimeAsync(60000);
+        expect(spy).toHaveBeenCalledTimes(2);
+
+        restartHealthPolling({ enabled: true, interval: '2s', timeout: '5s' });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(spy).toHaveBeenCalledTimes(3);
+        await vi.advanceTimersByTimeAsync(2000);
+        expect(spy).toHaveBeenCalledTimes(4);
+        stopHealthPolling();
+      }
     });
   });
 });

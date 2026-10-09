@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import GatewayTab from './GatewayTab.svelte';
 import type { GatewaySite } from '$lib/types';
+import { ApiError } from '$lib/api';
 
 const mockListGatewaySites = vi.fn();
 const mockCreateGatewaySite = vi.fn();
@@ -11,9 +12,11 @@ const mockValidateGatewaySite = vi.fn();
 
 const mockFetchApps = vi.fn();
 const mockFetchConfig = vi.fn();
+const mockSaveConfigApi = vi.fn();
 
 vi.mock('$lib/api', async (importOriginal) => ({
   errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
+  ApiError: (await importOriginal<typeof import('$lib/api')>()).ApiError,
   listGatewaySites: (...args: unknown[]) => mockListGatewaySites(...args),
   createGatewaySite: (...args: unknown[]) => mockCreateGatewaySite(...args),
   updateGatewaySite: (...args: unknown[]) => mockUpdateGatewaySite(...args),
@@ -21,6 +24,7 @@ vi.mock('$lib/api', async (importOriginal) => ({
   validateGatewaySite: (...args: unknown[]) => mockValidateGatewaySite(...args),
   fetchApps: (...args: unknown[]) => mockFetchApps(...args),
   fetchConfig: (...args: unknown[]) => mockFetchConfig(...args),
+  saveConfig: (...args: unknown[]) => mockSaveConfigApi(...args),
 }));
 
 vi.mock('$lib/authStore', async () => {
@@ -181,7 +185,7 @@ describe('GatewayTab', () => {
     await waitFor(() => {
       expect(mockUpdateGatewaySite).toHaveBeenCalledWith('sonarr.example.com', expect.objectContaining({
         backend_url: 'http://sonarr:8990',
-      }));
+      }), 'http://sonarr:8989');
     });
   });
 
@@ -585,5 +589,121 @@ describe('GatewayTab Docker-managed lock on edit', () => {
 
     expect(screen.queryByTestId('gw-form-docker-locked')).not.toBeInTheDocument();
     expect(screen.getByText(/Where Muximux forwards requests/i)).toBeInTheDocument();
+  });
+});
+
+describe('GatewayTab state consistency', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockListGatewaySites.mockResolvedValue([]);
+    mockUpdateGatewaySite.mockResolvedValue({ success: true, restart_required: false });
+    mockCreateGatewaySite.mockResolvedValue({ success: true, restart_required: false });
+    mockValidateGatewaySite.mockResolvedValue({ valid: true });
+    mockFetchApps.mockResolvedValue([]);
+    mockFetchConfig.mockResolvedValue({ session_cookie_domain: '.example.com' });
+  });
+
+  async function openEditFor(site: GatewaySite) {
+    mockListGatewaySites.mockResolvedValue([site]);
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByText(site.domain)).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  }
+
+  it('openEdit seeds forwarded_headers true when the site omits it', async () => {
+    await openEditFor(makeSite({ forwarded_headers: undefined }));
+
+    const box = screen.getByRole('checkbox', { name: /Forward headers/i }) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+
+    await fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+    await waitFor(() => {
+      expect(mockUpdateGatewaySite).toHaveBeenCalledWith('sonarr.example.com', expect.objectContaining({
+        forwarded_headers: true,
+      }), 'http://sonarr:8989');
+    });
+  });
+
+  it('openEdit seeds forwarded_headers false when stored false', async () => {
+    await openEditFor(makeSite({ forwarded_headers: false }));
+
+    const box = screen.getByRole('checkbox', { name: /Forward headers/i }) as HTMLInputElement;
+    expect(box.checked).toBe(false);
+  });
+
+  it('reloads sites when configRevision changes', async () => {
+    const { rerender } = render(GatewayTab, { configRevision: 0 });
+    await waitFor(() => expect(mockListGatewaySites).toHaveBeenCalledTimes(1));
+    expect(mockFetchApps).toHaveBeenCalledTimes(1);
+
+    mockListGatewaySites.mockResolvedValue([makeSite({ domain: 'imported.example.com' })]);
+    await rerender({ configRevision: 1 });
+
+    await waitFor(() => expect(mockListGatewaySites).toHaveBeenCalledTimes(2));
+    expect(mockFetchApps).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(screen.getByText('imported.example.com')).toBeInTheDocument());
+  });
+
+  it('does not reload when configRevision is unchanged', async () => {
+    const { rerender } = render(GatewayTab, { configRevision: 3 });
+    await waitFor(() => expect(mockListGatewaySites).toHaveBeenCalledTimes(1));
+
+    await rerender({ configRevision: 3 });
+    await Promise.resolve();
+    expect(mockListGatewaySites).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends base_backend_url with the backend the form was loaded with', async () => {
+    await openEditFor(makeSite({ backend_url: 'http://sonarr:8989' }));
+
+    await fireEvent.input(screen.getByLabelText('Backend URL'), { target: { value: 'http://sonarr:9999' } });
+    await fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateGatewaySite).toHaveBeenCalledWith(
+        'sonarr.example.com',
+        expect.objectContaining({ backend_url: 'http://sonarr:9999' }),
+        'http://sonarr:8989',
+      );
+    });
+  });
+
+  it('shows the server validation message inline for a 400 on save', async () => {
+    const message = 'server.session_cookie_domain is required when any gateway site has require_auth=true (gated sites: [sonarr.example.com])';
+    mockUpdateGatewaySite.mockRejectedValue(new ApiError(400, 'API error: 400', message));
+    await openEditFor(makeSite());
+
+    await fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(message)).toBeInTheDocument();
+    });
+    // The form stays open so the operator can correct the input.
+    expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+  });
+});
+
+describe('GatewayTab cookie scope save', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockListGatewaySites.mockResolvedValue([]);
+    mockFetchApps.mockResolvedValue([]);
+  });
+
+  it('cookie scope save sends the fetched config as base', async () => {
+    const current = { title: 'T', session_cookie_domain: '', apps: [], groups: [] };
+    mockFetchConfig.mockResolvedValue(current);
+    mockSaveConfigApi.mockResolvedValue({ ...current, session_cookie_domain: '.example.com' });
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByRole('button', { name: /add gateway site/i })).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+    const requireAuth = screen.getByTestId('gw-require-auth').querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await fireEvent.click(requireAuth);
+
+    await fireEvent.input(screen.getByTestId('gw-cookie-scope-input'), { target: { value: '.example.com' } });
+    await fireEvent.click(screen.getByTestId('gw-cookie-scope-save'));
+
+    await waitFor(() => expect(mockSaveConfigApi).toHaveBeenCalledTimes(1));
+    expect(mockSaveConfigApi).toHaveBeenCalledWith({ ...current, session_cookie_domain: '.example.com' }, current);
   });
 });

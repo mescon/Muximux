@@ -618,4 +618,43 @@ describe('ThemeTab', () => {
       expect(screen.getByText(/Muximux Dark theme/)).toBeInTheDocument();
     });
   });
+
+  describe('preview cleanup and bundled names', () => {
+    async function openEditor() {
+      const result = render(ThemeTab);
+      await fireEvent.click(screen.getByText('Customize Current Theme').closest('button')!);
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Theme name...')).toBeInTheDocument();
+      });
+      return result;
+    }
+
+    it('clears inline preview variables on unmount', async () => {
+      const { unmount } = await openEditor();
+      // Simulate a live-preview edit through the colour inputs
+      const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
+      await fireEvent.input(colorInput, { target: { value: '#ff0000' } });
+      const set = ['--bg-base', '--bg-surface', '--text-primary'].filter(
+        (n) => document.documentElement.style.getPropertyValue(n) !== ''
+      );
+      expect(set.length).toBeGreaterThan(0);
+
+      unmount();
+
+      for (const n of ['--bg-base', '--bg-surface', '--text-primary']) {
+        expect(document.documentElement.style.getPropertyValue(n)).toBe('');
+      }
+    });
+
+    it('shows the bundled-name message when the save returns a conflict', async () => {
+      mockSaveCustomTheme.mockResolvedValue('conflict');
+      await openEditor();
+      await fireEvent.input(screen.getByPlaceholderText('Theme name...'), { target: { value: 'Nord' } });
+      await fireEvent.click(screen.getByText('Save Theme'));
+
+      await waitFor(() => {
+        expect(mockToasts.error).toHaveBeenCalledWith('A bundled theme already uses this name. Choose another name.');
+      });
+    });
+  });
 });

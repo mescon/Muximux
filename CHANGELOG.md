@@ -4,6 +4,115 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+Saving from Settings now merges onto the live config, every open browser
+follows config changes, and restoring a backup goes through the startup
+load path. Upgrade notes: restore refuses legacy `server.gateway` backups;
+a saved theme cannot use a bundled theme's name; `lifecycle_allowed_groups`
+now accepts any group names; API scripts that `PUT /api/config` without
+`base` keep the old two-way behaviour; the gateway site PUT accepts an
+optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
+
+### Added
+- **`GET /api/discovery/docker/config`** returns the stored discovery
+  config, and `PUT` merges onto it. (#494)
+- **`base` on `PUT /api/config`** enables a three-way merge, and apps and
+  groups accept `original_name`; the admin config response lists
+  `env_overrides`. A save that would create two apps or groups with the same
+  name is refused with 409 and Settings blocks Save until one is renamed.
+  (#494)
+- **`base_backend_url` on the gateway site PUT** keeps Docker tracking when
+  the backend address was refreshed while the site was being edited. (#494)
+
+### Changed
+- **Live updates.** Every open browser receives a `config_updated` event
+  after any config change and refetches the config (the page reloads only
+  when the language changed); an open Settings dialog keeps unsaved edits
+  and rebases them onto the new state. (#494)
+- **Settings closes only after a successful save.** On failure it stays open
+  with the server's message; every close path asks about unsaved changes and
+  is blocked while a save runs. Discard also reverts keybinding and theme
+  previews. (#494)
+- **Docker tracking is server-owned on every endpoint.** `POST /api/apps`
+  and `POST /api/gateway/sites` ignore `docker_*` fields in the payload, as
+  the PUTs already do; only discovery's import attaches an app or site to a
+  container. (#494)
+- **`lifecycle_allowed_groups`** are user and identity-provider group names;
+  renaming or deleting a dashboard group no longer touches them. (#494)
+- **Restore uses the startup load path.** `${VAR}` expansion, defaults and
+  validation apply, and users, auth, OIDC, discovery and proxy routes reload
+  at once. Listen address, TLS, base-path routing and session cookie
+  settings still need a restart. A backup with the legacy `server.gateway`
+  setting is refused with 400. (#494)
+
+### Fixed
+- **Custom apps added in the onboarding wizard appear on the dashboard.**
+  An app added through the wizard's custom app form was saved in an "Other"
+  group that was never created, so it stayed hidden until the group was
+  added by hand. Finishing the wizard now also creates any group an app
+  refers to.
+- **Settings keeps what you changed and nothing else.** Saving from Settings
+  merges your edits onto the current server config instead of replacing it,
+  so apps added by Docker auto-import or an import, URLs refreshed by the
+  poller, a cookie scope set in the Gateway tab, and edits from another tab
+  are no longer reverted or deleted. Renaming an app keeps its access rules,
+  Docker tracking and forwarded-headers setting. Imports no longer show a
+  false "Unsaved changes" or an empty Apps list. (#494)
+- **Discovery tab shows and keeps its stored values.** Host IP, network
+  filter, refresh interval, auto-import mode and badge placement are read
+  from the config and preserved on save, including fields the tab does not
+  show (auto_import, TLS paths); `npipe://` endpoints are accepted on
+  Windows and an enabled config with an empty endpoint gets the platform
+  default. (#494)
+- **Environment overrides stay in the environment.** `MUXIMUX_LOG_LEVEL`,
+  `MUXIMUX_LOG_FORMAT`, `--listen`/`MUXIMUX_LISTEN`,
+  `--base-path`/`MUXIMUX_BASE_PATH` and `MUXIMUX_DISCOVERY_AUTO_IMPORT` are
+  no longer written into `config.yaml` by a save; Settings shows them as
+  locked. (#494)
+- Forward-auth saves keep `forward_auth_admin_groups`; a failed user change
+  no longer lingers in memory. (#494)
+- Gateway site saves are validated like startup, so a gated site without a
+  cookie scope can no longer break the next restart; the forward-headers
+  checkbox shows the real value; sites imported from the Gateway tab appear
+  at once. (#494)
+- The onboarding wizard opens only on a new install and never for a
+  non-admin; finishing it keeps existing groups, navigation, theme and
+  discovery settings; a retry after a failed save no longer hits 409. (#494)
+- Custom theme delete works again; a theme cannot shadow a bundled one;
+  theme editor previews are cleaned up. (#494)
+- Health settings reach the client with snake_case keys and polling follows
+  them right after a save; floating navigation position from the config is
+  honoured; Docker state loads under a base path; the http_action method no
+  longer flips to GET when the form opens; `proxy_timeout` can be cleared;
+  replacing a custom icon in another format shows at once. (#494)
+- Restoring a backup with the legacy `server.gateway` setting (string or
+  map) explains how to convert it instead of reporting invalid YAML. (#494)
+
+### Security
+- **`golang.org/x/net` v0.60.0** -- fixes GO-2026-6603, GO-2026-6610,
+  GO-2026-6611, GO-2026-6612 and GO-2026-6617 in the HTTP/2 code reached by
+  the reverse proxy.
+- **Restore drops all sessions and refuses racing logins.** Restoring a
+  backup reloads users and auth immediately, ends every session, and refuses
+  a login that was in progress during the restore, so credentials from before
+  the restore cannot survive it. An unreachable OIDC provider in a backup is
+  switched off instead of kept. (#494)
+- **Admin auth endpoints wait for setup.** Before setup completes, only auth
+  status, setup, login, logout, `me` and the OIDC sign-in routes answer
+  without the setup token; creating users or an API key, changing the auth
+  method and the OIDC settings return 503 `setup_required` instead of
+  running as the pre-setup admin. (#494)
+- **Setup token no longer readable from the log viewer.** Before setup, an
+  anonymous caller could read the setup token from `GET /api/logs/recent`
+  and use it to claim the instance. The token is now printed only to the
+  console (container/console output) and is never written to the log
+  buffer or `muximux.log`; the log viewer, `/api/system/updates` and
+  `/api/system/info`, the `/ws` live stream and the `/proxy/` app routes
+  return 503 `setup_required` until setup completes -- only the theme list,
+  icon routes and static assets the wizard uses stay open. A setup
+  token found in a log file written by an earlier release is replaced with
+  a new one at startup, and newly created log files are mode 0600. (#494)
+
+
 ## [3.5.0] - 2026-10-08
 
 Single sign-on grows up: OIDC can be set up from Settings -> Security,

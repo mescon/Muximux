@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"sync"
 	"time"
@@ -36,6 +37,35 @@ type SessionStore struct {
 	absoluteMaxAge time.Duration // hard cap on total session lifetime; 0 disables the cap
 	secure         bool
 	done           chan struct{}
+	// generation changes whenever every session is invalidated (a
+	// restore). A login captures it before checking credentials and
+	// CreateWithDataAt refuses to publish a session once it has moved.
+	generation uint64
+}
+
+// ErrSessionGenerationChanged is returned by CreateWithDataAt when the
+// store was invalidated after the caller captured its generation.
+var ErrSessionGenerationChanged = errors.New("session store was reset during login")
+
+// Generation returns the store's current generation. Capture it before
+// authenticating a user and pass it to CreateWithDataAt.
+func (s *SessionStore) Generation() uint64 {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.generation
+}
+
+// InvalidateAll deletes every session and bumps the generation in one
+// step, so a login that verified its credentials against the previous
+// state cannot publish a session afterwards. Returns how many sessions
+// were removed.
+func (s *SessionStore) InvalidateAll() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.generation++
+	n := len(s.sessions)
+	s.sessions = make(map[string]*Session)
+	return n
 }
 
 // SetCookieDomain configures the Domain attribute applied to every
@@ -103,6 +133,20 @@ func (s *SessionStore) Create(userID, username, role string) (*Session, error) {
 // whose Data is still being filled in. Callers must not write to the
 // returned session's Data afterwards.
 func (s *SessionStore) CreateWithData(userID, username, role string, data map[string]interface{}) (*Session, error) {
+	return s.create(nil, userID, username, role, data)
+}
+
+// CreateWithDataAt is CreateWithData for a login that captured gen with
+// Generation before it checked credentials. It returns
+// ErrSessionGenerationChanged, and publishes nothing, when the store was
+// invalidated in between. The check and the insert happen under one lock.
+func (s *SessionStore) CreateWithDataAt(gen uint64, userID, username, role string, data map[string]interface{}) (*Session, error) {
+	return s.create(&gen, userID, username, role, data)
+}
+
+// create builds and publishes a session. A non-nil gen must still match
+// the store's generation at insert time.
+func (s *SessionStore) create(gen *uint64, userID, username, role string, data map[string]interface{}) (*Session, error) {
 	id, err := generateSessionID()
 	if err != nil {
 		return nil, err
@@ -124,8 +168,11 @@ func (s *SessionStore) CreateWithData(userID, username, role string, data map[st
 	}
 
 	s.mu.Lock()
+	defer s.mu.Unlock()
+	if gen != nil && *gen != s.generation {
+		return nil, ErrSessionGenerationChanged
+	}
 	s.sessions[id] = session
-	s.mu.Unlock()
 
 	return session, nil
 }

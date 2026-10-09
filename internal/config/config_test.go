@@ -1,8 +1,13 @@
 package config
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -1565,6 +1570,36 @@ func TestValidate_HTTPActionFieldsIgnoredForOtherModes(t *testing.T) {
 	}
 }
 
+// The stray http_action warning is a load-time notice: Validate runs on
+// every runtime save (gateway sites, settings) and must not repeat it.
+func TestStrayHTTPActionWarning_LoadOnly(t *testing.T) {
+	var buf bytes.Buffer
+	prev := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	t.Cleanup(func() { slog.SetDefault(prev) })
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	body := "apps:\n  - name: App\n    url: http://example.com\n    enabled: true\n    open_mode: iframe\n    http_action_method: POST\n"
+	if err := os.WriteFile(path, []byte(body), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := strings.Count(buf.String(), "http_action fields set"); n != 1 {
+		t.Fatalf("load warnings = %d, want 1:\n%s", n, buf.String())
+	}
+	buf.Reset()
+	if err := cfg.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(buf.String(), "http_action fields set") {
+		t.Errorf("Validate repeated the warning:\n%s", buf.String())
+	}
+}
+
 func TestIsBracedEnvRef(t *testing.T) {
 	cases := []struct {
 		in   string
@@ -1885,15 +1920,22 @@ func TestValidate_HealthBadgePlacement_RejectsUnknown(t *testing.T) {
 	}
 }
 
-func TestValidate_LifecycleAllowedGroups_RejectsUnknownGroupName(t *testing.T) {
-	c := &Config{
-		Groups: []GroupConfig{{Name: "family"}},
-	}
+func TestValidate_LifecycleAllowedGroups_AcceptsAnyNonEmptyName(t *testing.T) {
+	c := &Config{}
 	c.Discovery.Docker.LifecycleEnabled = true
-	c.Discovery.Docker.LifecycleAllowedGroups = []string{"family", "ghosts"}
+	c.Discovery.Docker.LifecycleAllowedGroups = []string{"admins", "idp-ops"}
+	if err := c.validate(); err != nil {
+		t.Fatalf("expected user/IdP group names to validate without dashboard groups, got %v", err)
+	}
+}
+
+func TestValidate_LifecycleAllowedGroups_RejectsBlank(t *testing.T) {
+	c := &Config{}
+	c.Discovery.Docker.LifecycleEnabled = true
+	c.Discovery.Docker.LifecycleAllowedGroups = []string{" "}
 	err := c.validate()
-	if err == nil || !strings.Contains(err.Error(), "ghosts") {
-		t.Fatalf("expected unknown-group error mentioning ghosts, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "must not be empty") {
+		t.Fatalf("expected must-not-be-empty error, got %v", err)
 	}
 }
 
@@ -1907,6 +1949,36 @@ func TestDefaults_LifecycleMinRole_DefaultsToAdminWhenLifecycleEnabled(t *testin
 	}
 	if c.Discovery.Docker.HealthBadgePlacement != "overview" {
 		t.Fatalf("want overview, got %q", c.Discovery.Docker.HealthBadgePlacement)
+	}
+}
+
+func TestApplyDiscoveryDockerDefaults(t *testing.T) {
+	d := DiscoveryDockerConfig{Enabled: true, AutoImport: "SYNC"}
+	ApplyDiscoveryDockerDefaults(&d)
+	if d.Endpoint != defaultDockerEndpoint() {
+		t.Errorf("endpoint = %q, want %q", d.Endpoint, defaultDockerEndpoint())
+	}
+	if d.NetworkStrategy != StrategyContainerIP {
+		t.Errorf("network_strategy = %q, want container_ip", d.NetworkStrategy)
+	}
+	if d.RefreshInterval != "60s" {
+		t.Errorf("refresh_interval = %q, want 60s", d.RefreshInterval)
+	}
+	if d.HealthBadgePlacement != "overview" {
+		t.Errorf("health_badge_placement = %q, want overview", d.HealthBadgePlacement)
+	}
+	if d.AutoImport != AutoImportSync {
+		t.Errorf("auto_import = %q, want sync", d.AutoImport)
+	}
+
+	// Disabled: the daemon fields stay as they are.
+	off := DiscoveryDockerConfig{}
+	ApplyDiscoveryDockerDefaults(&off)
+	if off.Endpoint != "" || off.NetworkStrategy != "" || off.RefreshInterval != "" {
+		t.Errorf("disabled config got daemon defaults: %+v", off)
+	}
+	if off.AutoImport != AutoImportOff {
+		t.Errorf("auto_import = %q, want off", off.AutoImport)
 	}
 }
 
@@ -2142,5 +2214,241 @@ func TestLoad_OIDCRedirectURL(t *testing.T) {
 	writeFile(t, path, "auth:\n  method: builtin\n  oidc:\n    enabled: true\n    redirect_url: auth/callback\n")
 	if _, err := Load(path); err == nil || !strings.Contains(err.Error(), "auth.oidc.redirect_url") {
 		t.Fatalf("relative redirect_url accepted at load: %v", err)
+	}
+}
+
+func TestHealthConfig_JSONKeysAreSnakeCase(t *testing.T) {
+	out, err := json.Marshal(HealthConfig{Enabled: false, Interval: "2m"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != `{"enabled":false,"interval":"2m","timeout":""}` {
+		t.Errorf("marshal = %s", out)
+	}
+	var h HealthConfig
+	if err := json.Unmarshal([]byte(`{"Enabled":true,"Interval":"1m"}`), &h); err != nil {
+		t.Fatal(err)
+	}
+	if !h.Enabled || h.Interval != "1m" {
+		t.Errorf("legacy capitalised keys not decoded: %+v", h)
+	}
+}
+
+// S-03: the broadcast hook fires once per successful Save and never for a
+// save that failed to reach disk.
+func TestSave_CallsOnSaved(t *testing.T) {
+	cfg := defaultConfig()
+	calls := 0
+	cfg.SetOnSaved(func() { calls++ })
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	if err := cfg.Save(path); err != nil {
+		t.Fatalf("second Save: %v", err)
+	}
+	if calls != 2 {
+		t.Fatalf("expected 2 calls after 2 saves, got %d", calls)
+	}
+
+	// A regular file where a directory should be: the directory is
+	// missing and cannot be created, so Save fails before writing.
+	blocker := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(blocker, []byte("x"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.Save(filepath.Join(blocker, "sub", "config.yaml")); err == nil {
+		t.Fatal("expected Save into an uncreatable directory to fail")
+	}
+	if calls != 2 {
+		t.Fatalf("failed Save must not call the hook, got %d calls", calls)
+	}
+
+	// The target is a directory, so the final rename fails after the temp
+	// file was written: still no hook, and no temp file left behind.
+	dirTarget := filepath.Join(t.TempDir(), "cfgdir")
+	if err := os.MkdirAll(dirTarget, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.Save(dirTarget); err == nil {
+		t.Fatal("expected Save over a directory to fail")
+	}
+	if calls != 2 {
+		t.Fatalf("failed rename must not call the hook, got %d calls", calls)
+	}
+	if left, _ := filepath.Glob(filepath.Join(filepath.Dir(dirTarget), ".config-*.yaml")); len(left) != 0 {
+		t.Fatalf("temp file left behind: %v", left)
+	}
+
+	// No hook registered: Save still succeeds.
+	cfg.SetOnSaved(nil)
+	if err := cfg.Save(path); err != nil {
+		t.Fatalf("Save without hook: %v", err)
+	}
+	if calls != 2 {
+		t.Fatalf("cleared hook still called, got %d calls", calls)
+	}
+}
+
+// parseTestYAML exercises every step decodeConfig and finishConfig run:
+// a ${VAR} reference, discovery defaults, icon-scale normalisation and a
+// hand-edited Docker-tracked app.
+const parseTestYAML = `server:
+  listen: ":8080"
+  title: ${MX_TITLE}
+auth:
+  method: none
+navigation:
+  icon_scale: 0
+  show_home_button: false
+  show_splash_on_startup: true
+discovery:
+  docker:
+    enabled: true
+apps:
+  - name: Sonarr
+    url: http://my-stable-host:8989
+    color: "#fff"
+    group: Media
+    docker_key: "label:sonarr"
+    docker_endpoint: unix:///var/run/docker.sock
+    docker_strategy: container_ip
+    docker_managed_url: http://10.0.0.5:8989
+groups:
+  - name: Media
+    color: "#fff"
+`
+
+// OP-7: Parse runs the same pipeline as Load.
+func TestParse_MatchesLoad(t *testing.T) {
+	t.Setenv("MX_TITLE", "Home")
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte(parseTestYAML), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	parsed, err := Parse([]byte(parseTestYAML))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if !reflect.DeepEqual(parsed, loaded) {
+		t.Errorf("Parse result differs from Load:\nparse: %+v\nload:  %+v", parsed, loaded)
+	}
+	// Guard against a vacuous match: the pipeline steps really ran.
+	if parsed.Server.Title != "Home" || len(parsed.envRefs) == 0 {
+		t.Errorf("env expansion/recording missing: title %q, refs %v", parsed.Server.Title, parsed.envRefs)
+	}
+	if parsed.Navigation.IconScale != 1.0 {
+		t.Errorf("icon scale = %v, want 1.0", parsed.Navigation.IconScale)
+	}
+	if parsed.Navigation.ShowSplashOnStart {
+		t.Error("splash on startup kept without a home button: splash normalisation did not run")
+	}
+	if parsed.Discovery.Docker.Endpoint == "" || parsed.Discovery.Docker.NetworkStrategy == "" {
+		t.Errorf("discovery defaults not applied: %+v", parsed.Discovery.Docker)
+	}
+	if parsed.Apps[0].DockerKey != "" {
+		t.Errorf("hand-edited tracked app was not detached: %q", parsed.Apps[0].DockerKey)
+	}
+}
+
+// OP-7: a config built by Parse writes its ${VAR} references back on Save.
+func TestParse_KeepsEnvRefOnSave(t *testing.T) {
+	t.Setenv("MX_TITLE", "Home")
+	cfg, err := Parse([]byte("server:\n  listen: \":8080\"\n  title: ${MX_TITLE}\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if cfg.Server.Title != "Home" {
+		t.Fatalf("live title = %q, want Home", cfg.Server.Title)
+	}
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "${MX_TITLE}") {
+		t.Errorf("saved file lost the ${MX_TITLE} reference:\n%s", data)
+	}
+}
+
+func TestParse_LegacyGatewayRejected(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+	_, err := Parse([]byte("server:\n  listen: \":8080\"\n  gateway: /etc/caddy/Caddyfile\n"))
+	if !errors.Is(err, ErrLegacyGateway) {
+		t.Fatalf("want legacy gateway rejection, got %v", err)
+	}
+	if err := filepath.WalkDir(dir, func(p string, _ os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if strings.HasSuffix(p, ".pre-3.1.0.bak") {
+			t.Errorf("Parse wrote a migration backup: %s", p)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestParse_RecordsMissingEnvVars(t *testing.T) {
+	t.Setenv("MX_UNSET_494", "")
+	os.Unsetenv("MX_UNSET_494")
+	cfg, err := Parse([]byte("server:\n  listen: \":8080\"\n  title: ${MX_UNSET_494}\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	found := false
+	for _, n := range cfg.MissingEnvVars {
+		if n == "MX_UNSET_494" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("MissingEnvVars = %v, want MX_UNSET_494", cfg.MissingEnvVars)
+	}
+}
+
+func TestParse_InvalidYAMLAndUnknownField(t *testing.T) {
+	if _, err := Parse([]byte("server: [unclosed")); err == nil {
+		t.Error("invalid YAML: want error")
+	}
+	if _, err := Parse([]byte("server:\n  listen: \":8080\"\n  no_such_field: 1\n")); err == nil {
+		t.Error("unknown field: want error")
+	}
+}
+
+func TestParse_LegacyGateway(t *testing.T) {
+	refused := map[string]string{
+		"scalar": "server:\n  gateway: /etc/caddy/Caddyfile\n",
+		"map":    "server:\n  gateway:\n    file: /etc/caddy/Caddyfile\n",
+		"list":   "server:\n  gateway: [a, b]\n",
+	}
+	for name, in := range refused {
+		if _, err := Parse([]byte(in)); !errors.Is(err, ErrLegacyGateway) {
+			t.Errorf("%s: err = %v, want ErrLegacyGateway", name, err)
+		}
+	}
+	accepted := map[string]string{
+		"absent": "server:\n  title: x\n",
+		"empty":  "server:\n  gateway: \"\"\n",
+		"null":   "server:\n  gateway: null\n",
+	}
+	for name, in := range accepted {
+		if _, err := Parse([]byte(in)); err != nil {
+			t.Errorf("%s: unexpected error %v", name, err)
+		}
+	}
+	// Input that is not YAML at all is left to the full decode.
+	if _, err := Parse([]byte("server: [unclosed")); err == nil || errors.Is(err, ErrLegacyGateway) {
+		t.Errorf("malformed input: err = %v, want a decode error", err)
 	}
 }

@@ -22,6 +22,7 @@ import {
   initKeybindings,
   getKeybindingsForConfig,
   getKeybindingsByCategory,
+  customBindings,
 } from './keybindingsStore';
 
 describe('keybindingsStore', () => {
@@ -186,6 +187,12 @@ describe('keybindingsStore', () => {
       const bindings = get(keybindings);
       const refreshBinding = bindings.find(b => b.action === 'refresh')!;
       expect(refreshBinding.combos).toEqual([{ key: 'r', ctrl: true }]);
+    });
+
+    it('is reflected in the exported customBindings store', () => {
+      setKeybinding('refresh', [{ key: 'r', ctrl: true }]);
+
+      expect(get(customBindings)).toEqual({ refresh: [{ key: 'r', ctrl: true }] });
     });
 
     it('should be retrievable via getKeybindingsForConfig', () => {

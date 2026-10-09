@@ -192,6 +192,10 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 		respondError(w, r, http.StatusBadRequest, "Cannot overwrite builtin themes")
 		return
 	}
+	if h.isBundledTheme(id) {
+		respondError(w, r, http.StatusConflict, "A bundled theme already uses this name; choose another name")
+		return
+	}
 
 	// Validate CSS variable names and values to prevent CSS injection
 	for varName, varValue := range req.Variables {
@@ -247,8 +251,10 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Don't allow deleting builtin themes (dark/light are CSS-only, others are bundled files)
-	if name == "dark" || name == "light" || h.isBundledTheme(name) {
+	// dark/light are CSS-only builtins. A bundled theme itself lives in the
+	// embedded FS and cannot be removed, but a user file in themesDir that
+	// shadows a bundled name (saved before the name was refused) can be.
+	if name == "dark" || name == "light" {
 		respondError(w, r, http.StatusBadRequest, "Cannot delete builtin themes")
 		return
 	}

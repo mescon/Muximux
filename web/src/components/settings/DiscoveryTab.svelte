@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { DiscoveryDockerConfig, DiscoveryDockerStatus } from '$lib/types';
+  import * as m from '$lib/paraglide/messages.js';
   import {
+    fetchDiscoveryDockerConfig,
     fetchDiscoveryDockerStatus,
     updateDiscoveryDockerConfig,
     testDiscoveryDockerConfig,
@@ -42,37 +44,37 @@
   let testResult = $state<DiscoveryDockerStatus | null>(null);
   let lastSaveError = $state<string | null>(null);
 
+  // Env var name behind a locked auto_import, from the admin-only
+  // env_overrides on the config response. Undefined when nothing locks it.
+  let autoImportLocked = $state<string | undefined>(undefined);
+  // True once the form was seeded from the stored config. Until then Save
+  // and Test stay disabled so defaults can never overwrite stored values.
+  let seeded = $state(false);
+
   onMount(load);
 
   async function load() {
     loading = true;
     topLevelError = null;
     try {
-      const s = await fetchDiscoveryDockerStatus();
+      // The stored config seeds every form field; /status only feeds the
+      // banner. Seeding from status would send defaults on Save and wipe
+      // the stored host IP, refresh interval and auto-import mode.
+      const [{ config: stored, env_overrides }, s] = await Promise.all([
+        fetchDiscoveryDockerConfig(),
+        fetchDiscoveryDockerStatus(),
+      ]);
       status = s;
-      // Seed the form from the current status. Empty / unset fields
-      // get sensible defaults so a fresh-install operator sees what
-      // the documented values are.
-      form = {
-        enabled: s.configured,
-        endpoint: s.endpoint || 'unix:///var/run/docker.sock',
-        tls: { enabled: false },
-        network_strategy: (s.strategy as DiscoveryDockerConfig['network_strategy']) || 'container_ip',
-        host_ip: '',
-        network_filter: '',
-        refresh_interval: '60s',
-        lifecycle_enabled: !!s.lifecycle_enabled,
-        lifecycle_min_role: 'admin',
-        lifecycle_allowed_groups: [],
-        health_badge_placement: 'overview',
-      };
+      form = { ...stored, tls: { ...stored.tls, enabled: stored.tls?.enabled ?? false } };
+      autoImportLocked = env_overrides?.auto_import;
+      seeded = true;
       // Refresh the available-networks list in the background. We
       // intentionally don't await this on the main path so a slow
       // daemon doesn't delay the form rendering. Failures are
       // silenced -- the form still works without the chip strip.
       void refreshAvailableNetworks();
     } catch (e) {
-      topLevelError = errorText(e, 'Failed to load discovery status');
+      topLevelError = errorText(e, 'Failed to load discovery settings');
     } finally {
       loading = false;
     }
@@ -150,6 +152,7 @@
       lifecycle_min_role: 'admin',
       lifecycle_allowed_groups: [],
       health_badge_placement: 'overview',
+      auto_import: 'off',
     };
   }
 
@@ -274,7 +277,7 @@
           class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         <p class="text-xs text-text-muted mt-1">
-          <code>unix:///var/run/docker.sock</code> for local Docker, or <code>tcp://host:2376</code> for a remote daemon (TLS recommended).
+          <code>unix:///var/run/docker.sock</code> for local Docker, or <code>tcp://host:2376</code> for a remote daemon (TLS recommended), or <code>npipe:////./pipe/docker_engine</code> on Windows.
         </p>
       </div>
 
@@ -443,6 +446,25 @@
             <option value="overview_and_nav">Overview + navigation</option>
           </select>
         </div>
+
+        <div>
+          <label for="dd-autoimport" class="block text-sm font-medium text-text-secondary mb-1">{m.discovery_autoImport()}</label>
+          <select
+            id="dd-autoimport"
+            bind:value={form.auto_import}
+            disabled={!!autoImportLocked}
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-60"
+          >
+            <option value="off">{m.discovery_autoImportOff()}</option>
+            <option value="add">{m.discovery_autoImportAdd()}</option>
+            <option value="update">{m.discovery_autoImportUpdate()}</option>
+            <option value="sync">{m.discovery_autoImportSync()}</option>
+          </select>
+          {#if autoImportLocked}
+            <p class="text-xs text-amber-300 mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
+          {/if}
+          <p class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
+        </div>
       </div>
 
       <!-- TLS section -->
@@ -505,10 +527,10 @@
       {/if}
 
       <div class="flex gap-2 justify-end">
-        <button class="btn btn-secondary btn-sm" onclick={runTest} disabled={testInFlight} type="button">
+        <button class="btn btn-secondary btn-sm" onclick={runTest} disabled={testInFlight || !seeded} type="button">
           {testInFlight ? 'Testing…' : 'Test connection'}
         </button>
-        <button class="btn btn-primary btn-sm" onclick={save} disabled={submitting} type="button">
+        <button class="btn btn-primary btn-sm" onclick={save} disabled={submitting || !seeded} type="button">
           {submitting ? 'Saving…' : 'Save'}
         </button>
       </div>

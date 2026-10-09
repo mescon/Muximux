@@ -1,15 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
+  submitSetup,
   parseImportedConfig,
   exportConfig,
   fetchConfig,
   saveConfig,
+  fetchDiscoveryDockerConfig,
   fetchApps,
   fetchGroups,
   getApp,
   createApp,
   updateApp,
   deleteApp,
+  deleteTheme,
   getGroup,
   createGroup,
   updateGroup,
@@ -45,7 +48,9 @@ import {
   confirmDockerRelink,
   ApiError,
   errorText,
+  updateGatewaySite,
 } from './api';
+import { makeApp, makeGroup } from './types';
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult } from './types';
 
 // --- Helpers ---
@@ -190,6 +195,23 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       });
     });
 
+    it('sends base in the body when given', async () => {
+      const config = makeConfig({ title: 'Mine' });
+      const base = makeConfig({ title: 'Base' });
+      globalThis.fetch = mockFetchOk(config);
+      await saveConfig(config, base);
+      const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+      expect(body.title).toBe('Mine');
+      expect(body.base).toEqual(base);
+    });
+
+    it('omits base when not given', async () => {
+      globalThis.fetch = mockFetchOk(makeConfig());
+      await saveConfig(makeConfig());
+      const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+      expect('base' in body).toBe(false);
+    });
+
     it('throws on non-OK response with body text', async () => {
       globalThis.fetch = mockFetchError(400, 'Bad Request', 'Validation failed');
       await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 400 Validation failed');
@@ -212,6 +234,15 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
         text: () => Promise.resolve(JSON.stringify({ error: 'Internal failure (request_id: zyx987)' })),
       });
       await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 500 Internal failure');
+    });
+  });
+
+  describe('fetchDiscoveryDockerConfig', () => {
+    it('GETs /discovery/docker/config', async () => {
+      const resp = { config: { enabled: true, auto_import: 'add' }, env_overrides: { auto_import: 'MUXIMUX_AUTO_IMPORT' } };
+      globalThis.fetch = mockFetchOk(resp);
+      expect(await fetchDiscoveryDockerConfig()).toEqual(resp);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/discovery/docker/config', { method: 'GET' });
     });
   });
 
@@ -267,7 +298,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
 
   describe('updateApp', () => {
     it('sends PUT to /app/:name', async () => {
-      const app = { name: 'Updated', url: 'http://up.com' };
+      const app = makeApp({ name: 'Updated', url: 'http://up.com' });
       globalThis.fetch = mockFetchOk(app);
       const result = await updateApp('MyApp', app);
       expect(result).toEqual(app);
@@ -276,6 +307,26 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(app),
       });
+    });
+  });
+
+  describe('updateGatewaySite', () => {
+    const site = { domain: 'x.example.com', backend_url: 'http://x:2' };
+
+    it('carries base_backend_url in the payload when given', async () => {
+      globalThis.fetch = mockFetchOk({ success: true });
+      await updateGatewaySite('x.example.com', site, 'http://x:1');
+      const init = vi.mocked(globalThis.fetch).mock.calls[0][1] as RequestInit;
+      expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toBe('/api/gateway/sites/x.example.com');
+      expect(init.method).toBe('PUT');
+      expect(JSON.parse(init.body as string)).toEqual({ ...site, base_backend_url: 'http://x:1' });
+    });
+
+    it('omits base_backend_url when not given', async () => {
+      globalThis.fetch = mockFetchOk({ success: true });
+      await updateGatewaySite('x.example.com', site);
+      const init = vi.mocked(globalThis.fetch).mock.calls[0][1] as RequestInit;
+      expect(JSON.parse(init.body as string)).toEqual(site);
     });
   });
 
@@ -289,6 +340,14 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('throws on non-OK response', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
       await expect(deleteApp('Missing')).rejects.toThrow('API error: 404');
+    });
+  });
+
+  describe('deleteTheme', () => {
+    it('sends DELETE with X-Requested-With', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+      await deleteTheme('my theme');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/themes/my%20theme', { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
   });
 
@@ -318,7 +377,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
 
   describe('updateGroup', () => {
     it('sends PUT to /group/:name', async () => {
-      const group = { name: 'Updated' };
+      const group = makeGroup({ name: 'Updated' });
       globalThis.fetch = mockFetchOk(group);
       const result = await updateGroup('MyGroup', group);
       expect(result).toEqual(group);
@@ -1000,6 +1059,19 @@ describe('ApiError detail and errorText', () => {
     const err = await fetchConfig().catch((e: unknown) => e);
     expect((err as ApiError).detail).toBe('API error: 502');
     expect(errorText(err, 'fallback')).toBe('API error: 502');
+  });
+
+  it('submitSetup throws an ApiError carrying the status', async () => {
+    globalThis.fetch = mockFetchError(409, 'Conflict', '{"error":"Setup already completed"}');
+    const err = await submitSetup({ method: 'none' }, 'tok').catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(409);
+    expect((err as ApiError).detail).toBe('Setup already completed');
+
+    globalThis.fetch = mockFetchError(502, 'Bad Gateway', '<html>502</html>');
+    const bare = await submitSetup({ method: 'none' }).catch((e: unknown) => e);
+    expect((bare as ApiError).status).toBe(502);
+    expect((bare as ApiError).message).toBe('API error: 502');
   });
 
   it('uses the message of other errors and the fallback for non-errors', () => {

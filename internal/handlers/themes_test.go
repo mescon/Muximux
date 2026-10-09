@@ -471,8 +471,10 @@ func TestDeleteTheme(t *testing.T) {
 
 		handler.DeleteTheme(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("expected status 400, got %d", w.Code)
+		// The bundled file lives in the embedded FS, not themesDir, so
+		// there is nothing on disk to delete.
+		if w.Code != http.StatusNotFound {
+			t.Errorf("expected status 404, got %d", w.Code)
 		}
 	})
 
@@ -677,4 +679,70 @@ func TestWriteFileAtomic(t *testing.T) {
 			t.Error("expected error for missing directory")
 		}
 	})
+}
+
+func TestSaveTheme_RefusesBundledName(t *testing.T) {
+	dir := t.TempDir()
+	bundledFS := fstest.MapFS{
+		"themes/nord.css": &fstest.MapFile{Data: []byte(`/* @theme-name: Nord */`)},
+	}
+	handler, _ := NewThemeHandler(dir, bundledFS)
+
+	// Any casing maps to the bundled theme's id.
+	for _, name := range []string{"Nord", "NORD", "nord"} {
+		body := `{"name":"` + name + `","baseTheme":"dark","isDark":true,"variables":{}}`
+		req := httptest.NewRequest(http.MethodPost, "/api/themes", strings.NewReader(body))
+		w := httptest.NewRecorder()
+		handler.SaveTheme(w, req)
+
+		if w.Code != http.StatusConflict {
+			t.Fatalf("%s: expected 409, got %d: %s", name, w.Code, w.Body.String())
+		}
+		if _, err := os.Stat(filepath.Join(dir, "nord.css")); !os.IsNotExist(err) {
+			t.Errorf("%s: no file should have been written", name)
+		}
+	}
+}
+
+func TestDeleteTheme_RemovesExistingOverrideOfBundledName(t *testing.T) {
+	dir := t.TempDir()
+	bundledFS := fstest.MapFS{
+		"themes/nord.css": &fstest.MapFile{Data: []byte(`/* @theme-name: Nord */`)},
+	}
+	if err := os.WriteFile(filepath.Join(dir, "nord.css"), []byte("/* override */"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	handler, _ := NewThemeHandler(dir, bundledFS)
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/themes/nord", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteTheme(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+	if _, err := os.Stat(filepath.Join(dir, "nord.css")); !os.IsNotExist(err) {
+		t.Error("expected override file to be deleted")
+	}
+}
+
+func TestDeleteTheme_StillRefusesDarkLight(t *testing.T) {
+	for _, id := range []string{"dark", "light"} {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, id+".css"), []byte("/* x */"), 0600); err != nil {
+			t.Fatal(err)
+		}
+		handler, _ := NewThemeHandler(dir, nil)
+
+		req := httptest.NewRequest(http.MethodDelete, "/api/themes/"+id, nil)
+		w := httptest.NewRecorder()
+		handler.DeleteTheme(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("%s: expected 400, got %d", id, w.Code)
+		}
+		if _, err := os.Stat(filepath.Join(dir, id+".css")); err != nil {
+			t.Errorf("%s: file must remain: %v", id, err)
+		}
+	}
 }

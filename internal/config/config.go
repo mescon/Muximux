@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -48,6 +49,25 @@ type Config struct {
 	// envRefs records scalars written as ${VAR} references in the loaded
 	// file so Save can write them back. Unexported, so YAML ignores it.
 	envRefs []envRef
+
+	// overrides records fields whose live value came from a flag or an
+	// environment variable, with the file's own value for Save to write.
+	overrides map[OverrideField]override
+
+	// onSaved is the broadcast hook Save calls after a successful write.
+	// Unexported, so YAML ignores it.
+	onSaved func()
+}
+
+// SetOnSaved registers the broadcast hook: called after every successful
+// Save, synchronously, while the caller still holds its config lock. It is
+// distinct from the handlers' SetOnConfigSave rebuild callbacks and must not
+// take configMu. The server's hook is Hub.BroadcastConfigUpdate, which can
+// block while the hub's event buffer is full; that is safe only because the
+// hub goroutine never takes configMu, so the hub must never read the config
+// (clients refetch it over HTTP instead).
+func (c *Config) SetOnSaved(fn func()) {
+	c.onSaved = fn
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -69,9 +89,9 @@ type KeyCombo struct {
 
 // HealthConfig holds health monitoring settings
 type HealthConfig struct {
-	Enabled  bool   `yaml:"enabled"`
-	Interval string `yaml:"interval"` // Check interval, e.g., "30s", "1m"
-	Timeout  string `yaml:"timeout"`  // Request timeout, e.g., "5s"
+	Enabled  bool   `yaml:"enabled" json:"enabled"`
+	Interval string `yaml:"interval" json:"interval"` // Check interval, e.g., "30s", "1m"
+	Timeout  string `yaml:"timeout" json:"timeout"`   // Request timeout, e.g., "5s"
 }
 
 // DiscoveryConfig is the top-level container for service-discovery
@@ -506,6 +526,9 @@ type GroupConfig struct {
 	Color    string        `yaml:"color" json:"color"`
 	Order    int           `yaml:"order" json:"order"`
 	Expanded bool          `yaml:"expanded" json:"expanded"`
+	// OriginalName is the name this group had in the client's base
+	// config. Transport-only identity for renames; never stored.
+	OriginalName string `yaml:"-" json:"original_name,omitempty"`
 }
 
 // AppConfig holds individual app settings
@@ -644,6 +667,86 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	cfg, err := decodeConfig(data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
+	// declarative server.gateway_sites: form. Runs once before
+	// validate() so the migrated sites participate in the same
+	// invariant checks as a hand-written gateway_sites: block. On
+	// success the original config.yaml + Caddyfile are backed up to
+	// .pre-3.1.0.bak alongside the originals; on lossy conversion
+	// the hook returns an error pointing the operator at the
+	// migrate-gateway CLI for manual handling. The migration needs the
+	// file path and writes backup files, so it runs only here and
+	// never in Parse.
+	if cfg.Server.Gateway != "" {
+		if err := autoMigrateGateway(cfg, path); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := finishConfig(cfg); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// ErrLegacyGateway is returned by Parse for input that sets the legacy
+// server.gateway key, in any form. Parse never migrates it (only Load does,
+// on boot), so restore refuses such a backup with this message.
+var ErrLegacyGateway = errors.New("This backup uses the old server.gateway setting, which restore does not convert. " + //nolint:staticcheck // shown to the user as is
+	"Move its sites to server.gateway_sites (muximux migrate-gateway converts a Caddyfile), " +
+	"or put the backup in place as config.yaml and restart, which converts it on start when the Caddyfile it names is present.")
+
+// hasLegacyGateway reports whether data sets server.gateway to anything
+// other than an empty or null scalar. Input that does not parse as YAML
+// reports false and is left to the full decode to describe.
+func hasLegacyGateway(data []byte) bool {
+	var probe struct {
+		Server struct {
+			Gateway yaml.Node `yaml:"gateway"`
+		} `yaml:"server"`
+	}
+	if err := yaml.Unmarshal(data, &probe); err != nil {
+		return false
+	}
+	g := &probe.Server.Gateway
+	switch g.Kind {
+	case 0:
+		return false
+	case yaml.ScalarNode:
+		return g.Tag != "!!null" && strings.TrimSpace(g.Value) != ""
+	default:
+		return true
+	}
+}
+
+// Parse turns config.yaml bytes into a validated Config exactly as boot does:
+// env-ref recording, ${VAR} expansion (MissingEnvVars), strict decode onto
+// defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
+// ApplyAutoImportEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
+// It never runs the legacy server.gateway migration and refuses such input
+// with ErrLegacyGateway.
+func Parse(data []byte) (*Config, error) {
+	if hasLegacyGateway(data) {
+		return nil, ErrLegacyGateway
+	}
+	cfg, err := decodeConfig(data)
+	if err != nil {
+		return nil, err
+	}
+	if err := finishConfig(cfg); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// decodeConfig is the shared front half of Load and Parse: everything from
+// recording ${VAR} references up to and including ApplyAutoImportEnv.
+func decodeConfig(data []byte) (*Config, error) {
 	// A failure here (e.g. ${VAR} inside a flow collection, which only
 	// parses after expansion) just means no references are remembered.
 	refs, err := recordEnvRefs(data)
@@ -695,20 +798,12 @@ func Load(path string) (*Config, error) {
 	// operator-set MUXIMUX_DISCOVERY_AUTO_IMPORT wins over config.yaml.
 	ApplyAutoImportEnv(cfg, os.LookupEnv)
 
-	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
-	// declarative server.gateway_sites: form. Runs once before
-	// validate() so the migrated sites participate in the same
-	// invariant checks as a hand-written gateway_sites: block. On
-	// success the original config.yaml + Caddyfile are backed up to
-	// .pre-3.1.0.bak alongside the originals; on lossy conversion
-	// the hook returns an error pointing the operator at the
-	// migrate-gateway CLI for manual handling.
-	if cfg.Server.Gateway != "" {
-		if err := autoMigrateGateway(cfg, path); err != nil {
-			return nil, err
-		}
-	}
+	return cfg, nil
+}
 
+// finishConfig is the shared back half of Load and Parse: hand-edit
+// detection for Docker-tracked apps, then validation.
+func finishConfig(cfg *Config) error {
 	// Auto-detach Docker tracking for entries whose url was
 	// hand-edited in config.yaml since the poller last wrote it.
 	// Mirrors what applyDockerTrackingPreservation does on the API
@@ -716,12 +811,9 @@ func Load(path string) (*Config, error) {
 	// all have consistent semantics: operator's URL edit wins,
 	// tracking is dropped.
 	autoDetachEditedDockerEntries(cfg)
+	warnStrayHTTPActionFields(cfg.Apps)
 
-	if err := cfg.validate(); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
+	return cfg.validate()
 }
 
 // detachIfHandEdited clears all Docker tracking fields on a single
@@ -795,7 +887,15 @@ func autoDetachEditedDockerEntries(cfg *Config) {
 // discovery.docker.* fields. Pulled out of Load() so the validation
 // tests can exercise the default rules without touching disk.
 func applyDiscoveryDefaults(cfg *Config) {
-	d := &cfg.Discovery.Docker
+	ApplyDiscoveryDockerDefaults(&cfg.Discovery.Docker)
+}
+
+// ApplyDiscoveryDockerDefaults applies the load-time defaults and
+// normalisation to a discovery.docker block: endpoint, network strategy
+// and refresh interval when enabled, lifecycle min role, badge placement
+// and the auto-import mode. The discovery config PUT calls it so a saved
+// config runs with the same values a restart would load.
+func ApplyDiscoveryDockerDefaults(d *DiscoveryDockerConfig) {
 	if d.Enabled {
 		if d.Endpoint == "" {
 			d.Endpoint = defaultDockerEndpoint()
@@ -949,11 +1049,12 @@ func (c *Config) validate() error {
 		// Removed in v3.1.0: the file-based gateway is no longer
 		// supported. Load() auto-migrates on boot (see
 		// autoMigrateGateway), so reaching this branch means a
-		// caller is constructing a Config directly or pushing one
-		// in through SaveConfig. Refuse to persist either way.
+		// caller is constructing a Config directly, pushing one in
+		// through SaveConfig, or restoring one through Parse (which
+		// never migrates). Refuse to persist in every case.
 		return fmt.Errorf("server.gateway is no longer supported (removed in v3.1.0).\n\n"+
-			"Boot-time auto-migration would have converted this; if you see this\n"+
-			"error you are likely setting server.gateway via the API. Use\n"+
+			"Only a config.yaml loaded at startup is converted automatically; a\n"+
+			"config saved through the API or restored from a backup is not. Use\n"+
 			"server.gateway_sites: directly, or run\n\n"+
 			"  muximux migrate-gateway %s\n\n"+
 			"to convert an existing Caddyfile by hand.\n\n"+
@@ -981,7 +1082,7 @@ func (c *Config) validate() error {
 		return err
 	}
 
-	if err := ValidateDiscoveryLifecycle(&c.Discovery.Docker, c.Groups); err != nil {
+	if err := ValidateDiscoveryLifecycle(&c.Discovery.Docker); err != nil {
 		return err
 	}
 
@@ -1084,7 +1185,7 @@ func validateGatewayListen(addr string) error {
 // fields. Unknown role / placement values are rejected up front so a
 // hand-edited config.yaml typo surfaces at boot instead of at the
 // first action click.
-func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) error {
+func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig) error {
 	switch d.LifecycleMinRole {
 	case "", "admin", "power-user", "user":
 	default:
@@ -1095,15 +1196,11 @@ func ValidateDiscoveryLifecycle(d *DiscoveryDockerConfig, groups []GroupConfig) 
 	default:
 		return fmt.Errorf("discovery.docker.health_badge_placement %q is not one of off, overview, overview_and_nav", d.HealthBadgePlacement)
 	}
-	if len(d.LifecycleAllowedGroups) > 0 {
-		known := make(map[string]struct{}, len(groups))
-		for i := range groups {
-			known[groups[i].Name] = struct{}{}
-		}
-		for _, g := range d.LifecycleAllowedGroups {
-			if _, ok := known[g]; !ok {
-				return fmt.Errorf("discovery.docker.lifecycle_allowed_groups references unknown group %q", g)
-			}
+	// Allowed groups are user/IdP groups (matched against the session's
+	// groups), not dashboard groups, so only reject blank entries.
+	for _, g := range d.LifecycleAllowedGroups {
+		if strings.TrimSpace(g) == "" {
+			return errors.New("discovery.docker.lifecycle_allowed_groups entries must not be empty")
 		}
 	}
 	return nil
@@ -1284,10 +1381,10 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 		if s.TLSCert == "" || s.TLSKey == "" {
 			return fmt.Errorf("tls=%q requires both tls_cert and tls_key", TLSModeCustom)
 		}
-		if _, err := os.Stat(s.TLSCert); err != nil {
+		if _, err := os.Stat(s.TLSCert); err != nil { //nolint:gosec // operator-supplied path from config.yaml
 			return fmt.Errorf("tls_cert %q not readable: %w", s.TLSCert, err)
 		}
-		if _, err := os.Stat(s.TLSKey); err != nil {
+		if _, err := os.Stat(s.TLSKey); err != nil { //nolint:gosec // operator-supplied path from config.yaml
 			return fmt.Errorf("tls_key %q not readable: %w", s.TLSKey, err)
 		}
 	default:
@@ -1368,10 +1465,10 @@ func isValidHeaderValue(s string) bool {
 // has body semantics we deliberately do not support yet (CONNECT,
 // OPTIONS). Spec lock: only these five.
 // httpActionMethods is the ordered, canonical set of HTTP verbs accepted for
-// an http_action app. The lookup set and the "expected one of ..." error
+// an http_action app, POST (the default) first. The lookup set and the "expected one of ..." error
 // message both derive from it, so the verb list has one Go source; a test
 // (TestHTTPActionMethodsMatchFrontend) keeps the AppForm dropdown in sync.
-var httpActionMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
+var httpActionMethods = []string{"POST", "GET", "PUT", "DELETE", "PATCH"}
 
 var httpActionAllowedMethods = func() map[string]struct{} {
 	m := make(map[string]struct{}, len(httpActionMethods))
@@ -1388,11 +1485,11 @@ var httpActionAllowedMethods = func() map[string]struct{} {
 // the header line on the wire.
 var httpActionHeaderKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
-// validateApps runs the per-app invariants. Today only http_action
-// mode has validation rules; non-http_action apps pass through
-// unconditionally, but http_action fields on those apps are logged as
-// a warning so a config-load misconfiguration is visible.
-func validateApps(apps []AppConfig) error {
+// warnStrayHTTPActionFields logs http_action fields set on an app whose
+// open mode is not http_action, so a config-load misconfiguration is
+// visible. Load and Parse only: Validate also runs on every runtime save,
+// where the same warning would repeat for an unchanged app.
+func warnStrayHTTPActionFields(apps []AppConfig) {
 	for i := range apps {
 		a := &apps[i]
 		if a.OpenMode != "http_action" &&
@@ -1400,6 +1497,14 @@ func validateApps(apps []AppConfig) error {
 			logging.Warn("http_action fields set on non-http_action app, ignored",
 				"source", "config", "app", a.Name, "open_mode", a.OpenMode)
 		}
+	}
+}
+
+// validateApps runs the per-app invariants. Today only http_action
+// mode has validation rules; non-http_action apps pass through.
+func validateApps(apps []AppConfig) error {
+	for i := range apps {
+		a := &apps[i]
 		if err := ValidateApp(a); err != nil {
 			return fmt.Errorf("app %q: %w", a.Name, err)
 		}
@@ -1639,7 +1744,9 @@ func (c *Config) Save(path string) error {
 			return err
 		}
 	}
-	data, err := c.marshalWithEnvRefs()
+	// Write the file's own value for any field a flag or environment
+	// variable overrode, so the override stays in memory only.
+	data, err := c.fileView().marshalWithEnvRefs()
 	if err != nil {
 		return err
 	}
@@ -1688,6 +1795,9 @@ func (c *Config) Save(path string) error {
 			_ = d.Sync()
 			_ = d.Close()
 		}
+	}
+	if c.onSaved != nil {
+		c.onSaved()
 	}
 	return nil
 }

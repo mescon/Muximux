@@ -2,7 +2,8 @@
   import { iconLabel } from '$lib/iconUrl';
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
+  import { type App, type Config, type Group, type KeybindingsConfig, makeApp, makeGroup, stampUniqueIds } from '$lib/types';
+  import { byCodePoint, normaliseBase, rebaseConfig, stampOriginalNames, type MergeConflict } from '$lib/configMerge';
   import { refreshDockerTracking, withoutDockerTracking } from '$lib/dockerTracking';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
@@ -20,10 +21,10 @@
   import { get } from 'svelte/store';
   import { selectedFamily, variantMode, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
-  import { exportConfig, parseImportedConfig, fetchConfig, type ImportedConfig } from '$lib/api';
+  import { exportConfig, parseImportedConfig, fetchConfig, errorText, type ImportedConfig } from '$lib/api';
   import { slugify, findSlugConflict } from '$lib/slug';
   import { toasts } from '$lib/toastStore';
-  import { getKeybindingsForConfig } from '$lib/keybindingsStore';
+  import { customBindings, getKeybindingsForConfig, initKeybindings } from '$lib/keybindingsStore';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
   import { popularApps, templateToApp, type PopularAppTemplate } from '$lib/popularApps';
   import * as m from '$lib/paraglide/messages.js';
@@ -42,13 +43,16 @@
     initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'gateway' | 'discovery' | 'about';
     initialEditAppName?: string | null;
     onclose?: () => void;
-    onsave?: (config: Config) => void;
+    /** Saves config three-way against base; rejects on failure, which keeps the dialog open. */
+    onsave?: (config: Config, base: Config) => Promise<void> | void;
     /** Called with the new auth block after the Security tab changed the auth method. */
     onauthchange?: (auth: NonNullable<Config['auth']>) => void;
   } = $props();
 
-  // Exported: returns true if Escape was consumed by closing an inner sub-modal.
+  // Exported: returns true if Escape was consumed by closing an inner sub-modal,
+  // or while a save is in flight (the dialog must stay open until it settles).
   export function handleEscape(): boolean {
+    if (saving) return true;
     if (showIconBrowser) { showIconBrowser = false; iconBrowserTarget = null; return true; }
     if (editingApp) { cancelEditApp(); return true; }
     if (editingGroup) { cancelEditGroup(); return true; }
@@ -80,22 +84,55 @@
   // Active tab
   let activeTab = $state(untrack(() => initialTab ?? 'general'));
 
-  // Local copy of config for editing — normalise through factories so every
-  // optional field (omitempty in Go) is present, preventing bind:value from
-  // adding new properties and triggering false "unsaved changes" detection.
-  let localConfig = $state(untrack(() => {
-    const c = JSON.parse(JSON.stringify(config)) as Config;
-    c.groups = c.groups.map((g: Group) => makeGroup(g));
-    return c;
-  }));
-  let localApps = $state(untrack(() => (apps as App[]).map(a => makeApp(JSON.parse(JSON.stringify(a))))));
+  // Deep copy of a wire object (a parent's state proxy included, which
+  // structuredClone refuses).
+  function clone<T>(v: T): T {
+    return JSON.parse(JSON.stringify(v)) as T;
+  }
+
+  // The one load pipeline, used at mount and for every rebase snapshot:
+  // normalise through the factories so every optional field (omitempty in
+  // Go) is present, preventing bind:value from adding new properties and
+  // triggering false "unsaved changes"; stamp the svelte-dnd-action ids and
+  // the rename identity (original_name).
+  function prepare(source: Config, sourceApps: App[]): { config: Config; apps: App[] } {
+    const c = clone(source);
+    c.groups = (c.groups ?? []).map((g: Group) => makeGroup(g));
+    const a = clone(sourceApps ?? []).map(x => makeApp(x));
+    stampUniqueIds(a);
+    stampUniqueIds(c.groups);
+    stampOriginalNames(a, c.groups);
+    return { config: c, apps: a };
+  }
+
+  const loaded = untrack(() => prepare(config, apps));
+
+  // Local copy of config for editing.
+  let localConfig = $state(loaded.config);
+  let localApps = $state(loaded.apps);
+
+  // The server config this dialog's edits are based on. Sent as the save's
+  // base so the server merges three-way, and replaced on every rebase. Apps
+  // come from the apps prop, which localApps started from. Apps and groups
+  // go through the same factories as the payload: a default the factory
+  // fills in (an absent scale becomes 1) must not read as an edit on the
+  // server, or an untouched app the server removed would be saved back.
+  let baseConfig = $state<Config>(untrack(() => normaliseBase(config, apps)));
+
+  // Bumped on every rebase; GatewayTab reloads its sites when it changes.
+  let configRevision = $state(0);
+
+  // A save in flight, and the server's message when the last one failed.
+  let saving = $state(false);
+  let saveError = $state<string | null>(null);
+
+  // Name collisions the last rebase kept for the user to resolve. A
+  // conflict clears as soon as the user renames one of the two items.
+  let rebaseConflicts = $state<MergeConflict[]>([]);
 
   // Icon browser state
   let showIconBrowser = $state(false);
   let iconBrowserTarget = $state<'newApp' | 'editApp' | 'newGroup' | 'editGroup' | 'homeIcon' | null>(null);
-
-  // Track keybindings changes
-  let keybindingsChanged = $state(false);
 
   // Track if changes have been made (declared below after snapshot variables)
 
@@ -151,24 +188,61 @@
   let appErrors = $state<Record<string, string>>({});
   let groupErrors = $state<Record<string, string>>({});
 
-  // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
-  untrack(() => localApps).forEach(stampAppId);
-  untrack(() => localConfig).groups.forEach(stampGroupId);
+  // Dirty-state keys. Key-sorted JSON, lists sorted by name, without the
+  // client-only dnd `id` and the Docker tracking fields (the server owns
+  // them, so a detach made while this dialog is open is not an unsaved
+  // change). Ordering lives in the `order` fields, so a rebase that only
+  // changes key or list order never reads as an edit. config.apps is left
+  // out: localApps is the apps' source of truth until the save.
+  function stateKey(value: unknown): string {
+    return JSON.stringify(value, (key, v) => {
+      if (key === 'id' || withoutDockerTracking(key, v) === undefined) return undefined;
+      if (v && typeof v === 'object' && !Array.isArray(v)) {
+        const o = v as Record<string, unknown>;
+        // An empty object and an absent one decode alike in Go (the
+        // rebase yields theme: {} where the server sent none).
+        if (Object.keys(o).length === 0 && key !== '') return undefined;
+        return Object.fromEntries(Object.keys(o).sort(byCodePoint).map(k => [k, o[k]]));
+      }
+      return v;
+    });
+  }
+  function sortedByName<T extends { name: string }>(list: T[]): T[] {
+    return [...list].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  }
+  function configKey(c: Config): string {
+    return stateKey({ ...c, apps: undefined, groups: sortedByName(c.groups ?? []) });
+  }
+  function appsKey(list: App[]): string {
+    return stateKey(sortedByName(list));
+  }
 
-  // Snapshot taken AFTER id fields are added, so hasChanges starts as false
-  // Docker tracking fields are left out: the server owns them, so a detach
-  // made while this dialog is open is not an unsaved change.
-  let initialConfigSnapshot = $state(untrack(() => JSON.stringify(localConfig, withoutDockerTracking)));
-  const initialAppsSnapshot = untrack(() => JSON.stringify(localApps, withoutDockerTracking));
+  // Snapshots of the loaded config, so hasChanges starts as false.
+  let initialConfigSnapshot = $state(configKey(loaded.config));
+  let initialAppsSnapshot = $state(appsKey(loaded.apps));
 
-  // Snapshot theme so we can revert on close without save
-  const initialFamily = untrack(() => get(selectedFamily));
-  const initialVariant = untrack(() => get(variantMode));
+  // Snapshot theme so we can revert on close without save. A rebase moves
+  // it to the server's theme.
+  let initialFamily = $state(untrack(() => get(selectedFamily)));
+  let initialVariant = $state(untrack(() => get(variantMode)));
+
+  // Keybinding edits go straight into the global store (the editor and the
+  // live shortcuts read it), so they are compared against the bindings the
+  // dialog opened with, normalised like getKeybindingsForConfig.
+  function keybindingsKey(kb?: KeybindingsConfig): string {
+    const bindings = Object.entries(kb?.bindings ?? {}).filter(([, combos]) => combos && combos.length > 0);
+    return stateKey(Object.fromEntries(bindings));
+  }
+  let initialKeybindings = $state(untrack(() => keybindingsKey(getKeybindingsForConfig())));
+  let keybindingsDirty = $derived.by(() => {
+    void $customBindings;
+    return keybindingsKey(getKeybindingsForConfig()) !== initialKeybindings;
+  });
 
   // Track if changes have been made
-  let hasChanges = $derived(JSON.stringify(localConfig, withoutDockerTracking) !== initialConfigSnapshot ||
-                  JSON.stringify(localApps, withoutDockerTracking) !== initialAppsSnapshot ||
-                  keybindingsChanged ||
+  let hasChanges = $derived(configKey(localConfig) !== initialConfigSnapshot ||
+                  appsKey(localApps) !== initialAppsSnapshot ||
+                  keybindingsDirty ||
                   $selectedFamily !== initialFamily ||
                   $variantMode !== initialVariant);
 
@@ -182,7 +256,7 @@
     const auth = $state.snapshot(localConfig.auth);
     const saved = JSON.parse(initialConfigSnapshot) as Config;
     saved.auth = auth;
-    initialConfigSnapshot = JSON.stringify(saved, withoutDockerTracking);
+    initialConfigSnapshot = configKey(saved);
     onauthchange?.(auth);
   }
 
@@ -206,6 +280,112 @@
     dndGroupedApps = buildGroupedApps();
   }
 
+  // Conflicts still unresolved by the current edits, one per kind and name.
+  let conflicts = $derived.by(() => {
+    const out: MergeConflict[] = [];
+    for (const c of rebaseConflicts) {
+      const list: { name: string }[] = c.kind === 'app' ? localApps : localConfig.groups;
+      if (out.some(o => o.kind === c.kind && o.name === c.name)) continue;
+      if (list.filter(i => i.name === c.name).length < 2) continue;
+      out.push(c);
+    }
+    return out;
+  });
+
+  // A server config waiting for an app/group sub-modal or a save to finish.
+  // Rebasing under an open modal would replace the objects it edits, so the
+  // rebase waits; the effect below applies it once nothing holds them.
+  let pendingRebase = $state.raw<Config | null>(null);
+  // Set once a save succeeded: the dialog is closing, later pushes are moot.
+  let closed = false;
+  let subModalOpen = $derived(!!editingApp || !!editingGroup || showAddApp || showAddGroup);
+
+  /**
+   * Rebases the unsaved edits onto a fresh server config (a push, a
+   * reconnect, a Discover import). Applies now, or queues while an app or
+   * group sub-modal is open or a save is in flight.
+   */
+  export function rebase(theirs: Config): void {
+    if (closed) return;
+    if (subModalOpen || saving) {
+      pendingRebase = theirs;
+      return;
+    }
+    applyRebase(theirs);
+  }
+
+  function applyRebase(theirsIn: Config) {
+    const theirs = clone(theirsIn);
+    const hadEdits = hasChanges;
+    const hadKeybindingEdits = keybindingsDirty;
+    const hadThemeEdits = get(selectedFamily) !== initialFamily || get(variantMode) !== initialVariant;
+    const beforeConfig = configKey(localConfig);
+    const beforeApps = appsKey(localApps);
+    const { config: merged, apps: mergedApps, conflicts: found } = rebaseConfig({
+      base: $state.snapshot(baseConfig) as Config,
+      local: $state.snapshot(localConfig) as Config,
+      localApps: $state.snapshot(localApps) as App[],
+      theirs,
+    });
+    // Merged items keep original_name = the server's name, so a rename the
+    // user made before this rebase still saves as a rename. Only ids are
+    // re-stamped.
+    stampUniqueIds(mergedApps);
+    stampUniqueIds(merged.groups);
+    const fresh = prepare(theirs, theirs.apps ?? []);
+    baseConfig = normaliseBase(theirs, theirs.apps ?? []);
+    localConfig = { ...merged, apps: clone(mergedApps) };
+    localApps = mergedApps;
+    initialConfigSnapshot = configKey(fresh.config);
+    initialAppsSnapshot = appsKey(fresh.apps);
+    rebaseConflicts = found;
+    // Untouched keybindings follow the server; edited ones stay and are
+    // compared against the server's from now on.
+    if (!hadKeybindingEdits) initKeybindings(theirs.keybindings);
+    initialKeybindings = keybindingsKey(theirs.keybindings);
+    syncThemeOnRebase(theirs.theme, hadThemeEdits);
+    rebuildDndArrays();
+    configRevision += 1;
+    if (hadEdits && (configKey(localConfig) !== beforeConfig || appsKey(localApps) !== beforeApps)) {
+      toasts.info(m.settings_rebased());
+    }
+  }
+
+  // An untouched theme follows the server, so a save never writes back the
+  // theme this dialog opened with over one another admin saved meanwhile.
+  // An edited theme stays; either way the server's theme is the one a
+  // discard returns to.
+  function syncThemeOnRebase(theme: Config['theme'], edited: boolean) {
+    if (!theme?.family) return;
+    const v = theme.variant;
+    const variant = v === 'dark' || v === 'light' || v === 'system' ? v : null;
+    if (!edited) {
+      if (get(selectedFamily) !== theme.family) setThemeFamily(theme.family);
+      if (variant && get(variantMode) !== variant) setVariantMode(variant);
+    }
+    initialFamily = theme.family;
+    if (variant) initialVariant = variant;
+  }
+
+  // A new config prop (the shell refetched after a push or reconnect).
+  // svelte-ignore state_referenced_locally
+  let lastConfigProp = config;
+  $effect(() => {
+    const c = config;
+    if (c === lastConfigProp) return;
+    lastConfigProp = c;
+    untrack(() => rebase(c));
+  });
+
+  $effect(() => {
+    const t = pendingRebase;
+    if (!t || subModalOpen || saving) return;
+    untrack(() => {
+      pendingRebase = null;
+      if (!closed) applyRebase(t);
+    });
+  });
+
   // Sync callbacks from AppsTab DnD
   function syncGroupOrder(groups: Group[]) {
     localConfig.groups = [...groups];
@@ -218,7 +398,7 @@
       for (const apps of Object.values(dndGroupedApps)) {
         allApps.push(...apps);
       }
-      allApps.forEach(stampAppId);
+      stampUniqueIds(allApps);
       localApps = allApps;
       if (groupName === '__rebuild__') {
         localConfig.groups = [...dndGroups];
@@ -237,7 +417,25 @@
     void refreshDockerTracking(editingApp ? [localApps, [editingApp]] : [localApps], fetchConfig);
   }
 
-  function handleSave() {
+  // The config sent to the server: without the client-only dnd `id` that
+  // stampUniqueIds puts on every app and group.
+  function savePayload(): Config {
+    const c = $state.snapshot(localConfig) as Config;
+    const strip = <T extends object>(item: T): T => {
+      const { id: _id, ...rest } = item as T & { id?: unknown };
+      return rest as T;
+    };
+    c.apps = (c.apps ?? []).map(strip);
+    c.groups = (c.groups ?? []).map(strip);
+    return c;
+  }
+
+  // Closes only after the save succeeded. On failure the dialog stays open
+  // with every edit and shows the server's message.
+  async function handleSave() {
+    if (saving) return;
+    saving = true;
+    saveError = null;
     try {
       // Update config with local changes
       localConfig.apps = localApps;
@@ -247,30 +445,60 @@
         variant: get(variantMode)
       };
       // Include keybindings if changed
-      if (keybindingsChanged) {
+      if (keybindingsDirty) {
         localConfig.keybindings = getKeybindingsForConfig();
       }
-      onsave?.(localConfig);
-    } finally {
+      await onsave?.(savePayload(), $state.snapshot(baseConfig) as Config);
+      closed = true;
+      pendingRebase = null;
       onclose?.();
+    } catch (e) {
+      saveError = errorText(e, m.toast_failedSaveConfig());
+    } finally {
+      saving = false;
+    }
+  }
+
+  // Discover imported apps or sites: rebase onto the server's config like
+  // a push, keeping unsaved edits, then close the modal (S-52).
+  async function handleDiscoverImported() {
+    try {
+      rebase(await fetchConfig());
+    } catch {
+      toasts.error(m.error_failedLoadConfig());
+    } finally {
+      showDiscoverModal = false;
     }
   }
 
   // Inline confirmation state
   let confirmClose = $state(false);
 
-  function handleClose() {
+  /**
+   * Every way of closing the dialog goes through here. Returns true when it
+   * closed (nothing unsaved), false when it showed the discard prompt or a
+   * save is still in flight. Closing reverts the previewed theme and any
+   * keybinding edits.
+   */
+  export function requestClose(): boolean {
+    if (saving) return false;
     if (hasChanges) {
       confirmClose = true;
-      return;
+      return false;
     }
-    revertTheme();
-    onclose?.();
+    discardAndClose();
+    return true;
   }
 
   function confirmCloseDiscard() {
+    if (saving) return;
     confirmClose = false;
+    discardAndClose();
+  }
+
+  function discardAndClose() {
     revertTheme();
+    initKeybindings($state.snapshot(baseConfig.keybindings) as KeybindingsConfig | undefined);
     onclose?.();
   }
 
@@ -330,7 +558,6 @@
     appErrors = {};
     newApp.order = localApps.length;
     const app = { ...newApp };
-    stampAppId(app);
     // Auto-create the group if it doesn't exist yet (e.g. gallery apps with preset groups)
     if (app.group && !localConfig.groups.some(g => g.name === app.group)) {
       const groupName = app.group as string;
@@ -340,10 +567,11 @@
         color: '',
         order: localConfig.groups.length,
       });
-      stampGroupId(autoGroup);
       localConfig.groups = [...localConfig.groups, autoGroup];
+      stampUniqueIds(localConfig.groups);
     }
     localApps = [...localApps, app];
+    stampUniqueIds(localApps);
     newApp = { ...newAppTemplate };
     showAddApp = false;
     rebuildDndArrays();
@@ -358,8 +586,8 @@
     groupErrors = {};
     newGroup.order = localConfig.groups.length;
     const group = { ...newGroup };
-    stampGroupId(group);
     localConfig.groups = [...localConfig.groups, group];
+    stampUniqueIds(localConfig.groups);
     newGroup = { ...newGroupTemplate };
     showAddGroup = false;
     rebuildDndArrays();
@@ -395,12 +623,12 @@
         return;
       }
       editAppErrors = {};
-      stampAppId(editingApp);
       // Sync DnD app changes back to localApps before rebuilding
       const allApps: App[] = [];
       for (const apps of Object.values(dndGroupedApps)) {
         allApps.push(...apps);
       }
+      stampUniqueIds(allApps);
       localApps = allApps;
     }
     editingApp = null;
@@ -430,9 +658,9 @@
         return;
       }
       editGroupErrors = {};
-      stampGroupId(editingGroup);
       // Sync DnD group changes back to localConfig before rebuilding
       localConfig.groups = [...dndGroups];
+      stampUniqueIds(localConfig.groups);
     }
     editingGroup = null;
     editGroupSnapshot = null;
@@ -488,8 +716,8 @@
     localApps = pendingImport.apps;
 
     // Assign stable ids for svelte-dnd-action
-    localApps.forEach(stampAppId);
-    localConfig.groups.forEach(stampGroupId);
+    stampUniqueIds(localApps);
+    stampUniqueIds(localConfig.groups);
     rebuildDndArrays();
 
     showImportConfirm = false;
@@ -559,14 +787,15 @@
         {/if}
         <button
           class="btn btn-primary btn-sm disabled:opacity-50"
-          disabled={!hasChanges}
+          disabled={!hasChanges || saving || conflicts.length > 0}
           onclick={handleSave}
         >
-          {m.settings_saveChanges()}
+          {saving ? m.settings_saving() : m.settings_saveChanges()}
         </button>
         <button
           class="btn btn-ghost btn-icon btn-sm"
-          onclick={handleClose}
+          onclick={() => requestClose()}
+          disabled={saving}
           aria-label={m.settings_closeSettings()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -575,6 +804,22 @@
         </button>
       </div>
     </div>
+
+    <!-- Save failure: the dialog stays open with every edit -->
+    {#if saveError}
+      <div class="px-4 py-2 bg-red-600/20 border-b border-red-600/40 text-sm text-red-200" role="alert">
+        {m.settings_saveFailed({ error: saveError })}
+      </div>
+    {/if}
+
+    <!-- Name conflicts a rebase kept: Save stays blocked until one is renamed -->
+    {#if conflicts.length > 0}
+      <div class="px-4 py-2 bg-red-600/20 border-b border-red-600/40 text-sm text-red-200 space-y-1" role="alert" data-testid="settings-conflicts">
+        {#each conflicts as c (`${c.kind}:${c.name}`)}
+          <p title={c.message}>{c.kind === 'app' ? m.settings_conflictApp({ name: c.name }) : m.settings_conflictGroup({ name: c.name })}</p>
+        {/each}
+      </div>
+    {/if}
 
     <!-- Unsaved changes confirmation banner -->
     {#if confirmClose}
@@ -587,6 +832,7 @@
           >{m.settings_keepEditing()}</button>
           <button
             class="btn btn-danger btn-sm"
+            disabled={saving}
             onclick={confirmCloseDiscard}
           >{m.settings_discard()}</button>
         </div>
@@ -647,15 +893,16 @@
 
       <!-- Keybindings Settings -->
       {:else if activeTab === 'keybindings'}
-        <KeybindingsEditor onchange={() => keybindingsChanged = true} />
+        <KeybindingsEditor />
 
       <!-- Security Settings -->
       {:else if activeTab === 'security'}
-        <SecurityTab {localConfig} onmethodapplied={handleAuthMethodApplied} />
+        <SecurityTab {localConfig} hasUnsavedChanges={hasChanges} onmethodapplied={handleAuthMethodApplied} />
 
       <!-- Gateway sites -->
       {:else if activeTab === 'gateway'}
         <GatewayTab
+          {configRevision}
           ondiscoveryconfigure={() => { activeTab = 'discovery'; }}
           ondiscoveryscan={openDiscoverFromGateway}
         />
@@ -679,30 +926,7 @@
   bind:open={showDiscoverModal}
   mode={discoverMode}
   onclose={() => { showDiscoverModal = false; }}
-  onimported={async () => {
-    // Reload the freshly-imported apps + groups so the operator
-    // sees them in the underlying tabs without a manual refresh.
-    // Gateway sites are reloaded inside GatewayTab when the modal
-    // closes (it has its own load() in onMount + we trigger via a
-    // re-mount on tab switch).
-    try {
-      const fresh = await fetchConfig();
-      localConfig = fresh;
-      localApps = (fresh.apps as App[]).map(a => makeApp(JSON.parse(JSON.stringify(a))));
-      localApps.forEach(stampAppId);
-      dndGroups = [...localConfig.groups];
-      dndGroupedApps = (() => {
-        const grouped: Record<string, App[]> = {};
-        for (const g of localConfig.groups) grouped[g.name] = [];
-        for (const app of localApps) {
-          const g = app.group || (localConfig.groups[0]?.name || 'Default');
-          if (!grouped[g]) grouped[g] = [];
-          grouped[g].push(app);
-        }
-        return grouped;
-      })();
-    } catch { /* ignore - operator can refresh manually */ }
-  }}
+  onimported={handleDiscoverImported}
 />
 
 <!-- Add App Modal -->

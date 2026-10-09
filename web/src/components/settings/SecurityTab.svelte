@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, untrack } from 'svelte';
   import { fly } from 'svelte/transition';
   import type { Config, UserInfo, ChangeAuthMethodRequest, OIDCSettings, OIDCSettingsUpdate } from '$lib/types';
   import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getOIDCSettings, getAPIKeyStatus, generateAPIKey, deleteAPIKey, errorText } from '$lib/api';
@@ -8,8 +8,10 @@
   import OidcSettingsForm from './OidcSettings.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { localConfig, onmethodapplied }: {
+  let { localConfig, hasUnsavedChanges = false, onmethodapplied }: {
     localConfig: Config;
+    /** True when Settings holds unsaved edits a page reload would lose. */
+    hasUnsavedChanges?: boolean;
     /** Called after the server accepted an auth method change. */
     onmethodapplied?: () => void;
   } = $props();
@@ -150,6 +152,7 @@
   let faHeaderGroups = $state('Remote-Groups');
   let faHeaderName = $state('Remote-Name');
   let faLogoutUrl = $state('');
+  let faAdminGroups = $state('');
 
   function selectFaPreset(p: PresetName) {
     faPreset = p;
@@ -258,7 +261,7 @@
     }
     if (selectedAuthMethod === 'forward_auth') {
       Object.assign(req, buildForwardAuthRequest(
-        methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
+        methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl, faAdminGroups,
       ));
     }
     try {
@@ -271,6 +274,7 @@
           localConfig.auth.trusted_proxies = req.trusted_proxies;
           localConfig.auth.headers = req.headers;
           localConfig.auth.logout_url = req.logout_url;
+          localConfig.auth.forward_auth_admin_groups = req.forward_auth_admin_groups;
         }
         // The server owns the auth block (PUT /api/config ignores it), so
         // the change above is already saved: let the dialog know it is not
@@ -307,6 +311,84 @@
     }
   }
 
+  // A method change that reloads the page (from "none" to password or
+  // single sign-on) would drop unsaved edits in other tabs, so it asks first.
+  // Holds which action is waiting for the answer.
+  let confirmReload = $state<'method' | 'setup' | null>(null);
+
+  // A different card picked while the prompt is up answers it with "no".
+  $effect(() => {
+    void selectedAuthMethod;
+    untrack(() => { confirmReload = null; });
+  });
+
+  function reloadsPage(): boolean {
+    return currentMethod === 'none' && selectedAuthMethod !== 'none' && selectedAuthMethod !== 'forward_auth';
+  }
+
+  function requestChangeAuthMethod() {
+    if (hasUnsavedChanges && reloadsPage()) {
+      confirmReload = 'method';
+      return;
+    }
+    void handleChangeAuthMethod();
+  }
+
+  function requestCreateFirstUser() {
+    if (hasUnsavedChanges) {
+      confirmReload = 'setup';
+      return;
+    }
+    void createFirstUserAndEnable();
+  }
+
+  function continueReload() {
+    const action = confirmReload;
+    confirmReload = null;
+    if (action === 'method') void handleChangeAuthMethod();
+    else if (action === 'setup') void createFirstUserAndEnable();
+  }
+
+  // Creates the first admin, enables password auth, logs in and reloads.
+  async function createFirstUserAndEnable() {
+    const savedUser = setupUsername.trim();
+    const savedPass = setupPassword;
+    // Bridge to handleAddUser via shared state
+    newUserName = savedUser;
+    newUserPassword = savedPass;
+    newUserRole = 'admin';
+    await handleAddUser();
+    if (securityUsers.length === 0) return;
+    // Call API directly (not handleChangeAuthMethod which reloads)
+    methodLoading = true;
+    try {
+      const result = await changeAuthMethod({ method: 'builtin' });
+      if (!result.success) {
+        methodError = result.message || m.error_failedEnableAuth();
+        return;
+      }
+    } catch (e) {
+      methodError = errorText(e, m.error_failedEnableAuth());
+      return;
+    } finally {
+      methodLoading = false;
+    }
+    // Auth middleware is now "builtin", so this page has no
+    // valid session. Log in NOW to set the session cookie, then
+    // reload into an authenticated page. Doing the login here
+    // (rather than stashing the plaintext password in
+    // sessionStorage for an after-reload auto-login) keeps the
+    // password out of web storage entirely.
+    sessionStorage.setItem('muximux_return_to', 'security');
+    try {
+      await login(savedUser, savedPass, true);
+    } catch {
+      // Even if the login call fails, reload so the operator
+      // lands on the login form rather than a broken page.
+    }
+    window.location.reload();
+  }
+
   // Derived values for template
   let currentMethod = $derived(localConfig.auth?.method || 'none');
   let methodChanged = $derived(selectedAuthMethod !== currentMethod);
@@ -316,7 +398,8 @@
     faHeaderEmail !== (localConfig.auth?.headers?.email || 'Remote-Email') ||
     faHeaderGroups !== (localConfig.auth?.headers?.groups || 'Remote-Groups') ||
     faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name') ||
-    faLogoutUrl !== (localConfig.auth?.logout_url || '')
+    faLogoutUrl !== (localConfig.auth?.logout_url || '') ||
+    faAdminGroups !== (localConfig.auth?.forward_auth_admin_groups?.join('\n') ?? '')
   ));
   let oidcFormShown = $derived(selectedAuthMethod === 'oidc' && oidcSettings !== null);
   let showUpdateBtn = $derived(methodChanged || faFieldsChanged || oidcFormShown);
@@ -341,6 +424,7 @@
     const proxies = localConfig.auth?.trusted_proxies;
     methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
     faLogoutUrl = localConfig.auth?.logout_url || '';
+    faAdminGroups = localConfig.auth?.forward_auth_admin_groups?.join('\n') ?? '';
     const h = localConfig.auth?.headers;
     if (h) {
       faHeaderUser = h.user || 'Remote-User';
@@ -351,6 +435,16 @@
     }
   });
 </script>
+
+{#snippet reloadPrompt()}
+  <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-lg bg-yellow-600/20 border border-yellow-600/40" role="alert" data-testid="reload-prompt">
+    <span class="text-sm text-yellow-200">{m.security_reloadDiscardsEdits()}</span>
+    <div class="flex gap-2">
+      <button class="btn btn-secondary btn-sm" onclick={() => confirmReload = null}>{m.common_cancel()}</button>
+      <button class="btn btn-danger btn-sm" onclick={continueReload}>{m.security_continueAnyway()}</button>
+    </div>
+  </div>
+{/snippet}
 
 <div class="space-y-8">
   <!-- Authentication Method -->
@@ -486,51 +580,16 @@
                   <button
                     class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
                     disabled={addUserLoading || !setupUsername.trim() || setupPassword.length < 8}
-                    onclick={async () => {
-                      const savedUser = setupUsername.trim();
-                      const savedPass = setupPassword;
-                      // Bridge to handleAddUser via shared state
-                      newUserName = savedUser;
-                      newUserPassword = savedPass;
-                      newUserRole = 'admin';
-                      await handleAddUser();
-                      if (securityUsers.length > 0) {
-                        // Call API directly (not handleChangeAuthMethod which reloads)
-                        methodLoading = true;
-                        try {
-                          const result = await changeAuthMethod({ method: 'builtin' });
-                          if (!result.success) {
-                            methodError = result.message || m.error_failedEnableAuth();
-                            return;
-                          }
-                        } catch (e) {
-                          methodError = errorText(e, m.error_failedEnableAuth());
-                          return;
-                        } finally {
-                          methodLoading = false;
-                        }
-                        // Auth middleware is now "builtin", so this page has no
-                        // valid session. Log in NOW to set the session cookie, then
-                        // reload into an authenticated page. Doing the login here
-                        // (rather than stashing the plaintext password in
-                        // sessionStorage for an after-reload auto-login) keeps the
-                        // password out of web storage entirely.
-                        sessionStorage.setItem('muximux_return_to', 'security');
-                        try {
-                          await login(savedUser, savedPass, true);
-                        } catch {
-                          // Even if the login call fails, reload so the operator
-                          // lands on the login form rather than a broken page.
-                        }
-                        window.location.reload();
-                      }
-                    }}
+                    onclick={requestCreateFirstUser}
                   >
                     {#if addUserLoading || methodLoading}
                       <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     {/if}
                     {m.security_createUserEnable()}
                   </button>
+                  {#if confirmReload === 'setup'}
+                    {@render reloadPrompt()}
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -636,6 +695,19 @@
                 </div>
               </div>
             {/if}
+
+            <div>
+              <label for="settings-admin-groups" class="block text-sm text-text-muted mb-1">{m.security_forwardAuthAdminGroups()}</label>
+              <textarea
+                id="settings-admin-groups"
+                bind:value={faAdminGroups}
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="admins"
+                rows="2"
+              ></textarea>
+              <p class="text-xs text-text-disabled mt-1">{m.security_forwardAuthAdminGroupsHint()}</p>
+            </div>
           </div>
         {/if}
       </div>
@@ -740,13 +812,16 @@
       <button
         class="btn btn-primary btn-sm mt-4 disabled:opacity-50 flex items-center gap-2"
         disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim()) || (selectedAuthMethod === 'oidc' && !oidcValid)}
-        onclick={handleChangeAuthMethod}
+        onclick={requestChangeAuthMethod}
       >
         {#if methodLoading}
           <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
         {/if}
         {m.security_updateMethod()}
       </button>
+      {#if confirmReload === 'method'}
+        <div class="mt-3">{@render reloadPrompt()}</div>
+      {/if}
     {/if}
   </div>
 

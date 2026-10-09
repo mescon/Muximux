@@ -764,3 +764,45 @@ func TestOIDC_LoginRedirectSanitization(t *testing.T) {
 		})
 	}
 }
+
+// A restore that resets the session store while the callback talks to the
+// IdP must win: the callback publishes no session and fails like any other
+// rejected login.
+func TestOIDC_SessionStoreResetMidCallbackRefused(t *testing.T) {
+	userinfo := map[string]interface{}{"sub": "uid-1", "preferred_username": "jane"}
+	srv := mockOIDCServer(t, userinfo)
+	defer srv.Close()
+
+	p, ss := newTestOIDCProvider(t, srv.URL)
+	idp := srv.Config.Handler
+	srv.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/userinfo" {
+			ss.InvalidateAll() // the restore lands after the callback captured its generation
+		}
+		idp.ServeHTTP(w, r)
+	})
+
+	authURL, err := p.GetAuthorizationURL(context.Background(), "/")
+	if err != nil {
+		t.Fatalf("GetAuthorizationURL: %v", err)
+	}
+	parsed, err := url.Parse(authURL)
+	if err != nil {
+		t.Fatalf("parse auth URL: %v", err)
+	}
+	resp, err := http.Get(authURL) //nolint:gosec // test mock IdP, trusted URL
+	if err != nil {
+		t.Fatalf("GET authURL: %v", err)
+	}
+	resp.Body.Close()
+
+	req := httptest.NewRequest(http.MethodGet,
+		"/api/auth/oidc/callback?code=c&state="+url.QueryEscape(parsed.Query().Get("state")), nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+
+	assertCallbackFailed(t, rec, callbackErrFailed)
+	if n := ss.Count(); n != 0 {
+		t.Errorf("%d sessions published after the reset", n)
+	}
+}

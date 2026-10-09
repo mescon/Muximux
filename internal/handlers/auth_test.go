@@ -53,6 +53,39 @@ func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore) {
 	return handler, sessionStore
 }
 
+// A restore that resets the session store while a login is checking the
+// password must win: the login publishes no session and answers 401 with
+// the generic message.
+func TestLogin_SessionStoreResetMidFlightIs401(t *testing.T) {
+	handler, sessionStore := setupAuthTest(t)
+	prev := loginCredentialsChecked
+	loginCredentialsChecked = func() { sessionStore.InvalidateAll() }
+	t.Cleanup(func() { loginCredentialsChecked = prev })
+
+	body := `{"username":"admin","password":"testpass123"}`
+	w := httptest.NewRecorder()
+	handler.Login(w, httptest.NewRequest(http.MethodPost, "/api/auth/login", strings.NewReader(body)))
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("login = %d %s, want 401", w.Code, w.Body.String())
+	}
+	var resp LoginResponse
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if resp.Success || resp.Message != "Invalid username or password" {
+		t.Errorf("response = %+v, want the generic failure", resp)
+	}
+	if n := sessionStore.Count(); n != 0 {
+		t.Errorf("%d sessions published after the reset", n)
+	}
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "muximux_session" && c.Value != "" {
+			t.Error("session cookie set on a refused login")
+		}
+	}
+}
+
 // TestLogin_PopulatesSessionGroups guards the gateway group gate against
 // fail-closed denial of builtin users. sessionInAllowedGroups reads a
 // user's groups from session.Data["groups"], which OIDC populates but the
@@ -2385,6 +2418,42 @@ func TestReplaceOIDCProvider_ConcurrentReads(t *testing.T) {
 	_ = h.CloseOIDC()
 }
 
+func TestClearOIDCProvider_ClosesCurrent(t *testing.T) {
+	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
+	srv := mockOIDCDiscoveryServer(t)
+	cfg := config.OIDCConfig{Enabled: true, IssuerURL: srv.URL, ClientID: "c", RedirectURL: "https://d/cb"}
+	if err := h.ReplaceOIDCProvider(context.Background(), &cfg, ""); err != nil {
+		t.Fatal(err)
+	}
+	installed := h.provider()
+
+	var closed []*auth.OIDCProvider
+	prev := closeOIDCProvider
+	closeOIDCProvider = func(p *auth.OIDCProvider) error {
+		closed = append(closed, p)
+		return prev(p)
+	}
+	t.Cleanup(func() { closeOIDCProvider = prev })
+
+	h.ClearOIDCProvider()
+	if h.provider() != nil {
+		t.Error("provider still installed after ClearOIDCProvider")
+	}
+	if len(closed) != 1 || closed[0] != installed {
+		t.Fatalf("closed = %v, want exactly the installed provider", closed)
+	}
+
+	h.ClearOIDCProvider() // nothing installed: nothing to close
+	if len(closed) != 1 {
+		t.Errorf("clearing an empty slot closed %d providers", len(closed)-1)
+	}
+	rec := httptest.NewRecorder()
+	h.OIDCLogin(rec, httptest.NewRequest(http.MethodGet, "/api/auth/oidc/login", nil))
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("OIDC login after clear = %d, want 404", rec.Code)
+	}
+}
+
 func TestPrepareOIDCProvider_DoesNotSwap(t *testing.T) {
 	h := NewAuthHandler(auth.NewSessionStore("muximux_session", time.Hour, false), auth.NewUserStore(), nil, "", nil, &sync.RWMutex{})
 	srv := mockOIDCDiscoveryServer(t)
@@ -2642,5 +2711,168 @@ func TestLogin_LocalLoginDisabled(t *testing.T) {
 	h2, _, _ := oidcHandlerWithDiscovery(t, nil)
 	if w := login(h2); w.Code != http.StatusOK {
 		t.Errorf("allowed: got %d %s", w.Code, w.Body.String())
+	}
+}
+
+// forwardAuthRole runs a trusted-proxy request carrying the given groups
+// header through the live middleware and returns the role it resolves to.
+func forwardAuthRole(t *testing.T, handler *AuthHandler, groups string) string {
+	t.Helper()
+	var role string
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		if u := auth.GetUserFromContext(r.Context()); u != nil {
+			role = u.Role
+		}
+	})
+	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+	req.RemoteAddr = "10.1.2.3:4567"
+	req.Header.Set("Remote-User", "carol")
+	req.Header.Set("Remote-Groups", groups)
+	handler.authMiddleware.RequireAuth(next).ServeHTTP(httptest.NewRecorder(), req)
+	return role
+}
+
+// putForwardAuth sends a forward_auth PUT /api/auth/method with the given body fields.
+func putForwardAuth(t *testing.T, handler *AuthHandler, extra map[string]interface{}) {
+	t.Helper()
+	fields := map[string]interface{}{
+		"method":          "forward_auth",
+		"trusted_proxies": []string{"10.0.0.0/8"},
+		"headers":         map[string]string{"user": "Remote-User", "groups": "Remote-Groups"},
+	}
+	for k, v := range extra {
+		fields[k] = v
+	}
+	body, _ := json.Marshal(fields)
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateAuthMethod(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestUpdateAuthMethod_ForwardAuth_AbsentAdminGroupsKept(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	putForwardAuth(t, handler, nil)
+
+	if got := handler.config.Auth.ForwardAuthAdminGroups; len(got) != 1 || got[0] != "dashboard-admins" {
+		t.Errorf("stored admin groups = %v, want [dashboard-admins]", got)
+	}
+	if got := forwardAuthRole(t, handler, "dashboard-admins"); got != auth.RoleAdmin {
+		t.Errorf("middleware role for dashboard-admins = %q, want admin", got)
+	}
+}
+
+func TestUpdateAuthMethod_ForwardAuth_SentAdminGroupsApplied(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	putForwardAuth(t, handler, map[string]interface{}{"forward_auth_admin_groups": []string{"ops"}})
+
+	if got := handler.config.Auth.ForwardAuthAdminGroups; len(got) != 1 || got[0] != "ops" {
+		t.Errorf("stored admin groups = %v, want [ops]", got)
+	}
+	if got := forwardAuthRole(t, handler, "ops"); got != auth.RoleAdmin {
+		t.Errorf("middleware role for ops = %q, want admin", got)
+	}
+	if got := forwardAuthRole(t, handler, "dashboard-admins"); got == auth.RoleAdmin {
+		t.Error("dashboard-admins must no longer be admin after replacement")
+	}
+}
+
+func TestUpdateAuthMethod_ForwardAuth_EmptyListClears(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.ForwardAuthAdminGroups = []string{"dashboard-admins"}
+
+	putForwardAuth(t, handler, map[string]interface{}{"forward_auth_admin_groups": []string{}})
+
+	if got := handler.config.Auth.ForwardAuthAdminGroups; len(got) != 0 {
+		t.Errorf("stored admin groups = %v, want empty", got)
+	}
+	if got := forwardAuthRole(t, handler, "dashboard-admins"); got == auth.RoleAdmin {
+		t.Error("dashboard-admins must not be admin after clearing")
+	}
+}
+
+// breakConfigSave makes the handler's config path unwritable.
+func breakConfigSave(t *testing.T, configPath string) {
+	t.Helper()
+	dir := filepath.Dir(configPath)
+	if err := os.Chmod(dir, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+	if f, err := os.OpenFile(filepath.Join(dir, "probe"), os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
+		_ = f.Close()
+		t.Skip("directory is writable despite chmod (running as root?)")
+	}
+}
+
+func usernamesOf(users []config.UserConfig) []string {
+	names := make([]string, 0, len(users))
+	for i := range users {
+		names = append(names, users[i].Username)
+	}
+	return names
+}
+
+func TestCreateUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+	handler.config.Auth.Users = []config.UserConfig{{Username: "admin", Role: "admin"}}
+	breakConfigSave(t, configPath)
+
+	body, _ := json.Marshal(map[string]string{"username": "bob", "password": "longenoughpw", "role": "user"})
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/users", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateUser(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500: %s", w.Code, w.Body.String())
+	}
+	if got := usernamesOf(handler.config.Auth.Users); len(got) != 1 || got[0] != "admin" {
+		t.Errorf("config users = %v, want [admin]", got)
+	}
+}
+
+func TestUpdateUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+	handler.config.Auth.Users = []config.UserConfig{{Username: "admin", Role: "admin", Email: "admin@example.com"}}
+	breakConfigSave(t, configPath)
+
+	body, _ := json.Marshal(map[string]string{"email": "changed@example.com"})
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/users/admin", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateUser(w, req)
+
+	if w.Code == http.StatusOK {
+		t.Fatalf("expected failure, got 200")
+	}
+	users := handler.config.Auth.Users
+	if len(users) != 1 || users[0].Email != "admin@example.com" {
+		t.Errorf("config users = %+v, want the prior slice", users)
+	}
+}
+
+func TestDeleteUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{Username: "bob", PasswordHash: hash, Role: "user"}); err != nil {
+		t.Fatal(err)
+	}
+	handler.config.Auth.Users = []config.UserConfig{{Username: "admin", Role: "admin"}, {Username: "bob", Role: "user"}}
+	breakConfigSave(t, configPath)
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/auth/users/bob", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteUser(w, req)
+
+	if w.Code == http.StatusOK {
+		t.Fatalf("expected failure, got 200")
+	}
+	if got := usernamesOf(handler.config.Auth.Users); len(got) != 2 || got[1] != "bob" {
+		t.Errorf("config users = %v, want [admin bob]", got)
 	}
 }

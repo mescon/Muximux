@@ -368,6 +368,21 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		// navigation is neutered: download-as-attachment (which the
 		// browser ignores for <img>), no script/resource loads allowed
 		// by CSP, and no MIME sniffing.
+		info, err := h.customManager.Stat(iconName)
+		if err != nil {
+			respondError(w, r, http.StatusNotFound, err.Error())
+			return
+		}
+		etag := fmt.Sprintf(`"%x-%x"`, info.Size(), info.ModTime().UnixNano())
+		// Custom icons are replaceable under the same name, so always
+		// revalidate instead of letting browsers hold a stale copy.
+		w.Header().Set("ETag", etag)
+		w.Header().Set(headerCacheControl, "no-cache")
+		if r.Header.Get("If-None-Match") == etag {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+
 		data, contentType, err := h.customManager.GetIcon(iconName)
 		if err != nil {
 			respondError(w, r, http.StatusNotFound, err.Error())
@@ -375,7 +390,6 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Set(headerContentType, contentType)
-		w.Header().Set(headerCacheControl, cachePublic24h)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
 		// Quote the filename so slashes/quotes in iconName cannot

@@ -426,6 +426,8 @@ discovery:
 MUXIMUX_DISCOVERY_AUTO_IMPORT=sync
 ```
 
+The override applies in memory only and is never written to `config.yaml`. Settings -> Discovery shows the field as locked ("From MUXIMUX_DISCOVERY_AUTO_IMPORT"). The Discovery tab shows the stored values (host IP, network filter, refresh interval, auto-import mode, badge placement) and its save merges onto the stored config, so fields it does not show are kept. On Windows, `npipe://` endpoints can be entered in Settings.
+
 ### Opting a container out
 
 A container with `muximux.app.enabled=false` is excluded from auto-import (and from the Discover modal). Use it to keep a labeled container off the dashboard without stripping its labels.
@@ -580,7 +582,7 @@ If you want the dashboard to start / stop / restart tracked containers from the 
 
 1. Edit `docker-compose.yml` and switch the Docker socket mount from `:ro` to `:rw` -- change the line to `- /var/run/docker.sock:/var/run/docker.sock:rw`. The `:ro` mount stays as the documented default; you opt in by changing this one character.
 2. Set `discovery.docker.lifecycle_enabled: true` in your `config.yaml`, or toggle "Enable container lifecycle controls" under Settings -> Discovery (the checkbox is disabled until the socket is writable).
-3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups.
+3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups. These are **user and identity-provider group names** (built-in user groups, the OIDC groups claim, the forward-auth groups header), not dashboard groups. Renaming or deleting a dashboard group never touches this list.
 4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
 
 Once enabled, Docker-tracked apps on the overview show the Docker logo plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot - quiet by default). Hovering the card reveals the action buttons in a footer below it - Start when stopped, Stop and Restart when running; on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.

@@ -867,4 +867,17 @@ describe('GeneralTab', () => {
       expect(hints.length).toBeGreaterThan(0);
     });
   });
+
+  it('locks the log level when overridden', () => {
+    const config = makeConfig({ log_level: 'debug', env_overrides: { log_level: 'MUXIMUX_LOG_LEVEL' } });
+    render(GeneralTab, { props: { localConfig: config, localApps: [makeApp()], onexport: vi.fn(), onimportselect: vi.fn() } });
+    expect(document.getElementById('log-level')).toBeDisabled();
+    expect(screen.getByText('From MUXIMUX_LOG_LEVEL')).toBeInTheDocument();
+  });
+
+  it('leaves the log level editable without an override', () => {
+    const config = makeConfig({ log_level: 'info' });
+    render(GeneralTab, { props: { localConfig: config, localApps: [makeApp()], onexport: vi.fn(), onimportselect: vi.fn() } });
+    expect(document.getElementById('log-level')).not.toBeDisabled();
+  });
 });

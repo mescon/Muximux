@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -18,7 +21,8 @@ import (
 // DiscoveryHandler exposes discovery-related HTTP endpoints:
 //
 //   - GET    /api/discovery/docker/status          capability + cache
-//   - PUT    /api/discovery/docker/config          persist + rebuild service
+//   - GET    /api/discovery/docker/config          stored config + env overrides
+//   - PUT    /api/discovery/docker/config          merge, persist + rebuild service
 //   - POST   /api/discovery/docker/test            probe a candidate config without persisting
 //   - GET    /api/discovery/docker/scan            list current containers as Suggestions
 //   - POST   /api/discovery/docker/import          atomic batch import
@@ -188,49 +192,73 @@ func (h *DiscoveryHandler) GetDockerStateMap(w http.ResponseWriter, r *http.Requ
 	sendJSON(w, http.StatusOK, visible)
 }
 
+// dockerConfigResponse is the body of GET /api/discovery/docker/config.
+// EnvOverrides names the environment variable behind each field whose live
+// value does not come from config.yaml, so the tab can lock it.
+type dockerConfigResponse struct {
+	Config       config.DiscoveryDockerConfig `json:"config"`
+	EnvOverrides map[string]string            `json:"env_overrides,omitempty"`
+}
+
+// DockerConfig dispatches /api/discovery/docker/config: GET reads the
+// stored config, PUT merges an update onto it.
+func (h *DiscoveryHandler) DockerConfig(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		h.GetDockerConfig(w, r)
+	case http.MethodPut:
+		h.UpdateDockerConfig(w, r)
+	default:
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+	}
+}
+
+// GetDockerConfig handles GET /api/discovery/docker/config. It returns the
+// live discovery.docker block so the Settings tab can seed its form from
+// what is stored instead of from defaults.
+func (h *DiscoveryHandler) GetDockerConfig(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+		return
+	}
+	h.configMu.RLock()
+	resp := dockerConfigResponse{Config: h.config.Discovery.Docker}
+	resp.Config.LifecycleAllowedGroups = append([]string(nil), resp.Config.LifecycleAllowedGroups...)
+	if src, ok := h.config.EnvOverrides()[string(config.OverrideAutoImport)]; ok {
+		resp.EnvOverrides = map[string]string{"auto_import": src}
+	}
+	h.configMu.RUnlock()
+	sendJSON(w, http.StatusOK, resp)
+}
+
 // UpdateDockerConfig handles PUT /api/discovery/docker/config. The
-// body is a config.DiscoveryDockerConfig (full struct, not patch).
-// On success the in-memory + on-disk config are updated and the
-// discovery service is rebuilt so the next /status reflects the new
-// endpoint.
+// body is decoded onto a copy of the stored config.DiscoveryDockerConfig,
+// so fields the client omits keep their stored values. The load-time
+// defaults are then applied and the result validated. On success the
+// in-memory + on-disk config are updated and the discovery service is
+// rebuilt so the next /status reflects the new endpoint.
 func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
-	var newCfg config.DiscoveryDockerConfig
-	if err := json.NewDecoder(r.Body).Decode(&newCfg); err != nil {
+	// Read the body before taking the lock, so a slow client never holds it.
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
-	if err := validateDiscoveryDockerConfig(&newCfg); err != nil {
-		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
-		return
-	}
-	// Validate the lifecycle fields with the SAME rules the load path
-	// uses, so a PUT can't persist an unknown lifecycle_min_role (which
-	// would fail OPEN -- HasMinRole against an unknown role is level 0,
-	// i.e. every authenticated user passes) or an allowed_groups entry
-	// that bricks the next restart's load-time validation.
-	h.configMu.RLock()
-	groups := h.config.Groups
-	h.configMu.RUnlock()
-	if err := config.ValidateDiscoveryLifecycle(&newCfg, groups); err != nil {
-		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
-		return
-	}
 
-	// Normalize the auto-import mode the SAME way config.Load does, failing
-	// closed to off for an unknown / empty value. The poller shares this live
-	// *config.Config and treats only the literal "off" as off, so a raw value
-	// stored here would fall through Reconcile and silently auto-import until
-	// the next restart re-normalized it on load.
-	newCfg.AutoImport = config.NormalizeAutoImport(newCfg.AutoImport)
-
-	// Snapshot, mutate, save, rollback on failure - same shape as the
-	// auth-config update path. Persist BEFORE rebuilding the service so
-	// a save failure leaves the running service untouched.
+	// Decode, merge, save and roll back all under the write lock: two
+	// concurrent saves each merge onto what the other stored, instead of
+	// onto a stale snapshot that would drop the other's fields.
 	h.configMu.Lock()
+	newCfg, err := h.mergeDockerConfigLocked(body)
+	if err != nil {
+		h.configMu.Unlock()
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
+		return
+	}
 	prior := h.config.Discovery.Docker
 	h.config.Discovery.Docker = newCfg
 	if err := h.config.Save(h.configPath); err != nil {
@@ -263,6 +291,45 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 
 	// Return the fresh status so the UI can update without a follow-up GET.
 	sendJSON(w, http.StatusOK, svc.Status(r.Context()))
+}
+
+// mergeDockerConfigLocked decodes body onto a copy of the stored
+// discovery.docker block and normalises and validates the result like
+// config.Load. The caller holds configMu for writing.
+func (h *DiscoveryHandler) mergeDockerConfigLocked(body []byte) (config.DiscoveryDockerConfig, error) {
+	newCfg := h.config.Discovery.Docker
+	// json.Decode reuses a slice's backing array: copy it so the decode and
+	// the trim below never write into the stored config.
+	newCfg.LifecycleAllowedGroups = append([]string(nil), newCfg.LifecycleAllowedGroups...)
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&newCfg); err != nil {
+		return newCfg, errors.New(errInvalidJSON + err.Error())
+	}
+	// While MUXIMUX_DISCOVERY_AUTO_IMPORT is set the live mode is the
+	// override; Save writes the file's own value through fileView.
+	if h.config.IsOverridden(config.OverrideAutoImport) {
+		newCfg.AutoImport = h.config.Discovery.Docker.AutoImport
+	}
+	for i := range newCfg.LifecycleAllowedGroups {
+		newCfg.LifecycleAllowedGroups[i] = strings.TrimSpace(newCfg.LifecycleAllowedGroups[i])
+	}
+	// Apply the SAME defaults and normalisation as config.Load (strategy,
+	// refresh interval, min role, placement, auto-import mode). The poller
+	// shares this live *config.Config and treats only the literal "off" as
+	// off, so a raw auto_import stored here would fall through Reconcile and
+	// silently auto-import until the next restart re-normalized it.
+	config.ApplyDiscoveryDockerDefaults(&newCfg)
+	if err := validateDiscoveryDockerConfig(&newCfg); err != nil {
+		return newCfg, err
+	}
+	// Validate the lifecycle fields with the SAME rules the load path
+	// uses, so a PUT can't persist an unknown lifecycle_min_role (which
+	// would fail OPEN -- HasMinRole against an unknown role is level 0,
+	// i.e. every authenticated user passes) or an allowed_groups entry
+	// that bricks the next restart's load-time validation.
+	if err := config.ValidateDiscoveryLifecycle(&newCfg); err != nil {
+		return newCfg, err
+	}
+	return newCfg, nil
 }
 
 // ScanDocker handles GET /api/discovery/docker/scan. Walks the
@@ -323,7 +390,8 @@ func (h *DiscoveryHandler) TestDockerConfig(w http.ResponseWriter, r *http.Reque
 }
 
 // validateDiscoveryDockerConfig checks the structural shape of a
-// candidate config: endpoint scheme is unix:// or tcp://, strategy is
+// candidate config: endpoint scheme is unix://, tcp:// or npipe://
+// (the Windows default config.Load fills in), strategy is
 // one of the four known values, refresh_interval parses (when set).
 // More semantic checks (cert paths exist, ip_strategy compatibility)
 // happen later in NewClient/NewService and surface via the probe path.
@@ -334,7 +402,9 @@ func validateDiscoveryDockerConfig(c *config.DiscoveryDockerConfig) error {
 	if c.Endpoint == "" {
 		return errBadDiscoveryEmptyEndpoint
 	}
-	if !strings.HasPrefix(c.Endpoint, "unix://") && !strings.HasPrefix(c.Endpoint, "tcp://") {
+	if !strings.HasPrefix(c.Endpoint, "unix://") &&
+		!strings.HasPrefix(c.Endpoint, "tcp://") &&
+		!strings.HasPrefix(c.Endpoint, "npipe://") {
 		return errBadDiscoveryEndpointScheme
 	}
 	switch c.NetworkStrategy {
@@ -365,7 +435,7 @@ func validateDiscoveryDockerConfig(c *config.DiscoveryDockerConfig) error {
 // exposing internal validation logic.
 var (
 	errBadDiscoveryEmptyEndpoint   = sentinelError("discovery.docker.endpoint is required when enabled")
-	errBadDiscoveryEndpointScheme  = sentinelError("discovery.docker.endpoint must start with unix:// or tcp://")
+	errBadDiscoveryEndpointScheme  = sentinelError("discovery.docker.endpoint must start with unix://, tcp:// or npipe://")
 	errBadDiscoveryNetworkStrategy = sentinelError("discovery.docker.network_strategy must be container_ip, container_dns, host_port, or host_docker_internal")
 	errBadDiscoveryRefreshInterval = sentinelError("discovery.docker.refresh_interval is not a valid duration (e.g. \"60s\")")
 	errBadDiscoveryTLSPaths        = sentinelError("discovery.docker.tls.enabled requires ca_cert, client_cert and client_key paths")

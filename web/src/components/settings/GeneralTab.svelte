@@ -20,6 +20,10 @@
     onopenhomeicon?: () => void;
   } = $props();
 
+  // Env var name behind a locked log level. env_overrides is admin-only, so
+  // for non-admins it is undefined and nothing locks.
+  let logLevelEnv = $derived(localConfig.env_overrides?.log_level);
+
   let importFileInput = $state<HTMLInputElement | undefined>(undefined);
 
   const navPositions = [
@@ -382,6 +386,7 @@
       <select
         id="log-level"
         bind:value={localConfig.log_level}
+        disabled={!!logLevelEnv}
         class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
       >
@@ -390,7 +395,7 @@
         <option value="warn">{m.general_logWarning()}</option>
         <option value="error">{m.general_logError()}</option>
       </select>
-      <span class="text-xs text-text-disabled">{m.general_logLevelHint()}</span>
+      <span class="text-xs text-text-disabled">{logLevelEnv ? m.settings_fromEnv({ name: logLevelEnv }) : m.general_logLevelHint()}</span>
     </div>
 
     <div class="flex items-center gap-3 mb-4">

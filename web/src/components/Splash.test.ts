@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import type { Config, App } from '$lib/types';
 
@@ -9,6 +9,7 @@ vi.mock('$lib/healthStore', () => ({
 vi.mock('$lib/api', () => ({
   triggerHealthCheck: vi.fn(),
   getBase: vi.fn().mockReturnValue(''),
+  getDockerState: vi.fn().mockRejectedValue(new Error('not under test')),
   dockerStart: vi.fn().mockResolvedValue({ status: 'running', latency_ms: 12 }),
   dockerStop: vi.fn().mockResolvedValue({ status: 'exited', latency_ms: 12 }),
   dockerRestart: vi.fn().mockResolvedValue({ status: 'running', latency_ms: 12 }),
@@ -21,7 +22,7 @@ vi.mock('$lib/toastStore', () => ({
 }));
 
 import Splash from './Splash.svelte';
-import { dockerStateStore } from '$lib/dockerStateStore';
+import { dockerStateStore, getDockerStateFor } from '$lib/dockerStateStore';
 import { authState } from '$lib/authStore';
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
@@ -367,6 +368,35 @@ describe('Splash Docker integration', () => {
     expect(labels).toContain('Stop container');
     expect(labels).toContain('Restart container');
     expect(labels).not.toContain('Start container');
+  });
+
+  it('runAction applies the returned status to the docker state store', async () => {
+    const api = await import('$lib/api');
+    vi.mocked(api.dockerStart).mockResolvedValueOnce({ status: 'running', latency_ms: 5 });
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 3, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    await fireEvent.click(container.querySelector('.docker-action-btn[aria-label="Start container"]') as HTMLButtonElement);
+    await waitFor(() => expect(getDockerStateFor('sonarr')?.status).toBe('running'));
+    expect(getDockerStateFor('sonarr')?.restart_count).toBe(3);
+  });
+
+  it('runAction refreshes instead of fabricating a state when none exists', async () => {
+    const api = await import('$lib/api');
+    vi.mocked(api.dockerStart).mockResolvedValueOnce({ status: 'running', latency_ms: 5 });
+    const getState = vi.mocked(api.getDockerState);
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]));
+    const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+    const { container } = render(Splash, { props: { apps, config: { groups: [], discovery: { docker: { health_badge_placement: 'overview' } } } as any } });
+    const btn = container.querySelector('.docker-action-btn[aria-label="Start container"]') as HTMLButtonElement;
+    getState.mockClear();
+    getState.mockResolvedValueOnce(new Map([['sonarr', { status: 'running', health: 'healthy', restart_count: 0, image: 'real' }]]));
+    // Fire the click, then drop the state before the action resolves.
+    const clicked = fireEvent.click(btn);
+    dockerStateStore.set(new Map());
+    await clicked;
+    await waitFor(() => expect(getDockerStateFor('sonarr')?.image).toBe('real'));
+    expect(getDockerStateFor('sonarr')?.health).toBe('healthy');
   });
 
   it('opens the confirm modal for stop (does not fire immediately)', async () => {

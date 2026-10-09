@@ -133,9 +133,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
 
 /**
  * Store for custom keybinding overrides
- * This is populated from the server config and updated when user makes changes
+ * This is populated from the server config and updated when user makes changes.
+ * Exported for read-only use (Settings compares it to detect unsaved edits);
+ * change it through the setters below.
  */
-const customBindings = writable<StoredKeybindings>({});
+export const customBindings = writable<StoredKeybindings>({});
 
 /**
  * Initialize keybindings from server config

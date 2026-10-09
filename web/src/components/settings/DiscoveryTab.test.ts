@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/svelte';
-import type { DiscoveryDockerStatus } from '$lib/types';
+import type { DiscoveryDockerConfig, DiscoveryDockerStatus } from '$lib/types';
 
 const mockApi = vi.hoisted(() => ({
+  fetchDiscoveryDockerConfig: vi.fn(),
   fetchDiscoveryDockerStatus: vi.fn(),
   updateDiscoveryDockerConfig: vi.fn(),
   testDiscoveryDockerConfig: vi.fn(),
@@ -35,6 +36,40 @@ function makeStatus(overrides: Partial<DiscoveryDockerStatus> = {}): DiscoveryDo
   };
 }
 
+function makeStored(overrides: Partial<DiscoveryDockerConfig> = {}): DiscoveryDockerConfig {
+  return {
+    enabled: true,
+    endpoint: 'unix:///var/run/docker.sock',
+    tls: { enabled: false },
+    network_strategy: 'container_ip',
+    host_ip: '',
+    network_filter: '',
+    refresh_interval: '60s',
+    lifecycle_enabled: false,
+    lifecycle_min_role: 'admin',
+    lifecycle_allowed_groups: [],
+    health_badge_placement: 'overview',
+    auto_import: 'off',
+    ...overrides,
+  };
+}
+
+// The tab seeds from the stored config; mirror the status endpoint by
+// default so existing tests keep describing one coherent daemon.
+beforeEach(() => {
+  mockApi.fetchDiscoveryDockerConfig.mockImplementation(async () => {
+    const s = await mockApi.fetchDiscoveryDockerStatus();
+    return {
+      config: makeStored({
+        enabled: !!s?.configured,
+        endpoint: s?.endpoint || 'unix:///var/run/docker.sock',
+        network_strategy: s?.strategy || 'container_ip',
+        lifecycle_enabled: !!s?.lifecycle_enabled,
+      }),
+    };
+  });
+});
+
 describe('DiscoveryTab divergence banner', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -48,7 +83,7 @@ describe('DiscoveryTab divergence banner', () => {
   it('hides the divergence banner when refresh_divergences is zero or missing', async () => {
     mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
     render(DiscoveryTab);
-    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
     expect(screen.queryByText(/Gateway divergence detected/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Gateway recovered/i)).not.toBeInTheDocument();
   });
@@ -194,7 +229,7 @@ describe('DiscoveryTab form: TLS section + host_ip gating', () => {
       makeStatus({ endpoint: 'unix:///var/run/docker.sock' }),
     );
     render(DiscoveryTab);
-    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
     expect(screen.queryByText(/mTLS \(for tcp:\/\/ endpoints\)/i)).not.toBeInTheDocument();
   });
 
@@ -270,7 +305,7 @@ describe('DiscoveryTab save + test connection wiring', () => {
       makeStatus({ reachable: true, strategy_ok: true, configured: true }),
     );
     render(DiscoveryTab);
-    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
 
     await fireEvent.click(screen.getByRole('button', { name: /^Test connection$/i }));
 
@@ -286,7 +321,7 @@ describe('DiscoveryTab save + test connection wiring', () => {
     mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ configured: true }));
     mockApi.testDiscoveryDockerConfig.mockRejectedValue(new Error('connect ETIMEDOUT'));
     render(DiscoveryTab);
-    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
 
     await fireEvent.click(screen.getByRole('button', { name: /^Test connection$/i }));
 
@@ -355,7 +390,7 @@ describe('DiscoveryTab network-filter autocomplete', () => {
     mockApi.listDockerNetworks.mockRejectedValue(new Error('502'));
     render(DiscoveryTab);
     // Wait for the initial load to settle.
-    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
     // The label only renders when there is at least one network.
     expect(screen.queryByText(/Available on this daemon:/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId('dd-filter-chips')).not.toBeInTheDocument();
@@ -386,7 +421,7 @@ describe('DiscoveryTab network-filter autocomplete', () => {
     // regression in the helper doesn't silently throw at mount.
     mockApi.listDockerNetworks.mockResolvedValue({} as { networks: string[] });
     render(DiscoveryTab);
-    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    await waitFor(() => expect(document.getElementById('dd-endpoint')).toBeInTheDocument());
     // No chip strip should render, but the form must still mount.
     expect(screen.queryByTestId('dd-filter-chips')).not.toBeInTheDocument();
     expect(document.getElementById('dd-filter')).toBeTruthy();
@@ -440,5 +475,111 @@ describe('DiscoveryTab lifecycle subsection', () => {
     mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus({ reachable: false, socket_writable: false }));
     render(DiscoveryTab);
     expect(await screen.findByLabelText(/Show container health badges/i)).toBeInTheDocument();
+  });
+});
+
+describe('DiscoveryTab stored values (#494)', () => {
+  const stored = makeStored({
+    network_strategy: 'host_port',
+    host_ip: '127.0.0.1',
+    network_filter: 'bridge',
+    refresh_interval: '30s',
+    health_badge_placement: 'overview_and_nav',
+    auto_import: 'add',
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({ config: stored });
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
+  });
+
+  it('seeds the form from the stored config', async () => {
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByLabelText(/Host IP/i)).toBeInTheDocument());
+    expect((screen.getByLabelText(/Host IP/i) as HTMLInputElement).value).toBe('127.0.0.1');
+    expect((document.getElementById('dd-filter') as HTMLInputElement).value).toBe('bridge');
+    expect((document.getElementById('dd-interval') as HTMLInputElement).value).toBe('30s');
+    expect((document.getElementById('dd-badge') as HTMLSelectElement).value).toBe('overview_and_nav');
+    expect((document.getElementById('dd-autoimport') as HTMLSelectElement).value).toBe('add');
+    expect((document.getElementById('dd-strategy') as HTMLSelectElement).value).toBe('host_port');
+  });
+
+  it('save sends every stored field including auto_import', async () => {
+    mockApi.updateDiscoveryDockerConfig.mockResolvedValue(makeStatus());
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByLabelText(/Host IP/i)).toBeInTheDocument());
+
+    await fireEvent.input(document.getElementById('dd-filter') as HTMLInputElement, { target: { value: 'host' } });
+    await fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+
+    await waitFor(() => expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalled());
+    expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        host_ip: '127.0.0.1',
+        auto_import: 'add',
+        network_filter: 'host',
+        refresh_interval: '30s',
+        health_badge_placement: 'overview_and_nav',
+      }),
+    );
+  });
+
+  it('shows the saved values when the tab is reopened', async () => {
+    const saved = { ...stored, network_filter: 'host' };
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({ config: saved });
+    const { unmount } = render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByLabelText(/Host IP/i)).toBeInTheDocument());
+    unmount();
+    render(DiscoveryTab);
+    await waitFor(() => expect((document.getElementById('dd-filter') as HTMLInputElement)?.value).toBe('host'));
+    expect((document.getElementById('dd-badge') as HTMLSelectElement).value).toBe('overview_and_nav');
+    expect((document.getElementById('dd-interval') as HTMLInputElement).value).toBe('30s');
+    expect((document.getElementById('dd-autoimport') as HTMLSelectElement).value).toBe('add');
+  });
+
+  it('round-trips: what Save sends is what the reopened tab shows', async () => {
+    // A stateful server: the GET returns whatever the last PUT stored.
+    let server: DiscoveryDockerConfig = { ...stored };
+    mockApi.fetchDiscoveryDockerConfig.mockImplementation(async () => ({ config: { ...server } }));
+    mockApi.updateDiscoveryDockerConfig.mockImplementation(async (c: DiscoveryDockerConfig) => {
+      server = { ...server, ...c };
+      return makeStatus();
+    });
+    const { unmount } = render(DiscoveryTab);
+    await waitFor(() => expect((document.getElementById('dd-filter') as HTMLInputElement)?.value).toBe('bridge'));
+    await fireEvent.input(document.getElementById('dd-filter') as HTMLInputElement, { target: { value: 'host' } });
+    await fireEvent.change(document.getElementById('dd-badge') as HTMLSelectElement, { target: { value: 'off' } });
+    await fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+    await waitFor(() => expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalledTimes(1));
+    unmount();
+
+    render(DiscoveryTab);
+    await waitFor(() => expect((document.getElementById('dd-filter') as HTMLInputElement)?.value).toBe('host'));
+    expect((document.getElementById('dd-badge') as HTMLSelectElement).value).toBe('off');
+    expect((screen.getByLabelText(/Host IP/i) as HTMLInputElement).value).toBe('127.0.0.1');
+    expect((document.getElementById('dd-interval') as HTMLInputElement).value).toBe('30s');
+    expect((document.getElementById('dd-autoimport') as HTMLSelectElement).value).toBe('add');
+    expect(server).toMatchObject({ network_filter: 'host', health_badge_placement: 'off', host_ip: '127.0.0.1', auto_import: 'add' });
+  });
+
+  it('locks auto_import when overridden', async () => {
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({
+      config: stored,
+      env_overrides: { auto_import: 'MUXIMUX_DISCOVERY_AUTO_IMPORT' },
+    });
+    render(DiscoveryTab);
+    await waitFor(() => expect(document.getElementById('dd-autoimport')).toBeInTheDocument());
+    expect(document.getElementById('dd-autoimport')).toBeDisabled();
+    expect(screen.getByText('From MUXIMUX_DISCOVERY_AUTO_IMPORT')).toBeInTheDocument();
+  });
+
+  it('keeps Save disabled when the stored config failed to load', async () => {
+    mockApi.fetchDiscoveryDockerConfig.mockRejectedValue(new Error('boom'));
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/boom/)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /^Save$/i })).toBeDisabled();
   });
 });

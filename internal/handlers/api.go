@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -284,6 +285,11 @@ type clientConfigResponse struct {
 	// sent here; the Settings UI fetches it separately via the
 	// admin-gated /api/discovery endpoints.
 	Discovery *clientDiscoveryConfig `json:"discovery,omitempty"`
+	// EnvOverrides maps each field a flag or environment variable
+	// overrides to that flag or variable's name, so Settings can show
+	// the field as locked. Admins only: it names listen, base_path and
+	// the auto-import variable, which non-admins have no use for.
+	EnvOverrides map[string]string `json:"env_overrides,omitempty"`
 }
 
 // clientDiscoveryConfig is the sanitized discovery config sent to the
@@ -304,6 +310,8 @@ type clientAuthConfig struct {
 	TrustedProxies []string          `json:"trusted_proxies,omitempty"`
 	Headers        map[string]string `json:"headers,omitempty"`
 	LogoutURL      string            `json:"logout_url,omitempty"`
+
+	ForwardAuthAdminGroups []string `json:"forward_auth_admin_groups,omitempty"`
 }
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
@@ -338,12 +346,19 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 			authCfg.Headers = cfg.Auth.Headers
 		}
 		authCfg.LogoutURL = cfg.Auth.LogoutURL
+		// Which IdP group grants admin is for the admin-only Security tab.
+		if userRole == auth.RoleAdmin {
+			authCfg.ForwardAuthAdminGroups = cfg.Auth.ForwardAuthAdminGroups
+		}
 		resp.Auth = authCfg
 	}
 	resp.Discovery = &clientDiscoveryConfig{
 		Docker: clientDiscoveryDockerConfig{
 			HealthBadgePlacement: cfg.Discovery.Docker.HealthBadgePlacement,
 		},
+	}
+	if userRole == auth.RoleAdmin {
+		resp.EnvOverrides = cfg.EnvOverrides()
 	}
 	return resp
 }
@@ -365,6 +380,9 @@ type ClientConfigUpdate struct {
 	Keybindings         *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Groups              []config.GroupConfig      `json:"groups"`
 	Apps                []ClientAppConfig         `json:"apps"`
+	// Base is the client-shaped config the browser loaded. When present the
+	// server merges base, this payload and its current config per field.
+	Base *ClientConfigUpdate `json:"base,omitempty"`
 }
 
 // SaveConfig updates and saves the configuration
@@ -383,6 +401,23 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	// With a base the payload is merged per field against what the
+	// browser loaded and what the server holds now, so a stale dialog
+	// cannot revert server-side changes made while it was open. Without
+	// one the payload replaces the config as before (scripts, older
+	// frontends).
+	var baseApps []ClientAppConfig
+	if update.Base != nil {
+		baseApps = update.Base.Apps
+		resp := buildClientConfigResponse(h.config, auth.RoleAdmin, nil)
+		merged, err := mergeThreeWay(update.Base, &update, updateFromResponse(&resp))
+		if err != nil {
+			respondError(w, r, mergeErrorStatus(err), err.Error())
+			return
+		}
+		update = *merged
+	}
+
 	// Snapshot every field mergeConfigUpdate mutates so we can restore
 	// the in-memory config if the disk Save fails. Without this the
 	// live process would see the new shape (next GET returns it) while
@@ -393,7 +428,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	// Invariant: rollback works because mergeConfigUpdate *replaces*
 	// each field wholesale rather than mutating it in place
 	// (cfg.Navigation = update.Navigation, cfg.Apps = newApps,
-	// cfg.Keybindings = *update.Keybindings, etc.). Snapshot copies
+	// cfg.Keybindings = *update.Keybindings, etc.). The one exception is
+	// the gateway sites, whose app_name references cascadeAppRenames
+	// rewrites in place, so that slice is copied. Snapshot copies
 	// here are shallow struct copies; for fields that contain maps
 	// (Keybindings.Bindings, Theme.Colors when present) the snapshot
 	// shares the underlying map header, but the merge code never
@@ -413,8 +450,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	priorKeybindings := h.config.Keybindings
 	priorGroups := h.config.Groups
 	priorApps := h.config.Apps
+	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
 
-	mergeConfigUpdate(h.config, &update)
+	mergeConfigUpdate(h.config, &update, baseApps)
 
 	rollback := func() {
 		h.config.Server.Title = priorTitle
@@ -428,6 +466,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		h.config.Keybindings = priorKeybindings
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
+		h.config.Server.GatewaySites = priorSites
 	}
 
 	// Re-run the same invariant checks Load uses at startup, so a bad
@@ -467,15 +506,34 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin, nil))
 }
 
+// mergeErrorStatus maps a three-way merge error to its HTTP status: 409
+// for a name clash the client resolves by reloading, 400 otherwise.
+func mergeErrorStatus(err error) int {
+	var conflict *MergeConflictError
+	if errors.As(err, &conflict) {
+		return http.StatusConflict
+	}
+	return http.StatusBadRequest
+}
+
 // mergeConfigUpdate applies a client config update to the server config,
-// preserving sensitive fields (auth bypass, access rules, original proxy URLs).
-func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
+// preserving server-owned fields (auth bypass, access rules, forwarded
+// headers, Docker tracking). Each payload app updates the stored app it
+// claims by identity (original_name first, then name), so a rename keeps
+// its server-owned fields and gateway sites follow it. baseApps is the
+// browser's base on the three-way path and nil on the two-way path; it
+// tells the group-rename cascade where each app was before this save.
+func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate, baseApps []ClientAppConfig) {
 	cfg.Server.Title = update.Title
 	cfg.Server.Language = update.Language
-	cfg.Server.LogLevel = update.LogLevel
-	if update.ProxyTimeout != "" {
-		cfg.Server.ProxyTimeout = update.ProxyTimeout
+	// An overridden log level is owned by the environment: a Settings
+	// save must neither change the live level nor reach the file.
+	if !cfg.IsOverridden(config.OverrideLogLevel) {
+		cfg.Server.LogLevel = update.LogLevel
 	}
+	// Unconditional so an empty value clears the setting; the proxy
+	// handler falls back to its 30s default when it is empty.
+	cfg.Server.ProxyTimeout = update.ProxyTimeout
 	// SessionCookieDomain is a server-level setting that gates the
 	// gateway auth feature; persist explicit edits so the operator
 	// can flip it from Settings without restarting first. The cookie
@@ -487,20 +545,34 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	if update.Health != nil {
 		cfg.Health = *update.Health
 	}
-	cfg.Groups = update.Groups
 	if update.Keybindings != nil {
 		cfg.Keybindings = *update.Keybindings
 	}
 
-	// Build lookup of existing apps by name to preserve sensitive data.
-	existingApps := make(map[string]config.AppConfig)
+	storedByName := make(map[string]*config.AppConfig, len(cfg.Apps))
 	for i := range cfg.Apps {
-		existingApps[cfg.Apps[i].Name] = cfg.Apps[i]
+		storedByName[cfg.Apps[i].Name] = &cfg.Apps[i]
 	}
+	baseByName := indexApps(baseApps)
+	stored := claimEach(update.Apps, appOriginalName, appName,
+		func(id string) *config.AppConfig { return storedByName[id] })
+	bases := claimEach(update.Apps, appOriginalName, appName,
+		func(id string) *ClientAppConfig { return baseByName[id] })
+	cascadeGroupRenames(update.Groups, update.Apps, func(i int, group string) bool {
+		return (stored[i] != nil && stored[i].Group == group) || (bases[i] != nil && bases[i].Group == group)
+	})
 
+	renamed := map[string]string{}
+	seen := make(map[string]bool, len(update.Apps))
 	newApps := make([]config.AppConfig, 0, len(update.Apps))
 	for i := range update.Apps {
-		app, detachKey := mergeClientApp(&update.Apps[i], existingApps)
+		if existing := stored[i]; existing != nil {
+			seen[existing.Name] = true
+			if existing.Name != update.Apps[i].Name {
+				renamed[existing.Name] = update.Apps[i].Name
+			}
+		}
+		app, detachKey := mergeClientApp(&update.Apps[i], stored[i])
 		if detachKey != "" {
 			// Manual URL edit on a tracked app auto-detaches: the
 			// operator took manual control of the URL, so further
@@ -515,7 +587,40 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 		}
 		newApps = append(newApps, app)
 	}
+	deleted := map[string]bool{}
+	for name := range storedByName {
+		if !seen[name] {
+			deleted[name] = true
+		}
+	}
 	cfg.Apps = newApps
+	cascadeAppRenames(cfg, renamed, deleted)
+
+	// OriginalName is transport-only identity (yaml:"-"); clear it so the
+	// live config never carries it into a later GET or merge.
+	groups := make([]config.GroupConfig, len(update.Groups))
+	for i := range update.Groups {
+		groups[i] = update.Groups[i]
+		groups[i].OriginalName = ""
+	}
+	cfg.Groups = groups
+}
+
+// cascadeAppRenames keeps gateway sites pointing at their app across a
+// config save: a site whose app_name was renamed follows the new name, and
+// one whose app was deleted is cleared (the same cascade DeleteApp runs),
+// so the gateway-sites validator never sees a dangling reference. A name
+// in both maps is a rename (the old name freed and reused by a new app is
+// not a deletion), so renamed is checked first.
+func cascadeAppRenames(cfg *config.Config, renamed map[string]string, deleted map[string]bool) {
+	for i := range cfg.Server.GatewaySites {
+		site := &cfg.Server.GatewaySites[i]
+		if n, ok := renamed[site.AppName]; ok {
+			site.AppName = n
+		} else if deleted[site.AppName] {
+			site.AppName = ""
+		}
+	}
 }
 
 // clientAppToConfig converts a client app payload to a full AppConfig.
@@ -555,21 +660,29 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 }
 
 // mergeClientApp converts a client app config back to a full app config,
-// preserving sensitive fields from the existing app if it was previously configured.
+// preserving server-owned fields from existing, the stored app the payload
+// app claimed (nil for a new app).
 // The second return is the detach event when the call auto-detaches a
 // previously-tracked app due to an explicit URL change (see
 // applyDockerTrackingPreservation); "" when no detach happened.
-func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) (config.AppConfig, string) {
+func mergeClientApp(clientApp *ClientAppConfig, existing *config.AppConfig) (config.AppConfig, string) {
 	app := clientAppToConfig(clientApp)
-	var detachReason string
-
-	if existing, ok := existingApps[clientApp.Name]; ok {
-		app.AuthBypass = existing.AuthBypass
-		app.Access = existing.Access
-		detachReason = applyDockerTrackingPreservation(&app, &existing)
+	if existing == nil {
+		return app, ""
 	}
+	detachKey := preserveServerOwnedAppFields(&app, existing)
+	return app, detachKey
+}
 
-	return app, detachReason
+// preserveServerOwnedAppFields copies the fields a client payload never
+// carries (auth bypass rules, access rules, forwarded headers) and the
+// Docker tracking from existing onto updated. It returns the detach key
+// from applyDockerTrackingPreservation ("" when nothing was detached).
+func preserveServerOwnedAppFields(updated, existing *config.AppConfig) string {
+	updated.AuthBypass = existing.AuthBypass
+	updated.Access = existing.Access
+	updated.ForwardedHeaders = existing.ForwardedHeaders
+	return applyDockerTrackingPreservation(updated, existing)
 }
 
 // applyDockerTrackingPreservation reconciles tracking fields between
@@ -722,9 +835,12 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Create new app config
+	// Create new app config. Docker tracking is server-owned: only
+	// discovery's import attaches an app to a container, so a payload's
+	// tracking fields are dropped, as PUT /api/config does for new apps.
 	newApp := clientAppToConfig(&clientApp)
 	newApp.Order = len(h.config.Apps) // Add at end
+	newApp.DockerKey, newApp.DockerEndpoint, newApp.DockerStrategy, newApp.DockerManagedURL = "", "", "", ""
 
 	// Validate before persisting: Config.Save does not validate, so an
 	// invalid http_action would be written to disk and only rejected on
@@ -785,9 +901,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	// Update app config, preserving sensitive fields
 	existing := h.config.Apps[idx]
 	updated := clientAppToConfig(&clientApp)
-	updated.AuthBypass = existing.AuthBypass
-	updated.Access = existing.Access
-	detachKey := applyDockerTrackingPreservation(&updated, &existing)
+	detachKey := preserveServerOwnedAppFields(&updated, &existing)
 	if detachKey != "" {
 		logging.Audit("Docker tracking auto-detached on URL change",
 			"kind", "app", "name", updated.Name,
@@ -905,9 +1019,11 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
+	// OriginalName is transport-only for PUT /api/config; never accept it here.
+	group.OriginalName = ""
 
 	if group.Name == "" {
-		respondError(w, r, http.StatusBadRequest, "Group name is required")
+		respondError(w, r, http.StatusBadRequest, errGroupNameRequired)
 		return
 	}
 
@@ -943,6 +1059,14 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
+	// OriginalName is transport-only for PUT /api/config; never accept it here.
+	group.OriginalName = ""
+	// An empty name would leave the group unaddressable and its apps
+	// pointing at "" (ungrouped), as CreateGroup already refuses.
+	if group.Name == "" {
+		respondError(w, r, http.StatusBadRequest, errGroupNameRequired)
+		return
+	}
 
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -961,11 +1085,33 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
+	if group.Name != name {
+		for i := range h.config.Groups {
+			if i != idx && h.config.Groups[i].Name == group.Name {
+				respondError(w, r, http.StatusConflict, "Group already exists")
+				return
+			}
+		}
+	}
+
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
+	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Groups[idx] = group
+
+	// A rename re-points the group's apps so none is left referencing the
+	// old name. lifecycle_allowed_groups holds user/IdP group names, not
+	// dashboard groups, so it is deliberately left alone.
+	if group.Name != name {
+		for i := range h.config.Apps {
+			if h.config.Apps[i].Group == name {
+				h.config.Apps[i].Group = group.Name
+			}
+		}
+	}
 
 	// Save config (rollback on disk failure).
 	if err := h.saveOrRollbackGroups(priorGroups, "update", group.Name); err != nil {
+		h.config.Apps = priorApps
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}
@@ -995,7 +1141,6 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
-	priorAllowedGroups := append([]string(nil), h.config.Discovery.Docker.LifecycleAllowedGroups...)
 	h.config.Groups = append(h.config.Groups[:idx], h.config.Groups[idx+1:]...)
 
 	for i := range h.config.Apps {
@@ -1004,26 +1149,10 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 		}
 	}
 
-	// Cascade-clear the deleted group from the Docker lifecycle allowlist
-	// so we don't leave a dangling reference that fails the next full
-	// SaveConfig (which runs Validate) or the next restart's load-time
-	// validation. Mirrors the app/gateway cascades above.
-	if len(priorAllowedGroups) > 0 {
-		filtered := make([]string, 0, len(priorAllowedGroups))
-		for _, g := range priorAllowedGroups {
-			if g != name {
-				filtered = append(filtered, g)
-			}
-		}
-		h.config.Discovery.Docker.LifecycleAllowedGroups = filtered
-	}
-
-	// Save config; on failure roll back the groups slice, the apps slice,
-	// and the lifecycle allowlist so every cascading clear is undone.
+	// Save config; on failure roll back the groups and apps slices.
 	if err := h.config.Save(h.configPath); err != nil {
 		h.config.Groups = priorGroups
 		h.config.Apps = priorApps
-		h.config.Discovery.Docker.LifecycleAllowedGroups = priorAllowedGroups
 		logging.Error("Groups delete save failed; in-memory state rolled back",
 			"source", "audit",
 			"group", name,
@@ -1130,18 +1259,21 @@ func stripURLCredentialsIf(strip bool, raw string) string {
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name      string               `json:"name"`
-	URL       string               `json:"url"` // Original target URL (for editing/config)
-	HealthURL string               `json:"health_url,omitempty"`
-	ProxyURL  string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
-	Icon      config.AppIconConfig `json:"icon"`
-	Color     string               `json:"color"`
-	Group     string               `json:"group"`
-	Order     int                  `json:"order"`
-	Enabled   bool                 `json:"enabled"`
-	Default   bool                 `json:"default"`
-	Pinned    bool                 `json:"pinned,omitempty"`
-	OpenMode  string               `json:"open_mode"`
+	Name string `json:"name"`
+	// OriginalName is the name this app had in Base. Transport-only identity
+	// for renames; never stored.
+	OriginalName string               `json:"original_name,omitempty"`
+	URL          string               `json:"url"` // Original target URL (for editing/config)
+	HealthURL    string               `json:"health_url,omitempty"`
+	ProxyURL     string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
+	Icon         config.AppIconConfig `json:"icon"`
+	Color        string               `json:"color"`
+	Group        string               `json:"group"`
+	Order        int                  `json:"order"`
+	Enabled      bool                 `json:"enabled"`
+	Default      bool                 `json:"default"`
+	Pinned       bool                 `json:"pinned,omitempty"`
+	OpenMode     string               `json:"open_mode"`
 	// HTTP action fields. Only meaningful when OpenMode == "http_action".
 	// Method/Confirm/ShowToast are non-sensitive and surface to every
 	// role (the frontend needs them to decide whether to show the

@@ -44,7 +44,7 @@ Each theme supports three variant modes:
 2. Go to the **Appearance** tab.
 3. Select a theme family and a variant mode.
 
-Changes apply instantly and are saved to `config.yaml` when you click Save. No restart is needed.
+Changes apply instantly and are saved to `config.yaml` when you click Save. No restart is needed. Switching theme from the command palette is a per-browser preview; the next Settings save persists it.
 
 [![Theme selector with 9 theme families](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)
 
@@ -66,6 +66,8 @@ You can create fully custom themes through the Settings panel:
 4. Save the theme.
 
 [![Theme editor with color pickers](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)
+
+A custom theme name must not match a bundled theme's name; the save is refused.
 
 Custom themes are stored as CSS files in the `data/themes/` directory. When you create a theme, Muximux generates a CSS file that overrides the default CSS custom properties (variables) with your chosen values.
 

@@ -46,7 +46,9 @@ func newRotatingWriter(path string, maxSize int64, maxFiles int) (*rotatingWrite
 		return nil, fmt.Errorf("create log directory: %w", err)
 	}
 
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	// 0600: the log carries audit lines and client IPs. The mode only
+	// applies when the file is created; an existing file keeps its own.
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +105,7 @@ func (w *rotatingWriter) rotate() error {
 	}
 
 	// Open a fresh .log
-	f, err := os.OpenFile(w.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	f, err := os.OpenFile(w.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return err
 	}
@@ -351,6 +353,11 @@ var (
 	logFilePath   string
 	logWriter     *rotatingWriter
 	primaryFile   *os.File // when cfg.Output is a file path; closed in Close()
+
+	// consoleStderr and consoleJSON describe where and how Console writes.
+	// Set by Init; atomics because Console may run alongside a re-Init.
+	consoleStderr atomic.Bool
+	consoleJSON   atomic.Bool
 )
 
 // Init initializes the global logger with a BroadcastHandler that captures
@@ -359,8 +366,13 @@ var (
 // rotating writer that prevents unbounded growth.
 func Init(cfg Config) error {
 	buffer = NewLogBuffer(1000)
+	// A re-Init without a log file must not keep the previous one.
+	logFilePath = ""
+	logWriter = nil
 
 	levelVar.Set(parseLevel(cfg.Level))
+	consoleStderr.Store(strings.EqualFold(cfg.Output, "stderr"))
+	consoleJSON.Store(strings.EqualFold(cfg.Format, "json"))
 
 	var output io.Writer
 	switch strings.ToLower(cfg.Output) {
@@ -403,6 +415,27 @@ func Init(cfg Config) error {
 	slog.SetDefault(defaultLogger)
 
 	return nil
+}
+
+// Console writes a single log line to the process console only: stderr
+// when Init chose stderr as the output, stdout otherwise (including when
+// the primary output is a file). It bypasses the in-memory ring buffer, the
+// live log stream and every log file, and ignores the configured level.
+// Use it for values the operator must see at startup but that must never
+// be readable through the log viewer API or persisted on disk, such as the
+// one-time setup token. The line uses the configured format (text or JSON).
+func Console(msg string, args ...any) {
+	w := os.Stdout
+	if consoleStderr.Load() {
+		w = os.Stderr
+	}
+	var h slog.Handler
+	if consoleJSON.Load() {
+		h = slog.NewJSONHandler(w, nil)
+	} else {
+		h = slog.NewTextHandler(w, nil)
+	}
+	slog.New(h).Info(msg, args...)
 }
 
 // Close closes the rotating log writer and any primary log file
@@ -559,6 +592,12 @@ func LoadRecentFromFile() {
 		if err != nil {
 			continue // skip unparseable lines
 		}
+		// Releases before the setup token moved to Console wrote it into
+		// the log file. Never replay it into the buffer the log viewer
+		// serves.
+		if strings.Contains(entry.Message, "setup token") {
+			delete(entry.Attrs, "token")
+		}
 		entries = append(entries, entry)
 		// Keep bounded — only store last buffer.size entries
 		if len(entries) > buffer.size {
@@ -576,6 +615,26 @@ func LoadRecentFromFile() {
 		}
 		buffer.mu.Unlock()
 	}
+}
+
+// LogFilesContain reports whether the configured log file, or one of its
+// rotated copies, contains needle. False when no log file is configured,
+// needle is empty, or a file cannot be read.
+func LogFilesContain(needle string) bool {
+	if logFilePath == "" || needle == "" {
+		return false
+	}
+	paths := []string{logFilePath}
+	for i := 1; i <= defaultMaxLogFiles; i++ {
+		paths = append(paths, fmt.Sprintf("%s.%d", logFilePath, i))
+	}
+	for _, p := range paths {
+		data, err := os.ReadFile(p) //nolint:gosec // our own log file and its rotations
+		if err == nil && strings.Contains(string(data), needle) {
+			return true
+		}
+	}
+	return false
 }
 
 // Buffer returns the global log buffer, or nil if Init has not been called.
@@ -624,6 +683,18 @@ func Info(msg string, args ...any) {
 // Warn logs at warn level
 func Warn(msg string, args ...any) {
 	Logger().Warn(msg, args...)
+}
+
+// WarnMissingEnvVars warns about ${VAR} references in config.yaml whose
+// environment variable is not set, so the literal ${VAR} stays in those
+// fields. Shared by boot and restore; a no-op for an empty list.
+func WarnMissingEnvVars(names []string) {
+	if len(names) == 0 {
+		return
+	}
+	Warn("Config references environment variables that are not set; the literal ${VAR} stays in those fields",
+		"source", "config",
+		"missing", strings.Join(names, ","))
 }
 
 // Error logs at error level
