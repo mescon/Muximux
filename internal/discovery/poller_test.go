@@ -2529,3 +2529,13 @@ func TestTick_GatewayAppWithQuarantinedSite_URLNotClobbered(t *testing.T) {
 		t.Errorf("gateway app URL clobbered: url=%q managed=%q", cfg.Apps[0].URL, cfg.Apps[0].DockerManagedURL)
 	}
 }
+
+func TestRemovalReason(t *testing.T) {
+	skipped := map[string]string{"label:off": SkipDisabled, "label:np": SkipNoPort}
+	if got := removalReason(skipped, "label:off"); got != "disabled" {
+		t.Errorf("opted out: %q", got)
+	}
+	if got := removalReason(skipped, "label:gone"); got != "vanished" {
+		t.Errorf("gone: %q", got)
+	}
+}

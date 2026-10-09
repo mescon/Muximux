@@ -669,7 +669,11 @@ func (p *Poller) tick(ctx context.Context) {
 					batch.updateSites = append(batch.updateSites, *plan.Update[i].Site)
 				}
 			}
-			batch.removeKeys = append(batch.removeKeys, p.gateSyncRemovals(plan.RemoveKeys)...)
+			removed := p.gateSyncRemovals(plan.RemoveKeys)
+			batch.removeKeys = append(batch.removeKeys, removed...)
+			for _, k := range removed {
+				batch.removeReasons[k] = removalReason(skipped, k)
+			}
 			for _, k := range plan.DetachKeys {
 				batch.detach[k] = skipped[k] // the reason code for the audit line
 			}
@@ -916,6 +920,9 @@ type refreshBatch struct {
 	updateApps  []config.AppConfig
 	updateSites []config.GatewaySite
 	removeKeys  []string
+	// removeReasons maps a removed key to why it went ("vanished" or
+	// "disabled"), carried into the audit line.
+	removeReasons map[string]string
 	// detach clears DockerAutoImported on apps whose container is present
 	// but no longer opted in: key -> skip code (unlabeled | not_enabled),
 	// carried into the audit line.
@@ -927,12 +934,28 @@ type refreshBatch struct {
 	endpoint string
 }
 
+// Removal reasons for the audit line of a sync removal.
+const (
+	removeReasonVanished = "vanished"
+	removeReasonDisabled = SkipDisabled
+)
+
+// removalReason says why sync removes key: the container opted out with
+// muximux.enabled=false, or it is gone.
+func removalReason(skipped map[string]string, key string) string {
+	if skipped[key] == SkipDisabled {
+		return removeReasonDisabled
+	}
+	return removeReasonVanished
+}
+
 func newRefreshBatch() *refreshBatch {
 	return &refreshBatch{
 		appURLChanges:    map[string]string{},
 		appHealthChanges: map[string]string{},
 		siteURLChanges:   map[string]string{},
 		detach:           map[string]string{},
+		removeReasons:    map[string]string{},
 		rekeys:           map[string]string{},
 	}
 }
@@ -1173,8 +1196,12 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 			"source", "audit", "app", batch.updateApps[i].Name, "key", batch.updateApps[i].DockerKey)
 	}
 	for _, k := range batch.removeKeys {
-		logging.Info("Docker auto-imported entry removed (container vanished)",
-			"source", "audit", "key", k)
+		reason := batch.removeReasons[k]
+		if reason == "" {
+			reason = removeReasonVanished
+		}
+		logging.Info("Docker auto-imported entry removed (container vanished or opted out)",
+			"source", "audit", "key", k, "reason", reason)
 	}
 	for _, d := range rec.droppedSites {
 		logging.Info("Docker auto-import removed gateway site",
