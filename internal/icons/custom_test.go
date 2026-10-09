@@ -483,3 +483,48 @@ func TestGuessContentType(t *testing.T) {
 		})
 	}
 }
+
+func TestSaveIcon_ReplacesOtherExtension(t *testing.T) {
+	dir := t.TempDir()
+	m, err := NewCustomIconsManager(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.SaveIcon("logo", []byte("png"), "image/png"); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.SaveIcon("logo", []byte("<svg/>"), "image/svg+xml"); err != nil {
+		t.Fatal(err)
+	}
+	entries, _ := os.ReadDir(dir)
+	if len(entries) != 1 || entries[0].Name() != "logo.svg" {
+		t.Fatalf("expected only logo.svg, got %v", entries)
+	}
+	_, ct, err := m.GetIcon("logo")
+	if err != nil || ct != "image/svg+xml" {
+		t.Fatalf("GetIcon = %q, %v", ct, err)
+	}
+	if _, err := m.Stat("logo"); err != nil {
+		t.Errorf("Stat: %v", err)
+	}
+	if _, err := m.Stat("missing"); err == nil {
+		t.Error("expected Stat error for missing icon")
+	}
+	if err := m.DeleteIcon("logo"); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.DeleteIcon("logo"); err == nil {
+		t.Error("expected error on second delete")
+	}
+}
+
+func TestAllowedExtensions_SortedAndUnique(t *testing.T) {
+	if len(allowedExtensions) == 0 {
+		t.Fatal("empty")
+	}
+	for i := 1; i < len(allowedExtensions); i++ {
+		if allowedExtensions[i-1] >= allowedExtensions[i] {
+			t.Errorf("not sorted/unique: %v", allowedExtensions)
+		}
+	}
+}

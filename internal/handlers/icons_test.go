@@ -1262,3 +1262,47 @@ func TestListLucideIcons(t *testing.T) {
 		t.Errorf("expected 200 or 500, got %d", w.Code)
 	}
 }
+
+func TestCustomIcon_ServedWithETagAndNoCache(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "icon.svg")
+	if err := os.WriteFile(path, []byte(`<svg xmlns="http://www.w3.org/2000/svg"/>`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	h, _ := NewIconHandler(nil, nil, dir)
+
+	get := func(inm string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(http.MethodGet, "/icons/custom/icon.svg", nil)
+		if inm != "" {
+			req.Header.Set("If-None-Match", inm)
+		}
+		rec := httptest.NewRecorder()
+		h.ServeIcon(rec, req)
+		return rec
+	}
+
+	first := get("")
+	etag := first.Header().Get("ETag")
+	if first.Code != http.StatusOK || etag == "" {
+		t.Fatalf("code=%d etag=%q", first.Code, etag)
+	}
+	if cc := first.Header().Get("Cache-Control"); cc != "no-cache" {
+		t.Errorf("Cache-Control = %q", cc)
+	}
+	if rec := get(etag); rec.Code != http.StatusNotModified {
+		t.Errorf("expected 304, got %d", rec.Code)
+	}
+
+	if err := os.WriteFile(path, []byte(`<svg xmlns="http://www.w3.org/2000/svg"><g/></svg>`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	later := time.Now().Add(time.Hour)
+	_ = os.Chtimes(path, later, later)
+	second := get(etag)
+	if second.Code != http.StatusOK {
+		t.Fatalf("expected 200 after replace, got %d", second.Code)
+	}
+	if second.Header().Get("ETag") == etag {
+		t.Error("ETag did not change after replacement")
+	}
+}

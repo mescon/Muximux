@@ -3,8 +3,10 @@ package icons
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -28,6 +30,17 @@ var AllowedMimeTypes = map[string]string{
 	"image/webp":    ".webp",
 	"image/gif":     ".gif",
 }
+
+// allowedExtensions lists every extension SaveIcon can write, sorted and
+// de-duplicated (several MIME types may share one extension).
+var allowedExtensions = func() []string {
+	exts := make([]string, 0, len(AllowedMimeTypes))
+	for _, ext := range AllowedMimeTypes {
+		exts = append(exts, ext)
+	}
+	slices.Sort(exts)
+	return slices.Compact(exts)
+}()
 
 // MaxIconSize is the maximum allowed icon file size (2MB)
 const MaxIconSize = 2 * 1024 * 1024
@@ -69,7 +82,34 @@ func (m *CustomIconsManager) SaveIcon(name string, data []byte, contentType stri
 	filename := name + ext
 	path := filepath.Join(m.storageDir, filename)
 
-	return os.WriteFile(path, data, 0600)
+	if err := os.WriteFile(path, data, 0600); err != nil {
+		return err
+	}
+	m.removeOtherExtensions(name, ext)
+	return nil
+}
+
+// removeOtherExtensions deletes any stored file for name whose extension
+// is not keepExt, so a replacement in another format does not leave a
+// stale sibling that GetIcon could still serve.
+func (m *CustomIconsManager) removeOtherExtensions(name, keepExt string) {
+	for _, ext := range allowedExtensions {
+		if ext == keepExt {
+			continue
+		}
+		_ = os.Remove(filepath.Join(m.storageDir, name+ext))
+	}
+}
+
+// Stat returns file info for the stored icon with the given name.
+func (m *CustomIconsManager) Stat(name string) (fs.FileInfo, error) {
+	name = sanitizeIconName(name)
+	for _, ext := range allowedExtensions {
+		if info, err := os.Stat(filepath.Join(m.storageDir, name+ext)); err == nil {
+			return info, nil
+		}
+	}
+	return nil, fmt.Errorf("custom icon not found: %s", name)
 }
 
 // GetIcon retrieves a custom icon by name
@@ -82,10 +122,10 @@ func (m *CustomIconsManager) GetIcon(name string) ([]byte, string, error) {
 	// files placed manually outside the upload path; serving those
 	// blind as application/octet-stream forces a download instead of
 	// a render and obscures the underlying mistake.
-	for contentType, ext := range AllowedMimeTypes {
+	for _, ext := range allowedExtensions {
 		path := filepath.Join(m.storageDir, name+ext)
 		if data, err := os.ReadFile(path); err == nil {
-			return data, contentType, nil
+			return data, guessContentType(ext), nil
 		}
 	}
 
@@ -132,7 +172,7 @@ func (m *CustomIconsManager) DeleteIcon(name string) error {
 	name = sanitizeIconName(name)
 
 	// Try each supported extension
-	for _, ext := range AllowedMimeTypes {
+	for _, ext := range allowedExtensions {
 		path := filepath.Join(m.storageDir, name+ext)
 		if err := os.Remove(path); err == nil {
 			return nil
