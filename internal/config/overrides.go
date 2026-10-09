@@ -1,5 +1,7 @@
 package config
 
+import "strconv"
+
 // OverrideField names a config field that a command-line flag or an
 // environment variable can override at startup. An override changes the
 // live value only: Save writes the value the file had, so a temporary
@@ -13,6 +15,8 @@ const (
 	OverrideListen     OverrideField = "listen"
 	OverrideBasePath   OverrideField = "base_path"
 	OverrideAutoImport OverrideField = "discovery.docker.auto_import"
+
+	OverrideRequireExplicitEnable OverrideField = "discovery.docker.require_explicit_enable"
 )
 
 // override remembers where an overridden value came from and the value
@@ -71,6 +75,8 @@ func (c *Config) overrideValue(field OverrideField) string {
 		return c.Server.BasePath
 	case OverrideAutoImport:
 		return string(c.Discovery.Docker.AutoImport)
+	case OverrideRequireExplicitEnable:
+		return strconv.FormatBool(c.Discovery.Docker.RequireExplicitEnable)
 	}
 	return ""
 }
@@ -89,6 +95,8 @@ func (c *Config) setOverrideValue(field OverrideField, value string) {
 		c.Server.BasePath = value
 	case OverrideAutoImport:
 		c.Discovery.Docker.AutoImport = AutoImportMode(value)
+	case OverrideRequireExplicitEnable:
+		c.Discovery.Docker.RequireExplicitEnable = value == "true"
 	}
 }
 

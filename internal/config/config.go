@@ -121,6 +121,9 @@ type DiscoveryDockerConfig struct {
 	// AutoImport controls automatic import of muximux.*-labeled
 	// containers. off (default) | add | update | sync. See AutoImportMode.
 	AutoImport AutoImportMode `yaml:"auto_import,omitempty" json:"auto_import,omitempty"`
+	// RequireExplicitEnable limits auto-import to containers labelled
+	// muximux.app.enabled=true. Off by default: any muximux.* label is enough.
+	RequireExplicitEnable bool `yaml:"require_explicit_enable,omitempty" json:"require_explicit_enable"`
 
 	// Container lifecycle controls (Splash actions). Two-layer opt-in:
 	// also requires the Docker socket to be mounted read-write at
@@ -732,7 +735,7 @@ func hasLegacyGateway(data []byte) bool {
 // Parse turns config.yaml bytes into a validated Config exactly as boot does:
 // env-ref recording, ${VAR} expansion (MissingEnvVars), strict decode onto
 // defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
-// ApplyAutoImportEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
+// ApplyAutoImportEnv(cfg, os.LookupEnv), ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
 // It never runs the legacy server.gateway migration and refuses such input
 // with ErrLegacyGateway.
 func Parse(data []byte) (*Config, error) {
@@ -802,6 +805,7 @@ func decodeConfig(data []byte) (*Config, error) {
 	// applyDiscoveryDefaults (which normalizes the yaml value) so an
 	// operator-set MUXIMUX_DISCOVERY_AUTO_IMPORT wins over config.yaml.
 	ApplyAutoImportEnv(cfg, os.LookupEnv)
+	ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv)
 
 	return cfg, nil
 }

@@ -227,6 +227,12 @@ func (h *DiscoveryHandler) GetDockerConfig(w http.ResponseWriter, r *http.Reques
 	if src, ok := h.config.EnvOverrides()[string(config.OverrideAutoImport)]; ok {
 		resp.EnvOverrides = map[string]string{"auto_import": src}
 	}
+	if src, ok := h.config.EnvOverrides()[string(config.OverrideRequireExplicitEnable)]; ok {
+		if resp.EnvOverrides == nil {
+			resp.EnvOverrides = map[string]string{}
+		}
+		resp.EnvOverrides["require_explicit_enable"] = src
+	}
 	h.configMu.RUnlock()
 	sendJSON(w, http.StatusOK, resp)
 }
@@ -308,6 +314,9 @@ func (h *DiscoveryHandler) mergeDockerConfigLocked(body []byte) (config.Discover
 	// override; Save writes the file's own value through fileView.
 	if h.config.IsOverridden(config.OverrideAutoImport) {
 		newCfg.AutoImport = h.config.Discovery.Docker.AutoImport
+	}
+	if h.config.IsOverridden(config.OverrideRequireExplicitEnable) {
+		newCfg.RequireExplicitEnable = h.config.Discovery.Docker.RequireExplicitEnable
 	}
 	for i := range newCfg.LifecycleAllowedGroups {
 		newCfg.LifecycleAllowedGroups[i] = strings.TrimSpace(newCfg.LifecycleAllowedGroups[i])
