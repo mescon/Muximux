@@ -622,7 +622,7 @@
       aria-modal="true"
       aria-labelledby="gateway-form-title"
       tabindex="-1"
-      use:focusTrap
+      use:focusTrap={{ onEscape: cancelForm }}
       in:fly={{ y: 8, duration: motionMs(150) }}
     >
       <div class="p-5 border-b border-border">

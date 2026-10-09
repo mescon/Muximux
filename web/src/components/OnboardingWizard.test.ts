@@ -2647,6 +2647,31 @@ describe('OnboardingWizard', () => {
       return iconBrowserProps[iconBrowserProps.length - 1];
     }
 
+    it('traps the icon picker as a modal dialog and closes it with Escape, restoring focus', async () => {
+      mockCurrentStep.set('apps');
+      mockStepProgress.set(1);
+      renderWizard({ needsSetup: false });
+      await fireEvent.click(screen.getByRole('checkbox', { name: /Plex/i }));
+      await waitFor(() => expect(screen.getAllByTitle('Change icon').length).toBeGreaterThan(0));
+      const opener = screen.getAllByTitle('Change icon')[0];
+      opener.focus();
+      await fireEvent.click(opener);
+
+      const picker = await screen.findByRole('dialog', { name: 'Select icon' });
+      expect(picker.getAttribute('aria-modal')).toBe('true');
+      expect(picker.contains(document.activeElement)).toBe(true);
+
+      // Tab inside the picker never escapes into the wizard behind it.
+      await fireEvent.keyDown(picker, { key: 'Tab' });
+      expect(picker.contains(document.activeElement)).toBe(true);
+
+      await fireEvent.keyDown(picker, { key: 'Escape' });
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Select icon' })).not.toBeInTheDocument());
+      expect(document.activeElement).toBe(opener);
+      // The wizard itself is interactive again and still trapped.
+      expect(screen.getByRole('dialog', { name: 'Setup wizard' }).hasAttribute('inert')).toBe(false);
+    });
+
     it('passes allowCustomManagement false to the icon browser while setup is required', async () => {
       const props = await openGroupIconBrowser(true);
       expect(props.allowCustomManagement).toBe(false);

@@ -595,7 +595,7 @@
         aria-modal="true"
         aria-label={m.discovery_pickIcon()}
         tabindex="-1"
-        use:focusTrap
+        use:focusTrap={{ onEscape: closeIconPicker }}
       >
         <div class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col border border-border">
           <div class="flex items-center justify-between p-4 border-b border-border">

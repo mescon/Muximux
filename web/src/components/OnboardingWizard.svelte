@@ -2144,7 +2144,14 @@
   {@const browserIcon = iconBrowserContext === 'app-override'
     ? appOverrides.get(iconBrowserAppName)?.icon || getAppDisplayIcon(iconBrowserAppName)
     : wizardGroups[iconBrowserContext as number]?.icon}
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Select icon"
+    tabindex="-1"
+    use:focusTrap={{ onEscape: () => { iconBrowserContext = null; } }}
+  >
     <div class="w-full max-w-4xl max-h-[80vh] bg-bg-base rounded-xl border border-border shadow-2xl overflow-hidden">
       <IconBrowser
         selectedIcon={browserIcon?.name || ''}

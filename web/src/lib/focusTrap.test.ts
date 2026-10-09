@@ -172,4 +172,43 @@ describe('focusTrap', () => {
       expect([a, b]).toEqual([0, 1]);
     });
   });
+  describe('picker nested over a trapped dialog', () => {
+    it('keeps Tab in the picker, restores focus on close and leaves the outer trap intact', () => {
+      const opener = document.createElement('button');
+      opener.textContent = 'open picker';
+      dialog.prepend(opener);
+      const outer = focusTrap(dialog);
+      opener.focus();
+
+      // The picker is a sibling of the dialog, so Tab never reaches the dialog's listener.
+      const picker = document.createElement('div');
+      picker.tabIndex = -1;
+      const p1 = document.createElement('button');
+      const p2 = document.createElement('button');
+      picker.append(p1, p2);
+      document.body.appendChild(picker);
+      const inner = focusTrap(picker);
+      expect(document.activeElement).toBe(p1);
+      expect(dialog.hasAttribute('inert')).toBe(true);
+
+      p2.focus();
+      p2.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+      expect(document.activeElement).toBe(p1);
+      p1.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+      expect(document.activeElement).toBe(p2);
+
+      inner.destroy();
+      picker.remove();
+      expect(document.activeElement).toBe(opener);
+      expect(dialog.hasAttribute('inert')).toBe(false);
+      // The outer trap still holds the background.
+      expect(outside.hasAttribute('inert')).toBe(true);
+      last.focus();
+      last.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+      expect(document.activeElement).toBe(opener);
+
+      outer.destroy();
+      expect(outside.hasAttribute('inert')).toBe(false);
+    });
+  });
 });
