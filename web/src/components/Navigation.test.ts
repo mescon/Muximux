@@ -523,6 +523,86 @@ describe('Navigation', () => {
   // --------------------------------------------------------------------------
   // 4. Left sidebar tests (8 tests)
   // --------------------------------------------------------------------------
+  // Apps whose group is not configured are listed under Ungrouped instead
+  // of being hidden (#500).
+  describe('Apps in a group that is not configured', () => {
+    const orphanApps: App[] = [
+      makeApp({ name: 'Grafana', url: 'https://grafana.local', order: 0, group: 'Media' }),
+      makeApp({ name: 'Traefik', url: 'https://traefik.local', order: 1, group: 'Infra' }),
+    ];
+
+    for (const position of ['left', 'right'] as const) {
+      it(`lists the app under Ungrouped in the ${position} sidebar`, () => {
+        render(Navigation, {
+          props: {
+            apps: orphanApps,
+            currentApp: null,
+            config: makeConfig({ navigation: { position }, groups: [mediaGroup] }),
+          },
+        });
+        expect(screen.getByText('Traefik')).toBeInTheDocument();
+        expect(screen.getByText('Ungrouped')).toBeInTheDocument();
+        expect(screen.queryByText('Infra')).not.toBeInTheDocument();
+      });
+    }
+
+    for (const position of ['top', 'bottom'] as const) {
+      it(`shows the app in the flat ${position} bar`, () => {
+        render(Navigation, {
+          props: {
+            apps: orphanApps,
+            currentApp: null,
+            config: makeConfig({ navigation: { position, bar_style: 'flat' }, groups: [mediaGroup] }),
+          },
+        });
+        expect(screen.getByText('Traefik')).toBeInTheDocument();
+      });
+
+      it(`offers the app in the Ungrouped dropdown of the grouped ${position} bar`, async () => {
+        render(Navigation, {
+          props: {
+            apps: orphanApps,
+            currentApp: null,
+            config: makeConfig({ navigation: { position, bar_style: 'grouped' }, groups: [mediaGroup] }),
+          },
+        });
+        const ungrouped = screen.getByText('Ungrouped');
+        await fireEvent.mouseEnter(ungrouped.closest('.relative')!);
+        await waitFor(() => {
+          expect(screen.getByText('Traefik')).toBeInTheDocument();
+        });
+      });
+    }
+
+    it('lists the app under Ungrouped in the floating panel', async () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: orphanApps,
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'floating' }, groups: [mediaGroup] }),
+        },
+      });
+      const btn = container.querySelector('[role="navigation"]')!.querySelector('button')!;
+      await fireEvent.pointerDown(btn, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+      document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }));
+      await waitFor(() => {
+        expect(screen.getByText('Traefik')).toBeInTheDocument();
+        expect(screen.getByText('Ungrouped')).toBeInTheDocument();
+      });
+    });
+
+    it('shows the app when no group is configured at all', () => {
+      render(Navigation, {
+        props: {
+          apps: [makeApp({ name: 'Traefik', url: 'https://traefik.local', group: 'Infra' })],
+          currentApp: null,
+          config: makeConfig({ navigation: { position: 'left' }, groups: [] }),
+        },
+      });
+      expect(screen.getByText('Traefik')).toBeInTheDocument();
+    });
+  });
+
   describe('Left sidebar', () => {
     it('renders aside with border-r sidebar panel', () => {
       const { container } = render(Navigation, {

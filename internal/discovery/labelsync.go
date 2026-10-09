@@ -31,7 +31,7 @@ import (
 type labelSync struct {
 	name  string // new app name
 	icon  string // new dashboard icon slug
-	group string // canonical name of an existing group
+	group string // existing group name, or the label value of a group to create
 	order *int   // new order; nil when the label is unset or in sync
 }
 
@@ -62,25 +62,36 @@ func snapshotLabelSyncContext(cfg *config.Config) labelSyncContext {
 
 // resolveLabelGroup maps a group label to a configured group: an exact
 // name match first, then a match by slug (so "infra" finds "Infra"). It
-// returns false when no group matches. Creating a missing group is left to
-// the group auto-create step; until then the app keeps its current group,
-// so a label can never move an app into a group the UI does not list.
+// returns false when no group matches; the apply step then creates the
+// group in the same save (config.EnsureGroup).
 func resolveLabelGroup(groups []string, label string) (string, bool) {
-	for _, g := range groups {
-		if g == label {
-			return g, true
+	return config.MatchGroupName(groups, label)
+}
+
+// canonicalDesiredGroups points every desired app's group at the
+// configured group it matches by name or slug, so a label "media" next to
+// a group "Media" neither creates a near-duplicate nor shows up as a
+// change to Reconcile on every tick. A group that matches nothing is left
+// as the label says and created when the plan is applied.
+func canonicalDesiredGroups(desired []Desired, groups []string) {
+	for i := range desired {
+		if g, ok := resolveLabelGroup(groups, desired[i].App.Group); ok {
+			desired[i].App.Group = g
 		}
 	}
-	slug := config.Slugify(label)
-	if slug == "" {
-		return "", false
+}
+
+// ensureAppGroup makes sure the group a's Group names exists in cfg,
+// creating it after the existing groups when it does not, and points a at
+// the canonical name. A created group is appended to created, for the
+// audit line logged after the save. The caller holds the write lock and
+// has snapshotted the groups for rollback.
+func ensureAppGroup(cfg *config.Config, a *config.AppConfig, created *[]string) {
+	var ok bool
+	cfg.Groups, a.Group, ok = config.EnsureGroup(cfg.Groups, a.Group)
+	if ok {
+		*created = append(*created, a.Group)
 	}
-	for _, g := range groups {
-		if config.Slugify(g) == slug {
-			return g, true
-		}
-	}
-	return "", false
 }
 
 // labelIconSynced reports whether icon already shows the dashboard icon
@@ -106,7 +117,8 @@ func reserveReconcileNames(ctx *labelSyncContext, batch *refreshBatch) {
 // name resolve the same way every tick (the lower key wins). A label that
 // cannot be applied (the name is taken, the group does not exist, the name
 // is too long) is held: the stored value is kept and the reason is logged
-// once per transition.
+// once per transition. A group label that matches no configured group is
+// not held: the group is created when the plan is applied.
 func (p *Poller) planLabelSync(apps []trackedAppEntry, containers []ContainerSummary, endpoint string, ctx *labelSyncContext, batch *refreshBatch) map[string]labelSync {
 	if ctx.nameCounts == nil {
 		ctx.nameCounts = map[string]int{}
@@ -169,7 +181,10 @@ func planOneLabelSync(t *trackedAppEntry, labels *AppLabels, ctx *labelSyncConte
 	}
 	if labels.Group != "" {
 		if g, ok := resolveLabelGroup(ctx.groups, labels.Group); !ok {
-			held = append(held, "group label "+labels.Group+" does not match a configured group")
+			// Missing (or deleted since): created in the same save, even
+			// when the app already names it, so the app is never left in
+			// a group the UI does not list.
+			s.group = labels.Group
 		} else if g != t.group {
 			s.group = g
 		}
@@ -208,22 +223,19 @@ type labelSynced struct {
 
 // applyLabelSyncs writes the planned label values onto the live apps. The
 // caller holds the write lock and has snapshotted apps, sites and the
-// quarantine for rollback. Ownership is checked again under the lock: an
-// app that became auto-imported or lost its tracking since the plan is
-// skipped, and a group deleted since the plan is not applied. Renames are
+// quarantine and groups for rollback. Ownership is checked again under the
+// lock: an app that became auto-imported or lost its tracking since the
+// plan is skipped. A group the label names that does not exist (or was
+// deleted since the plan) is created and appended to createdGroups. Renames are
 // re-checked against the names the apps will have after this apply (an
 // app skipped here keeps a name the plan thought was freed), and a rename
 // that would now collide is dropped instead of failing the whole tick.
 // Gateway sites linked by app_name follow the renames, cascaded once from
 // one old-to-new map so chained renames (N->C and M->N) relink correctly,
 // as handlers.cascadeAppRenames does for a Settings save.
-func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync) []labelSynced {
+func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync, createdGroups *[]string) []labelSynced {
 	if len(syncs) == 0 {
 		return nil
-	}
-	groups := make([]string, 0, len(cfg.Groups))
-	for i := range cfg.Groups {
-		groups = append(groups, cfg.Groups[i].Name)
 	}
 	var eligible []int
 	renames := map[int]string{} // app index -> new name
@@ -262,7 +274,7 @@ func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync) []labelSync
 			fields = append(fields, "name")
 		}
 		s := syncs[a.DockerKey]
-		fields = append(fields, applyOneLabelSync(a, &s, groups)...)
+		fields = append(fields, applyOneLabelSync(cfg, a, &s, createdGroups)...)
 		if len(fields) > 0 {
 			out = append(out, labelSynced{name: a.Name, key: a.DockerKey, fields: fields})
 		}
@@ -307,8 +319,9 @@ func dropCollidingRenames(apps []config.AppConfig, renames map[int]string) {
 }
 
 // applyOneLabelSync applies the icon, group and order of one plan entry to
-// a and returns the names of the fields it changed.
-func applyOneLabelSync(a *config.AppConfig, s *labelSync, groups []string) []string {
+// a (an app of cfg) and returns the names of the fields it changed. A group
+// that does not exist yet is created in cfg and appended to createdGroups.
+func applyOneLabelSync(cfg *config.Config, a *config.AppConfig, s *labelSync, createdGroups *[]string) []string {
 	var fields []string
 	if s.icon != "" && !labelIconSynced(&a.Icon, s.icon) {
 		// Same shape as an import: a dashboard icon by slug. Styling the
@@ -320,9 +333,11 @@ func applyOneLabelSync(a *config.AppConfig, s *labelSync, groups []string) []str
 		a.Icon.URL = ""
 		fields = append(fields, "icon")
 	}
-	if s.group != "" && s.group != a.Group {
-		if g, ok := resolveLabelGroup(groups, s.group); ok {
-			a.Group = g
+	if s.group != "" {
+		prev := a.Group
+		a.Group = s.group
+		ensureAppGroup(cfg, a, createdGroups)
+		if a.Group != prev {
 			fields = append(fields, "group")
 		}
 	}

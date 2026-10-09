@@ -44,6 +44,8 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
    - **Proxy** - menu links via Muximux's `/proxy/<slug>` path-prefix reverse proxy
    - **Gateway domain** - menu links to `https://<your-subdomain>`; requires also creating the gateway site in the same row
 
+   If a row's group does not exist yet, the import creates it in the same save (see [Groups are created automatically](#groups-are-created-automatically)).
+
 4. **Settings → Discovery → Currently tracked**: every imported app or gateway site appears here. Per-row **Detach** stops auto-management; **Re-link** appears when the saved `DockerEndpoint` no longer matches the configured endpoint (typical after a daemon migration). A row shows "Container missing since <time>" while its container cannot be found on the daemon. Invalid Docker-owned entries that were not loaded are listed below the table; see [Quarantined entries](#quarantined-entries).
 
 ---
@@ -472,7 +474,7 @@ This holds for every tracked app, including apps you imported by hand through th
 |---|---|
 | `muximux.app.name` | The app name. A gateway site linked to the app follows the rename. |
 | `muximux.app.icon` | A dashboard icon with that slug (as on import). Icon colour, background, variant and invert are kept. |
-| `muximux.app.group` | The group, matched to an existing group by name, ignoring case and spacing (`infra` finds `Infra`). |
+| `muximux.app.group` | The group, matched to an existing group by name, ignoring case and spacing (`infra` finds `Infra`). Created if no group matches. |
 | `muximux.app.order` | The order within the group. |
 
 The URL and health address keep following the container as before.
@@ -483,6 +485,16 @@ The URL and health address keep following the container as before.
 - Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `add`), so no field is written twice.
 - A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), or the name is over 100 characters. The app keeps its current value until the conflict is resolved.
 - If saving the config fails, the whole tick is rolled back and retried on the next tick.
+
+### Groups are created automatically
+
+When an app lands in a group that does not exist, Muximux creates the group in the same save. This covers a manual import from the Discover dialog, auto-import (new apps and re-synced ones) and the label re-sync above, and applies to a group from a `muximux.app.group` label as well as a catalog group.
+
+- An existing group is matched by name first, then ignoring case and spacing, so `media`, `Media ` and `media-server` / `Media Server` never create a near-duplicate. The app is stored with the existing group's exact name.
+- A new group gets the same defaults as one added in Settings: a folder icon, no colour, expanded. It is placed after your existing groups, in the order the apps were processed. Customise it in Settings like any other group.
+- While a tracked app has `muximux.app.group` set, a group you delete is created again on the next tick. Remove the label or detach the app to stop that.
+- If the save fails, the new groups are rolled back together with the apps.
+- An app whose group is missing anyway (for example a group removed from `config.yaml` by hand) is never hidden: the navigation and **Settings -> Apps** list it under **Ungrouped** until the group exists again.
 
 ### Gateway labels and `update`/`sync`
 

@@ -368,11 +368,20 @@
   // must not show up in the nav for anyone - admin or otherwise.
   // Filter here so the nav stays clean even when the data source has
   // disabled entries.
+  // An app whose group is not configured (an import that named a group
+  // before it existed, or a group deleted in config.yaml) is listed under
+  // Ungrouped instead of being hidden: the bars only render configured
+  // groups plus Ungrouped.
+  let configuredGroupNames = $derived(new Set(config.groups.map(g => g.name)));
+  function navGroupOf(app: App): string {
+    return app.group && configuredGroupNames.has(app.group) ? app.group : 'Ungrouped';
+  }
+
   let groupedApps = $derived.by(() => {
     const acc = {} as Record<string, App[]>;
     for (const app of apps) {
       if (!app.enabled) continue;
-      const group = app.group || 'Ungrouped';
+      const group = navGroupOf(app);
       if (!acc[group]) acc[group] = [];
       acc[group].push(app);
     }
@@ -874,7 +883,7 @@
              : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
            {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
     style="border-{edge}: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
-           {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
+           {hoveredGroup && hoveredGroup !== navGroupOf(app) ? 'opacity: 0.3;' : ''}"
     onclick={(e) => onselect?.(app, e)} onauxclick={(e) => { if (e.button === 1) onselect?.(app, e); }} oncontextmenu={(e) => handleAppContextMenu(e, app)}
     onmouseenter={() => hoveredGroup = null}
   >

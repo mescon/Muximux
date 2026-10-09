@@ -69,6 +69,21 @@
     }
   });
 
+  // Apps whose group is not configured (an import that named a group before
+  // it existed, or a group removed from config.yaml) are listed under
+  // Ungrouped instead of being hidden, one drop zone per missing group so a
+  // drag or a move keeps working on the bucket they are stored in.
+  let orphanGroupNames = $derived.by(() => {
+    const known = new Set(dndGroups.map(g => g.name));
+    return Object.keys(dndGroupedApps)
+      // An emptied bucket stays listed (and its drop zone mounted) until
+      // the next rebuild, so dragging its last app out never unmounts
+      // the zone the drag started in.
+      .filter(name => name !== '' && !known.has(name))
+      .sort((a, b) => a.localeCompare(b));
+  });
+  let orphanAppsCount = $derived(orphanGroupNames.reduce((n, name) => n + (dndGroupedApps[name] || []).length, 0));
+
   let discoveryButtonState = $derived.by(() => {
     if (!discoveryStatus) return 'hidden' as const;
     if (!discoveryStatus.configured) return 'cta' as const;
@@ -461,13 +476,14 @@
   </div>
 
   <!-- Ungrouped apps -->
-  {#if (dndGroupedApps[''] || []).length > 0 || localGroupsCount > 0}
+  {#if (dndGroupedApps[''] || []).length > 0 || orphanAppsCount > 0 || localGroupsCount > 0}
     {@const ungroupedApps = dndGroupedApps[''] || []}
-    <div class="rounded-lg border border-border border-dashed" class:hidden={ungroupedApps.length === 0 && localGroupsCount === 0}>
+    {@const ungroupedCount = ungroupedApps.length + orphanAppsCount}
+    <div class="rounded-lg border border-border border-dashed" class:hidden={ungroupedCount === 0 && localGroupsCount === 0}>
       <div class="p-3 bg-bg-elevated/20 rounded-t-lg">
         <span class="text-sm font-medium text-text-muted">{m.apps_ungrouped()}</span>
-        {#if ungroupedApps.length > 0}
-          <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${ungroupedApps.length}` })}</span>
+        {#if ungroupedCount > 0}
+          <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${ungroupedCount}` })}</span>
         {:else}
           <span class="text-xs text-text-disabled ms-2">{m.apps_dragToUngroup()}</span>
         {/if}
@@ -482,6 +498,19 @@
           </div>
         {/each}
       </div>
+      {#each orphanGroupNames as orphanName (orphanName)}
+        {@const orphanApps = dndGroupedApps[orphanName] || []}
+        <div class="p-2 pt-0 space-y-1" data-orphan-group={orphanName} use:dndzone={{items: orphanApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, orphanName)} onfinalize={(e) => handleAppDndFinalize(e, orphanName)}>
+          {#each orphanApps as app, appIndex ((app as App & Record<string, unknown>).id)}
+            <div
+              class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
+              animate:flip={{duration: motionMs(flipDurationMs)}}
+            >
+              {@render appRowContent(app, orphanName, appIndex, orphanApps.length)}
+            </div>
+          {/each}
+        </div>
+      {/each}
     </div>
   {/if}
 

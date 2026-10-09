@@ -77,6 +77,9 @@ func TestLabelSync_ManualImportResyncedOnNextTick(t *testing.T) {
 	if a.DockerAutoImported || a.DockerKey != lsKey {
 		t.Errorf("tracking changed: %+v", a)
 	}
+	if len(f.cfg.Groups) != 2 {
+		t.Errorf("slug match created a near-duplicate group: %+v", f.cfg.Groups)
+	}
 	if f.saves != 1 {
 		t.Errorf("saves = %d, want 1", f.saves)
 	}
@@ -172,7 +175,7 @@ func TestLabelSync_SaveFailureRollsBack(t *testing.T) {
 	f.cfg.QuarantineApp(&config.AppConfig{Name: "Q", DockerKey: "label:q", DockerEndpoint: "unix:///other", DockerAutoImported: true}, "bad")
 	f.fail = errors.New("disk full")
 	f.label(LabelAppName, "TV")
-	f.label(LabelAppGroup, "Infra")
+	f.label(LabelAppGroup, "Created")
 	f.label(LabelAppIcon, "traefik")
 	f.label(LabelAppOrder, "5")
 	f.p.tick(context.Background())
@@ -188,12 +191,18 @@ func TestLabelSync_SaveFailureRollsBack(t *testing.T) {
 	if q := f.cfg.Quarantined(); len(q) != 1 || q[0].Key != "label:q" {
 		t.Errorf("quarantine not restored: %+v", q)
 	}
+	if len(f.cfg.Groups) != 2 {
+		t.Errorf("group creation not rolled back: %+v", f.cfg.Groups)
+	}
 
 	// The next good save applies it.
 	f.fail = nil
 	f.p.tick(context.Background())
-	if a := findAppByKey(f.cfg, lsKey); a.Name != "TV" {
+	if a := findAppByKey(f.cfg, lsKey); a.Name != "TV" || a.Group != "Created" {
 		t.Errorf("retry did not apply: %+v", a)
+	}
+	if len(f.cfg.Groups) != 3 || f.cfg.Groups[2].Name != "Created" {
+		t.Errorf("retry did not create the group: %+v", f.cfg.Groups)
 	}
 }
 
@@ -235,7 +244,7 @@ func TestLabelSync_AutoImportedAppInAddModeUntouched(t *testing.T) {
 	}
 }
 
-func TestLabelSync_NameTakenAndMissingGroupHeld(t *testing.T) {
+func TestLabelSync_NameTakenHeldMissingGroupCreated(t *testing.T) {
 	f := newLabelSyncFixture(t, config.AutoImportOff)
 	f.cfg.Apps = append(f.cfg.Apps, config.AppConfig{Name: "tv", URL: "http://10.0.0.9", Enabled: true})
 	f.label(LabelAppName, "TV")
@@ -244,20 +253,23 @@ func TestLabelSync_NameTakenAndMissingGroupHeld(t *testing.T) {
 	f.p.tick(context.Background())
 
 	a := findAppByKey(f.cfg, lsKey)
-	if a.Name != "Sonarr" || a.Group != "Media" {
-		t.Errorf("held labels applied: %+v", a)
+	if a.Name != "Sonarr" {
+		t.Errorf("held name applied: %+v", a)
 	}
-	if a.Order != 8 {
-		t.Errorf("order = %d, want 8 (other labels still apply)", a.Order)
+	if a.Order != 8 || a.Group != "Nowhere" {
+		t.Errorf("order/group = %d/%q, want 8/Nowhere (other labels still apply)", a.Order, a.Group)
+	}
+	want := config.GroupConfig{Name: "Nowhere", Icon: config.AppIconConfig{Type: "lucide", Name: "folder"}, Order: 2, Expanded: true}
+	if len(f.cfg.Groups) != 3 || f.cfg.Groups[2] != want {
+		t.Errorf("group not created after the existing ones: %+v", f.cfg.Groups)
 	}
 	held := f.p.labelHeld[lsKey]
-	if !strings.Contains(held, "already used") || !strings.Contains(held, "does not match") {
+	if !strings.Contains(held, "already used") || strings.Contains(held, "group") {
 		t.Errorf("held reason = %q", held)
 	}
 
-	// Freed name and created group: both apply, and the hold clears.
+	// Freed name: it applies, the hold clears, and no second group appears.
 	f.cfg.Apps = f.cfg.Apps[:1]
-	f.cfg.Groups = append(f.cfg.Groups, config.GroupConfig{Name: "Nowhere"})
 	f.p.tick(context.Background())
 	a = findAppByKey(f.cfg, lsKey)
 	if a.Name != "TV" || a.Group != "Nowhere" {
@@ -265,6 +277,33 @@ func TestLabelSync_NameTakenAndMissingGroupHeld(t *testing.T) {
 	}
 	if _, ok := f.p.labelHeld[lsKey]; ok {
 		t.Error("hold not cleared")
+	}
+	if len(f.cfg.Groups) != 3 {
+		t.Errorf("group created twice: %+v", f.cfg.Groups)
+	}
+	saves := f.saves
+	f.p.tick(context.Background())
+	if f.saves != saves {
+		t.Errorf("in-sync tick saved again (%d)", f.saves-saves)
+	}
+}
+
+// A group deleted while a tracked app still names it (and the label is
+// set) is created again, so the app never sits in a group the UI does not
+// list.
+func TestLabelSync_DeletedGroupRecreated(t *testing.T) {
+	f := newLabelSyncFixture(t, config.AutoImportOff)
+	f.label(LabelAppGroup, "Media")
+	f.cfg.Groups = []config.GroupConfig{{Name: "Infra", Order: 4}}
+	f.p.tick(context.Background())
+	if f.saves != 1 {
+		t.Fatalf("saves = %d, want 1", f.saves)
+	}
+	if a := findAppByKey(f.cfg, lsKey); a.Group != "Media" {
+		t.Errorf("group = %q", a.Group)
+	}
+	if len(f.cfg.Groups) != 2 || f.cfg.Groups[1].Name != "Media" || f.cfg.Groups[1].Order != 5 {
+		t.Errorf("group not re-created after the existing ones: %+v", f.cfg.Groups)
 	}
 }
 
@@ -359,14 +398,21 @@ func TestApplyLabelSyncs_UnderLock(t *testing.T) {
 		},
 	}
 	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "old.example.com", AppName: "Old"}, {Domain: "x.example.com", AppName: "Hand"}}
+	var created []string
 	got := applyLabelSyncs(cfg, map[string]labelSync{
 		"label:m":    {name: "New", icon: "traefik", group: "Deleted", order: intp(3)},
 		"label:auto": {name: "Nope"},
-		"label:same": {name: "Same", icon: "same", group: "Infra", order: intp(2)},
-	})
+		"label:same": {name: "Same", icon: "same", group: "infra", order: intp(2)},
+	}, &created)
 	a := cfg.Apps[0]
-	if a.Name != "New" || a.Order != 3 || a.Group != "" {
+	if a.Name != "New" || a.Order != 3 || a.Group != "Deleted" {
 		t.Errorf("app = %+v", a)
+	}
+	if strings.Join(created, ",") != "Deleted" || len(cfg.Groups) != 2 || cfg.Groups[1].Name != "Deleted" {
+		t.Errorf("created = %v groups = %+v", created, cfg.Groups)
+	}
+	if cfg.Apps[3].Group != "Infra" {
+		t.Errorf("slug match not canonical: %q", cfg.Apps[3].Group)
 	}
 	if a.Icon.Type != "dashboard" || a.Icon.Name != "traefik" || a.Icon.File != "" || !a.Icon.Invert {
 		t.Errorf("icon = %+v", a.Icon)
@@ -377,10 +423,10 @@ func TestApplyLabelSyncs_UnderLock(t *testing.T) {
 	if cfg.Apps[1].Name != "Auto" {
 		t.Error("auto-imported app changed under the lock")
 	}
-	if len(got) != 1 || got[0].key != "label:m" || strings.Join(got[0].fields, ",") != "name,icon,order" {
+	if len(got) != 1 || got[0].key != "label:m" || strings.Join(got[0].fields, ",") != "name,icon,group,order" {
 		t.Errorf("synced = %+v", got)
 	}
-	if applyLabelSyncs(cfg, nil) != nil {
+	if applyLabelSyncs(cfg, nil, &created) != nil {
 		t.Error("empty plan should return nil")
 	}
 }
@@ -421,7 +467,7 @@ func TestApplyLabelSyncs_ChainedRenamesRelinkSitesOnce(t *testing.T) {
 	got := applyLabelSyncs(cfg, map[string]labelSync{
 		"label:x": {name: "C"},
 		"label:a": {name: "N"},
-	})
+	}, new([]string))
 	if cfg.Apps[0].Name != "N" || cfg.Apps[1].Name != "C" {
 		t.Fatalf("apps = %+v", cfg.Apps)
 	}
@@ -449,7 +495,7 @@ func TestApplyLabelSyncs_DropsRenameOntoNameStillHeld(t *testing.T) {
 		"label:x": {name: "C"},
 		"label:a": {name: "N", order: intp(4)}, // N is still held by x
 		"label:b": {name: "M"},                 // M is only free if a's rename lands
-	})
+	}, new([]string))
 	if cfg.Apps[0].Name != "N" || cfg.Apps[1].Name != "M" || cfg.Apps[2].Name != "P" {
 		t.Fatalf("apps = %+v", cfg.Apps)
 	}

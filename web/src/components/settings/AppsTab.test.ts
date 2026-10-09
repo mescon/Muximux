@@ -719,6 +719,56 @@ describe('AppsTab', () => {
     expect(screen.getByText('Drag apps here to ungroup them')).toBeInTheDocument();
   });
 
+  // ===== Apps in a group that is not configured (#500) =====
+
+  it('lists an app whose group does not exist under Ungrouped', () => {
+    const group = withId(makeGroup({ name: 'Media' }));
+    const loose = withId(makeApp({ name: 'Loose', group: '', order: 0 }));
+    const orphan = withId(makeApp({ name: 'Traefik', group: 'Infra', order: 0 }));
+
+    const { container } = render(AppsTab, {
+      props: {
+        dndGroups: [group],
+        dndGroupedApps: { Media: [], '': [loose], Infra: [orphan] },
+        localAppsCount: 2,
+        localGroupsCount: 1,
+        ...defaultHandlers,
+      },
+    });
+
+    expect(screen.getByText('Traefik')).toBeInTheDocument();
+    expect(screen.getByText('2 apps')).toBeInTheDocument();
+    const zone = container.querySelector('[data-orphan-group="Infra"]');
+    expect(zone?.textContent).toContain('Traefik');
+    expect(zone?.closest('.border-dashed')?.textContent).toContain('Ungrouped');
+  });
+
+  it('shows orphan-group apps when no group is configured at all', async () => {
+    const handlers = { ...defaultHandlers };
+    const a = withId(makeApp({ name: 'Alpha', group: 'Infra', order: 0 }));
+    const b = withId(makeApp({ name: 'Beta', group: 'Infra', order: 1 }));
+
+    render(AppsTab, {
+      props: {
+        dndGroups: [],
+        dndGroupedApps: { Infra: [a, b] },
+        localAppsCount: 2,
+        localGroupsCount: 0,
+        ...handlers,
+      },
+    });
+
+    expect(screen.getByText('Ungrouped')).toBeInTheDocument();
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+    expect(screen.queryByText(/No applications or groups configured/)).not.toBeInTheDocument();
+
+    // Reordering works on the bucket the apps are stored in.
+    await fireEvent.click(screen.getByLabelText('Move Alpha down'));
+    const [groupName, items] = handlers.onsyncAppOrder.mock.calls[0];
+    expect(groupName).toBe('Infra');
+    expect((items as App[]).map(app => app.name)).toEqual(['Beta', 'Alpha']);
+  });
+
   // ===== Group icon rendering =====
 
   it('renders a color swatch when group has no icon name', () => {

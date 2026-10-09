@@ -667,6 +667,7 @@ func (p *Poller) tick(ctx context.Context) {
 			// re-added, and under sync one whose container is gone is
 			// removed through the same grace gate.
 			desired, skipped := p.buildDesired(&scan, endpoint, currentApps, &server)
+			canonicalDesiredGroups(desired, labelCtx.groups)
 			plan := Reconcile(&ReconcileInput{
 				Mode: autoImport, Desired: desired, Skipped: skipped,
 				Current: currentApps, CurrentSites: currentSites,
@@ -1044,6 +1045,9 @@ type appDetach struct {
 type reconcileLog struct {
 	detached     []appDetach
 	droppedSites []appDetach
+	// createdGroups lists the groups created for apps that named a group
+	// the config did not define (#500), in creation order.
+	createdGroups []string
 }
 
 func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
@@ -1053,9 +1057,13 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	priorApps := append([]config.AppConfig(nil), p.deps.Config.Apps...)
 	priorSites := append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
 	priorQuarantine := p.deps.Config.QuarantineSnapshot()
+	// Groups too: the label pass and the reconcile plan create a group an
+	// app names but the config does not define, in the same save.
+	priorGroups := append([]config.GroupConfig(nil), p.deps.Config.Groups...)
 	rollback := func() {
 		p.deps.Config.Apps = priorApps
 		p.deps.Config.Server.GatewaySites = priorSites
+		p.deps.Config.Groups = priorGroups
 		p.deps.Config.RestoreQuarantine(priorQuarantine)
 	}
 
@@ -1114,8 +1122,10 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// so this only fires on a cross-entry conflict it cannot see. On
 	// failure the whole candidate (URL refresh, apps, sites, quarantine)
 	// is rolled back and nothing is saved this tick.
-	labelSynced := applyLabelSyncs(p.deps.Config, batch.labelSyncs)
+	var createdGroups []string
+	labelSynced := applyLabelSyncs(p.deps.Config, batch.labelSyncs, &createdGroups)
 	reconcileTouchedGateway, rec := p.applyReconcile(batch)
+	createdGroups = append(createdGroups, rec.createdGroups...)
 	if err := p.deps.Config.Validate(); err != nil {
 		rollback()
 		if p.candidateInvalid != err.Error() { // log on transition only
@@ -1232,6 +1242,10 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		logging.Info("Docker gateway-site URL refreshed",
 			"source", "discovery", "domain", domain, "new_backend_url", url)
 	}
+	for _, g := range createdGroups {
+		logging.Info("Group created by Docker discovery",
+			"source", "audit", "group", g)
+	}
 	for i := range batch.addApps {
 		logging.Info("Docker container auto-imported",
 			"source", "audit", "app", batch.addApps[i].Name, "key", batch.addApps[i].DockerKey)
@@ -1315,6 +1329,7 @@ func (p *Poller) applyReconcile(batch *refreshBatch) (touchedGateway bool, rec r
 		for j := range cfg.Apps {
 			if cfg.Apps[j].DockerKey == na.DockerKey {
 				cfg.Apps[j] = mergeManagedFields(&cfg.Apps[j], na)
+				ensureAppGroup(cfg, &cfg.Apps[j], &rec.createdGroups)
 				break
 			}
 		}
@@ -1370,11 +1385,17 @@ func (p *Poller) applyReconcile(batch *refreshBatch) (touchedGateway bool, rec r
 		cfg.Server.GatewaySites = keptSites
 	}
 
-	// Additions. A re-added key replaces its quarantined entries.
+	// Additions. A re-added key replaces its quarantined entries. A group
+	// an added app names is created (after the existing groups, in plan
+	// order) when no group matches it by name or slug.
 	for i := range batch.addApps {
 		cfg.DropQuarantined(batch.addApps[i].DockerKey)
 	}
+	firstAdded := len(cfg.Apps)
 	cfg.Apps = append(cfg.Apps, batch.addApps...)
+	for i := firstAdded; i < len(cfg.Apps); i++ {
+		ensureAppGroup(cfg, &cfg.Apps[i], &rec.createdGroups)
+	}
 	if len(batch.addSites) > 0 {
 		cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, batch.addSites...)
 		touchedGateway = true
