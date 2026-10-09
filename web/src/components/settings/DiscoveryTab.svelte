@@ -47,6 +47,7 @@
   // Env var name behind a locked auto_import, from the admin-only
   // env_overrides on the config response. Undefined when nothing locks it.
   let autoImportLocked = $state<string | undefined>(undefined);
+  let requireExplicitLocked = $state<string | undefined>(undefined);
   // True once the form was seeded from the stored config. Until then Save
   // and Test stay disabled so defaults can never overwrite stored values.
   let seeded = $state(false);
@@ -67,6 +68,7 @@
       status = s;
       form = { ...stored, tls: { ...stored.tls, enabled: stored.tls?.enabled ?? false } };
       autoImportLocked = env_overrides?.auto_import;
+      requireExplicitLocked = env_overrides?.require_explicit_enable;
       seeded = true;
       // Refresh the available-networks list in the background. We
       // intentionally don't await this on the main path so a slow
@@ -153,6 +155,7 @@
       lifecycle_allowed_groups: [],
       health_badge_placement: 'overview',
       auto_import: 'off',
+      require_explicit_enable: false,
     };
   }
 
@@ -469,6 +472,17 @@
             <p class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: autoImportLocked })}</p>
           {/if}
           <p class="text-xs text-text-muted mt-1">{m.discovery_autoImportHint()}</p>
+        </div>
+
+        <div>
+          <label class="flex items-start gap-2 cursor-pointer text-sm">
+            <input type="checkbox" bind:checked={form.require_explicit_enable} disabled={!!requireExplicitLocked} class="mt-0.5" />
+            <span class="text-text-secondary">{m.discovery_requireExplicitEnable()}</span>
+          </label>
+          {#if requireExplicitLocked}
+            <p class="text-xs text-warning-text mt-1">{m.settings_fromEnv({ name: requireExplicitLocked })}</p>
+          {/if}
+          <p class="text-xs text-text-muted mt-1">{m.discovery_requireExplicitEnableHint()}</p>
         </div>
       </div>
 

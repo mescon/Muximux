@@ -648,3 +648,37 @@ describe('DiscoveryTab notice tokens', () => {
     await waitFor(() => expect(screen.getByText(/Test result:/i).closest('.notice')).toHaveAttribute('role', 'alert'));
   });
 });
+
+describe('DiscoveryTab explicit opt-in', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
+  });
+
+  it('seeds require_explicit_enable and locks it when overridden', async () => {
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({
+      config: makeStored({ require_explicit_enable: true }),
+      env_overrides: { require_explicit_enable: 'MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE' },
+    });
+    render(DiscoveryTab);
+    const box = (await screen.findByLabelText('Require explicit opt-in')) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    expect(box.disabled).toBe(true);
+    expect(screen.getByText('From MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE')).toBeInTheDocument();
+  });
+
+  it('sends require_explicit_enable on save when not locked', async () => {
+    mockApi.fetchDiscoveryDockerConfig.mockResolvedValue({ config: makeStored() });
+    mockApi.updateDiscoveryDockerConfig.mockResolvedValue(makeStatus());
+    render(DiscoveryTab);
+    const box = (await screen.findByLabelText('Require explicit opt-in')) as HTMLInputElement;
+    expect(box.checked).toBe(false);
+    expect(box.disabled).toBe(false);
+    await fireEvent.click(box);
+    await fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+    await waitFor(() => expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalled());
+    expect(mockApi.updateDiscoveryDockerConfig).toHaveBeenCalledWith(expect.objectContaining({ require_explicit_enable: true }));
+  });
+});

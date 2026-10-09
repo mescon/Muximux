@@ -48,6 +48,7 @@
   let scanError = $state<string | null>(null);
   let scanBlocked = $state<string | null>(null);
   let rows = $state<RowState[]>([]);
+  let optedOut = $state(0);
 
   // Re-scan when the modal opens; reset state every time so the
   // operator gets fresh suggestions and can't accidentally import
@@ -61,6 +62,7 @@
     scanError = null;
     scanBlocked = null;
     rows = [];
+    optedOut = 0;
     try {
       const r = await scanDockerContainers();
       if (r.scan_blocked) {
@@ -71,6 +73,7 @@
         scanError = r.error;
         return;
       }
+      optedOut = r.opted_out ?? 0;
       rows = (r.suggestions ?? []).map((s) => ({
         s,
         selected: false,
@@ -97,6 +100,21 @@
   function toggleAll() {
     const v = !allSelected;
     rows = rows.map(r => ({ ...r, selected: v }));
+  }
+
+  // Translate the server's auto-import skip code into a short reason.
+  // 'disabled' rows are filtered by the server, so there is nothing to show.
+  function skipReason(s: DiscoverySuggestion): string | null {
+    const k = s.auto_import_skip;
+    if (!k) return null;
+    switch (k.code) {
+      case 'no_port': return m.discovery_skipNoPort();
+      case 'no_url': return m.discovery_skipNoUrl({ detail: k.detail ?? '' });
+      case 'unlabeled': return m.discovery_skipUnlabeled();
+      case 'not_enabled': return m.discovery_skipNotEnabled();
+      case 'invalid': return m.discovery_skipInvalid({ detail: k.detail ?? '' });
+      default: return null;
+    }
   }
 
   function stabilityHint(s: DiscoverySuggestion): { tone: 'gray' | 'amber' | 'red'; tip: string } {
@@ -182,6 +200,7 @@
             if (typeof r.s.allow_notifications === 'boolean') app.allow_notifications = r.s.allow_notifications;
             if (typeof r.s.default === 'boolean') app.default = r.s.default;
             if (typeof r.s.shortcut === 'number') app.shortcut = r.s.shortcut;
+            if (typeof r.s.health_check === 'boolean') app.health_check = r.s.health_check || undefined;
             item.app = app;
             // Routing only matters when an app is being created;
             // omit when the row is gateway-only to keep the wire
@@ -374,6 +393,9 @@
             No running containers found on the configured daemon. Containers must be running and (when network_strategy is container_ip) attached to a network Muximux can reach.
           </div>
         {:else}
+          {#if optedOut > 0}
+            <div role="status" class="notice notice-info mb-3 text-sm">{m.discovery_optedOut({ count: optedOut })}</div>
+          {/if}
           <div class="mb-3 flex items-center gap-2 text-sm">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={allSelected} onchange={toggleAll} />
@@ -388,7 +410,8 @@
               {@const sh = stabilityHint(row.s)}
               {@const ch = confidenceHint(row.s)}
               {@const st = statusFor(row.s.key)}
-              <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
+              {@const skip = skipReason(row.s)}
+              <div data-testid="discover-row" class="p-3 rounded-md border border-border-subtle bg-bg-elevated
                           {row.selected ? 'ring-1 ring-accent-primary/50' : ''}">
                 <div class="flex items-start gap-3">
                   <input aria-label={m.discovery_selectApp({ name: row.nameOverride || row.s.name })} type="checkbox" bind:checked={row.selected} class="mt-1" />
@@ -418,6 +441,9 @@
                             title={ch.tip}>
                         {ch.label}
                       </span>
+                      {#if skip}
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text" data-testid="not-importable">{m.discovery_notImportable({ reason: skip })}</span>
+                      {/if}
                       {#if sh.tone !== 'gray'}
                         <span class="text-xs px-1.5 py-0.5 rounded
                                      {sh.tone === 'amber' ? 'bg-warning-bg text-warning-text' : ''}
