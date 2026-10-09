@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -1307,7 +1308,13 @@ func (s *Server) ensureSetupToken() error {
 	path := filepath.Join(s.dataDir, setupTokenFilename)
 	if data, err := os.ReadFile(path); err == nil {
 		tok := strings.TrimSpace(string(data))
-		if tok != "" {
+		// Releases before the token moved to the console wrote it into
+		// muximux.log. A token found there may have been read by someone
+		// else, so it is replaced instead of reused.
+		if tok != "" && logging.LogFilesContain(tok) {
+			logging.Warn("Setup token found in the log file written by an earlier release; issuing a new one",
+				"source", "server")
+		} else if tok != "" {
 			s.setupToken = tok
 			s.logSetupToken(tok, false)
 			return nil
@@ -1550,10 +1557,15 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	// expansion with the references remembered, a strict decode onto the
 	// defaults (unknown fields are rejected, findings.md M7), discovery
 	// defaults, auto-detach and validation. A legacy server.gateway
-	// backup is not migrated here and fails validation.
+	// backup is not migrated here; Parse refuses it with ErrLegacyGateway,
+	// whose message is shown as is.
 	cfg, err := config.Parse(body)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid YAML: %s", err.Error())})
+		msg := fmt.Sprintf("Invalid YAML: %s", err.Error())
+		if errors.Is(err, config.ErrLegacyGateway) {
+			msg = err.Error()
+		}
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
 

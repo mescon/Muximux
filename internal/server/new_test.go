@@ -688,12 +688,27 @@ func TestConfigRestore_KeepsEnvOverrides(t *testing.T) {
 // OP-7: restore does not migrate a legacy server.gateway backup.
 func TestConfigRestore_LegacyGatewayIs400(t *testing.T) {
 	s := newServerForTest(t, nil)
-	rec := postRestore(s, "server:\n  gateway: /etc/caddy/Caddyfile\n")
-	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "no longer supported") {
-		t.Fatalf("restore = %d %s, want 400 no longer supported", rec.Code, rec.Body.String())
+	cases := map[string]string{
+		"scalar": "server:\n  gateway: /etc/caddy/Caddyfile\n",
+		"map":    "server:\n  gateway:\n    file: /etc/caddy/Caddyfile\n    sites: [a]\n",
 	}
-	if _, err := os.Stat(s.configPath); !os.IsNotExist(err) {
-		t.Errorf("config file written by a rejected restore (err=%v)", err)
+	for name, body := range cases {
+		t.Run(name, func(t *testing.T) {
+			rec := postRestore(s, body)
+			var resp map[string]string
+			if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+				t.Fatalf("decode: %v (%s)", err, rec.Body.String())
+			}
+			if rec.Code != http.StatusBadRequest || resp["error"] != config.ErrLegacyGateway.Error() {
+				t.Fatalf("restore = %d %q, want 400 with the legacy gateway message", rec.Code, resp["error"])
+			}
+			if strings.Contains(resp["error"], "Invalid YAML") {
+				t.Errorf("legacy gateway message wrapped as invalid YAML: %q", resp["error"])
+			}
+			if _, err := os.Stat(s.configPath); !os.IsNotExist(err) {
+				t.Errorf("config file written by a rejected restore (err=%v)", err)
+			}
+		})
 	}
 }
 
@@ -1049,5 +1064,93 @@ func TestSetupToken_ConsoleOnly(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "Setup required") {
 		t.Error("expected the setup-required notice in the log file")
+	}
+}
+
+// A setup token that an earlier release wrote into muximux.log is replaced
+// at startup: the new one is persisted and the old one no longer completes
+// setup.
+func TestSetupToken_RotatedWhenFoundInOldLog(t *testing.T) {
+	const oldTok = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+	dataDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dataDir, setupTokenFilename), []byte(oldTok+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	logFile := filepath.Join(dataDir, "muximux.log")
+	legacy := `time=2026-03-05T10:00:00.000+01:00 level=INFO msg="Generated new setup token; present it via X-Setup-Token to complete setup or restore" source=server token=` + oldTok + "\n"
+	if err := os.WriteFile(logFile, []byte(legacy), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout", LogFile: logFile}); err != nil {
+		t.Fatalf("init logging: %v", err)
+	}
+	t.Cleanup(func() {
+		logging.Close()
+		_ = logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout"})
+	})
+
+	configPath := filepath.Join(dataDir, "config.yaml")
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("config.Load: %v", err)
+	}
+	cfg.Server.Listen = "127.0.0.1:0"
+	s, err := New(cfg, configPath, dataDir, "test", "abcdef0", "2026-01-01")
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	if s.setupToken == "" || s.setupToken == oldTok {
+		t.Fatalf("setup token not rotated: %q", s.setupToken)
+	}
+	data, err := os.ReadFile(filepath.Join(dataDir, setupTokenFilename))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.TrimSpace(string(data)); got != s.setupToken {
+		t.Errorf("persisted token %q, want the new token %q", got, s.setupToken)
+	}
+
+	setup := func(tok string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"builtin","username":"owner","password":"correct horse battery"}`))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Requested-With", "XMLHttpRequest")
+		req.Header.Set(setupTokenHeader, tok)
+		rec := httptest.NewRecorder()
+		s.httpServer.Handler.ServeHTTP(rec, req)
+		return rec
+	}
+	if rec := setup(oldTok); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("setup with the leaked token = %d %s, want 401", rec.Code, rec.Body.String())
+	}
+	if rec := setup(s.setupToken); rec.Code != http.StatusOK {
+		t.Fatalf("setup with the new token = %d %s, want 200", rec.Code, rec.Body.String())
+	}
+}
+
+// A token that is not in the log is reused across restarts.
+func TestSetupToken_ReusedWhenNotInLog(t *testing.T) {
+	dataDir := t.TempDir()
+	logFile := filepath.Join(dataDir, "muximux.log")
+	if err := os.WriteFile(logFile, []byte("time=2026-03-05T10:00:00.000+01:00 level=INFO msg=hello\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout", LogFile: logFile}); err != nil {
+		t.Fatalf("init logging: %v", err)
+	}
+	t.Cleanup(func() {
+		logging.Close()
+		_ = logging.Init(logging.Config{Level: logging.LevelInfo, Format: "text", Output: "stdout"})
+	})
+	first := &Server{dataDir: dataDir}
+	if err := first.ensureSetupToken(); err != nil {
+		t.Fatal(err)
+	}
+	second := &Server{dataDir: dataDir}
+	if err := second.ensureSetupToken(); err != nil {
+		t.Fatal(err)
+	}
+	if second.setupToken != first.setupToken {
+		t.Errorf("token rotated without a leak: %q -> %q", first.setupToken, second.setupToken)
 	}
 }

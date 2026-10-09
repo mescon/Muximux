@@ -46,7 +46,9 @@ func newRotatingWriter(path string, maxSize int64, maxFiles int) (*rotatingWrite
 		return nil, fmt.Errorf("create log directory: %w", err)
 	}
 
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	// 0600: the log carries audit lines and client IPs. The mode only
+	// applies when the file is created; an existing file keeps its own.
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +105,7 @@ func (w *rotatingWriter) rotate() error {
 	}
 
 	// Open a fresh .log
-	f, err := os.OpenFile(w.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	f, err := os.OpenFile(w.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return err
 	}
@@ -364,6 +366,9 @@ var (
 // rotating writer that prevents unbounded growth.
 func Init(cfg Config) error {
 	buffer = NewLogBuffer(1000)
+	// A re-Init without a log file must not keep the previous one.
+	logFilePath = ""
+	logWriter = nil
 
 	levelVar.Set(parseLevel(cfg.Level))
 	consoleStderr.Store(strings.EqualFold(cfg.Output, "stderr"))
@@ -610,6 +615,26 @@ func LoadRecentFromFile() {
 		}
 		buffer.mu.Unlock()
 	}
+}
+
+// LogFilesContain reports whether the configured log file, or one of its
+// rotated copies, contains needle. False when no log file is configured,
+// needle is empty, or a file cannot be read.
+func LogFilesContain(needle string) bool {
+	if logFilePath == "" || needle == "" {
+		return false
+	}
+	paths := []string{logFilePath}
+	for i := 1; i <= defaultMaxLogFiles; i++ {
+		paths = append(paths, fmt.Sprintf("%s.%d", logFilePath, i))
+	}
+	for _, p := range paths {
+		data, err := os.ReadFile(p) //nolint:gosec // our own log file and its rotations
+		if err == nil && strings.Contains(string(data), needle) {
+			return true
+		}
+	}
+	return false
 }
 
 // Buffer returns the global log buffer, or nil if Init has not been called.

@@ -79,6 +79,8 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   honoured; Docker state loads under a base path; the http_action method no
   longer flips to GET when the form opens; `proxy_timeout` can be cleared;
   replacing a custom icon in another format shows at once. (#494)
+- Restoring a backup with the legacy `server.gateway` setting (string or
+  map) explains how to convert it instead of reporting invalid YAML. (#494)
 
 ### Security
 - **Restore drops all sessions and refuses racing logins.** Restoring a
@@ -97,7 +99,9 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new.
   console (container/console output) and is never written to the log
   buffer or `muximux.log`; the log viewer, `/api/system/updates` and
   `/api/system/info` return 503 `setup_required` until setup completes --
-  only the theme list and icon routes the wizard uses stay open. (#494)
+  only the theme list and icon routes the wizard uses stay open. A setup
+  token found in a log file written by an earlier release is replaced with
+  a new one at startup, and newly created log files are mode 0600. (#494)
 
 
 ## [3.5.0] - 2026-10-08

@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -2382,7 +2383,7 @@ func TestParse_LegacyGatewayRejected(t *testing.T) {
 	dir := t.TempDir()
 	t.Chdir(dir)
 	_, err := Parse([]byte("server:\n  listen: \":8080\"\n  gateway: /etc/caddy/Caddyfile\n"))
-	if err == nil || !strings.Contains(err.Error(), "no longer supported") {
+	if !errors.Is(err, ErrLegacyGateway) {
 		t.Fatalf("want legacy gateway rejection, got %v", err)
 	}
 	if err := filepath.WalkDir(dir, func(p string, _ os.DirEntry, err error) error {
@@ -2422,5 +2423,32 @@ func TestParse_InvalidYAMLAndUnknownField(t *testing.T) {
 	}
 	if _, err := Parse([]byte("server:\n  listen: \":8080\"\n  no_such_field: 1\n")); err == nil {
 		t.Error("unknown field: want error")
+	}
+}
+
+func TestParse_LegacyGateway(t *testing.T) {
+	refused := map[string]string{
+		"scalar": "server:\n  gateway: /etc/caddy/Caddyfile\n",
+		"map":    "server:\n  gateway:\n    file: /etc/caddy/Caddyfile\n",
+		"list":   "server:\n  gateway: [a, b]\n",
+	}
+	for name, in := range refused {
+		if _, err := Parse([]byte(in)); !errors.Is(err, ErrLegacyGateway) {
+			t.Errorf("%s: err = %v, want ErrLegacyGateway", name, err)
+		}
+	}
+	accepted := map[string]string{
+		"absent": "server:\n  title: x\n",
+		"empty":  "server:\n  gateway: \"\"\n",
+		"null":   "server:\n  gateway: null\n",
+	}
+	for name, in := range accepted {
+		if _, err := Parse([]byte(in)); err != nil {
+			t.Errorf("%s: unexpected error %v", name, err)
+		}
+	}
+	// Input that is not YAML at all is left to the full decode.
+	if _, err := Parse([]byte("server: [unclosed")); err == nil || errors.Is(err, ErrLegacyGateway) {
+		t.Errorf("malformed input: err = %v, want a decode error", err)
 	}
 }

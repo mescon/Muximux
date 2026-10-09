@@ -559,7 +559,7 @@ To stop an attacker on the same network from racing the legitimate operator thro
 
 Find the token one of two ways:
 
-- **Container/console output.** At first boot, Muximux prints a line tagged with the token to stdout, for example via `docker logs muximux` or the systemd journal. Look for `Generated new setup token` or `Reusing existing setup token` (the latter appears on restarts that happen before setup is complete). The token is printed to the console only: it is never written to `muximux.log` or shown in the in-app log viewer.
+- **Container/console output.** At first boot, Muximux prints a line tagged with the token to stdout, for example via `docker logs muximux` or the systemd journal. Look for `Generated new setup token` or `Reusing existing setup token` (the latter appears on restarts that happen before setup is complete). The token is printed to the console only: it is never written to `muximux.log` or shown in the in-app log viewer. If an older release left the token in `muximux.log`, Muximux issues a new token at startup and prints that one instead.
 - **Filesystem.** The token is also written to `<dataDir>/.setup-token` with mode `0600`. On a default Docker deployment that's `/app/data/.setup-token` inside the container.
 
 Paste the token into the **Setup token** field on the onboarding wizard's welcome screen. The wizard sends it as an `X-Setup-Token` HTTP header on the underlying setup and restore requests. Once setup is complete the token file is removed and the header is no longer accepted -- the setup endpoints reject every request after that point.

@@ -694,12 +694,46 @@ func Load(path string) (*Config, error) {
 	return cfg, nil
 }
 
+// ErrLegacyGateway is returned by Parse for input that sets the legacy
+// server.gateway key, in any form. Parse never migrates it (only Load does,
+// on boot), so restore refuses such a backup with this message.
+var ErrLegacyGateway = errors.New("This backup uses the old server.gateway setting, which restore does not convert. " + //nolint:staticcheck // shown to the user as is
+	"Move its sites to server.gateway_sites (muximux migrate-gateway converts a Caddyfile), " +
+	"or put the backup in place as config.yaml and restart, which converts it on start when the Caddyfile it names is present.")
+
+// hasLegacyGateway reports whether data sets server.gateway to anything
+// other than an empty or null scalar. Input that does not parse as YAML
+// reports false and is left to the full decode to describe.
+func hasLegacyGateway(data []byte) bool {
+	var probe struct {
+		Server struct {
+			Gateway yaml.Node `yaml:"gateway"`
+		} `yaml:"server"`
+	}
+	if err := yaml.Unmarshal(data, &probe); err != nil {
+		return false
+	}
+	g := &probe.Server.Gateway
+	switch g.Kind {
+	case 0:
+		return false
+	case yaml.ScalarNode:
+		return g.Tag != "!!null" && strings.TrimSpace(g.Value) != ""
+	default:
+		return true
+	}
+}
+
 // Parse turns config.yaml bytes into a validated Config exactly as boot does:
 // env-ref recording, ${VAR} expansion (MissingEnvVars), strict decode onto
 // defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
 // ApplyAutoImportEnv(cfg, os.LookupEnv), autoDetachEditedDockerEntries, validate().
-// It never runs the legacy server.gateway migration, so such input fails validate().
+// It never runs the legacy server.gateway migration and refuses such input
+// with ErrLegacyGateway.
 func Parse(data []byte) (*Config, error) {
+	if hasLegacyGateway(data) {
+		return nil, ErrLegacyGateway
+	}
 	cfg, err := decodeConfig(data)
 	if err != nil {
 		return nil, err

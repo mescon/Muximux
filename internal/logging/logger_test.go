@@ -1581,3 +1581,78 @@ time=2026-03-05T10:01:00.000+01:00 level=INFO msg="other" source=api token=keep
 		t.Errorf("unrelated token attr dropped: %+v", entries[1])
 	}
 }
+
+func TestLogFilesContain(t *testing.T) {
+	oldPath := logFilePath
+	defer func() { logFilePath = oldPath }()
+
+	logFilePath = ""
+	if LogFilesContain("x") {
+		t.Error("no log file configured: want false")
+	}
+
+	logFilePath = filepath.Join(t.TempDir(), "muximux.log")
+	if LogFilesContain("needle") {
+		t.Error("missing files: want false")
+	}
+	if err := os.WriteFile(logFilePath, []byte("nothing here\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if LogFilesContain("needle") || LogFilesContain("") {
+		t.Error("needle absent or empty: want false")
+	}
+	if err := os.WriteFile(logFilePath+".2", []byte("a needle in .2\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if !LogFilesContain("needle") {
+		t.Error("needle in a rotated copy: want true")
+	}
+}
+
+func TestRotatingWriter_NewFileIsPrivate(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "muximux.log")
+	w, err := newRotatingWriter(path, 10, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	if _, err := w.Write([]byte("more than ten bytes\n")); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{path, path + ".1"} {
+		info, err := os.Stat(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if mode := info.Mode().Perm(); mode != 0o600 {
+			t.Errorf("%s mode = %o, want 0600", p, mode)
+		}
+	}
+}
+
+func TestInit_WithoutLogFileClearsPrevious(t *testing.T) {
+	t.Cleanup(Close)
+	if err := Init(Config{Level: LevelInfo, Output: "stdout", LogFile: filepath.Join(t.TempDir(), "a.log")}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Init(Config{Level: LevelInfo, Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+	if logFilePath != "" || logWriter != nil {
+		t.Errorf("previous log file kept: %q", logFilePath)
+	}
+}
+
+func TestNewRotatingWriter_Errors(t *testing.T) {
+	dir := t.TempDir()
+	blocker := filepath.Join(dir, "file")
+	if err := os.WriteFile(blocker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := newRotatingWriter(filepath.Join(blocker, "sub", "x.log"), 10, 1); err == nil {
+		t.Error("parent is a file: want an error")
+	}
+	if _, err := newRotatingWriter(dir, 10, 1); err == nil {
+		t.Error("path is a directory: want an error")
+	}
+}
