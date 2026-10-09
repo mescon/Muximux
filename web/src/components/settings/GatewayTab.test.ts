@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import GatewayTab from './GatewayTab.svelte';
 import type { GatewaySite } from '$lib/types';
+import { ApiError } from '$lib/api';
 
 const mockListGatewaySites = vi.fn();
 const mockCreateGatewaySite = vi.fn();
@@ -14,6 +15,7 @@ const mockFetchConfig = vi.fn();
 
 vi.mock('$lib/api', async (importOriginal) => ({
   errorText: (await importOriginal<typeof import('$lib/api')>()).errorText,
+  ApiError: (await importOriginal<typeof import('$lib/api')>()).ApiError,
   listGatewaySites: (...args: unknown[]) => mockListGatewaySites(...args),
   createGatewaySite: (...args: unknown[]) => mockCreateGatewaySite(...args),
   updateGatewaySite: (...args: unknown[]) => mockUpdateGatewaySite(...args),
@@ -585,5 +587,81 @@ describe('GatewayTab Docker-managed lock on edit', () => {
 
     expect(screen.queryByTestId('gw-form-docker-locked')).not.toBeInTheDocument();
     expect(screen.getByText(/Where Muximux forwards requests/i)).toBeInTheDocument();
+  });
+});
+
+describe('GatewayTab state consistency', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockListGatewaySites.mockResolvedValue([]);
+    mockUpdateGatewaySite.mockResolvedValue({ success: true, restart_required: false });
+    mockCreateGatewaySite.mockResolvedValue({ success: true, restart_required: false });
+    mockValidateGatewaySite.mockResolvedValue({ valid: true });
+    mockFetchApps.mockResolvedValue([]);
+    mockFetchConfig.mockResolvedValue({ session_cookie_domain: '.example.com' });
+  });
+
+  async function openEditFor(site: GatewaySite) {
+    mockListGatewaySites.mockResolvedValue([site]);
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByText(site.domain)).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  }
+
+  it('openEdit seeds forwarded_headers true when the site omits it', async () => {
+    await openEditFor(makeSite({ forwarded_headers: undefined }));
+
+    const box = screen.getByRole('checkbox', { name: /Forward headers/i }) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+
+    await fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+    await waitFor(() => {
+      expect(mockUpdateGatewaySite).toHaveBeenCalledWith('sonarr.example.com', expect.objectContaining({
+        forwarded_headers: true,
+      }));
+    });
+  });
+
+  it('openEdit seeds forwarded_headers false when stored false', async () => {
+    await openEditFor(makeSite({ forwarded_headers: false }));
+
+    const box = screen.getByRole('checkbox', { name: /Forward headers/i }) as HTMLInputElement;
+    expect(box.checked).toBe(false);
+  });
+
+  it('reloads sites when configRevision changes', async () => {
+    const { rerender } = render(GatewayTab, { configRevision: 0 });
+    await waitFor(() => expect(mockListGatewaySites).toHaveBeenCalledTimes(1));
+    expect(mockFetchApps).toHaveBeenCalledTimes(1);
+
+    mockListGatewaySites.mockResolvedValue([makeSite({ domain: 'imported.example.com' })]);
+    await rerender({ configRevision: 1 });
+
+    await waitFor(() => expect(mockListGatewaySites).toHaveBeenCalledTimes(2));
+    expect(mockFetchApps).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(screen.getByText('imported.example.com')).toBeInTheDocument());
+  });
+
+  it('does not reload when configRevision is unchanged', async () => {
+    const { rerender } = render(GatewayTab, { configRevision: 3 });
+    await waitFor(() => expect(mockListGatewaySites).toHaveBeenCalledTimes(1));
+
+    await rerender({ configRevision: 3 });
+    await Promise.resolve();
+    expect(mockListGatewaySites).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the server validation message inline for a 400 on save', async () => {
+    const message = 'server.session_cookie_domain is required when any gateway site has require_auth=true (gated sites: [sonarr.example.com])';
+    mockUpdateGatewaySite.mockRejectedValue(new ApiError(400, 'API error: 400', message));
+    await openEditFor(makeSite());
+
+    await fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(message)).toBeInTheDocument();
+    });
+    // The form stays open so the operator can correct the input.
+    expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
   });
 });

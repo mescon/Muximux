@@ -20,9 +20,15 @@
   let {
     ondiscoveryconfigure,
     ondiscoveryscan,
+    configRevision = 0,
   }: {
     ondiscoveryconfigure?: () => void;
     ondiscoveryscan?: () => void;
+    // Bumped by Settings on every rebase onto the server config. A
+    // change after mount reloads sites and apps, so sites imported or
+    // edited elsewhere (Discover in gateway mode, another tab) show up
+    // without switching tabs.
+    configRevision?: number;
   } = $props();
 
   // Sites loaded from /api/gateway/sites. The list view is sorted by
@@ -186,7 +192,14 @@
 
   function openEdit(site: GatewaySite) {
     editing = site.domain;
-    form = { ...site, proxy_headers: { ...(site.proxy_headers ?? {}) } };
+    form = {
+      ...site,
+      proxy_headers: { ...(site.proxy_headers ?? {}) },
+      // forwarded_headers is a *bool on the server where nil means on;
+      // stored sites usually omit it, so seed the checkbox from the
+      // effective value rather than the raw (undefined) field.
+      forwarded_headers: site.forwarded_headers ?? true,
+    };
     proxyHeadersRaw = serializeHeaders(site.proxy_headers ?? {});
     allowedGroupsRaw = (site.allowed_groups ?? []).join(', ');
     // If the site is linked to an app that still exists, pin that
@@ -442,6 +455,17 @@
         // discovery is configured.
         console.warn('discovery status fetch failed in GatewayTab:', e);
       }
+    }
+  });
+
+  // Reload when Settings rebases (configRevision bumped). The initial
+  // value is handled by onMount, so only a later change triggers this.
+  // svelte-ignore state_referenced_locally
+  let lastRevision = configRevision;
+  $effect(() => {
+    if (configRevision !== lastRevision) {
+      lastRevision = configRevision;
+      if ($isAdmin) void load();
     }
   });
 </script>

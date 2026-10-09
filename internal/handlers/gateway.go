@@ -242,6 +242,12 @@ func (h *GatewayHandler) UpdateSite(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Server-owned Docker tracking is not part of the edit form: carry
+	// it over from the stored site so an omitted docker_key does not
+	// silently detach, and detach only when the operator really
+	// changed backend_url away from what the poller last wrote.
+	detachedKey := applyGatewayTrackingPreservation(&site, &h.config.Server.GatewaySites[idx])
+
 	candidate := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
 	candidate[idx] = site
 
@@ -249,6 +255,12 @@ func (h *GatewayHandler) UpdateSite(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeApplyError(w, r, status, err, "update", pathDomain)
 		return
+	}
+
+	if detachedKey != "" {
+		logging.Audit("Docker tracking auto-detached on backend_url change",
+			"kind", "gateway_site", "domain", site.Domain,
+			"previous_key", detachedKey)
 	}
 
 	logging.From(r.Context()).Info("Gateway site updated", "source", "audit", "domain", site.Domain, "previous_domain", pathDomain)
@@ -365,11 +377,16 @@ func writeApplyError(w http.ResponseWriter, r *http.Request, status int, err err
 func (h *GatewayHandler) applyAndPersist(candidate []config.GatewaySite) (restartRequired bool, status int, err error) {
 	prior := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
 
-	// 1. Structural validation: catches missing fields, bad URLs,
-	// invalid header names, dangling app_name references, etc.
-	// Mirrors the YAML loader's checks so any error returned here
-	// would have failed config.Load too.
-	if err := config.ValidateGatewaySites(candidate, h.config); err != nil {
+	// 1. Full validation of the candidate config with the same rules
+	// config.Load applies at boot: the per-site checks (missing
+	// fields, bad URLs, invalid header names, dangling app_name
+	// references) plus the cross-cutting ones such as the
+	// session_cookie_domain rule for require_auth sites. Validating
+	// only the site list would let a save write a config.yaml that
+	// then refuses to load at the next restart.
+	candidateCfg := *h.config
+	candidateCfg.Server.GatewaySites = candidate
+	if err := candidateCfg.Validate(); err != nil {
 		return false, http.StatusBadRequest, err
 	}
 
@@ -461,6 +478,41 @@ func (h *GatewayHandler) applyAndPersist(candidate []config.GatewaySite) (restar
 	}
 
 	return restartRequired, http.StatusOK, nil
+}
+
+// applyGatewayTrackingPreservation copies DockerKey, DockerEndpoint, DockerStrategy
+// and DockerManagedURL from existing onto updated, then clears them (and returns the
+// docker key for the audit line) when updated.BackendURL differs from existing.DockerManagedURL.
+//
+// The tracking fields are server-owned: the edit form never sends them,
+// so a PUT that omits them must not detach the site. Mirrors
+// applyDockerTrackingPreservation for apps. When DockerManagedURL was
+// never recorded, the stored BackendURL is the baseline instead, which
+// matches how Load treats an empty DockerManagedURL. Returns "" when
+// tracking is kept or the site was not tracked.
+func applyGatewayTrackingPreservation(updated, existing *config.GatewaySite) string {
+	updated.DockerKey = existing.DockerKey
+	updated.DockerEndpoint = existing.DockerEndpoint
+	updated.DockerStrategy = existing.DockerStrategy
+	updated.DockerManagedURL = existing.DockerManagedURL
+	if existing.DockerKey == "" {
+		return ""
+	}
+	baseline := existing.DockerManagedURL
+	if baseline == "" {
+		baseline = existing.BackendURL
+	}
+	if updated.BackendURL != baseline {
+		updated.DockerKey = ""
+		updated.DockerEndpoint = ""
+		updated.DockerStrategy = ""
+		updated.DockerManagedURL = ""
+		return existing.DockerKey
+	}
+	// Tracking stays; record the baseline so Load compares against the
+	// URL that is actually stored.
+	updated.DockerManagedURL = updated.BackendURL
+	return ""
 }
 
 // ConfigGatewaySitesToProxy is re-exported here for backwards
