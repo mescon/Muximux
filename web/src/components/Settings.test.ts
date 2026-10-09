@@ -765,6 +765,8 @@ describe('Settings', () => {
         // A clipping strip that opts in (the tab bar) draws the outline inside its items.
         const tab = screen.getByRole('button', { name: 'General' });
         expect(tab.closest('.focus-inset')).not.toBeNull();
+        // Keyboard modality, so :focus-visible matches regardless of earlier pointer events.
+        await fireEvent.keyDown(document.body, { key: 'Tab' });
         tab.focus();
         expect(tab.matches(':focus-visible')).toBe(true);
         expect(getComputedStyle(tab).outlineOffset).toBe('-2px');
@@ -776,7 +778,9 @@ describe('Settings', () => {
         expect(getComputedStyle(input).outlineOffset).toMatch(/^0(px)?$/);
         const card = screen.getByText('Custom App').closest('button')!;
         expect(card.closest('.overflow-y-auto')).not.toBeNull();
+        await fireEvent.keyDown(document.body, { key: 'Tab' });
         card.focus();
+        expect(card.matches(':focus-visible')).toBe(true);
         expect(getComputedStyle(card).outlineOffset).toBe('2px');
       } finally {
         style.remove();
