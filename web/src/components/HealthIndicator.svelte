@@ -66,7 +66,25 @@
     return date.toLocaleString();
   }
 
+  // Pointer exits hide after a short delay so the pointer can cross the gap onto the
+  // (portaled) tooltip; keyboard blur and Escape still hide at once.
+  const HIDE_DELAY_MS = 150;
+  let hideTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function cancelHide() {
+    clearTimeout(hideTimer);
+    hideTimer = undefined;
+  }
+
+  function scheduleHide() {
+    cancelHide();
+    hideTimer = setTimeout(hideTip, HIDE_DELAY_MS);
+  }
+
+  $effect(() => cancelHide);
+
   function showTip() {
+    cancelHide();
     if (!showTooltip || !health || !dotEl) return;
     const rect = dotEl.getBoundingClientRect();
     tooltipX = rect.left + rect.width / 2;
@@ -75,6 +93,7 @@
   }
 
   function hideTip() {
+    cancelHide();
     tooltipVisible = false;
   }
 
@@ -150,7 +169,7 @@
 <div
   class="inline-flex items-center"
   onmouseenter={showTip}
-  onmouseleave={hideTip}
+  onmouseleave={scheduleHide}
 >
   <!-- Standalone (no focusable host, as in Splash) the dot is the only keyboard path to its tooltip, so it takes focus and handles Escape. -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
@@ -173,8 +192,8 @@
         id={tipId}
         role="tooltip"
         style="left: {tooltipX}px; top: {tooltipY}px;"
-        onmouseenter={showTip}
-        onmouseleave={hideTip}
+        onmouseenter={cancelHide}
+        onmouseleave={scheduleHide}
       >
         <div class="flex items-center justify-between mb-1">
           <span class="font-medium {status === 'healthy' ? 'text-success-text' : status === 'unhealthy' ? 'text-danger-text' : 'text-text-muted'}">

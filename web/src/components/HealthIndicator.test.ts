@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { tick } from 'svelte';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 
 const { mockHealthData, mockTriggerHealthCheck } = vi.hoisted(() => {
@@ -630,6 +631,70 @@ describe('HealthIndicator', () => {
       unmount();
       expect(document.body.querySelector('.health-tooltip-portal')).toBeNull();
       expect(document.body.querySelector('.health-tooltip')).toBeNull();
+    });
+    describe('pointer hide delay', () => {
+      beforeEach(() => vi.useFakeTimers());
+      afterEach(() => vi.useRealTimers());
+
+      it('stays open when the pointer moves from the dot onto the tooltip', async () => {
+        mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+        mockTriggerHealthCheck.mockResolvedValue(makeHealth());
+        const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+        const wrapper = container.querySelector('.inline-flex')!;
+        await fireEvent.mouseEnter(wrapper);
+        await fireEvent.mouseLeave(wrapper);
+        vi.advanceTimersByTime(100);
+        const tip = screen.getByRole('tooltip');
+        await fireEvent.mouseEnter(tip);
+        vi.advanceTimersByTime(500);
+        await tick();
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+        await fireEvent.click(screen.getByText('Check now'));
+        expect(mockTriggerHealthCheck).toHaveBeenCalledWith('TestApp');
+      });
+
+      it('re-entering the dot cancels a pending hide', async () => {
+        mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+        const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+        const wrapper = container.querySelector('.inline-flex')!;
+        await fireEvent.mouseEnter(wrapper);
+        await fireEvent.mouseLeave(wrapper);
+        await fireEvent.mouseEnter(wrapper);
+        vi.advanceTimersByTime(500);
+        await tick();
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      it('closes after the delay once the pointer leaves both', async () => {
+        mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+        const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+        const wrapper = container.querySelector('.inline-flex')!;
+        await fireEvent.mouseEnter(wrapper);
+        await fireEvent.mouseLeave(wrapper);
+        const tip = screen.getByRole('tooltip');
+        await fireEvent.mouseEnter(tip);
+        await fireEvent.mouseLeave(tip);
+        vi.advanceTimersByTime(100);
+        await tick();
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+        vi.advanceTimersByTime(100);
+        await tick();
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+
+      it('unmounting with a pending hide neither throws nor leaks', async () => {
+        mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+        const { container, unmount } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+        const wrapper = container.querySelector('.inline-flex')!;
+        await fireEvent.mouseEnter(wrapper);
+        await fireEvent.mouseLeave(wrapper);
+        expect(vi.getTimerCount()).toBe(1);
+        unmount();
+        expect(vi.getTimerCount()).toBe(0);
+        expect(() => vi.advanceTimersByTime(500)).not.toThrow();
+        expect(document.body.querySelector('.health-tooltip-portal')).toBeNull();
+        expect(document.body.querySelector('.health-tooltip')).toBeNull();
+      });
     });
   });
 });
