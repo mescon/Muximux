@@ -758,3 +758,97 @@ func TestApplyGatewayTrackingPreservation(t *testing.T) {
 		}
 	})
 }
+
+// putGatewaySiteRaw drives UpdateSite with an arbitrary JSON body so a
+// test can include fields outside config.GatewaySite (base_backend_url).
+func putGatewaySiteRaw(t *testing.T, h *GatewayHandler, pathDomain string, body map[string]any) *httptest.ResponseRecorder {
+	t.Helper()
+	b, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPut, "/api/gateway/sites/"+pathDomain, bytes.NewReader(b))
+	w := httptest.NewRecorder()
+	h.UpdateSite(w, req)
+	return w
+}
+
+// seedTrackedGatewaySite installs a Docker-tracked site whose backend
+// the poller has refreshed to http://new since the client loaded the
+// form at http://old.
+func seedTrackedGatewaySite(t *testing.T) (*GatewayHandler, *config.Config, string) {
+	t.Helper()
+	h, cfg, configPath := setupGatewayHandler(t)
+	cfg.Server.GatewaySites = []config.GatewaySite{{
+		Domain:           "app.example.com",
+		BackendURL:       "http://new",
+		DockerKey:        "k",
+		DockerEndpoint:   "unix:///var/run/docker.sock",
+		DockerStrategy:   "ip",
+		DockerManagedURL: "http://new",
+	}}
+	return h, cfg, configPath
+}
+
+func TestUpdateSite_StaleUneditedBackendKeepsCurrentAndTracking(t *testing.T) {
+	h, cfg, configPath := seedTrackedGatewaySite(t)
+
+	w := putGatewaySiteRaw(t, h, "app.example.com", map[string]any{
+		"domain":           "app.example.com",
+		"backend_url":      "http://old",
+		"base_backend_url": "http://old",
+		"streaming":        true,
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+	got := cfg.Server.GatewaySites[0]
+	if got.BackendURL != "http://new" {
+		t.Errorf("backend = %q, want the poller's http://new", got.BackendURL)
+	}
+	if got.DockerKey != "k" || got.DockerManagedURL != "http://new" {
+		t.Errorf("tracking lost: %+v", got)
+	}
+	if !got.Streaming {
+		t.Errorf("other edits not applied: %+v", got)
+	}
+	on := loadConfigForGatewayTest(t, configPath)
+	if on.Server.GatewaySites[0].BackendURL != "http://new" || on.Server.GatewaySites[0].DockerKey != "k" {
+		t.Errorf("persisted site wrong: %+v", on.Server.GatewaySites[0])
+	}
+}
+
+func TestUpdateSite_EditedBackendWithBaseDetaches(t *testing.T) {
+	h, cfg, _ := seedTrackedGatewaySite(t)
+
+	w := putGatewaySiteRaw(t, h, "app.example.com", map[string]any{
+		"domain":           "app.example.com",
+		"backend_url":      "http://manual",
+		"base_backend_url": "http://old",
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+	got := cfg.Server.GatewaySites[0]
+	if got.BackendURL != "http://manual" {
+		t.Errorf("backend = %q, want http://manual", got.BackendURL)
+	}
+	if got.DockerKey != "" || got.DockerManagedURL != "" {
+		t.Errorf("tracking not detached: %+v", got)
+	}
+}
+
+func TestUpdateSite_NoBaseKeepsSubmittedBackend(t *testing.T) {
+	h, cfg, _ := seedTrackedGatewaySite(t)
+
+	// Without base_backend_url a differing backend is taken as an edit,
+	// as before: stored and detached.
+	w := putGatewaySiteRaw(t, h, "app.example.com", map[string]any{
+		"domain":      "app.example.com",
+		"backend_url": "http://old",
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+	got := cfg.Server.GatewaySites[0]
+	if got.BackendURL != "http://old" || got.DockerKey != "" {
+		t.Errorf("want submitted backend and detach, got %+v", got)
+	}
+}

@@ -183,7 +183,7 @@ describe('GatewayTab', () => {
     await waitFor(() => {
       expect(mockUpdateGatewaySite).toHaveBeenCalledWith('sonarr.example.com', expect.objectContaining({
         backend_url: 'http://sonarr:8990',
-      }));
+      }), 'http://sonarr:8989');
     });
   });
 
@@ -618,7 +618,7 @@ describe('GatewayTab state consistency', () => {
     await waitFor(() => {
       expect(mockUpdateGatewaySite).toHaveBeenCalledWith('sonarr.example.com', expect.objectContaining({
         forwarded_headers: true,
-      }));
+      }), 'http://sonarr:8989');
     });
   });
 
@@ -649,6 +649,21 @@ describe('GatewayTab state consistency', () => {
     await rerender({ configRevision: 3 });
     await Promise.resolve();
     expect(mockListGatewaySites).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends base_backend_url with the backend the form was loaded with', async () => {
+    await openEditFor(makeSite({ backend_url: 'http://sonarr:8989' }));
+
+    await fireEvent.input(screen.getByLabelText('Backend URL'), { target: { value: 'http://sonarr:9999' } });
+    await fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateGatewaySite).toHaveBeenCalledWith(
+        'sonarr.example.com',
+        expect.objectContaining({ backend_url: 'http://sonarr:9999' }),
+        'http://sonarr:8989',
+      );
+    });
   });
 
   it('shows the server validation message inline for a 400 on save', async () => {

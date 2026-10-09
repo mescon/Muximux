@@ -199,11 +199,12 @@ func (h *GatewayHandler) UpdateSite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var site config.GatewaySite
-	if err := json.NewDecoder(r.Body).Decode(&site); err != nil {
+	var body gatewaySiteUpdate
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
+	site := body.GatewaySite
 	if site.Domain == "" {
 		// Allow a body that omits Domain by treating the URL path as
 		// the source of truth (the UI's read-only domain case).
@@ -246,7 +247,9 @@ func (h *GatewayHandler) UpdateSite(w http.ResponseWriter, r *http.Request) {
 	// it over from the stored site so an omitted docker_key does not
 	// silently detach, and detach only when the operator really
 	// changed backend_url away from what the poller last wrote.
-	detachedKey := applyGatewayTrackingPreservation(&site, &h.config.Server.GatewaySites[idx])
+	stored := &h.config.Server.GatewaySites[idx]
+	keepUneditedBackend(&site, stored, body.BaseBackendURL)
+	detachedKey := applyGatewayTrackingPreservation(&site, stored)
 
 	candidate := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
 	candidate[idx] = site
@@ -478,6 +481,29 @@ func (h *GatewayHandler) applyAndPersist(candidate []config.GatewaySite) (restar
 	}
 
 	return restartRequired, http.StatusOK, nil
+}
+
+// gatewaySiteUpdate is the PUT /api/gateway/sites/{domain} body: the
+// site plus the optional backend_url the client loaded the form with.
+type gatewaySiteUpdate struct {
+	config.GatewaySite
+	// BaseBackendURL is the backend_url the client's form started
+	// from. When the submitted backend_url still equals it, the
+	// operator did not edit the field, so the server's current value
+	// (possibly refreshed by the Docker poller since the form was
+	// loaded) wins. Nil for clients that do not send it.
+	BaseBackendURL *string `json:"base_backend_url,omitempty"`
+}
+
+// keepUneditedBackend replaces updated.BackendURL with the stored value
+// when the client reports it did not edit the field (the submitted
+// value equals base). A stale form then neither writes an outdated
+// address back nor detaches Docker tracking. Without a base (scripts,
+// older clients) the submitted value is taken as is.
+func keepUneditedBackend(updated, stored *config.GatewaySite, base *string) {
+	if base != nil && updated.BackendURL == *base {
+		updated.BackendURL = stored.BackendURL
+	}
 }
 
 // applyGatewayTrackingPreservation copies DockerKey, DockerEndpoint, DockerStrategy

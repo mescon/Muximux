@@ -212,8 +212,15 @@ export async function createGatewaySite(site: GatewaySite): Promise<GatewayMutat
   return postJSON<GatewaySite, GatewayMutationResponse>('/gateway/sites', site);
 }
 
-export async function updateGatewaySite(domain: string, site: GatewaySite): Promise<GatewayMutationResponse> {
-  return putJSON<GatewaySite, GatewayMutationResponse>(`/gateway/sites/${encodeURIComponent(domain)}`, site);
+/**
+ * PUT a gateway site. `baseBackendURL` is the backend_url the edit form
+ * was loaded with; when the submitted value still equals it the server
+ * keeps its current backend (which the Docker poller may have refreshed)
+ * instead of writing the stale one back and detaching tracking.
+ */
+export async function updateGatewaySite(domain: string, site: GatewaySite, baseBackendURL?: string): Promise<GatewayMutationResponse> {
+  const body = baseBackendURL === undefined ? site : { ...site, base_backend_url: baseBackendURL };
+  return putJSON<GatewaySite, GatewayMutationResponse>(`/gateway/sites/${encodeURIComponent(domain)}`, body);
 }
 
 export async function deleteGatewaySite(domain: string): Promise<void> {

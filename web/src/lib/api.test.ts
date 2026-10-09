@@ -45,6 +45,7 @@ import {
   confirmDockerRelink,
   ApiError,
   errorText,
+  updateGatewaySite,
 } from './api';
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult } from './types';
 
@@ -276,6 +277,26 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(app),
       });
+    });
+  });
+
+  describe('updateGatewaySite', () => {
+    const site = { domain: 'x.example.com', backend_url: 'http://x:2' };
+
+    it('carries base_backend_url in the payload when given', async () => {
+      globalThis.fetch = mockFetchOk({ success: true });
+      await updateGatewaySite('x.example.com', site, 'http://x:1');
+      const init = vi.mocked(globalThis.fetch).mock.calls[0][1] as RequestInit;
+      expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toBe('/api/gateway/sites/x.example.com');
+      expect(init.method).toBe('PUT');
+      expect(JSON.parse(init.body as string)).toEqual({ ...site, base_backend_url: 'http://x:1' });
+    });
+
+    it('omits base_backend_url when not given', async () => {
+      globalThis.fetch = mockFetchOk({ success: true });
+      await updateGatewaySite('x.example.com', site);
+      const init = vi.mocked(globalThis.fetch).mock.calls[0][1] as RequestInit;
+      expect(JSON.parse(init.body as string)).toEqual(site);
     });
   });
 

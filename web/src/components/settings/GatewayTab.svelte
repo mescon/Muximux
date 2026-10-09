@@ -66,6 +66,10 @@
   // tracks the prior domain for the update path so a rename works.
   let showForm = $state(false);
   let editing = $state<string | null>(null); // null => create mode
+  // backend_url the edit form was loaded with. Sent as
+  // base_backend_url so the server can tell an untouched (possibly
+  // stale) value from a real edit.
+  let editingBaseBackend = $state<string | undefined>(undefined);
   let formError = $state<string | null>(null);
   let formSubmitting = $state(false);
   let validationError = $state<string | null>(null);
@@ -192,6 +196,7 @@
 
   function openEdit(site: GatewaySite) {
     editing = site.domain;
+    editingBaseBackend = site.backend_url;
     form = {
       ...site,
       proxy_headers: { ...(site.proxy_headers ?? {}) },
@@ -309,7 +314,7 @@
       }
 
       const result = editing
-        ? await updateGatewaySite(editing, candidate)
+        ? await updateGatewaySite(editing, candidate, editingBaseBackend)
         : await createGatewaySite(candidate);
 
       if (!result.success) {
