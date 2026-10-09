@@ -506,6 +506,9 @@ type GroupConfig struct {
 	Color    string        `yaml:"color" json:"color"`
 	Order    int           `yaml:"order" json:"order"`
 	Expanded bool          `yaml:"expanded" json:"expanded"`
+	// OriginalName is the name this group had in the client's base
+	// config. Transport-only identity for renames; never stored.
+	OriginalName string `yaml:"-" json:"original_name,omitempty"`
 }
 
 // AppConfig holds individual app settings

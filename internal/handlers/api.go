@@ -365,6 +365,9 @@ type ClientConfigUpdate struct {
 	Keybindings         *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Groups              []config.GroupConfig      `json:"groups"`
 	Apps                []ClientAppConfig         `json:"apps"`
+	// Base is the client-shaped config the browser loaded. When present the
+	// server merges base, this payload and its current config per field.
+	Base *ClientConfigUpdate `json:"base,omitempty"`
 }
 
 // SaveConfig updates and saves the configuration
@@ -1130,18 +1133,21 @@ func stripURLCredentialsIf(strip bool, raw string) string {
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name      string               `json:"name"`
-	URL       string               `json:"url"` // Original target URL (for editing/config)
-	HealthURL string               `json:"health_url,omitempty"`
-	ProxyURL  string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
-	Icon      config.AppIconConfig `json:"icon"`
-	Color     string               `json:"color"`
-	Group     string               `json:"group"`
-	Order     int                  `json:"order"`
-	Enabled   bool                 `json:"enabled"`
-	Default   bool                 `json:"default"`
-	Pinned    bool                 `json:"pinned,omitempty"`
-	OpenMode  string               `json:"open_mode"`
+	Name string `json:"name"`
+	// OriginalName is the name this app had in Base. Transport-only identity
+	// for renames; never stored.
+	OriginalName string               `json:"original_name,omitempty"`
+	URL          string               `json:"url"` // Original target URL (for editing/config)
+	HealthURL    string               `json:"health_url,omitempty"`
+	ProxyURL     string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
+	Icon         config.AppIconConfig `json:"icon"`
+	Color        string               `json:"color"`
+	Group        string               `json:"group"`
+	Order        int                  `json:"order"`
+	Enabled      bool                 `json:"enabled"`
+	Default      bool                 `json:"default"`
+	Pinned       bool                 `json:"pinned,omitempty"`
+	OpenMode     string               `json:"open_mode"`
 	// HTTP action fields. Only meaningful when OpenMode == "http_action".
 	// Method/Confirm/ShowToast are non-sensitive and surface to every
 	// role (the frontend needs them to decide whether to show the
