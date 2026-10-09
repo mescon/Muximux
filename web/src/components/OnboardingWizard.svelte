@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount, tick } from 'svelte';
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import { get } from 'svelte/store';
@@ -1003,8 +1004,8 @@
         class:flex={$selectedNavigation === 'left' || $selectedNavigation === 'right'}
         class:flex-row={$selectedNavigation === 'left'}
         class:flex-row-reverse={$selectedNavigation === 'right'}
-        in:fly={{ x: 30, duration: 300 }}
-        out:fade={{ duration: 150 }}
+        in:fly={{ x: 30, duration: motionMs(300) }}
+        out:fade={{ duration: motionMs(150) }}
       >
         <!-- Fixed-size wrapper — absolute positioning lets nav span full wizard height/width -->
         {#if $selectedNavigation === 'left' || $selectedNavigation === 'right'}
@@ -1280,7 +1281,7 @@
         <div class="max-w-4xl mx-auto" style="display: grid; grid-template: 1fr / 1fr;">
       <!-- Step 1: Welcome -->
       {#if $currentStep === 'welcome'}
-        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <!-- Logo -->
           <div class="mb-8">
             <svg class="w-48 h-auto mx-auto text-accent-text" viewBox="0 0 341 207" fill="currentColor">
@@ -1394,7 +1395,7 @@
 
       <!-- Security Step -->
       {:else if $currentStep === 'security'}
-        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_secureTitle()}</h2>
             <p class="text-text-muted">{m.onboarding_secureSubtitle()}</p>
@@ -1423,7 +1424,7 @@
                   </div>
                 </button>
                 {#if authMethod === 'builtin'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
                     <div class="border-t border-border pt-4">
                       <label for="setup-username" class="block text-sm text-text-muted mb-1">{m.common_username()}</label>
                       <input
@@ -1487,7 +1488,7 @@
                   </div>
                 </button>
                 {#if authMethod === 'forward_auth'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
                     <div class="border-t border-border pt-4">
                       <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
                       <div class="flex gap-2">
@@ -1540,7 +1541,7 @@
                     </button>
 
                     {#if faShowAdvanced}
-                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: 150 }}>
+                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: motionMs(150) }}>
                         <div>
                           <label for="fa-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                           <input id="fa-header-user" type="text" bind:value={faHeaderUser}
@@ -1585,7 +1586,7 @@
                   </div>
                 </button>
                 {#if authMethod === 'none'}
-                  <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
                     <div class="border-t border-border pt-4">
                       <div class="notice notice-warning p-4 rounded-lg mb-4">
                         <div class="flex gap-3">
@@ -1615,7 +1616,7 @@
 
       <!-- Step 2: Add Apps (two-column layout with groups) -->
       {:else if $currentStep === 'apps'}
-        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_appsTitle()}</h2>
             <p class="text-text-muted">{m.onboarding_appsSubtitle()}</p>
@@ -1646,7 +1647,7 @@
                   </div>
                 </label>
                 {#if dockerEnabled}
-                  <div class="mt-3 ps-7 space-y-2" in:fly={{ y: -4, duration: 150 }}>
+                  <div class="mt-3 ps-7 space-y-2" in:fly={{ y: -4, duration: motionMs(150) }}>
                     <div>
                       <label for="docker-endpoint" class="block text-xs text-text-muted mb-1">{m.onboarding_dockerEndpoint()}</label>
                       <input
@@ -1812,7 +1813,7 @@
                       {#each wizardGroups as group, i (group.id)}
                         {@const groupApps = dndApps[group.name] || []}
                         <div class="rounded-lg border border-border bg-bg-surface overflow-hidden cursor-grab"
-                             animate:flip={{duration: flipDurationMs}}>
+                             animate:flip={{duration: motionMs(flipDurationMs)}}>
                           <div class="flex items-center gap-2 p-2.5 group/grpdrag">
                             <svg class="w-4 h-4 text-text-disabled group-hover/grpdrag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                               <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
@@ -1875,7 +1876,7 @@
                                 {@const appColor = getAppDisplayColor(item.name)}
                                 {@const appIcon = getAppDisplayIcon(item.name)}
                                 <div class="p-2 rounded bg-bg-surface cursor-grab group/drag text-sm text-text-primary"
-                                     animate:flip={{duration: flipDurationMs}}>
+                                     animate:flip={{duration: motionMs(flipDurationMs)}}>
                                   <div class="flex items-center gap-1.5 min-w-0">
                                     <svg class="w-3.5 h-3.5 text-text-disabled group-hover/drag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                                       <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
@@ -2007,7 +2008,7 @@
 
       <!-- Step 5: Complete -->
       {:else if $currentStep === 'complete'}
-        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+        <div class="text-center py-12" style="grid-area: 1/1;" in:fly={{ x: 30, duration: motionMs(300) }} out:fade={{ duration: motionMs(150) }}>
           <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-accent-muted flex items-center justify-center">
             <svg class="w-10 h-10 text-accent-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

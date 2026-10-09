@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { iconLabel } from '$lib/iconUrl';
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
@@ -768,15 +769,15 @@
 
 <div
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
-  transition:fade={{ duration: 150 }}
+  transition:fade={{ duration: motionMs(150) }}
 >
   <div
     class="bg-bg-surface shadow-2xl w-full overflow-hidden border border-border flex flex-col
            {isMobile
              ? 'h-full max-h-full rounded-none'
              : 'rounded-xl max-w-4xl max-h-[90vh]'}"
-    in:fly={{ y: isMobile ? 50 : 20, duration: 200 }}
-    out:fade={{ duration: 100 }}
+    in:fly={{ y: isMobile ? 50 : 20, duration: motionMs(200) }}
+    out:fade={{ duration: motionMs(100) }}
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
@@ -933,7 +934,7 @@
 {#if showAddApp}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    transition:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full border border-border {addAppStep === 'choose' ? 'max-w-2xl' : 'max-w-lg'}"
@@ -942,8 +943,8 @@
       aria-labelledby="add-app-title"
       tabindex="-1"
       use:focusTrap
-      in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
+      out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <div class="flex items-center gap-2">
@@ -1089,12 +1090,12 @@
 {#if showAddGroup}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    transition:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
-      in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
+      out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_addGroup()}</h3>
@@ -1174,7 +1175,7 @@
 {#if editingApp}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    in:fade={{ duration: 100 }}
+    in:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-lg border border-border"
@@ -1183,7 +1184,7 @@
       aria-labelledby="edit-app-title"
       tabindex="-1"
       use:focusTrap
-      in:fly={{ y: 10, duration: 150 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 id="edit-app-title" class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
@@ -1240,11 +1241,11 @@
 {#if editingGroup}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    in:fade={{ duration: 100 }}
+    in:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
-      in:fly={{ y: 10, duration: 150 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
@@ -1347,13 +1348,13 @@
 {#if showIconBrowser}
   <div
     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
-    transition:fade={{ duration: 100 }}
+    transition:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface shadow-2xl w-full border border-border
              {isMobile ? 'h-full max-h-full rounded-none' : 'rounded-xl max-w-3xl'}"
-      in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
+      out:fade={{ duration: motionMs(75) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_selectIcon()}</h3>
@@ -1382,11 +1383,11 @@
 {#if showImportConfirm && pendingImport}
   <div
     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
-    in:fade={{ duration: 100 }}
+    in:fade={{ duration: motionMs(100) }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
-      in:fly={{ y: 10, duration: 150 }}
+      in:fly={{ y: 10, duration: motionMs(150) }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>

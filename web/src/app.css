@@ -806,6 +806,26 @@ html.theme-transitioning *::after {
 .stagger-7 { animation-delay: 350ms; }
 .stagger-8 { animation-delay: 400ms; }
 
+/* Reduced motion: collapse every animation and transition, drop hover lifts.
+   Loading spinners keep turning (slowly) so progress is still indicated, and
+   decorative pulsing stops. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-spin {
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .animate-pulse {
+    animation: none !important;
+  }
+  .surface-interactive:hover, .app-card:hover { transform: none; }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    MODAL & OVERLAY
    ───────────────────────────────────────────────────────────────────────────── */

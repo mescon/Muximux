@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { isMobileViewport } from '$lib/useSwipe';
@@ -84,15 +85,15 @@
   aria-label={m.shortcuts_title()}
   aria-describedby="shortcuts-subtitle"
   tabindex="-1"
-  transition:fade={{ duration: 150 }}
+  transition:fade={{ duration: motionMs(150) }}
 >
   <div
     class="shortcuts-modal shadow-2xl w-full overflow-hidden
            {isMobile
              ? 'h-full max-h-full rounded-none'
              : 'rounded-xl max-w-4xl'}"
-    in:fly={{ y: isMobile ? 50 : 0, duration: 200 }}
-    out:fade={{ duration: 100 }}
+    in:fly={{ y: isMobile ? 50 : 0, duration: motionMs(200) }}
+    out:fade={{ duration: motionMs(100) }}
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-subtle);">

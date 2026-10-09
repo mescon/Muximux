@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount, tick, untrack } from 'svelte';
   import { fly } from 'svelte/transition';
   import type { Config, UserInfo, ChangeAuthMethodRequest, OIDCSettings, OIDCSettingsUpdate } from '$lib/types';
@@ -476,7 +477,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'builtin'}
-          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
             <div class="border-t border-border pt-4">
               {#if currentMethod === 'builtin'}
                 <p class="text-sm text-text-muted mb-4">{m.security_passwordAuthActive()}</p>
@@ -619,7 +620,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'forward_auth'}
-          <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
             <div class="border-t border-border pt-4">
               <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
               <div class="flex gap-2">
@@ -672,7 +673,7 @@
             </button>
 
             {#if faShowAdvanced}
-              <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: 150 }}>
+              <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: motionMs(150) }}>
                 <div>
                   <label for="settings-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                   <input id="settings-header-user" type="text" bind:value={faHeaderUser}
@@ -736,7 +737,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'oidc'}
-          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
             <div class="border-t border-border pt-4">
               {#if oidcLoadError}
                 <div class="notice notice-danger rounded-lg" role="alert" data-testid="oidc-load-error">
@@ -775,7 +776,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'none'}
-          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: motionMs(200) }}>
             <div class="border-t border-border pt-4">
               <div class="notice notice-warning p-4 rounded-lg">
                 <div class="flex gap-3">
@@ -997,7 +998,7 @@
 
       <!-- Add user form -->
       {#if showAddUser}
-        <div class="p-4 rounded-lg bg-bg-surface border border-border mb-4 space-y-3" in:fly={{ y: -10, duration: 150 }}>
+        <div class="p-4 rounded-lg bg-bg-surface border border-border mb-4 space-y-3" in:fly={{ y: -10, duration: motionMs(150) }}>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label for="new-user-name" class="block text-sm text-text-muted mb-1">{m.common_username()}</label>

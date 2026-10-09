@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import type { App, Config, DockerState } from '$lib/types';
@@ -177,8 +178,8 @@
 <div
   class="h-full overflow-auto scrollbar-styled"
   style="background: var(--bg-base);"
-  in:fade={{ duration: 200, delay: 50 }}
-  out:fade={{ duration: 150 }}
+  in:fade={{ duration: motionMs(200), delay: 50 }}
+  out:fade={{ duration: motionMs(150) }}
 >
   <!-- Subtle gradient overlay for depth -->
   <div class="absolute inset-0 pointer-events-none opacity-50"

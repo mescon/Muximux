@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { App } from '$lib/types';
@@ -360,7 +361,7 @@
   aria-modal="true"
   aria-label={m.command_commandPalette()}
   tabindex="-1"
-  transition:fade={{ duration: 150 }}
+  transition:fade={{ duration: motionMs(150) }}
 >
   <!-- Command palette modal -->
   <div
@@ -370,8 +371,8 @@
              : 'max-w-xl rounded-xl mx-4'}"
     onclick={(e) => e.stopPropagation()}
     role="presentation"
-    in:fly={{ y: isMobile ? 100 : -20, duration: 200 }}
-    out:fade={{ duration: 100 }}
+    in:fly={{ y: isMobile ? 100 : -20, duration: motionMs(200) }}
+    out:fade={{ duration: motionMs(100) }}
   >
     <!-- Mobile drag handle -->
     {#if isMobile}

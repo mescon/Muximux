@@ -1,6 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { normaliseBase } from '$lib/configMerge';
+
+// Mutable hoisted flag: tests flip it to emulate prefers-reduced-motion.
+const reducedMotion = vi.hoisted(() => ({ current: false }));
+vi.mock('svelte/motion', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('svelte/motion')>()),
+  prefersReducedMotion: reducedMotion,
+}));
 
 // --- Hoisted store values and mock fns ---
 const {
@@ -2136,6 +2143,8 @@ describe('Settings', () => {
   // Close paths, keybinding discard, in-flight save (S-17, S-31)
   // =======================================================================
   describe('Close paths and discard', () => {
+    afterEach(() => { reducedMotion.current = false; });
+
     function idsIn(list: unknown[]): unknown[] {
       return list.filter(i => Object.prototype.hasOwnProperty.call(i, 'id'));
     }
@@ -2166,6 +2175,19 @@ describe('Settings', () => {
       expect(mockInitKeybindings).toHaveBeenCalledWith(keybindings);
       expect(mockCustomBindings.get()).toEqual(keybindings.bindings);
       expect(onclose).toHaveBeenCalledTimes(1);
+    });
+
+    it('closes after the discard prompt with reduced motion on', async () => {
+      reducedMotion.current = true;
+      const onclose = vi.fn();
+      const { component } = render(Settings, {
+        props: { config: makeConfig(), apps: sampleApps, onclose },
+      });
+      mockSelectedFamily.set('nord');
+      await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument());
+      expect(component.requestClose()).toBe(false);
+      await fireEvent.click(await screen.findByText('Discard'));
+      expect(onclose).toHaveBeenCalled();
     });
 
     it('an emptied binding list reads as no binding', async () => {

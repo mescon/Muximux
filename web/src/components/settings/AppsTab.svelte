@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { motionMs } from '$lib/motion';
   import { onMount } from 'svelte';
   import { flip } from 'svelte/animate';
   import { type App, type Group, type DiscoveryDockerStatus, stampUniqueIds } from '$lib/types';
@@ -377,7 +378,7 @@
   <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} onconsider={handleGroupDndConsider} onfinalize={handleGroupDndFinalize}>
     {#each dndGroups as group, groupIndex ((group as Group & Record<string, unknown>).id)}
       {@const appsInGroup = dndGroupedApps[group.name] || []}
-      <div class="rounded-lg border border-border" animate:flip={{duration: flipDurationMs}}>
+      <div class="rounded-lg border border-border" animate:flip={{duration: motionMs(flipDurationMs)}}>
         <!-- Group header -->
         <div class="flex items-center gap-3 p-3 bg-bg-elevated/30 rounded-t-lg cursor-grab active:cursor-grabbing">
           <!-- Drag handle -->
@@ -445,7 +446,7 @@
           {#each appsInGroup as app, appIndex ((app as App & Record<string, unknown>).id)}
             <div
               class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
-              animate:flip={{duration: flipDurationMs}}
+              animate:flip={{duration: motionMs(flipDurationMs)}}
             >
               {@render appRowContent(app, group.name, appIndex, appsInGroup.length)}
             </div>
@@ -471,7 +472,7 @@
         {#each ungroupedApps as app, appIndex ((app as App & Record<string, unknown>).id)}
           <div
             class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
-            animate:flip={{duration: flipDurationMs}}
+            animate:flip={{duration: motionMs(flipDurationMs)}}
           >
             {@render appRowContent(app, '', appIndex, ungroupedApps.length)}
           </div>
