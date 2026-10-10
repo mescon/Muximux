@@ -1153,7 +1153,7 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// failure the whole candidate (URL refresh, apps, sites, quarantine)
 	// is rolled back and nothing is saved this tick.
 	var createdGroups []string
-	labelSynced := applyLabelSyncs(p.deps.Config, batch.labelSyncs, &createdGroups)
+	labelSynced := applyLabelSyncs(p.deps.Config, batch.endpoint, batch.labelSyncs, &createdGroups)
 	reconcileTouchedGateway, rec := p.applyReconcile(batch)
 	createdGroups = append(createdGroups, rec.createdGroups...)
 	// Group labels last, so a group created above gets its label values

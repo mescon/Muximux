@@ -252,8 +252,9 @@ type labelSynced struct {
 // applyLabelSyncs writes the planned label values onto the live apps. The
 // caller holds the write lock and has snapshotted apps, sites and the
 // quarantine and groups for rollback. Ownership is checked again under the
-// lock: an app that became auto-imported or lost its tracking since the
-// plan is skipped. A group the label names that does not exist (or was
+// lock: an app that became auto-imported, lost its tracking or is tracked
+// on another daemon than endpoint (the rule the re-key and the URL refresh
+// use) since the plan is skipped. A group the label names that does not exist (or was
 // deleted since the plan) is created and appended to createdGroups. Renames are
 // re-checked against the names the apps will have after this apply (an
 // app skipped here keeps a name the plan thought was freed), and a rename
@@ -261,7 +262,7 @@ type labelSynced struct {
 // Gateway sites linked by app_name follow the renames, cascaded once from
 // one old-to-new map so chained renames (N->C and M->N) relink correctly,
 // as handlers.cascadeAppRenames does for a Settings save.
-func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync, createdGroups *[]string) []labelSynced {
+func applyLabelSyncs(cfg *config.Config, endpoint string, syncs map[string]labelSync, createdGroups *[]string) []labelSynced {
 	if len(syncs) == 0 {
 		return nil
 	}
@@ -269,7 +270,7 @@ func applyLabelSyncs(cfg *config.Config, syncs map[string]labelSync, createdGrou
 	renames := map[int]string{} // app index -> new name
 	for i := range cfg.Apps {
 		a := &cfg.Apps[i]
-		if a.DockerKey == "" || a.DockerAutoImported {
+		if a.DockerKey == "" || a.DockerAutoImported || a.DockerEndpoint != endpoint {
 			continue
 		}
 		s, ok := syncs[a.DockerKey]

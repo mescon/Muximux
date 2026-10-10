@@ -399,7 +399,7 @@ func TestApplyLabelSyncs_UnderLock(t *testing.T) {
 	}
 	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "old.example.com", AppName: "Old"}, {Domain: "x.example.com", AppName: "Hand"}}
 	var created []string
-	got := applyLabelSyncs(cfg, map[string]labelSync{
+	got := applyLabelSyncs(cfg, "", map[string]labelSync{
 		"label:m":    {name: "New", icon: "traefik", group: "Deleted", order: intp(3)},
 		"label:auto": {name: "Nope"},
 		"label:same": {name: "Same", icon: "same", group: "infra", order: intp(2)},
@@ -426,7 +426,7 @@ func TestApplyLabelSyncs_UnderLock(t *testing.T) {
 	if len(got) != 1 || got[0].key != "label:m" || strings.Join(got[0].fields, ",") != "name,icon,group,order" {
 		t.Errorf("synced = %+v", got)
 	}
-	if applyLabelSyncs(cfg, nil, &created) != nil {
+	if applyLabelSyncs(cfg, "", nil, &created) != nil {
 		t.Error("empty plan should return nil")
 	}
 }
@@ -464,7 +464,7 @@ func TestApplyLabelSyncs_ChainedRenamesRelinkSitesOnce(t *testing.T) {
 		{Domain: "n.example.com", AppName: "N"},
 		{Domain: "m.example.com", AppName: "M"},
 	}
-	got := applyLabelSyncs(cfg, map[string]labelSync{
+	got := applyLabelSyncs(cfg, "", map[string]labelSync{
 		"label:x": {name: "C"},
 		"label:a": {name: "N"},
 	}, new([]string))
@@ -491,7 +491,7 @@ func TestApplyLabelSyncs_DropsRenameOntoNameStillHeld(t *testing.T) {
 		},
 	}
 	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "m.example.com", AppName: "M"}}
-	got := applyLabelSyncs(cfg, map[string]labelSync{
+	got := applyLabelSyncs(cfg, "", map[string]labelSync{
 		"label:x": {name: "C"},
 		"label:a": {name: "N", order: intp(4)}, // N is still held by x
 		"label:b": {name: "M"},                 // M is only free if a's rename lands
@@ -575,5 +575,28 @@ func TestLabelSync_RekeyAndRenameSameTick(t *testing.T) {
 	}
 	if _, ok := p.deps.Service.DockerStateSnapshot()["Bindery Web"]; !ok {
 		t.Errorf("state cache not keyed by the new name: %+v", p.deps.Service.DockerStateSnapshot())
+	}
+}
+
+// An app tracked on another daemon is not touched by the label pass, even
+// when its key matches a planned sync.
+func TestApplyLabelSyncs_OtherEndpointUntouched(t *testing.T) {
+	cfg := &config.Config{
+		Apps: []config.AppConfig{
+			{Name: "Here", DockerKey: "label:a", DockerEndpoint: "unix:///here.sock", Enabled: true},
+			{Name: "There", DockerKey: "label:a", DockerEndpoint: "unix:///there.sock", Enabled: true},
+		},
+	}
+	got := applyLabelSyncs(cfg, "unix:///here.sock", map[string]labelSync{
+		"label:a": {name: "Renamed", order: intp(5)},
+	}, new([]string))
+	if cfg.Apps[0].Name != "Renamed" || cfg.Apps[0].Order != 5 {
+		t.Errorf("matching app not synced: %+v", cfg.Apps[0])
+	}
+	if cfg.Apps[1].Name != "There" || cfg.Apps[1].Order != 0 {
+		t.Errorf("app on another endpoint changed: %+v", cfg.Apps[1])
+	}
+	if len(got) != 1 {
+		t.Errorf("synced = %+v", got)
 	}
 }
