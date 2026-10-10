@@ -123,7 +123,7 @@
     class="help-trigger relative ms-1 inline-block align-middle"
     onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
   >
-    <svg class="w-3.5 h-3.5 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg class="w-3.5 h-3.5 text-text-muted cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- tooltip text is hardcoded, not user input -->
@@ -136,7 +136,7 @@
     href={url}
     target="_blank"
     rel="noopener noreferrer"
-    class="docs-trigger relative ms-1 inline-flex items-center align-middle text-text-disabled hover:text-accent-text"
+    class="docs-trigger relative ms-1 inline-flex items-center align-middle text-text-muted hover:text-accent-text"
     title={m.common_readMore()}
     onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
   >
@@ -160,7 +160,7 @@
       bind:value={app.name}
       oninput={() => clearError('name')}
       aria-invalid={errors.name ? 'true' : undefined}
-      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.name ? 'border-danger-border' : 'border-border-subtle'}"
+      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.name ? 'border-danger-border' : 'border-border-input'}"
       placeholder={m.appForm_placeholderName()}
     />
     {#if errors.name}<p class="text-danger-text text-xs mt-1">{errors.name}</p>{/if}
@@ -183,7 +183,7 @@
       oninput={() => clearError('url')}
       aria-invalid={errors.url ? 'true' : undefined}
       readonly={!!app.docker_key}
-      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.url ? 'border-danger-border' : 'border-border-subtle'} {app.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
+      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {errors.url ? 'border-danger-border' : 'border-border-input'} {app.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
       placeholder={m.appForm_placeholderUrl()}
       data-testid="app-form-url"
     />
@@ -235,16 +235,16 @@
           {m.appForm_iconColor()}
           <input type="color" value={app.icon.color || '#ffffff'} oninput={(e) => app.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
           {#if app.icon.color}
-            <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.icon.color = ''} title={m.appForm_resetToThemeDefault()}>&times;</button>
+            <button class="text-text-muted hover:text-text-primary" onclick={() => app.icon.color = ''} title={m.appForm_resetToThemeDefault()}>&times;</button>
           {/if}
         </label>
       {/if}
       <label class="flex items-center gap-2 text-xs text-text-muted">
         {m.appForm_iconBackground()}
         <input type="color" value={app.icon.background || app.color || '#374151'} oninput={(e) => app.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
-        <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => app.icon.background = 'transparent'} title={m.appForm_transparent()}>{m.appForm_noneLabel()}</button>
+        <button class="text-text-muted hover:text-text-primary text-xs" onclick={() => app.icon.background = 'transparent'} title={m.appForm_transparent()}>{m.appForm_noneLabel()}</button>
         {#if app.icon.background}
-          <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.icon.background = ''} title={m.appForm_resetToAppColor()}>&times;</button>
+          <button class="text-text-muted hover:text-text-primary" onclick={() => app.icon.background = ''} title={m.appForm_resetToAppColor()}>&times;</button>
         {/if}
       </label>
     </div>
@@ -267,11 +267,11 @@
         aria-label={m.common_colorValue()}
         type="text"
         bind:value={app.color}
-        class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+        class="flex-1 px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
         placeholder="#22c55e"
       />
       {#if app.color && app.color !== '#22c55e'}
-        <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.color = '#22c55e'} title={m.common_reset()}>&times;</button>
+        <button class="text-text-muted hover:text-text-primary" onclick={() => app.color = '#22c55e'} title={m.common_reset()}>&times;</button>
       {/if}
     </div>
   </div>
@@ -284,7 +284,7 @@
     <select
       id="{prefix}-app-group"
       bind:value={app.group}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
     >
       <option value="">{m.appForm_noGroup()}</option>
       {#each groups as group (group.name)}
@@ -295,13 +295,13 @@
 
   <!-- Display -->
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionDisplay()}</h4>
+    <h4 class="text-xs font-medium text-text-muted uppercase tracking-wide mb-3">{m.appForm_sectionDisplay()}</h4>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
         <input
           type="checkbox"
           bind:checked={app.enabled}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_enabled()}
@@ -319,7 +319,7 @@
               app.default = (e.currentTarget as HTMLInputElement).checked;
               ondefaultchange?.(app.default);
             }}
-            class="w-4 h-4 rounded border-border-subtle text-accent-text"
+            class="w-4 h-4 rounded border-border-input text-accent-text"
           />
           <div>
             <span class="text-sm text-text-primary">{m.appForm_defaultApp()}
@@ -333,7 +333,7 @@
         <input
           type="checkbox"
           bind:checked={app.pinned}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_pinned()}
@@ -350,7 +350,7 @@
         <select
           id="{prefix}-app-mode"
           bind:value={app.open_mode}
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
         >
           {#each openModes as mode (mode.value)}
             <option value={mode.value}>{mode.label}</option>
@@ -368,7 +368,7 @@
               id="{prefix}-app-action-method"
               value={app.http_action_method ?? 'POST'}
               onchange={(e) => { app.http_action_method = e.currentTarget.value as App['http_action_method']; }}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
             >
               <option value="POST">POST</option>
               <option value="GET">GET</option>
@@ -393,7 +393,7 @@
             <input
               type="checkbox"
               bind:checked={app.http_action_confirm}
-              class="w-4 h-4 rounded border-border-subtle text-accent-text"
+              class="w-4 h-4 rounded border-border-input text-accent-text"
             />
             <span class="text-sm text-text-primary">{m.app_http_action_confirm_label()}</span>
           </label>
@@ -405,7 +405,7 @@
                 const checked = (e.currentTarget as HTMLInputElement).checked;
                 app.http_action_show_toast = checked ? undefined : false;
               }}
-              class="w-4 h-4 rounded border-border-subtle text-accent-text"
+              class="w-4 h-4 rounded border-border-input text-accent-text"
             />
             <span class="text-sm text-text-primary">{m.app_http_action_show_toast_label()}</span>
           </label>
@@ -434,13 +434,13 @@
   <!-- Proxy -->
   {#if app.open_mode !== 'http_action'}
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionProxy()}</h4>
+    <h4 class="text-xs font-medium text-text-muted uppercase tracking-wide mb-3">{m.appForm_sectionProxy()}</h4>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
         <input
           type="checkbox"
           bind:checked={app.proxy}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_useReverseProxy()}
@@ -456,7 +456,7 @@
               type="checkbox"
               checked={app.proxy_skip_tls_verify !== false}
               onchange={(e) => { app.proxy_skip_tls_verify = (e.target as HTMLInputElement).checked ? undefined : false; }}
-              class="w-4 h-4 rounded border-border-subtle text-accent-text"
+              class="w-4 h-4 rounded border-border-input text-accent-text"
             />
             <div>
               <span class="text-sm text-text-primary">{m.appForm_skipTls()}
@@ -467,12 +467,12 @@
           </label>
           <div>
             <span class="block text-sm text-text-muted mb-1">{m.appForm_customHeaders()}</span>
-            <p class="text-xs text-text-disabled mb-2">{m.appForm_customHeadersDesc()}</p>
+            <p class="text-xs text-text-muted mb-2">{m.appForm_customHeadersDesc()}</p>
             {#each Object.entries(app.proxy_headers ?? {}) as [key, value] (key)}
               <div class="flex gap-2 mb-2">
                 <input type="text" value={key} placeholder={m.appForm_headerName()}
                   aria-label={m.appForm_headerNameFor({ name: key })}
-                  class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
+                  class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
                     const oldKey = key;
@@ -486,7 +486,7 @@
                 />
                 <input type="text" value={value} placeholder={m.appForm_headerValue()}
                   aria-label={m.appForm_headerValueFor({ name: key })}
-                  class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
+                  class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
                     headers[key] = (e.target as HTMLInputElement).value;
@@ -519,7 +519,7 @@
 
   <!-- Advanced -->
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionAdvanced()}</h4>
+    <h4 class="text-xs font-medium text-text-muted uppercase tracking-wide mb-3">{m.appForm_sectionAdvanced()}</h4>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
         <input
@@ -530,7 +530,7 @@
           onchange={(e) => {
             app.health_check = (e.target as HTMLInputElement).checked ? true : undefined;
           }}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_healthCheck()}
@@ -550,9 +550,9 @@
             type="url"
             bind:value={app.health_url}
             placeholder={app.url || m.appForm_healthCheckUrlPlaceholder()}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           />
-          <p class="text-xs text-text-disabled mt-1">{m.appForm_healthCheckUrlHint()}</p>
+          <p class="text-xs text-text-muted mt-1">{m.appForm_healthCheckUrlHint()}</p>
         </div>
       {/if}
       <div class="flex items-center gap-3">
@@ -570,7 +570,7 @@
             const n = val ? parseInt(val, 10) : NaN;
             app.shortcut = Number.isFinite(n) ? n : undefined;
           }}
-          class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary"
+          class="px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded text-text-primary"
         >
           <option value="">{m.appForm_none()}</option>
           {#each [1,2,3,4,5,6,7,8,9] as n (n)}
@@ -583,7 +583,7 @@
         <input
           type="checkbox"
           bind:checked={app.force_icon_background}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_forceIconBackground()}
@@ -596,7 +596,7 @@
         <input
           type="checkbox"
           bind:checked={app.icon.invert}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <span class="text-sm text-text-primary">{m.appForm_invertIconColors()}
@@ -613,7 +613,7 @@
         <select
           id="{prefix}-app-min-role"
           bind:value={app.min_role}
-          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
         >
           <option value="">{m.appForm_roleEveryone()}</option>
           <option value="power-user">{m.appForm_rolePowerUser()}</option>
@@ -647,14 +647,14 @@
   <!-- Browser Permissions -->
   {#if app.open_mode !== 'http_action'}
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-1">{m.appForm_sectionPermissions()}</h4>
+    <h4 class="text-xs font-medium text-text-muted uppercase tracking-wide mb-1">{m.appForm_sectionPermissions()}</h4>
     <p class="text-xs text-text-muted mb-3">{m.appForm_permissionsDesc()}</p>
     <label class="flex items-center gap-2 cursor-pointer text-sm mb-2 pb-2 border-b border-border-subtle">
       <input
         type="checkbox"
         checked={allPermissionsSelected}
         onchange={(e) => toggleAllPermissions((e.target as HTMLInputElement).checked)}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text"
+        class="w-4 h-4 rounded border-border-input text-accent-text"
       />
       <span class="text-text-primary font-medium">{m.appForm_permissionsAll()}</span>
     </label>
@@ -666,7 +666,7 @@
               type="checkbox"
               checked={hasPermission(perm.id)}
               onchange={(e) => togglePermission(perm.id, (e.target as HTMLInputElement).checked)}
-              class="w-4 h-4 rounded border-border-subtle text-accent-text"
+              class="w-4 h-4 rounded border-border-input text-accent-text"
             />
             <span class="text-text-primary font-mono text-xs">{perm.id}</span>
           </label>
@@ -679,7 +679,7 @@
       <input
         type="checkbox"
         bind:checked={app.allow_notifications}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text"
+        class="w-4 h-4 rounded border-border-input text-accent-text"
       />
       <div>
         <span class="text-sm text-text-primary">{m.appForm_allowNotifications()}

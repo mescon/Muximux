@@ -32,11 +32,15 @@ const BLACK_TINT = /rgba?\(\s*0\s*,\s*0\s*,\s*0\s*[,)]/;
 // (?<![\w-]) keeps border-color, outline-color, accent-color and --tw-ring-color out.
 const TOKEN_AS_TEXT = /(?<![\w-])color\s*:\s*var\(--(?:status-(?:success|warning|error|info)|accent-primary)\)/g;
 const ARBITRARY_TOKEN = /(?<![\w-])(?:[\w-]+:)*!?(?:text|bg|border|ring|outline|divide|fill|stroke|decoration|caret|accent)-\[var\(--(?:accent-primary|status-[\w-]+)\)\]/g;
+// --text-disabled is for disabled controls only (spec C5): a use must sit on a line that
+// also says "disabled" (the attribute, aria-disabled or a ternary keyed on a disabled state).
+const DISABLED_TEXT = /text-text-disabled/g;
+const disabledOnLine = (line: string) => /disabled/i.test(line.replaceAll('text-text-disabled', ''));
+// A focus ring utility is a second focus indicator on top of the global outline (spec S7).
+const FOCUS_RING = /(?<![\w-])(?:[\w-]+:)*focus(?:-visible|-within)?:ring(?:-[\w/.[\]()-]+)?(?![\w-])/g;
 // Counts every way of removing the focus outline: outline-none, outline-hidden and outline-0
 // utilities (any variant) and outline: none / outline: 0 declarations. Task 13 zeroed the
 // count by relying on the global :focus-visible rule in app.css instead.
-// A focus ring utility is a second focus indicator on top of the global outline (spec S7).
-const FOCUS_RING = /(?<![\w-])(?:[\w-]+:)*focus(?:-visible|-within)?:ring(?:-[\w/.[\]()-]+)?(?![\w-])/g;
 const OUTLINE = /(?<![\w-])(?:[\w-]+:)*outline-(?:none|hidden|0)(?![\w-])|(?<![\w-])outline\s*:\s*(?:none|0(?:px)?)(?![\w.%-])/g;
 
 // A hover utility identical to the element's own base utility changes nothing, so pointer
@@ -119,7 +123,7 @@ const rel = (f: string) => path.relative(SRC, f);
 const lineOf = (src: string, idx: number) => src.slice(0, idx).split('\n').length;
 
 type Finding = string;
-const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], focusRing: [], noOpHover: [], unlabeled: [], unnamedButtons: [], nestedInteractive: [] };
+const findings: Record<string, Finding[]> = { palette: [], whiteBlack: [], styleColours: [], tokenAsText: [], arbitraryToken: [], outline: [], focusRing: [], noOpHover: [], disabledText: [], unlabeled: [], unnamedButtons: [], nestedInteractive: [] };
 
 // Class rules over .ts files: a class map or a class string built in a store or helper.
 for (const f of tsFiles) {
@@ -165,6 +169,10 @@ for (const f of files) {
   for (const m of src.matchAll(TOKEN_AS_TEXT)) add('tokenAsText', m.index!, m[0]);
   for (const m of src.matchAll(ARBITRARY_TOKEN)) add('arbitraryToken', m.index!, m[0]);
   for (const m of src.matchAll(OUTLINE)) add('outline', m.index!, m[0]);
+  for (const m of src.matchAll(DISABLED_TEXT)) {
+    const line = src.slice(src.lastIndexOf('\n', m.index!) + 1, src.indexOf('\n', m.index!));
+    if (!disabledOnLine(line)) add('disabledText', m.index!, 'text-text-disabled on content');
+  }
   for (const m of src.matchAll(FOCUS_RING)) add('focusRing', m.index!, m[0]);
   for (const [idx, text] of styleExprHits(src)) add('styleColours', idx, text);
   for (const [idx, text] of styleHits(src)) add('styleColours', idx, text);
@@ -300,6 +308,13 @@ describe('a11y static guard', () => {
       const src = '<div></div>\n<style>\n  /* a\n  b */\n  .a { background: rgba(0, 0, 0, 0.5); }\n  .b {\n    color: #fff;\n    border-color: var(--x, #abc);\n  }\n</style>\n';
       const found = styleHits(src).map(([i, t]) => [lineOf(src, i), t]);
       expect(found).toEqual([[7, 'color: #fff']]);
+    });
+    it('disabledText allows text-text-disabled only next to a disabled condition', () => {
+      expect(disabledOnLine('<button disabled class="text-text-disabled">')).toBe(true);
+      expect(disabledOnLine('<button aria-disabled="true" class="text-text-disabled">')).toBe(true);
+      expect(disabledOnLine("class={isDisabled ? 'text-text-disabled' : 'text-text-primary'}")).toBe(true);
+      expect(disabledOnLine('<p class="text-sm text-text-disabled">Hint</p>')).toBe(false);
+      expect(disabledOnLine('<p class="text-text-disabled hover:text-text-disabled">')).toBe(false);
     });
     it('noOpHover flags a hover colour or decoration identical to the base, per literal segment', () => {
       const found = (s: string) => noOpHovers(s).map(([, t]) => t);

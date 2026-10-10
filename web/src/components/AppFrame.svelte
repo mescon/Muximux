@@ -198,7 +198,7 @@
       style="height: {pullDistance}px"
     >
       <div
-        class="flex items-center gap-2 text-text-disabled"
+        class="flex items-center gap-2 text-text-muted"
         style="opacity: {pullProgress}"
       >
         {#if isRefreshing}

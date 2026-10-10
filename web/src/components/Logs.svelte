@@ -457,7 +457,7 @@
     transform: translateY(-50%);
     width: 1rem;
     height: 1rem;
-    color: var(--text-disabled);
+    color: var(--text-muted);
     pointer-events: none;
   }
 
@@ -468,12 +468,12 @@
     font-size: 0.8125rem;
     color: var(--text-primary);
     background: var(--bg-overlay);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-input);
     transition: border-color 0.15s ease;
   }
 
   .log-search-input::placeholder {
-    color: var(--text-disabled);
+    color: var(--text-muted);
   }
 
   .log-search-input:focus-visible {
@@ -488,7 +488,7 @@
     padding: 0.125rem;
     border: none;
     background: transparent;
-    color: var(--text-disabled);
+    color: var(--text-muted);
     cursor: pointer;
     border-radius: 0.25rem;
   }
@@ -517,12 +517,12 @@
 
   .log-btn-inactive {
     background: var(--bg-overlay);
-    color: var(--text-disabled);
+    color: var(--text-muted);
     border-color: var(--border-subtle);
   }
 
   .log-btn-inactive:hover {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     background: var(--bg-hover);
   }
 
@@ -552,7 +552,7 @@
 
   .log-source-label {
     font-size: 0.75rem;
-    color: var(--text-disabled);
+    color: var(--text-muted);
     font-weight: 500;
     flex-shrink: 0;
   }
@@ -563,7 +563,7 @@
     font-size: 0.6875rem;
     border: 1px solid var(--border-subtle);
     background: var(--bg-overlay);
-    color: var(--text-disabled);
+    color: var(--text-muted);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
@@ -593,7 +593,7 @@
   .log-empty {
     padding: 3rem 1rem;
     text-align: center;
-    color: var(--text-disabled);
+    color: var(--text-muted);
     font-family: inherit;
   }
 
@@ -610,8 +610,12 @@
     background: var(--bg-hover);
   }
 
+  .log-entry:hover .log-ts {
+    color: var(--text-secondary);
+  }
+
   .log-ts {
-    color: var(--text-disabled);
+    color: var(--text-muted);
     flex-shrink: 0;
     font-size: 0.75rem;
   }
@@ -678,7 +682,7 @@
 
   .log-attr {
     font-size: 0.6875rem;
-    color: var(--text-disabled);
+    color: var(--text-muted);
   }
 
   .log-attr-value {
@@ -694,7 +698,7 @@
     border-top: 1px solid var(--border-subtle);
     background: var(--bg-surface);
     font-size: 0.75rem;
-    color: var(--text-disabled);
+    color: var(--text-muted);
     flex-shrink: 0;
   }
 

@@ -1398,7 +1398,7 @@
                 </svg>
               {/if}
               <span class="truncate">{displayGroupName(groupName)}</span>
-              <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ms-auto text-text-muted flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
@@ -1823,7 +1823,7 @@
                 </svg>
               {/if}
               <span class="truncate">{displayGroupName(groupName)}</span>
-              <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ms-auto text-text-muted flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
@@ -2440,7 +2440,7 @@
                     </svg>
                   {/if}
                   <span class="truncate">{displayGroupName(groupName)}</span>
-                  <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+                  <span class="ms-auto text-text-muted flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
                 </div>
               </button>
 
@@ -2626,7 +2626,7 @@
     role="navigation"
   >
     <button
-      class="p-4 bg-accent-primary hover:bg-accent-secondary text-accent-on-primary rounded-full shadow-lg transition-colors"
+      class="p-4 bg-accent-primary hover:shadow-xl text-accent-on-primary rounded-full shadow-lg transition-colors"
       class:hover:scale-110={!isDraggingFab}
       style="
         opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};
@@ -2702,11 +2702,6 @@
   nav :global(.text-text-muted),
   aside :global(.text-text-muted) {
     color: var(--text-muted) !important;
-  }
-
-  nav :global(.text-text-disabled),
-  aside :global(.text-text-disabled) {
-    color: var(--text-disabled) !important;
   }
 
   /* Background colors */
@@ -2859,9 +2854,6 @@
   }
   .floating-panel :global(.text-text-muted) {
     color: var(--text-muted) !important;
-  }
-  .floating-panel :global(.text-text-disabled) {
-    color: var(--text-disabled) !important;
   }
   .floating-panel :global(.bg-bg-elevated) {
     background: var(--bg-hover) !important;

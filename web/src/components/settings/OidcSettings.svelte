@@ -9,9 +9,9 @@
     onchange: (update: OIDCSettingsUpdate, valid: boolean) => void;
   } = $props();
 
-  const inputClass = 'w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm read-only:opacity-70';
+  const inputClass = 'w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm read-only:opacity-70';
   const checkboxRowClass = 'flex items-center gap-3 cursor-pointer';
-  const checkboxClass = 'w-4 h-4 rounded border-border-subtle text-accent-text';
+  const checkboxClass = 'w-4 h-4 rounded border-border-input text-accent-text';
 
   // The form is initialised once from the loaded settings; later edits stay local.
   const initial = untrack(() => settings);
@@ -141,7 +141,7 @@
 
 {#snippet envNote(field: string)}
   {#if fromEnv(field)}
-    <p class="text-xs text-text-disabled mt-1">{m.oidc_from_env({ name: envFields[field] })}</p>
+    <p class="text-xs text-text-muted mt-1">{m.oidc_from_env({ name: envFields[field] })}</p>
   {/if}
 {/snippet}
 
@@ -185,7 +185,7 @@
     {/if}
   </div>
   {#if identityLocked}
-    <p class="text-xs text-text-disabled" data-testid="oidc-identity-locked">{m.oidc_identity_locked_sso()}</p>
+    <p class="text-xs text-text-muted" data-testid="oidc-identity-locked">{m.oidc_identity_locked_sso()}</p>
   {/if}
 
   <div>
@@ -266,7 +266,7 @@
         <span class="text-sm text-text-primary">{m.oidc_disable_local()}</span>
       </label>
       {#if disableLocalHint}
-        <p class="text-xs text-text-disabled mt-1" data-testid="oidc-disable-local-hint">{disableLocalHint}</p>
+        <p class="text-xs text-text-muted mt-1" data-testid="oidc-disable-local-hint">{disableLocalHint}</p>
       {/if}
       {#if disableLocal}
         <p class="text-xs text-warning-text mt-1" data-testid="oidc-disable-local-warning">{m.oidc_disable_local_warning()}</p>
@@ -288,7 +288,7 @@
           <p class="text-sm text-success-text">{m.oidc_test_ok()}</p>
           <ul class="mt-1 space-y-0.5">
             {#each caps as c (c.key)}
-              <li class="text-xs {c.ok ? 'text-success-text' : 'text-text-disabled'}" data-testid="oidc-cap-{c.key}">
+              <li class="text-xs {c.ok ? 'text-success-text' : 'text-text-muted'}" data-testid="oidc-cap-{c.key}">
                 <span aria-hidden="true">{c.ok ? '✓' : '✗'}</span> {c.label}
               </li>
             {/each}

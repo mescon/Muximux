@@ -17,7 +17,7 @@
  * @theme-preview-bg: #e1e2e7
  * @theme-preview-surface: #d0d5e3
  * @theme-preview-accent: #2e7de9
- * @theme-preview-text: #3760bf
+ * @theme-preview-text: #25489e
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
@@ -66,22 +66,23 @@
   --glass-highlight: rgba(255, 255, 255, 0.5);
 
   /* Text hierarchy */
-  --text-primary: #3257ae;
-  --text-secondary: #495892;
-  --text-muted: #505985;
+  --text-primary: #224291;
+  --text-secondary: #3a477d;
+  --text-muted: #434b76;
   --text-disabled: #a8aecb;
 
   /* Borders */
   --border-subtle: rgba(55, 96, 191, 0.08);
   --border-default: rgba(55, 96, 191, 0.14);
   --border-strong: rgba(55, 96, 191, 0.22);
-  --border-focus: var(--accent-primary);
+  --border-focus: var(--accent-text);
 
   /* Accent colors - using Blue */
   --accent-primary: #2e7de9;
   --accent-secondary: #007197;
   --accent-muted: rgba(46, 125, 233, 0.18);
   --accent-subtle: rgba(46, 125, 233, 0.08);
+  --accent-on-primary: #111111;
 
   /* Brand palette - derived from Blue */
   --color-brand-50: #e8f0fd;
@@ -107,4 +108,12 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 20px rgba(46, 125, 233, 0.15);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #385315; --success-bg: color-mix(in srgb, #587539 12%, transparent); --success-border: #516e32;
+  --warning-text: #644616; --warning-bg: color-mix(in srgb, #8c6c3e 12%, transparent); --warning-border: #7e5f31;
+  --danger-text: #950137; --danger-bg: color-mix(in srgb, #f52a65 12%, transparent); --danger-border: #c6024b;
+  --info-text: #00506c; --info-bg: color-mix(in srgb, #007197 12%, transparent); --info-border: #006b8f;
+  --danger-solid: #c6024b; --danger-on-solid: #ffffff;
+  --accent-text: #004da7;
 }

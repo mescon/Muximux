@@ -45,10 +45,10 @@
       id="title"
       type="text"
       bind:value={localConfig.title}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
       placeholder="Muximux"
     />
-    <p class="text-xs text-text-disabled mt-1.5">
+    <p class="text-xs text-text-muted mt-1.5">
       {m.general_titleHint()}
     </p>
     <div class="p-3 bg-bg-hover rounded-lg mt-3">
@@ -57,12 +57,12 @@
           type="checkbox"
           checked={localConfig.navigation.dynamic_tab_branding ?? false}
           onchange={(e) => { localConfig.navigation.dynamic_tab_branding = (e.currentTarget as HTMLInputElement).checked; }}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
           data-testid="dynamic-tab-branding"
         />
         <div>
           <div class="text-sm text-text-primary">{m.general_dynamicTabBranding()}</div>
-          <div class="text-xs text-text-disabled">{m.general_dynamicTabBrandingHint()}</div>
+          <div class="text-xs text-text-muted">{m.general_dynamicTabBrandingHint()}</div>
         </div>
       </label>
     </div>
@@ -74,7 +74,7 @@
       {m.general_language()}
     </label>
     <LocaleSelect id="language" bind:value={localConfig.language} />
-    <p class="text-xs text-text-disabled mt-1.5">
+    <p class="text-xs text-text-muted mt-1.5">
       {m.general_languageAfterSave()}
     </p>
   </div>
@@ -159,7 +159,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_labels}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text"
+        class="w-4 h-4 rounded border-border-input text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
@@ -220,7 +220,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_app_colors}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text"
+        class="w-4 h-4 rounded border-border-input text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
@@ -232,7 +232,7 @@
       <input
         type="checkbox"
         bind:checked={localConfig.navigation.show_icon_background}
-        class="w-4 h-4 rounded border-border-subtle text-accent-text"
+        class="w-4 h-4 rounded border-border-input text-accent-text"
       />
       <div>
         <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
@@ -266,7 +266,7 @@
               localApps.forEach(a => a.default = false);
             }
           }}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div>
           <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
@@ -285,7 +285,7 @@
         <input
           type="checkbox"
           bind:checked={localConfig.navigation.auto_hide}
-          class="w-4 h-4 rounded border-border-subtle text-accent-text"
+          class="w-4 h-4 rounded border-border-input text-accent-text"
         />
         <div class="flex-1">
           <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
@@ -298,7 +298,7 @@
           <select
             aria-labelledby="gen-hide-after"
             bind:value={localConfig.navigation.auto_hide_delay}
-            class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary"
+            class="px-2 py-1 text-xs bg-bg-overlay border border-border-input rounded text-text-primary"
           >
             <option value="0.25s">0.25s</option>
             <option value="0.5s">0.5s</option>
@@ -311,7 +311,7 @@
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.show_shadow}
-            class="w-4 h-4 rounded border-border-subtle text-accent-text"
+            class="w-4 h-4 rounded border-border-input text-accent-text"
           />
           <div class="text-xs text-text-muted">{m.general_shadow()}</div>
         </label>
@@ -324,7 +324,7 @@
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.hide_sidebar_footer}
-            class="w-4 h-4 rounded border-border-subtle text-accent-text"
+            class="w-4 h-4 rounded border-border-input text-accent-text"
           />
           <div class="flex-1">
             {#if localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
@@ -354,7 +354,7 @@
             localConfig.navigation.max_open_tabs = parseInt((e.currentTarget as HTMLInputElement).value) || 0;
           }}
           class="w-20 px-2 py-1 text-sm rounded-lg text-center"
-          style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default);"
+          style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-input);"
         />
       </label>
     </div>
@@ -375,7 +375,7 @@
         >{m.general_disableAll()}</button>
       </div>
     </div>
-    <p class="text-xs text-text-disabled">{m.general_healthCheckHint()}</p>
+    <p class="text-xs text-text-muted">{m.general_healthCheckHint()}</p>
   </div>
 
   <!-- Advanced -->
@@ -388,14 +388,14 @@
         id="log-level"
         bind:value={localConfig.log_level}
         disabled={!!logLevelEnv}
-        class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+        class="px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded-md text-text-primary"
       >
         <option value="debug">{m.general_logDebug()}</option>
         <option value="info">{m.general_logInfo()}</option>
         <option value="warn">{m.general_logWarning()}</option>
         <option value="error">{m.general_logError()}</option>
       </select>
-      <span class="text-xs text-text-disabled">{logLevelEnv ? m.settings_fromEnv({ name: logLevelEnv }) : m.general_logLevelHint()}</span>
+      <span class="text-xs text-text-muted">{logLevelEnv ? m.settings_fromEnv({ name: logLevelEnv }) : m.general_logLevelHint()}</span>
     </div>
 
     <div class="flex items-center gap-3 mb-4">
@@ -405,9 +405,9 @@
         type="text"
         bind:value={localConfig.proxy_timeout}
         placeholder="30s"
-        class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+        class="w-20 px-2 py-1 text-sm bg-bg-elevated border border-border-input rounded-md text-text-primary"
       />
-      <span class="text-xs text-text-disabled">{m.general_proxyTimeoutHint()}</span>
+      <span class="text-xs text-text-muted">{m.general_proxyTimeoutHint()}</span>
     </div>
 
     <div class="flex flex-wrap gap-3">
@@ -438,7 +438,7 @@
         onchange={onimportselect}
       />
     </div>
-    <p class="text-xs text-text-disabled mt-2">
+    <p class="text-xs text-text-muted mt-2">
       {m.general_configHint()}
     </p>
   </div>

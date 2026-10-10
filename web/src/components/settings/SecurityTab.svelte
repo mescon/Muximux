@@ -491,7 +491,7 @@
                       id="cp-current"
                       type="password"
                       bind:value={cpCurrent}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                       autocomplete="current-password"
                     />
                   </div>
@@ -501,7 +501,7 @@
                       id="cp-new"
                       type="password"
                       bind:value={cpNew}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                       placeholder={m.security_minEightChars()}
                       autocomplete="new-password"
                     />
@@ -515,7 +515,7 @@
                       id="cp-confirm"
                       type="password"
                       bind:value={cpConfirm}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                       autocomplete="new-password"
                     />
                     {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
@@ -551,7 +551,7 @@
                       id="setup-username"
                       type="text"
                       bind:value={setupUsername}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                       placeholder="admin"
                     />
                   </div>
@@ -561,7 +561,7 @@
                       id="setup-password"
                       type="password"
                       bind:value={setupPassword}
-                      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                      class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                       placeholder="••••••••"
                     />
                   </div>
@@ -636,11 +636,11 @@
               <textarea
                 id="settings-proxies"
                 bind:value={methodTrustedProxies}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                 rows="3"
               ></textarea>
-              <p class="text-xs text-text-disabled mt-1">{m.security_proxyRangesHelp()}</p>
+              <p class="text-xs text-text-muted mt-1">{m.security_proxyRangesHelp()}</p>
             </div>
 
             <div>
@@ -649,10 +649,10 @@
                 id="settings-logout-url"
                 type="url"
                 bind:value={faLogoutUrl}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
               />
-              <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
+              <p class="text-xs text-text-muted mt-1">{m.security_logoutUrlHelp()}</p>
             </div>
 
             <button
@@ -670,22 +670,22 @@
                 <div>
                   <label for="settings-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                   <input id="settings-header-user" type="text" bind:value={faHeaderUser}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                 </div>
                 <div>
                   <label for="settings-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                   <input id="settings-header-email" type="text" bind:value={faHeaderEmail}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                 </div>
                 <div>
                   <label for="settings-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                   <input id="settings-header-groups" type="text" bind:value={faHeaderGroups}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                 </div>
                 <div>
                   <label for="settings-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                   <input id="settings-header-name" type="text" bind:value={faHeaderName}
-                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                    class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                 </div>
               </div>
             {/if}
@@ -695,11 +695,11 @@
               <textarea
                 id="settings-admin-groups"
                 bind:value={faAdminGroups}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 placeholder="admins"
                 rows="2"
               ></textarea>
-              <p class="text-xs text-text-disabled mt-1">{m.security_forwardAuthAdminGroupsHint()}</p>
+              <p class="text-xs text-text-muted mt-1">{m.security_forwardAuthAdminGroupsHint()}</p>
             </div>
           </div>
         {/if}
@@ -998,7 +998,7 @@
                 id="new-user-name"
                 type="text"
                 bind:value={newUserName}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 placeholder="username"
               />
             </div>
@@ -1008,7 +1008,7 @@
                 id="new-user-password"
                 type="password"
                 bind:value={newUserPassword}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 placeholder={m.security_minEightCharsShort()}
               />
             </div>
@@ -1018,7 +1018,7 @@
             <select
               id="new-user-role"
               bind:value={newUserRole}
-              class="px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+              class="px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
             >
               <option value="admin">{m.common_roleAdmin()}</option>
               <option value="power-user">{m.common_rolePowerUser()}</option>
@@ -1065,14 +1065,14 @@
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-text-primary">{user.username}</div>
                   {#if user.email}
-                    <div class="text-xs text-text-disabled">{user.email}</div>
+                    <div class="text-xs text-text-muted">{user.email}</div>
                   {/if}
                 </div>
                 <select
                   aria-label={m.security_roleFor({ user: user.username })}
                   value={user.role}
                   onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
-                  class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary"
+                  class="px-2 py-1 text-xs bg-bg-elevated border border-border-input rounded text-text-primary"
                 >
                   <option value="admin">{m.common_roleAdmin()}</option>
                   <option value="power-user">{m.common_rolePowerUser()}</option>
@@ -1092,7 +1092,7 @@
                 {:else}
                   <button
                     aria-label={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.common_deleteNamed({ name: user.username })}
-                    class="p-1.5 text-text-disabled hover:text-danger-text rounded transition-colors"
+                    class="p-1.5 text-text-muted hover:text-danger-text rounded transition-colors"
                     onclick={() => confirmDeleteUser = user.username}
                     disabled={user.username === $currentUser?.username}
                     title={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.security_deleteUser()}
@@ -1118,7 +1118,7 @@
                     }
                   }}
                   placeholder="e.g. developers, on-call"
-                  class="flex-1 px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary"
+                  class="flex-1 px-2 py-1 text-xs bg-bg-elevated border border-border-input rounded text-text-primary"
                 />
               </div>
             </div>

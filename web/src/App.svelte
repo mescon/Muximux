@@ -21,7 +21,7 @@
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
   import { mergeOnboardingResult } from './lib/onboardingStore';
-  import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer } from './lib/themeStore';
+  import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer, isDarkTheme } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
@@ -1277,7 +1277,7 @@
 {/if}
 
 <!-- Toast notifications (always rendered, position adapts to nav) -->
-<Toaster position={toastPosition} theme="dark" richColors />
+<Toaster position={toastPosition} theme={$isDarkTheme ? 'dark' : 'light'} richColors />
 
 <!-- Visually-hidden live region for screen-reader announcements (e.g. keyboard reordering) -->
 <Announcer />

@@ -86,20 +86,27 @@ You do not need to override every variable. Any variable you omit will fall back
 
 ### Status and accent tokens
 
-Status boxes, pills, inline messages and the danger button read these variables. A theme may override any of them; omitted ones fall back to the defaults in `app.css`, which reproduce the colours used before the tokens existed.
+Status boxes, pills, inline messages, form control borders and the danger button read these variables. A theme may override any of them; omitted ones are derived from the theme's own `--status-*` and `--accent-primary` colours (see below).
 
-| token | used for | fallback |
+| token | used for | derived when omitted |
 |---|---|---|
-| `--success-text`, `--success-bg`, `--success-border` | success notices and pills (text, translucent background, border) | green text, a 10% green tint and a 40% green border |
-| `--warning-text`, `--warning-bg`, `--warning-border` | warnings, "Unsaved changes", the discard prompt | amber text, a 10% amber tint and a 40% amber border |
-| `--danger-text`, `--danger-bg`, `--danger-border` | errors, failed saves, destructive hints | red text, a 10% red tint and a 40% red border |
-| `--info-text`, `--info-bg`, `--info-border` | informational pills | blue text, a 15% blue tint and a 30% blue border |
-| `--danger-solid`, `--danger-solid-hover`, `--danger-on-solid` | the solid danger button fill, its hover fill and its text | red, a lighter red, `#ffffff` |
-| `--accent-text` | the accent used as text: links, the active tab and the active navigation item | `--accent-primary` |
+| `--success-text`, `--success-bg`, `--success-border` | success notices and pills (text, translucent background, border) | `--status-success` mixed 40% / 12% (transparent) / 60% as described below |
+| `--warning-text`, `--warning-bg`, `--warning-border` | warnings, "Unsaved changes", the discard prompt | the same recipe from `--status-warning` |
+| `--danger-text`, `--danger-bg`, `--danger-border` | errors, failed saves, destructive hints | the same recipe from `--status-error` |
+| `--info-text`, `--info-bg`, `--info-border` | informational pills | the same recipe from `--status-info` |
+| `--danger-solid`, `--danger-solid-hover`, `--danger-on-solid` | the solid danger button fill, its hover fill and its text | `--danger-border`, that fill mixed 90% with the ink, `#111111` on dark or `#ffffff` on light |
+| `--accent-text` | the accent used as text: links, the active tab and the active navigation item | `--accent-primary` mixed 51% with the ink |
 | `--accent-on-primary` | text on an accent-filled button | `#ffffff` |
 | `--border-focus` | the keyboard focus outline on every control | `--accent-primary` |
+| `--border-input` | the boundary of form controls: inputs, selects, textareas, checkboxes and the locale picker | the ink at 50% over transparent |
 
-For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you.
+Every bundled theme defines the status and accent tokens with values that meet WCAG 2.1 AA on that theme's surfaces: 4.5:1 for text, 3:1 for borders and the focus outline. `--border-input` meets 3:1 on the base, surface, elevated and overlay backgrounds, so a form control stays visible wherever it sits. Card and divider borders (`--border-subtle`, `--border-default`, `--border-strong`) are unchanged.
+
+A custom theme that omits the tokens gets values derived from its `--status-*` and `--accent-primary` colours. The "ink" is white on a dark theme and black on a light one: text uses 40% of the status colour mixed with the ink, borders use 60%, and backgrounds are a 12% tint of the status colour. These pass AA for every bundled palette. Which way to go comes from the theme's `@theme-is-dark` header, which the app turns into a `data-color-scheme` attribute on the root element; set `@theme-is-dark: false` for a light theme (a theme without the header counts as dark). If you set the tokens yourself, aim for the same ratios. The `themeContrast` test in `web/src/lib/themeContrast.test.ts` is strict (no list of known failures) and checks every bundled theme and the derived fallback; it is the reference implementation. `web/src/lib/builtCss.test.ts` guards the compiled CSS against `light-dark()`, which the build would turn into a form that ignores the theme's scheme.
+
+For contrast, bundled themes were adjusted: muted and secondary text is slightly lighter on the dark themes and darker on the light ones (Solarized Light and Tokyo Night Light also darken their primary text), the elevated and overlay surfaces of Catppuccin, Cineplex Dark, Gruvbox, Nord and Solarized Dark are a step darker, buttons on most themes use dark text on the accent, and the focus outline of Cineplex Light, Gruvbox Light, Solarized Light and Tokyo Night Light uses the text-safe accent. Accent and status base colours are unchanged.
+
+For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you. If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from the theme's `--accent-primary` (over `--bg-base` when the accent is translucent) and picks white or black accordingly; a theme that defines the token is never overridden.
 
 The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
 

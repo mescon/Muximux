@@ -232,7 +232,7 @@
 
 {#snippet appRowContent(app: App, groupName: string, index: number, total: number)}
   <!-- Drag handle -->
-  <div class="flex-shrink-0 text-text-disabled hover:text-text-muted">
+  <div class="flex-shrink-0 text-text-muted hover:text-text-primary">
     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
     </svg>
@@ -380,9 +380,9 @@
     </div>
   </div>
 
-  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-disabled">
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-muted">
     <span>{m.apps_dragHelp()} {m.apps_reorderHelp()}</span>
-    <span class="flex items-center gap-3 text-text-disabled">
+    <span class="flex items-center gap-3 text-text-muted">
       <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></span> {m.apps_proxy()}</span>
       <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></span> {m.apps_newTab()}</span>
       <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span> {m.apps_newWindow()}</span>
@@ -399,7 +399,7 @@
         <!-- Group header -->
         <div class="flex items-center gap-3 p-3 bg-bg-elevated/30 rounded-t-lg cursor-grab active:cursor-grabbing">
           <!-- Drag handle -->
-          <div class="flex-shrink-0 text-text-disabled hover:text-text-secondary">
+          <div class="flex-shrink-0 text-text-muted hover:text-text-primary">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
             </svg>
@@ -417,7 +417,7 @@
           <!-- Group info -->
           <div class="flex-1 min-w-0">
             <span class="font-medium text-text-primary text-sm">{group.name}</span>
-            <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${appsInGroup.length}` })}</span>
+            <span class="text-xs text-text-muted ms-2">{m.apps_appCount({ count: `${appsInGroup.length}` })}</span>
           </div>
 
           <!-- Group actions -->
@@ -460,7 +460,7 @@
         <!-- Apps in this group (dnd-zone for app reordering + cross-group) -->
         <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: appsInGroup, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, group.name)} onfinalize={(e) => handleAppDndFinalize(e, group.name)}>
           {#if appsInGroup.length === 0}
-            <div class="text-center py-3 text-text-disabled text-sm italic">{m.apps_noAppsInGroup()}</div>
+            <div class="text-center py-3 text-text-muted text-sm italic">{m.apps_noAppsInGroup()}</div>
           {/if}
           {#each appsInGroup as app, appIndex ((app as App & Record<string, unknown>).id)}
             <div
@@ -483,9 +483,9 @@
       <div class="p-3 bg-bg-elevated/20 rounded-t-lg">
         <span class="text-sm font-medium text-text-muted">{m.apps_ungrouped()}</span>
         {#if ungroupedCount > 0}
-          <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${ungroupedCount}` })}</span>
+          <span class="text-xs text-text-muted ms-2">{m.apps_appCount({ count: `${ungroupedCount}` })}</span>
         {:else}
-          <span class="text-xs text-text-disabled ms-2">{m.apps_dragToUngroup()}</span>
+          <span class="text-xs text-text-muted ms-2">{m.apps_dragToUngroup()}</span>
         {/if}
       </div>
       <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>

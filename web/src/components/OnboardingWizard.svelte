@@ -934,7 +934,7 @@
 {#snippet wizardMoveButtons(upLabel: string, downLabel: string, atTop: boolean, atBottom: boolean, onUp: () => void, onDown: () => void)}
   <button
     type="button"
-    class="flex-shrink-0 p-1 text-text-disabled hover:text-text-secondary rounded transition-colors"
+    class="flex-shrink-0 p-1 text-text-muted hover:text-text-primary rounded transition-colors"
     class:opacity-30={atTop}
     class:cursor-not-allowed={atTop}
     aria-label={upLabel}
@@ -948,7 +948,7 @@
   </button>
   <button
     type="button"
-    class="flex-shrink-0 p-1 text-text-disabled hover:text-text-secondary rounded transition-colors"
+    class="flex-shrink-0 p-1 text-text-muted hover:text-text-primary rounded transition-colors"
     class:opacity-30={atBottom}
     class:cursor-not-allowed={atBottom}
     aria-label={downLabel}
@@ -1115,7 +1115,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={$showLabels}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                  class="w-4 h-4 rounded border-border-input text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
                   <div class="text-xs text-text-muted">{m.general_showLabelsDesc()}</div>
@@ -1124,7 +1124,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowLogo}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                  class="w-4 h-4 rounded border-border-input text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_showLogo()}</div>
                   <div class="text-xs text-text-muted">{m.general_showLogoDesc()}</div>
@@ -1133,7 +1133,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowAppColors}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                  class="w-4 h-4 rounded border-border-input text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
                   <div class="text-xs text-text-muted">{m.general_appColorAccentsDesc()}</div>
@@ -1142,7 +1142,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowIconBg}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                  class="w-4 h-4 rounded border-border-input text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
                   <div class="text-xs text-text-muted">{m.general_iconBackgroundDesc()}</div>
@@ -1165,7 +1165,7 @@
 
               <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer sm:col-span-2 sm:max-w-[calc(50%-0.375rem)]">
                 <input type="checkbox" bind:checked={navShowSplash}
-                  class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                  class="w-4 h-4 rounded border-border-input text-accent-text" />
                 <div>
                   <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
                   <div class="text-xs text-text-muted">{m.general_startOnOverviewDesc()}</div>
@@ -1175,7 +1175,7 @@
               <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <label class="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" bind:checked={navAutoHide}
-                    class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                    class="w-4 h-4 rounded border-border-input text-accent-text" />
                   <div class="flex-1">
                     <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
                     <div class="text-xs text-text-muted">{m.general_autoHideMenuDesc()}</div>
@@ -1186,7 +1186,7 @@
                     <div id="wiz-hide-after" class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
                       aria-labelledby="wiz-hide-after"
-                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary">
+                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-input rounded text-text-primary">
                       <option value="0.25s">0.25s</option>
                       <option value="0.5s">0.5s</option>
                       <option value="1s">1s</option>
@@ -1196,7 +1196,7 @@
                   </div>
                   <label class="flex items-center gap-3 mt-2 ps-7 cursor-pointer">
                     <input type="checkbox" bind:checked={navShowShadow}
-                      class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                      class="w-4 h-4 rounded border-border-input text-accent-text" />
                     <div class="text-xs text-text-muted">{m.general_shadow()}</div>
                   </label>
                 {/if}
@@ -1206,7 +1206,7 @@
                 <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                   <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" bind:checked={navHideSidebarFooter}
-                      class="w-4 h-4 rounded border-border-subtle text-accent-text" />
+                      class="w-4 h-4 rounded border-border-input text-accent-text" />
                     <div class="flex-1">
                       <div class="text-sm text-text-primary">{m.general_collapsibleFooter()}</div>
                       <div class="text-xs text-text-muted">{m.general_collapsibleFooterDesc()}</div>
@@ -1286,7 +1286,7 @@
               {/each}
             </div>
 
-            <p class="text-center text-text-disabled text-sm mt-6 max-w-md mx-auto">
+            <p class="text-center text-text-muted text-sm mt-6 max-w-md mx-auto">
               {m.onboarding_themeCustomizeHint()}
             </p>
             {/if}
@@ -1373,7 +1373,7 @@
                 autocomplete="off"
                 spellcheck="false"
                 placeholder={m.onboarding_setupTokenPlaceholder()}
-                class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary font-mono text-sm"
+                class="w-full px-3 py-2 bg-bg-surface border border-border-input rounded-md text-text-primary font-mono text-sm"
               />
               <p class="text-xs text-text-muted mt-1">
                 {m.onboarding_setupTokenHint({ file: 'data/.setup-token' })}
@@ -1450,7 +1450,7 @@
                         id="setup-username"
                         type="text"
                         bind:value={setupUsername}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
                         placeholder="admin"
                         autocomplete="username"
                       />
@@ -1461,7 +1461,7 @@
                         id="setup-password"
                         type="password"
                         bind:value={setupPassword}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
                         placeholder={m.security_minEightChars()}
                         autocomplete="new-password"
                       />
@@ -1475,7 +1475,7 @@
                         id="setup-confirm"
                         type="password"
                         bind:value={setupConfirmPassword}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary"
                         placeholder={m.onboarding_reenterPassword()}
                         autocomplete="new-password"
                       />
@@ -1525,11 +1525,11 @@
                       <textarea
                         id="setup-proxies"
                         bind:value={faTrustedProxies}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                         placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                         rows="3"
                       ></textarea>
-                      <p class="text-xs text-text-disabled mt-1">{m.security_proxyRangesHelp()}</p>
+                      <p class="text-xs text-text-muted mt-1">{m.security_proxyRangesHelp()}</p>
                     </div>
 
                     <div>
@@ -1538,10 +1538,10 @@
                         id="setup-logout-url"
                         type="url"
                         bind:value={faLogoutUrl}
-                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                         placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
                       />
-                      <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
+                      <p class="text-xs text-text-muted mt-1">{m.security_logoutUrlHelp()}</p>
                     </div>
 
                     <button
@@ -1559,22 +1559,22 @@
                         <div>
                           <label for="fa-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                           <input id="fa-header-user" type="text" bind:value={faHeaderUser}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                           <input id="fa-header-email" type="text" bind:value={faHeaderEmail}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                           <input id="fa-header-groups" type="text" bind:value={faHeaderGroups}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                         </div>
                         <div>
                           <label for="fa-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                           <input id="fa-header-name" type="text" bind:value={faHeaderName}
-                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-input rounded text-text-primary text-sm" />
                         </div>
                       </div>
                     {/if}
@@ -1617,7 +1617,7 @@
                       </div>
                       <label class="flex items-start gap-3 cursor-pointer">
                         <input id="setup-none-ack" type="checkbox" bind:checked={acknowledgeRisk}
-                          class="mt-1 w-4 h-4 rounded border-border-subtle text-accent-text" />
+                          class="mt-1 w-4 h-4 rounded border-border-input text-accent-text" />
                         <span class="text-sm text-text-muted">{m.onboarding_acknowledgeRisk()}</span>
                       </label>
                     </div>
@@ -1647,7 +1647,7 @@
                   <input
                     type="checkbox"
                     bind:checked={dockerEnabled}
-                    class="mt-0.5 w-4 h-4 rounded border-border-default text-accent-text"
+                    class="mt-0.5 w-4 h-4 rounded border-border-input text-accent-text"
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
@@ -1657,7 +1657,7 @@
                       </svg>
                       <span class="text-sm font-semibold text-text-secondary">{m.onboarding_dockerTitle()}</span>
                     </div>
-                    <p class="text-xs text-text-disabled mt-0.5">{m.onboarding_dockerHint()}</p>
+                    <p class="text-xs text-text-muted mt-0.5">{m.onboarding_dockerHint()}</p>
                   </div>
                 </label>
                 {#if dockerEnabled}
@@ -1668,17 +1668,17 @@
                         id="docker-endpoint"
                         type="text"
                         bind:value={dockerEndpoint}
-                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                         placeholder="unix:///var/run/docker.sock"
                       />
-                      <p class="text-xs text-text-disabled mt-1">{m.onboarding_dockerEndpointHint()}</p>
+                      <p class="text-xs text-text-muted mt-1">{m.onboarding_dockerEndpointHint()}</p>
                     </div>
                     <div>
                       <label for="docker-strategy" class="block text-xs text-text-muted mb-1">{m.onboarding_dockerStrategy()}</label>
                       <select
                         id="docker-strategy"
                         bind:value={dockerStrategy}
-                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                        class="w-full px-3 py-1.5 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                       >
                         <option value="container_ip">container_ip ({m.onboarding_dockerStrategyContainerIPHint()})</option>
                         <option value="container_dns">container_dns ({m.onboarding_dockerStrategyContainerDNSHint()})</option>
@@ -1686,7 +1686,7 @@
                         <option value="host_docker_internal">host_docker_internal ({m.onboarding_dockerStrategyHostDockerInternalHint()})</option>
                       </select>
                     </div>
-                    <p class="text-xs text-text-disabled italic">{m.onboarding_dockerPostSetupHint()}</p>
+                    <p class="text-xs text-text-muted italic">{m.onboarding_dockerPostSetupHint()}</p>
                   </div>
                 {/if}
               </div>
@@ -1697,7 +1697,7 @@
                 </svg>
                 <div>
                   <h3 class="text-sm font-semibold text-text-secondary">{m.onboarding_appCatalog()}</h3>
-                  <p class="text-xs text-text-disabled">{m.onboarding_appCatalogHint()}</p>
+                  <p class="text-xs text-text-muted">{m.onboarding_appCatalogHint()}</p>
                 </div>
               </div>
               <!-- Custom App Quick Add -->
@@ -1708,7 +1708,7 @@
                     id="custom-name"
                     type="text"
                     bind:value={customApp.name}
-                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                     placeholder={m.onboarding_appName()}
                   />
                 </div>
@@ -1718,7 +1718,7 @@
                     id="custom-url"
                     type="url"
                     bind:value={customApp.url}
-                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                     placeholder="http://localhost:8080"
                   />
                 </div>
@@ -1765,7 +1765,7 @@
                             </button>
                           {/if}
                           <div aria-hidden="true" class="w-5 h-5 rounded border flex items-center justify-center
-                                      {selection?.selected ? 'bg-accent-primary border-border-focus' : 'border-border-subtle'}">
+                                      {selection?.selected ? 'bg-accent-primary border-border-focus' : 'border-border-input'}">
                             {#if selection?.selected}
                               <svg class="w-3 h-3 text-accent-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -1789,7 +1789,7 @@
                           />
                           <span class="block flex-1 min-w-0 pe-6">
                             <span class="block font-medium text-text-primary text-sm">{app.name}</span>
-                            <span class="block text-xs text-text-disabled">{app.description}</span>
+                            <span class="block text-xs text-text-muted">{app.description}</span>
                           </span>
                         </button>
                       </div>
@@ -1808,12 +1808,12 @@
                   </svg>
                   <div>
                     <h3 class="text-sm font-semibold text-text-secondary">{m.onboarding_yourMenu()}</h3>
-                    <p class="text-xs text-text-disabled">{m.onboarding_dragToOrganize()}</p>
+                    <p class="text-xs text-text-muted">{m.onboarding_dragToOrganize()}</p>
                   </div>
                 </div>
 
                 {#if selectedCount + $selectedApps.length === 0}
-                  <p class="text-sm text-text-disabled italic">{m.onboarding_selectAppsHint()}</p>
+                  <p class="text-sm text-text-muted italic">{m.onboarding_selectAppsHint()}</p>
                 {:else}
                 <div>
                   <h3 class="text-sm font-semibold text-text-secondary mb-3">
@@ -1829,7 +1829,7 @@
                         <div class="rounded-lg border border-border bg-bg-surface overflow-hidden cursor-grab"
                              animate:flip={{duration: motionMs(flipDurationMs)}}>
                           <div class="flex items-center gap-2 p-2.5 group/grpdrag">
-                            <svg class="w-4 h-4 text-text-disabled group-hover/grpdrag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                            <svg class="w-4 h-4 text-text-muted group-hover/grpdrag:text-text-primary flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                               <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                             </svg>
                             <input
@@ -1861,7 +1861,7 @@
                                 type="text"
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
-                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border text-sm text-text-primary font-medium transition-colors"
+                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border-input text-sm text-text-primary font-medium transition-colors"
                               />
                             </div>
                             {@render wizardMoveButtons(
@@ -1873,7 +1873,7 @@
                               () => moveWizardGroup(i, 1)
                             )}
                             <button
-                              class="flex-shrink-0 p-1 text-text-disabled hover:text-danger-text rounded transition-colors"
+                              class="flex-shrink-0 p-1 text-text-muted hover:text-danger-text rounded transition-colors"
                               onclick={() => deleteGroup(i)}
                               aria-label={m.onboarding_removeGroupAt({ n: i + 1 })}
                             >
@@ -1893,7 +1893,7 @@
                                 <div class="p-2 rounded bg-bg-surface cursor-grab group/drag text-sm text-text-primary"
                                      animate:flip={{duration: motionMs(flipDurationMs)}}>
                                   <div class="flex items-center gap-1.5 min-w-0">
-                                    <svg class="w-3.5 h-3.5 text-text-disabled group-hover/drag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                                    <svg class="w-3.5 h-3.5 text-text-muted group-hover/drag:text-text-primary flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                                       <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                                     </svg>
                                     <input
@@ -1923,7 +1923,7 @@
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border px-0 py-0"
+                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border-input px-0 py-0"
                                     />
                                     {@render wizardMoveButtons(
                                       m.apps_moveUp({ name: item.name }),
@@ -1934,7 +1934,7 @@
                                       () => moveWizardApp(group.name, appIdx, 1)
                                     )}
                                     <button
-                                      class="p-1 text-text-disabled hover:text-danger-text transition-opacity flex-shrink-0"
+                                      class="p-1 text-text-muted hover:text-danger-text transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}
                                       aria-label={m.common_removeNamed({ name: item.name })}
                                     >
@@ -1949,7 +1949,7 @@
                                     value={getAppUrl(item.name)}
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
                                     onclick={(e) => e.stopPropagation()}
-                                    class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-bg-elevated border border-border-subtle rounded
+                                    class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-bg-elevated border border-border-input rounded
                                            text-text-secondary placeholder-text-disabled"
                                     placeholder="http://localhost:8080"
                                     style="width: calc(100% - 66px)"
@@ -1960,14 +1960,14 @@
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-secondary"
+                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-input rounded text-text-secondary"
                                     >
                                       {#each openModes as mode (mode.value)}
                                         <option value={mode.value}>{mode.label}</option>
                                       {/each}
                                     </select>
                                     <span class="help-trigger relative ms-0.5" use:positionTooltip>
-                                      <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                      <svg class="w-3 h-3 text-text-muted cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                       </svg>
                                       <span class="help-tooltip">
@@ -1981,11 +1981,11 @@
                                         checked={getAppProxy(item.name)}
                                         onclick={(e) => e.stopPropagation()}
                                         onchange={(e) => updateAppSetting(item.name, 'proxy', e.currentTarget.checked)}
-                                        class="w-3 h-3 rounded border-border-subtle text-accent-text"
+                                        class="w-3 h-3 rounded border-border-input text-accent-text"
                                       />
                                       <span class="text-[11px] text-text-muted">{m.apps_proxy()}</span>
                                       <span class="help-trigger relative ms-0.5" use:positionTooltip>
-                                        <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg class="w-3 h-3 text-text-muted cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                           <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                         </svg>
                                         <span class="help-tooltip">
@@ -1998,14 +1998,14 @@
                               {/each}
                             </div>
                             {#if groupApps.length === 0}
-                              <p class="text-xs text-text-disabled text-center py-1 mt-1">{m.onboarding_dropAppsHere()}</p>
+                              <p class="text-xs text-text-muted text-center py-1 mt-1">{m.onboarding_dropAppsHere()}</p>
                             {/if}
                           </div>
                         </div>
                       {/each}
                     </div>
                   {:else}
-                    <p class="text-sm text-text-disabled italic">{m.onboarding_groupsAutoAppear()}</p>
+                    <p class="text-sm text-text-muted italic">{m.onboarding_groupsAutoAppear()}</p>
                   {/if}
 
                   <button
@@ -2093,7 +2093,7 @@
         {/if}
       </div>
 
-      <div class="text-sm text-text-disabled">
+      <div class="text-sm text-text-muted" data-testid="wizard-footer-status">
         {#if $currentStep === 'apps'}
           {m.onboarding_appsSelected({ count: selectedCount + $selectedApps.length, noun: (selectedCount + $selectedApps.length) === 1 ? m.splash_appSingular() : m.splash_appPlural() })}
         {:else if $currentStep === 'security' && authMethod}

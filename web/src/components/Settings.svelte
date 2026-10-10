@@ -986,7 +986,7 @@
               aria-label={m.settings_searchApps()}
               type="text"
               bind:value={addAppSearch}
-              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
               placeholder={m.settings_searchApps()}
             />
           </div>
@@ -1033,7 +1033,7 @@
                             <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-bg-overlay text-text-muted font-normal flex-shrink-0">{m.settings_added()}</span>
                           {/if}
                         </div>
-                        <div class="text-xs text-text-disabled truncate">{template.description}</div>
+                        <div class="text-xs text-text-muted truncate">{template.description}</div>
                       </div>
                     </button>
                   {/each}
@@ -1129,7 +1129,7 @@
             bind:value={newGroup.name}
             oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
             aria-invalid={groupErrors.name ? 'true' : undefined}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {groupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {groupErrors.name ? 'border-danger-border' : 'border-border-input'}"
             placeholder={m.settings_groupNamePlaceholder()}
           />
           {#if groupErrors.name}<p class="text-danger-text text-xs mt-1">{groupErrors.name}</p>{/if}
@@ -1161,7 +1161,7 @@
               aria-label={m.common_colorValue()}
               type="text"
               bind:value={newGroup.color}
-              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
             />
           </div>
         </div>
@@ -1286,7 +1286,7 @@
             bind:value={editingGroup.name}
             oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
             aria-invalid={editGroupErrors.name ? 'true' : undefined}
-            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {editGroupErrors.name ? 'border-danger-border' : 'border-border-subtle'}"
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary {editGroupErrors.name ? 'border-danger-border' : 'border-border-input'}"
           />
           {#if editGroupErrors.name}<p class="text-danger-text text-xs mt-1">{editGroupErrors.name}</p>{/if}
         </div>
@@ -1314,15 +1314,15 @@
                 {m.settings_iconColor()}
                 <input type="color" value={editingGroup!.icon.color || '#ffffff'} oninput={(e) => editingGroup!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
                 {#if editingGroup!.icon.color}
-                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.color = ''} title={m.settings_resetToDefault()}>&times;</button>
+                  <button class="text-text-muted hover:text-text-primary" onclick={() => editingGroup!.icon.color = ''} title={m.settings_resetToDefault()}>&times;</button>
                 {/if}
               </label>
               <label class="flex items-center gap-2 text-xs text-text-muted">
                 {m.settings_background()}
                 <input type="color" value={editingGroup!.icon.background || editingGroup!.color || '#374151'} oninput={(e) => editingGroup!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
-                <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title={m.settings_transparent()}>{m.settings_none()}</button>
+                <button class="text-text-muted hover:text-text-primary text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title={m.settings_transparent()}>{m.settings_none()}</button>
                 {#if editingGroup!.icon.background}
-                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.background = ''} title={m.settings_resetToGroupColor()}>&times;</button>
+                  <button class="text-text-muted hover:text-text-primary" onclick={() => editingGroup!.icon.background = ''} title={m.settings_resetToGroupColor()}>&times;</button>
                 {/if}
               </label>
             </div>
@@ -1341,7 +1341,7 @@
               aria-label={m.common_colorValue()}
               type="text"
               bind:value={editingGroup.color}
-              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
             />
           </div>
         </div>
@@ -1497,6 +1497,9 @@
   .settings :global(.border-border-strong) {
     border-color: var(--border-strong) !important;
   }
+  .settings :global(.border-border-input) {
+    border-color: var(--border-input) !important;
+  }
 
   /* Text */
   .settings :global(.text-text-primary) {
@@ -1508,7 +1511,7 @@
   .settings :global(.text-text-muted) {
     color: var(--text-muted) !important;
   }
-  .settings :global(.text-text-disabled) {
+  .settings :global(.text-text-disabled) { /* disabled controls only */
     color: var(--text-disabled) !important;
   }
 

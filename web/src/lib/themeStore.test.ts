@@ -477,9 +477,97 @@ describe('themeStore', () => {
       expect(document.documentElement.dataset.theme).toBe('muximux');
     });
 
+    it('sets data-color-scheme from the active theme metadata', async () => {
+      selectedFamily.set('default');
+      variantMode.set('light');
+      initTheme();
+      await new Promise(r => setTimeout(r, 50));
+      expect(document.documentElement.dataset.theme).toBe('muximux-light');
+      expect(document.documentElement.dataset.colorScheme).toBe('light');
+
+      variantMode.set('dark');
+      await new Promise(r => setTimeout(r, 50));
+      expect(document.documentElement.dataset.colorScheme).toBe('dark');
+    });
+
+    it('sets data-color-scheme to light for a light custom theme', async () => {
+      // A pre-existing link makes loadCustomThemeCSS resolve at once.
+      const link = document.createElement('link');
+      link.id = 'theme-zen-light';
+      document.head.appendChild(link);
+      customThemes.set([{
+        id: 'zen-light', name: 'Zen Light', isBuiltin: false, isDark: false,
+        family: 'zen', variant: 'light', familyName: 'Zen',
+      }]);
+      selectedFamily.set('zen');
+      variantMode.set('light');
+      initTheme();
+      await new Promise(r => setTimeout(r, 50));
+      expect(document.documentElement.dataset.theme).toBe('zen-light');
+      expect(document.documentElement.dataset.colorScheme).toBe('light');
+      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      link.remove();
+    });
+
     it('sets up matchMedia listener', () => {
       initTheme();
       expect(globalThis.matchMedia).toHaveBeenCalledWith('(prefers-color-scheme: dark)');
+    });
+  });
+
+  describe('accent foreground derivation', () => {
+    const root = document.documentElement;
+    let style: HTMLStyleElement;
+    const activate = async (id: string, css: string, isDark: boolean) => {
+      style.textContent = css;
+      const link = document.createElement('link');
+      link.id = `theme-${id}`;
+      document.head.appendChild(link);
+      customThemes.set([{ id, name: id, isBuiltin: false, isDark, family: id, variant: isDark ? 'dark' : 'light', familyName: id }]);
+      selectedFamily.set(id);
+      variantMode.set(isDark ? 'dark' : 'light');
+      initTheme();
+      await new Promise(r => setTimeout(r, 50));
+    };
+    beforeEach(() => {
+      mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve([]) });
+      style = document.createElement('style');
+      document.head.appendChild(style);
+    });
+    afterEach(() => {
+      style.remove();
+      root.style.removeProperty('--accent-on-primary');
+      document.querySelectorAll('link[id^="theme-"]').forEach(l => l.remove());
+    });
+
+    it('gives light text to a dark accent when the theme omits the token', async () => {
+      await activate('dk', '[data-theme="dk"] { --accent-primary: #1a237e; --bg-base: #000000; }', true);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#ffffff');
+    });
+
+    it('gives dark text to a light accent when the theme omits the token', async () => {
+      await activate('lt', '[data-theme="lt"] { --accent-primary: #ffeb3b; --bg-base: #ffffff; }', false);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#000000');
+    });
+
+    it('composites a translucent accent over --bg-base', async () => {
+      await activate('tr', '[data-theme="tr"] { --accent-primary: rgba(0, 0, 0, 0.1); --bg-base: #ffffff; }', false);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#000000');
+    });
+
+    it('leaves a theme that defines the token alone', async () => {
+      await activate('own', '[data-theme="own"] { --accent-primary: #1a237e; --accent-on-primary: #123456; }', true);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('');
+    });
+
+    it('clears the override when switching away', async () => {
+      await activate('dk2', '[data-theme="dk2"] { --accent-primary: #1a237e; --bg-base: #000000; }', true);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#ffffff');
+      selectedFamily.set('default');
+      variantMode.set('dark');
+      await new Promise(r => setTimeout(r, 50));
+      expect(root.dataset.theme).toBe('muximux');
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('');
     });
   });
 
@@ -643,6 +731,38 @@ describe('themeStore', () => {
       const result = await deleteCustomThemeFromServer('test-delete');
       expect(result).toBe(true);
       expect(document.getElementById('theme-test-delete')).toBeNull();
+    });
+  });
+
+  describe('saveCustomThemeToServer - active theme', () => {
+    it('re-applies the active theme so a flipped isDark updates the document', async () => {
+      const { saveCustomThemeToServer } = await import('./themeStore');
+      const root = document.documentElement;
+      const saved = (isDark: boolean): ThemeInfo => ({
+        id: 'flip-me', name: 'Flip me', description: '', isBuiltin: false, isDark,
+        family: 'flip-me', familyName: 'Flip me', variant: isDark ? 'dark' : 'light',
+      } as ThemeInfo);
+      // jsdom never loads stylesheets: fire onload for each link the store creates
+      const origCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string, opts?: ElementCreationOptions) => {
+        const el = origCreateElement(tag, opts);
+        if (tag === 'link') setTimeout(() => (el as HTMLLinkElement).onload?.(new Event('load')), 0);
+        return el;
+      });
+
+      customThemes.set([saved(true)]);
+      selectedFamily.set('flip-me');
+      variantMode.set('dark');
+      await vi.waitFor(() => expect(root.dataset.colorScheme).toBe('dark'));
+
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([saved(false)]) });
+      expect(await saveCustomThemeToServer('Flip me', 'dark', false, {})).toBe(true);
+
+      expect(root.dataset.colorScheme).toBe('light');
+      expect(root.classList.contains('dark')).toBe(false);
+      document.getElementById('theme-flip-me')?.remove();
+      vi.restoreAllMocks();
     });
   });
 

@@ -860,7 +860,7 @@ describe('OnboardingWizard', () => {
       await fireEvent.click(screen.getByText('Create a password'));
       await waitFor(() => {
         // Footer status text shows "Password" for builtin method
-        const footerStatus = document.querySelector('.text-sm.text-text-disabled');
+        const footerStatus = document.querySelector('[data-testid="wizard-footer-status"]');
         expect(footerStatus?.textContent?.trim()).toBe('Password');
       });
     });

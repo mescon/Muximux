@@ -587,7 +587,7 @@
                 </div>
               {:else}
                 <button
-                  class="p-1.5 text-text-disabled hover:text-danger-text rounded transition-colors"
+                  class="p-1.5 text-text-muted hover:text-danger-text rounded transition-colors"
                   onclick={() => confirmDelete = site.domain}
                   title="Delete this gateway site"
                   type="button"
@@ -651,7 +651,7 @@
             bind:value={form.domain}
             oninput={scheduleLint}
             placeholder="sonarr.example.com"
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           />
           <p class="text-xs text-text-muted mt-1">Public hostname Caddy will listen for. Must point at this server's IP.</p>
         </div>
@@ -665,7 +665,7 @@
             oninput={scheduleLint}
             readonly={!!form.docker_key}
             placeholder="http://sonarr:8989"
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm {form.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm {form.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
             data-testid="gw-form-backend-url"
           />
           {#if form.docker_key}
@@ -688,7 +688,7 @@
             id="gw-tls"
             bind:value={form.tls}
             onchange={scheduleLint}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           >
             <option value="auto">Automatic (Let's Encrypt)</option>
             <option value="custom">Custom certificate</option>
@@ -704,7 +704,7 @@
                   bind:value={form.tls_cert}
                   oninput={scheduleLint}
                   placeholder="/etc/ssl/example.crt"
-                  class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                  class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 />
               </div>
               <div>
@@ -715,7 +715,7 @@
                   bind:value={form.tls_key}
                   oninput={scheduleLint}
                   placeholder="/etc/ssl/example.key"
-                  class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                  class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
                 />
               </div>
             </div>
@@ -825,7 +825,7 @@
                 <select
                   id="gw-min-role"
                   bind:value={form.min_role}
-                  class="w-full px-2 py-1 bg-bg-elevated border border-border-subtle rounded text-text-primary text-xs"
+                  class="w-full px-2 py-1 bg-bg-elevated border border-border-input rounded text-text-primary text-xs"
                 >
                   <option value="">Any authenticated user</option>
                   <option value="user">user</option>
@@ -841,7 +841,7 @@
                   type="text"
                   bind:value={allowedGroupsRaw}
                   placeholder="family, admins"
-                  class="w-full px-2 py-1 bg-bg-elevated border border-border-subtle rounded text-text-primary text-xs"
+                  class="w-full px-2 py-1 bg-bg-elevated border border-border-input rounded text-text-primary text-xs"
                 />
                 <p class="text-xs text-text-muted mt-1">Comma-separated, case-insensitive. Leave empty to skip the group check. Admins bypass.</p>
               </div>
@@ -856,7 +856,7 @@
             bind:value={proxyHeadersRaw}
             placeholder={headersPlaceholder}
             rows="3"
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-xs font-mono"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-xs font-mono"
           ></textarea>
           <p class="text-xs text-text-muted mt-1">
             One <code>name: value</code> per line. Injected on the upstream request, e.g. for the backend's own API key.
@@ -868,7 +868,7 @@
           <select
             id="gw-app"
             bind:value={appLinkChoice}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
           >
             <option value="">Don't add to menu (standalone gateway)</option>
             <option value="__create__">Add to menu - create new app</option>
@@ -888,7 +888,7 @@
                 type="text"
                 bind:value={newAppName}
                 placeholder={deriveAppNameFromDomain(form.domain) || 'Sonarr'}
-                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm"
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm"
               />
               <p class="text-xs text-text-muted mt-1">
                 A new app pointing at <code>{form.tls === 'none' ? 'http' : 'https'}://{form.domain || 'your-domain'}</code> will be created and added to the menu when you save.

@@ -57,10 +57,10 @@
   /* Backgrounds - layered using Base colors */
   --bg-base: #1e1e2e;
   --bg-surface: #313244;
-  --bg-elevated: #45475a;
-  --bg-overlay: #585b70;
-  --bg-hover: #45475a;
-  --bg-active: #585b70;
+  --bg-elevated: #3d3f52;
+  --bg-overlay: #43465a;
+  --bg-hover: #3d3f52;
+  --bg-active: #43465a;
 
   /* Glass surfaces */
   --glass-bg: rgba(49, 50, 68, 0.85);
@@ -70,7 +70,7 @@
   /* Text hierarchy */
   --text-primary: #cdd6f4;
   --text-secondary: #bac2de;
-  --text-muted: #a6adc8;
+  --text-muted: #afb6d2;
   --text-disabled: #6c7086;
 
   /* Borders */
@@ -84,6 +84,7 @@
   --accent-secondary: #b4befe;
   --accent-muted: rgba(203, 166, 247, 0.25);
   --accent-subtle: rgba(203, 166, 247, 0.12);
+  --accent-on-primary: #111111;
 
   /* Brand palette - derived from Mauve */
   --color-brand-50: #faf5ff;
@@ -109,4 +110,12 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   --shadow-glow: 0 0 20px rgba(203, 166, 247, 0.25);
+
+  /* Semantic status and accent tokens (WCAG AA on this theme's surfaces) */
+  --success-text: #a6e3a1; --success-bg: color-mix(in srgb, #a6e3a1 12%, transparent); --success-border: #a6e3a1;
+  --warning-text: #f9e2af; --warning-bg: color-mix(in srgb, #f9e2af 12%, transparent); --warning-border: #f9e2af;
+  --danger-text: #fea4bc; --danger-bg: color-mix(in srgb, #f38ba8 12%, transparent); --danger-border: #f38ba8;
+  --info-text: #9ec3fe; --info-bg: color-mix(in srgb, #89b4fa 12%, transparent); --info-border: #89b4fa;
+  --danger-solid: #f38ba8; --danger-on-solid: #111111;
+  --accent-text: #dabdff;
 }
