@@ -25,6 +25,13 @@ updates:
     labels:
       - dependencies
       - frontend
+    ignore:
+      # svelte-check and typescript-eslint pin TypeScript below 7, so a
+      # TypeScript major cannot install until both support it. Drop this
+      # once their peer ranges allow the new major.
+      - dependency-name: typescript
+        update-types:
+          - "version-update:semver-major"
     groups:
       npm-dependencies:
         patterns:
