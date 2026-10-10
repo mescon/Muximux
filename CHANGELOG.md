@@ -4,6 +4,12 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Aborted proxy streams are no longer logged as panics.** When a client
+  goes away mid-stream the reverse proxy aborts the response the way net/http
+  documents; the recovery middleware now lets that through instead of logging
+  an ERROR "Panic recovered" with a stack trace.
+
 ## [3.6.0] - 2026-10-10
 
 Docker discovery becomes predictable: auto-import only touches containers

@@ -2316,6 +2316,13 @@ func panicRecoveryMiddleware(next http.Handler) http.Handler {
 		sr := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		defer func() {
 			if rec := recover(); rec != nil {
+				// http.ErrAbortHandler is how the reverse proxy aborts a
+				// response when the client goes away mid-stream. It is
+				// not a crash: re-panic so net/http closes the connection
+				// quietly, as documented, instead of logging it as one.
+				if rec == http.ErrAbortHandler { //nolint:errorlint // sentinel value compared by identity, as net/http does
+					panic(rec)
+				}
 				logging.From(r.Context()).Error("Panic recovered",
 					"source", "server",
 					"panic", rec,
