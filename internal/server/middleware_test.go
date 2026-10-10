@@ -165,6 +165,28 @@ func TestPanicRecoveryMiddleware_Returns500(t *testing.T) {
 	}
 }
 
+func TestPanicRecoveryMiddleware_ReraisesErrAbortHandler(t *testing.T) {
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic(http.ErrAbortHandler)
+	})
+
+	handler := panicRecoveryMiddleware(inner)
+	req := httptest.NewRequest(http.MethodGet, "/proxy/app/stream", nil)
+	rec := httptest.NewRecorder()
+
+	defer func() {
+		got := recover()
+		if got != http.ErrAbortHandler { //nolint:errorlint // identity check on the sentinel
+			t.Fatalf("expected http.ErrAbortHandler to propagate, got %v", got)
+		}
+		if rec.Code == http.StatusInternalServerError {
+			t.Error("an aborted response must not be turned into a 500")
+		}
+	}()
+	handler.ServeHTTP(rec, req)
+	t.Fatal("expected the abort to propagate")
+}
+
 func TestPanicRecoveryMiddleware_NoPanic(t *testing.T) {
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
