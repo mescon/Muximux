@@ -45,7 +45,6 @@ remove the label or detach the app to keep your edit. (#500)
   (#494)
 - **`base_backend_url` on the gateway site PUT** keeps Docker tracking when
   the backend address was refreshed while the site was being edited. (#494)
-
 - **Docker group labels.** `muximux.group.icon`, `muximux.group.color` and
   `muximux.group.order` set the look and order of a group Docker discovery
   created; the container with the lowest tracking key wins a conflict, and
@@ -107,8 +106,10 @@ remove the label or detach the app to keep your edit. (#500)
 
 ### Fixed
 - **Label re-sync for tracked apps.** `muximux.app.name`, `icon`, `group` and
-  `order` are applied to every tracked app, including apps imported by hand
-  and with `auto_import: off`, instead of only on first import. (#500)
+  `order` are re-synced onto every tracked app that auto-import does not own
+  (apps imported by hand), in every mode including `off`, instead of only on
+  first import. Auto-imported apps follow `auto_import` `update`/`sync` and
+  are left alone under `off` and `add`. (#500)
 - **Auto-created groups appear in the sidebar.** A group an import needs is
   created in the same save, and an app whose group is missing is listed
   under Ungrouped instead of disappearing. (#500)

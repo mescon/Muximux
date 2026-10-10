@@ -496,7 +496,8 @@ The URL and health address keep following the container as before.
 - A label that is **not set** never changes anything: your own name, icon, group or order stays.
 - If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). An app you detached (Detach in Settings), or one you added by hand, is never touched.
 - The re-sync only updates apps that are already tracked. It never imports a container or removes an app, whatever the `auto_import` mode.
-- Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `add`), so no field is written twice.
+- Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `off` and `add`), so no field is written twice.
+- If you rename a group in Settings while a container's `muximux.group` or `muximux.app.group` label still names the old group, the label re-creates the old group on the next tick. Change the label too.
 - A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), or the name is over 100 characters. The app keeps its current value until the conflict is resolved.
 - If saving the config fails, the whole tick is rolled back and retried on the next tick.
 
