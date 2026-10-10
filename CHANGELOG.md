@@ -4,20 +4,32 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
-Saving from Settings now merges onto the live config, every open browser
-follows config changes, and restoring a backup goes through the startup
-load path. Upgrade notes: restore refuses legacy `server.gateway` backups;
-a saved theme cannot use a bundled theme's name; `lifecycle_allowed_groups`
-now accepts any group names; API scripts that `PUT /api/config` without
-`base` keep the old two-way behaviour; the gateway site PUT accepts an
-optional `base_backend_url`; `GET /api/discovery/docker/config` is new;
-auto-import now imports only labelled containers; an auto-imported app whose
-container has no labels is detached from auto-import (kept) on the first
-refresh under `update`/`sync`; Swarm and Compose containers get new tracking
-keys, migrated in place. Labels that are set (`muximux.app.name`, `icon`,
-`group`, `order`) now re-sync onto apps you imported by hand, so an edit to
-those fields in Settings is reset on the next refresh while the label is set;
-remove the label or detach the app to keep your edit. (#500)
+## [3.6.0] - 2026-10-10
+
+Docker discovery becomes predictable: auto-import only touches containers
+that carry a `muximux.*` label, it can never write an app without a URL or
+leave a config that refuses to start, Swarm and Compose apps keep one
+identity across redeploys, and labels you set (name, icon, group, order,
+health check, group style) stay applied while an app is tracked. Settings
+now merges onto the live config instead of overwriting it, every open
+browser follows config changes, and every bundled theme meets WCAG AA
+contrast, with focus kept inside dialogs and full keyboard support.
+
+Upgrade notes:
+- Auto-import imports only labelled containers. An auto-imported app whose
+  container has no labels is detached from auto-import (the app is kept) on
+  the first refresh under `update`/`sync`.
+- Swarm and Compose apps get new tracking keys (`swarm:<service>`,
+  `compose:<project>:<service>`), migrated in place on the first refresh.
+- Labels that are set now re-sync onto apps you imported by hand, so an
+  edit to those fields in Settings is reset while the label is set; remove
+  the label or detach the app to keep your edit. (#500)
+- Restore refuses legacy `server.gateway` backups and explains how to
+  convert them; a saved theme cannot use a bundled theme's name;
+  `lifecycle_allowed_groups` accepts any group names.
+- API scripts that `PUT /api/config` without `base` keep the old two-way
+  behaviour; the gateway site PUT accepts an optional `base_backend_url`;
+  `GET /api/discovery/docker/config` is new.
 
 ### Added
 - **Explicit opt-in for auto-import.** `discovery.docker.require_explicit_enable`
@@ -115,6 +127,12 @@ remove the label or detach the app to keep your edit. (#500)
   checkboxes and the locale picker use a new `--border-input` token that
   meets 3:1 on every surface; card and divider borders are unchanged.
 - **Toasts follow the theme** instead of always being dark.
+- **Primary buttons keep their colour on hover.** The primary button and
+  the floating navigation button signal hover with their glow and shadow
+  instead of switching to the secondary accent, which fell below AA in
+  several light themes. A custom theme that omits `--accent-on-primary`
+  gets a readable text colour derived from its own accent.
+- **Linux in the update instructions** shows Tux in his own colours.
 
 ### Fixed
 - **Label re-sync for tracked apps.** `muximux.app.name`, `icon`, `group` and
@@ -190,6 +208,12 @@ remove the label or detach the app to keep your edit. (#500)
   level filters report on or off, and form controls and icon-only buttons
   have names, including per-row actions. Transitions, spinners and pulses
   calm down when the operating system asks for reduced motion.
+- **Focus stays inside dialogs.** Settings and every other dialog trap Tab
+  and Shift+Tab, make the page behind them inert and return focus to the
+  control that opened them; pickers opened over a dialog keep their own
+  focus, and Escape closes each sub-dialog. Theme and onboarding cards no
+  longer nest controls inside each other, links in running text are
+  underlined, and the log view scrolls with the keyboard.
 - **Status text is legible on light themes.** "Unsaved changes", failed
   saves (previously pink on pink), warnings, success notices, pills, the
   Logs level colours and the keyboard-conflict notice use per-theme colours
