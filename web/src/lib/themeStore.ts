@@ -11,6 +11,7 @@
 import { writable, derived, get } from 'svelte/store';
 import { getBase, deleteTheme } from './api';
 import { debug } from './debug';
+import { parseColor, pickOnColor } from './contrast';
 
 // Built-in themes
 export type BuiltinTheme = 'dark' | 'light';
@@ -199,6 +200,44 @@ export const themeMode = derived(
   }
 );
 
+// A theme file that omits --accent-on-primary would inherit the :root default, which can be
+// unreadable on its accent. Derive it from the resolved accent (composited over --bg-base when
+// translucent) and set it inline; cleared on every switch so themes that define it are untouched.
+const ON_PRIMARY = '--accent-on-primary';
+function deriveAccentForeground(root: HTMLElement, themeId: string) {
+  root.style.removeProperty(ON_PRIMARY);
+  const owns = ruleDefinesProperty(themeId, ON_PRIMARY);
+  if (owns) return;
+  const cs = getComputedStyle(root);
+  const accent = parseColor(cs.getPropertyValue('--accent-primary').trim());
+  if (!accent) return;
+  const base = parseColor(cs.getPropertyValue('--bg-base').trim()) ?? undefined;
+  root.style.setProperty(ON_PRIMARY, pickOnColor(accent, base));
+}
+
+// True when a stylesheet rule scoped to [data-theme="id"] declares the property.
+function ruleDefinesProperty(themeId: string, prop: string): boolean {
+  const scoped = new RegExp(`\\[data-theme=["']${themeId.replaceAll(/[^\w-]/g, '\\$&')}["']\\]`);
+  const scan = (rules: CSSRuleList): boolean => {
+    for (const rule of Array.from(rules)) {
+      if (rule instanceof CSSStyleRule) {
+        if (scoped.test(rule.selectorText) && rule.style.getPropertyValue(prop).trim()) return true;
+      } else if ('cssRules' in rule && scan((rule as CSSGroupingRule).cssRules)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  for (const sheet of Array.from(document.styleSheets)) {
+    try {
+      if (scan(sheet.cssRules)) return true;
+    } catch {
+      // cross-origin sheet: unreadable, treat as not defining it
+    }
+  }
+  return false;
+}
+
 // --- Apply theme to document ---
 async function applyTheme(theme: string) {
   if (typeof document === 'undefined') return;
@@ -231,6 +270,8 @@ async function applyTheme(theme: string) {
   // app.css switches the generic semantic-token fallback on this attribute,
   // so a theme file that omits those tokens still gets its scheme's values.
   root.dataset.colorScheme = dark ? 'dark' : 'light';
+
+  deriveAccentForeground(root, theme);
 
   // Remove transition class after animations complete
   setTimeout(() => root.classList.remove('theme-transitioning'), 200);

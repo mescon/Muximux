@@ -13,6 +13,20 @@ const PARENTS = ['--bg-base', '--bg-surface', '--bg-elevated'];
 const STATUS = ['success', 'warning', 'danger', 'info'] as const;
 const SEMANTIC_KEYS = /^--(?:(?:success|warning|danger|info)-(?:text|bg|border)|accent-text|danger-solid|danger-solid-hover|danger-on-solid|border-input)$/;
 
+// Which token fills an accent button on hover: read from app.css (.btn-primary:hover) and the
+// floating-nav FAB markup, so the checked pair follows the code. Both must agree.
+function hoverFill(): string {
+  const read = (...p: string[]) => fs.readFileSync(path.join(process.cwd(), ...p), 'utf8');
+  const css = read('src', 'app.css').match(/\.btn-primary:hover\s*\{([^}]*)\}/)?.[1] ?? '';
+  const cssFill = /background:\s*var\((--[a-z-]+)\)/.exec(css)?.[1] ?? '--accent-primary';
+  const nav = read('src', 'components', 'Navigation.svelte');
+  const fab = /class="[^"]*text-accent-on-primary[^"]*rounded-full[^"]*"/.exec(nav)?.[0] ?? '';
+  const fabFill = /hover:bg-(accent-[a-z]+)/.exec(fab) ? `--${/hover:bg-(accent-[a-z]+)/.exec(fab)![1]}` : '--accent-primary';
+  if (cssFill !== fabFill) throw new Error(`hover fills differ: .btn-primary ${cssFill} vs FAB ${fabFill}`);
+  return cssFill;
+}
+const HOVER_FILL = hoverFill();
+
 interface Failure { key: string; ratio: number; need: number }
 const failures: Failure[] = [];
 
@@ -35,6 +49,8 @@ function runChecks(t: ThemeFixture, opts: { base: boolean; semantic: boolean; hi
     for (const fg of ['--text-primary', '--text-secondary']) for (const b of SIX) check(t, 'text', fg, resolve(t, fg), b, bg(b), AA);
     for (const b of [...SIX.slice(0, 4), '--bg-hover']) check(t, 'text', '--text-muted', resolve(t, '--text-muted'), b, bg(b), AA);
     check(t, 'on-primary', '--accent-on-primary', resolve(t, '--accent-on-primary'), '--accent-primary', resolve(t, '--accent-primary'), AA);
+    // The hover fill of an accent button is whatever the stylesheet/markup actually uses (see hoverFill).
+    check(t, 'on-primary-hover', '--accent-on-primary', resolve(t, '--accent-on-primary'), `${HOVER_FILL}`, resolve(t, HOVER_FILL), AA);
     for (const b of SIX.slice(0, 2)) check(t, 'focus-ring', '--border-focus', resolve(t, '--border-focus'), b, bg(b), NON_TEXT);
   }
   if (opts.semantic) {

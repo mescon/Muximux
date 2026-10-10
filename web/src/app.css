@@ -502,8 +502,9 @@ html.theme-transitioning *::after {
     border: none;
   }
 
+  /* Hover keeps the fill: --accent-on-primary is only guaranteed on --accent-primary. */
   .btn-primary:hover {
-    background: var(--accent-secondary);
+    background: var(--accent-primary);
     box-shadow: var(--shadow-glow);
   }
 

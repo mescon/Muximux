@@ -106,7 +106,7 @@ A custom theme that omits the tokens gets values derived from its `--status-*` a
 
 For contrast, bundled themes were adjusted: muted and secondary text is slightly lighter on the dark themes and darker on the light ones (Solarized Light and Tokyo Night Light also darken their primary text), the elevated and overlay surfaces of Catppuccin, Cineplex Dark, Gruvbox, Nord and Solarized Dark are a step darker, buttons on most themes use dark text on the accent, and the focus outline of Cineplex Light, Gruvbox Light, Solarized Light and Tokyo Night Light uses the text-safe accent. Accent and status base colours are unchanged.
 
-For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you.
+For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you. If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from the theme's `--accent-primary` (over `--bg-base` when the accent is translucent) and picks white or black accordingly; a theme that defines the token is never overridden.
 
 The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
 

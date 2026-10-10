@@ -81,7 +81,7 @@ Your theme file must define a CSS rule that targets `[data-theme="your-theme-id"
 }
 ```
 
-The semantic tokens are optional. `--accent-on-primary` is written for you by the theme editor when a custom theme is saved; if you edit a file by hand, pick `#ffffff` or `#000000`, whichever has the higher contrast on your accent. `--border-focus` (already listed above) is the keyboard focus outline. See the wiki page on themes for what each token colours.
+The semantic tokens are optional. `--accent-on-primary` is written for you by the theme editor when a custom theme is saved; if you edit a file by hand, pick `#ffffff` or `#000000`, whichever has the higher contrast on your accent. If you omit it, Muximux derives it at runtime from your accent (over `--bg-base` when the accent is translucent); a value you set is always used as written. `--border-focus` (already listed above) is the keyboard focus outline. See the wiki page on themes for what each token colours.
 
 ### Theme Metadata
 

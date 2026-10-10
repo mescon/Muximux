@@ -2626,7 +2626,7 @@
     role="navigation"
   >
     <button
-      class="p-4 bg-accent-primary hover:bg-accent-secondary text-accent-on-primary rounded-full shadow-lg transition-colors"
+      class="p-4 bg-accent-primary hover:shadow-xl text-accent-on-primary rounded-full shadow-lg transition-colors"
       class:hover:scale-110={!isDraggingFab}
       style="
         opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};

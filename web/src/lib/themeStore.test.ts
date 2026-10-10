@@ -515,6 +515,62 @@ describe('themeStore', () => {
     });
   });
 
+  describe('accent foreground derivation', () => {
+    const root = document.documentElement;
+    let style: HTMLStyleElement;
+    const activate = async (id: string, css: string, isDark: boolean) => {
+      style.textContent = css;
+      const link = document.createElement('link');
+      link.id = `theme-${id}`;
+      document.head.appendChild(link);
+      customThemes.set([{ id, name: id, isBuiltin: false, isDark, family: id, variant: isDark ? 'dark' : 'light', familyName: id }]);
+      selectedFamily.set(id);
+      variantMode.set(isDark ? 'dark' : 'light');
+      initTheme();
+      await new Promise(r => setTimeout(r, 50));
+    };
+    beforeEach(() => {
+      mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve([]) });
+      style = document.createElement('style');
+      document.head.appendChild(style);
+    });
+    afterEach(() => {
+      style.remove();
+      root.style.removeProperty('--accent-on-primary');
+      document.querySelectorAll('link[id^="theme-"]').forEach(l => l.remove());
+    });
+
+    it('gives light text to a dark accent when the theme omits the token', async () => {
+      await activate('dk', '[data-theme="dk"] { --accent-primary: #1a237e; --bg-base: #000000; }', true);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#ffffff');
+    });
+
+    it('gives dark text to a light accent when the theme omits the token', async () => {
+      await activate('lt', '[data-theme="lt"] { --accent-primary: #ffeb3b; --bg-base: #ffffff; }', false);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#000000');
+    });
+
+    it('composites a translucent accent over --bg-base', async () => {
+      await activate('tr', '[data-theme="tr"] { --accent-primary: rgba(0, 0, 0, 0.1); --bg-base: #ffffff; }', false);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#000000');
+    });
+
+    it('leaves a theme that defines the token alone', async () => {
+      await activate('own', '[data-theme="own"] { --accent-primary: #1a237e; --accent-on-primary: #123456; }', true);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('');
+    });
+
+    it('clears the override when switching away', async () => {
+      await activate('dk2', '[data-theme="dk2"] { --accent-primary: #1a237e; --bg-base: #000000; }', true);
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('#ffffff');
+      selectedFamily.set('default');
+      variantMode.set('dark');
+      await new Promise(r => setTimeout(r, 50));
+      expect(root.dataset.theme).toBe('muximux');
+      expect(root.style.getPropertyValue('--accent-on-primary')).toBe('');
+    });
+  });
+
   describe('syncFromConfig', () => {
     it('updates family and variant from config', () => {
       syncFromConfig({ family: 'nord', variant: 'light' });
