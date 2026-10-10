@@ -439,7 +439,7 @@ func TestImportDocker_Routing_UnknownValueIsRejected(t *testing.T) {
 // test controls. Lets the rollback paths in ImportDocker fire
 // against an actually-running proxy rather than the nil-proxy
 // shortcut newTestImportHandler uses.
-func newImportHandlerWithProxy(t *testing.T, seedApps []config.AppConfig, seedSites []config.GatewaySite, reload func() error) (*DiscoveryHandler, *config.Config, *proxy.Proxy) {
+func newImportHandlerWithProxy(t *testing.T, seedApps []config.AppConfig, seedSites []config.GatewaySite, reload func() error) (*DiscoveryHandler, *config.Config) {
 	t.Helper()
 	cfg := &config.Config{}
 	cfg.Apps = seedApps
@@ -468,7 +468,7 @@ func newImportHandlerWithProxy(t *testing.T, seedApps []config.AppConfig, seedSi
 	// Swap to the test-controlled hook only after Start. Start
 	// itself triggers a Reload internally.
 	pxy.SetTestReloadHook(reload)
-	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, pxy), cfg, pxy
+	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, pxy), cfg
 }
 
 // TestImportDocker_CaddyReloadFailure_RollsBackInMemoryAndReports
@@ -485,7 +485,7 @@ func TestImportDocker_CaddyReloadFailure_RollsBackInMemoryAndReports(t *testing.
 		// ApplyGatewaySites returns ErrDiverged.
 		return errors.New("synthetic reload failure")
 	}
-	h, cfg, _ := newImportHandlerWithProxy(t, nil, nil, reload)
+	h, cfg := newImportHandlerWithProxy(t, nil, nil, reload)
 
 	res, _ := postImport(t, h, ImportRequest{
 		Items: []ImportItem{{

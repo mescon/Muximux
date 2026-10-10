@@ -25,8 +25,10 @@ var topLevelSkip = map[string]bool{
 	"Keybindings": true, "Groups": true, "Apps": true,
 }
 
-// groupSkip keeps the transport-only identity out of the per-field merge.
-var groupSkip = map[string]bool{"OriginalName": true}
+// groupSkip keeps the transport-only identity and the server-owned
+// DockerManaged marker out of the per-field merge; the marker is always
+// theirs, cleared only by a user edit of the group (see mergeGroupsAliased).
+var groupSkip = map[string]bool{"OriginalName": true, "DockerManaged": true, "DockerOrder": true}
 
 // appIdentity is the name an app had in base: OriginalName when the client
 // sent it, else Name.
@@ -336,11 +338,51 @@ func indexGroups(groups []config.GroupConfig) map[string]*config.GroupConfig {
 	return m
 }
 
-// groupsEqual compares two groups ignoring the transport-only identity.
+// groupsEqual compares two groups ignoring the transport-only identity and
+// the server-owned DockerManaged marker.
 func groupsEqual(a, b *config.GroupConfig) bool {
 	ca, cb := *a, *b
 	ca.OriginalName, cb.OriginalName = "", ""
+	ca.DockerManaged, cb.DockerManaged = false, false
+	ca.DockerOrder, cb.DockerOrder = false, false
 	return jsonEqual(&ca, &cb)
+}
+
+// stripGroupMarkers clears the server-owned DockerManaged and DockerOrder
+// markers on groups a client sent, so a payload can neither set nor keep
+// them.
+func stripGroupMarkers(groups []config.GroupConfig) {
+	for i := range groups {
+		groups[i].DockerManaged = false
+		groups[i].DockerOrder = false
+	}
+}
+
+// resolveGroupMarkers sets the DockerManaged marker of each payload group
+// on the two-way save path (no base): a group keeps the marker of the
+// stored group it claims by identity unless the payload edits its icon,
+// colour or order, which hands it to the operator.
+func resolveGroupMarkers(stored, groups []config.GroupConfig) {
+	byName := indexGroups(stored)
+	for i := range groups {
+		g := &groups[i]
+		st := byName[groupIdentity(g)]
+		g.DockerManaged = st != nil && st.DockerManaged && !config.GroupStyleEdited(st, g)
+		g.DockerOrder = g.DockerManaged && st.DockerOrder
+	}
+}
+
+// releasedGroups lists the stored DockerManaged groups the payload claims
+// by identity while no longer marking them: the user took them over.
+func releasedGroups(stored, groups []config.GroupConfig) []string {
+	byName := indexGroups(stored)
+	var out []string
+	for i := range groups {
+		if st := byName[groupIdentity(&groups[i])]; st != nil && st.DockerManaged && !groups[i].DockerManaged {
+			out = append(out, groups[i].Name)
+		}
+	}
+	return out
 }
 
 func groupOriginalName(g *config.GroupConfig) string { return g.OriginalName }
@@ -351,6 +393,18 @@ func groupName(g *config.GroupConfig) string         { return g.Name }
 // carry OriginalName = theirs' name; cascadeGroupRenames uses it to
 // re-point apps after the merge.
 func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig, error) {
+	out, _, err := mergeGroupsAliased(base, mine, theirs)
+	return out, err
+}
+
+// mergeGroupsAliased is mergeGroups that also folds a group the server
+// added since the client loaded (Docker discovery creates groups) into a
+// merged group with the same slug, so "Infra" from the server and "infra"
+// added in the dialog do not both survive. aliases maps each folded server
+// group name to the group that replaces it, for re-pointing apps. A server
+// group absent from base by name and from the merged groups by name and
+// slug is kept; one present in base by name was deleted by the user.
+func mergeGroupsAliased(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig, map[string]string, error) {
 	baseByName := indexGroups(base)
 	theirsByName := indexGroups(theirs)
 	lookupBase := func(id string) *config.GroupConfig { return baseByName[id] }
@@ -370,7 +424,7 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig,
 			g.OriginalName = ""
 			out = append(out, g)
 		case b == nil: // new in mine while the server added the same name
-			return nil, &MergeConflictError{Kind: "group", Name: m.Name, RenamedFrom: renamedFrom(m.OriginalName, m.Name)}
+			return nil, nil, &MergeConflictError{Kind: "group", Name: m.Name, RenamedFrom: renamedFrom(m.OriginalName, m.Name)}
 		case t == nil: // removed by the server
 			if groupsEqual(m, b) {
 				continue
@@ -381,10 +435,20 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig,
 		default:
 			g := mergeFields(b, m, t, groupSkip)
 			g.OriginalName = t.Name
+			// Editing the icon, colour or (label-set) order of a
+			// Docker-managed group takes it over: the labels stop applying
+			// to it. The base is client-sent, so whether the order comes
+			// from a label is taken from the server's copy.
+			ref := *b
+			ref.DockerOrder = t.DockerOrder
+			if config.GroupStyleEdited(&ref, m) {
+				g.DockerManaged, g.DockerOrder = false, false
+			}
 			out = append(out, g)
 		}
 		renamed = append(renamed, renamedFrom(m.OriginalName, m.Name))
 	}
+	var aliases map[string]string
 	for i := range theirs {
 		t := &theirs[i]
 		if consumed[t] {
@@ -392,6 +456,13 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig,
 		}
 		if _, inBase := baseByName[t.Name]; inBase {
 			continue // the user deleted it
+		}
+		if same := slugMatch(out, t.Name); same != "" {
+			if aliases == nil {
+				aliases = map[string]string{}
+			}
+			aliases[t.Name] = same
+			continue
 		}
 		g := *t
 		g.OriginalName = t.Name
@@ -403,9 +474,26 @@ func mergeGroups(base, mine, theirs []config.GroupConfig) ([]config.GroupConfig,
 		names[i] = out[i].Name
 	}
 	if err := checkUniqueNames("group", names, renamed); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return out, nil
+	return out, aliases, nil
+}
+
+// slugMatch returns the name of a group in groups whose slug equals the
+// slug of name under a different spelling, or "" when none does (or name
+// has no slug). An exact name clash is left to checkUniqueNames, which
+// reports it as a conflict.
+func slugMatch(groups []config.GroupConfig, name string) string {
+	slug := config.Slugify(name)
+	if slug == "" {
+		return ""
+	}
+	for i := range groups {
+		if groups[i].Name != name && config.Slugify(groups[i].Name) == slug {
+			return groups[i].Name
+		}
+	}
+	return ""
 }
 
 // cascadeGroupRenames re-points apps that still carry a renamed group's old
@@ -468,13 +556,18 @@ func ungroupDeletedGroups(base, mine, merged []config.GroupConfig, apps []Client
 // ungroup apps left in a group the payload deleted. A name clash between
 // the sides is returned as a *MergeConflictError.
 func mergeThreeWay(base, mine, theirs *ClientConfigUpdate) (*ClientConfigUpdate, error) {
-	groups, err := mergeGroups(base.Groups, mine.Groups, theirs.Groups)
+	groups, aliases, err := mergeGroupsAliased(base.Groups, mine.Groups, theirs.Groups)
 	if err != nil {
 		return nil, err
 	}
 	apps, err := mergeApps(base.Apps, mine.Apps, theirs.Apps)
 	if err != nil {
 		return nil, err
+	}
+	for i := range apps {
+		if n, ok := aliases[apps[i].Group]; ok {
+			apps[i].Group = n
+		}
 	}
 	ungroupDeletedGroups(base.Groups, mine.Groups, groups, apps)
 	out := mergeFields(base, mine, theirs, topLevelSkip)

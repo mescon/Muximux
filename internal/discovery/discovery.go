@@ -588,7 +588,58 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 	if client == nil {
 		return ScanResult{Error: "discovery client not initialised; check Settings → Discovery"}
 	}
+	if blocked := s.scanGate(ctx, client, &cfg); blocked != "" {
+		return ScanResult{ScanBlocked: blocked}
+	}
 
+	containers, err := listFilteredContainers(ctx, client, cfg.NetworkFilter)
+	if err != nil {
+		return ScanResult{Error: err.Error()}
+	}
+
+	note := s.enrichSwarm(ctx, client, containers)
+	return scanFrom(&cfg, containers, note, dashboardDomain)
+}
+
+// listFilteredContainers lists the running containers, limited to the
+// configured network_filter, and narrows each container's networks to the
+// filtered one so a URL built from the list comes from that network. The
+// scan and the poller tick both list through here so they see one view.
+func listFilteredContainers(ctx context.Context, client *Client, networkFilter string) ([]ContainerSummary, error) {
+	containers, err := client.ListContainers(ctx, ListContainersOpts{
+		All:     false,
+		Network: networkFilter,
+	})
+	if err != nil {
+		return nil, err
+	}
+	restrictToNetwork(containers, networkFilter)
+	return containers, nil
+}
+
+// restrictToNetwork drops every network but filter from the containers
+// attached to it (the listing keeps only those). A container with a single
+// network is left alone.
+func restrictToNetwork(containers []ContainerSummary, filter string) {
+	if filter == "" {
+		return
+	}
+	for i := range containers {
+		nets := containers[i].NetworkSettings.Networks
+		if len(nets) < 2 {
+			continue
+		}
+		if ep, ok := nets[filter]; ok {
+			containers[i].NetworkSettings.Networks = map[string]ContainerNetwork{filter: ep}
+		}
+	}
+}
+
+// scanGate runs the strategy gating of a scan: container_ip /
+// container_dns need either a successful self-detect OR an explicit
+// network_filter. It returns the ScanBlocked message, "" when the scan may
+// proceed.
+func (s *Service) scanGate(ctx context.Context, client *Client, cfg *config.DiscoveryDockerConfig) string {
 	// Strategy gating: container_ip / container_dns need either a
 	// successful self-detect OR an explicit network_filter. Without
 	// either, we'd be enumerating containers across every network
@@ -613,24 +664,30 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 				s.mu.Unlock()
 			}
 			if selfErr != nil || info == nil {
-				return ScanResult{ScanBlocked: "Could not identify the container Muximux is running in. " +
+				return ("Could not identify the container Muximux is running in. " +
 					"This usually means: (1) cgroups v2 without a recognisable container ID in /proc/self/cgroup, " +
 					"or (2) the container was started with --hostname overriding the default. " +
 					"To proceed: set discovery.docker.network_filter to scope discovery to a specific docker network, " +
-					"or switch network_strategy to host_port."}
+					"or switch network_strategy to host_port.")
 			}
 		}
 	}
+	return ""
+}
 
-	containers, err := client.ListContainers(ctx, ListContainersOpts{
-		All:     false,
-		Network: cfg.NetworkFilter,
-	})
-	if err != nil {
-		return ScanResult{Error: err.Error()}
+// scanTick is the poller's scan: the same gate and suggestions as Scan, built
+// from the tick's already listed and enriched container list so the daemon is
+// not listed (nor /services read) a second time.
+func (s *Service) scanTick(ctx context.Context, client *Client, cfg *config.DiscoveryDockerConfig, containers []ContainerSummary, note, dashboardDomain string) ScanResult {
+	if blocked := s.scanGate(ctx, client, cfg); blocked != "" {
+		return ScanResult{ScanBlocked: blocked}
 	}
+	return scanFrom(cfg, containers, note, dashboardDomain)
+}
 
-	note := s.enrichSwarm(ctx, client, containers)
+// scanFrom turns an already listed (filtered, Swarm-enriched) container list
+// into a ScanResult. note is the Swarm note enrichSwarm returned.
+func scanFrom(cfg *config.DiscoveryDockerConfig, containers []ContainerSummary, note, dashboardDomain string) ScanResult {
 	out := ScanResult{Suggestions: make([]Suggestion, 0, len(containers))}
 	for i := range containers {
 		// Skip Muximux's own container - importing it would create
@@ -656,6 +713,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 	// Replicas of one service (or a scaled compose service) share a key;
 	// eligibility is computed first so an importable replica wins.
 	out.Suggestions = collapseDuplicateKeys(out.Suggestions)
+	noteGroupLabelConflicts(out.Suggestions)
 	for i := range out.Suggestions {
 		sug := &out.Suggestions[i]
 		if sug.AutoImportSkip != nil && sug.AutoImportSkip.Code == SkipDisabled {

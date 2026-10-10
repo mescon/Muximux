@@ -1,0 +1,378 @@
+package discovery
+
+import (
+	"sort"
+	"strings"
+	"unicode/utf8"
+
+	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
+)
+
+// Label re-sync of tracked apps (#500).
+//
+// While an app is tracked (DockerKey set) and its container is present,
+// the display labels that are SET on the container win: muximux.app.name,
+// .icon, .group and .order. A label that is not set never overwrites the
+// operator's value. Detaching the app (which clears DockerKey) hands the
+// fields back to the operator.
+//
+// Ownership per tick, so no field is written twice: an auto-imported app
+// (DockerAutoImported) belongs to Reconcile, which re-syncs every managed
+// field under update/sync and leaves it alone under add/off, exactly as
+// before. Every other tracked app (a manual import, or an app detached from
+// auto-import that is still tracked) belongs to this pass, whatever the
+// auto_import mode. The pass only updates: it never adds or removes an
+// entry, so it is safe with auto_import off. The URL and health address of
+// every tracked app keep coming from the refresh pass.
+
+// labelSync is what one tracked app takes from its labels this tick. A zero
+// field means the label is unset or already in sync.
+type labelSync struct {
+	name  string // new app name
+	icon  string // new dashboard icon slug
+	group string // existing group name, or the label value of a group to create
+	order *int   // new order; nil when the label is unset or in sync
+}
+
+func (s *labelSync) empty() bool {
+	return s.name == "" && s.icon == "" && s.group == "" && s.order == nil
+}
+
+// labelSyncContext is the part of the config the plan checks against,
+// snapshotted under the read lock: how many apps use each name key (so a
+// rename never collides with another app) and the configured group names.
+type labelSyncContext struct {
+	nameCounts map[string]int
+	groups     []string
+}
+
+// snapshotLabelSyncContext captures the label re-sync context. The caller
+// holds ConfigMu (read or write).
+func snapshotLabelSyncContext(cfg *config.Config) labelSyncContext {
+	ctx := labelSyncContext{nameCounts: make(map[string]int, len(cfg.Apps))}
+	for i := range cfg.Apps {
+		ctx.nameCounts[nameKey(cfg.Apps[i].Name)]++
+	}
+	for i := range cfg.Groups {
+		ctx.groups = append(ctx.groups, cfg.Groups[i].Name)
+	}
+	return ctx
+}
+
+// resolveLabelGroup maps a group label to a configured group: an exact
+// name match first, then a match by slug (so "infra" finds "Infra"). It
+// returns false when no group matches; the apply step then creates the
+// group in the same save (config.EnsureGroup).
+func resolveLabelGroup(groups []string, label string) (string, bool) {
+	return config.MatchGroupName(groups, label)
+}
+
+// canonicalDesiredGroups points every desired app's group at the
+// configured group it matches by name or slug, so a label "media" next to
+// a group "Media" neither creates a near-duplicate nor shows up as a
+// change to Reconcile on every tick. A group that matches nothing is left
+// as the label says and created when the plan is applied.
+func canonicalDesiredGroups(desired []Desired, groups []string) {
+	for i := range desired {
+		if g, ok := resolveLabelGroup(groups, desired[i].App.Group); ok {
+			desired[i].App.Group = g
+		}
+	}
+}
+
+// missingGroupKeys returns, in desired order, the keys of tracked
+// auto-imported apps whose stored group equals the desired one while no
+// configured group matches it (it was deleted). Reconcile sees no diff for
+// them, so without this the group would never come back. groups is the
+// snapshot desired was canonicalised against.
+func missingGroupKeys(desired []Desired, current []config.AppConfig, groups []string) []string {
+	stored := make(map[string]*config.AppConfig, len(current))
+	for i := range current {
+		if current[i].DockerKey != "" && current[i].DockerAutoImported {
+			stored[current[i].DockerKey] = &current[i]
+		}
+	}
+	var keys []string
+	for i := range desired {
+		d := &desired[i].App
+		if d.Group == "" {
+			continue
+		}
+		if _, ok := resolveLabelGroup(groups, d.Group); ok {
+			continue
+		}
+		if a, ok := stored[d.DockerKey]; ok && a.Group == d.Group {
+			keys = append(keys, d.DockerKey)
+		}
+	}
+	return keys
+}
+
+// ensureAppGroup makes sure the group a's Group names exists in cfg,
+// creating it after the existing groups when it does not, and points a at
+// the canonical name. A created group is appended to created, for the
+// audit line logged after the save. The caller holds the write lock and
+// has snapshotted the groups for rollback.
+func ensureAppGroup(cfg *config.Config, a *config.AppConfig, created *[]string) {
+	var ok bool
+	cfg.Groups, a.Group, ok = config.EnsureGroup(cfg.Groups, a.Group)
+	if ok {
+		*created = append(*created, a.Group)
+	}
+}
+
+// labelIconSynced reports whether icon already shows the dashboard icon
+// slug. The import path stores a label icon as {type: dashboard, name}.
+func labelIconSynced(icon *config.AppIconConfig, slug string) bool {
+	return icon.Type == "dashboard" && icon.Name == slug
+}
+
+// reserveReconcileNames counts the names auto-import adds or updates this tick
+// into ctx, so a label rename cannot take a name Reconcile just claimed.
+func reserveReconcileNames(ctx *labelSyncContext, batch *refreshBatch) {
+	for i := range batch.addApps {
+		ctx.nameCounts[nameKey(batch.addApps[i].Name)]++
+	}
+	for i := range batch.updateApps {
+		ctx.nameCounts[nameKey(batch.updateApps[i].Name)]++
+	}
+}
+
+// planLabelSync decides, for every tracked app Reconcile does not own whose
+// container is present this tick, which set labels differ from the stored
+// values. Apps are visited in key order so two renames that want the same
+// name resolve the same way every tick (the lower key wins). A label that
+// cannot be applied (the name is taken, the group does not exist, the name
+// is too long) is held: the stored value is kept and the reason is logged
+// once per transition. A group label that matches no configured group is
+// not held: the group is created when the plan is applied.
+func (p *Poller) planLabelSync(apps []trackedAppEntry, containers []ContainerSummary, endpoint string, ctx *labelSyncContext, batch *refreshBatch) map[string]labelSync {
+	if ctx.nameCounts == nil {
+		ctx.nameCounts = map[string]int{}
+	}
+	reserveReconcileNames(ctx, batch)
+
+	idx := make([]int, 0, len(apps))
+	for i := range apps {
+		if apps[i].autoImported || apps[i].key == "" || apps[i].endpoint != endpoint {
+			continue
+		}
+		idx = append(idx, i)
+	}
+	sort.Slice(idx, func(a, b int) bool { return apps[idx[a]].key < apps[idx[b]].key })
+
+	out := map[string]labelSync{}
+	for _, i := range idx {
+		t := &apps[i]
+		tk, err := ParseTrackingKey(t.key)
+		if err != nil {
+			continue // the refresh pass reports a malformed key
+		}
+		c := tk.FindContainer(containers)
+		if c == nil {
+			continue // absent this tick: keep everything as stored
+		}
+		labels := ParseAppLabels(c.Labels)
+		s, held := planOneLabelSync(t, &labels, ctx)
+		p.noteLabelHeld(t, strings.Join(held, "; "))
+		if !s.empty() {
+			out[t.key] = s
+		}
+	}
+	return out
+}
+
+// planOneLabelSync compares one app's set labels with its stored values and
+// returns the changes plus the reasons any set label was held back. On an
+// accepted rename it moves the name in ctx, so later apps see it as taken.
+func planOneLabelSync(t *trackedAppEntry, labels *AppLabels, ctx *labelSyncContext) (s labelSync, held []string) {
+	if labels.Name != "" && labels.Name != t.name {
+		newKey, oldKey := nameKey(labels.Name), nameKey(t.name)
+		others := ctx.nameCounts[newKey]
+		if newKey == oldKey {
+			others-- // a case-only rename: the app itself holds the key
+		}
+		switch {
+		case utf8.RuneCountInString(labels.Name) > 100:
+			held = append(held, "name label is longer than 100 characters")
+		case others > 0:
+			held = append(held, "name label "+labels.Name+" is already used by another app")
+		default:
+			s.name = labels.Name
+			ctx.nameCounts[oldKey]--
+			ctx.nameCounts[newKey]++
+		}
+	}
+	if labels.Icon != "" && !labelIconSynced(&t.icon, labels.Icon) {
+		s.icon = labels.Icon
+	}
+	if labels.Group != "" {
+		if g, ok := resolveLabelGroup(ctx.groups, labels.Group); !ok {
+			// Missing (or deleted since): created in the same save, even
+			// when the app already names it, so the app is never left in
+			// a group the UI does not list.
+			s.group = labels.Group
+		} else if g != t.group {
+			s.group = g
+		}
+	}
+	if labels.OrderSet && labels.Order != t.order {
+		v := labels.Order
+		s.order = &v
+	}
+	return s, held
+}
+
+// noteLabelHeld logs a held label once per (key, reason) transition and
+// clears the record once nothing is held.
+func (p *Poller) noteLabelHeld(t *trackedAppEntry, reason string) {
+	if reason == "" {
+		delete(p.labelHeld, t.key)
+		return
+	}
+	if p.labelHeld[t.key] == reason {
+		return
+	}
+	if p.labelHeld == nil {
+		p.labelHeld = map[string]string{}
+	}
+	p.labelHeld[t.key] = reason
+	logging.Warn("Docker label not applied to tracked app; stored value kept",
+		"source", "discovery", "app", t.name, "key", t.key, "reason", reason)
+}
+
+// labelSynced records one app the label re-sync changed, logged only after
+// the save succeeds.
+type labelSynced struct {
+	name, key string
+	fields    []string
+}
+
+// applyLabelSyncs writes the planned label values onto the live apps. The
+// caller holds the write lock and has snapshotted apps, sites and the
+// quarantine and groups for rollback. Ownership is checked again under the
+// lock: an app that became auto-imported, lost its tracking or is tracked
+// on another daemon than endpoint (the rule the re-key and the URL refresh
+// use) since the plan is skipped. A group the label names that does not exist (or was
+// deleted since the plan) is created and appended to createdGroups. Renames are
+// re-checked against the names the apps will have after this apply (an
+// app skipped here keeps a name the plan thought was freed), and a rename
+// that would now collide is dropped instead of failing the whole tick.
+// Gateway sites linked by app_name follow the renames, cascaded once from
+// one old-to-new map so chained renames (N->C and M->N) relink correctly,
+// as handlers.cascadeAppRenames does for a Settings save.
+func applyLabelSyncs(cfg *config.Config, endpoint string, syncs map[string]labelSync, createdGroups *[]string) []labelSynced {
+	if len(syncs) == 0 {
+		return nil
+	}
+	var eligible []int
+	renames := map[int]string{} // app index -> new name
+	for i := range cfg.Apps {
+		a := &cfg.Apps[i]
+		if a.DockerKey == "" || a.DockerAutoImported || a.DockerEndpoint != endpoint {
+			continue
+		}
+		s, ok := syncs[a.DockerKey]
+		if !ok {
+			continue
+		}
+		eligible = append(eligible, i)
+		if s.name != "" && s.name != a.Name {
+			renames[i] = s.name
+		}
+	}
+	dropCollidingRenames(cfg.Apps, renames)
+
+	oldToNew := make(map[string]string, len(renames))
+	for i, n := range renames {
+		oldToNew[cfg.Apps[i].Name] = n
+	}
+	for j := range cfg.Server.GatewaySites {
+		if n, ok := oldToNew[cfg.Server.GatewaySites[j].AppName]; ok {
+			cfg.Server.GatewaySites[j].AppName = n
+		}
+	}
+
+	var out []labelSynced
+	for _, i := range eligible {
+		a := &cfg.Apps[i]
+		var fields []string
+		if n, ok := renames[i]; ok {
+			a.Name = n
+			fields = append(fields, "name")
+		}
+		s := syncs[a.DockerKey]
+		fields = append(fields, applyOneLabelSync(cfg, a, &s, createdGroups)...)
+		if len(fields) > 0 {
+			out = append(out, labelSynced{name: a.Name, key: a.DockerKey, fields: fields})
+		}
+	}
+	return out
+}
+
+// dropCollidingRenames removes every rename whose new name would share a
+// name key with another app after the renames. It drops one rename at a
+// time, the highest DockerKey first (the plan lets the lower key win), and
+// re-checks, since a dropped rename keeps its old name and that can collide
+// with a rename that took it.
+func dropCollidingRenames(apps []config.AppConfig, renames map[int]string) {
+	for len(renames) > 0 {
+		counts := make(map[string]int, len(apps))
+		for i := range apps {
+			n := apps[i].Name
+			if r, ok := renames[i]; ok {
+				n = r
+			}
+			counts[nameKey(n)]++
+		}
+		idx := make([]int, 0, len(renames))
+		for i := range renames {
+			idx = append(idx, i)
+		}
+		sort.Slice(idx, func(a, b int) bool { return apps[idx[a]].DockerKey > apps[idx[b]].DockerKey })
+		dropped := false
+		for _, i := range idx {
+			if counts[nameKey(renames[i])] > 1 {
+				logging.Warn("Docker name label not applied to tracked app; the name is now used by another app",
+					"source", "discovery", "app", apps[i].Name, "key", apps[i].DockerKey, "name", renames[i])
+				delete(renames, i)
+				dropped = true
+				break
+			}
+		}
+		if !dropped {
+			return
+		}
+	}
+}
+
+// applyOneLabelSync applies the icon, group and order of one plan entry to
+// a (an app of cfg) and returns the names of the fields it changed. A group
+// that does not exist yet is created in cfg and appended to createdGroups.
+func applyOneLabelSync(cfg *config.Config, a *config.AppConfig, s *labelSync, createdGroups *[]string) []string {
+	var fields []string
+	if s.icon != "" && !labelIconSynced(&a.Icon, s.icon) {
+		// Same shape as an import: a dashboard icon by slug. Styling the
+		// operator set on the icon (variant, colour, background, invert)
+		// is kept.
+		a.Icon.Type = "dashboard"
+		a.Icon.Name = s.icon
+		a.Icon.File = ""
+		a.Icon.URL = ""
+		fields = append(fields, "icon")
+	}
+	if s.group != "" {
+		prev := a.Group
+		a.Group = s.group
+		ensureAppGroup(cfg, a, createdGroups)
+		if a.Group != prev {
+			fields = append(fields, "group")
+		}
+	}
+	if s.order != nil && *s.order != a.Order {
+		a.Order = *s.order
+		fields = append(fields, "order")
+	}
+	return fields
+}

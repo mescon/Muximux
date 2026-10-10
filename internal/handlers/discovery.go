@@ -378,7 +378,54 @@ func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
 		kept = append(kept, res.Suggestions[i])
 	}
 	res.Suggestions = kept
+	h.configMu.RLock()
+	annotateTracked(h.config, res.Suggestions)
+	h.configMu.RUnlock()
 	sendJSON(w, http.StatusOK, res)
+}
+
+// annotateTracked marks suggestions the config already tracks and flags
+// names that collide with an untracked app. Matching is by key alone, like
+// ImportDocker's dedupe; an entry on another endpoint is still tracked and
+// carries that endpoint. The caller holds configMu.
+func annotateTracked(cfg *config.Config, sugs []discovery.Suggestion) {
+	current := cfg.Discovery.Docker.Endpoint
+	otherEndpoint := func(e string) string {
+		if e != "" && e != current {
+			return e
+		}
+		return ""
+	}
+	refs := map[string]*discovery.TrackedRef{}
+	// Lowest precedence first so later kinds overwrite: quarantined, site, app.
+	// Quarantined keys are annotated even though ImportDocker's dedupe covers
+	// only apps and sites: a quarantined entry should not be re-offered.
+	for _, q := range cfg.Quarantined() {
+		if q.Key != "" {
+			refs[q.Key] = &discovery.TrackedRef{Kind: discovery.TrackedQuarantined, Name: q.Name, Endpoint: otherEndpoint(q.Endpoint)}
+		}
+	}
+	for i := range cfg.Server.GatewaySites {
+		s := &cfg.Server.GatewaySites[i]
+		if s.DockerKey != "" {
+			refs[s.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedSite, Name: s.Domain, Endpoint: otherEndpoint(s.DockerEndpoint)}
+		}
+	}
+	names := make(map[string]bool, len(cfg.Apps))
+	for i := range cfg.Apps {
+		a := &cfg.Apps[i]
+		names[a.Name] = true
+		if a.DockerKey != "" {
+			refs[a.DockerKey] = &discovery.TrackedRef{Kind: discovery.TrackedApp, Name: a.Name, AutoImported: a.DockerAutoImported, Endpoint: otherEndpoint(a.DockerEndpoint)}
+		}
+	}
+	for i := range sugs {
+		if ref, ok := refs[sugs[i].Key]; ok {
+			sugs[i].Tracked = ref
+			continue
+		}
+		sugs[i].NameTaken = names[sugs[i].Name]
+	}
 }
 
 // TestDockerConfig handles POST /api/discovery/docker/test. The body

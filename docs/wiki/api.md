@@ -249,6 +249,8 @@ POST /api/apps
 | `/api/group/{name}` | PUT | Admin | Update group (full replace; omitted fields are reset) |
 | `/api/group/{name}` | DELETE | Admin | Delete group |
 
+Admins also receive `docker_managed: true` on a group Docker discovery created and still manages from `muximux.group.*` labels (in these endpoints and in `GET /api/config`). The marker is server-owned: `POST /api/groups`, `PUT /api/group/{name}` and `PUT /api/config` ignore it in the payload. Admins also receive `docker_order: true` while the group's order comes from a `muximux.group.order` label; it is server-owned in the same way. An update that changes the group's `icon` or `color` clears `docker_managed`, after which the labels no longer apply to that group. A change to `order` (a drag in Settings, for example) clears it only when `docker_order` is set.
+
 ---
 
 ## Discovery
@@ -281,7 +283,7 @@ POST /api/apps
 
 `PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default.
 
-`GET /api/discovery/docker/scan` returns per container: `labeled` (any `muximux.*` label), `label_enabled` (the value of `muximux.app.enabled`, absent when unset) and `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container; codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`). Containers opted out with `muximux.app.enabled=false` are omitted from the rows and counted in `opted_out`.
+`GET /api/discovery/docker/scan` returns per container: `labeled` (any `muximux.*` label), `label_enabled` (the value of `muximux.app.enabled`, absent when unset) and `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container; codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`). Containers opted out with `muximux.app.enabled=false` are omitted from the rows and counted in `opted_out`. A container the config already tracks (matched by key, on any endpoint) carries `tracked` (`{kind, name, auto_imported, endpoint?}`; `kind` is `app`, `site` or `quarantined`, `name` is the app name or site domain, and `endpoint` is present only when the entry is tracked against a different Docker daemon than the one scanned); it is omitted for untracked containers. `name_taken` is `true` on an untracked container whose name matches an existing app, so an import under that name would collide.
 
 `GET /api/discovery/docker/tracked` returns `entries` (each with an optional `missing_since` timestamp, set while the container cannot be found) and `quarantined`, an array of `{kind, name, key, reason}` for invalid Docker-owned entries kept in `config.yaml` but not loaded (until they are removed or superseded by a live entry; see [Quarantined entries](docker-discovery.md#quarantined-entries)). Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint. Add `?scope=quarantined` to remove only the quarantined entries: a live app or gateway site with the same key stays tracked, and the call returns 404 when no quarantined entry has the key. Any other `scope` value is a 400.
 

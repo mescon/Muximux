@@ -60,23 +60,33 @@ const (
 	LabelGatewayRequireAuth        = "muximux.gateway.require_auth"         // "true" to gate the site behind Muximux login
 	LabelGatewayMinRole            = "muximux.gateway.min_role"             // user | power-user | admin
 	LabelGatewayAllowedGroups      = "muximux.gateway.allowed_groups"       // comma-separated
+
+	// muximux.group.* namespace - fields of the group the container's app
+	// is in. Applied only to a group Docker discovery created and still
+	// manages (GroupConfig.DockerManaged); see grouplabels.go.
+	LabelGroupIcon  = "muximux.group.icon"  // dashboard-icons slug
+	LabelGroupColor = "muximux.group.color" // "#rrggbb"
+	LabelGroupOrder = "muximux.group.order" // sort order of the group, 0..9999
 )
 
 // AppLabels is the parsed shape of the muximux.app.* label namespace.
 // Empty-when-missing fields are zero values; callers default to
 // catalog or container facts when a field is unset.
 type AppLabels struct {
-	Any                bool  // at least one muximux.* label was present (known or unknown)
-	Enabled            *bool // pointer so we can distinguish "absent" from "false"
-	Name               string
-	Icon               string
-	Group              string
-	Port               int    // 0 = unset
-	Scheme             string // "" = unset
-	Path               string
-	Health             string
-	Color              string
-	Order              int   // 0 = unset
+	Any     bool  // at least one muximux.* label was present (known or unknown)
+	Enabled *bool // pointer so we can distinguish "absent" from "false"
+	Name    string
+	Icon    string
+	Group   string
+	Port    int    // 0 = unset
+	Scheme  string // "" = unset
+	Path    string
+	Health  string
+	Color   string
+	Order   int // 0 when unset; see OrderSet
+	// OrderSet is true when muximux.app.order holds a valid value, so an
+	// explicit 0 can be told apart from an unset label.
+	OrderSet           bool
 	Default            *bool // pointer to distinguish absent from false
 	OpenMode           string
 	Proxy              *bool
@@ -127,9 +137,13 @@ type GatewayLabels struct {
 // makes adding a new label a single-line entry.
 var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppEnabled: func(out *AppLabels, v string) { b := boolish(v); out.Enabled = &b },
-	LabelAppName:    func(out *AppLabels, v string) { out.Name = v },
-	LabelAppIcon:    func(out *AppLabels, v string) { out.Icon = v },
-	LabelAppGroup:   func(out *AppLabels, v string) { out.Group = v },
+	// Name, icon and group are trimmed so a stray space in a compose file
+	// neither renames the app nor points at a missing icon or group. Icon
+	// slugs are lowercase in the dashboard-icons set, so the icon is
+	// lowercased too.
+	LabelAppName:  func(out *AppLabels, v string) { out.Name = strings.TrimSpace(v) },
+	LabelAppIcon:  func(out *AppLabels, v string) { out.Icon = strings.ToLower(strings.TrimSpace(v)) },
+	LabelAppGroup: func(out *AppLabels, v string) { out.Group = strings.TrimSpace(v) },
 	LabelAppPort: func(out *AppLabels, v string) {
 		if p, err := strconv.Atoi(v); err == nil && p >= 1 && p <= 65535 {
 			out.Port = p
@@ -149,8 +163,9 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 		}
 	},
 	LabelAppOrder: func(out *AppLabels, v string) {
-		if n, err := strconv.Atoi(v); err == nil && n >= 0 && n <= 9999 {
+		if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil && n >= 0 && n <= 9999 {
 			out.Order = n
+			out.OrderSet = true
 		}
 	},
 	LabelAppDefault: func(out *AppLabels, v string) { b := boolish(v); out.Default = &b },
@@ -212,6 +227,9 @@ var knownNonAppLabels = map[string]struct{}{
 	LabelGatewayRequireAuth:        {},
 	LabelGatewayMinRole:            {},
 	LabelGatewayAllowedGroups:      {},
+	LabelGroupIcon:                 {},
+	LabelGroupColor:                {},
+	LabelGroupOrder:                {},
 }
 
 // ParseAppLabels extracts known muximux.app.* and muximux.discovery.*

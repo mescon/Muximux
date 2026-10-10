@@ -14,7 +14,10 @@ optional `base_backend_url`; `GET /api/discovery/docker/config` is new;
 auto-import now imports only labelled containers; an auto-imported app whose
 container has no labels is detached from auto-import (kept) on the first
 refresh under `update`/`sync`; Swarm and Compose containers get new tracking
-keys, migrated in place.
+keys, migrated in place. Labels that are set (`muximux.app.name`, `icon`,
+`group`, `order`) now re-sync onto apps you imported by hand, so an edit to
+those fields in Settings is reset on the next refresh while the label is set;
+remove the label or detach the app to keep your edit. (#500)
 
 ### Added
 - **Explicit opt-in for auto-import.** `discovery.docker.require_explicit_enable`
@@ -42,6 +45,13 @@ keys, migrated in place.
   (#494)
 - **`base_backend_url` on the gateway site PUT** keeps Docker tracking when
   the backend address was refreshed while the site was being edited. (#494)
+- **Docker group labels.** `muximux.group.icon`, `muximux.group.color` and
+  `muximux.group.order` set the look and order of a group Docker discovery
+  created; the container with the lowest tracking key wins a conflict, and
+  editing the group in Settings hands it back. (#500)
+- **The Discover modal marks containers that are already tracked** with a
+  "Tracked" chip naming the app, gateway site or quarantined entry, and warns
+  when an import name is already taken. (#500)
 
 ### Changed
 - **Auto-import considers only labelled containers.** A container needs at
@@ -107,6 +117,18 @@ keys, migrated in place.
 - **Toasts follow the theme** instead of always being dark.
 
 ### Fixed
+- **Label re-sync for tracked apps.** `muximux.app.name`, `icon`, `group` and
+  `order` are re-synced onto every tracked app that auto-import does not own
+  (apps imported by hand), in every mode including `off`, instead of only on
+  first import. Auto-imported apps follow `auto_import` `update`/`sync` and
+  are left alone under `off` and `add`. (#500)
+- **Auto-created groups appear in the sidebar.** A group an import needs is
+  created in the same save, and an app whose group is missing is listed
+  under Ungrouped instead of disappearing. (#500)
+- **`network_filter` is applied consistently.** The refresh tick lists
+  containers through the same filtered path as the scan, so a multi-network
+  container gets its URL from the filtered network, and Swarm services are
+  read once per tick. (#500)
 - **Docker auto-import can no longer break the config.** A container without
   a usable port is skipped (and shown as not importable) instead of written
   without a URL; an update never blanks an existing URL; the poller validates

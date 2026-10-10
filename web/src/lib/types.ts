@@ -71,6 +71,14 @@ export interface Group {
   color: string;
   order: number;
   expanded: boolean;
+  // Set by the server (admins only) on a group Docker discovery created
+  // and still manages from muximux.group.* labels. Read-only: the server
+  // ignores it in a payload and clears it when the icon, color or order
+  // is edited.
+  docker_managed?: boolean;
+  // Set by the server (admins only) while a managed group's order comes
+  // from a muximux.group.order label; only then does a reorder release it.
+  docker_order?: boolean;
   // Transport-only rename identity, as on App.original_name.
   original_name?: string;
 }
@@ -495,6 +503,15 @@ export interface DiscoveryTLSConfig {
 // DiscoverySuggestion mirrors discovery.Suggestion on the backend.
 // Returned by /api/discovery/docker/scan; consumed by the Discover
 // modal which lets the operator edit fields and pick which to import.
+export interface DiscoveryTrackedRef {
+  kind: 'app' | 'site' | 'quarantined';
+  /** App name or site domain. */
+  name: string;
+  auto_imported: boolean;
+  /** Set when tracked against a different Docker endpoint than the current one. */
+  endpoint?: string;
+}
+
 export interface DiscoverySuggestion {
   key: string;
   stability: 'stable' | 'recreate-fragile' | 'task-fragile';
@@ -538,6 +555,10 @@ export interface DiscoverySuggestion {
   labeled: boolean;
   label_enabled?: boolean;
   auto_import_skip?: DiscoveryAutoImportSkip;
+  /** Set when the config already tracks this container. */
+  tracked?: DiscoveryTrackedRef;
+  /** An untracked app already uses this name. */
+  name_taken?: boolean;
   health_check?: boolean;
 }
 

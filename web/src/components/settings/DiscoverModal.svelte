@@ -95,15 +95,32 @@
   // Selection helpers. The "Select all" checkbox toggles every row's
   // `selected` flag; the visible counter at the bottom uses these.
   let selectedCount = $derived(rows.filter(r => r.selected).length);
-  let allSelected = $derived(rows.length > 0 && rows.every(r => r.selected));
+  // Tracked rows can't be imported again, so selection helpers skip them.
+  let selectableRows = $derived(rows.filter(r => !r.s.tracked));
+  let allSelected = $derived(selectableRows.length > 0 && selectableRows.every(r => r.selected));
 
   function toggleAll() {
     const v = !allSelected;
-    rows = rows.map(r => ({ ...r, selected: v }));
+    rows = rows.map(r => (r.s.tracked ? r : { ...r, selected: v }));
   }
 
   // Translate the server's auto-import skip code into a short reason.
   // 'disabled' rows are filtered by the server, so there is nothing to show.
+  function trackedLabel(t: NonNullable<DiscoverySuggestion['tracked']>): string {
+    const label = trackedKindLabel(t);
+    return t.endpoint ? m.discovery_trackedOnEndpoint({ label, endpoint: t.endpoint }) : label;
+  }
+
+  function trackedKindLabel(t: NonNullable<DiscoverySuggestion['tracked']>): string {
+    switch (t.kind) {
+      case 'site': return m.discovery_trackedAsSite({ name: t.name });
+      case 'quarantined': return m.discovery_trackedQuarantined({ name: t.name });
+      default: return t.auto_imported
+        ? m.discovery_trackedAutoImported({ name: t.name })
+        : m.discovery_trackedAsApp({ name: t.name });
+    }
+  }
+
   function skipReason(s: DiscoverySuggestion): string | null {
     const k = s.auto_import_skip;
     if (!k) return null;
@@ -406,7 +423,7 @@
           </div>
 
           <div class="space-y-2">
-            {#each rows as row (row.s.key)}
+            {#each rows as row, rowIdx (row.s.key)}
               {@const sh = stabilityHint(row.s)}
               {@const ch = confidenceHint(row.s)}
               {@const st = statusFor(row.s.key)}
@@ -414,7 +431,8 @@
               <div data-testid="discover-row" class="p-3 rounded-md border border-border-subtle bg-bg-elevated
                           {row.selected ? 'ring-1 ring-accent-primary/50' : ''}">
                 <div class="flex items-start gap-3">
-                  <input aria-label={m.discovery_selectApp({ name: row.nameOverride || row.s.name })} type="checkbox" bind:checked={row.selected} class="mt-1" />
+                  <input aria-label={m.discovery_selectApp({ name: row.nameOverride || row.s.name })} type="checkbox" bind:checked={row.selected} disabled={!!row.s.tracked}
+                         aria-describedby={row.s.tracked ? `tracked-${rowIdx}` : undefined} class="mt-1" />
 
                   <button
                     type="button"
@@ -441,6 +459,15 @@
                             title={ch.tip}>
                         {ch.label}
                       </span>
+                      {#if row.s.tracked}
+                        <span id="tracked-{rowIdx}" data-testid="tracked-chip" class="text-xs px-1.5 py-0.5 rounded font-medium bg-info-bg text-info-text"
+                              title={m.discovery_trackedWhy()}>
+                          {m.discovery_trackedChip()}: {trackedLabel(row.s.tracked)}
+                          <span class="sr-only"> {m.discovery_trackedWhy()}</span>
+                        </span>
+                      {:else if row.s.name_taken}
+                        <span data-testid="name-taken" class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text">{m.discovery_nameTaken()}</span>
+                      {/if}
                       {#if skip}
                         <span class="text-xs px-1.5 py-0.5 rounded bg-warning-bg text-warning-text" data-testid="not-importable">{m.discovery_notImportable({ reason: skip })}</span>
                       {/if}
