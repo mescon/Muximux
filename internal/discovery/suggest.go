@@ -86,6 +86,9 @@ type Suggestion struct {
 	// FixedURL is true when URL came from muximux.app.url rather than
 	// from the container. HealthURL then carries the container address.
 	FixedURL bool `json:"fixed_url,omitempty"`
+	// groupLabels holds the parsed muximux.group.* labels, so the scan can
+	// note conflicts between suggestions that share a group. Not sent.
+	groupLabels GroupLabels
 	// GatewayRequested is true only when the container carries
 	// muximux.app.gateway.domain. SuggestedDomain may also hold a derived
 	// default meant to pre-fill the import modal; auto-import must not
@@ -101,6 +104,29 @@ type Suggestion struct {
 	LabelEnabled *bool `json:"label_enabled,omitempty"`
 	// AutoImportSkip is non-nil when auto-import must not add this container.
 	AutoImportSkip *AutoImportSkip `json:"auto_import_skip,omitempty"`
+	// Tracked is non-nil when the config already tracks this container.
+	// Set by the scan handler, not by the scan itself.
+	Tracked *TrackedRef `json:"tracked,omitempty"`
+	// NameTaken is true when an untracked app already uses Name, so an
+	// import under that name would collide. Set by the scan handler.
+	NameTaken bool `json:"name_taken,omitempty"`
+}
+
+// Kinds of TrackedRef.
+const (
+	TrackedApp         = "app"
+	TrackedSite        = "site"
+	TrackedQuarantined = "quarantined"
+)
+
+// TrackedRef says how the config already tracks a suggested container.
+type TrackedRef struct {
+	Kind         string `json:"kind"` // TrackedApp | TrackedSite | TrackedQuarantined
+	Name         string `json:"name"` // app name or site domain
+	AutoImported bool   `json:"auto_imported"`
+	// Endpoint is the entry's docker_endpoint when it differs from the
+	// current one, so the UI can say the container is tracked on another daemon.
+	Endpoint string `json:"endpoint,omitempty"`
 }
 
 // AutoImportSkip explains why a suggestion is not auto-import eligible.
@@ -211,6 +237,8 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	applyLabelOverrides(&s, &labels)
 	attachGatewayLabels(&s, c.Labels)
 	surfaceUnknownLabels(&s, &labels)
+	s.groupLabels = ParseGroupLabels(c.Labels)
+	noteGroupLabels(&s, &s.groupLabels)
 
 	return s
 }

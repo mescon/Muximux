@@ -83,6 +83,17 @@ type Poller struct {
 	// ERROR to one line per distinct error. Only touched under the
 	// config write lock in applyRefreshBatch.
 	candidateInvalid string
+	// labelHeld records, per tracking key, the last logged reason a set
+	// label could not be re-synced onto a tracked app (a name another app
+	// already uses, a group that does not exist), so it is logged once per
+	// transition. Pruned to the tracked set. Only touched from tick().
+	labelHeld map[string]string
+	// groupLabelInvalid (per tracking key) and groupLabelConflict (per
+	// group) record the last logged invalid muximux.group.* values and
+	// label conflicts, so each is logged once per transition. Rebuilt
+	// every tick by planGroupLabels. Only touched from tick().
+	groupLabelInvalid  map[string]string
+	groupLabelConflict map[string]string
 }
 
 // syncRemovalGraceTicks is how many consecutive successful scans a
@@ -318,6 +329,11 @@ func (p *Poller) pruneTrackedState(svc *Service, tracked *trackedSet) {
 			delete(p.resolveFailed, k)
 		}
 	}
+	for k := range p.labelHeld {
+		if !keep[k] {
+			delete(p.labelHeld, k)
+		}
+	}
 	svc.pruneUntracked(keep)
 }
 
@@ -484,6 +500,11 @@ func (p *Poller) tick(ctx context.Context) {
 	// Taken whatever the auto-import mode: the re-key plan must never
 	// target a key a quarantined entry holds.
 	quarantinedEntries := p.deps.Config.Quarantined()
+	// Taken whatever the auto-import mode: label re-sync of tracked apps
+	// runs with auto-import off too, and checks names and groups.
+	labelCtx := snapshotLabelSyncContext(p.deps.Config)
+	// And the groups with their owners, for the group labels.
+	groupSnap := snapshotGroupLabels(p.deps.Config, endpoint)
 	p.deps.ConfigMu.RUnlock()
 
 	if !enabled {
@@ -520,7 +541,12 @@ func (p *Poller) tick(ctx context.Context) {
 	// for the full tick. A daemon listing failure aborts the tick
 	// cleanly - we don't want to half-resolve and possibly mark
 	// containers as "not found" because the daemon was unreachable.
-	containers, err := client.ListContainers(ctx, ListContainersOpts{All: false})
+	//
+	// The list honours network_filter exactly as Scan does, so refresh,
+	// re-key and the auto-import scan all see one view: a container outside
+	// the filter is absent from every one of them.
+	scanCfg := svc.snapshotCfg()
+	containers, err := listFilteredContainers(ctx, client, scanCfg.NetworkFilter)
 	if err != nil {
 		if !p.daemonDown {
 			p.daemonDown = true
@@ -535,7 +561,8 @@ func (p *Poller) tick(ctx context.Context) {
 	}
 	// Fold Swarm service ports and labels into the task containers so the
 	// resolve loop below sees the same data the scan does.
-	svc.enrichSwarm(ctx, client, containers)
+	// /services is read here, once; the scan below reuses the result.
+	swarmNote := svc.enrichSwarm(ctx, client, containers)
 
 	// Migrate churning name:/id: keys to the stable label/swarm/compose
 	// key of their container. The tick works on the new keys from here on;
@@ -636,7 +663,7 @@ func (p *Poller) tick(ctx context.Context) {
 	// both resolve to the same final URL and commit in a single save, so
 	// this is not a double-write bug.
 	if autoImport != config.AutoImportOff {
-		scan := svc.Scan(ctx, dashboardDomain)
+		scan := svc.scanTick(ctx, client, &scanCfg, containers, swarmNote, dashboardDomain)
 		// A failed or blocked scan yields no suggestions. Treating that
 		// empty result as the desired set would make sync mode conclude
 		// every labeled container vanished and delete every auto-imported
@@ -654,6 +681,8 @@ func (p *Poller) tick(ctx context.Context) {
 			// re-added, and under sync one whose container is gone is
 			// removed through the same grace gate.
 			desired, skipped := p.buildDesired(&scan, endpoint, currentApps, &server)
+			canonicalDesiredGroups(desired, labelCtx.groups)
+			batch.ensureGroupKeys = missingGroupKeys(desired, currentApps, labelCtx.groups)
 			plan := Reconcile(&ReconcileInput{
 				Mode: autoImport, Desired: desired, Skipped: skipped,
 				Current: currentApps, CurrentSites: currentSites,
@@ -682,10 +711,28 @@ func (p *Poller) tick(ctx context.Context) {
 		}
 	}
 
+	// Label re-sync of tracked apps Reconcile does not own (manual
+	// imports, and apps detached from auto-import that are still tracked).
+	// Runs whatever the auto-import mode and only updates: it never adds
+	// or removes an entry. Planned after Reconcile so a name an
+	// auto-import add or update claims this tick is not reused.
+	batch.labelSyncs = p.planLabelSync(tracked.apps, containers, endpoint, &labelCtx, batch)
+	// Group labels: the apply step re-reads them from this list under the
+	// write lock; the plan only says whether an existing managed group
+	// would change, so such a tick is not skipped as empty.
+	batch.containers = containers
+	batch.groupLabelsDirty = p.planGroupLabels(&groupSnap, containers)
+
 	if batch.empty() {
 		svc.RecordRefreshTickSuccess()
 	} else {
 		p.applyRefreshBatch(batch)
+		// The batch may have renamed or re-keyed apps (or rolled that
+		// back). The state cache is keyed by app name, so take the
+		// tracked set again from what the config now holds.
+		p.deps.ConfigMu.RLock()
+		tracked = p.collectTracked()
+		p.deps.ConfigMu.RUnlock()
 	}
 
 	p.refreshDockerState(ctx, tracked)
@@ -703,6 +750,12 @@ type trackedAppEntry struct {
 	// currentHealth is the app's HealthURL, compared against the
 	// refreshed health address of fixed-URL apps.
 	currentHealth string
+	// The label-owned display fields and the auto-import marker, for the
+	// label re-sync of tracked apps Reconcile does not own.
+	autoImported bool
+	icon         config.AppIconConfig
+	group        string
+	order        int
 }
 type trackedSiteEntry struct {
 	domain     string
@@ -734,6 +787,10 @@ func (p *Poller) collectTracked() trackedSet {
 			strategy:      a.DockerStrategy,
 			currentURL:    a.URL,
 			currentHealth: a.HealthURL,
+			autoImported:  a.DockerAutoImported,
+			icon:          a.Icon,
+			group:         a.Group,
+			order:         a.Order,
 		})
 	}
 	for i := range p.deps.Config.Server.GatewaySites {
@@ -934,6 +991,20 @@ type refreshBatch struct {
 	// change in the batch is keyed by the new key.
 	rekeys   map[string]string
 	endpoint string
+	// labelSyncs re-syncs the label-owned display fields (name, icon,
+	// group, order) of tracked apps that auto-import does not own, keyed
+	// by DockerKey. Only labels that are set appear here.
+	labelSyncs map[string]labelSync
+	// ensureGroupKeys lists tracked auto-imported apps that already store
+	// their desired group while that group is missing (deleted since), so
+	// Reconcile sees no diff; applyReconcile creates the group again.
+	ensureGroupKeys []string
+	// containers is this tick's container list, from which the apply step
+	// reads the muximux.group.* labels of the tracked entries.
+	containers []ContainerSummary
+	// groupLabelsDirty is true when the group labels change an existing
+	// DockerManaged group, so the batch is not empty for that alone.
+	groupLabelsDirty bool
 }
 
 // Removal reasons for the audit line of a sync removal.
@@ -966,14 +1037,16 @@ func (b *refreshBatch) empty() bool {
 	return len(b.appURLChanges) == 0 && len(b.appHealthChanges) == 0 && len(b.siteURLChanges) == 0 &&
 		len(b.addApps) == 0 && len(b.addSites) == 0 &&
 		len(b.updateApps) == 0 && len(b.updateSites) == 0 &&
-		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0
+		len(b.removeKeys) == 0 && len(b.detach) == 0 && len(b.rekeys) == 0 &&
+		len(b.labelSyncs) == 0 && len(b.ensureGroupKeys) == 0 && !b.groupLabelsDirty
 }
 
 // reconcileChangesApps reports whether the auto-import plan touches any
 // app (added, updated, removed, detached or re-keyed). Used to fire the
 // route-table rebuild hook the same way an app URL change does.
 func (b *refreshBatch) reconcileChangesApps() bool {
-	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0 || len(b.rekeys) > 0
+	return len(b.addApps) > 0 || len(b.updateApps) > 0 || len(b.removeKeys) > 0 || len(b.detach) > 0 || len(b.rekeys) > 0 ||
+		len(b.labelSyncs) > 0 || len(b.ensureGroupKeys) > 0
 }
 
 func (b *refreshBatch) touchesGateway() bool {
@@ -1002,6 +1075,9 @@ type appDetach struct {
 type reconcileLog struct {
 	detached     []appDetach
 	droppedSites []appDetach
+	// createdGroups lists the groups created for apps that named a group
+	// the config did not define (#500), in creation order.
+	createdGroups []string
 }
 
 func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
@@ -1011,9 +1087,13 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	priorApps := append([]config.AppConfig(nil), p.deps.Config.Apps...)
 	priorSites := append([]config.GatewaySite(nil), p.deps.Config.Server.GatewaySites...)
 	priorQuarantine := p.deps.Config.QuarantineSnapshot()
+	// Groups too: the label pass and the reconcile plan create a group an
+	// app names but the config does not define, in the same save.
+	priorGroups := append([]config.GroupConfig(nil), p.deps.Config.Groups...)
 	rollback := func() {
 		p.deps.Config.Apps = priorApps
 		p.deps.Config.Server.GatewaySites = priorSites
+		p.deps.Config.Groups = priorGroups
 		p.deps.Config.RestoreQuarantine(priorQuarantine)
 	}
 
@@ -1072,7 +1152,13 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// so this only fires on a cross-entry conflict it cannot see. On
 	// failure the whole candidate (URL refresh, apps, sites, quarantine)
 	// is rolled back and nothing is saved this tick.
+	var createdGroups []string
+	labelSynced := applyLabelSyncs(p.deps.Config, batch.endpoint, batch.labelSyncs, &createdGroups)
 	reconcileTouchedGateway, rec := p.applyReconcile(batch)
+	createdGroups = append(createdGroups, rec.createdGroups...)
+	// Group labels last, so a group created above gets its label values
+	// in the same save and every app sits in its final group.
+	groupsSynced := syncGroupLabels(p.deps.Config, batch)
 	if err := p.deps.Config.Validate(); err != nil {
 		rollback()
 		if p.candidateInvalid != err.Error() { // log on transition only
@@ -1189,6 +1275,15 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		logging.Info("Docker gateway-site URL refreshed",
 			"source", "discovery", "domain", domain, "new_backend_url", url)
 	}
+	for _, g := range createdGroups {
+		logging.Info("Group created by Docker discovery",
+			"source", "audit", "group", g)
+	}
+	for i := range groupsSynced {
+		logging.Info("Docker-managed group re-synced from labels",
+			"source", "audit", "group", groupsSynced[i].name,
+			"fields", strings.Join(groupsSynced[i].fields, ","))
+	}
 	for i := range batch.addApps {
 		logging.Info("Docker container auto-imported",
 			"source", "audit", "app", batch.addApps[i].Name, "key", batch.addApps[i].DockerKey)
@@ -1196,6 +1291,11 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	for i := range batch.updateApps {
 		logging.Info("Docker auto-imported app re-synced",
 			"source", "audit", "app", batch.updateApps[i].Name, "key", batch.updateApps[i].DockerKey)
+	}
+	for i := range labelSynced {
+		logging.Info("Docker tracked app re-synced from labels",
+			"source", "audit", "app", labelSynced[i].name, "key", labelSynced[i].key,
+			"fields", strings.Join(labelSynced[i].fields, ","))
 	}
 	for _, k := range batch.removeKeys {
 		reason := batch.removeReasons[k]
@@ -1267,6 +1367,7 @@ func (p *Poller) applyReconcile(batch *refreshBatch) (touchedGateway bool, rec r
 		for j := range cfg.Apps {
 			if cfg.Apps[j].DockerKey == na.DockerKey {
 				cfg.Apps[j] = mergeManagedFields(&cfg.Apps[j], na)
+				ensureAppGroup(cfg, &cfg.Apps[j], &rec.createdGroups)
 				break
 			}
 		}
@@ -1322,14 +1423,31 @@ func (p *Poller) applyReconcile(batch *refreshBatch) (touchedGateway bool, rec r
 		cfg.Server.GatewaySites = keptSites
 	}
 
-	// Additions. A re-added key replaces its quarantined entries.
+	// Additions. A re-added key replaces its quarantined entries. A group
+	// an added app names is created (after the existing groups, in plan
+	// order) when no group matches it by name or slug.
 	for i := range batch.addApps {
 		cfg.DropQuarantined(batch.addApps[i].DockerKey)
 	}
+	firstAdded := len(cfg.Apps)
 	cfg.Apps = append(cfg.Apps, batch.addApps...)
+	for i := firstAdded; i < len(cfg.Apps); i++ {
+		ensureAppGroup(cfg, &cfg.Apps[i], &rec.createdGroups)
+	}
 	if len(batch.addSites) > 0 {
 		cfg.Server.GatewaySites = append(cfg.Server.GatewaySites, batch.addSites...)
 		touchedGateway = true
+	}
+
+	// Groups deleted under an unchanged auto-imported app: create them
+	// again (the plan saw no diff, so the update loop above did not).
+	for _, k := range batch.ensureGroupKeys {
+		for j := range cfg.Apps {
+			if cfg.Apps[j].DockerKey == k && cfg.Apps[j].DockerAutoImported {
+				ensureAppGroup(cfg, &cfg.Apps[j], &rec.createdGroups)
+				break
+			}
+		}
 	}
 
 	// Detaches: the container is present but no longer opted in. Clear
@@ -1389,7 +1507,8 @@ func buildDockerStateCache(
 	prev map[string]DockerState,
 ) map[string]DockerState {
 	next := make(map[string]DockerState, len(tracked))
-	for _, t := range tracked {
+	for i := range tracked {
+		t := &tracked[i]
 		id, ok := resolved[t.name]
 		if !ok || id == "" {
 			next[t.name] = DockerState{Status: StatusMissing}

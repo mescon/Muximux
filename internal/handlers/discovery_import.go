@@ -160,6 +160,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	currentEndpoint := h.config.Discovery.Docker.Endpoint
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
+	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 
 	results := make([]ImportItemResult, len(req.Items))
 	// Tracks names + domains we've already produced in this batch so
@@ -171,6 +172,12 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// on per-item failure we throw both away and bail.
 	apps := append([]config.AppConfig(nil), priorApps...)
 	sites := append([]config.GatewaySite(nil), priorSites...)
+	// A group an imported app names but the config does not define is
+	// created in the same save (matched by name, then slug, so no
+	// near-duplicate appears). Without it the app would sit in a group
+	// the sidebar does not list (#500).
+	groups := append([]config.GroupConfig(nil), priorGroups...)
+	var createdGroups []string
 	existingAppNames := map[string]bool{}
 	for i := range priorApps {
 		existingAppNames[priorApps[i].Name] = true
@@ -339,6 +346,11 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 					newApp.DockerStrategy = item.Strategy
 					newApp.DockerManagedURL = newApp.URL
 				}
+				var created bool
+				groups, newApp.Group, created = config.EnsureGroup(groups, newApp.Group)
+				if created {
+					createdGroups = append(createdGroups, newApp.Group)
+				}
 				apps = append(apps, newApp)
 				addedApp = &apps[len(apps)-1]
 				batchAppNames[newApp.Name] = i
@@ -426,6 +438,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	candidate := *h.config // shallow copy
 	candidate.Apps = apps
 	candidate.Server.GatewaySites = sites
+	candidate.Groups = groups
 	if err := config.ValidateGatewaySites(sites, &candidate); err != nil {
 		// Find the offending site to attribute the failure. Best
 		// effort: scan the batch's site domains and pick the first
@@ -455,6 +468,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// rollback target.
 	h.config.Apps = apps
 	h.config.Server.GatewaySites = sites
+	h.config.Groups = groups
 
 	// Push gateway sites to Caddy so https://imported.example.com
 	// actually serves something. Without this the import lands on
@@ -467,6 +481,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		if err := h.proxyServer.ApplyGatewaySites(newProxy, priorProxy); err != nil {
 			h.config.Apps = priorApps
 			h.config.Server.GatewaySites = priorSites
+			h.config.Groups = priorGroups
 			// ErrDiverged signals BOTH the candidate AND the internal
 			// rollback Reload failed - Caddy's running state is
 			// unknown. Surface that to the operator via the
@@ -511,6 +526,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		}
 		h.config.Apps = priorApps
 		h.config.Server.GatewaySites = priorSites
+		h.config.Groups = priorGroups
 		statusErr := "rolled back: failed to save config to disk"
 		if gatewayChanged && h.proxyServer != nil && h.proxyServer.IsRunning() {
 			reassertErr := h.proxyServer.ApplyGatewaySites(
@@ -569,6 +585,11 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// Audit log per committed entry. Single line per item so a search
 	// for the docker_key gives full provenance, including who imported it.
 	caller := auditCaller(r)
+	for _, g := range createdGroups {
+		logging.Audit("Group created by Docker discovery import",
+			"caller", caller,
+			"group", g)
+	}
 	for i := range results {
 		switch results[i].Status {
 		case "created":

@@ -534,6 +534,19 @@ type GroupConfig struct {
 	Color    string        `yaml:"color" json:"color"`
 	Order    int           `yaml:"order" json:"order"`
 	Expanded bool          `yaml:"expanded" json:"expanded"`
+	// DockerManaged marks a group Docker discovery created. While it is
+	// set, the muximux.group.icon, .color and .order labels of the
+	// containers whose apps are in the group are re-synced onto it. A
+	// Settings edit of the icon, colour or order clears it, handing the
+	// group to the operator. Server-owned: never taken from a client
+	// payload, and sent to admins only.
+	DockerManaged bool `yaml:"docker_managed,omitempty" json:"docker_managed,omitempty"`
+	// DockerOrder is set while the order of a DockerManaged group comes
+	// from a muximux.group.order label. Only then does a Settings order
+	// change (a drag) release the group; without it the order is the
+	// operator's to change freely. Server-owned and admin-only, like
+	// DockerManaged.
+	DockerOrder bool `yaml:"docker_order,omitempty" json:"docker_order,omitempty"`
 	// OriginalName is the name this group had in the client's base
 	// config. Transport-only identity for renames; never stored.
 	OriginalName string `yaml:"-" json:"original_name,omitempty"`
@@ -609,8 +622,10 @@ type AppConfig struct {
 	// reconciler last applied; nil when the label is unset. Server-owned.
 	DockerManagedHealthCheck *bool `yaml:"docker_managed_health_check,omitempty" json:"docker_managed_health_check,omitempty"`
 	// DockerAutoImported marks an app the discovery reconciler created.
-	// Only such apps are updated or removed by auto-import; manually
-	// imported apps (DockerKey set, this false) are never touched.
+	// Only such apps are updated or removed by auto-import. Manually
+	// imported apps (DockerKey set, this false) are never added, removed
+	// or rewritten by auto-import; the poller only refreshes their URL
+	// and re-syncs the name, icon, group and order labels that are set.
 	DockerAutoImported bool `yaml:"docker_auto,omitempty" json:"docker_auto,omitempty"`
 }
 
