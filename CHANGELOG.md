@@ -13,7 +13,7 @@ identity across redeploys, and labels you set (name, icon, group, order,
 health check, group style) stay applied while an app is tracked. Settings
 now merges onto the live config instead of overwriting it, every open
 browser follows config changes, and every bundled theme meets WCAG AA
-contrast, with focus kept inside dialogs and full keyboard support.
+contrast, with focus kept inside dialogs and much better keyboard support.
 
 Upgrade notes:
 - Auto-import imports only labelled containers. An auto-imported app whose
