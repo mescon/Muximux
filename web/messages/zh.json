@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "左上",
   "general_showLabels": "显示标签",
   "general_showLabelsDesc": "在图标旁显示应用名称",
+  "general_showDockerBadge": "显示 Docker 徽章",
+  "general_showDockerBadgeDesc": "在导航和概览中，于通过 Docker 发现的应用旁显示 Docker 鲸鱼（仅管理员）",
   "general_showLogo": "显示 Logo",
   "general_showLogoDesc": "在菜单中显示 Muximux 标志",
   "general_overviewButton": "概览按钮",

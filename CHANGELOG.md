@@ -5,17 +5,22 @@ All notable changes to Muximux are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Option to hide the Docker whale in the navigation and overview.** The new
+  `navigation.show_docker_badge` setting (Settings, General, "Show Docker
+  Badge"; default `true`) hides the whale on Docker-discovered apps in every
+  navigation position and on the overview page. The whale is now shown to
+  admins only. Display only: discovery, tracking and sync are unaffected. (#515)
 - **Auth and OIDC from environment variables.** `MUXIMUX_AUTH_METHOD` and
   `MUXIMUX_OIDC_*` configure the auth method and every OIDC setting, with
   `MUXIMUX_OIDC_CLIENT_ID_FILE` and `MUXIMUX_OIDC_CLIENT_SECRET_FILE` for
   Docker secrets. A fresh container with only these variables starts on OIDC
   and skips the setup wizard. Values stay in memory and do not reach
-  `config.yaml` (except the method a completed setup wizard saves); Settings shows each one locked as "Set by VAR" and the API
-  refuses or ignores changes to them. Invalid auth variables, and OIDC
-  variables without `MUXIMUX_AUTH_METHOD` on an instance not already on
-  OIDC, stop startup instead of leaving it open. Unknown `MUXIMUX_OIDC_*`
-  names, and OIDC variables the chosen method does not use, are logged.
-  (#513)
+  `config.yaml`, except the method a completed setup wizard saves. Settings
+  shows each of them as locked, and the API refuses or ignores changes to
+  them. Invalid auth variables, and OIDC variables without
+  `MUXIMUX_AUTH_METHOD` on an instance not already on OIDC, stop startup
+  instead of leaving it open. Unknown `MUXIMUX_OIDC_*` names, and OIDC
+  variables the chosen method does not use, are logged. (#513)
 
 ### Fixed
 - **Environment overrides apply when `config.yaml` is missing.** A first

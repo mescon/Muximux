@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "أعلى اليسار",
   "general_showLabels": "إظهار التسميات",
   "general_showLabelsDesc": "عرض أسماء التطبيقات بجانب الأيقونات",
+  "general_showDockerBadge": "إظهار شارة Docker",
+  "general_showDockerBadgeDesc": "إظهار حوت Docker بجانب التطبيقات المكتشفة عبر Docker في التنقل وفي نظرة عامة (للمسؤولين فقط)",
   "general_showLogo": "إظهار الشعار",
   "general_showLogoDesc": "عرض شعار Muximux في القائمة",
   "general_overviewButton": "زر النظرة العامة",

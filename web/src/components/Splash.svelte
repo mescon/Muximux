@@ -11,7 +11,7 @@
   import DockerStatePill from './DockerStatePill.svelte';
   import ConfirmDockerActionModal from './ConfirmDockerActionModal.svelte';
   import { dockerStateStore, refreshDockerState, applyDockerStateChange, getDockerStateFor } from '$lib/dockerStateStore';
-  import { currentUser } from '$lib/authStore';
+  import { currentUser, isAdmin } from '$lib/authStore';
   import { dockerStart, dockerStop, dockerRestart } from '$lib/api';
   import { toasts } from '$lib/toastStore';
   import { keybindings, formatKeybinding } from '$lib/keybindingsStore';
@@ -65,6 +65,11 @@
   // 'overview_and_nav', and the unset default all show it. The navbar
   // has its own gate (navBadgesOn, which requires 'overview_and_nav').
   let dockerChromeOn = $derived(config?.discovery?.docker?.health_badge_placement !== 'off');
+
+  // The whale is admin information: hidden from non-admins whatever the
+  // setting says, and admins can turn it off with navigation.show_docker_badge
+  // (#515). The state pill and health dot are unaffected.
+  let showDockerWhale = $derived($isAdmin && config?.navigation?.show_docker_badge !== false);
 
   onMount(() => {
     // Trigger staggered animations after mount
@@ -268,7 +273,7 @@
                          entirely when health_badge_placement is 'off'. -->
                     {#if dockerChromeOn}
                       <div class="docker-cluster absolute top-2.5 end-2.5 z-10 flex items-center gap-1">
-                        <DockerLogo size="sm" class="text-text-muted" />
+                        {#if showDockerWhale}<DockerLogo size="sm" class="text-text-muted" />{/if}
                         {#if ds}
                           <DockerStatePill state={ds} />
                         {/if}

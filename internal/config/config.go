@@ -515,7 +515,11 @@ type NavigationConfig struct {
 	FloatingPosition   string `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
 	BarStyle           string `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
 	HideSidebarFooter  bool   `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
-	MaxOpenTabs        int    `yaml:"max_open_tabs" json:"max_open_tabs"`
+	// ShowDockerBadge controls the Docker whale shown next to Docker-discovered
+	// apps in the navigation (#515). Display only: discovery and tracking are
+	// unaffected. On by default; the client also hides it from non-admins.
+	ShowDockerBadge bool `yaml:"show_docker_badge" json:"show_docker_badge"`
+	MaxOpenTabs     int  `yaml:"max_open_tabs" json:"max_open_tabs"`
 }
 
 // IconsConfig holds icon settings
@@ -1967,6 +1971,7 @@ func defaultConfig() *Config {
 			IconScale:          1.0,
 			ShowSplashOnStart:  false,
 			ShowShadow:         true,
+			ShowDockerBadge:    true,
 			FloatingPosition:   "bottom-right",
 			BarStyle:           "grouped",
 		},

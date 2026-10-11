@@ -167,6 +167,19 @@
       </div>
     </label>
 
+    <label class="flex items-center gap-3 p-3 bg-bg-hover rounded-lg cursor-pointer">
+      <input
+        type="checkbox"
+        checked={localConfig.navigation.show_docker_badge ?? true}
+        onchange={(e) => { localConfig.navigation.show_docker_badge = (e.currentTarget as HTMLInputElement).checked; }}
+        class="w-4 h-4 rounded border-border-input text-accent-text"
+      />
+      <div>
+        <div class="text-sm text-text-primary">{m.general_showDockerBadge()}</div>
+        <div class="text-xs text-text-muted">{m.general_showDockerBadgeDesc()}</div>
+      </div>
+    </label>
+
     <div class="p-3 bg-bg-hover rounded-lg sm:col-span-2">
       <div class="text-sm text-text-primary mb-2">{m.general_overviewButton()}</div>
       <div class="text-xs text-text-muted mb-3">{m.general_overviewButtonDesc()}</div>

@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "शीर्ष डावे",
   "general_showLabels": "लेबल दाखवा",
   "general_showLabelsDesc": "आयकॉनजवळ अॅप नावे प्रदर्शित करा",
+  "general_showDockerBadge": "Docker बॅज दाखवा",
+  "general_showDockerBadgeDesc": "नेव्हिगेशनमध्ये आणि विहंगावलोकनावर Docker द्वारे शोधलेल्या अ‍ॅप्सच्या शेजारी Docker व्हेल दाखवा (फक्त प्रशासकांसाठी)",
   "general_showLogo": "लोगो दाखवा",
   "general_showLogoDesc": "मेनूमध्ये Muximux लोगो प्रदर्शित करा",
   "general_overviewButton": "विहंगावलोकन बटण",

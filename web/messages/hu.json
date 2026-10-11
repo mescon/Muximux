@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Bal felső",
   "general_showLabels": "Címkék megjelenítése",
   "general_showLabelsDesc": "Alkalmazásnevek megjelenítése az ikonok mellett",
+  "general_showDockerBadge": "Docker-jelvény megjelenítése",
+  "general_showDockerBadgeDesc": "A Docker bálna megjelenítése a Dockerrel felfedezett alkalmazások mellett a navigációban és az áttekintésben (csak adminisztrátoroknak)",
   "general_showLogo": "Logó megjelenítése",
   "general_showLogoDesc": "Muximux logó megjelenítése a menüben",
   "general_overviewButton": "Áttekintés gomb",
