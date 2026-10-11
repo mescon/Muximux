@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "左上",
   "general_showLabels": "ラベルを表示",
   "general_showLabelsDesc": "アイコンの横にアプリ名を表示",
+  "general_showDockerBadge": "Docker バッジを表示",
+  "general_showDockerBadgeDesc": "ナビゲーション内の Docker で検出されたアプリの横に Docker のクジラを表示します（管理者のみ）",
   "general_showLogo": "ロゴを表示",
   "general_showLogoDesc": "メニューに Muximux ロゴを表示",
   "general_overviewButton": "概要ボタン",

@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "উপরে বামে",
   "general_showLabels": "লেবেল দেখান",
   "general_showLabelsDesc": "আইকনের পাশে অ্যাপের নাম প্রদর্শন করুন",
+  "general_showDockerBadge": "Docker ব্যাজ দেখান",
+  "general_showDockerBadgeDesc": "নেভিগেশনে Docker দিয়ে শনাক্ত করা অ্যাপের পাশে Docker তিমি দেখান (শুধু অ্যাডমিনদের জন্য)",
   "general_showLogo": "লোগো দেখান",
   "general_showLogoDesc": "মেনুতে Muximux লোগো প্রদর্শন করুন",
   "general_overviewButton": "সংক্ষিপ্ত বিবরণ বোতাম",

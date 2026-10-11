@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Vľavo hore",
   "general_showLabels": "Zobraziť popisky",
   "general_showLabelsDesc": "Zobraziť názvy aplikácií vedľa ikon",
+  "general_showDockerBadge": "Zobraziť odznak Dockera",
+  "general_showDockerBadgeDesc": "Zobraziť veľrybu Dockera pri aplikáciách nájdených cez Docker v navigácii (iba pre správcov)",
   "general_showLogo": "Zobraziť logo",
   "general_showLogoDesc": "Zobraziť logo Muximux v ponuke",
   "general_overviewButton": "Tlačidlo prehľadu",

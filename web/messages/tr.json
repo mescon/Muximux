@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Sol Üst",
   "general_showLabels": "Etiketleri Göster",
   "general_showLabelsDesc": "Simgelerin yanında uygulama adlarını göster",
+  "general_showDockerBadge": "Docker rozetini göster",
+  "general_showDockerBadgeDesc": "Gezintide Docker ile keşfedilen uygulamaların yanında Docker balinasını göster (yalnızca yöneticiler)",
   "general_showLogo": "Logoyu Göster",
   "general_showLogoDesc": "Menüde Muximux logosunu göster",
   "general_overviewButton": "Genel Bakış Düğmesi",

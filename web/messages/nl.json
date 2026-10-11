@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Linksboven",
   "general_showLabels": "Labels tonen",
   "general_showLabelsDesc": "Appnamen naast pictogrammen weergeven",
+  "general_showDockerBadge": "Docker-badge tonen",
+  "general_showDockerBadgeDesc": "De Docker-walvis tonen bij apps die via Docker zijn ontdekt in de navigatie (alleen beheerders)",
   "general_showLogo": "Logo tonen",
   "general_showLogoDesc": "Het Muximux-logo in het menu weergeven",
   "general_overviewButton": "Overzichtsknop",

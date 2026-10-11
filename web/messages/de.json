@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Oben links",
   "general_showLabels": "Beschriftungen anzeigen",
   "general_showLabelsDesc": "App-Namen neben Icons anzeigen",
+  "general_showDockerBadge": "Docker-Badge anzeigen",
+  "general_showDockerBadgeDesc": "Den Docker-Wal bei per Docker gefundenen Apps in der Navigation anzeigen (nur Administratoren)",
   "general_showLogo": "Logo anzeigen",
   "general_showLogoDesc": "Muximux-Logo im Menü anzeigen",
   "general_overviewButton": "Übersichts-Button",

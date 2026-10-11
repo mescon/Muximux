@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Зверху зліва",
   "general_showLabels": "Показувати підписи",
   "general_showLabelsDesc": "Відображати назви застосунків поруч з іконками",
+  "general_showDockerBadge": "Показувати значок Docker",
+  "general_showDockerBadgeDesc": "Показувати кита Docker поруч із застосунками, виявленими через Docker, у навігації (лише для адміністраторів)",
   "general_showLogo": "Показувати логотип",
   "general_showLogoDesc": "Відображати логотип Muximux у меню",
   "general_overviewButton": "Кнопка огляду",

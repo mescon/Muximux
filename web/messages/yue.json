@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "左上",
   "general_showLabels": "顯示標籤",
   "general_showLabelsDesc": "喺圖示旁邊顯示應用程式名稱",
+  "general_showDockerBadge": "顯示 Docker 徽章",
+  "general_showDockerBadgeDesc": "喺導覽入面，喺經 Docker 發現嘅應用程式旁邊顯示 Docker 鯨魚（只限管理員）",
   "general_showLogo": "顯示 Logo",
   "general_showLogoDesc": "喺選單入面顯示 Muximux 標誌",
   "general_overviewButton": "概覽按鈕",

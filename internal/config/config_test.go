@@ -2533,3 +2533,32 @@ func TestValidateGatewaySite_ReasonsOmitURLCredentials(t *testing.T) {
 		}
 	}
 }
+
+// TestNavigation_ShowDockerBadge_Default pins the #515 default: the Docker
+// whale stays on for configs that predate the key, and an explicit false in
+// YAML is honoured and survives a marshal round trip.
+func TestNavigation_ShowDockerBadge_Default(t *testing.T) {
+	cfg, err := Parse([]byte("auth:\n  method: none\nnavigation:\n  position: left\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if !cfg.Navigation.ShowDockerBadge {
+		t.Error("show_docker_badge should default to true when the key is absent")
+	}
+
+	off, err := Parse([]byte("auth:\n  method: none\nnavigation:\n  show_docker_badge: false\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if off.Navigation.ShowDockerBadge {
+		t.Error("explicit show_docker_badge: false was not honoured")
+	}
+
+	out, err := yaml.Marshal(off.Navigation)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	if !strings.Contains(string(out), "show_docker_badge: false") {
+		t.Errorf("false value not persisted in YAML:\n%s", out)
+	}
+}

@@ -159,6 +159,8 @@ export interface NavigationConfig {
   floating_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   bar_style: 'grouped' | 'flat';
   hide_sidebar_footer: boolean;
+  // Docker whale next to Docker-discovered apps in the nav. Missing means on.
+  show_docker_badge?: boolean;
   max_open_tabs: number;
 }
 

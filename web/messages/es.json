@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Superior izquierda",
   "general_showLabels": "Mostrar etiquetas",
   "general_showLabelsDesc": "Mostrar los nombres de las apps junto a los iconos",
+  "general_showDockerBadge": "Mostrar insignia de Docker",
+  "general_showDockerBadgeDesc": "Mostrar la ballena de Docker junto a las aplicaciones descubiertas por Docker en la navegación (solo administradores)",
   "general_showLogo": "Mostrar logo",
   "general_showLogoDesc": "Mostrar el logo de Muximux en el menú",
   "general_overviewButton": "Botón de resumen",

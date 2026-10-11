@@ -86,6 +86,11 @@
     config.discovery?.docker?.health_badge_placement === 'overview_and_nav'
   );
 
+  // The whale itself is admin information (how an app was discovered), so it
+  // is hidden from non-admins whatever the setting says, and admins can turn
+  // it off with navigation.show_docker_badge (#515). Display only.
+  let showDockerWhale = $derived($isAdmin && config.navigation.show_docker_badge !== false);
+
   function isUnhealthy(app: App): boolean {
     if (!shouldShowHealth(app)) return false;
     return $healthData.get(app.name)?.status === 'unhealthy';
@@ -902,7 +907,7 @@
     {#if navBadgesOn && app.docker_key}
       {@const ds = $dockerStateStore.get(app.name)}
       <span class="nav-docker-badge inline-flex items-center gap-1">
-        <DockerLogo size="sm" />
+        {#if showDockerWhale}<DockerLogo size="sm" />{/if}
         {#if ds}<DockerStatePill state={ds} compact />{/if}
       </span>
     {/if}
@@ -1142,7 +1147,7 @@
                         {#if navBadgesOn && app.docker_key}
                           {@const ds = $dockerStateStore.get(app.name)}
                           <span class="nav-docker-badge inline-flex items-center gap-1">
-                            <DockerLogo size="sm" />
+                            {#if showDockerWhale}<DockerLogo size="sm" />{/if}
                             {#if ds}<DockerStatePill state={ds} compact />{/if}
                           </span>
                         {/if}
@@ -1427,7 +1432,7 @@
                   {#if navBadgesOn && app.docker_key}
                     {@const ds = $dockerStateStore.get(app.name)}
                     <span class="nav-docker-badge inline-flex items-center gap-1" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
-                      <DockerLogo size="sm" />
+                      {#if showDockerWhale}<DockerLogo size="sm" />{/if}
                       {#if ds}<DockerStatePill state={ds} compact />{/if}
                     </span>
                   {/if}
@@ -1851,7 +1856,7 @@
                   {#if navBadgesOn && app.docker_key}
                     {@const ds = $dockerStateStore.get(app.name)}
                     <span class="nav-docker-badge inline-flex items-center gap-1" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
-                      <DockerLogo size="sm" />
+                      {#if showDockerWhale}<DockerLogo size="sm" />{/if}
                       {#if ds}<DockerStatePill state={ds} compact />{/if}
                     </span>
                   {/if}
@@ -2247,7 +2252,7 @@
                         {#if navBadgesOn && app.docker_key}
                           {@const ds = $dockerStateStore.get(app.name)}
                           <span class="nav-docker-badge inline-flex items-center gap-1">
-                            <DockerLogo size="sm" />
+                            {#if showDockerWhale}<DockerLogo size="sm" />{/if}
                             {#if ds}<DockerStatePill state={ds} compact />{/if}
                           </span>
                         {/if}
@@ -2467,7 +2472,7 @@
                       {#if navBadgesOn && app.docker_key}
                         {@const ds = $dockerStateStore.get(app.name)}
                         <span class="nav-docker-badge inline-flex items-center gap-1">
-                          <DockerLogo size="sm" />
+                          {#if showDockerWhale}<DockerLogo size="sm" />{/if}
                           {#if ds}<DockerStatePill state={ds} compact />{/if}
                         </span>
                       {/if}
