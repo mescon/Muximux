@@ -28,7 +28,7 @@ func TestParseIconLabel(t *testing.T) {
 		{"lucide prefix and name case", "Lucide:Server", IconRef{Type: "lucide", Name: "server"}, false},
 		{"lucide digits", "lucide:grid-3x3", IconRef{Type: "lucide", Name: "grid-3x3"}, false},
 		{"https url", "https://example.com/Icons/Media.SVG", IconRef{Type: "url", URL: "https://example.com/Icons/Media.SVG"}, false},
-		{"http url", " http://example.com:8080/i.png ", IconRef{Type: "url", URL: "http://example.com:8080/i.png"}, false},
+		{"http url refused", " http://example.com:8080/i.png ", IconRef{}, true},
 		{"url keeps query case", "https://example.com/i?Size=L", IconRef{Type: "url", URL: "https://example.com/i?Size=L"}, false},
 		{"scheme case", "HTTPS://example.com/i.svg", IconRef{Type: "url", URL: "HTTPS://example.com/i.svg"}, false},
 		{"url prefix", "url:https://example.com/i.svg", IconRef{Type: "url", URL: "https://example.com/i.svg"}, false},

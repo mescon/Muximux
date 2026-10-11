@@ -344,7 +344,7 @@ Removing `muximux.app.url` later returns the app to its container URL on the nex
 | `<slug>` | Dashboard Icons slug (the original form) | `sonarr` |
 | `dashboard:<slug>` | Dashboard Icons slug, explicit | `dashboard:sonarr` |
 | `lucide:<name>` | Lucide icon | `lucide:shield-check` |
-| `http://...` or `https://...` | Icon image at that URL | `https://example.com/icons/media.svg` |
+| `https://...` | Icon image at that URL (https only) | `https://example.com/icons/media.svg` |
 | `url:<url>` | Icon image at that URL, explicit | `url:https://example.com/icons/media.svg` |
 
 ```yaml
@@ -356,7 +356,7 @@ labels:
 - A bare value is always a Dashboard Icons slug. Muximux never guesses Lucide from a bare name, because names such as `server` exist in both sets; write `lucide:server`.
 - Prefixes are case-insensitive. Slugs and Lucide names are lowercased; URLs are kept exactly as written (paths and queries are case-sensitive).
 - A Lucide name is lowercase letters, digits and dashes. Muximux checks that format only, so a name Lucide does not have shows as a missing icon, as in the UI.
-- A URL must be an absolute `http` or `https` URL with a host, no credentials or spaces, and at most 2048 characters. Other schemes such as `javascript:`, `data:` and `file:` are refused. The browser loads a URL icon straight from that address (Muximux does not proxy or cache it), so the host must be reachable from the browser, and an `http` icon is blocked by browsers on an `https` page.
+- A URL must be an absolute `https` URL with a host, no credentials or spaces, and at most 2048 characters. Muximux's Content-Security-Policy only allows images over https, so `http` URLs and other schemes such as `javascript:`, `data:` and `file:` are refused. The browser loads a URL icon straight from that address (Muximux does not proxy or cache it), so the host must be reachable from the browser.
 - An invalid value is ignored: the scan notes it, one warning is logged each time it changes, the stored icon is kept, and discovery carries on.
 - Custom uploads cannot be named by a label.
 

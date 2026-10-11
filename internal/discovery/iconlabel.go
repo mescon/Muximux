@@ -33,7 +33,7 @@ var lucideNameRe = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,63}$`)
 type IconRef struct {
 	Type string // dashboard, lucide or url; "" = unset
 	Name string // dashboard slug or lucide name
-	URL  string // absolute http(s) URL, kept exactly as written
+	URL  string // absolute https URL, kept exactly as written
 }
 
 // IsSet reports whether the label named an icon.
@@ -93,7 +93,7 @@ func iconRefOf(value, typ string) IconRef {
 // ParseIconLabel parses the value of muximux.app.icon or muximux.group.icon.
 // Both labels share it, so they accept the same forms:
 //
-//	https://example.com/i.svg   a URL icon (http or https)
+//	https://example.com/i.svg   a URL icon (https only)
 //	url:https://example.com/i   a URL icon, explicit
 //	lucide:server               a Lucide icon
 //	dashboard:sonarr            a Dashboard Icons slug, explicit
@@ -133,12 +133,12 @@ func parseDashboardSlug(slug, orig string) (IconRef, string) {
 	if slug == "" || strings.ContainsAny(slug, ":/\\?#") || strings.IndexFunc(slug, func(r rune) bool {
 		return unicode.IsSpace(r) || unicode.IsControl(r)
 	}) >= 0 {
-		return IconRef{}, fmt.Sprintf("%q is not a Dashboard Icons name; use dashboard:<name>, lucide:<name> or an http(s) URL", orig)
+		return IconRef{}, fmt.Sprintf("%q is not a Dashboard Icons name; use dashboard:<name>, lucide:<name> or an https URL", orig)
 	}
 	return IconRef{Type: iconTypeDashboard, Name: slug}, ""
 }
 
-// parseIconURL accepts an absolute http or https URL with a host, no
+// parseIconURL accepts an absolute https URL with a host, no
 // credentials and no whitespace, up to maxIconURLLen. Other schemes
 // (javascript:, data:, file:) are refused: the browser loads a URL icon
 // straight from the address, so the scheme is the safety check.
@@ -154,10 +154,12 @@ func parseIconURL(v string) (IconRef, string) {
 	}
 	u, err := url.Parse(v)
 	if err != nil || u.Hostname() == "" {
-		return bad("is not an absolute http(s) URL")
+		return bad("is not an absolute https URL")
 	}
-	if s := strings.ToLower(u.Scheme); s != "http" && s != "https" {
-		return bad("must use http or https")
+	// The page's Content-Security-Policy allows images from https: only,
+	// so an http icon could never load; refuse it here with a clear note.
+	if !strings.EqualFold(u.Scheme, "https") {
+		return bad("must use https")
 	}
 	if u.User != nil {
 		return bad("must not contain credentials")
