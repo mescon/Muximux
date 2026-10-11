@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -29,19 +30,29 @@ type LucideClient struct {
 	mu         sync.RWMutex
 	iconList   []LucideIconInfo
 	listLoaded time.Time
+
+	categoriesURL string
+	// catWarned makes the "categories unavailable" warning fire once per
+	// process instead of on every list refresh.
+	catWarned atomic.Bool
 }
 
 const (
-	LucideCDNURL        = "https://cdn.jsdelivr.net/gh/lucide-icons/lucide@main/icons/%s.svg"
-	LucideTreesURL      = "https://api.github.com/repos/lucide-icons/lucide/git/trees/main?recursive=1"
-	LucideCategoriesURL = "https://cdn.jsdelivr.net/gh/lucide-icons/lucide@main/categories.json"
+	LucideCDNURL   = "https://cdn.jsdelivr.net/gh/lucide-icons/lucide@main/icons/%s.svg"
+	LucideTreesURL = "https://api.github.com/repos/lucide-icons/lucide/git/trees/main?recursive=1"
+	// LucideCategoriesURL is a single bulk file mapping each icon name to its
+	// categories ({"home": ["buildings", "navigation"], ...}). Upstream removed
+	// categories.json from the repo and now keeps categories in one
+	// icons/<name>.json per icon; the lucide.dev API serves them merged.
+	LucideCategoriesURL = "https://lucide.dev/api/categories"
 )
 
 // NewLucideClient creates a new client for fetching Lucide icons
 func NewLucideClient(cacheDir string, cacheTTL time.Duration) *LucideClient {
 	return &LucideClient{
-		cacheDir: cacheDir,
-		cacheTTL: cacheTTL,
+		cacheDir:      cacheDir,
+		cacheTTL:      cacheTTL,
+		categoriesURL: LucideCategoriesURL,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -192,17 +203,11 @@ func (c *LucideClient) fetchIconList() ([]LucideIconInfo, error) {
 		// Surface the failure so a CDN outage / DNS issue is visible
 		// rather than silently producing an icon list with no
 		// category metadata (which looks like a broken filter UI).
-		logging.Warn("Lucide categories fetch failed; serving icon names without category metadata", "source", "icons", "error", cr.err)
-	}
-	categoryMap := cr.categories
-
-	// Invert categories map: category→[]iconName becomes iconName→[]category
-	iconCategories := make(map[string][]string)
-	for category, iconNames := range categoryMap {
-		for _, name := range iconNames {
-			iconCategories[name] = append(iconCategories[name], category)
+		if c.catWarned.CompareAndSwap(false, true) {
+			logging.Warn("Lucide categories fetch failed; serving icon names without category metadata", "source", "icons", "error", cr.err)
 		}
 	}
+	iconCategories := cr.categories
 
 	// Build final icon list
 	icons := make([]LucideIconInfo, 0, len(tr.names))
@@ -267,9 +272,9 @@ func (c *LucideClient) fetchTreeNames() ([]string, error) {
 	return names, nil
 }
 
-// fetchCategories fetches category metadata from the Lucide CDN
+// fetchCategories fetches the icon name -> categories map in one request
 func (c *LucideClient) fetchCategories() (map[string][]string, error) {
-	resp, err := c.httpClient.Get(LucideCategoriesURL)
+	resp, err := c.httpClient.Get(c.categoriesURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch lucide categories: %w", err)
 	}
@@ -279,6 +284,7 @@ func (c *LucideClient) fetchCategories() (map[string][]string, error) {
 		return nil, fmt.Errorf("failed to fetch lucide categories: status %d", resp.StatusCode)
 	}
 
+	// Shape: {"<icon-name>": ["<category>", ...]}
 	var categories map[string][]string
 	if err := json.NewDecoder(resp.Body).Decode(&categories); err != nil {
 		return nil, fmt.Errorf("failed to parse lucide categories: %w", err)
