@@ -47,7 +47,7 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 		Name:          sug.Name,
 		URL:           sug.URL,
 		HealthURL:     sug.HealthURL,
-		Icon:          config.AppIconConfig{Type: "dashboard", Name: sug.Icon},
+		Icon:          iconRefOf(sug.Icon, sug.IconType).Config(),
 		Color:         sug.Color,
 		Group:         sug.Group,
 		Order:         sug.Order,

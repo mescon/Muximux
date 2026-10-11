@@ -3,7 +3,7 @@ import type { AppIcon } from './types';
 
 vi.mock('./api', () => ({ getBase: () => '/base' }));
 
-import { resolveIconUrl, hasIcon, iconLabel } from './iconUrl';
+import { resolveIconUrl, hasIcon, iconLabel, suggestionIcon } from './iconUrl';
 
 describe('resolveIconUrl', () => {
   it('returns null for missing icon or missing identifiers', () => {
@@ -67,5 +67,24 @@ describe('iconLabel', () => {
     expect(iconLabel({ type: 'custom', name: '' })).toBe(null);
     expect(iconLabel(undefined)).toBe(null);
     expect(iconLabel(null)).toBe(null);
+  });
+});
+
+describe('suggestionIcon', () => {
+  it('defaults to a dashboard icon', () => {
+    expect(suggestionIcon({ icon: 'sonarr' })).toEqual({ type: 'dashboard', name: 'sonarr' });
+    expect(suggestionIcon({ icon: 'sonarr', icon_type: 'dashboard' })).toEqual({ type: 'dashboard', name: 'sonarr' });
+    expect(suggestionIcon({})).toEqual({ type: 'dashboard', name: '' });
+  });
+
+  it('maps a Lucide label to a lucide icon', () => {
+    expect(suggestionIcon({ icon: 'shield-check', icon_type: 'lucide' })).toEqual({ type: 'lucide', name: 'shield-check' });
+  });
+
+  it('maps a URL label to a url icon', () => {
+    expect(suggestionIcon({ icon: 'https://example.com/i.svg', icon_type: 'url' })).toEqual({
+      type: 'url',
+      url: 'https://example.com/i.svg',
+    });
   });
 });

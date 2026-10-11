@@ -1,4 +1,4 @@
-import type { AppIcon } from './types';
+import type { AppIcon, DiscoverySuggestion } from './types';
 import { getBase } from './api';
 
 /**
@@ -48,4 +48,15 @@ export function hasIcon(icon: AppIcon | undefined | null): icon is AppIcon {
 export function iconLabel(icon: AppIcon | undefined | null): string | null {
   if (!icon) return null;
   return icon.name || icon.file || icon.url || null;
+}
+
+/**
+ * The icon a Docker discovery suggestion carries: a dashboard icon by
+ * default, or the Lucide / URL icon its muximux.app.icon label named.
+ */
+export function suggestionIcon(s: Pick<DiscoverySuggestion, 'icon' | 'icon_type'>): AppIcon {
+  const value = s.icon ?? '';
+  if (s.icon_type === 'url') return { type: 'url', url: value };
+  if (s.icon_type === 'lucide') return { type: 'lucide', name: value };
+  return { type: 'dashboard', name: value };
 }

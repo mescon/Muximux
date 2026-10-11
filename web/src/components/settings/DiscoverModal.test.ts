@@ -228,6 +228,34 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     expect(payload.items[0].app.icon).toEqual({ type: 'dashboard', name: 'sonarr' });
   });
 
+  it('imports a Lucide or URL icon named by a label', async () => {
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [
+        makeSuggestion({ key: 'name:c1', name: 'C1', icon: 'server', icon_type: 'lucide', confidence: 'medium' }),
+        makeSuggestion({ key: 'name:c2', name: 'C2', icon: 'https://example.com/i.svg', icon_type: 'url', confidence: 'medium' }),
+      ],
+    });
+    mockApi.importDockerSuggestions.mockResolvedValue({
+      success: true,
+      items: [
+        { key: 'name:c1', status: 'created', app_name: 'C1' },
+        { key: 'name:c2', status: 'created', app_name: 'C2' },
+      ],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+
+    await waitFor(() => expect(screen.getByDisplayValue('C1')).toBeInTheDocument());
+
+    // The first checkbox selects every row.
+    await fireEvent.click(screen.getAllByRole('checkbox')[0] as HTMLInputElement);
+    await fireEvent.click(await screen.findByText(/Import 2 selected/i));
+
+    await waitFor(() => expect(mockApi.importDockerSuggestions).toHaveBeenCalled());
+    const items = mockApi.importDockerSuggestions.mock.calls[0][0].items;
+    expect(items[0].app.icon).toEqual({ type: 'lucide', name: 'server' });
+    expect(items[1].app.icon).toEqual({ type: 'url', url: 'https://example.com/i.svg' });
+  });
+
   it('renders a per-row icon picker button for every row, including low-confidence ones', async () => {
     // Two rows: one with a catalog hint (medium), one without (low,
     // empty icon). Both should expose the picker affordance because

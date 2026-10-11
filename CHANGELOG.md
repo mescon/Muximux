@@ -10,6 +10,12 @@ All notable changes to Muximux are documented in this file.
   Badge"; default `true`) hides the whale on Docker-discovered apps in every
   navigation position and on the overview page. The whale is now shown to
   admins only. Display only: discovery, tracking and sync are unaffected. (#515)
+- **Docker icon labels accept Lucide icons and URLs.** `muximux.app.icon` and
+  `muximux.group.icon` take `lucide:<name>`, an `https` URL (or
+  `url:<url>`) and `dashboard:<slug>` as well as a bare Dashboard Icons slug,
+  which behaves as before -- on import, on label re-sync and for group labels.
+  Only `https` URLs are accepted, and an invalid value is ignored
+  with a warning while the stored icon stays (#514).
 
 ### Fixed
 - **Aborted proxy streams are no longer logged as panics.** When a client
