@@ -132,6 +132,39 @@ describe('SecurityTab', () => {
     mockDeleteAPIKey.mockResolvedValue(undefined);
   });
 
+  describe('auth method set by the environment', () => {
+    function envConfig(method: 'builtin' | 'forward_auth' | 'oidc' | 'none'): Config {
+      return { ...makeConfig({ method }), env_overrides: { 'auth.method': 'MUXIMUX_AUTH_METHOD' } };
+    }
+
+    it('locks every other method card and describes each card with the variable', async () => {
+      render(SecurityTab, { props: { localConfig: envConfig('oidc') } });
+      const note = screen.getByTestId('method-env-note');
+      expect(note).toHaveTextContent('Set by MUXIMUX_AUTH_METHOD');
+      expect(note.id).toBe('security-method-env');
+      for (const id of ['builtin', 'forward_auth', 'none']) {
+        const card = screen.getByTestId(`method-card-${id}`);
+        expect(card).toBeDisabled();
+        expect(card).toHaveAttribute('aria-describedby', 'security-method-env');
+      }
+      const current = screen.getByTestId('method-card-oidc');
+      expect(current).not.toBeDisabled();
+      expect(current).toHaveAttribute('aria-describedby', 'security-method-env');
+      // The current method's settings stay editable.
+      await waitFor(() => expect(screen.getByTestId('oidc-settings')).toBeInTheDocument());
+    });
+
+    it('no lock without the override', () => {
+      render(SecurityTab, { props: { localConfig: makeConfig() } });
+      expect(screen.queryByTestId('method-env-note')).toBeNull();
+      for (const id of ['builtin', 'forward_auth', 'oidc', 'none']) {
+        const card = screen.getByTestId(`method-card-${id}`);
+        expect(card).not.toBeDisabled();
+        expect(card).not.toHaveAttribute('aria-describedby');
+      }
+    });
+  });
+
   // ─── Existing tests (preserved) ───────────────────────────────────────────
 
   it('renders logout URL input for forward_auth config', async () => {

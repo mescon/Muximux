@@ -250,16 +250,16 @@ func TestApplyOIDCSettings(t *testing.T) {
 	cur := config.OIDCConfig{IssuerURL: "https://a", ClientID: "c", ClientSecret: "keep", Scopes: []string{"openid"}}
 	got := applyOIDCSettings(&cur, &oidcSettingsRequest{
 		IssuerURL: s("https://b"), ClientSecret: s(""), Scopes: []string{"openid", "email"}, ProviderLogout: b(true),
-	}, map[string]bool{})
+	}, map[string]string{})
 	if got.IssuerURL != "https://b" || got.ClientSecret != "keep" || len(got.Scopes) != 2 || !got.ProviderLogout || !got.Enabled || got.ClientID != "c" {
 		t.Errorf("got %+v", got)
 	}
 	locked := applyOIDCSettings(&cur, &oidcSettingsRequest{ClientSecret: s("typed"), IssuerURL: s("https://x")},
-		map[string]bool{"client_secret": true, "issuer_url": true})
+		map[string]string{"client_secret": "S", "issuer_url": "I"})
 	if locked.ClientSecret != "keep" || locked.IssuerURL != "https://a" {
 		t.Errorf("env-locked field overwritten: %+v", locked)
 	}
-	replaced := applyOIDCSettings(&cur, &oidcSettingsRequest{ClientSecret: s("new")}, map[string]bool{})
+	replaced := applyOIDCSettings(&cur, &oidcSettingsRequest{ClientSecret: s("new")}, map[string]string{})
 	if replaced.ClientSecret != "new" {
 		t.Error("typed secret not applied")
 	}

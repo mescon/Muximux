@@ -392,6 +392,10 @@
 
   // Derived values for template
   let currentMethod = $derived(localConfig.auth?.method || 'none');
+  // Variable behind an env-set method (MUXIMUX_AUTH_METHOD). While set, only
+  // the current method's card can be opened; the server refuses a switch.
+  let methodEnv = $derived(localConfig.env_overrides?.['auth.method']);
+  const methodLocked = (method: string) => !!methodEnv && method !== currentMethod;
   let methodChanged = $derived(selectedAuthMethod !== currentMethod);
   let faFieldsChanged = $derived(selectedAuthMethod === 'forward_auth' && currentMethod === 'forward_auth' && (
     methodTrustedProxies !== (localConfig.auth?.trusted_proxies?.join('\n') || '') ||
@@ -452,6 +456,11 @@
   <div>
     <h3 class="text-lg font-semibold text-text-primary mb-1">{m.security_authMethod()}</h3>
     <p class="text-sm text-text-muted mb-4">{m.security_authMethodDesc()}</p>
+    {#if methodEnv}
+      <p id="security-method-env" class="text-sm text-warning-text mb-4" data-testid="method-env-note">
+        {m.security_methodSetByEnv({ name: methodEnv })}
+      </p>
+    {/if}
 
     <div class="space-y-3">
       <!-- Password card -->
@@ -459,7 +468,7 @@
         class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
-        <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'builtin'; }}>
+        <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLocked('builtin')} aria-describedby={methodEnv ? 'security-method-env' : undefined} data-testid="method-card-builtin" onclick={() => { selectedAuthMethod = 'builtin'; }}>
           <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
             <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -598,7 +607,7 @@
         class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
-        <button class="w-full p-4 flex items-start gap-4" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
+        <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLocked('forward_auth')} aria-describedby={methodEnv ? 'security-method-env' : undefined} data-testid="method-card-forward_auth" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
           <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
             <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -710,7 +719,7 @@
         class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'oidc' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
-        <button class="w-full p-4 flex items-start gap-4" onclick={selectOidc}>
+        <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLocked('oidc')} aria-describedby={methodEnv ? 'security-method-env' : undefined} data-testid="method-card-oidc" onclick={selectOidc}>
           <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
             <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
@@ -750,7 +759,7 @@
         class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border-strong'}"
       >
-        <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'none'; }}>
+        <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLocked('none')} aria-describedby={methodEnv ? 'security-method-env' : undefined} data-testid="method-card-none" onclick={() => { selectedAuthMethod = 'none'; }}>
           <div class="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center flex-shrink-0 mt-0.5">
             <svg class="w-5 h-5 text-warning-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10" />

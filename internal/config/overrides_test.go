@@ -392,3 +392,38 @@ func TestParse_AppliesRequireExplicitEnableEnv(t *testing.T) {
 		t.Fatalf("err=%v live=%v", err, cfg.Discovery.Docker.RequireExplicitEnable)
 	}
 }
+
+// SetOverrideFileValue changes what Save writes for an overridden field and
+// leaves the live value and the source alone; it refuses a field that is
+// not overridden.
+func TestSetOverrideFileValue(t *testing.T) {
+	cfg, path := loadWithEnv(t, overrideTestYAML, nil)
+	if _, ok := cfg.SetOverrideFileValue(OverrideLogLevel, "warn"); ok {
+		t.Fatal("SetOverrideFileValue on a field that is not overridden reported true")
+	}
+	if _, ok := cfg.OverrideSource(OverrideLogLevel); ok {
+		t.Fatal("OverrideSource reported an override that was never applied")
+	}
+
+	cfg.ApplyOverride(OverrideLogLevel, "MUXIMUX_LOG_LEVEL", "debug")
+	prev, ok := cfg.SetOverrideFileValue(OverrideLogLevel, "warn")
+	if !ok || prev != "info" {
+		t.Fatalf("SetOverrideFileValue = %q, %v; want info, true", prev, ok)
+	}
+	if src, ok := cfg.OverrideSource(OverrideLogLevel); !ok || src != "MUXIMUX_LOG_LEVEL" {
+		t.Errorf("OverrideSource = %q, %v", src, ok)
+	}
+	if err := cfg.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Server.LogLevel != "debug" {
+		t.Errorf("live log level = %q, want debug", cfg.Server.LogLevel)
+	}
+	reloaded, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Server.LogLevel != "warn" {
+		t.Errorf("saved log level = %q, want warn", reloaded.Server.LogLevel)
+	}
+}

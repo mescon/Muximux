@@ -21,6 +21,7 @@
     activeStepOrder,
     type OnboardingStep
   } from '$lib/onboardingStore';
+  import { authMethodEnv } from '$lib/authStore';
   import { popularApps, getAllGroups, templateToApp } from '$lib/popularApps';
   import type { PopularAppTemplate } from '$lib/popularApps';
   import AppIcon from './AppIcon.svelte';
@@ -168,6 +169,14 @@
 
   // Security step state
   let authMethod = $state<'builtin' | 'forward_auth' | 'none' | null>(null);
+  // A method fixed by MUXIMUX_AUTH_METHOD: the wizard offers only that one
+  // (the server refuses any other), preselected and kept open.
+  const envMethod = $derived($authMethodEnv);
+  const methodLockedOut = (method: string) => !!envMethod && envMethod.method !== method;
+  $effect(() => {
+    const method = envMethod?.method;
+    if (method === 'builtin' || method === 'forward_auth' || method === 'none') authMethod = method;
+  });
   let setupUsername = $state('admin');
   let setupPassword = $state('');
   let setupConfirmPassword = $state('');
@@ -1420,6 +1429,11 @@
             <p class="text-text-muted">{m.onboarding_secureSubtitle()}</p>
           </div>
 
+          {#if envMethod}
+            <p id="setup-method-env" class="max-w-2xl mx-auto mb-4 text-sm text-warning-text" data-testid="setup-method-env">
+              {m.security_methodSetByEnv({ name: envMethod.variable })}
+            </p>
+          {/if}
           <!-- Method selection cards (accordion — form expands inline) -->
             <div class="max-w-2xl mx-auto space-y-3">
               <!-- Builtin password -->
@@ -1427,7 +1441,7 @@
                 class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'builtin' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
-                <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
+                <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLockedOut('builtin')} aria-describedby={envMethod ? 'setup-method-env' : undefined} data-testid="setup-method-builtin" onclick={async () => { authMethod = authMethod === 'builtin' && !envMethod ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
                     <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -1492,7 +1506,7 @@
                 class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'forward_auth' ? 'border-border-focus bg-accent-subtle' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
-                <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
+                <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLockedOut('forward_auth')} aria-describedby={envMethod ? 'setup-method-env' : undefined} data-testid="setup-method-forward_auth" onclick={async () => { authMethod = authMethod === 'forward_auth' && !envMethod ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 mt-0.5">
                     <svg class="w-5 h-5 text-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -1587,7 +1601,7 @@
                 class="focus-inset rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'none' ? 'border-warning-border bg-warning-bg' : 'border-border bg-bg-surface hover:border-border-strong'}"
               >
-                <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
+                <button class="w-full p-4 flex items-start gap-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled={methodLockedOut('none')} aria-describedby={envMethod ? 'setup-method-env' : undefined} data-testid="setup-method-none" onclick={async () => { authMethod = authMethod === 'none' && !envMethod ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center flex-shrink-0 mt-0.5">
                     <svg class="w-5 h-5 text-warning-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <circle cx="12" cy="12" r="10" />

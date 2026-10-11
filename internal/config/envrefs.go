@@ -191,14 +191,16 @@ func (c *Config) EnvRefVar(path ...string) (string, bool) {
 // secret written literally in the loaded file. A secret written as exactly
 // "${VAR}" is recorded as a reference at load (the field itself already
 // holds the expanded value), and an unresolved "${VAR}" is left as-is, so
-// neither counts as plaintext.
+// neither counts as plaintext. The secret checked is the file's own value:
+// one from MUXIMUX_OIDC_CLIENT_SECRET(_FILE) never reaches config.yaml, but
+// a literal left in the file still counts while the env overrides it.
 func (c *Config) OIDCClientSecretInPlaintext() bool {
-	o := &c.Auth.OIDC
-	if !o.Enabled || o.ClientSecret == "" {
+	secret := c.fileView().Auth.OIDC.ClientSecret
+	if !c.Auth.OIDC.Enabled || secret == "" {
 		return false
 	}
 	if _, ok := c.EnvRefVar("auth", "oidc", "client_secret"); ok {
 		return false
 	}
-	return !IsBracedEnvRef(o.ClientSecret)
+	return !IsBracedEnvRef(secret)
 }

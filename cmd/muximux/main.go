@@ -175,6 +175,7 @@ func main() {
 	// Load ran before logging.Init, so re-emit the quarantine warnings
 	// now that they can reach muximux.log and the log viewer.
 	config.LogQuarantined(cfg.Quarantined())
+	cfg.LogEnvWarnings()
 
 	applyOverrides(cfg, *listenAddr, *basePath)
 

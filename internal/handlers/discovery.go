@@ -224,10 +224,10 @@ func (h *DiscoveryHandler) GetDockerConfig(w http.ResponseWriter, r *http.Reques
 	h.configMu.RLock()
 	resp := dockerConfigResponse{Config: h.config.Discovery.Docker}
 	resp.Config.LifecycleAllowedGroups = append([]string(nil), resp.Config.LifecycleAllowedGroups...)
-	if src, ok := h.config.EnvOverrides()[string(config.OverrideAutoImport)]; ok {
+	if src, ok := h.config.OverrideSource(config.OverrideAutoImport); ok {
 		resp.EnvOverrides = map[string]string{"auto_import": src}
 	}
-	if src, ok := h.config.EnvOverrides()[string(config.OverrideRequireExplicitEnable)]; ok {
+	if src, ok := h.config.OverrideSource(config.OverrideRequireExplicitEnable); ok {
 		if resp.EnvOverrides == nil {
 			resp.EnvOverrides = map[string]string{}
 		}

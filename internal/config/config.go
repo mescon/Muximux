@@ -62,6 +62,10 @@ type Config struct {
 	// validation at load. They are not live, but Save writes them back
 	// so config.yaml keeps them. Unexported, so YAML ignores it.
 	quarantined []quarantined
+
+	// envWarnings holds WARNs raised while applying environment variables
+	// at load, before logging is initialised. See LogEnvWarnings.
+	envWarnings []envWarning
 }
 
 // SetOnSaved registers the broadcast hook: called after every successful
@@ -690,17 +694,28 @@ func ParseFlexDuration(s string) (time.Duration, error) {
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			// Return default config if file doesn't exist
-			return defaultConfig(), nil
+		if !os.IsNotExist(err) {
+			return nil, err
 		}
-		return nil, err
+		// No config.yaml yet (a fresh container): start from the
+		// defaults, but still apply every environment override and
+		// validate, exactly as for a file that sets nothing.
+		cfg := defaultConfig()
+		if err := applyLoadDefaultsAndEnv(cfg); err != nil {
+			return nil, err
+		}
+		warnStartupAuthEnv(cfg)
+		if err := finishConfig(cfg); err != nil {
+			return nil, err
+		}
+		return cfg, nil
 	}
 
 	cfg, err := decodeConfig(data)
 	if err != nil {
 		return nil, err
 	}
+	warnStartupAuthEnv(cfg)
 
 	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
 	// declarative server.gateway_sites: form. Runs once before
@@ -759,6 +774,7 @@ func hasLegacyGateway(data []byte) bool {
 // defaultConfig(), icon-scale and splash normalisation, applyDiscoveryDefaults,
 // ApplyAutoImportEnv(cfg, os.LookupEnv),
 // ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv),
+// ApplyAuthEnv(cfg, os.LookupEnv, readEnvFile),
 // autoDetachEditedDockerEntries, validate().
 // It never runs the legacy server.gateway migration and refuses such input
 // with ErrLegacyGateway.
@@ -777,7 +793,7 @@ func Parse(data []byte) (*Config, error) {
 }
 
 // decodeConfig is the shared front half of Load and Parse: everything from
-// recording ${VAR} references up to and including ApplyAutoImportEnv.
+// recording ${VAR} references up to and including ApplyAuthEnv.
 func decodeConfig(data []byte) (*Config, error) {
 	// A failure here (e.g. ${VAR} inside a flow collection, which only
 	// parses after expansion) just means no references are remembered.
@@ -807,6 +823,16 @@ func decodeConfig(data []byte) (*Config, error) {
 	cfg.MissingEnvVars = missingEnv
 	cfg.envRefs = refs
 
+	if err := applyLoadDefaultsAndEnv(cfg); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// applyLoadDefaultsAndEnv normalises defaults and applies the environment
+// overrides. It runs on every load path, including the one without a
+// config.yaml.
+func applyLoadDefaultsAndEnv(cfg *Config) error {
 	// Normalize zero-value fields that have non-zero defaults
 	if cfg.Navigation.IconScale <= 0 {
 		cfg.Navigation.IconScale = 1.0
@@ -831,7 +857,9 @@ func decodeConfig(data []byte) (*Config, error) {
 	ApplyAutoImportEnv(cfg, os.LookupEnv)
 	ApplyRequireExplicitEnableEnv(cfg, os.LookupEnv)
 
-	return cfg, nil
+	// MUXIMUX_AUTH_METHOD and MUXIMUX_OIDC_* (#513). Errors are fatal:
+	// auth configuration must fail closed.
+	return ApplyAuthEnv(cfg, os.LookupEnv, readEnvFile)
 }
 
 // finishConfig is the shared back half of Load and Parse: hand-edit
@@ -1033,6 +1061,13 @@ func (c *Config) Validate() error {
 // so a stale value in a disabled block never stops startup. Exported for
 // the settings endpoint, which validates before saving.
 func ValidateOIDC(o *OIDCConfig) error {
+	return validateOIDC(o, func(path string) string { return path })
+}
+
+// validateOIDC is ValidateOIDC with label naming each field in an error;
+// Config.validate passes fieldLabel so an environment value is reported by
+// its variable.
+func validateOIDC(o *OIDCConfig, label func(path string) string) error {
 	type check struct {
 		name  string
 		value string
@@ -1049,12 +1084,17 @@ func ValidateOIDC(o *OIDCConfig) error {
 		if check.value == "" {
 			continue
 		}
-		u, err := url.Parse(check.value)
-		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
-			return fmt.Errorf("%s must be an absolute http(s) URL", check.name)
+		if !isAbsHTTPURL(check.value) {
+			return fmt.Errorf("%s must be an absolute http(s) URL", label(check.name))
 		}
 	}
 	return nil
+}
+
+// isAbsHTTPURL reports whether s is an absolute http or https URL.
+func isAbsHTTPURL(s string) bool {
+	u, err := url.Parse(s)
+	return err == nil && u.Host != "" && (u.Scheme == "http" || u.Scheme == "https")
 }
 
 // validate checks the configuration for contradictory or incomplete settings.
@@ -1062,7 +1102,10 @@ func (c *Config) validate() error {
 	if err := validateBasePath(c.Server.BasePath); err != nil {
 		return err
 	}
-	if err := ValidateOIDC(&c.Auth.OIDC); err != nil {
+	if err := validateOIDC(&c.Auth.OIDC, c.fieldLabel); err != nil {
+		return err
+	}
+	if err := c.validateAuthEnv(); err != nil {
 		return err
 	}
 	tls := c.Server.TLS
@@ -1871,7 +1914,16 @@ func (c *Config) Save(path string) error {
 }
 
 // NeedsSetup returns true when the application has not been configured yet.
+//
+// An auth method set by MUXIMUX_AUTH_METHOD is a deliberate choice that the
+// wizard could not change (Save writes the file's method, so a wizard choice
+// would be undone on the next start), so it skips setup. The exception is
+// builtin with no users: nobody could sign in, and the wizard is how the
+// first admin is created.
 func (c *Config) NeedsSetup() bool {
+	if c.IsOverridden(OverrideAuthMethod) {
+		return c.Auth.Method == "builtin" && len(c.Auth.Users) == 0
+	}
 	if c.Auth.SetupComplete {
 		return false
 	}

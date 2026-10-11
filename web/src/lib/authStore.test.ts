@@ -6,6 +6,7 @@ import {
   currentUser,
   isAdmin,
   isLoading,
+  authMethodEnv,
   checkAuthStatus,
   login,
   logout,
@@ -98,6 +99,25 @@ describe('authStore', () => {
       await checkAuthStatus();
 
       expect(get(authState).logoutUrl).toBe('https://auth.example.com/logout');
+    });
+
+    it('stores the env-set auth method for the setup wizard', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () => Promise.resolve({
+          authenticated: false, setup_required: true, auth_method: 'builtin', auth_method_env: 'MUXIMUX_AUTH_METHOD',
+        }),
+      });
+      await checkAuthStatus();
+      expect(get(authMethodEnv)).toEqual({ method: 'builtin', variable: 'MUXIMUX_AUTH_METHOD' });
+    });
+
+    it('has no env auth method when the response names none', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () => Promise.resolve({ authenticated: false, auth_method: 'none' }),
+      });
+      await checkAuthStatus();
+      expect(get(authMethodEnv)).toBeNull();
+      expect('authMethodEnv' in get(authState)).toBe(false);
     });
 
     it('should set logoutUrl to null when not in response', async () => {

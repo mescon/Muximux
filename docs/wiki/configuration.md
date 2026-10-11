@@ -278,8 +278,10 @@ These override the corresponding config file values without needing `${VAR}` syn
 | `MUXIMUX_LOG_FORMAT` | Log format (`text` or `json`) | `text` |
 | `MUXIMUX_DISCOVERY_AUTO_IMPORT` | Docker auto-import mode (`off`, `add`, `update`, `sync`) | From config file |
 | `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | Auto-import only containers labelled `muximux.app.enabled=true` (`true`/`false`) | From config file |
+| `MUXIMUX_AUTH_METHOD` | Auth method (`none`, `builtin`, `forward_auth`, `oidc`) | From config file |
+| `MUXIMUX_OIDC_*` | Every OIDC setting, with `_FILE` variants for the client ID and secret. See [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables) | From config file |
 
-These overrides, and the `--listen` and `--base-path` flags, apply in memory only. They are never written back to `config.yaml` when you save from Settings, and Settings shows an overridden field as locked ("From VAR").
+These overrides, and the `--listen` and `--base-path` flags, apply in memory only. They are never written back to `config.yaml` when you save from Settings, and Settings shows an overridden field as locked. They also apply on a first start without a `config.yaml`.
 
 ## Validation Rules
 

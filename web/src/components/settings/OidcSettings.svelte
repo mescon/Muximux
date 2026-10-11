@@ -11,7 +11,7 @@
 
   const inputClass = 'w-full px-3 py-2 bg-bg-elevated border border-border-input rounded-md text-text-primary text-sm read-only:opacity-70';
   const checkboxRowClass = 'flex items-center gap-3 cursor-pointer';
-  const checkboxClass = 'w-4 h-4 rounded border-border-input text-accent-text';
+  const checkboxClass = 'w-4 h-4 rounded border-border-input text-accent-text disabled:opacity-50';
 
   // The form is initialised once from the loaded settings; later edits stay local.
   const initial = untrack(() => settings);
@@ -37,16 +37,19 @@
 
   const envFields = $derived(settings.env_fields ?? {});
   const fromEnv = (field: string) => field in envFields;
+  // id of the "Set by VAR" note under an env-locked control, for aria-describedby.
+  const envNoteId = (field: string) => (fromEnv(field) ? `oidc-env-${field}` : undefined);
   const identityLocked = $derived(settings.enabled && settings.disable_local_login);
   const identityChanged = $derived(
     issuerUrl.trim() !== settings.issuer_url || clientId.trim() !== settings.client_id || clientSecret !== ''
   );
   const needsSso = $derived(!settings.current_session_is_oidc);
-  const disableLocalDisabled = $derived(!disableLocal && (needsSso || identityChanged));
+  const disableLocalEnv = $derived(fromEnv('disable_local_login'));
+  const disableLocalDisabled = $derived(disableLocalEnv || (!disableLocal && (needsSso || identityChanged)));
   // SSO-only newly ticked together with a provider change would be refused by the server.
   const newSsoOnlyWithChange = $derived(disableLocal && !identityLocked && identityChanged);
   const disableLocalHint = $derived(
-    disableLocalDisabled || newSsoOnlyWithChange
+    !disableLocalEnv && (disableLocalDisabled || newSsoOnlyWithChange)
       ? (needsSso ? m.oidc_disable_local_needs_sso() : m.oidc_disable_local_after_change())
       : ''
   );
@@ -141,7 +144,7 @@
 
 {#snippet envNote(field: string)}
   {#if fromEnv(field)}
-    <p class="text-xs text-text-muted mt-1">{m.oidc_from_env({ name: envFields[field] })}</p>
+    <p id="oidc-env-{field}" class="text-xs text-text-muted mt-1" data-testid="oidc-env-note">{m.settings_setByEnv({ name: envFields[field] })}</p>
   {/if}
 {/snippet}
 
@@ -161,14 +164,14 @@
 <div class="space-y-4" data-testid="oidc-settings">
   <div>
     <label for="oidc-issuer" class="block text-sm text-text-muted mb-1">{m.oidc_issuer()}</label>
-    <input id="oidc-issuer" type="url" bind:value={issuerUrl} readonly={fromEnv('issuer_url') || identityLocked}
+    <input id="oidc-issuer" aria-describedby={envNoteId('issuer_url')} type="url" bind:value={issuerUrl} readonly={fromEnv('issuer_url') || identityLocked}
       class={inputClass} placeholder="https://auth.example.com/realms/main" />
     {@render envNote('issuer_url')}
   </div>
 
   <div>
     <label for="oidc-client-id" class="block text-sm text-text-muted mb-1">{m.oidc_client_id()}</label>
-    <input id="oidc-client-id" type="text" bind:value={clientId} readonly={fromEnv('client_id') || identityLocked}
+    <input id="oidc-client-id" aria-describedby={envNoteId('client_id')} type="text" bind:value={clientId} readonly={fromEnv('client_id') || identityLocked}
       class={inputClass} />
     {@render envNote('client_id')}
   </div>
@@ -176,7 +179,7 @@
   <div>
     <label for="oidc-client-secret" class="block text-sm text-text-muted mb-1">{m.oidc_client_secret()}</label>
     {#if fromEnv('client_secret')}
-      <input id="oidc-client-secret" type="password" readonly value="" class={inputClass} />
+      <input id="oidc-client-secret" type="password" readonly value="" aria-describedby={envNoteId('client_secret')} class={inputClass} />
       {@render envNote('client_secret')}
     {:else}
       <input id="oidc-client-secret" type="password" bind:value={clientSecret} readonly={identityLocked}
@@ -190,14 +193,14 @@
 
   <div>
     <label for="oidc-redirect" class="block text-sm text-text-muted mb-1">{m.oidc_redirect_url()}</label>
-    <input id="oidc-redirect" type="url" bind:value={redirectUrl} readonly={fromEnv('redirect_url')}
+    <input id="oidc-redirect" aria-describedby={envNoteId('redirect_url')} type="url" bind:value={redirectUrl} readonly={fromEnv('redirect_url')}
       class={inputClass} placeholder={settings.default_callback_url} />
     {@render envNote('redirect_url')}
   </div>
 
   <div>
     <label for="oidc-scopes" class="block text-sm text-text-muted mb-1">{m.oidc_scopes()}</label>
-    <input id="oidc-scopes" type="text" bind:value={scopes} readonly={fromEnv('scopes')} class={inputClass}
+    <input id="oidc-scopes" aria-describedby={envNoteId('scopes')} type="text" bind:value={scopes} readonly={fromEnv('scopes')} class={inputClass}
       placeholder="openid profile email" />
     {@render envNote('scopes')}
   </div>
@@ -208,28 +211,28 @@
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label for="oidc-username-claim" class="block text-xs text-text-muted mb-1">{m.oidc_username_claim()}</label>
-        <input id="oidc-username-claim" type="text" bind:value={usernameClaim} placeholder="preferred_username" readonly={fromEnv('username_claim')} class={inputClass} />
+        <input id="oidc-username-claim" aria-describedby={envNoteId('username_claim')} type="text" bind:value={usernameClaim} placeholder="preferred_username" readonly={fromEnv('username_claim')} class={inputClass} />
         {@render envNote('username_claim')}
       </div>
       <div>
         <label for="oidc-email-claim" class="block text-xs text-text-muted mb-1">{m.oidc_email_claim()}</label>
-        <input id="oidc-email-claim" type="text" bind:value={emailClaim} placeholder="email" readonly={fromEnv('email_claim')} class={inputClass} />
+        <input id="oidc-email-claim" aria-describedby={envNoteId('email_claim')} type="text" bind:value={emailClaim} placeholder="email" readonly={fromEnv('email_claim')} class={inputClass} />
         {@render envNote('email_claim')}
       </div>
       <div>
         <label for="oidc-display-name-claim" class="block text-xs text-text-muted mb-1">{m.oidc_display_name_claim()}</label>
-        <input id="oidc-display-name-claim" type="text" bind:value={displayNameClaim} placeholder="name" readonly={fromEnv('display_name_claim')} class={inputClass} />
+        <input id="oidc-display-name-claim" aria-describedby={envNoteId('display_name_claim')} type="text" bind:value={displayNameClaim} placeholder="name" readonly={fromEnv('display_name_claim')} class={inputClass} />
         {@render envNote('display_name_claim')}
       </div>
       <div>
         <label for="oidc-groups-claim" class="block text-xs text-text-muted mb-1">{m.oidc_groups_claim()}</label>
-        <input id="oidc-groups-claim" type="text" bind:value={groupsClaim} placeholder="groups" readonly={fromEnv('groups_claim')} class={inputClass} />
+        <input id="oidc-groups-claim" aria-describedby={envNoteId('groups_claim')} type="text" bind:value={groupsClaim} placeholder="groups" readonly={fromEnv('groups_claim')} class={inputClass} />
         {@render envNote('groups_claim')}
       </div>
     </div>
     <div>
       <label for="oidc-admin-groups" class="block text-sm text-text-muted mb-1">{m.oidc_admin_groups()}</label>
-      <input id="oidc-admin-groups" type="text" bind:value={adminGroups} readonly={fromEnv('admin_groups')} class={inputClass}
+      <input id="oidc-admin-groups" aria-describedby={envNoteId('admin_groups')} type="text" bind:value={adminGroups} readonly={fromEnv('admin_groups')} class={inputClass}
         placeholder="muximux-admins, homelab" />
       {@render envNote('admin_groups')}
     </div>
@@ -238,35 +241,45 @@
   <div class="space-y-3">
     <h4 class="text-sm font-medium text-text-primary">{m.oidc_signout_heading()}</h4>
 
-    <label class={checkboxRowClass}>
-      <input type="checkbox" bind:checked={providerLogout} class={checkboxClass} />
-      <span class="text-sm text-text-primary">{m.oidc_provider_logout()}</span>
-    </label>
+    <div>
+      <label class={checkboxRowClass}>
+        <input type="checkbox" id="oidc-provider-logout" bind:checked={providerLogout} disabled={fromEnv('provider_logout')}
+          aria-describedby={envNoteId('provider_logout')} class={checkboxClass} />
+        <span class="text-sm text-text-primary">{m.oidc_provider_logout()}</span>
+      </label>
+      {@render envNote('provider_logout')}
+    </div>
 
     <div>
       <label for="oidc-post-logout" class="block text-sm text-text-muted mb-1">{m.oidc_post_logout()}</label>
-      <input id="oidc-post-logout" type="url" bind:value={postLogoutUrl} readonly={fromEnv('post_logout_redirect_url')} class={inputClass} />
+      <input id="oidc-post-logout" aria-describedby={envNoteId('post_logout_redirect_url')} type="url" bind:value={postLogoutUrl} readonly={fromEnv('post_logout_redirect_url')} class={inputClass} />
       {@render envNote('post_logout_redirect_url')}
     </div>
 
     <div>
       <label for="oidc-logout-url" class="block text-sm text-text-muted mb-1">{m.oidc_logout_url()}</label>
-      <input id="oidc-logout-url" type="url" bind:value={logoutUrl} readonly={fromEnv('logout_url')} class={inputClass} />
+      <input id="oidc-logout-url" aria-describedby={envNoteId('logout_url')} type="url" bind:value={logoutUrl} readonly={fromEnv('logout_url')} class={inputClass} />
       {@render envNote('logout_url')}
     </div>
 
-    <label class={checkboxRowClass}>
-      <input type="checkbox" bind:checked={autoRedirect} class={checkboxClass} />
-      <span class="text-sm text-text-primary">{m.oidc_auto_redirect()}</span>
-    </label>
+    <div>
+      <label class={checkboxRowClass}>
+        <input type="checkbox" id="oidc-auto-redirect" bind:checked={autoRedirect} disabled={fromEnv('auto_redirect')}
+          aria-describedby={envNoteId('auto_redirect')} class={checkboxClass} />
+        <span class="text-sm text-text-primary">{m.oidc_auto_redirect()}</span>
+      </label>
+      {@render envNote('auto_redirect')}
+    </div>
 
     <div>
       <label class={checkboxRowClass}>
-        <input type="checkbox" id="oidc-disable-local" bind:checked={disableLocal} disabled={disableLocalDisabled} class={checkboxClass} />
+        <input type="checkbox" id="oidc-disable-local" bind:checked={disableLocal} disabled={disableLocalDisabled}
+          aria-describedby={envNoteId('disable_local_login') ?? (disableLocalHint ? 'oidc-disable-local-hint' : undefined)} class={checkboxClass} />
         <span class="text-sm text-text-primary">{m.oidc_disable_local()}</span>
       </label>
+      {@render envNote('disable_local_login')}
       {#if disableLocalHint}
-        <p class="text-xs text-text-muted mt-1" data-testid="oidc-disable-local-hint">{disableLocalHint}</p>
+        <p id="oidc-disable-local-hint" class="text-xs text-text-muted mt-1" data-testid="oidc-disable-local-hint">{disableLocalHint}</p>
       {/if}
       {#if disableLocal}
         <p class="text-xs text-warning-text mt-1" data-testid="oidc-disable-local-warning">{m.oidc_disable_local_warning()}</p>
