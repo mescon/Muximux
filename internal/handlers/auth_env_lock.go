@@ -15,14 +15,14 @@ import (
 // would fail closed. Messages name variables, never values. The caller
 // holds configMu.
 func authMethodEnvConflict(cfg *config.Config, method string) string {
-	if src, ok := cfg.EnvOverrides()[string(config.OverrideAuthMethod)]; ok {
+	if src, ok := cfg.OverrideSource(config.OverrideAuthMethod); ok {
 		if method != cfg.Auth.Method {
 			return "the auth method is set by " + src + "; change it there and restart"
 		}
 		return ""
 	}
 	if method == "oidc" {
-		if src, ok := cfg.EnvOverrides()[string(config.OverrideOIDCEnabled)]; ok && !cfg.Auth.OIDC.Enabled {
+		if src, ok := cfg.OverrideSource(config.OverrideOIDCEnabled); ok && !cfg.Auth.OIDC.Enabled {
 			return "single sign-on is turned off by " + src + "; change it there and restart"
 		}
 		return ""

@@ -1495,10 +1495,19 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.setupNone()
 	}
 
+	// Under MUXIMUX_AUTH_METHOD the live method is the variable's and Save
+	// would write the file's own (usually none). The operator has just
+	// completed setup for this method, so persist it: otherwise dropping
+	// the variable later starts with setup_complete and no auth at all.
+	var priorFileMethod string
+	var fileMethodSet bool
 	if err := func() error {
 		s.configMu.Lock()
 		defer s.configMu.Unlock()
 		s.config.Auth.SetupComplete = true
+		if req.Method == s.config.Auth.Method {
+			priorFileMethod, fileMethodSet = s.config.SetOverrideFileValue(config.OverrideAuthMethod, req.Method)
+		}
 		return s.config.Save(s.configPath)
 	}(); err != nil {
 		// Disk save failed. Roll back every piece of live state we
@@ -1511,6 +1520,9 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.config.Auth.Headers = priorHeaders
 		s.config.Auth.LogoutURL = priorLogoutURL
 		s.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+		if fileMethodSet {
+			s.config.SetOverrideFileValue(config.OverrideAuthMethod, priorFileMethod)
+		}
 		// Rebuild the user store and the auth-middleware snapshot from
 		// the restored fields. Setup never touches the API key hash or
 		// the base path, so this is the snapshot from before setup.
@@ -2873,7 +2885,7 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 func (s *Server) setupMethodEnvConflict(method string) string {
 	s.configMu.RLock()
 	defer s.configMu.RUnlock()
-	src, ok := s.config.EnvOverrides()[string(config.OverrideAuthMethod)]
+	src, ok := s.config.OverrideSource(config.OverrideAuthMethod)
 	if !ok || method == s.config.Auth.Method {
 		return ""
 	}

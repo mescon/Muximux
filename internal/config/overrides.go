@@ -75,6 +75,30 @@ func (c *Config) IsOverridden(field OverrideField) bool {
 	return ok
 }
 
+// OverrideSource returns the flag or environment variable that set field,
+// and whether field is overridden.
+func (c *Config) OverrideSource(field OverrideField) (string, bool) {
+	o, ok := c.overrides[field]
+	return o.source, ok
+}
+
+// SetOverrideFileValue changes the value Save writes for an overridden
+// field, without touching the live value or the source. It returns the
+// previous file value, so a caller can put it back if the save fails, and
+// false (changing nothing) when field is not overridden. The setup wizard
+// uses it to persist the method it completed under MUXIMUX_AUTH_METHOD, so
+// dropping the variable later does not leave the instance without auth.
+func (c *Config) SetOverrideFileValue(field OverrideField, value string) (string, bool) {
+	o, ok := c.overrides[field]
+	if !ok {
+		return "", false
+	}
+	prev := o.fileValue
+	o.fileValue = value
+	c.overrides[field] = o
+	return prev, true
+}
+
 // EnvOverrides maps each overridden field to the flag or environment
 // variable that set it. It returns nil when nothing is overridden.
 func (c *Config) EnvOverrides() map[string]string {

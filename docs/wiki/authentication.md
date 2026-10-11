@@ -363,7 +363,7 @@ MUXIMUX_OIDC_ADMIN_GROUPS=muximux-admins
 
 An invalid boolean only logs a warning and keeps the `config.yaml` value. A `MUXIMUX_OIDC_*` name Muximux does not know (a typo such as `MUXIMUX_OIDC_CLIENT_SECERT`) is logged as a warning naming the variable. With `MUXIMUX_AUTH_METHOD=oidc`, no admin groups and no local admin user, a warning says that nobody will be an admin.
 
-**Setup wizard.** With `MUXIMUX_AUTH_METHOD` set to `oidc`, `forward_auth` or `none`, the instance starts configured: there is no setup wizard and no setup token. With `builtin` and no users in `config.yaml`, the wizard still runs so you can create the first admin; its security step is locked to password sign-in. The setup endpoint refuses any other method with 409.
+**Setup wizard.** With `MUXIMUX_AUTH_METHOD` set to `oidc`, `forward_auth` or `none`, the instance starts configured: there is no setup wizard and no setup token. With `builtin` and no users in `config.yaml`, the wizard still runs so you can create the first admin; its security step is locked to password sign-in. The setup endpoint refuses any other method with 409. Completing the wizard writes `method: builtin` and the new admin to `config.yaml` (the one case where the method from the environment is saved), so removing the variable later still requires a password.
 
 **Export.** **Export Config** in **Settings > General** (`GET /api/config/export`) writes the live configuration, so values from the environment appear in the backup like any other setting. Client secrets are blanked, as for every export, whether they came from `config.yaml` or the environment. After restoring such a backup on a host without the variables, enter the secret again.
 

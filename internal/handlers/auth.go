@@ -582,7 +582,7 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		h.configMu.RLock()
 		authMethod = h.config.Auth.Method
 		logoutURL = h.config.Auth.LogoutURL
-		methodEnv = h.config.EnvOverrides()[string(config.OverrideAuthMethod)]
+		methodEnv, _ = h.config.OverrideSource(config.OverrideAuthMethod)
 		h.configMu.RUnlock()
 	}
 
