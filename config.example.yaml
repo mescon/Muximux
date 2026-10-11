@@ -146,6 +146,7 @@ navigation:
   show_splash_on_startup: false # Show splash screen on first load
   dynamic_tab_branding: false  # Browser tab shows the active app's name + icon
   show_shadow: true            # Drop shadow on navigation bar
+  show_docker_badge: true      # Docker whale next to Docker-discovered apps in the nav (admins only)
   icon_scale: 1.0              # Icon zoom multiplier (e.g. 1.2 = 20% larger)
   bar_style: grouped           # grouped (default) or flat (top/bottom bars only)
   floating_position: bottom-right  # Floating button position (when position: floating)

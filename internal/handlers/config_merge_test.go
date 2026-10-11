@@ -28,6 +28,24 @@ func TestMergeFields_MineWinsOnlyWhereChanged(t *testing.T) {
 	}
 }
 
+// #515: show_docker_badge goes through the generic three-way merge, so a
+// local toggle survives a concurrent edit to another navigation field.
+func TestMergeFields_ShowDockerBadge(t *testing.T) {
+	base := config.NavigationConfig{Position: "top", ShowDockerBadge: true}
+	mine := base
+	mine.ShowDockerBadge = false
+	theirs := base
+	theirs.Position = "left"
+	got := mergeFields(&base, &mine, &theirs, nil)
+	if got.ShowDockerBadge || got.Position != "left" {
+		t.Errorf("got %+v", got)
+	}
+	// Untouched by either side: the base value is kept.
+	if kept := mergeFields(&base, &base, &theirs, nil); !kept.ShowDockerBadge {
+		t.Errorf("untouched show_docker_badge lost: %+v", kept)
+	}
+}
+
 func TestMergeThreeWay_ConflictMineWins(t *testing.T) { // Review Focus 1
 	base := &ClientConfigUpdate{Title: "A", Language: "en"}
 	mine := &ClientConfigUpdate{Title: "B", Language: "en"}

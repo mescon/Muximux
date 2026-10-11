@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Övre vänster",
   "general_showLabels": "Visa etiketter",
   "general_showLabelsDesc": "Visa appnamn bredvid ikoner",
+  "general_showDockerBadge": "Visa Docker-märke",
+  "general_showDockerBadgeDesc": "Visa Docker-valen vid appar som hittats via Docker i navigeringen och på översikten (endast administratörer)",
   "general_showLogo": "Visa logotyp",
   "general_showLogoDesc": "Visa Muximux-logotypen i menyn",
   "general_overviewButton": "Översiktsknapp",

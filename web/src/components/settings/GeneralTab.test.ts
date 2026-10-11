@@ -70,6 +70,20 @@ describe('GeneralTab', () => {
     expect(config.navigation.dynamic_tab_branding).toBe(true);
   });
 
+  it('toggles the Docker badge setting into localConfig (#515)', async () => {
+    const config = makeConfig();
+    render(GeneralTab, {
+      props: { localConfig: config, localApps: [], onexport: vi.fn(), onimportselect: vi.fn() },
+    });
+
+    const toggle = screen.getByText('Show Docker Badge').closest('label')!.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+    await fireEvent.click(toggle);
+    expect(config.navigation.show_docker_badge).toBe(false);
+    await fireEvent.click(toggle);
+    expect(config.navigation.show_docker_badge).toBe(true);
+  });
+
   it('renders Dashboard Title input with correct value', () => {
     const config = makeConfig({ title: 'My Dashboard' });
     render(GeneralTab, {

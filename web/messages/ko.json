@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "왼쪽 상단",
   "general_showLabels": "라벨 표시",
   "general_showLabelsDesc": "아이콘 옆에 앱 이름 표시",
+  "general_showDockerBadge": "Docker 배지 표시",
+  "general_showDockerBadgeDesc": "탐색 메뉴와 개요에서 Docker로 검색된 앱 옆에 Docker 고래를 표시합니다 (관리자만)",
   "general_showLogo": "로고 표시",
   "general_showLogoDesc": "메뉴에 Muximux 로고 표시",
   "general_overviewButton": "개요 버튼",

@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Viršuje kairėje",
   "general_showLabels": "Rodyti etiketes",
   "general_showLabelsDesc": "Rodyti programų pavadinimus šalia piktogramų",
+  "general_showDockerBadge": "Rodyti Docker ženkliuką",
+  "general_showDockerBadgeDesc": "Rodyti Docker banginį prie per Docker rastų programų naršymo juostoje ir apžvalgoje (tik administratoriams)",
   "general_showLogo": "Rodyti logotipą",
   "general_showLogoDesc": "Rodyti Muximux logotipą meniu",
   "general_overviewButton": "Apžvalgos mygtukas",

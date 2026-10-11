@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Горе вляво",
   "general_showLabels": "Показвай етикети",
   "general_showLabelsDesc": "Показвай имената на приложенията до иконите",
+  "general_showDockerBadge": "Показване на значка на Docker",
+  "general_showDockerBadgeDesc": "Показване на китчето на Docker до приложенията, открити чрез Docker, в навигацията и в прегледа (само за администратори)",
   "general_showLogo": "Показвай логото",
   "general_showLogoDesc": "Показвай логото на Muximux в менюто",
   "general_overviewButton": "Бутон за преглед",

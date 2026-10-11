@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Trên trái",
   "general_showLabels": "Hiển thị nhãn",
   "general_showLabelsDesc": "Hiển thị tên ứng dụng bên cạnh biểu tượng",
+  "general_showDockerBadge": "Hiển thị huy hiệu Docker",
+  "general_showDockerBadgeDesc": "Hiển thị cá voi Docker bên cạnh các ứng dụng được phát hiện qua Docker trong thanh điều hướng và trên trang tổng quan (chỉ quản trị viên)",
   "general_showLogo": "Hiển thị logo",
   "general_showLogoDesc": "Hiển thị logo Muximux trong menu",
   "general_overviewButton": "Nút tổng quan",

@@ -3954,3 +3954,78 @@ describe('Navigation Docker badge', () => {
     });
   });
 });
+
+describe('Navigation Docker whale visibility (#515)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockIsAdmin.set(true);
+    mockIsAuthenticated.set(true);
+    mockCurrentUser.set({ username: 'admin', role: 'admin' });
+    mockHealthData.set(new Map());
+    if (!HTMLElement.prototype.setPointerCapture) {
+      HTMLElement.prototype.setPointerCapture = vi.fn();
+    }
+    if (!HTMLElement.prototype.releasePointerCapture) {
+      HTMLElement.prototype.releasePointerCapture = vi.fn();
+    }
+    dockerStateStore.set(
+      new Map([['Sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]),
+    );
+  });
+
+  const positions = ['top', 'bottom', 'left', 'right', 'floating'] as const;
+
+  async function renderAt(position: (typeof positions)[number], navigation: Partial<NavigationConfig> = {}) {
+    const { container } = render(Navigation, {
+      props: {
+        apps: [makeApp({ name: 'Sonarr', group: '', docker_key: 'name:/sonarr' })],
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position, ...navigation },
+          discovery: { docker: { health_badge_placement: 'overview_and_nav' } },
+        }),
+      },
+    });
+    if (position === 'floating') {
+      const btn = container.querySelector('[role="navigation"]')!.querySelector('button')!;
+      await fireEvent.pointerDown(btn, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+      document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }));
+      await waitFor(() => expect(container.querySelector('.floating-panel')).toBeTruthy());
+    }
+    return container;
+  }
+
+  for (const position of positions) {
+    describe(position, () => {
+      it('shows the whale by default for admins', async () => {
+        const container = await renderAt(position);
+        expect(container.querySelector('.nav-docker-badge svg')).not.toBeNull();
+      });
+
+      it('shows the whale when show_docker_badge is explicitly true', async () => {
+        const container = await renderAt(position, { show_docker_badge: true });
+        expect(container.querySelector('.nav-docker-badge svg')).not.toBeNull();
+      });
+
+      it('hides the whale but keeps the state pill when show_docker_badge is off', async () => {
+        const container = await renderAt(position, { show_docker_badge: false });
+        expect(container.querySelector('.nav-docker-badge')).not.toBeNull();
+        expect(container.querySelector('.nav-docker-badge svg')).toBeNull();
+        expect(container.querySelector('.nav-docker-badge .docker-status-dot')).not.toBeNull();
+      });
+
+      it('hides the whale for non-admins even when the setting is on', async () => {
+        mockIsAdmin.set(false);
+        mockCurrentUser.set({ username: 'bob', role: 'user' });
+        const container = await renderAt(position, { show_docker_badge: true });
+        expect(container.querySelector('.nav-docker-badge svg')).toBeNull();
+      });
+
+      it('renders no empty badge span when the whale is hidden and no state is known', async () => {
+        dockerStateStore.set(new Map());
+        const container = await renderAt(position, { show_docker_badge: false });
+        expect(container.querySelector('.nav-docker-badge')).toBeNull();
+      });
+    });
+  }
+});
