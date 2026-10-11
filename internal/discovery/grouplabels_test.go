@@ -26,7 +26,7 @@ func TestParseGroupLabels(t *testing.T) {
 		LabelGroupColor: " #e5a00d ",
 		LabelGroupOrder: " 0",
 	})
-	if got.Icon != "plex" || got.Color != "#e5a00d" || !got.OrderSet || got.Order != 0 || len(got.Invalid) != 0 {
+	if got.Icon != (IconRef{Type: "dashboard", Name: "plex"}) || got.Color != "#e5a00d" || !got.OrderSet || got.Order != 0 || len(got.Invalid) != 0 {
 		t.Errorf("valid labels = %+v", got)
 	}
 	if !got.any() {
@@ -318,8 +318,8 @@ func TestGroupLabelLookup(t *testing.T) {
 func TestResolveGroupLabels_PerFieldWinner(t *testing.T) {
 	labels := map[string]GroupLabels{
 		"k:1": {Order: 2, OrderSet: true},
-		"k:2": {Icon: "a", Color: "#ABCDEF", Order: 3, OrderSet: true},
-		"k:3": {Icon: "b", Color: "#abcdef"},
+		"k:2": {Icon: dashIcon("a"), Color: "#ABCDEF", Order: 3, OrderSet: true},
+		"k:3": {Icon: dashIcon("b"), Color: "#abcdef"},
 		"k:4": {},
 	}
 	owners := []groupOwner{{"k:1", "G"}, {"k:2", "G"}, {"k:3", "G"}, {"k:4", "G"}, {"k:5", "G"}}
@@ -328,7 +328,7 @@ func TestResolveGroupLabels_PerFieldWinner(t *testing.T) {
 		return g, ok
 	})
 	v := vals["G"]
-	if v.icon != "a" || v.iconKey != "k:2" || v.color != "#ABCDEF" || *v.order != 2 || v.orderKey != "k:1" {
+	if v.icon != dashIcon("a") || v.iconKey != "k:2" || v.color != "#ABCDEF" || *v.order != 2 || v.orderKey != "k:1" {
 		t.Errorf("values = %+v", v)
 	}
 	// k:2 loses order to k:1, k:3 loses icon to k:2; a colour that only
@@ -347,7 +347,7 @@ func TestApplyGroupLabelValues(t *testing.T) {
 		{Name: "U", Color: "#fff"},
 	}
 	vals := map[string]groupLabelValues{
-		"M": {icon: "plex", color: "#123", order: &order},
+		"M": {icon: dashIcon("plex"), color: "#123", order: &order},
 		"U": {color: "#000"},
 	}
 	got := applyGroupLabelValues(groups, vals)
@@ -365,7 +365,7 @@ func TestApplyGroupLabelValues(t *testing.T) {
 	}
 	// The order label is dropped: the order stays, the flag is cleared and
 	// that alone counts as a change.
-	vals["M"] = groupLabelValues{icon: "plex", color: "#123"}
+	vals["M"] = groupLabelValues{icon: dashIcon("plex"), color: "#123"}
 	if got := applyGroupLabelValues(groups, vals); len(got) != 1 || strings.Join(got[0].fields, ",") != "order_source" ||
 		groups[0].DockerOrder || groups[0].Order != 4 {
 		t.Errorf("flag change = %+v, group %+v", got, groups[0])
@@ -398,7 +398,7 @@ func TestSuggestion_GroupLabelNotes(t *testing.T) {
 
 func TestNoteGroupLabelConflicts(t *testing.T) {
 	sug := []Suggestion{
-		{Key: "label:z", Group: "media", groupLabels: GroupLabels{Color: "#222222", Icon: "plex"}},
+		{Key: "label:z", Group: "media", groupLabels: GroupLabels{Color: "#222222", Icon: dashIcon("plex")}},
 		{Key: "label:a", Group: "Media", groupLabels: GroupLabels{Color: "#111111"}},
 		{Key: "label:m", Group: "Other", groupLabels: GroupLabels{Color: "#333333"}},
 		{Key: "label:n", Group: "", groupLabels: GroupLabels{Color: "#444444"}},

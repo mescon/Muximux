@@ -29,14 +29,14 @@ import (
 // labelSync is what one tracked app takes from its labels this tick. A zero
 // field means the label is unset or already in sync.
 type labelSync struct {
-	name  string // new app name
-	icon  string // new dashboard icon slug
-	group string // existing group name, or the label value of a group to create
-	order *int   // new order; nil when the label is unset or in sync
+	name  string  // new app name
+	icon  IconRef // new icon from the label
+	group string  // existing group name, or the label value of a group to create
+	order *int    // new order; nil when the label is unset or in sync
 }
 
 func (s *labelSync) empty() bool {
-	return s.name == "" && s.icon == "" && s.group == "" && s.order == nil
+	return s.name == "" && !s.icon.IsSet() && s.group == "" && s.order == nil
 }
 
 // labelSyncContext is the part of the config the plan checks against,
@@ -122,10 +122,10 @@ func ensureAppGroup(cfg *config.Config, a *config.AppConfig, created *[]string) 
 	}
 }
 
-// labelIconSynced reports whether icon already shows the dashboard icon
-// slug. The import path stores a label icon as {type: dashboard, name}.
-func labelIconSynced(icon *config.AppIconConfig, slug string) bool {
-	return icon.Type == "dashboard" && icon.Name == slug
+// labelIconSynced reports whether icon already shows the label icon. The
+// import path stores a label icon as {type, name} or {type: url, url}.
+func labelIconSynced(icon *config.AppIconConfig, ref IconRef) bool {
+	return ref.Matches(icon) && icon.File == "" && (ref.Type == iconTypeURL || icon.URL == "")
 }
 
 // reserveReconcileNames counts the names auto-import adds or updates this tick
@@ -204,7 +204,10 @@ func planOneLabelSync(t *trackedAppEntry, labels *AppLabels, ctx *labelSyncConte
 			ctx.nameCounts[newKey]++
 		}
 	}
-	if labels.Icon != "" && !labelIconSynced(&t.icon, labels.Icon) {
+	if labels.IconInvalid != "" {
+		held = append(held, "icon label "+labels.IconInvalid)
+	}
+	if labels.Icon.IsSet() && !labelIconSynced(&t.icon, labels.Icon) {
 		s.icon = labels.Icon
 	}
 	if labels.Group != "" {
@@ -352,14 +355,10 @@ func dropCollidingRenames(apps []config.AppConfig, renames map[int]string) {
 // that does not exist yet is created in cfg and appended to createdGroups.
 func applyOneLabelSync(cfg *config.Config, a *config.AppConfig, s *labelSync, createdGroups *[]string) []string {
 	var fields []string
-	if s.icon != "" && !labelIconSynced(&a.Icon, s.icon) {
-		// Same shape as an import: a dashboard icon by slug. Styling the
-		// operator set on the icon (variant, colour, background, invert)
-		// is kept.
-		a.Icon.Type = "dashboard"
-		a.Icon.Name = s.icon
-		a.Icon.File = ""
-		a.Icon.URL = ""
+	if s.icon.IsSet() && !labelIconSynced(&a.Icon, s.icon) {
+		// Same shape as an import. Styling the operator set on the icon
+		// (variant, colour, background, invert) is kept.
+		s.icon.Apply(&a.Icon)
 		fields = append(fields, "icon")
 	}
 	if s.group != "" {
