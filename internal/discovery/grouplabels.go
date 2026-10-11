@@ -25,8 +25,8 @@ import (
 
 // GroupLabels is the parsed shape of the muximux.group.* namespace.
 type GroupLabels struct {
-	Icon     string // dashboard-icons slug, trimmed and lowercased; "" = unset
-	Color    string // hex colour; "" = unset or invalid
+	Icon     IconRef // see ParseIconLabel; zero = unset or invalid
+	Color    string  // hex colour; "" = unset or invalid
 	Order    int
 	OrderSet bool // true when muximux.group.order holds a valid value
 	// Invalid lists, in label order, the set values that were ignored and
@@ -36,7 +36,7 @@ type GroupLabels struct {
 
 // any reports whether at least one group label holds a usable value.
 func (g *GroupLabels) any() bool {
-	return g.Icon != "" || g.Color != "" || g.OrderSet
+	return g.Icon.IsSet() || g.Color != "" || g.OrderSet
 }
 
 // ParseGroupLabels extracts the muximux.group.* namespace from a
@@ -46,8 +46,11 @@ func (g *GroupLabels) any() bool {
 // muximux.app.order; anything else is ignored and listed in Invalid.
 func ParseGroupLabels(labels map[string]string) GroupLabels {
 	var out GroupLabels
-	if v := strings.TrimSpace(labels[LabelGroupIcon]); v != "" {
-		out.Icon = strings.ToLower(v)
+	if v := labels[LabelGroupIcon]; strings.TrimSpace(v) != "" {
+		var why string
+		if out.Icon, why = ParseIconLabel(v); why != "" {
+			out.Invalid = append(out.Invalid, LabelGroupIcon+" "+why)
+		}
 	}
 	if v := strings.TrimSpace(labels[LabelGroupColor]); v != "" {
 		if isHexColor(v) {
@@ -142,7 +145,8 @@ func groupLabelLookup(containers []ContainerSummary) func(key string) (GroupLabe
 // An empty icon or colour, or a nil order, means no container sets it.
 // The *Key fields name the winning container's tracking key.
 type groupLabelValues struct {
-	icon, color       string
+	icon              IconRef
+	color             string
 	order             *int
 	iconKey, colorKey string
 	orderKey          string
@@ -174,7 +178,7 @@ func resolveGroupLabels(owners []groupOwner, lookup func(string) (GroupLabels, b
 		lose := func(label, winner string) {
 			conflicts = append(conflicts, groupLabelConflict{group: o.group, label: label, key: o.key, winner: winner})
 		}
-		if gl.Icon != "" {
+		if gl.Icon.IsSet() {
 			switch {
 			case v.iconKey == "":
 				v.icon, v.iconKey = gl.Icon, o.key
@@ -213,7 +217,7 @@ type groupSynced struct {
 
 // applyGroupLabelValues writes vals onto every DockerManaged group in
 // groups (in place) and returns what it changed. A label icon is stored as
-// a dashboard icon by slug, the shape muximux.app.icon gives an app;
+// as muximux.app.icon stores it on an app (IconRef.Apply);
 // styling on the icon (variant, colour, background, invert) is kept.
 // DockerOrder is set on every pass to whether a label sets the order, and
 // a change to it counts as a change ("order_source").
@@ -226,8 +230,8 @@ func applyGroupLabelValues(groups []config.GroupConfig, vals map[string]groupLab
 			continue
 		}
 		var fields []string
-		if v.icon != "" && (g.Icon.Type != "dashboard" || g.Icon.Name != v.icon || g.Icon.File != "" || g.Icon.URL != "") {
-			g.Icon.Type, g.Icon.Name, g.Icon.File, g.Icon.URL = "dashboard", v.icon, "", ""
+		if v.icon.IsSet() && !labelIconSynced(&g.Icon, v.icon) {
+			v.icon.Apply(&g.Icon)
 			fields = append(fields, "icon")
 		}
 		if v.color != "" && g.Color != v.color {

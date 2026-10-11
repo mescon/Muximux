@@ -64,7 +64,7 @@ const (
 	// muximux.group.* namespace - fields of the group the container's app
 	// is in. Applied only to a group Docker discovery created and still
 	// manages (GroupConfig.DockerManaged); see grouplabels.go.
-	LabelGroupIcon  = "muximux.group.icon"  // dashboard-icons slug
+	LabelGroupIcon  = "muximux.group.icon"  // same forms as muximux.app.icon
 	LabelGroupColor = "muximux.group.color" // "#rrggbb"
 	LabelGroupOrder = "muximux.group.order" // sort order of the group, 0..9999
 )
@@ -76,14 +76,16 @@ type AppLabels struct {
 	Any     bool  // at least one muximux.* label was present (known or unknown)
 	Enabled *bool // pointer so we can distinguish "absent" from "false"
 	Name    string
-	Icon    string
-	Group   string
-	Port    int    // 0 = unset
-	Scheme  string // "" = unset
-	Path    string
-	Health  string
-	Color   string
-	Order   int // 0 when unset; see OrderSet
+	Icon    IconRef // see ParseIconLabel; zero = unset or invalid
+	// IconInvalid is why a set icon label was ignored; "" = usable or unset.
+	IconInvalid string
+	Group       string
+	Port        int    // 0 = unset
+	Scheme      string // "" = unset
+	Path        string
+	Health      string
+	Color       string
+	Order       int // 0 when unset; see OrderSet
 	// OrderSet is true when muximux.app.order holds a valid value, so an
 	// explicit 0 can be told apart from an unset label.
 	OrderSet           bool
@@ -138,11 +140,10 @@ type GatewayLabels struct {
 var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppEnabled: func(out *AppLabels, v string) { b := boolish(v); out.Enabled = &b },
 	// Name, icon and group are trimmed so a stray space in a compose file
-	// neither renames the app nor points at a missing icon or group. Icon
-	// slugs are lowercase in the dashboard-icons set, so the icon is
-	// lowercased too.
+	// neither renames the app nor points at a missing icon or group. The icon
+	// is parsed by ParseIconLabel (dashboard slug, lucide:, url: or a URL).
 	LabelAppName:  func(out *AppLabels, v string) { out.Name = strings.TrimSpace(v) },
-	LabelAppIcon:  func(out *AppLabels, v string) { out.Icon = strings.ToLower(strings.TrimSpace(v)) },
+	LabelAppIcon:  func(out *AppLabels, v string) { out.Icon, out.IconInvalid = ParseIconLabel(v) },
 	LabelAppGroup: func(out *AppLabels, v string) { out.Group = strings.TrimSpace(v) },
 	LabelAppPort: func(out *AppLabels, v string) {
 		if p, err := strconv.Atoi(v); err == nil && p >= 1 && p <= 65535 {

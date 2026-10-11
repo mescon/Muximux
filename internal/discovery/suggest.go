@@ -38,7 +38,8 @@ type Suggestion struct {
 
 	// Display
 	Name      string `json:"name"`
-	Icon      string `json:"icon,omitempty"`
+	Icon      string `json:"icon,omitempty"`      // dashboard/lucide name, or the URL for a url icon
+	IconType  string `json:"icon_type,omitempty"` // dashboard (default), lucide or url
 	Group     string `json:"group,omitempty"`
 	URL       string `json:"url"` // ready-to-use URL
 	HealthURL string `json:"health_url,omitempty"`
@@ -262,9 +263,12 @@ func resolveSuggestionName(s *Suggestion, labels *AppLabels, catalog *CatalogEnt
 }
 
 func resolveSuggestionIcon(s *Suggestion, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) {
+	if labels.IconInvalid != "" {
+		s.Notes = append(s.Notes, "muximux.app.icon ignored: "+labels.IconInvalid)
+	}
 	switch {
-	case labels.Icon != "":
-		s.Icon = labels.Icon
+	case labels.Icon.IsSet():
+		s.Icon, s.IconType = labels.Icon.Value(), labels.Icon.Type
 	case hasCatalog && catalog.Icon != "":
 		s.Icon = catalog.Icon
 	}

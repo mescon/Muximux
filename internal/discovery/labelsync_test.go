@@ -351,7 +351,7 @@ func TestPlanLabelSync_Rules(t *testing.T) {
 	if _, ok := plan["label:b"]; ok {
 		t.Errorf("second rename to the same name not held: %+v", plan["label:b"])
 	}
-	if s := plan["label:c"]; s.name != "SONARR" || s.icon != "" {
+	if s := plan["label:c"]; s.name != "SONARR" || s.icon.IsSet() {
 		t.Errorf("case-only rename / synced icon: %+v", s)
 	}
 	if _, ok := plan["label:d"]; ok || !strings.Contains(p.labelHeld["label:d"], "100") {
@@ -400,9 +400,9 @@ func TestApplyLabelSyncs_UnderLock(t *testing.T) {
 	cfg.Server.GatewaySites = []config.GatewaySite{{Domain: "old.example.com", AppName: "Old"}, {Domain: "x.example.com", AppName: "Hand"}}
 	var created []string
 	got := applyLabelSyncs(cfg, "", map[string]labelSync{
-		"label:m":    {name: "New", icon: "traefik", group: "Deleted", order: intp(3)},
+		"label:m":    {name: "New", icon: dashIcon("traefik"), group: "Deleted", order: intp(3)},
 		"label:auto": {name: "Nope"},
-		"label:same": {name: "Same", icon: "same", group: "infra", order: intp(2)},
+		"label:same": {name: "Same", icon: dashIcon("same"), group: "infra", order: intp(2)},
 	}, &created)
 	a := cfg.Apps[0]
 	if a.Name != "New" || a.Order != 3 || a.Group != "Deleted" {
@@ -444,7 +444,7 @@ func TestParseAppLabels_TrimsDisplayLabels(t *testing.T) {
 	got := ParseAppLabels(map[string]string{
 		LabelAppName: "  My App ", LabelAppIcon: " Traefik-Proxy\t", LabelAppGroup: " Infra ", LabelAppOrder: " 12 ",
 	})
-	if got.Name != "My App" || got.Icon != "traefik-proxy" || got.Group != "Infra" || got.Order != 12 {
+	if got.Name != "My App" || got.Icon != dashIcon("traefik-proxy") || got.Group != "Infra" || got.Order != 12 {
 		t.Errorf("labels = %+v", got)
 	}
 }

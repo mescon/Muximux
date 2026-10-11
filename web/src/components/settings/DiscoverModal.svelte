@@ -4,6 +4,7 @@
   import type { App, DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, GatewaySite, AppIcon as AppIconType } from '$lib/types';
   import { scanDockerContainers, importDockerSuggestions, errorText } from '$lib/api';
   import AppIcon from '../AppIcon.svelte';
+  import { suggestionIcon } from '$lib/iconUrl';
   import IconBrowser from '../IconBrowser.svelte';
 
   // mode controls per-row default behaviour. Same modal opens from
@@ -201,7 +202,7 @@
             const app: Partial<App> = {
               name: r.nameOverride.trim() || r.s.name,
               url: r.s.url,
-              icon: r.iconOverride ?? { type: 'dashboard', name: r.s.icon ?? '' },
+              icon: r.iconOverride ?? suggestionIcon(r.s),
               group: r.s.group ?? '',
               health_url: r.s.health_url,
               enabled: true,
@@ -293,7 +294,7 @@
   // Effective icon for the row's preview: explicit override > catalog
   // suggestion > empty placeholder.
   function effectiveIcon(r: RowState): AppIconType {
-    return r.iconOverride ?? { type: 'dashboard', name: r.s.icon ?? '' };
+    return r.iconOverride ?? suggestionIcon(r.s);
   }
 
   function openIconPicker(key: string) {

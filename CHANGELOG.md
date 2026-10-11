@@ -4,6 +4,14 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Docker icon labels accept Lucide icons and URLs.** `muximux.app.icon` and
+  `muximux.group.icon` take `lucide:<name>`, an `http(s)` URL (or
+  `url:<url>`) and `dashboard:<slug>` as well as a bare Dashboard Icons slug,
+  which behaves as before -- on import, on label re-sync and for group labels.
+  Only `http` and `https` URLs are accepted, and an invalid value is ignored
+  with a warning while the stored icon stays (#514).
+
 ### Fixed
 - **Aborted proxy streams are no longer logged as panics.** When a client
   goes away mid-stream the reverse proxy aborts the response the way net/http

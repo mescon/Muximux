@@ -516,7 +516,10 @@ export interface DiscoverySuggestion {
   key: string;
   stability: 'stable' | 'recreate-fragile' | 'task-fragile';
   name: string;
+  /** Dashboard/Lucide icon name, or the URL when icon_type is 'url'. */
   icon?: string;
+  /** Defaults to 'dashboard' when absent (older servers, catalog icons). */
+  icon_type?: 'dashboard' | 'lucide' | 'url';
   group?: string;
   url: string;
   backend_url?: string;

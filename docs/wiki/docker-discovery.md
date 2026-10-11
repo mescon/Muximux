@@ -335,15 +335,40 @@ The poller owns the health address of such an app: it rewrites `health_url` on e
 
 Removing `muximux.app.url` later returns the app to its container URL on the next refresh tick. Editing the URL by hand in Settings detaches the app, as with any tracked app. Known limitation: after removing the `muximux.app.url` label, an app imported manually keeps the container address it had as its health address; set it in the app's settings if needed. Auto-imported apps get it reset by auto-import.
 
+#### Icon label formats
+
+`muximux.app.icon` and `muximux.group.icon` take the same values:
+
+| Value | Icon | Example |
+|---|---|---|
+| `<slug>` | Dashboard Icons slug (the original form) | `sonarr` |
+| `dashboard:<slug>` | Dashboard Icons slug, explicit | `dashboard:sonarr` |
+| `lucide:<name>` | Lucide icon | `lucide:shield-check` |
+| `http://...` or `https://...` | Icon image at that URL | `https://example.com/icons/media.svg` |
+| `url:<url>` | Icon image at that URL, explicit | `url:https://example.com/icons/media.svg` |
+
+```yaml
+labels:
+  - muximux.app.icon=lucide:database
+  - muximux.group.icon=https://example.com/icons/media.svg
+```
+
+- A bare value is always a Dashboard Icons slug. Muximux never guesses Lucide from a bare name, because names such as `server` exist in both sets; write `lucide:server`.
+- Prefixes are case-insensitive. Slugs and Lucide names are lowercased; URLs are kept exactly as written (paths and queries are case-sensitive).
+- A Lucide name is lowercase letters, digits and dashes. Muximux checks that format only, so a name Lucide does not have shows as a missing icon, as in the UI.
+- A URL must be an absolute `http` or `https` URL with a host, no credentials or spaces, and at most 2048 characters. Other schemes such as `javascript:`, `data:` and `file:` are refused. The browser loads a URL icon straight from that address (Muximux does not proxy or cache it), so the host must be reachable from the browser, and an `http` icon is blocked by browsers on an `https` page.
+- An invalid value is ignored: the scan notes it, one warning is logged each time it changes, the stored icon is kept, and discovery carries on.
+- Custom uploads cannot be named by a label.
+
 #### Finding an icon slug
 
-The `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug -- the icon filename without its extension (`sonarr.svg` becomes `sonarr`). Because the label flow has no GUI in front of you, here is where to look one up:
+A bare `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug -- the icon filename without its extension (`sonarr.svg` becomes `sonarr`). Because the label flow has no GUI in front of you, here is where to look one up:
 
 - Browse the gallery at [dashboardicons.com](https://dashboardicons.com) and search for your app.
 - Or search visually in Muximux's own app editor (Add or Edit an app, then the icon picker); the name you land on is the slug to paste into the label.
 - Or list them straight from your running instance: `GET /api/icons/dashboard` returns every available slug (it is the same data the picker uses).
 
-Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work through this label; Lucide icons, custom uploads, and URL icons are set in the UI or `config.yaml`.
+Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](https://lucide.dev/icons) or the Lucide tab of the icon picker.
 
 #### Full label reference
 
@@ -359,7 +384,7 @@ Omit the label to fall back to the catalog icon. Only Dashboard Icons slugs work
 |---|---|---|---|
 | `muximux.app.enabled` | bool | `true` | Opt-out via `false`. With `require_explicit_enable` (or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`) only `true` opts in. See [Explicit opt-in](#explicit-opt-in). |
 | `muximux.app.name` | string | catalog name or container name | Display name in the menu. Surrounding spaces are ignored. Re-synced while the app is tracked; see [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps). |
-| `muximux.app.icon` | string | catalog icon or `""` | Any `dashboard-icons` slug (e.g. `sonarr`, `plex`, `qbittorrent`). Surrounding spaces are ignored and the slug is lowercased. |
+| `muximux.app.icon` | string | catalog icon or `""` | A Dashboard Icons slug (e.g. `sonarr`), `lucide:<name>`, or an `http(s)` URL; see [Icon label formats](#icon-label-formats). Surrounding spaces are ignored. |
 | `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist (from 3.6.0). |
 | `muximux.app.port` | int 1-65535 | catalog port or first exposed | Which container port the app listens on. |
 | `muximux.app.url` | absolute `http(s)` URL | unset | Open the app at this URL instead of the container address, e.g. its public name behind your own reverse proxy. Health checks still go to the container. Ignored (with a scan note) when `muximux.app.gateway.domain` is set, and invalid values are ignored with a note. See [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy). |
@@ -390,7 +415,7 @@ These describe the group the container's app is in. They apply only to a group D
 
 | Label | Type | Default | What it does |
 |---|---|---|---|
-| `muximux.group.icon` | string | folder icon | Any `dashboard-icons` slug, the same as `muximux.app.icon`. Surrounding spaces are ignored and the slug is lowercased. |
+| `muximux.group.icon` | string | folder icon | The same forms as `muximux.app.icon` (slug, `lucide:<name>`, `http(s)` URL). Surrounding spaces are ignored. |
 | `muximux.group.color` | `#rrggbb` | unset | Group colour, a hex colour (`#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa`). Other values are ignored with a warning and a scan note. |
 | `muximux.group.order` | int 0-9999 | after existing groups | Sort order of the group. Other values are ignored with a warning and a scan note. |
 
@@ -487,7 +512,7 @@ This holds for every tracked app, including apps you imported by hand through th
 | Label | Applied as |
 |---|---|
 | `muximux.app.name` | The app name. A gateway site linked to the app follows the rename. |
-| `muximux.app.icon` | A dashboard icon with that slug (as on import). Icon colour, background, variant and invert are kept. |
+| `muximux.app.icon` | The icon, as on import (dashboard, Lucide or URL; see [Icon label formats](#icon-label-formats)). Icon colour, background, variant and invert are kept. |
 | `muximux.app.group` | The group, matched to an existing group by name, ignoring case and spacing (`infra` finds `Infra`). Created if no group matches. |
 | `muximux.app.order` | The order within the group. |
 
