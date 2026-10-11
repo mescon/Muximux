@@ -1453,6 +1453,15 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A method set by MUXIMUX_AUTH_METHOD is not the wizard's to choose:
+	// setup can only complete it (builtin with no users creates the first
+	// admin). Refused rather than kept, so the wizard never reports a
+	// method that is not the live one.
+	if msg := s.setupMethodEnvConflict(req.Method); msg != "" {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": msg})
+		return
+	}
+
 	// Snapshot the auth state we are about to mutate so we can put
 	// the running instance back the way we found it if the disk save
 	// at the end of this handler fails (codebase review C2-shf).
@@ -2856,4 +2865,17 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 		}
 		handler(w, r)
 	}
+}
+
+// setupMethodEnvConflict returns why setup may not use method, or "" when
+// it may: while MUXIMUX_AUTH_METHOD sets the method, setup must use that
+// method. The message names the variable and the method, never a secret.
+func (s *Server) setupMethodEnvConflict(method string) string {
+	s.configMu.RLock()
+	defer s.configMu.RUnlock()
+	src, ok := s.config.EnvOverrides()[string(config.OverrideAuthMethod)]
+	if !ok || method == s.config.Auth.Method {
+		return ""
+	}
+	return "the auth method is set to " + s.config.Auth.Method + " by " + src + "; setup must use it"
 }

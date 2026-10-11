@@ -853,6 +853,7 @@ func applyLoadDefaultsAndEnv(cfg *Config) error {
 
 	// MUXIMUX_AUTH_METHOD and MUXIMUX_OIDC_* (#513). Errors are fatal:
 	// auth configuration must fail closed.
+	WarnUnknownOIDCEnv(cfg, os.Environ())
 	return ApplyAuthEnv(cfg, os.LookupEnv, readEnvFile)
 }
 

@@ -296,7 +296,14 @@ func TestApplyAuthEnv_FailClosedWithoutMethod(t *testing.T) {
 	}{
 		{"oidc var, file none", "none", map[string]string{EnvOIDCIssuerURL: "https://id"}, true},
 		{"oidc var, file empty", "", map[string]string{EnvOIDCClientID: "x"}, true},
-		{"oidc var, file builtin", "builtin", map[string]string{EnvOIDCAutoRedirect: "true"}, true},
+		{"oidc var, file builtin", "builtin", map[string]string{EnvOIDCRedirectURL: "https://m/cb"}, true}, //nolint:gosec // test URL, not a credential
+		{"enabled true, file none", "none", map[string]string{EnvOIDCEnabled: "yes"}, true},
+		{"client id file variant", "none", map[string]string{EnvOIDCClientID + "_FILE": "/run/secrets/id"}, true},
+		// Part 1 ruling: ENABLED=false and tuning variables do not configure
+		// sign-in, so on their own they never refuse to start.
+		{"enabled false alone", "builtin", map[string]string{EnvOIDCEnabled: "false"}, false},
+		{"enabled invalid alone", "none", map[string]string{EnvOIDCEnabled: "maybe"}, false},
+		{"tuning vars alone", "builtin", map[string]string{EnvOIDCAutoRedirect: "true", EnvOIDCScopes: "openid", EnvOIDCAdminGroups: "a"}, false},
 		{"file variant only", "none", map[string]string{EnvOIDCClientSecret + "_FILE": "/run/secrets/x"}, true},
 		{"method var empty", "none", map[string]string{EnvAuthMethod: "", EnvOIDCClientID: "x"}, true},
 		{"file oidc", "oidc", map[string]string{EnvOIDCClientID: "x"}, false},
@@ -899,5 +906,79 @@ func TestApplyOverride_AuthFieldsAll(t *testing.T) {
 	}
 	if cfg.fieldLabel("auth.oidc.issuer_url") != "MUXIMUX_OIDC_ISSUER_URL (auth.oidc.issuer_url)" || cfg.fieldLabel("server.listen") != "server.listen" {
 		t.Errorf("fieldLabel wrong")
+	}
+}
+
+// An unknown MUXIMUX_OIDC_* name logs one WARN naming it; known names,
+// other prefixes and the value never appear.
+func TestWarnUnknownOIDCEnv(t *testing.T) {
+	cfg := defaultConfig()
+	WarnUnknownOIDCEnv(cfg, []string{
+		"MUXIMUX_OIDC_CLIENT_SECERT=hunter2",
+		"MUXIMUX_OIDC_ISSUER_URL=https://id",
+		"MUXIMUX_OIDC_CLIENT_SECRET_FILE=/run/secrets/x",
+		"MUXIMUX_OIDC_SCOPE",
+		"MUXIMUX_LOG_LEVEL=debug",
+		"PATH=/usr/bin",
+	})
+	if len(cfg.envWarnings) != 2 {
+		t.Fatalf("warnings = %d, want 2: %+v", len(cfg.envWarnings), cfg.envWarnings)
+	}
+	for i, want := range []string{"MUXIMUX_OIDC_CLIENT_SECERT", "MUXIMUX_OIDC_SCOPE"} {
+		args := strings.Join(argStrings(cfg.envWarnings[i].args), " ")
+		if !strings.Contains(args, want) {
+			t.Errorf("warning %d args %q do not name %s", i, args, want)
+		}
+		if strings.Contains(args, "hunter2") {
+			t.Errorf("warning %d echoes the value", i)
+		}
+	}
+	WarnUnknownOIDCEnv(nil, []string{"MUXIMUX_OIDC_X=1"}) // no panic
+}
+
+// Load runs the unknown-name check against the real environment.
+func TestLoad_WarnsUnknownOIDCEnv(t *testing.T) {
+	clearAuthEnv(t)
+	t.Setenv("MUXIMUX_OIDC_ISSUER", "https://id")
+	cfg, err := Load(filepath.Join(t.TempDir(), "config.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, w := range cfg.envWarnings {
+		if strings.Contains(strings.Join(argStrings(w.args), " "), "MUXIMUX_OIDC_ISSUER") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("no warning for MUXIMUX_OIDC_ISSUER: %+v", cfg.envWarnings)
+	}
+}
+
+func TestOIDCEnvConfiguringVars(t *testing.T) {
+	tests := []struct {
+		name string
+		env  map[string]string
+		want []string
+	}{
+		{"none", map[string]string{}, nil},
+		{"tuning only", map[string]string{EnvOIDCScopes: "openid", EnvOIDCAutoRedirect: "true"}, nil},
+		{"enabled false", map[string]string{EnvAuthMethod: "builtin", EnvOIDCEnabled: "false"}, nil},
+		{"enabled true and issuer", map[string]string{EnvOIDCEnabled: "true", EnvOIDCIssuerURL: "https://id"},
+			[]string{EnvOIDCEnabled, EnvOIDCIssuerURL}},
+		{"secret file", map[string]string{EnvOIDCClientSecret + "_FILE": "/s"}, []string{EnvOIDCClientSecret + "_FILE"}},
+		{"implied enabled", map[string]string{EnvAuthMethod: "oidc", EnvOIDCClientID: "c"}, []string{EnvOIDCClientID}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := defaultConfig()
+			cfg.Auth.Method = "oidc"
+			if err := ApplyAuthEnv(cfg, fakeEnv(tt.env), fakeFiles(map[string]string{"/s": "x"})); err != nil {
+				t.Fatal(err)
+			}
+			if got := cfg.OIDCEnvConfiguringVars(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("got %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

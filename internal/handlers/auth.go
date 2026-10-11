@@ -577,10 +577,12 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 	var authMethod string
 	var logoutURL string
+	var methodEnv string
 	if h.config != nil {
 		h.configMu.RLock()
 		authMethod = h.config.Auth.Method
 		logoutURL = h.config.Auth.LogoutURL
+		methodEnv = h.config.EnvOverrides()[string(config.OverrideAuthMethod)]
 		h.configMu.RUnlock()
 	}
 
@@ -592,6 +594,12 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		"oidc_auto_redirect": oidcOn && oidc.Config().AutoRedirect,
 		"local_login":        !oidcOn || !oidc.Config().DisableLocalLogin,
 		"auth_method":        authMethod,
+	}
+
+	// The variable that sets the method, so the setup wizard can lock its
+	// method choice. A name, never a value; the method itself is public.
+	if methodEnv != "" {
+		response["auth_method_env"] = methodEnv
 	}
 
 	if authMethod == "forward_auth" && logoutURL != "" {
@@ -995,6 +1003,17 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authCfg.BypassRules = h.bypassRules
+
+	// Settings the environment owns are refused here rather than kept:
+	// silently keeping a different method would report success for a
+	// switch that did not happen.
+	h.configMu.RLock()
+	envConflict := authMethodEnvConflict(h.config, req.Method)
+	h.configMu.RUnlock()
+	if envConflict != "" {
+		respondError(w, r, http.StatusConflict, envConflict)
+		return
+	}
 
 	// Validate the OIDC settings and discover the provider before taking
 	// the write lock: discovery can take seconds.

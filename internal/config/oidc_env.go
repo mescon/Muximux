@@ -63,15 +63,19 @@ type oidcEnvVar struct {
 	kind  envKind
 	// file allows the NAME_FILE variant (Docker secrets).
 	file bool
+	// configures marks a variable that sets up OIDC sign-in: setting it
+	// without MUXIMUX_AUTH_METHOD fails closed (see ApplyAuthEnv). For
+	// MUXIMUX_OIDC_ENABLED only the value true counts.
+	configures bool
 }
 
 // oidcEnvVars lists every MUXIMUX_OIDC_* variable in the order applied.
 var oidcEnvVars = []oidcEnvVar{
-	{name: EnvOIDCEnabled, field: OverrideOIDCEnabled, kind: envBool},
-	{name: EnvOIDCIssuerURL, field: OverrideOIDCIssuerURL, kind: envString},
-	{name: EnvOIDCClientID, field: OverrideOIDCClientID, kind: envString, file: true},
-	{name: EnvOIDCClientSecret, field: OverrideOIDCClientSecret, kind: envString, file: true},
-	{name: EnvOIDCRedirectURL, field: OverrideOIDCRedirectURL, kind: envString},
+	{name: EnvOIDCEnabled, field: OverrideOIDCEnabled, kind: envBool, configures: true},
+	{name: EnvOIDCIssuerURL, field: OverrideOIDCIssuerURL, kind: envString, configures: true},
+	{name: EnvOIDCClientID, field: OverrideOIDCClientID, kind: envString, file: true, configures: true},
+	{name: EnvOIDCClientSecret, field: OverrideOIDCClientSecret, kind: envString, file: true, configures: true},
+	{name: EnvOIDCRedirectURL, field: OverrideOIDCRedirectURL, kind: envString, configures: true},
 	{name: EnvOIDCScopes, field: OverrideOIDCScopes, kind: envScopes},
 	{name: EnvOIDCUsernameClaim, field: OverrideOIDCUsernameClaim, kind: envString},
 	{name: EnvOIDCEmailClaim, field: OverrideOIDCEmailClaim, kind: envString},
@@ -252,14 +256,22 @@ func ApplyAuthEnv(cfg *Config, getenv func(string) (string, bool), readFile func
 	return nil
 }
 
-// setOIDCEnvVars returns the OIDC variables (and *_FILE variants) that
-// are set, in table order.
+// setOIDCEnvVars returns the variables (and *_FILE variants) that
+// configure OIDC sign-in and are set, in table order. Tuning variables
+// (scopes, claims, logout options) and MUXIMUX_OIDC_ENABLED with any value
+// other than true do not count: on their own they cannot leave an instance
+// expecting OIDC sign-in.
 func setOIDCEnvVars(getenv func(string) (string, bool)) []string {
 	var set []string
 	for i := range oidcEnvVars {
 		v := &oidcEnvVars[i]
-		if _, ok := getenv(v.name); ok {
-			set = append(set, v.name)
+		if !v.configures {
+			continue
+		}
+		if raw, ok := getenv(v.name); ok {
+			if b, valid := parseEnvBool(strings.TrimSpace(raw)); v.kind != envBool || (valid && b) {
+				set = append(set, v.name)
+			}
 		}
 		if v.file {
 			if _, ok := getenv(v.name + envFileSuffix); ok {
@@ -268,6 +280,47 @@ func setOIDCEnvVars(getenv func(string) (string, bool)) []string {
 		}
 	}
 	return set
+}
+
+// OIDCEnvConfiguringVars returns the variables behind the live OIDC fields
+// that configure sign-in (see setOIDCEnvVars), sorted by table order. While
+// any is set and MUXIMUX_AUTH_METHOD is not, the next start refuses a
+// method other than oidc, so Settings must not switch away from it.
+func (c *Config) OIDCEnvConfiguringVars() []string {
+	var out []string
+	for i := range oidcEnvVars {
+		v := &oidcEnvVars[i]
+		o, ok := c.overrides[v.field]
+		if !v.configures || !ok {
+			continue
+		}
+		if v.field == OverrideOIDCEnabled && (o.source != EnvOIDCEnabled || !c.Auth.OIDC.Enabled) {
+			continue
+		}
+		out = append(out, o.source)
+	}
+	return out
+}
+
+// WarnUnknownOIDCEnv records a WARN for each MUXIMUX_OIDC_* entry in
+// environ (KEY=VALUE pairs, as os.Environ returns them) that is not a
+// known variable, so a misspelt name does not go silently unused. Only
+// the name is logged, never the value.
+func WarnUnknownOIDCEnv(cfg *Config, environ []string) {
+	if cfg == nil {
+		return
+	}
+	known := map[string]bool{}
+	for _, n := range AuthEnvVarNames() {
+		known[n] = true
+	}
+	for _, kv := range environ {
+		name, _, _ := strings.Cut(kv, "=")
+		if strings.HasPrefix(name, "MUXIMUX_OIDC_") && !known[name] {
+			cfg.addEnvWarning("Ignoring unknown environment variable; check the spelling against the documented MUXIMUX_OIDC_* names",
+				"env", name)
+		}
+	}
 }
 
 // applyOIDCEnvVar applies one variable. Values are never logged.
