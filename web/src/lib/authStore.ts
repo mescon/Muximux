@@ -21,6 +21,9 @@ export interface AuthState {
   error: string | null;
   setupRequired: boolean;
   logoutUrl: string | null;
+  // Set when MUXIMUX_AUTH_METHOD fixes the auth method: the method and the
+  // variable's name. The setup wizard locks its method choice to it.
+  authMethodEnv?: { method: string; variable: string };
 }
 
 // Initial state
@@ -42,6 +45,7 @@ export const currentUser = derived(authState, ($state) => $state.user);
 export const isAdmin = derived(authState, ($state) => $state.user?.role === 'admin');
 export const isLoading = derived(authState, ($state) => $state.loading);
 export const setupRequired = derived(authState, ($state) => $state.setupRequired);
+export const authMethodEnv = derived(authState, ($state) => $state.authMethodEnv ?? null);
 
 // API functions
 const base = ((globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__) || '';
@@ -103,6 +107,8 @@ export async function checkAuthStatus(): Promise<void> {
       user?: User;
       setup_required?: boolean;
       logout_url?: string;
+      auth_method?: string;
+      auth_method_env?: string;
     } | null;
     if (!data) {
       authState.set({
@@ -123,6 +129,9 @@ export async function checkAuthStatus(): Promise<void> {
       error: null,
       setupRequired: data.setup_required || false,
       logoutUrl: data.logout_url || null,
+      ...(data.auth_method_env && data.auth_method
+        ? { authMethodEnv: { method: data.auth_method, variable: data.auth_method_env } }
+        : {}),
     });
     debug('auth', 'status', { authenticated: data.authenticated, setup_required: data.setup_required });
   } catch (e) {

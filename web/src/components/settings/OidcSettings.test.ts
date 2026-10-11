@@ -99,8 +99,8 @@ describe('OidcSettings', () => {
       settings: base({ env_fields: { client_secret: 'OIDC_CLIENT_SECRET', issuer_url: 'OIDC_ISSUER' } }),
       onchange,
     });
-    expect(screen.getByText('From OIDC_CLIENT_SECRET')).toBeTruthy();
-    expect(screen.getByText('From OIDC_ISSUER')).toBeTruthy();
+    expect(screen.getByText('Set by OIDC_CLIENT_SECRET')).toBeTruthy();
+    expect(screen.getByText('Set by OIDC_ISSUER')).toBeTruthy();
     expect(el('oidc-client-secret').readOnly).toBe(true);
     expect(el('oidc-client-secret').value).toBe('');
     expect(el('oidc-issuer').readOnly).toBe(true);
@@ -108,6 +108,79 @@ describe('OidcSettings', () => {
     expect('client_secret' in payload).toBe(false);
     expect('issuer_url' in payload).toBe(false);
     expect(payload.client_id).toBe('muximux');
+    expect(valid).toBe(true);
+  });
+
+  it('env-set lists and checkboxes are locked, described and omitted from the payload', () => {
+    render(OidcSettings, {
+      settings: base({
+        auto_redirect: true,
+        env_fields: {
+          scopes: 'MUXIMUX_OIDC_SCOPES', admin_groups: 'MUXIMUX_OIDC_ADMIN_GROUPS',
+          provider_logout: 'MUXIMUX_OIDC_PROVIDER_LOGOUT', auto_redirect: 'MUXIMUX_OIDC_AUTO_REDIRECT',
+          disable_local_login: 'MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN', enabled: 'MUXIMUX_AUTH_METHOD',
+        },
+      }),
+      onchange,
+    });
+    const cases: Array<[string, string, 'readOnly' | 'disabled']> = [
+      ['oidc-scopes', 'scopes', 'readOnly'],
+      ['oidc-admin-groups', 'admin_groups', 'readOnly'],
+      ['oidc-provider-logout', 'provider_logout', 'disabled'],
+      ['oidc-auto-redirect', 'auto_redirect', 'disabled'],
+      ['oidc-disable-local', 'disable_local_login', 'disabled'],
+    ];
+    for (const [id, field, prop] of cases) {
+      const input = el(id);
+      expect(input[prop]).toBe(true);
+      const noteId = input.getAttribute('aria-describedby');
+      expect(noteId).toBe(`oidc-env-${field}`);
+      expect(document.getElementById(noteId!)?.textContent).toContain('Set by MUXIMUX_OIDC_');
+    }
+    expect(el('oidc-auto-redirect').checked).toBe(true);
+    // The SSO hint does not compete with the env note.
+    expect(screen.queryByTestId('oidc-disable-local-hint')).toBeNull();
+    const [payload, valid] = last(onchange);
+    for (const f of ['scopes', 'admin_groups', 'provider_logout', 'auto_redirect', 'disable_local_login']) {
+      expect(f in payload).toBe(false);
+    }
+    expect(payload.issuer_url).toBe('https://auth.example.com');
+    expect(valid).toBe(true);
+  });
+
+  it('unlocked controls carry no env description', () => {
+    render(OidcSettings, { settings: base(), onchange });
+    for (const id of ['oidc-issuer', 'oidc-scopes', 'oidc-provider-logout', 'oidc-auto-redirect']) {
+      expect(el(id).hasAttribute('aria-describedby')).toBe(false);
+      expect(el(id).disabled).toBe(false);
+    }
+    expect(screen.queryByTestId('oidc-env-note')).toBeNull();
+  });
+
+  it('the SSO hint describes the local-login checkbox when it is not env-set', () => {
+    render(OidcSettings, { settings: base({ current_session_is_oidc: false }), onchange });
+    expect(el('oidc-disable-local').getAttribute('aria-describedby')).toBe('oidc-disable-local-hint');
+    expect(screen.getByTestId('oidc-disable-local-hint')).toBeTruthy();
+  });
+
+  it('an env secret shows the variable, not a stored-secret placeholder, and never counts as a change', () => {
+    render(OidcSettings, {
+      settings: base({
+        enabled: true, disable_local_login: true, client_secret_set: true,
+        env_fields: { client_secret: 'MUXIMUX_OIDC_CLIENT_SECRET_FILE' },
+      }),
+      onchange,
+    });
+    const secret = el('oidc-client-secret');
+    expect(secret.readOnly).toBe(true);
+    expect(secret.value).toBe('');
+    expect(secret.placeholder).toBe('');
+    expect(secret.getAttribute('aria-describedby')).toBe('oidc-env-client_secret');
+    expect(screen.getByText('Set by MUXIMUX_OIDC_CLIENT_SECRET_FILE')).toBeTruthy();
+    // No warning that a provider change needs SSO-only turned off first.
+    expect(screen.queryByTestId('oidc-disable-local-hint')).toBeNull();
+    const [payload, valid] = last(onchange);
+    expect('client_secret' in payload).toBe(false);
     expect(valid).toBe(true);
   });
 
