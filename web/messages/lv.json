@@ -146,7 +146,7 @@
   "general_showLabels": "Rādīt birkas",
   "general_showLabelsDesc": "Rādīt lietotņu nosaukumus blakus ikonām",
   "general_showDockerBadge": "Rādīt Docker emblēmu",
-  "general_showDockerBadgeDesc": "Rādīt Docker vali blakus ar Docker atrastajām lietotnēm navigācijā (tikai administratoriem)",
+  "general_showDockerBadgeDesc": "Rādīt Docker vali blakus ar Docker atrastajām lietotnēm navigācijā un pārskatā (tikai administratoriem)",
   "general_showLogo": "Rādīt logotipu",
   "general_showLogoDesc": "Rādīt Muximux logotipu izvēlnē",
   "general_overviewButton": "Pārskata poga",

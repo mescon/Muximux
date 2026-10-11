@@ -146,7 +146,7 @@
   "general_showLabels": "Εμφάνιση ετικετών",
   "general_showLabelsDesc": "Εμφάνιση ονομάτων εφαρμογών δίπλα στα εικονίδια",
   "general_showDockerBadge": "Εμφάνιση εμβλήματος Docker",
-  "general_showDockerBadgeDesc": "Εμφάνιση της φάλαινας του Docker δίπλα στις εφαρμογές που ανακαλύφθηκαν μέσω Docker στην πλοήγηση (μόνο διαχειριστές)",
+  "general_showDockerBadgeDesc": "Εμφάνιση της φάλαινας του Docker δίπλα στις εφαρμογές που ανακαλύφθηκαν μέσω Docker στην πλοήγηση και στην επισκόπηση (μόνο διαχειριστές)",
   "general_showLogo": "Εμφάνιση λογότυπου",
   "general_showLogoDesc": "Εμφάνιση του λογότυπου Muximux στο μενού",
   "general_overviewButton": "Κουμπί επισκόπησης",

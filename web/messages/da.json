@@ -146,7 +146,7 @@
   "general_showLabels": "Vis etiketter",
   "general_showLabelsDesc": "Vis appnavne ved siden af ikoner",
   "general_showDockerBadge": "Vis Docker-badge",
-  "general_showDockerBadgeDesc": "Vis Docker-hvalen ved apps fundet via Docker i navigationen (kun administratorer)",
+  "general_showDockerBadgeDesc": "Vis Docker-hvalen ved apps fundet via Docker i navigationen og på oversigten (kun administratorer)",
   "general_showLogo": "Vis logo",
   "general_showLogoDesc": "Vis Muximux-logoet i menuen",
   "general_overviewButton": "Oversigtsknap",

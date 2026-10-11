@@ -146,7 +146,7 @@
   "general_showLabels": "Prikaži oznake",
   "general_showLabelsDesc": "Prikazuj imena aplikacij poleg ikon",
   "general_showDockerBadge": "Prikaži značko Docker",
-  "general_showDockerBadgeDesc": "Prikaži kita Dockerja ob aplikacijah, odkritih prek Dockerja, v navigaciji (samo za skrbnike)",
+  "general_showDockerBadgeDesc": "Prikaži kita Dockerja ob aplikacijah, odkritih prek Dockerja, v navigaciji in na pregledu (samo za skrbnike)",
   "general_showLogo": "Prikaži logotip",
   "general_showLogoDesc": "Prikazuj Muximux logotip v meniju",
   "general_overviewButton": "Gumb za pregled",

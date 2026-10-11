@@ -146,7 +146,7 @@
   "general_showLabels": "Показывать подписи",
   "general_showLabelsDesc": "Отображать названия приложений рядом с иконками",
   "general_showDockerBadge": "Показывать значок Docker",
-  "general_showDockerBadgeDesc": "Показывать кита Docker рядом с приложениями, обнаруженными через Docker, в навигации (только для администраторов)",
+  "general_showDockerBadgeDesc": "Показывать кита Docker рядом с приложениями, обнаруженными через Docker, в навигации и в обзоре (только для администраторов)",
   "general_showLogo": "Показывать логотип",
   "general_showLogoDesc": "Отображать логотип Muximux в меню",
   "general_overviewButton": "Кнопка обзора",

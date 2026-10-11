@@ -146,7 +146,7 @@
   "general_showLabels": "Afișează etichetele",
   "general_showLabelsDesc": "Afișează numele aplicațiilor lângă pictograme",
   "general_showDockerBadge": "Afișează insigna Docker",
-  "general_showDockerBadgeDesc": "Afișează balena Docker lângă aplicațiile descoperite prin Docker în navigare (doar administratori)",
+  "general_showDockerBadgeDesc": "Afișează balena Docker lângă aplicațiile descoperite prin Docker în navigare și în prezentarea generală (doar administratori)",
   "general_showLogo": "Afișează logo-ul",
   "general_showLogoDesc": "Afișează logo-ul Muximux în meniu",
   "general_overviewButton": "Buton prezentare generală",

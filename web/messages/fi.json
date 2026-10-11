@@ -146,7 +146,7 @@
   "general_showLabels": "Näytä nimet",
   "general_showLabelsDesc": "Näytä sovellusten nimet kuvakkeiden vieressä",
   "general_showDockerBadge": "Näytä Docker-merkki",
-  "general_showDockerBadgeDesc": "Näytä Docker-valas Dockerin kautta löydettyjen sovellusten vieressä navigoinnissa (vain ylläpitäjille)",
+  "general_showDockerBadgeDesc": "Näytä Docker-valas Dockerin kautta löydettyjen sovellusten vieressä navigoinnissa ja yleiskatsauksessa (vain ylläpitäjille)",
   "general_showLogo": "Näytä logo",
   "general_showLogoDesc": "Näytä Muximux-logo valikossa",
   "general_overviewButton": "Yleiskatsauspainike",

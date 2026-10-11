@@ -146,7 +146,7 @@
   "general_showLabels": "Kuva sildid",
   "general_showLabelsDesc": "Kuva rakenduste nimesid ikoonide kõrval",
   "general_showDockerBadge": "Näita Dockeri märki",
-  "general_showDockerBadgeDesc": "Näita navigatsioonis Dockeri vaala Dockeri kaudu leitud rakenduste kõrval (ainult administraatoritele)",
+  "general_showDockerBadgeDesc": "Näita navigatsioonis ja ülevaates Dockeri vaala Dockeri kaudu leitud rakenduste kõrval (ainult administraatoritele)",
   "general_showLogo": "Kuva logo",
   "general_showLogoDesc": "Kuva Muximux logo menüüs",
   "general_overviewButton": "Ülevaate nupp",

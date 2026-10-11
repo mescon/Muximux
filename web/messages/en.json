@@ -146,7 +146,7 @@
   "general_showLabels": "Show Labels",
   "general_showLabelsDesc": "Display app names next to icons",
   "general_showDockerBadge": "Show Docker Badge",
-  "general_showDockerBadgeDesc": "Show the Docker whale next to Docker-discovered apps in the navigation (admins only)",
+  "general_showDockerBadgeDesc": "Show the Docker whale next to Docker-discovered apps in the navigation and on the overview (admins only)",
   "general_showLogo": "Show Logo",
   "general_showLogoDesc": "Display the Muximux logo in the menu",
   "general_overviewButton": "Overview Button",

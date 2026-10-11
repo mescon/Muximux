@@ -146,7 +146,7 @@
   "general_showLabels": "Mostrar etiquetas",
   "general_showLabelsDesc": "Mostrar os nomes das apps junto aos ícones",
   "general_showDockerBadge": "Mostrar selo do Docker",
-  "general_showDockerBadgeDesc": "Mostrar a baleia do Docker junto às aplicações descobertas via Docker na navegação (apenas administradores)",
+  "general_showDockerBadgeDesc": "Mostrar a baleia do Docker junto às aplicações descobertas via Docker na navegação e na visão geral (apenas administradores)",
   "general_showLogo": "Mostrar logótipo",
   "general_showLogoDesc": "Mostrar o logótipo do Muximux no menu",
   "general_overviewButton": "Botão de visão geral",

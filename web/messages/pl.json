@@ -146,7 +146,7 @@
   "general_showLabels": "Pokaż etykiety",
   "general_showLabelsDesc": "Wyświetlaj nazwy aplikacji obok ikon",
   "general_showDockerBadge": "Pokaż znaczek Dockera",
-  "general_showDockerBadgeDesc": "Pokaż wieloryba Dockera przy aplikacjach wykrytych przez Docker w nawigacji (tylko administratorzy)",
+  "general_showDockerBadgeDesc": "Pokaż wieloryba Dockera przy aplikacjach wykrytych przez Docker w nawigacji i w przeglądzie (tylko administratorzy)",
   "general_showLogo": "Pokaż logo",
   "general_showLogoDesc": "Wyświetlaj logo Muximux w menu",
   "general_overviewButton": "Przycisk przeglądu",
