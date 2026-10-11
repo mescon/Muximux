@@ -55,6 +55,8 @@ Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls
 
 Single sign-on can be configured entirely from the environment, with the client secret in a Docker secret, so the container needs no `config.yaml` to start on OIDC. The variables, precedence and startup checks are described in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
 
+Both examples assume Muximux is already reachable at `https://muximux.example.com` through your HTTPS reverse proxy (or the built-in TLS above), because the identity provider sends the browser back to that address. Plain `http://` on port 8080 is not enough for the callback.
+
 **Docker Compose** with a file-based secret. Compose mounts it at `/run/secrets/<name>`; the file must be readable by the container user (`PUID`).
 
 ```yaml
@@ -118,7 +120,7 @@ volumes:
   muximux-data:
 ```
 
-The client ID can come from a secret the same way with `MUXIMUX_OIDC_CLIENT_ID_FILE`. Register `https://muximux.example.com/api/auth/oidc/callback` as the redirect URL at your provider. The first start creates no setup token and opens straight on the SSO login.
+The client ID can come from a secret the same way with `MUXIMUX_OIDC_CLIENT_ID_FILE`. Register `https://muximux.example.com/api/auth/oidc/callback` as the redirect URL at your provider. The first start creates no setup token and opens the login page with the SSO button; add `MUXIMUX_OIDC_AUTO_REDIRECT=true` to skip that page and go straight to the provider.
 
 ### Volume
 
