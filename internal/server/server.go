@@ -1610,6 +1610,7 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	}
 	s.configMu.Unlock()
 	logging.WarnMissingEnvVars(cfg.MissingEnvVars)
+	cfg.LogEnvWarnings()
 
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to save restored config; reverted", "source", "config", "error", err)
