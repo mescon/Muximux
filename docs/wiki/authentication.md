@@ -200,7 +200,7 @@ The sign-out options are the same as in the YAML: also sign out at the provider,
 
 **Client secret.** The secret is never shown. Leave the field empty to keep the stored secret; type a value to replace it.
 
-**Fields from environment variables.** A field whose `config.yaml` value is exactly `${VAR}` is shown read-only as "From VAR" and is never overwritten from Settings. The secret's value stays hidden even then. Change those values in the environment. Only these fields can come from `${VAR}` and be locked: issuer URL, client ID, client secret, callback URL override, return address after provider sign-out, and provider logout URL. Scopes, claims and admin groups are always editable.
+**Fields from environment variables.** A field set by a `MUXIMUX_OIDC_*` variable, or whose `config.yaml` value is exactly `${VAR}`, is shown locked with "Set by VAR" and is never changed from Settings: text fields are read-only, the checkboxes are disabled, and the server keeps the environment's value even if a request sends another one. The secret's value stays hidden even then. Change those values in the environment. When `MUXIMUX_AUTH_METHOD` is set, the method cards other than the current one are disabled as well. See [Configuring OIDC with environment variables](#configuring-oidc-with-environment-variables).
 
 **Allow only SSO sign-in.** This has two guards so you cannot lock yourself out:
 
@@ -307,7 +307,74 @@ https://muximux.example.com/api/auth/oidc/backchannel-logout
 
 Each provider guide has a **Sign-out** section with the provider's field names.
 
-### Environment Variables
+### Configuring OIDC with environment variables
+
+Every OIDC setting, and the auth method itself, can come from environment variables instead of `config.yaml`. A fresh container with no `config.yaml`, only these variables and a Docker secret, starts with OIDC as its auth method and skips the setup wizard. Redeploying with the same variables gives the same configuration.
+
+| Variable | Setting | Value |
+|---|---|---|
+| `MUXIMUX_AUTH_METHOD` | `auth.method` | `none`, `builtin`, `forward_auth` or `oidc` |
+| `MUXIMUX_OIDC_ENABLED` | `auth.oidc.enabled` | boolean |
+| `MUXIMUX_OIDC_ISSUER_URL` | `issuer_url` | URL |
+| `MUXIMUX_OIDC_CLIENT_ID` or `MUXIMUX_OIDC_CLIENT_ID_FILE` | `client_id` | string, or the path of a file holding it |
+| `MUXIMUX_OIDC_CLIENT_SECRET` or `MUXIMUX_OIDC_CLIENT_SECRET_FILE` | `client_secret` | string, or the path of a file holding it |
+| `MUXIMUX_OIDC_REDIRECT_URL` | `redirect_url` | absolute `http(s)` URL |
+| `MUXIMUX_OIDC_SCOPES` | `scopes` | list, separated by commas and/or spaces |
+| `MUXIMUX_OIDC_USERNAME_CLAIM` | `username_claim` | string |
+| `MUXIMUX_OIDC_EMAIL_CLAIM` | `email_claim` | string |
+| `MUXIMUX_OIDC_GROUPS_CLAIM` | `groups_claim` | string |
+| `MUXIMUX_OIDC_DISPLAY_NAME_CLAIM` | `display_name_claim` | string |
+| `MUXIMUX_OIDC_ADMIN_GROUPS` | `admin_groups` | list, separated by commas (group names may contain spaces) |
+| `MUXIMUX_OIDC_PROVIDER_LOGOUT` | `provider_logout` | boolean |
+| `MUXIMUX_OIDC_POST_LOGOUT_REDIRECT_URL` | `post_logout_redirect_url` | absolute `http(s)` URL |
+| `MUXIMUX_OIDC_LOGOUT_URL` | `logout_url` | absolute `http(s)` URL |
+| `MUXIMUX_OIDC_AUTO_REDIRECT` | `auto_redirect` | boolean |
+| `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` | `disable_local_login` | boolean |
+
+Booleans accept `true`, `1`, `yes`, `on` and `false`, `0`, `no`, `off`. An empty or blank variable counts as unset, so a blank entry in a compose file never clears a value. Unset scopes and claims use the provider defaults listed under [Setting up OIDC in config.yaml](#setting-up-oidc-in-configyaml). `MUXIMUX_AUTH_METHOD=oidc` also turns `enabled` on, so `MUXIMUX_OIDC_ENABLED` is only needed to turn it off (for example with another method).
+
+A minimal setup:
+
+```bash
+MUXIMUX_AUTH_METHOD=oidc
+MUXIMUX_OIDC_ISSUER_URL=https://auth.example.com/application/o/muximux/
+MUXIMUX_OIDC_CLIENT_ID=muximux
+MUXIMUX_OIDC_CLIENT_SECRET_FILE=/run/secrets/muximux_oidc_secret
+MUXIMUX_OIDC_REDIRECT_URL=https://muximux.example.com/api/auth/oidc/callback
+MUXIMUX_OIDC_ADMIN_GROUPS=muximux-admins
+```
+
+[Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets) has complete Docker Compose and Docker Swarm examples with secrets.
+
+**Docker secrets (`_FILE`).** `MUXIMUX_OIDC_CLIENT_ID_FILE` and `MUXIMUX_OIDC_CLIENT_SECRET_FILE` name a file to read the value from, such as `/run/secrets/muximux_oidc_secret`. Only trailing line breaks (`\n` or `\r\n`) are removed; anything else in the file is part of the value. Setting both `X` and `X_FILE` is an error, as is a file that is missing, unreadable, empty or larger than 64 KiB. The error names the variable and the path, never the file's content. Settings shows such a field as "Set by MUXIMUX_OIDC_CLIENT_SECRET_FILE".
+
+**Precedence.** An environment variable (`X` or `X_FILE`) wins over `config.yaml`, including a `${VAR}` reference there, which wins over the built-in defaults.
+
+**Memory only.** Values from these variables are applied when Muximux starts and are never written to `config.yaml`. Saving from Settings writes the file's own values, so removing a variable later brings back what `config.yaml` says on the next start. While a variable is set, its field is locked in Settings, and the API does not change it: `PUT /api/auth/method` keeps the environment's OIDC values, and refuses with 409 a method change while `MUXIMUX_AUTH_METHOD` is set (re-saving the same method to edit other fields is fine), choosing OIDC while `MUXIMUX_OIDC_ENABLED=false`, and leaving OIDC while OIDC variables are set without `MUXIMUX_AUTH_METHOD`. `GET /api/config` (`env_overrides`) and `GET /api/auth/settings/oidc` (`env_fields`) name the variables but never carry their values, and the client secret is never returned.
+
+**Startup checks (fail closed).** Muximux refuses to start, with an error naming the variable, when:
+
+- `MUXIMUX_AUTH_METHOD` has an unknown value;
+- a variable that configures OIDC sign-in (`MUXIMUX_OIDC_ENABLED=true`, `MUXIMUX_OIDC_ISSUER_URL`, `MUXIMUX_OIDC_CLIENT_ID(_FILE)`, `MUXIMUX_OIDC_CLIENT_SECRET(_FILE)` or `MUXIMUX_OIDC_REDIRECT_URL`) is set, `MUXIMUX_AUTH_METHOD` is not, and `config.yaml` does not already say `method: oidc`. Set `MUXIMUX_AUTH_METHOD=oidc`, or remove the OIDC variables. Tuning variables (scopes, claims, logout options) and `MUXIMUX_OIDC_ENABLED=false` do not trigger this;
+- the method is `oidc` and `MUXIMUX_OIDC_ENABLED=false`;
+- a `_FILE` variable cannot be used (see above);
+- OIDC is configured from the environment and the issuer URL is missing or not an absolute `http(s)` URL, or the client ID is missing;
+- a URL variable is not an absolute `http(s)` URL. The error reads, for example, `MUXIMUX_OIDC_REDIRECT_URL (auth.oidc.redirect_url) must be an absolute http(s) URL`.
+
+An invalid boolean only logs a warning and keeps the `config.yaml` value. A `MUXIMUX_OIDC_*` name Muximux does not know (a typo such as `MUXIMUX_OIDC_CLIENT_SECERT`) is logged as a warning naming the variable. With `MUXIMUX_AUTH_METHOD=oidc`, no admin groups and no local admin user, a warning says that nobody will be an admin.
+
+**Setup wizard.** With `MUXIMUX_AUTH_METHOD` set to `oidc`, `forward_auth` or `none`, the instance starts configured: there is no setup wizard and no setup token. With `builtin` and no users in `config.yaml`, the wizard still runs so you can create the first admin; its security step is locked to password sign-in. The setup endpoint refuses any other method with 409.
+
+**Export.** **Export Config** in **Settings > General** (`GET /api/config/export`) writes the live configuration, so values from the environment appear in the backup like any other setting. Client secrets are blanked, as for every export, whether they came from `config.yaml` or the environment. After restoring such a backup on a host without the variables, enter the secret again.
+
+**Removing `MUXIMUX_AUTH_METHOD` later.** The method then comes from `config.yaml` again on the next start, and on an instance that was configured only through the environment that is usually `none`. Two cases:
+
+- If OIDC variables such as `MUXIMUX_OIDC_ISSUER_URL` are still set, Muximux refuses to start (see above). Either put `MUXIMUX_AUTH_METHOD` back, set `auth.method: oidc` in `config.yaml`, or remove the OIDC variables as well.
+- If you removed all OIDC variables too and the instance has apps, it starts **without authentication**. Before removing the variables, choose the method you want in `config.yaml` (for example `auth.method: builtin` with a user, see [Built-in Authentication](#built-in-authentication)).
+
+If the provider is down and SSO-only sign-in locks you out, unset `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` (or set it to `false`) and make sure `config.yaml` has a local admin user, then restart.
+
+### `${VAR}` references in config.yaml
 
 Use `${VAR_NAME}` syntax in `config.yaml` to reference environment variables. This is useful for secrets:
 
@@ -553,6 +620,8 @@ When Muximux starts with no configuration, the onboarding wizard includes a **Se
 
 If authentication is already configured (or you're running behind an auth proxy), the security step is skipped and the wizard proceeds directly to app setup.
 
+When `MUXIMUX_AUTH_METHOD` is set, the wizard is skipped entirely, except for `builtin` with no users, where the security step only offers password sign-in. See [Configuring OIDC with environment variables](#configuring-oidc-with-environment-variables).
+
 ### Setup Token
 
 To stop an attacker on the same network from racing the legitimate operator through the onboarding wizard, Muximux generates a one-time **setup token** on first boot. The wizard (and the restore-from-backup flow) refuse to proceed without it. The token is only required during initial setup; once setup completes it is destroyed.
@@ -591,6 +660,8 @@ Admin users can switch the authentication method from **Settings > Security** wi
 When switching to a different method, existing user accounts are preserved in the configuration but only authenticate when the method matches. For example, switching from `builtin` to `forward_auth` means password logins stop working, but the user records remain in `config.yaml` and will work again if you switch back.
 
 Auth method changes can also be made via the [API](api.md#auth-method-switching).
+
+While `MUXIMUX_AUTH_METHOD` is set, the method cannot be changed here: the other cards are disabled and the API answers 409. Change the variable and restart instead.
 
 ---
 

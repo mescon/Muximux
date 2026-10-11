@@ -155,6 +155,8 @@ PUT /api/auth/method
 
 Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` requires at least one user to exist. Switching to `forward_auth` requires `trusted_proxies`. The optional `logout_url` configures where the browser redirects on sign-out to clear the auth provider's session. The change takes effect immediately without a restart.
 
+Settings owned by the environment are not changed here. While `MUXIMUX_AUTH_METHOD` is set, a different method is refused with `409 Conflict` and a message naming the variable (sending the current method to edit other settings is fine). Choosing `oidc` while `MUXIMUX_OIDC_ENABLED=false`, and leaving `oidc` while OIDC variables are set without `MUXIMUX_AUTH_METHOD`, are refused the same way. OIDC fields set by a `MUXIMUX_OIDC_*` variable or a `${VAR}` reference keep their value whatever the request sends; `GET /api/auth/settings/oidc` lists them in `env_fields` (field to variable name, never the value). `GET /api/auth/status` includes `auth_method_env` (the variable name) while the method comes from the environment, and `POST /api/auth/setup` refuses any other method with `409`. See [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
+
 ---
 
 ## Configuration

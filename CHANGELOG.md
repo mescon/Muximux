@@ -4,7 +4,23 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Auth and OIDC from environment variables.** `MUXIMUX_AUTH_METHOD` and
+  `MUXIMUX_OIDC_*` configure the auth method and every OIDC setting, with
+  `MUXIMUX_OIDC_CLIENT_ID_FILE` and `MUXIMUX_OIDC_CLIENT_SECRET_FILE` for
+  Docker secrets. A fresh container with only these variables starts on OIDC
+  and skips the setup wizard. Values stay in memory and never reach
+  `config.yaml`; Settings shows each one locked as "Set by VAR" and the API
+  refuses or ignores changes to them. Invalid auth variables, and OIDC
+  variables without `MUXIMUX_AUTH_METHOD` on an instance not already on
+  OIDC, stop startup instead of leaving it open. Unknown `MUXIMUX_OIDC_*`
+  names are logged. (#513)
+
 ### Fixed
+- **Environment overrides apply when `config.yaml` is missing.** A first
+  start without a config file ignored every direct override, including
+  `MUXIMUX_DISCOVERY_AUTO_IMPORT` and
+  `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`. (#513)
 - **Aborted proxy streams are no longer logged as panics.** When a client
   goes away mid-stream the reverse proxy aborts the response the way net/http
   documents; the recovery middleware now lets that through instead of logging
