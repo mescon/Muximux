@@ -100,10 +100,10 @@ navigation:
 
 ## Docker Badge
 
-When `discovery.docker.health_badge_placement` is `overview_and_nav`, apps found through Docker discovery carry a Docker whale (and a container state pill) in the navigation. Set `navigation.show_docker_badge: false` (Settings, General, "Show Docker Badge") to hide the whale and keep a plainer sidebar. The default is `true`.
+When `discovery.docker.health_badge_placement` is `overview_and_nav`, apps found through Docker discovery carry a Docker whale (and a container state pill) in the navigation. Set `navigation.show_docker_badge: false` (Settings, General, "Show Docker Badge") to hide the whale and keep a plainer sidebar. The setting also applies to the Docker status cluster on the overview page. The default is `true`.
 
 - The whale is administrator information, so it is only ever shown to admins. Other roles never see it, whatever the setting says.
-- The setting is display only. Discovery, tracking, sync and the container state pill are unaffected, and the overview page is not changed by it.
+- The setting is display only. Discovery, tracking, sync and the container state pill are unaffected.
 - To remove Docker chrome from the navigation altogether, set `health_badge_placement` to `overview` or `off`.
 
 ## Collapsed Sidebar

@@ -904,7 +904,7 @@
     {:else}
       <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
     {/if}
-    {#if navBadgesOn && app.docker_key}
+    {#if navBadgesOn && app.docker_key && (showDockerWhale || $dockerStateStore.has(app.name))}
       {@const ds = $dockerStateStore.get(app.name)}
       <span class="nav-docker-badge inline-flex items-center gap-1">
         {#if showDockerWhale}<DockerLogo size="sm" />{/if}
@@ -1144,7 +1144,7 @@
                         {/if}
                         <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
-                        {#if navBadgesOn && app.docker_key}
+                        {#if navBadgesOn && app.docker_key && (showDockerWhale || $dockerStateStore.has(app.name))}
                           {@const ds = $dockerStateStore.get(app.name)}
                           <span class="nav-docker-badge inline-flex items-center gap-1">
                             {#if showDockerWhale}<DockerLogo size="sm" />{/if}
@@ -1429,7 +1429,7 @@
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
-                  {#if navBadgesOn && app.docker_key}
+                  {#if navBadgesOn && app.docker_key && (showDockerWhale || $dockerStateStore.has(app.name))}
                     {@const ds = $dockerStateStore.get(app.name)}
                     <span class="nav-docker-badge inline-flex items-center gap-1" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
                       {#if showDockerWhale}<DockerLogo size="sm" />{/if}
@@ -1853,7 +1853,7 @@
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
-                  {#if navBadgesOn && app.docker_key}
+                  {#if navBadgesOn && app.docker_key && (showDockerWhale || $dockerStateStore.has(app.name))}
                     {@const ds = $dockerStateStore.get(app.name)}
                     <span class="nav-docker-badge inline-flex items-center gap-1" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
                       {#if showDockerWhale}<DockerLogo size="sm" />{/if}
@@ -2249,7 +2249,7 @@
                         {/if}
                         <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
-                        {#if navBadgesOn && app.docker_key}
+                        {#if navBadgesOn && app.docker_key && (showDockerWhale || $dockerStateStore.has(app.name))}
                           {@const ds = $dockerStateStore.get(app.name)}
                           <span class="nav-docker-badge inline-flex items-center gap-1">
                             {#if showDockerWhale}<DockerLogo size="sm" />{/if}
@@ -2469,7 +2469,7 @@
                         <AppIcon decorative icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                       </div>
                       <span class="truncate ms-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
-                      {#if navBadgesOn && app.docker_key}
+                      {#if navBadgesOn && app.docker_key && (showDockerWhale || $dockerStateStore.has(app.name))}
                         {@const ds = $dockerStateStore.get(app.name)}
                         <span class="nav-docker-badge inline-flex items-center gap-1">
                           {#if showDockerWhale}<DockerLogo size="sm" />{/if}

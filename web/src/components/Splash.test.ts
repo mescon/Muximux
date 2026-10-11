@@ -481,3 +481,35 @@ describe('Splash Docker integration', () => {
     expect(container.querySelector('.docker-control-footer')).not.toBeNull();
   });
 });
+
+describe('Splash Docker whale visibility (#515)', () => {
+  const apps = [{ name: 'sonarr', docker_key: 'name:/sonarr', enabled: true, open_mode: 'iframe' } as App];
+  const cfg = (navigation: Record<string, unknown> = {}) =>
+    ({ groups: [], navigation, discovery: { docker: { health_badge_placement: 'overview' } } }) as unknown as Config;
+  const asRole = (role: string) =>
+    authState.set({ authenticated: true, user: { username: 'u', role }, loading: false, error: null, setupRequired: false, logoutUrl: null } as unknown as Parameters<typeof authState.set>[0]);
+
+  beforeEach(() => {
+    dockerStateStore.set(new Map([['sonarr', { status: 'exited', health: 'none', restart_count: 0, image: 'x' }]]));
+  });
+
+  it('shows the whale to admins by default', () => {
+    asRole('admin');
+    const { container } = render(Splash, { props: { apps, config: cfg() } });
+    expect(container.querySelector('.docker-cluster svg')).not.toBeNull();
+  });
+
+  it('hides the whale but keeps the state pill when show_docker_badge is off', () => {
+    asRole('admin');
+    const { container } = render(Splash, { props: { apps, config: cfg({ show_docker_badge: false }) } });
+    expect(container.querySelector('.docker-cluster')).not.toBeNull();
+    expect(container.querySelector('.docker-cluster svg')).toBeNull();
+    expect(container.querySelector('.docker-cluster .docker-status-dot')).not.toBeNull();
+  });
+
+  it('hides the whale from non-admins even when the setting is on', () => {
+    asRole('user');
+    const { container } = render(Splash, { props: { apps, config: cfg({ show_docker_badge: true }) } });
+    expect(container.querySelector('.docker-cluster svg')).toBeNull();
+  });
+});

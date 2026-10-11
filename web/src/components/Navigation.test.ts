@@ -4020,6 +4020,12 @@ describe('Navigation Docker whale visibility (#515)', () => {
         const container = await renderAt(position, { show_docker_badge: true });
         expect(container.querySelector('.nav-docker-badge svg')).toBeNull();
       });
+
+      it('renders no empty badge span when the whale is hidden and no state is known', async () => {
+        dockerStateStore.set(new Map());
+        const container = await renderAt(position, { show_docker_badge: false });
+        expect(container.querySelector('.nav-docker-badge')).toBeNull();
+      });
     });
   }
 });
