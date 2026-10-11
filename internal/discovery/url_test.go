@@ -159,6 +159,9 @@ func TestResolveHealth(t *testing.T) {
 		{"http://10.0.0.5:8989", "https://status.example.com/sonarr", "https://status.example.com/sonarr"},
 		{"", "/api/health", "/api/health"},
 		{"http://10.0.0.5:8989", "health", "health"},
+		{"http://10.0.0.5:8989", "//evil.example/x", ""},
+		{"http://10.0.0.5:8989", "/\\evil.example/x", ""},
+		{"http://10.0.0.5:8989", "//", ""},
 	} {
 		if got := resolveHealth(tc.base, tc.health); got != tc.want {
 			t.Errorf("resolveHealth(%q, %q) = %q, want %q", tc.base, tc.health, got, tc.want)
@@ -175,5 +178,25 @@ func TestBuildURL_ContainerDNSUsesSwarmServiceName(t *testing.T) {
 	plain := ContainerSummary{Names: []string{"/sonarr"}}
 	if u, _ := buildURLForSuggestion("container_dns", &plain, 8989, "http", ""); u != "http://sonarr:8989" {
 		t.Fatalf("got %q", u)
+	}
+}
+
+func TestIsRootRelative(t *testing.T) {
+	for v, want := range map[string]bool{
+		"/ping": true, "/": true, "": false, "ping": false,
+		"//evil": false, "/\\evil": false, "https://a/b": false,
+	} {
+		if got := isRootRelative(v); got != want {
+			t.Errorf("isRootRelative(%q) = %v, want %v", v, got, want)
+		}
+	}
+}
+
+func TestRefreshHealthTarget_RejectsProtocolRelative(t *testing.T) {
+	for _, h := range []string{"//evil.example/x", "/\\evil.example/x"} {
+		got, managed := refreshHealthTarget("http://10.0.0.5:8989", &AppLabels{Health: h}, &CatalogEntry{}, false)
+		if got != "" || managed {
+			t.Errorf("refreshHealthTarget(%q) = %q, %v; want empty, false", h, got, managed)
+		}
 	}
 }
