@@ -160,11 +160,12 @@ func resolveHealth(containerURL, health string) string {
 	if _, ok := parseFixedURL(health); ok {
 		return health
 	}
-	if strings.HasPrefix(health, "/") && !isRootRelative(health) {
-		return ""
-	}
-	if !isRootRelative(health) {
+	if health[0] != '/' {
 		return health
+	}
+	// Protocol-relative ("//host", "/\host") is not a path on the container.
+	if len(health) > 1 && (health[1] == '/' || health[1] == '\\') {
+		return ""
 	}
 	base, err := url.Parse(containerURL)
 	if err != nil || base.Host == "" {
