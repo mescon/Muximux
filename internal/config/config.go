@@ -700,6 +700,7 @@ func Load(path string) (*Config, error) {
 		if err := applyLoadDefaultsAndEnv(cfg); err != nil {
 			return nil, err
 		}
+		warnStartupAuthEnv(cfg)
 		if err := finishConfig(cfg); err != nil {
 			return nil, err
 		}
@@ -710,6 +711,7 @@ func Load(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	warnStartupAuthEnv(cfg)
 
 	// Auto-migrate legacy server.gateway: (Caddyfile path) to the
 	// declarative server.gateway_sites: form. Runs once before
@@ -853,7 +855,6 @@ func applyLoadDefaultsAndEnv(cfg *Config) error {
 
 	// MUXIMUX_AUTH_METHOD and MUXIMUX_OIDC_* (#513). Errors are fatal:
 	// auth configuration must fail closed.
-	WarnUnknownOIDCEnv(cfg, os.Environ())
 	return ApplyAuthEnv(cfg, os.LookupEnv, readEnvFile)
 }
 

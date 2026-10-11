@@ -982,3 +982,81 @@ func TestOIDCEnvConfiguringVars(t *testing.T) {
 		})
 	}
 }
+
+// OIDC variables set under a method that does not use them log one WARN
+// naming them (never the values); oidc, builtin with OIDC enabled, and no
+// method at all stay quiet.
+func TestWarnIgnoredOIDCEnv(t *testing.T) {
+	tests := []struct {
+		name    string
+		env     map[string]string
+		enabled bool
+		want    string // "" means no warning
+	}{
+		{"none with oidc vars", map[string]string{EnvAuthMethod: "none", EnvOIDCIssuerURL: "https://id", EnvOIDCClientSecret + "_FILE": "/s"},
+			false, EnvOIDCIssuerURL + ", " + EnvOIDCClientSecret + "_FILE"},
+		{"forward_auth with tuning var", map[string]string{EnvAuthMethod: "Forward_Auth", EnvOIDCScopes: "openid"}, false, EnvOIDCScopes},
+		{"builtin without oidc enabled", map[string]string{EnvAuthMethod: "builtin", EnvOIDCClientID: "c"}, false, EnvOIDCClientID},
+		{"builtin enabled true but provider off", map[string]string{EnvAuthMethod: "builtin", EnvOIDCEnabled: "true"}, false, EnvOIDCEnabled},
+		{"builtin with oidc enabled", map[string]string{EnvAuthMethod: "builtin", EnvOIDCClientID: "c"}, true, ""},
+		{"enabled false agrees", map[string]string{EnvAuthMethod: "none", EnvOIDCEnabled: "false"}, false, ""},
+		{"oidc", map[string]string{EnvAuthMethod: "oidc", EnvOIDCClientID: "c"}, true, ""},
+		{"no method", map[string]string{EnvOIDCScopes: "openid"}, false, ""},
+		{"blank method", map[string]string{EnvAuthMethod: " ", EnvOIDCScopes: "openid"}, false, ""},
+		{"none and nothing else", map[string]string{EnvAuthMethod: "none"}, false, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := defaultConfig()
+			cfg.Auth.OIDC.Enabled = tt.enabled
+			WarnIgnoredOIDCEnv(cfg, fakeEnv(tt.env))
+			if tt.want == "" {
+				if len(cfg.envWarnings) != 0 {
+					t.Fatalf("unexpected warnings: %+v", cfg.envWarnings)
+				}
+				return
+			}
+			if len(cfg.envWarnings) != 1 {
+				t.Fatalf("warnings = %+v, want one", cfg.envWarnings)
+			}
+			args := argStrings(cfg.envWarnings[0].args)
+			joined := strings.Join(args, " ")
+			if !strings.Contains(joined, tt.want) {
+				t.Errorf("args %q do not name %q", joined, tt.want)
+			}
+			for _, v := range tt.env {
+				if strings.HasPrefix(v, "/") || strings.HasPrefix(v, "https") {
+					if strings.Contains(joined, v) {
+						t.Errorf("warning echoes the value %q", v)
+					}
+				}
+			}
+		})
+	}
+	WarnIgnoredOIDCEnv(nil, fakeEnv(nil)) // no panic
+}
+
+// The environment WARNs come from Load only: Parse (used by restore) does
+// not repeat them, so each is logged once per process.
+func TestStartupAuthEnvWarnings_LoadOnly(t *testing.T) {
+	clearAuthEnv(t)
+	t.Setenv("MUXIMUX_OIDC_ISSUER", "https://id")
+	t.Setenv(EnvAuthMethod, "none")
+	t.Setenv(EnvOIDCScopes, "openid")
+
+	cfg, err := Load(filepath.Join(t.TempDir(), "config.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.envWarnings) != 2 {
+		t.Fatalf("Load warnings = %+v, want unknown name and ignored vars", cfg.envWarnings)
+	}
+
+	parsed, err := Parse([]byte("server:\n  title: Dash\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(parsed.envWarnings) != 0 {
+		t.Errorf("Parse repeated the startup warnings: %+v", parsed.envWarnings)
+	}
+}

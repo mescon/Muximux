@@ -302,6 +302,52 @@ func (c *Config) OIDCEnvConfiguringVars() []string {
 	return out
 }
 
+// warnStartupAuthEnv records the auth environment WARNs that describe the
+// process environment rather than a config file. Only Load (once, at
+// startup) raises them, so a restore through Parse does not repeat them.
+func warnStartupAuthEnv(cfg *Config) {
+	WarnUnknownOIDCEnv(cfg, os.Environ())
+	WarnIgnoredOIDCEnv(cfg, os.LookupEnv)
+}
+
+// WarnIgnoredOIDCEnv records one WARN naming the MUXIMUX_OIDC_* variables
+// that are set but have no effect under the method MUXIMUX_AUTH_METHOD
+// picks: none or forward_auth, or builtin while OIDC is not enabled
+// (builtin accepts OIDC sessions alongside passwords when it is). This
+// often means a mistyped but still valid method. Not fatal: the operator
+// chose the method explicitly. MUXIMUX_OIDC_ENABLED=false is left out, as
+// it agrees with the method. Run it after ApplyAuthEnv. Only names are
+// logged, never values.
+func WarnIgnoredOIDCEnv(cfg *Config, getenv func(string) (string, bool)) {
+	if cfg == nil {
+		return
+	}
+	getenv = nonEmptyEnv(getenv)
+	method, ok := getenv(EnvAuthMethod)
+	method = strings.ToLower(strings.TrimSpace(method))
+	if !ok || method == "oidc" || (method == "builtin" && cfg.Auth.OIDC.Enabled) {
+		return
+	}
+	var set []string
+	for i := range oidcEnvVars {
+		v := &oidcEnvVars[i]
+		if raw, ok := getenv(v.name); ok {
+			if b, valid := parseEnvBool(strings.TrimSpace(raw)); v.field != OverrideOIDCEnabled || !valid || b {
+				set = append(set, v.name)
+			}
+		}
+		if v.file {
+			if _, ok := getenv(v.name + envFileSuffix); ok {
+				set = append(set, v.name+envFileSuffix)
+			}
+		}
+	}
+	if len(set) > 0 {
+		cfg.addEnvWarning("OIDC variables have no effect with this "+EnvAuthMethod+"; set "+EnvAuthMethod+"=oidc to sign in with OIDC, or remove them",
+			"env", strings.Join(set, ", "), "method", method)
+	}
+}
+
 // WarnUnknownOIDCEnv records a WARN for each MUXIMUX_OIDC_* entry in
 // environ (KEY=VALUE pairs, as os.Environ returns them) that is not a
 // known variable, so a misspelt name does not go silently unused. Only
