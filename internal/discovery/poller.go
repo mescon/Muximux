@@ -893,7 +893,7 @@ func refreshCatalog(c *ContainerSummary) (CatalogEntry, bool) {
 func refreshHealthTarget(containerURL string, labels *AppLabels, catalog *CatalogEntry, hasCatalog bool) (string, bool) {
 	switch {
 	case labels.Health != "":
-		if !strings.HasPrefix(labels.Health, "/") {
+		if !isRootRelative(labels.Health) {
 			return "", false
 		}
 		return resolveHealth(containerURL, labels.Health), containerURL != ""
@@ -950,8 +950,8 @@ func (p *Poller) resolveAppRefreshFrom(containers []ContainerSummary, key, strat
 		t := refreshTarget{URL: containerURL}
 		// A relative health label or catalog health path follows the
 		// container address; anything else is left to the operator.
-		relative := (labels.Health != "" && strings.HasPrefix(labels.Health, "/")) ||
-			(labels.Health == "" && hasCatalog && strings.HasPrefix(catalog.HealthURL, "/"))
+		relative := (labels.Health != "" && isRootRelative(labels.Health)) ||
+			(labels.Health == "" && hasCatalog && isRootRelative(catalog.HealthURL))
 		if relative && containerURL != "" {
 			t.HealthURL, t.HealthManaged = refreshHealthTarget(containerURL, &labels, &catalog, hasCatalog)
 		}

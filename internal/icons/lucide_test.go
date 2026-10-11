@@ -211,9 +211,9 @@ func TestLucideClient_ListIcons(t *testing.T) {
 	}
 
 	categoriesResponse := map[string][]string{
-		"navigation": {"home"},
-		"social":     {"star"},
-		"general":    {"home", "search"},
+		"home":   {"navigation", "general"},
+		"star":   {"social"},
+		"search": {"general"},
 	}
 
 	requestCount := 0
@@ -604,4 +604,73 @@ type testTransport struct {
 
 func (t *testTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return t.handler(req)
+}
+
+func TestLucideClient_fetchCategories_Shape(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"home":["buildings","navigation"],"star":[]}`))
+	}))
+	defer srv.Close()
+
+	client := NewLucideClient(t.TempDir(), time.Hour)
+	client.categoriesURL = srv.URL
+	cats, err := client.fetchCategories()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := cats["home"]; len(got) != 2 || got[0] != "buildings" || got[1] != "navigation" {
+		t.Errorf("unexpected categories for home: %v", got)
+	}
+}
+
+func TestLucideClient_fetchCategories_NotFound(t *testing.T) {
+	srv := httptest.NewServer(http.NotFoundHandler())
+	defer srv.Close()
+
+	client := NewLucideClient(t.TempDir(), time.Hour)
+	client.categoriesURL = srv.URL
+	if _, err := client.fetchCategories(); err == nil {
+		t.Error("expected error for 404")
+	}
+}
+
+func TestLucideClient_fetchIconList_CategoriesFailureDegrades(t *testing.T) {
+	catHits := 0
+	catSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		catHits++
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer catSrv.Close()
+
+	client := NewLucideClient(t.TempDir(), time.Hour)
+	client.categoriesURL = catSrv.URL
+	client.httpClient = &http.Client{
+		Transport: &testTransport{
+			handler: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == "/repos/lucide-icons/lucide/git/trees/main" {
+					w := httptest.NewRecorder()
+					_, _ = w.WriteString(`{"tree":[{"path":"icons/home.svg","type":"blob"}]}`)
+					return w.Result(), nil
+				}
+				return http.DefaultTransport.RoundTrip(req)
+			},
+		},
+	}
+
+	for i := 0; i < 2; i++ {
+		icons, err := client.fetchIconList()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(icons) != 1 || icons[0].Name != "home" || len(icons[0].Categories) != 0 {
+			t.Fatalf("expected names without categories, got %v", icons)
+		}
+	}
+	if catHits != 2 {
+		t.Errorf("expected 2 category fetches, got %d", catHits)
+	}
+	if !client.catWarned.Load() {
+		t.Error("expected the warning flag to be set after a failure")
+	}
 }

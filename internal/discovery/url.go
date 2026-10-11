@@ -141,10 +141,18 @@ func withPath(base, path string) string {
 	return strings.TrimRight(base, "/") + p
 }
 
+// isRootRelative reports whether v is a single-slash path. "//host" and
+// "/\host" are protocol-relative to browsers and URL parsers, so they are
+// not root-relative and must never be treated as paths on the container.
+func isRootRelative(v string) bool {
+	return strings.HasPrefix(v, "/") && !strings.HasPrefix(v, "//") && !strings.HasPrefix(v, "/\\")
+}
+
 // resolveHealth turns a muximux.app.health value into a usable health
 // address. A root-relative value ("/api/v3/health") is resolved against
 // the container's origin; an absolute http(s) URL is kept; anything else
-// is returned unchanged.
+// is returned unchanged. A protocol-relative value ("//host", "/\host")
+// is invalid and yields "".
 func resolveHealth(containerURL, health string) string {
 	if health == "" {
 		return ""
@@ -152,8 +160,12 @@ func resolveHealth(containerURL, health string) string {
 	if _, ok := parseFixedURL(health); ok {
 		return health
 	}
-	if !strings.HasPrefix(health, "/") {
+	if health[0] != '/' {
 		return health
+	}
+	// Protocol-relative ("//host", "/\host") is not a path on the container.
+	if len(health) > 1 && (health[1] == '/' || health[1] == '\\') {
+		return ""
 	}
 	base, err := url.Parse(containerURL)
 	if err != nil || base.Host == "" {

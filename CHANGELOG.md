@@ -33,6 +33,16 @@ All notable changes to Muximux are documented in this file.
   start without a config file ignored every direct override, including
   `MUXIMUX_DISCOVERY_AUTO_IMPORT` and
   `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`. (#513)
+- **Lucide icon categories load again.** Upstream removed `categories.json`
+  from the Lucide repository, so the icon picker's category metadata had been
+  failing with a 404. Categories now come from one request to the
+  `lucide.dev/api/categories` endpoint, and when that fails the icon names are
+  still served and the warning is logged once per process rather than on every
+  refresh.
+- **Health labels starting with `//` or `/\` are rejected.** A root-relative
+  `muximux.app.health` value is resolved against the container's address only
+  when it is a single-slash path; protocol-relative values are treated as
+  invalid and ignored (CodeQL go/bad-redirect-check).
 - **Aborted proxy streams are no longer logged as panics.** When a client
   goes away mid-stream the reverse proxy aborts the response the way net/http
   documents; the recovery middleware now lets that through instead of logging
