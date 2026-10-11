@@ -145,6 +145,8 @@
   "general_floatingTopLeft": "Gore lijevo",
   "general_showLabels": "Prikaži oznake",
   "general_showLabelsDesc": "Prikazuj nazive aplikacija pored ikona",
+  "general_showDockerBadge": "Prikaži Docker značku",
+  "general_showDockerBadgeDesc": "Prikaži Docker kita pored aplikacija otkrivenih putem Dockera u navigaciji i na pregledu (samo administratori)",
   "general_showLogo": "Prikaži logotip",
   "general_showLogoDesc": "Prikazuj Muximux logotip u izborniku",
   "general_overviewButton": "Gumb za pregled",

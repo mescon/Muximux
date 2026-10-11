@@ -4,6 +4,13 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Option to hide the Docker whale in the navigation and overview.** The new
+  `navigation.show_docker_badge` setting (Settings, General, "Show Docker
+  Badge"; default `true`) hides the whale on Docker-discovered apps in every
+  navigation position and on the overview page. The whale is now shown to
+  admins only. Display only: discovery, tracking and sync are unaffected. (#515)
+
 ### Fixed
 - **Aborted proxy streams are no longer logged as panics.** When a client
   goes away mid-stream the reverse proxy aborts the response the way net/http
