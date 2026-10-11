@@ -384,7 +384,7 @@ Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](
 |---|---|---|---|
 | `muximux.app.enabled` | bool | `true` | Opt-out via `false`. With `require_explicit_enable` (or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`) only `true` opts in. See [Explicit opt-in](#explicit-opt-in). |
 | `muximux.app.name` | string | catalog name or container name | Display name in the menu. Surrounding spaces are ignored. Re-synced while the app is tracked; see [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps). |
-| `muximux.app.icon` | string | catalog icon or `""` | A Dashboard Icons slug (e.g. `sonarr`), `lucide:<name>`, or an `http(s)` URL; see [Icon label formats](#icon-label-formats). Surrounding spaces are ignored. |
+| `muximux.app.icon` | string | catalog icon or `""` | A Dashboard Icons slug (e.g. `sonarr`), `lucide:<name>`, or an `https` URL; see [Icon label formats](#icon-label-formats). Surrounding spaces are ignored. |
 | `muximux.app.group` | string | catalog group | Group the app lives in. Created if it doesn't exist (from 3.6.0). |
 | `muximux.app.port` | int 1-65535 | catalog port or first exposed | Which container port the app listens on. |
 | `muximux.app.url` | absolute `http(s)` URL | unset | Open the app at this URL instead of the container address, e.g. its public name behind your own reverse proxy. Health checks still go to the container. Ignored (with a scan note) when `muximux.app.gateway.domain` is set, and invalid values are ignored with a note. See [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy). |
@@ -415,7 +415,7 @@ These describe the group the container's app is in. They apply only to a group D
 
 | Label | Type | Default | What it does |
 |---|---|---|---|
-| `muximux.group.icon` | string | folder icon | The same forms as `muximux.app.icon` (slug, `lucide:<name>`, `http(s)` URL). Surrounding spaces are ignored. |
+| `muximux.group.icon` | string | folder icon | The same forms as `muximux.app.icon` (slug, `lucide:<name>`, `https` URL). Surrounding spaces are ignored. |
 | `muximux.group.color` | `#rrggbb` | unset | Group colour, a hex colour (`#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa`). Other values are ignored with a warning and a scan note. |
 | `muximux.group.order` | int 0-9999 | after existing groups | Sort order of the group. Other values are ignored with a warning and a scan note. |
 
