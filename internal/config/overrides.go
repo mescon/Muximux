@@ -1,6 +1,9 @@
 package config
 
-import "strconv"
+import (
+	"encoding/json"
+	"strconv"
+)
 
 // OverrideField names a config field that a command-line flag or an
 // environment variable can override at startup. An override changes the
@@ -9,6 +12,8 @@ import "strconv"
 type OverrideField string
 
 // Fields that can be overridden from a flag or the environment.
+//
+//nolint:gosec // field paths, not credentials
 const (
 	OverrideLogLevel   OverrideField = "log_level"
 	OverrideLogFormat  OverrideField = "log_format"
@@ -17,10 +22,31 @@ const (
 	OverrideAutoImport OverrideField = "discovery.docker.auto_import"
 
 	OverrideRequireExplicitEnable OverrideField = "discovery.docker.require_explicit_enable"
+
+	// Auth fields set from MUXIMUX_AUTH_METHOD and MUXIMUX_OIDC_* (#513).
+	// Named by YAML path so env_overrides keys match the config file.
+	OverrideAuthMethod                OverrideField = "auth.method"
+	OverrideOIDCEnabled               OverrideField = "auth.oidc.enabled"
+	OverrideOIDCIssuerURL             OverrideField = "auth.oidc.issuer_url"
+	OverrideOIDCClientID              OverrideField = "auth.oidc.client_id"
+	OverrideOIDCClientSecret          OverrideField = "auth.oidc.client_secret"
+	OverrideOIDCRedirectURL           OverrideField = "auth.oidc.redirect_url"
+	OverrideOIDCScopes                OverrideField = "auth.oidc.scopes"
+	OverrideOIDCUsernameClaim         OverrideField = "auth.oidc.username_claim"
+	OverrideOIDCEmailClaim            OverrideField = "auth.oidc.email_claim"
+	OverrideOIDCGroupsClaim           OverrideField = "auth.oidc.groups_claim"
+	OverrideOIDCDisplayNameClaim      OverrideField = "auth.oidc.display_name_claim"
+	OverrideOIDCAdminGroups           OverrideField = "auth.oidc.admin_groups"
+	OverrideOIDCProviderLogout        OverrideField = "auth.oidc.provider_logout"
+	OverrideOIDCPostLogoutRedirectURL OverrideField = "auth.oidc.post_logout_redirect_url"
+	OverrideOIDCLogoutURL             OverrideField = "auth.oidc.logout_url"
+	OverrideOIDCAutoRedirect          OverrideField = "auth.oidc.auto_redirect"
+	OverrideOIDCDisableLocalLogin     OverrideField = "auth.oidc.disable_local_login"
 )
 
 // override remembers where an overridden value came from and the value
-// the file held before the override replaced it.
+// the file held before the override replaced it. List fields are encoded
+// as JSON (see encodeList), so a nil list and an empty list round-trip.
 type override struct {
 	source    string
 	fileValue string
@@ -47,6 +73,30 @@ func (c *Config) ApplyOverride(field OverrideField, source, value string) {
 func (c *Config) IsOverridden(field OverrideField) bool {
 	_, ok := c.overrides[field]
 	return ok
+}
+
+// OverrideSource returns the flag or environment variable that set field,
+// and whether field is overridden.
+func (c *Config) OverrideSource(field OverrideField) (string, bool) {
+	o, ok := c.overrides[field]
+	return o.source, ok
+}
+
+// SetOverrideFileValue changes the value Save writes for an overridden
+// field, without touching the live value or the source. It returns the
+// previous file value, so a caller can put it back if the save fails, and
+// false (changing nothing) when field is not overridden. The setup wizard
+// uses it to persist the method it completed under MUXIMUX_AUTH_METHOD, so
+// dropping the variable later does not leave the instance without auth.
+func (c *Config) SetOverrideFileValue(field OverrideField, value string) (string, bool) {
+	o, ok := c.overrides[field]
+	if !ok {
+		return "", false
+	}
+	prev := o.fileValue
+	o.fileValue = value
+	c.overrides[field] = o
+	return prev, true
 }
 
 // EnvOverrides maps each overridden field to the flag or environment
@@ -78,6 +128,15 @@ func (c *Config) overrideValue(field OverrideField) string {
 	case OverrideRequireExplicitEnable:
 		return strconv.FormatBool(c.Discovery.Docker.RequireExplicitEnable)
 	}
+	if p := c.stringOverrideField(field); p != nil {
+		return *p
+	}
+	if p := c.boolOverrideField(field); p != nil {
+		return strconv.FormatBool(*p)
+	}
+	if p := c.listOverrideField(field); p != nil {
+		return encodeList(*p)
+	}
 	return ""
 }
 
@@ -98,6 +157,90 @@ func (c *Config) setOverrideValue(field OverrideField, value string) {
 	case OverrideRequireExplicitEnable:
 		c.Discovery.Docker.RequireExplicitEnable = value == "true"
 	}
+	if p := c.stringOverrideField(field); p != nil {
+		*p = value
+	}
+	if p := c.boolOverrideField(field); p != nil {
+		*p = value == "true"
+	}
+	if p := c.listOverrideField(field); p != nil {
+		*p = decodeList(value)
+	}
+}
+
+// stringOverrideField returns the address of a string auth field, or nil.
+func (c *Config) stringOverrideField(field OverrideField) *string {
+	o := &c.Auth.OIDC
+	switch field {
+	case OverrideAuthMethod:
+		return &c.Auth.Method
+	case OverrideOIDCIssuerURL:
+		return &o.IssuerURL
+	case OverrideOIDCClientID:
+		return &o.ClientID
+	case OverrideOIDCClientSecret:
+		return &o.ClientSecret
+	case OverrideOIDCRedirectURL:
+		return &o.RedirectURL
+	case OverrideOIDCUsernameClaim:
+		return &o.UsernameClaim
+	case OverrideOIDCEmailClaim:
+		return &o.EmailClaim
+	case OverrideOIDCGroupsClaim:
+		return &o.GroupsClaim
+	case OverrideOIDCDisplayNameClaim:
+		return &o.DisplayNameClaim
+	case OverrideOIDCPostLogoutRedirectURL:
+		return &o.PostLogoutRedirectURL
+	case OverrideOIDCLogoutURL:
+		return &o.LogoutURL
+	}
+	return nil
+}
+
+// boolOverrideField returns the address of a bool OIDC field, or nil.
+func (c *Config) boolOverrideField(field OverrideField) *bool {
+	o := &c.Auth.OIDC
+	switch field {
+	case OverrideOIDCEnabled:
+		return &o.Enabled
+	case OverrideOIDCProviderLogout:
+		return &o.ProviderLogout
+	case OverrideOIDCAutoRedirect:
+		return &o.AutoRedirect
+	case OverrideOIDCDisableLocalLogin:
+		return &o.DisableLocalLogin
+	}
+	return nil
+}
+
+// listOverrideField returns the address of a list OIDC field, or nil.
+func (c *Config) listOverrideField(field OverrideField) *[]string {
+	switch field {
+	case OverrideOIDCScopes:
+		return &c.Auth.OIDC.Scopes
+	case OverrideOIDCAdminGroups:
+		return &c.Auth.OIDC.AdminGroups
+	}
+	return nil
+}
+
+// encodeList stores a list field as an override string. JSON keeps nil
+// ("null") apart from an empty list ("[]"), so Save writes back exactly
+// what the file held.
+func encodeList(v []string) string {
+	b, _ := json.Marshal(v) //nolint:errcheck // a []string always marshals
+	return string(b)
+}
+
+// decodeList is the inverse of encodeList. A value that is not a JSON
+// list decodes to nil.
+func decodeList(s string) []string {
+	var v []string
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return nil
+	}
+	return v
 }
 
 // fileView returns a shallow copy of c with every overridden field set

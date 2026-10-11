@@ -16,8 +16,23 @@ All notable changes to Muximux are documented in this file.
   which behaves as before -- on import, on label re-sync and for group labels.
   Only `https` URLs are accepted, and an invalid value is ignored
   with a warning while the stored icon stays (#514).
+- **Auth and OIDC from environment variables.** `MUXIMUX_AUTH_METHOD` and
+  `MUXIMUX_OIDC_*` configure the auth method and every OIDC setting, with
+  `MUXIMUX_OIDC_CLIENT_ID_FILE` and `MUXIMUX_OIDC_CLIENT_SECRET_FILE` for
+  Docker secrets. A fresh container with only these variables starts on OIDC
+  and skips the setup wizard. Values stay in memory and do not reach
+  `config.yaml`, except the method a completed setup wizard saves. Settings
+  shows each of them as locked, and the API refuses or ignores changes to
+  them. Invalid auth variables, and OIDC variables without
+  `MUXIMUX_AUTH_METHOD` on an instance not already on OIDC, stop startup
+  instead of leaving it open. Unknown `MUXIMUX_OIDC_*` names, and OIDC
+  variables the chosen method does not use, are logged. (#513)
 
 ### Fixed
+- **Environment overrides apply when `config.yaml` is missing.** A first
+  start without a config file ignored every direct override, including
+  `MUXIMUX_DISCOVERY_AUTO_IMPORT` and
+  `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`. (#513)
 - **Lucide icon categories load again.** Upstream removed `categories.json`
   from the Lucide repository, so the icon picker's category metadata had been
   failing with a 404. Categories now come from one request to the

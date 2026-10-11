@@ -1453,6 +1453,15 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A method set by MUXIMUX_AUTH_METHOD is not the wizard's to choose:
+	// setup can only complete it (builtin with no users creates the first
+	// admin). Refused rather than kept, so the wizard never reports a
+	// method that is not the live one.
+	if msg := s.setupMethodEnvConflict(req.Method); msg != "" {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": msg})
+		return
+	}
+
 	// Snapshot the auth state we are about to mutate so we can put
 	// the running instance back the way we found it if the disk save
 	// at the end of this handler fails (codebase review C2-shf).
@@ -1486,10 +1495,19 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.setupNone()
 	}
 
+	// Under MUXIMUX_AUTH_METHOD the live method is the variable's and Save
+	// would write the file's own (usually none). The operator has just
+	// completed setup for this method, so persist it: otherwise dropping
+	// the variable later starts with setup_complete and no auth at all.
+	var priorFileMethod string
+	var fileMethodSet bool
 	if err := func() error {
 		s.configMu.Lock()
 		defer s.configMu.Unlock()
 		s.config.Auth.SetupComplete = true
+		if req.Method == s.config.Auth.Method {
+			priorFileMethod, fileMethodSet = s.config.SetOverrideFileValue(config.OverrideAuthMethod, req.Method)
+		}
 		return s.config.Save(s.configPath)
 	}(); err != nil {
 		// Disk save failed. Roll back every piece of live state we
@@ -1502,6 +1520,9 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.config.Auth.Headers = priorHeaders
 		s.config.Auth.LogoutURL = priorLogoutURL
 		s.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+		if fileMethodSet {
+			s.config.SetOverrideFileValue(config.OverrideAuthMethod, priorFileMethod)
+		}
 		// Rebuild the user store and the auth-middleware snapshot from
 		// the restored fields. Setup never touches the API key hash or
 		// the base path, so this is the snapshot from before setup.
@@ -1610,6 +1631,7 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	}
 	s.configMu.Unlock()
 	logging.WarnMissingEnvVars(cfg.MissingEnvVars)
+	cfg.LogEnvWarnings()
 
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to save restored config; reverted", "source", "config", "error", err)
@@ -2855,4 +2877,17 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 		}
 		handler(w, r)
 	}
+}
+
+// setupMethodEnvConflict returns why setup may not use method, or "" when
+// it may: while MUXIMUX_AUTH_METHOD sets the method, setup must use that
+// method. The message names the variable and the method, never a secret.
+func (s *Server) setupMethodEnvConflict(method string) string {
+	s.configMu.RLock()
+	defer s.configMu.RUnlock()
+	src, ok := s.config.OverrideSource(config.OverrideAuthMethod)
+	if !ok || method == s.config.Auth.Method {
+		return ""
+	}
+	return "the auth method is set to " + s.config.Auth.Method + " by " + src + "; setup must use it"
 }

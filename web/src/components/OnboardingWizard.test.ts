@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 
@@ -211,7 +211,12 @@ vi.mock('$lib/debug', () => ({
   debug: vi.fn(),
 }));
 
+const { mockAuthMethodEnv } = vi.hoisted(() => ({
+  mockAuthMethodEnv: { value: null as { method: string; variable: string } | null },
+}));
+
 vi.mock('$lib/authStore', () => ({
+  authMethodEnv: { subscribe: (fn: (v: unknown) => void) => { fn(mockAuthMethodEnv.value); return () => {}; } },
   isAdmin: { subscribe: (fn: (v: boolean) => void) => { fn(true); return () => {}; } },
   currentUser: { subscribe: (fn: (v: unknown) => void) => { fn({ username: 'admin', role: 'admin' }); return () => {}; } },
   isAuthenticated: { subscribe: (fn: (v: boolean) => void) => { fn(true); return () => {}; } },
@@ -593,6 +598,43 @@ describe('OnboardingWizard', () => {
       mockActiveStepOrder.set(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
       mockCurrentStep.set('security');
       mockStepProgress.set(1);
+    });
+
+    describe('with MUXIMUX_AUTH_METHOD set', () => {
+      beforeEach(() => { mockAuthMethodEnv.value = { method: 'builtin', variable: 'MUXIMUX_AUTH_METHOD' }; });
+      afterEach(() => { mockAuthMethodEnv.value = null; });
+
+      it('preselects the env method and locks the other cards with a description', async () => {
+        renderWizard({ needsSetup: true });
+        const note = screen.getByTestId('setup-method-env');
+        expect(note).toHaveTextContent('Set by MUXIMUX_AUTH_METHOD');
+        await waitFor(() => expect(screen.getByLabelText('Username')).toBeInTheDocument());
+        for (const id of ['forward_auth', 'none']) {
+          const card = screen.getByTestId(`setup-method-${id}`);
+          expect(card).toBeDisabled();
+          expect(card).toHaveAttribute('aria-describedby', 'setup-method-env');
+        }
+        const builtin = screen.getByTestId('setup-method-builtin');
+        expect(builtin).not.toBeDisabled();
+        expect(builtin).toHaveAttribute('aria-describedby', 'setup-method-env');
+      });
+
+      it('clicking the env method card keeps it open', async () => {
+        renderWizard({ needsSetup: true });
+        await waitFor(() => expect(screen.getByLabelText('Username')).toBeInTheDocument());
+        await fireEvent.click(screen.getByTestId('setup-method-builtin'));
+        expect(screen.getByLabelText('Username')).toBeInTheDocument();
+      });
+    });
+
+    it('without MUXIMUX_AUTH_METHOD no card is locked', () => {
+      renderWizard({ needsSetup: true });
+      expect(screen.queryByTestId('setup-method-env')).toBeNull();
+      for (const id of ['builtin', 'forward_auth', 'none']) {
+        const card = screen.getByTestId(`setup-method-${id}`);
+        expect(card).not.toBeDisabled();
+        expect(card).not.toHaveAttribute('aria-describedby');
+      }
     });
 
     it('shows security step heading', () => {

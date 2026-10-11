@@ -51,6 +51,77 @@ Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls
 
 > **Note:** The legacy `server.gateway:` Caddyfile path was removed in 3.1.0 and replaced by the declarative `server.gateway_sites:` YAML. A 3.0.x config (and any mounted `sites.Caddyfile`) is auto-migrated on first boot under 3.1.0.
 
+### OIDC from environment variables and Docker secrets
+
+Single sign-on can be configured entirely from the environment, with the client secret in a Docker secret, so the container needs no `config.yaml` to start on OIDC. The variables, precedence and startup checks are described in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
+
+Both examples assume Muximux is already reachable at `https://muximux.example.com` through your HTTPS reverse proxy (or the built-in TLS above), because the identity provider sends the browser back to that address. Plain `http://` on port 8080 is not enough for the callback.
+
+**Docker Compose** with a file-based secret. Compose mounts it at `/run/secrets/<name>`; the file must be readable by the container user (`PUID`).
+
+```yaml
+# docker-compose.yml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MUXIMUX_AUTH_METHOD=oidc
+      - MUXIMUX_OIDC_ISSUER_URL=https://auth.example.com/application/o/muximux/
+      - MUXIMUX_OIDC_CLIENT_ID=muximux
+      - MUXIMUX_OIDC_CLIENT_SECRET_FILE=/run/secrets/muximux_oidc_secret
+      - MUXIMUX_OIDC_REDIRECT_URL=https://muximux.example.com/api/auth/oidc/callback
+      - MUXIMUX_OIDC_ADMIN_GROUPS=muximux-admins
+    secrets:
+      - muximux_oidc_secret
+    restart: unless-stopped
+
+secrets:
+  muximux_oidc_secret:
+    file: ./secrets/muximux_oidc_secret.txt
+```
+
+**Docker Swarm** stack with an external secret. Create the secret once, then deploy the stack:
+
+```bash
+printf '%s' 'the-client-secret-from-your-provider' | docker secret create muximux_oidc_secret -
+docker stack deploy -c muximux-stack.yml muximux
+```
+
+```yaml
+# muximux-stack.yml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - muximux-data:/app/data
+    environment:
+      MUXIMUX_AUTH_METHOD: oidc
+      MUXIMUX_OIDC_ISSUER_URL: https://auth.example.com/application/o/muximux/
+      MUXIMUX_OIDC_CLIENT_ID: muximux
+      MUXIMUX_OIDC_CLIENT_SECRET_FILE: /run/secrets/muximux_oidc_secret
+      MUXIMUX_OIDC_REDIRECT_URL: https://muximux.example.com/api/auth/oidc/callback
+      MUXIMUX_OIDC_ADMIN_GROUPS: muximux-admins
+    secrets:
+      - muximux_oidc_secret
+    deploy:
+      replicas: 1   # sessions are held in memory, so run one replica
+
+secrets:
+  muximux_oidc_secret:
+    external: true
+
+volumes:
+  muximux-data:
+```
+
+The client ID can come from a secret the same way with `MUXIMUX_OIDC_CLIENT_ID_FILE`. Register `https://muximux.example.com/api/auth/oidc/callback` as the redirect URL at your provider. The first start creates no setup token and opens the login page with the SSO button; add `MUXIMUX_OIDC_AUTO_REDIRECT=true` to skip that page and go straight to the provider.
+
 ### Volume
 
 Mount a directory to `/app/data`. This stores:

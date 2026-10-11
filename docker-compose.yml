@@ -95,6 +95,16 @@ services:
       # including gateway subdomains. See docs/wiki/docker-discovery.md.
       # - MUXIMUX_DISCOVERY_AUTO_IMPORT=sync
 
+      # Auth method and OIDC straight from the environment (no config.yaml
+      # needed). Values stay in memory and show as locked in Settings.
+      # See docs/wiki/authentication.md#configuring-oidc-with-environment-variables.
+      # - MUXIMUX_AUTH_METHOD=oidc
+      # - MUXIMUX_OIDC_ISSUER_URL=https://auth.example.com/application/o/muximux/
+      # - MUXIMUX_OIDC_CLIENT_ID=muximux
+      # - MUXIMUX_OIDC_CLIENT_SECRET_FILE=/run/secrets/muximux_oidc_secret
+      # - MUXIMUX_OIDC_REDIRECT_URL=https://muximux.example.com/api/auth/oidc/callback
+      # - MUXIMUX_OIDC_ADMIN_GROUPS=muximux-admins
+
       # ── Config File Variable Expansion ──────────────────────────
       # These are available for ${VAR} expansion inside config.yaml.
       # Example config.yaml usage: client_secret: ${OIDC_CLIENT_SECRET}

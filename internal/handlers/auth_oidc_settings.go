@@ -70,7 +70,36 @@ type oidcSettingsRequest struct {
 	DisableLocalLogin     *bool    `json:"disable_local_login"`
 }
 
-var oidcEnvFieldNames = []string{"issuer_url", "client_id", "client_secret", "redirect_url", "post_logout_redirect_url", "logout_url"}
+// oidcRefFieldNames are the string OIDC fields that can be written in
+// config.yaml as exactly "${VAR}". Such a field is locked in Settings like
+// one set by a MUXIMUX_OIDC_* variable.
+var oidcRefFieldNames = []string{
+	"issuer_url", "client_id", "client_secret", "redirect_url", "username_claim", "email_claim",
+	"groups_claim", "display_name_claim", "post_logout_redirect_url", "logout_url",
+}
+
+// oidcOverridePrefix is the env_overrides key prefix of the OIDC fields.
+const oidcOverridePrefix = "auth.oidc."
+
+// oidcEnvLocks maps each OIDC settings field whose value the environment
+// owns to the variable behind it: a MUXIMUX_OIDC_* (or MUXIMUX_AUTH_METHOD,
+// for enabled) override, or a "${VAR}" reference in config.yaml. An
+// override wins, since it is what the live value comes from. Only variable
+// names are returned, never values. The caller holds configMu.
+func oidcEnvLocks(cfg *config.Config) map[string]string {
+	locks := map[string]string{}
+	for _, f := range oidcRefFieldNames {
+		if v, ok := cfg.EnvRefVar("auth", "oidc", f); ok {
+			locks[f] = v
+		}
+	}
+	for field, src := range cfg.EnvOverrides() {
+		if name, ok := strings.CutPrefix(field, oidcOverridePrefix); ok {
+			locks[name] = src
+		}
+	}
+	return locks
+}
 
 const (
 	oidcTestTimeout = 10 * time.Second
@@ -114,12 +143,7 @@ func (h *AuthHandler) GetOIDCSettings(w http.ResponseWriter, r *http.Request) {
 	h.configMu.RLock()
 	o := h.config.Auth.OIDC
 	base := h.config.Server.NormalizedBasePath()
-	env := map[string]string{}
-	for _, f := range oidcEnvFieldNames {
-		if v, ok := h.config.EnvRefVar("auth", "oidc", f); ok {
-			env[f] = v
-		}
-	}
+	env := oidcEnvLocks(h.config)
 	h.configMu.RUnlock()
 
 	origin := publicOrigin(r)
@@ -205,18 +229,30 @@ func probeOIDCIssuer(ctx context.Context, issuer string) oidcTestResponse {
 
 // applyOIDCSettings returns cur with the request's fields applied and
 // Enabled set. Nil request fields and env-locked fields keep their
-// current value; an empty client secret keeps the stored one.
-func applyOIDCSettings(cur *config.OIDCConfig, req *oidcSettingsRequest, envLocked map[string]bool) config.OIDCConfig {
+// current (live) value, as the discovery settings do for their
+// environment overrides; an empty client secret keeps the stored one.
+func applyOIDCSettings(cur *config.OIDCConfig, req *oidcSettingsRequest, envLocked map[string]string) config.OIDCConfig {
 	out := *cur
 	out.Enabled = true
+	locked := func(field string) bool { _, ok := envLocked[field]; return ok }
 	setStr := func(field string, dst, v *string) {
-		if v != nil && !envLocked[field] {
+		if v != nil && !locked(field) {
 			*dst = strings.TrimSpace(*v)
+		}
+	}
+	setBool := func(field string, dst, v *bool) {
+		if v != nil && !locked(field) {
+			*dst = *v
+		}
+	}
+	setList := func(field string, dst *[]string, v []string) {
+		if v != nil && !locked(field) {
+			*dst = append([]string(nil), v...)
 		}
 	}
 	setStr("issuer_url", &out.IssuerURL, req.IssuerURL)
 	setStr("client_id", &out.ClientID, req.ClientID)
-	if req.ClientSecret != nil && *req.ClientSecret != "" && !envLocked["client_secret"] {
+	if req.ClientSecret != nil && *req.ClientSecret != "" && !locked("client_secret") {
 		out.ClientSecret = *req.ClientSecret
 	}
 	setStr("redirect_url", &out.RedirectURL, req.RedirectURL)
@@ -226,21 +262,11 @@ func applyOIDCSettings(cur *config.OIDCConfig, req *oidcSettingsRequest, envLock
 	setStr("display_name_claim", &out.DisplayNameClaim, req.DisplayNameClaim)
 	setStr("post_logout_redirect_url", &out.PostLogoutRedirectURL, req.PostLogoutRedirectURL)
 	setStr("logout_url", &out.LogoutURL, req.LogoutURL)
-	if req.Scopes != nil {
-		out.Scopes = append([]string(nil), req.Scopes...)
-	}
-	if req.AdminGroups != nil {
-		out.AdminGroups = append([]string(nil), req.AdminGroups...)
-	}
-	if req.ProviderLogout != nil {
-		out.ProviderLogout = *req.ProviderLogout
-	}
-	if req.AutoRedirect != nil {
-		out.AutoRedirect = *req.AutoRedirect
-	}
-	if req.DisableLocalLogin != nil {
-		out.DisableLocalLogin = *req.DisableLocalLogin
-	}
+	setList("scopes", &out.Scopes, req.Scopes)
+	setList("admin_groups", &out.AdminGroups, req.AdminGroups)
+	setBool("provider_logout", &out.ProviderLogout, req.ProviderLogout)
+	setBool("auto_redirect", &out.AutoRedirect, req.AutoRedirect)
+	setBool("disable_local_login", &out.DisableLocalLogin, req.DisableLocalLogin)
 	return out
 }
 
@@ -264,12 +290,7 @@ func (h *AuthHandler) prepareOIDCSave(r *http.Request, req *oidcSettingsRequest)
 	h.configMu.RLock()
 	cur := copyOIDCConfig(&h.config.Auth.OIDC)
 	base := h.config.Server.NormalizedBasePath()
-	locked := map[string]bool{}
-	for _, f := range oidcEnvFieldNames {
-		if _, ok := h.config.EnvRefVar("auth", "oidc", f); ok {
-			locked[f] = true
-		}
-	}
+	locked := oidcEnvLocks(h.config)
 	h.configMu.RUnlock()
 
 	next = applyOIDCSettings(&cur, req, locked)
@@ -278,7 +299,7 @@ func (h *AuthHandler) prepareOIDCSave(r *http.Request, req *oidcSettingsRequest)
 	}
 	// An env-locked redirect URL keeps its value, even an empty one, so
 	// Save can write the ${VAR} reference back.
-	if next.RedirectURL == "" && !locked["redirect_url"] {
+	if _, envRedirect := locked["redirect_url"]; next.RedirectURL == "" && !envRedirect {
 		next.RedirectURL = publicOrigin(r) + base + "/api/auth/oidc/callback"
 	}
 	if err := config.ValidateOIDC(&next); err != nil {
