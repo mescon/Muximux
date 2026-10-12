@@ -71,6 +71,23 @@ A custom theme name must not match a bundled theme's name; the save is refused.
 
 Custom themes are stored as CSS files in the `data/themes/` directory. When you create a theme, Muximux generates a CSS file that overrides the default CSS custom properties (variables) with your chosen values.
 
+A theme file starts with a comment holding `@theme-*` metadata, followed by one rule scoped to the theme's ID. A file without any `@theme-*` line is not listed. A minimal hand-written light theme:
+
+```css
+/**
+ * @theme-name: Paper
+ * @theme-is-dark: false
+ */
+[data-theme="paper"] {
+  color-scheme: light;
+  --bg-base: #fbfaf7;
+  --text-primary: #1c1c1c;
+  --accent-primary: #2563eb;
+}
+```
+
+The ID in the selector is the file name without `.css` (`data/themes/paper.css` here). `@theme-is-dark` decides which way the derived status, accent and form-control colours go (see [Status and accent tokens](#status-and-accent-tokens)), so set it correctly for a light theme.
+
 ## Theme CSS Variables
 
 Themes control the visual appearance through CSS custom properties defined on `:root`. The key variable groups include:
@@ -96,23 +113,25 @@ Status boxes, pills, inline messages, form control borders and the danger button
 | `--info-text`, `--info-bg`, `--info-border` | informational pills | the same recipe from `--status-info` |
 | `--danger-solid`, `--danger-solid-hover`, `--danger-on-solid` | the solid danger button fill, its hover fill and its text | `--danger-border`, that fill mixed 90% with the ink, `#111111` on dark or `#ffffff` on light |
 | `--accent-text` | the accent used as text: links, the active tab and the active navigation item | `--accent-primary` mixed 51% with the ink |
-| `--accent-on-primary` | text on an accent-filled button | `#ffffff` |
+| `--accent-on-primary` | text on an accent-filled button | `#ffffff` or `#000000`, whichever reads better on `--accent-primary` (worked out at runtime, see below) |
 | `--border-focus` | the keyboard focus outline on every control | `--accent-primary` |
 | `--border-input` | the boundary of form controls: inputs, selects, textareas, checkboxes and the locale picker | the ink at 50% over transparent |
 
 Every bundled theme defines the status and accent tokens with values that meet WCAG 2.1 AA on that theme's surfaces: 4.5:1 for text, 3:1 for borders and the focus outline. `--border-input` meets 3:1 on the base, surface, elevated and overlay backgrounds, so a form control stays visible wherever it sits. Card and divider borders (`--border-subtle`, `--border-default`, `--border-strong`) are unchanged.
 
-A custom theme that omits the tokens gets values derived from its `--status-*` and `--accent-primary` colours. The "ink" is white on a dark theme and black on a light one: text uses 40% of the status colour mixed with the ink, borders use 60%, and backgrounds are a 12% tint of the status colour. These pass AA for every bundled palette. Which way to go comes from the theme's `@theme-is-dark` header, which the app turns into a `data-color-scheme` attribute on the root element; set `@theme-is-dark: false` for a light theme (a theme without the header counts as dark). If you set the tokens yourself, aim for the same ratios. The `themeContrast` test in `web/src/lib/themeContrast.test.ts` is strict (no list of known failures) and checks every bundled theme and the derived fallback; it is the reference implementation. `web/src/lib/builtCss.test.ts` guards the compiled CSS against `light-dark()`, which the build would turn into a form that ignores the theme's scheme.
+A custom theme that omits the tokens gets values derived from its `--status-*` and `--accent-primary` colours. The "ink" is white on a dark theme and black on a light one: text uses 40% of the status colour mixed with the ink, borders use 60%, and backgrounds are a 12% tint of the status colour. These pass AA for every bundled palette. Which way to go comes from the theme's `@theme-is-dark` header, which the app turns into a `data-color-scheme` attribute on the root element; set `@theme-is-dark: false` for a light theme (a theme without the `@theme-is-dark` line counts as dark). If you set the tokens yourself, aim for the same ratios. The `themeContrast` test in `web/src/lib/themeContrast.test.ts` is strict (no list of known failures) and checks every bundled theme and the derived fallback; it is the reference implementation. `web/src/lib/builtCss.test.ts` guards the compiled CSS against `light-dark()`, which the build would turn into a form that ignores the theme's scheme.
 
 For contrast, bundled themes were adjusted: muted and secondary text is slightly lighter on the dark themes and darker on the light ones (Solarized Light and Tokyo Night Light also darken their primary text), the elevated and overlay surfaces of Catppuccin, Cineplex Dark, Gruvbox, Nord and Solarized Dark are a step darker, buttons on most themes use dark text on the accent, and the focus outline of Cineplex Light, Gruvbox Light, Solarized Light and Tokyo Night Light uses the text-safe accent. Accent and status base colours are unchanged.
 
-For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you. If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from the theme's `--accent-primary` (over `--bg-base` when the accent is translucent) and picks white or black accordingly; a theme that defines the token is never overridden.
+For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you. If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from the theme's `--accent-primary` (over `--bg-base` when the accent is translucent) and picks white or black accordingly; a theme that defines the token is never overridden. The primary button and the floating navigation button keep their `--accent-primary` fill on hover and signal it with a glow and shadow (`--shadow-glow`) instead of switching to `--accent-secondary`.
 
 The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
 
 ### Focus, motion and screen readers
 
 - **Focus.** Every focusable element shows the same outline in `--border-focus` while it has keyboard focus. A field with an error keeps its danger border while focused.
+- **Dialogs.** Settings and every other dialog keep Tab and Shift+Tab inside them, make the page behind them inert, and return focus to the control that opened them; Escape closes the topmost dialog. See [Keyboard Shortcuts > Keyboard navigation](keyboard-shortcuts.md#keyboard-navigation).
+- **Links and toasts.** Links in running text are underlined, so they do not rely on colour. Toasts use the theme's surface and status tokens instead of always being dark.
 - **Reduced motion.** When your operating system asks for reduced motion, transitions collapse, spinners slow down and pulses stop.
 - **Health indicator.** Each status has its own shape (circle, diamond or ring) so it does not rely on colour alone. The indicator has an accessible name and a tooltip that opens with the keyboard. The "Check now" action in that tooltip is mouse-only for now.
 - **Screen readers.** Errors are announced as alerts and confirmations as status messages. The onboarding wizard announces each step change, and the log level filters report whether they are on or off. Form controls and icon-only buttons have names, and per-row actions name their item or position.

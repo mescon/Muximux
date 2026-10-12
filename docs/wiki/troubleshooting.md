@@ -218,7 +218,88 @@ If you deleted your `data/config.yaml` but the wizard still doesn't appear, veri
 
 ## Settings Shows Values I Did Not Set
 
-A field shown locked ("From VAR") is overridden by an environment variable or command-line flag (`MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`). The override applies in memory only and is never written to `config.yaml`; unset the variable to see the file's value. Settings -> Discovery shows the stored values, including the auto-import mode. If Save is blocked with a name conflict, rename one of the two apps or groups with the same name.
+A field shown locked ("From VAR" or "Set by VAR") gets its value from an environment variable or command-line flag, for example `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`, `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_AUTH_METHOD` or a `MUXIMUX_OIDC_*` variable. An OIDC field written in `config.yaml` as exactly `${VAR}` is locked the same way. The override applies in memory only and is never written to `config.yaml`; unset the variable and restart to see the file's value. The full list is in the [Environment Variable Reference](configuration.md#environment-variable-reference). Settings -> Discovery shows the stored values, including the auto-import mode. If Save is blocked with a name conflict, rename one of the two apps or groups with the same name.
+
+---
+
+## Muximux Refuses to Start After Setting Auth Variables
+
+**Symptom:** The container exits at startup with `Failed to load configuration:` followed by a message naming a `MUXIMUX_AUTH_METHOD` or `MUXIMUX_OIDC_*` variable.
+
+**Cause:** Authentication from the environment fails closed: a configuration that could leave the instance open, or unable to sign anyone in, stops startup instead. Common messages:
+
+| Message contains | Fix |
+|---|---|
+| `is not a valid auth method` | Set `MUXIMUX_AUTH_METHOD` to `none`, `builtin`, `forward_auth` or `oidc`. |
+| `set but MUXIMUX_AUTH_METHOD is not` | OIDC variables are set but the method is not OIDC. Add `MUXIMUX_AUTH_METHOD=oidc`, or remove the OIDC variables. |
+| `MUXIMUX_OIDC_ENABLED=false contradicts auth method oidc` | Remove `MUXIMUX_OIDC_ENABLED` or choose another method. |
+| `set either ... or ..._FILE, not both` | Keep only one of the two variables. |
+| `_FILE: cannot read`, `is empty`, `is larger than` | The secret file is missing, unreadable by the container user (`PUID`), empty or too large. |
+| `issuer_url is required`, `client_id is required`, `must be an absolute http(s) URL` | Set the named variable to a valid value. |
+
+Invalid booleans, unknown `MUXIMUX_OIDC_*` names and OIDC variables the chosen method does not use only log a warning at startup. See [Authentication > Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
+
+---
+
+## API Returns 503 "setup_required"
+
+On a new install, most of the API (and `/ws` and `/proxy/`) waits until the onboarding wizard is finished. Complete setup with the [setup token](authentication.md#setup-token), or start with `MUXIMUX_AUTH_METHOD` set to skip the wizard. See [API Reference > Authentication](api.md#authentication) for the endpoints that stay open.
+
+---
+
+## Docker App Missing: "Not loaded" in Settings -> Discovery
+
+**Symptom:** An auto-imported app or gateway site is gone from the dashboard, the log says `Invalid Docker auto-imported entry quarantined`, and Settings -> Discovery lists it under **Not loaded: invalid auto-imported entries**.
+
+**Cause:** The entry in `config.yaml` fails validation (for example it was written without a URL by an older version). Instead of refusing to start, Muximux keeps it in the file but does not load it.
+
+**Solution:** Fix the container's labels so the next refresh writes a valid entry, or click **Remove** (or **Remove all**) to delete it from `config.yaml`. See [Docker Discovery > Quarantined entries](docker-discovery.md#quarantined-entries).
+
+---
+
+## Labelled Container Is Not Auto-Imported
+
+Open the Discover dialog: a container auto-import skips shows a **Not importable** chip with the reason.
+
+| Reason | Fix |
+|---|---|
+| No `muximux.*` labels | Add at least one label; `muximux.discovery.id` is enough. Unlabelled containers are never auto-imported. |
+| `muximux.app.enabled=true is required` | Explicit opt-in is on (`require_explicit_enable` or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`); add the label. |
+| No port | Add `muximux.app.port`. |
+| No URL could be built | The network strategy cannot reach the container; see [Network strategies](docker-discovery.md#network-strategies). |
+| Invalid app | The labels produce an invalid app; the detail says why. |
+
+A container with `muximux.app.enabled=false` is opted out and hidden from the dialog. A container that is already tracked shows a **Tracked** chip instead. See [Why a container is skipped](docker-discovery.md#why-a-container-is-skipped).
+
+---
+
+## My Edit to a Docker App Keeps Reverting
+
+While an app is tracked, a set `muximux.app.name`, `icon`, `group` or `order` label wins: an edit to that field in Settings is put back on the next refresh, even for an app you imported by hand and with `auto_import: off`. Remove the label, or **Detach** the app in Settings -> Discovery -> Currently tracked, to keep your edit. For groups, editing the icon or colour of a Docker-created group in Settings hands it back to you. See [Label re-sync for tracked apps](docker-discovery.md#label-re-sync-for-tracked-apps).
+
+---
+
+## Lucide Icon Categories Are Missing
+
+**Symptom:** The Lucide tab of the icon picker lists icons but the category filter is empty, and the log shows `Lucide categories fetch failed; serving icon names without category metadata`.
+
+**Cause:** Muximux fetches the category list from `https://lucide.dev/api/categories`. When that request fails (no outbound internet access, DNS, a firewall), icon names are still served without categories, and the warning is logged once per process. Releases before 3.6.1 always failed here because the upstream file they used was removed.
+
+**Solution:** Upgrade to 3.6.1 or later and allow Muximux outbound HTTPS to `lucide.dev`, `api.github.com` (icon list) and `cdn.jsdelivr.net` (icon files). The icon list is kept in memory for the icon cache lifetime (`icons.dashboard_icons.cache_ttl`, 7 days by default), so restart Muximux after fixing network access to fetch the categories again.
+
+---
+
+## Upgrading to 3.6
+
+3.6.0 changed a few behaviours you may notice after upgrading:
+
+- **Docker discovery:** auto-import only takes containers with a `muximux.*` label, Swarm and Compose tracking keys are migrated, set labels re-sync onto apps you imported by hand, and invalid auto-imported entries are quarantined. Details in [Docker Discovery > Upgrading to 3.6](docker-discovery.md#upgrading-to-36).
+- **Saving from Settings** merges your edits onto the current server config, and Settings closes only after a successful save. API scripts that `PUT /api/config` without `base` keep the old replace behaviour; see [API Reference > Configuration](api.md#configuration).
+- **Restore** goes through the startup load path and refuses a backup that still uses the legacy `server.gateway` setting, with a message explaining how to convert it. Listen address, TLS, base-path routing and session cookie settings still need a restart.
+- **Themes:** a custom theme can no longer use a bundled theme's name, and colours were adjusted for WCAG AA contrast. Custom themes that omit the new tokens get derived values; see [Themes > Status and accent tokens](themes.md#status-and-accent-tokens).
+- **`lifecycle_allowed_groups`** holds user and identity-provider group names, not dashboard groups.
+
+3.6.1 shows the Docker whale to admins only, applies environment overrides on a first start without `config.yaml`, and ignores `muximux.app.health` values starting with `//` and bare `muximux.app.icon` values containing `:`, `/` or spaces.
 
 ---
 

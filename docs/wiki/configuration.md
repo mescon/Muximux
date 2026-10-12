@@ -19,6 +19,7 @@ muximux --config /path/to/config.yaml
 server:
   listen: ":8080"              # Listen address (default: ":8080")
   title: "Muximux"             # Page title shown in browser tab
+  language: en                 # Interface language (BCP 47 tag, e.g. "en", "sv")
   log_level: info              # Log verbosity: debug, info, warn, error
   log_format: text             # Log output format: text or json
   proxy_timeout: 30s           # Global timeout for proxied requests
@@ -94,6 +95,7 @@ auth:
       role: admin              # admin, power-user, or user
       email: ""                # Optional
       display_name: ""         # Optional
+      groups: []               # Optional group memberships (for allowed_groups filtering)
 
   # Forward auth settings
   trusted_proxies: []          # CIDR ranges, e.g., ["192.168.0.0/16"]
@@ -103,6 +105,7 @@ auth:
     groups: Remote-Groups
     name: Remote-Name          # Note: key is "name" not "display_name"
   logout_url: ""               # Auth provider logout URL (e.g., https://auth.example.com/logout)
+  forward_auth_admin_groups: []  # Groups that grant admin (default: admin, admins, administrators)
 
   # OIDC settings
   oidc:
@@ -137,20 +140,24 @@ navigation:
   show_on_hover: true
   show_labels: true
   show_logo: true
+  show_home_button: true       # Home button in the navigation (required for the splash screen)
   show_app_colors: true
   show_icon_background: false
   show_splash_on_startup: false
   show_shadow: true
+  dynamic_tab_branding: false  # Browser tab shows the active app's name and icon
   icon_scale: 1.0              # Icon zoom multiplier
   bar_style: grouped           # grouped or flat (top/bottom bars only)
   floating_position: bottom-right  # bottom-right, bottom-left, top-right, top-left
   hide_sidebar_footer: false   # Hide the footer section in sidebars
-  show_docker_badge: true      # Docker whale on Docker-discovered apps in the nav (admins only)
+  show_docker_badge: true      # Docker whale on Docker-discovered apps in the nav and overview (admins only)
   max_open_tabs: 0             # Max app tabs kept alive in memory (0 = unlimited)
 
 # ─── Icons ──────────────────────────────────────
 icons:
   dashboard_icons:
+    enabled: true
+    mode: on_demand              # on_demand, prefetch, offline
     cache_dir: icons/dashboard   # Where fetched dashboard icons are cached
     cache_ttl: 7d                # How long a cached icon is reused before refetch
 
@@ -173,6 +180,7 @@ discovery:
     host_ip: ""                                  # required by host_port strategy
     refresh_interval: 60s                        # poller cadence
     auto_import: off                             # off (default) | add | update | sync; auto-import muximux.*-labeled containers
+    require_explicit_enable: false               # auto-import only containers labelled muximux.app.enabled=true
     lifecycle_enabled: false                     # allow start/stop/restart of tracked containers (requires :rw socket mount)
     lifecycle_min_role: admin                    # min role for lifecycle controls
     lifecycle_allowed_groups: []                 # additionally require group membership
@@ -196,6 +204,9 @@ groups:
     color: "#e5a00d"
     order: 1
     expanded: true
+    # Server-owned; written by Docker discovery, ignored in API payloads:
+    # docker_managed: true     # group created by discovery; muximux.group.* labels apply
+    # docker_order: true       # the group's order comes from a muximux.group.order label
 
 # ─── Apps ───────────────────────────────────────
 apps:
@@ -232,6 +243,14 @@ apps:
     access:
       roles: []
       users: []
+    # Docker tracking; written by discovery (Discover import, auto-import, Re-link).
+    # Server-owned: ignored in API payloads. Editing url by hand detaches the app.
+    # docker_key: "label:plex"             # tracking key (label:, swarm:, compose:, name:, id:)
+    # docker_endpoint: unix:///var/run/docker.sock
+    # docker_strategy: container_ip
+    # docker_managed_url: http://172.18.0.5:32400   # URL the poller last wrote
+    # docker_managed_health_check: true    # value of the muximux.app.health_check label
+    # docker_auto: true                    # created by auto-import (only these are updated or removed by it)
 ```
 
 ## Command Line Options
@@ -264,24 +283,77 @@ apps:
 
 If the referenced environment variable is not set, the `${VAR}` reference is left as-is (the literal string is preserved). This avoids silently deleting values when an env var is missing.
 
-### Direct Override Environment Variables
+## Environment Variable Reference
 
-These override the corresponding config file values without needing `${VAR}` syntax in config.yaml:
+This is the complete list of environment variables Muximux reads. Most of them override a `config.yaml` setting without needing `${VAR}` syntax in the file.
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MUXIMUX_DATA` | Base data directory | `data/` beside binary |
-| `MUXIMUX_CONFIG` | Override config file path | `<data>/config.yaml` |
-| `MUXIMUX_LISTEN` | Listen address (e.g., `:9090`) | From config file |
-| `MUXIMUX_BASE_PATH` | Subpath for reverse proxy (e.g., `/muximux`) | Empty (root) |
-| `MUXIMUX_LOG_LEVEL` | Log verbosity (debug, info, warn, error) | From config file |
-| `MUXIMUX_LOG_FORMAT` | Log format (`text` or `json`) | `text` |
-| `MUXIMUX_DISCOVERY_AUTO_IMPORT` | Docker auto-import mode (`off`, `add`, `update`, `sync`) | From config file |
-| `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | Auto-import only containers labelled `muximux.app.enabled=true` (`true`/`false`) | From config file |
-| `MUXIMUX_AUTH_METHOD` | Auth method (`none`, `builtin`, `forward_auth`, `oidc`) | From config file |
-| `MUXIMUX_OIDC_*` | Every OIDC setting, with `_FILE` variants for the client ID and secret. See [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables) | From config file |
+### Process and logging
 
-These overrides, and the `--listen` and `--base-path` flags, apply in memory only. They are never written back to `config.yaml` when you save from Settings, and Settings shows an overridden field as locked. They also apply on a first start without a `config.yaml`.
+| Variable | Overrides | Values | Default |
+|----------|-----------|--------|---------|
+| `MUXIMUX_DATA` | Data directory (flag `--data`) | Path | `data/` beside the binary |
+| `MUXIMUX_CONFIG` | Config file path (flag `--config`) | Path | `<data>/config.yaml` |
+| `MUXIMUX_LISTEN` | `server.listen` (flag `--listen`) | Address, e.g. `:9090` | From config file |
+| `MUXIMUX_BASE_PATH` | `server.base_path` (flag `--base-path`) | Path, e.g. `/muximux` | From config file (empty = root) |
+| `MUXIMUX_LOG_LEVEL` | `server.log_level` | `debug`, `info`, `warn`, `error` | From config file |
+| `MUXIMUX_LOG_FORMAT` | `server.log_format` | `text` or `json` | From config file |
+
+The Docker image starts Muximux with `--data /app/data`, and a flag wins over its variable, so `MUXIMUX_DATA` has no effect in the container unless you replace the command.
+
+### Docker discovery
+
+| Variable | Overrides | Values | Default |
+|----------|-----------|--------|---------|
+| `MUXIMUX_DISCOVERY_AUTO_IMPORT` | `discovery.docker.auto_import` | `off`, `add`, `update`, `sync` | From config file |
+| `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | `discovery.docker.require_explicit_enable` | Boolean | From config file |
+
+An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warning, and so is a variable that is set but empty. An invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value (including an empty one) is ignored with a warning and the config file value stays. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
+
+### Authentication and OIDC
+
+| Variable | Overrides | Values |
+|----------|-----------|--------|
+| `MUXIMUX_AUTH_METHOD` | `auth.method` | `none`, `builtin`, `forward_auth`, `oidc` |
+| `MUXIMUX_OIDC_ENABLED` | `auth.oidc.enabled` | Boolean |
+| `MUXIMUX_OIDC_ISSUER_URL` | `auth.oidc.issuer_url` | URL |
+| `MUXIMUX_OIDC_CLIENT_ID` | `auth.oidc.client_id` | String |
+| `MUXIMUX_OIDC_CLIENT_ID_FILE` | `auth.oidc.client_id` | Path of a file holding the value (Docker secrets) |
+| `MUXIMUX_OIDC_CLIENT_SECRET` | `auth.oidc.client_secret` | String |
+| `MUXIMUX_OIDC_CLIENT_SECRET_FILE` | `auth.oidc.client_secret` | Path of a file holding the value (Docker secrets) |
+| `MUXIMUX_OIDC_REDIRECT_URL` | `auth.oidc.redirect_url` | Absolute `http(s)` URL |
+| `MUXIMUX_OIDC_SCOPES` | `auth.oidc.scopes` | List, separated by commas and/or spaces |
+| `MUXIMUX_OIDC_USERNAME_CLAIM` | `auth.oidc.username_claim` | String |
+| `MUXIMUX_OIDC_EMAIL_CLAIM` | `auth.oidc.email_claim` | String |
+| `MUXIMUX_OIDC_GROUPS_CLAIM` | `auth.oidc.groups_claim` | String |
+| `MUXIMUX_OIDC_DISPLAY_NAME_CLAIM` | `auth.oidc.display_name_claim` | String |
+| `MUXIMUX_OIDC_ADMIN_GROUPS` | `auth.oidc.admin_groups` | List, separated by commas |
+| `MUXIMUX_OIDC_PROVIDER_LOGOUT` | `auth.oidc.provider_logout` | Boolean |
+| `MUXIMUX_OIDC_POST_LOGOUT_REDIRECT_URL` | `auth.oidc.post_logout_redirect_url` | Absolute `http(s)` URL |
+| `MUXIMUX_OIDC_LOGOUT_URL` | `auth.oidc.logout_url` | Absolute `http(s)` URL |
+| `MUXIMUX_OIDC_AUTO_REDIRECT` | `auth.oidc.auto_redirect` | Boolean |
+| `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` | `auth.oidc.disable_local_login` | Boolean |
+
+Each defaults to the config file value. An empty or blank auth variable counts as unset. Setting both `X` and `X_FILE` is an error. Invalid auth configuration stops startup instead of leaving the instance open, for example an unknown `MUXIMUX_AUTH_METHOD`, or OIDC variables without `MUXIMUX_AUTH_METHOD` on an instance whose `config.yaml` is not already on OIDC. An unknown `MUXIMUX_OIDC_*` name is logged as a warning. The full rules, with examples, are in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables); Compose and Swarm examples with Docker secrets are in [Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets).
+
+### Container image
+
+These are read by the Docker image's entrypoint, not by Muximux itself:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `PUID`, `PGID` | User and group ID the process runs as, to match your bind-mounted `data/` directory | `1000` |
+| `DOCKER_SOCKET` | Path of the Docker socket whose group the entrypoint detects | `/var/run/docker.sock` |
+| `DOCKER_GID` | Force the group ID used for Docker socket access instead of detecting it | Detected |
+| `TZ` | Time zone | `UTC` |
+
+### Booleans, precedence and the memory-only rule
+
+- **Booleans** accept `true`, `1`, `yes`, `on` and `false`, `0`, `no`, `off` (case-insensitive).
+- **Precedence:** command-line flag, then environment variable, then the `config.yaml` value (including a `${VAR}` reference there), then the built-in default.
+- **Memory only.** An override changes the running configuration only. Saving from Settings (or through the API) writes the value `config.yaml` already had, never the override, so removing the variable brings the file's value back on the next start. The one exception is a setup wizard completed under `MUXIMUX_AUTH_METHOD=builtin`, which saves `method: builtin` with the new admin.
+- **Locked in Settings.** A field whose value comes from a variable or flag is shown locked, labelled with the variable's name ("From MUXIMUX_LISTEN", "Set by MUXIMUX_OIDC_CLIENT_SECRET_FILE"). The admin `GET /api/config` response lists these fields in `env_overrides` (field to variable name, never the value); see the [API Reference](api.md#configuration).
+- **First start.** The overrides also apply when there is no `config.yaml` yet, so a container configured only through the environment starts with those values.
+- **Restart.** Variables are read at startup. Change one and restart Muximux.
 
 ## Validation Rules
 
@@ -307,7 +379,7 @@ The following settings **require a restart** to take effect:
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
 - `server.gateway_sites:` schema changes (the auth gate; backend swaps and TLS-mode flips reload Caddy in place)
 
-When Muximux saves the configuration it writes defaults for fields you omitted, so a saved `config.yaml` can contain more keys than you wrote by hand. Settings saves are a three-way merge: changes made on the server while Settings is open (a Docker URL refresh, auto-import, another tab) are kept, and fields you did not touch keep the server's value. A save that would create two apps or groups with the same name is refused (409) and Settings blocks Save until one is renamed. Other open browsers get a live update and reload the config.
+When Muximux saves the configuration it writes defaults for fields you omitted, so a saved `config.yaml` can contain more keys than you wrote by hand. Settings saves are a three-way merge: changes made on the server while Settings is open (a Docker URL refresh, auto-import, another tab) are kept, and fields you did not touch keep the server's value. A save that would create two apps or groups with the same name is refused (409) and Settings blocks Save until one is renamed. Settings closes only after the save succeeds; on failure it stays open with the server's message. Closing it with unsaved changes asks first, and **Discard** also reverts keybinding and theme previews. Every open browser gets a live update (the `config_updated` event) and refetches the config; the page reloads only when the language changed, and an open Settings dialog keeps its unsaved edits on top of the new state.
 
 A restored backup is read exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once; listen address, TLS, base-path routing and session cookie settings still need a restart.
 

@@ -12,6 +12,8 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
 - **Auto-import** (optional): with `discovery.docker.auto_import` set to `add`/`update`/`sync`, Muximux imports every container that carries at least one `muximux.*` label (a `muximux.discovery.id` alone is enough) and does not carry `muximux.app.enabled=false`, with no modal and no click. Unlabelled containers are never auto-imported. `add` imports each new labeled container once; `update` also re-syncs an imported app when its labels change; `sync` additionally removes an imported app when its container disappears or opts out. Off by default. See [Automatic Import](#automatic-import).
 - **Detach / Re-link**: per-row controls in Settings → Discovery let you stop auto-managing an entry or re-point it at a different container when you migrate daemons.
 
+Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
+
 ---
 
 ## When to Use This
@@ -353,7 +355,7 @@ labels:
   - muximux.group.icon=https://example.com/icons/media.svg
 ```
 
-- A bare value is always a Dashboard Icons slug. Muximux never guesses Lucide from a bare name, because names such as `server` exist in both sets; write `lucide:server`.
+- A bare value is always a Dashboard Icons slug. Muximux never guesses Lucide from a bare name, because names such as `server` exist in both sets; write `lucide:server`. A bare value containing `:`, `/`, `\`, `?`, `#` or whitespace is not a slug and is ignored (since 3.6.1); use the `dashboard:`, `lucide:` or URL form.
 - Prefixes are case-insensitive. Slugs and Lucide names are lowercased; URLs are kept exactly as written (paths and queries are case-sensitive).
 - A Lucide name is lowercase letters, digits and dashes. Muximux checks that format only, so a name Lucide does not have shows as a missing icon, as in the UI.
 - A URL must be an absolute `https` URL with a host, no credentials or spaces, and at most 2048 characters. Muximux's Content-Security-Policy only allows images over https, so `http` URLs and other schemes such as `javascript:`, `data:` and `file:` are refused. The browser loads a URL icon straight from that address (Muximux does not proxy or cache it), so the host must be reachable from the browser.
@@ -371,6 +373,13 @@ A bare `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.co
 Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](https://lucide.dev/icons) or the Lucide tab of the icon picker.
 
 #### Full label reference
+
+How values are read:
+
+- **Booleans** are true for `true`, `1`, `yes` or `on` (case-insensitive); any other value is false.
+- **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set. Booleans are the exception: a misspelt value such as `muximux.app.enabled=tru` reads as false, so check the spelling.
+- **Labels that are set win while an app is tracked.** On apps you imported by hand, `muximux.app.name`, `icon`, `group` and `order` are re-synced on every refresh, whatever the `auto_import` mode. Auto-imported apps are re-synced from all their labels under `update`/`sync` and left alone under `off` and `add`. The `muximux.group.*` labels apply to groups Docker discovery created. A label that is not set never changes anything. To take a field back, remove the label or **Detach** the app. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps) and [Group labels](#group-labels).
+- Unknown `muximux.*` labels are listed in the Discover modal's notes for the container.
 
 ##### Tracking
 
@@ -390,9 +399,9 @@ Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](
 | `muximux.app.url` | absolute `http(s)` URL | unset | Open the app at this URL instead of the container address, e.g. its public name behind your own reverse proxy. Health checks still go to the container. Ignored (with a scan note) when `muximux.app.gateway.domain` is set, and invalid values are ignored with a note. See [Running behind your own reverse proxy](#running-behind-your-own-reverse-proxy). |
 | `muximux.app.scheme` | `http` \| `https` | `http` | Scheme for the constructed URL. |
 | `muximux.app.path` | string | `/` | Sub-path appended to the container URL (e.g. `/admin`). Not applied to `muximux.app.url` or to a gateway site's backend. |
-| `muximux.app.health` | string | catalog default | Health-check address: a full URL, or a path such as `/api/v3/health` resolved against the container. |
+| `muximux.app.health` | string | catalog default | Health-check address: a full URL, or a path such as `/api/v3/health` resolved against the container. A value starting with `//` or `/\` is not a path and is ignored (since 3.6.1). |
 | `muximux.app.health_check` | bool | unset | Enables (`true`) or disables (`false`) health monitoring for the app; the endpoint still comes from `muximux.app.health`. Unset keeps the setting in the app's form. Docker-managed: re-synced on update/sync and shown locked in Settings. |
-| `muximux.app.color` | `#rrggbb` | unset | Accent color in the dashboard. |
+| `muximux.app.color` | hex colour | unset | Accent color in the dashboard: `#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa`. |
 | `muximux.app.order` | int 0-9999 | unset | Sort order within the group. |
 | `muximux.app.default` | bool | `false` | Load this app automatically when the dashboard opens. |
 | `muximux.app.open_mode` | `iframe` \| `new_tab` \| `new_window` \| `redirect` \| `http_action` | `iframe` | How clicking the menu entry opens the app. `http_action` fires an HTTP request instead of opening a page. |
@@ -522,7 +531,7 @@ The URL and health address keep following the container as before.
 - If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). An app you detached (Detach in Settings), or an untracked app you created yourself in Settings, is never touched.
 - The re-sync only updates apps that are already tracked. It never imports a container or removes an app, whatever the `auto_import` mode.
 - Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `off` and `add`), so no field is written twice.
-- If you rename a group in Settings while a container's `muximux.group` or `muximux.app.group` label still names the old group, the label re-creates the old group on the next tick. Change the label too.
+- If you rename a group in Settings while a container's `muximux.app.group` label still names the old group, the label re-creates the old group on the next tick. Change the label too.
 - A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), or the name is over 100 characters. The app keeps its current value until the conflict is resolved.
 - If saving the config fails, the whole tick is rolled back and retried on the next tick.
 
@@ -612,6 +621,28 @@ An invalid Docker-owned entry in `config.yaml` (an auto-imported app or gateway 
 Fix the container's labels and the next refresh replaces the entry, or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`; a live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded, and dropped from `config.yaml` at the next save (logged as "Quarantined entry superseded by a live entry"), when a live app takes its name or slug or a live gateway site takes its domain; a quarantined site goes with its superseded app. Under `sync`, a quarantined app whose container is gone from the polled endpoint is removed after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined; other invalid config still fails validation as before.
 
 Other housekeeping that applies to discovery: image names whose last segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry, apps whose names differ only by case or spacing are deduplicated, and a tracked container that cannot be found is logged once when it goes missing instead of on every refresh.
+
+---
+
+## Upgrading to 3.6
+
+Discovery behaves more predictably from 3.6.0, and a few changes show up on the first refresh after an upgrade:
+
+- **Auto-import needs a label.** Only containers with at least one `muximux.*` label are auto-imported. An auto-imported app whose container has no labels is detached from auto-import on the first refresh under `update`/`sync`: the app stays and its URL keeps refreshing, but `sync` no longer removes it. Add a label (`muximux.discovery.id` is enough) if you want the container managed again. See [Containers that lose their labels](#containers-that-lose-their-labels).
+- **New tracking keys for Swarm and Compose.** Keys become `swarm:<service>` and `compose:<project>:<service>` and existing `name:` keys are migrated in place on the first refresh (logged as `Docker tracking key migrated`). Entries tracked on another endpoint are migrated after **Re-link**. See [Tracking keys](#tracking-keys).
+- **Swarm app names.** Under `update`/`sync`, an auto-imported Swarm app without `muximux.app.name` is renamed from the task name to the service name, which can change its slug and its `/proxy/<slug>/` path. Behind a socket proxy, allow `/services` (`SERVICES=1`).
+- **Labels re-sync onto apps you imported by hand.** A set `muximux.app.name`, `icon`, `group` or `order` label now wins on every tracked app, in every mode including `off`, so an edit to those fields in Settings is reset on the next refresh. Remove the label or **Detach** the app to keep your edit. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps).
+- **Invalid entries no longer stop startup.** An invalid auto-imported app or gateway site in `config.yaml` is quarantined (kept in the file, not loaded) with a warning. See [Quarantined entries](#quarantined-entries).
+- **`sync` removes less.** Only auto-imported apps are removed, and only after the container has been absent for three consecutive scans.
+- **Catalog matching.** Images whose last path segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry by that segment, so such a container may need `muximux.app.name`, `icon` and `port` labels.
+- **`lifecycle_allowed_groups`** holds user and identity-provider group names; renaming or deleting a dashboard group no longer changes it.
+
+From 3.6.1:
+
+- The Docker whale in the navigation and on the overview is shown to admins only, and can be hidden with `navigation.show_docker_badge: false`.
+- `MUXIMUX_DISCOVERY_AUTO_IMPORT` and `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` now also apply on a first start without `config.yaml`. A container that relied on them being ignored there will see them take effect.
+- A `muximux.app.health` value starting with `//` or `/\` is ignored.
+- A bare `muximux.app.icon` (or `muximux.group.icon`) value is trimmed, then refused as a Dashboard Icons slug if it still contains `:`, `/`, `\`, `?`, `#`, whitespace or control characters; use the `dashboard:`, `lucide:` or URL forms (see [Icon label formats](#icon-label-formats)).
 
 ---
 
@@ -731,19 +762,24 @@ To have the dashboard open your proxy's public names instead of container addres
 
 ## API Reference
 
-All endpoints are admin-only.
+All endpoints are admin-only except `GET /api/discovery/docker-state`, which returns the container state of the apps the caller can see.
 
 | Method | Path | Body | Description |
 |---|---|---|---|
 | GET | `/api/discovery/docker/status` | - | Capability + cache status |
-| PUT | `/api/discovery/docker/config` | `DiscoveryDockerConfig` | Persist new discovery settings + rebuild service |
+| GET | `/api/discovery/docker/networks` | - | Docker networks, for the network filter |
+| GET | `/api/discovery/docker/config` | - | The stored discovery settings under `config`, plus `env_overrides` for fields set by an environment variable |
+| PUT | `/api/discovery/docker/config` | `DiscoveryDockerConfig` | Merge the fields sent onto the stored discovery settings (omitted fields are kept), save, and rebuild the service |
 | POST | `/api/discovery/docker/test` | `DiscoveryDockerConfig` | Probe a candidate config without saving |
-| GET | `/api/discovery/docker/scan` | - | Enumerate running containers as `Suggestion` list |
+| GET | `/api/discovery/docker/scan` | - | Enumerate running containers as `Suggestion` list, with `labeled`, `label_enabled`, `auto_import_skip`, `tracked` and `name_taken` |
 | POST | `/api/discovery/docker/import` | `{items: ImportItem[]}` | Atomic batch import of selected containers |
-| GET | `/api/discovery/docker/tracked` | - | Current tracked apps + sites with last-seen timestamps |
-| DELETE | `/api/discovery/docker/track/{key}` | - | Detach tracking for everything matching `key` on the current endpoint, and delete quarantined entries with that key on any endpoint |
+| GET | `/api/discovery/docker/tracked` | - | Current tracked apps + sites with last-seen and `missing_since` timestamps, and the `quarantined` entries |
+| DELETE | `/api/discovery/docker/track/{key}` | - | Detach tracking for everything matching `key` on the current endpoint, and delete quarantined entries with that key on any endpoint. `?scope=quarantined` deletes only the quarantined entries |
 | POST | `/api/discovery/docker/relink/probe` | `{key}` | "Does this key still resolve on the current daemon?" |
 | POST | `/api/discovery/docker/relink/confirm` | `{old_key, new_key, strategy?}` | Move tracking from old key to new key |
+| GET | `/api/discovery/docker-state` | - | Container state of tracked apps (any signed-in user; filtered to the apps they can see) |
+
+Field-level details and examples are in the [API Reference](api.md#discovery).
 
 ## Container lifecycle controls
 
@@ -754,6 +790,6 @@ If you want the dashboard to start / stop / restart tracked containers from the 
 3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups. These are **user and identity-provider group names** (built-in user groups, the OIDC groups claim, the forward-auth groups header), not dashboard groups. Renaming or deleting a dashboard group never touches this list.
 4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
 
-Once enabled, Docker-tracked apps on the overview show the Docker logo plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot - quiet by default). Hovering the card reveals the action buttons in a footer below it - Start when stopped, Stop and Restart when running; on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.
+Once enabled, Docker-tracked apps on the overview show the Docker logo (to admins only; hide it with `navigation.show_docker_badge: false`, see [Navigation > Docker Badge](navigation.md#docker-badge)) plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot - quiet by default). Hovering the card reveals the action buttons in a footer below it - Start when stopped, Stop and Restart when running; on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.
 
 Every action - success, failure, and denied attempt (role floor not met, group mismatch, socket read-only, lifecycle disabled) - is audit-logged with the caller's username, app name, container id, and outcome (`source=audit`).

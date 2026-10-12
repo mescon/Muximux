@@ -213,6 +213,8 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 - [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
 - [Split View](docs/wiki/split-view.md) - Side-by-side or stacked app panels
 - [Themes](docs/wiki/themes.md) - Customizing the look
+- [Keyboard Shortcuts](docs/wiki/keyboard-shortcuts.md) - Shortcuts, keyboard navigation and accessibility
+- [Troubleshooting](docs/wiki/troubleshooting.md) - Common issues, and what changes when upgrading to 3.6
 - [API Reference](docs/wiki/api.md) - REST API endpoints
 
 ---
@@ -249,7 +251,7 @@ groups:
     color: "#27ae60"
 ```
 
-Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. The data directory (where config, themes, and icons live) defaults to `data/` beside the binary and can be set via `--data` or `MUXIMUX_DATA`.
+Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. Logging, Docker auto-import, the auth method and every OIDC setting have `MUXIMUX_*` overrides too; see the [environment variable reference](docs/wiki/configuration.md#environment-variable-reference). The data directory (where config, themes, and icons live) defaults to `data/` beside the binary and can be set via `--data` or `MUXIMUX_DATA`.
 
 ### Or configure apps with Docker labels
 
@@ -282,22 +284,23 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip, and isolates `window.parent`/`window.top` - makes apps work in iframes that normally refuse. Per-app TLS settings, custom headers, and configurable timeout |
 | **Health Monitoring** | Periodic health checks with real-time WebSocket updates and colored status indicators |
 | **Real-Time Log Viewer** | In-app log viewer with level/source filtering, search, auto-scroll, pause/resume, and download. Debug level exposes detailed request tracing |
-| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC (set up in Settings) - with user management and roles |
+| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC (set up in Settings) - with user management and roles. The auth method and every OIDC setting can also come from `MUXIMUX_*` environment variables, with the client secret in a Docker secret, so a fresh container starts on single sign-on with no config file and no setup wizard |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Reverse proxy other sites and services on your network on their own subdomains -- declarative YAML `gateway_sites` with per-site TLS modes (automatic Let's Encrypt, none, or custom certs), header forwarding, iframe-blocker stripping, and streaming-safe backends. Edit visually in Settings -> Gateway or by hand. Optionally gate each subdomain behind the Muximux login (`require_auth`) so one sign-in covers your whole homelab |
-| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Prefer GitOps? Opt into automatic import (`discovery.docker.auto_import`) and Muximux picks up `muximux.*`-labeled containers on its own -- declare an app in your compose file and it appears, no clicks. Off by default |
+| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Prefer GitOps? Opt into automatic import (`discovery.docker.auto_import`) and Muximux picks up `muximux.*`-labeled containers on its own -- declare an app in your compose file and it appears, no clicks. Off by default. Labels you set (name, icon, group, order, health check, and the icon, colour and order of the group) stay applied while the app is tracked, icon labels take Dashboard Icons, Lucide icons or image URLs, and Docker Swarm services and Compose projects keep one app across redeploys |
 | **Container Controls** | Start, stop, and restart Docker-discovered containers from the dashboard, with a status dot on each app card that stays quiet until a container is stopped, unhealthy, or restarting. Opt-in behind a read-write socket mount and role/group permissions; every action is audit-logged |
 | **HTTP Actions** | Turn an app into a button that fires an HTTP request (any method, custom headers) through a server-side relay instead of opening a page -- useful for webhooks and automations such as triggering a backup or waking a host. Optional confirmation prompt, and every fire is audit-logged |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), pinned apps as one-click buttons in the bar, draggable FAB, auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Keybindings for switching apps, toggling navigation, and search |
-| **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine) with dark/light variants, plus custom themes via CSS |
+| **Accessibility** | Usable from the keyboard, with a visible focus outline, focus kept inside dialogs, named controls and screen reader announcements, and reduced motion when the operating system asks for it |
+| **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine) with dark/light variants, all meeting WCAG 2.1 AA contrast, plus custom themes via CSS |
 | **Config Export/Import** | Export config as YAML, import to preview and apply - sensitive data stripped on export |
-| **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
+| **Environment Variables** | `${VAR}` expansion in config.yaml, plus `MUXIMUX_*` overrides for the data directory, listen address, base path, logging, Docker auto-import, the auth method and OIDC. Overrides stay in memory and never end up in `config.yaml` ([full list](docs/wiki/configuration.md#environment-variable-reference)) |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
 | **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |
-| **Portable** | No database - one YAML config file stores everything. Every setting is editable in the GUI. Copy one file to back up or migrate |
+| **Portable** | No database - one YAML config file stores everything. Every setting is editable in the GUI, saves merge onto the live config, and every open browser picks up a change at once. Copy one file to back up or migrate |
 
 ---
 

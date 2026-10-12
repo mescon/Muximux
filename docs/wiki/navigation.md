@@ -87,10 +87,12 @@ navigation:
   show_on_hover: true         # Show hidden nav on mouse hover
   show_labels: true           # Display app names under/beside icons
   show_logo: true             # Show Muximux logo in navigation
+  show_home_button: true      # Show the home button (turning it off also turns off show_splash_on_startup)
   show_app_colors: true       # Tint app icons with their configured color
   show_icon_background: false # Show circular background behind icons
   show_splash_on_startup: false # Show splash screen on initial load
   show_shadow: true           # Add drop shadow to navigation bar
+  dynamic_tab_branding: false # While an app is open, the browser tab shows its name and icon
   bar_style: grouped          # grouped or flat (top/bottom only)
   icon_scale: 1.0             # Scale factor for navigation icons (default: 1.0)
   floating_position: bottom-right # Default FAB corner (bottom-right, bottom-left, top-right, top-left); user can drag to any position

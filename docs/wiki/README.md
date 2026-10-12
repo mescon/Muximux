@@ -26,11 +26,18 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Installation](installation.md) -- Docker, binary, and building from source
 - [Getting Started](getting-started.md) -- First launch, onboarding wizard, and initial setup
 - [Configuration Reference](configuration.md) -- Full config.yaml format and all available options
+  - [Environment Variables](configuration.md#environment-variable-reference) -- every `MUXIMUX_*` variable, precedence, and the memory-only rule
 - [Apps](apps.md) -- Adding, configuring, and managing applications
+- [HTTP Actions](http-actions.md) -- Turn an app into a one-click HTTP request
 - [Built-in Reverse Proxy](reverse-proxy.md) -- Proxying app traffic through Muximux
 - [Docker Discovery](docker-discovery.md) -- Auto-import containers as apps with a background refresh poller
+  - [Label reference](docker-discovery.md#full-label-reference) -- every `muximux.app.*`, `muximux.group.*` and `muximux.gateway.*` label
+  - [Group labels](docker-discovery.md#group-labels) -- icon, colour and order for Docker-created groups
+  - [Docker Swarm and Compose](docker-discovery.md#docker-swarm-and-compose) -- stable tracking keys, service labels and published ports
+  - [Upgrading to 3.6](docker-discovery.md#upgrading-to-36) -- what changes on the first refresh after an upgrade
 - [Security Overview](security.md) -- Security measures, OWASP ASVS compliance, and hardening details
 - [Authentication](authentication.md) -- Built-in auth, forward auth, and OIDC
+  - [OIDC from environment variables](authentication.md#configuring-oidc-with-environment-variables) -- single sign-on with no `config.yaml`, secrets from Docker secrets
   - [Microsoft Entra ID](oidc-microsoft-entra-id.md) -- step-by-step OIDC setup, including readable group names
   - [Keycloak](oidc-keycloak.md) -- realm-based OIDC client with the `groups` mapper
   - [Authentik](oidc-authentik.md) -- OAuth2 / OpenID provider with the `groups` scope
@@ -44,10 +51,13 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Gateway Auth Gate](gateway-auth.md) -- Single sign-on across gateway subdomains
 - [Navigation & Layout](navigation.md) -- Sidebar positions, auto-hide, labels, and display options
 - [Split View](split-view.md) -- Side-by-side or stacked app panels with draggable divider
-- [Themes](themes.md) -- Built-in themes, custom themes, and CSS custom properties
+- [Themes](themes.md) -- Built-in themes, custom themes, and CSS custom properties (all bundled themes meet WCAG AA contrast)
 - [Health Monitoring](health-monitoring.md) -- Opt-in health checks and status indicators
 - [Keyboard Shortcuts](keyboard-shortcuts.md) -- Default shortcuts and custom keybindings
+  - [Keyboard navigation and accessibility](keyboard-shortcuts.md#keyboard-navigation) -- focus, dialogs, screen readers and reduced motion
 - [Icons](icons.md) -- Dashboard Icons, Lucide icons, custom icons, and caching
+- [Translations](translations.md) -- Interface languages and contributing a translation
 - [Deployment Guide](deployment.md) -- Production deployment, reverse proxies, and networking
-- [Troubleshooting](troubleshooting.md) -- Common issues and solutions
+- [Troubleshooting](troubleshooting.md) -- Common issues and solutions, including [upgrading to 3.6](troubleshooting.md#upgrading-to-36)
+- [Debug Logging](debug-logging.md) -- Backend and frontend debug output
 - [API Reference](api.md) -- REST API endpoints for programmatic access

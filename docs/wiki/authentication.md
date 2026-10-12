@@ -635,6 +635,8 @@ Find the token one of two ways:
 
 Paste the token into the **Setup token** field on the onboarding wizard's welcome screen. The wizard sends it as an `X-Setup-Token` HTTP header on the underlying setup and restore requests. Once setup is complete the token file is removed and the header is no longer accepted -- the setup endpoints reject every request after that point.
 
+Until setup completes, the rest of the API waits: user and API key management, the auth method and OIDC settings, the log viewer, the live `/ws` stream and the `/proxy/` app routes answer `503 setup_required`. Only sign-in, setup, restore, the health probe and the theme and icon lists the wizard uses stay open. See [API Reference > Authentication](api.md#authentication).
+
 [![Onboarding security setup](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)
 
 ---
@@ -655,15 +657,16 @@ These changes take effect immediately and are persisted to `config.yaml`. Users 
 
 Admin users can switch the authentication method from **Settings > Security** without restarting Muximux. The available options are:
 
-- **Password** -- Built-in username/password authentication
-- **Auth Proxy** -- Forward auth via Authelia, Authentik, etc. (requires trusted proxy IPs)
-- **None** -- No authentication
+- **Password authentication** -- Built-in username/password authentication
+- **Auth proxy** -- Forward auth via Authelia, Authentik, etc. (requires trusted proxy IPs)
+- **Single sign-on (OIDC)** -- Sign in through an OpenID Connect provider. Selecting the card opens the provider form; the provider is checked before the switch is applied. See [Setting up OIDC in Settings](#setting-up-oidc-in-settings)
+- **No authentication** -- No authentication
 
 When switching to a different method, existing user accounts are preserved in the configuration but only authenticate when the method matches. For example, switching from `builtin` to `forward_auth` means password logins stop working, but the user records remain in `config.yaml` and will work again if you switch back.
 
 Auth method changes can also be made via the [API](api.md#auth-method-switching).
 
-While `MUXIMUX_AUTH_METHOD` is set, the method cannot be changed here: the other cards are disabled and the API answers 409. Change the variable and restart instead.
+While `MUXIMUX_AUTH_METHOD` is set, the method cannot be changed here: the other cards are disabled, a note names the variable, and the API answers 409. Change the variable and restart instead. You can still edit the settings of the current method, for example the OIDC provider fields that no variable sets; fields set by a `MUXIMUX_OIDC_*` variable are shown locked ("Set by ..."). Choosing OIDC while `MUXIMUX_OIDC_ENABLED=false`, and leaving OIDC while OIDC variables are set without `MUXIMUX_AUTH_METHOD`, are refused the same way. See [Configuring OIDC with environment variables](#configuring-oidc-with-environment-variables).
 
 ---
 
