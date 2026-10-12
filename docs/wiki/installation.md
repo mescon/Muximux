@@ -39,6 +39,8 @@ Without this volume mount, your configuration would be lost every time the conta
 | `MUXIMUX_LISTEN` | Override listen address (e.g., `:9090`). |
 | `TZ` | Timezone (e.g., `America/New_York`, `Europe/London`). Defaults to `UTC`. |
 
+These are the common ones. Logging, base path, Docker discovery, the auth method and every OIDC setting can also be set from the environment; see the full [Environment Variable Reference](configuration.md#environment-variable-reference).
+
 ---
 
 ## Docker Compose
