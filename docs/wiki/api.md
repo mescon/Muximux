@@ -28,6 +28,9 @@ When authentication is enabled, most endpoints require a valid session cookie or
 | `/api/auth/setup` | POST | No (but requires `X-Setup-Token`) | Initial setup (onboarding wizard). See [Authentication > First-Run Setup](authentication.md#first-run-setup) for the token. |
 | `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider |
 | `/api/auth/oidc/callback` | GET | No | OIDC callback handler |
+| `/api/auth/oidc/backchannel-logout` | POST | No (signed logout token) | OIDC back-channel logout. See [Authentication > Back-channel logout](authentication.md#back-channel-logout) |
+| `/api/auth/settings/oidc` | GET | Admin | Current OIDC settings (the client secret is reported only as `client_secret_set`), with `env_fields` for fields owned by the environment |
+| `/api/auth/settings/oidc/test` | POST | Admin | Fetch an issuer's discovery document (`{"issuer_url": "..."}`) and report which endpoints it offers |
 
 **Login request:**
 ```json
@@ -69,7 +72,9 @@ GET /api/auth/status
 }
 ```
 
-The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. When `auth_method` is `forward_auth` and a logout URL is configured, the response includes a `logout_url` field for client-side redirect on sign-out.
+The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. When `auth_method` is `forward_auth` and a logout URL is configured, the response includes a `logout_url` field for client-side redirect on sign-out. The response also carries `oidc_auto_redirect` and `local_login` (whether the password form is offered), and `auth_method_env` (the variable's name, for example `MUXIMUX_AUTH_METHOD`) while the method comes from the environment.
+
+**Before setup completes.** On a new install, until the onboarding wizard finishes, only these endpoints answer: `GET /api/auth/status`, `POST /api/auth/setup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, the `/api/auth/oidc/*` sign-in routes, `GET /api/health`, `POST /api/config/restore`, and the read-only theme list and icon routes the wizard uses. Every other endpoint, including user and API key management, the auth method and OIDC settings, the log viewer, `/api/system/*`, the `/ws` live stream and the `/proxy/` app routes, returns `503` with `{"error": "setup_required"}`.
 
 **API key authentication:**
 
@@ -215,7 +220,7 @@ Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is
 
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
-| `/api/apps` | GET | Any | List apps visible to the caller, projected for their role (admins see everything; others see enabled apps that pass `min_role` and `allowed_groups`, with `proxy_headers`, `http_action_headers`, `docker_endpoint` and URL credentials removed) |
+| `/api/apps` | GET | Any | List apps visible to the caller, projected for their role (admins see everything; others see enabled apps that pass `min_role` and `allowed_groups`, with `proxy_headers`, `http_action_headers`, the Docker tracking fields and URL credentials removed) |
 | `/api/apps` | POST | Admin | Create a new app (Docker tracking fields in the payload are ignored; only discovery import attaches an app to a container) |
 | `/api/app/{name}` | GET | Any | Get one app, with the same visibility rule and role projection as the list; answers 404 for an app the caller could not list |
 | `/api/app/{name}` | PUT | Admin | Update app (full replace; omitted fields are reset) |
@@ -283,13 +288,22 @@ Admins also receive `docker_managed: true` on a group Docker discovery created a
 
 `PUT` takes the bare config object (without the `config` wrapper).
 
-`PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default.
+`PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. A field set by an environment variable keeps its live value whatever the request sends. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default. The response is the new discovery status, as from `GET /api/discovery/docker/status`.
 
 `GET /api/discovery/docker/scan` returns per container: `labeled` (any `muximux.*` label), `label_enabled` (the value of `muximux.app.enabled`, absent when unset) and `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container; codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`). Containers opted out with `muximux.app.enabled=false` are omitted from the rows and counted in `opted_out`. A container the config already tracks (matched by key, on any endpoint) carries `tracked` (`{kind, name, auto_imported, endpoint?}`; `kind` is `app`, `site` or `quarantined`, `name` is the app name or site domain, and `endpoint` is present only when the entry is tracked against a different Docker daemon than the one scanned); it is omitted for untracked containers. `name_taken` is `true` on an untracked container whose name matches an existing app, so an import under that name would collide.
 
 `GET /api/discovery/docker/tracked` returns `entries` (each with an optional `missing_since` timestamp, set while the container cannot be found) and `quarantined`, an array of `{kind, name, key, reason}` for invalid Docker-owned entries kept in `config.yaml` but not loaded (until they are removed or superseded by a live entry; see [Quarantined entries](docker-discovery.md#quarantined-entries)). Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint. Add `?scope=quarantined` to remove only the quarantined entries: a live app or gateway site with the same key stays tracked, and the call returns 404 when no quarantined entry has the key. Any other `scope` value is a 400.
 
-Apps carry a server-owned `docker_managed_health_check` field (the value of `muximux.app.health_check`); it is returned to admins and ignored in request payloads.
+**Server-owned Docker fields.** These fields are written only by discovery (Discover import, auto-import, the refresh poller and **Re-link**). They are returned to admins only, and any value in a request payload (`POST /api/apps`, `PUT /api/app/{name}`, `PUT /api/config`, the group and gateway site endpoints) is ignored:
+
+| Object | Field | Meaning |
+|---|---|---|
+| App, gateway site | `docker_key`, `docker_endpoint`, `docker_strategy` | The container the entry tracks (key such as `label:sonarr` or `swarm:media_sonarr`), the daemon and the network strategy |
+| App, gateway site | `docker_managed_url` | The URL (or `backend_url`) the poller last wrote; a different URL in a save detaches the entry |
+| App | `docker_managed_health_check` | The value of `muximux.app.health_check` last applied; while set, the app form shows the health check locked |
+| Group | `docker_managed`, `docker_order` | See [Groups](#groups) |
+
+A save can detach an app or site by changing its URL, but cannot attach, re-attach or move one. Whether an app was created by auto-import is stored as `docker_auto` in `config.yaml` only; it is not part of the API (the scan's `tracked.auto_imported` reports it).
 
 Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`, or `sync`). The discovery configuration is also part of the full configuration object, so it can be set via `PUT /api/config` as well as `PUT /api/discovery/docker/config`.
 
