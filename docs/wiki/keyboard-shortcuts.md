@@ -38,6 +38,18 @@ The palette supports the following:
 
 Use the **arrow keys** to navigate results, **Enter** to select, and **Escape** to close.
 
+## Keyboard Navigation
+
+Muximux can be used without a mouse:
+
+- **Tab** and **Shift+Tab** move between controls. The control with keyboard focus always shows the same visible outline (in the theme's `--border-focus` colour).
+- **Dialogs** (Settings, the Discover dialog, confirmations, the onboarding wizard and the others) keep focus inside while they are open: Tab wraps around within the dialog, the page behind it cannot be reached, and closing it returns focus to the control that opened it. **Escape** closes the topmost dialog; for an icon picker or other sub-dialog opened over a dialog, it closes only that sub-dialog.
+- **Health status.** Focusing an app in the navigation, or a health dot on the overview, opens its health tooltip; **Escape** hides it. The tooltip's "Check now" action is mouse-only for now.
+- **Logs.** The log list can be focused and scrolled with the arrow and Page keys.
+- **Command palette.** `Ctrl+K`, then the arrow keys, **Enter** and **Escape** (see above).
+
+Screen readers hear errors as alerts and confirmations as status messages, and icon-only buttons have names. Muximux also honours the operating system's reduced-motion setting, and every bundled theme meets WCAG 2.1 AA contrast. See [Themes > Focus, motion and screen readers](themes.md#focus-motion-and-screen-readers).
+
 ## Customizing Shortcuts
 
 You can customize any keyboard shortcut through the Settings panel:
