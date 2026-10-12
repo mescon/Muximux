@@ -635,6 +635,8 @@ Find the token one of two ways:
 
 Paste the token into the **Setup token** field on the onboarding wizard's welcome screen. The wizard sends it as an `X-Setup-Token` HTTP header on the underlying setup and restore requests. Once setup is complete the token file is removed and the header is no longer accepted -- the setup endpoints reject every request after that point.
 
+Until setup completes, the rest of the API waits: user and API key management, the auth method and OIDC settings, the log viewer, the live `/ws` stream and the `/proxy/` app routes answer `503 setup_required`. Only sign-in, setup, restore, the health probe and the theme and icon lists the wizard uses stay open. See [API Reference > Authentication](api.md#authentication).
+
 [![Onboarding security setup](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)
 
 ---
