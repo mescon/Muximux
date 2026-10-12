@@ -377,7 +377,7 @@ Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](
 How values are read:
 
 - **Booleans** are true for `true`, `1`, `yes` or `on` (case-insensitive); any other value is false.
-- **Invalid values** for typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set.
+- **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set. Booleans are the exception: a misspelt value such as `muximux.app.enabled=tru` reads as false, so check the spelling.
 - **Labels that are set win while an app is tracked.** On apps you imported by hand, `muximux.app.name`, `icon`, `group` and `order` are re-synced on every refresh, whatever the `auto_import` mode. Auto-imported apps are re-synced from all their labels under `update`/`sync` and left alone under `off` and `add`. The `muximux.group.*` labels apply to groups Docker discovery created. A label that is not set never changes anything. To take a field back, remove the label or **Detach** the app. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps) and [Group labels](#group-labels).
 - Unknown `muximux.*` labels are listed in the Discover modal's notes for the container.
 
@@ -642,7 +642,7 @@ From 3.6.1:
 - The Docker whale in the navigation and on the overview is shown to admins only, and can be hidden with `navigation.show_docker_badge: false`.
 - `MUXIMUX_DISCOVERY_AUTO_IMPORT` and `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` now also apply on a first start without `config.yaml`. A container that relied on them being ignored there will see them take effect.
 - A `muximux.app.health` value starting with `//` or `/\` is ignored.
-- A bare `muximux.app.icon` value containing `:`, `/` or spaces is no longer stored as a Dashboard Icons slug; use the `dashboard:`, `lucide:` or URL forms (see [Icon label formats](#icon-label-formats)).
+- A bare `muximux.app.icon` (or `muximux.group.icon`) value is trimmed, then refused as a Dashboard Icons slug if it still contains `:`, `/`, `\`, `?`, `#`, whitespace or control characters; use the `dashboard:`, `lucide:` or URL forms (see [Icon label formats](#icon-label-formats)).
 
 ---
 
