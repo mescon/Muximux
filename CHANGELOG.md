@@ -4,6 +4,25 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+## [3.6.1] - 2026-10-12
+
+Muximux can now be deployed entirely from the environment: the auth method
+and every OIDC setting come from `MUXIMUX_*` variables, with the client
+secret in a Docker secret, so a fresh container starts on single sign-on
+without a config file or setup wizard. Docker icon labels accept Lucide
+icons and image URLs, the Docker badge can be hidden, and the Lucide icon
+categories load again.
+
+Upgrade notes:
+- The Docker whale on discovered apps is now shown to admins only.
+- Environment overrides now apply on a first start without `config.yaml`;
+  a container that relied on them being ignored there will see them take
+  effect.
+- A `muximux.app.health` value starting with `//` or `/\` is now ignored.
+- A bare `muximux.app.icon` value containing `:`, `/` or spaces is no
+  longer stored as a Dashboard Icons slug; use the `dashboard:`, `lucide:`
+  or URL forms.
+
 ### Added
 - **Option to hide the Docker whale in the navigation and overview.** The new
   `navigation.show_docker_badge` setting (Settings, General, "Show Docker
