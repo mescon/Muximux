@@ -41,6 +41,8 @@ icon:
 
 Lucide icons are fetched from jsDelivr CDN and cached locally. They work well for generic icons (settings, home, play, download, folder, etc.) when dashboard-icons doesn't have a match for your app.
 
+The list of icon names comes from the Lucide repository on GitHub (`api.github.com`) and the categories used by the picker's filter from `https://lucide.dev/api/categories`. If the category request fails, the icons are still listed without categories and a warning is logged once (see [Troubleshooting](troubleshooting.md#lucide-icon-categories-are-missing)).
+
 ## Custom Icons
 
 Upload your own icons (PNG, SVG, JPG, WebP) through the Settings panel or API.
@@ -75,6 +77,10 @@ Useful for apps that provide their own favicon or icon URL.
 **Note:** The URL must be accessible from the user's browser, not from the Muximux server. The browser loads URL icons directly, so the image host must be reachable from wherever your users are browsing.
 
 > **Prefer fetching over hotlinking.** URL icons break if the remote server goes down or the image moves. The icon browser's **Fetch from URL** feature (in the Custom tab) downloads the image and stores it locally, avoiding this problem. Use `type: url` only when you need a live reference to an image that changes externally.
+
+## Icons from Docker Labels
+
+With [Docker Discovery](docker-discovery.md), the `muximux.app.icon` and `muximux.group.icon` labels pick an icon for an imported app or a Docker-created group: a Dashboard Icons slug (`sonarr` or `dashboard:sonarr`), a Lucide icon (`lucide:shield-check`) or an `https` URL. Custom uploads cannot be named by a label. See [Icon label formats](docker-discovery.md#icon-label-formats).
 
 ## Icon Appearance Options
 
