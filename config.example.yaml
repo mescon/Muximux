@@ -6,12 +6,21 @@
 #   This keeps secrets out of config files - set them in your environment,
 #   Docker Compose, or systemd unit instead.
 #   Example: client_secret: ${OIDC_CLIENT_SECRET}
+#
+# Environment overrides:
+#   MUXIMUX_LISTEN, MUXIMUX_BASE_PATH, MUXIMUX_LOG_LEVEL, MUXIMUX_LOG_FORMAT,
+#   MUXIMUX_DISCOVERY_AUTO_IMPORT, MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE,
+#   MUXIMUX_AUTH_METHOD and MUXIMUX_OIDC_* (with _FILE variants for the client
+#   ID and secret) override the matching setting below. Overrides apply in
+#   memory only and are never written back to this file. See the
+#   Configuration wiki page for the full list.
 
 # ─── Server ─────────────────────────────────────
 server:
   listen: ":8080"              # Listen address (host:port)
   title: "Muximux"             # Page title shown in browser tab
   log_level: info              # debug, info, warn, error (hot-reloadable)
+  log_format: text             # text or json
   proxy_timeout: 30s           # Global timeout for proxied requests
   # base_path: /muximux        # Subpath when behind a reverse proxy (e.g. /muximux)
 
@@ -68,7 +77,20 @@ server:
 #     endpoint: unix:///var/run/docker.sock   # or tcp://host:2376 for a remote daemon
 #     network_strategy: container_ip          # container_ip | container_dns | host_port | host_docker_internal
 #     refresh_interval: 60s                   # how often the poller re-checks tracked apps
-#     # network_filter: [bridge, my-stack]    # only scan containers attached to these networks (empty = all)
+#     # network_filter: my-stack              # only scan containers on this one network (empty = all)
+#     # host_ip: 192.168.1.10                 # required by the host_port strategy
+#     auto_import: off                        # off (default) | add | update | sync
+#                                             # imports only containers with a muximux.* label
+#     require_explicit_enable: false          # auto-import only containers labelled muximux.app.enabled=true
+#     # lifecycle_enabled: false              # start/stop/restart tracked containers (needs a :rw socket mount)
+#     # lifecycle_min_role: admin             # minimum role for lifecycle controls
+#     # lifecycle_allowed_groups: []          # also require one of these user / identity-provider groups
+#     # health_badge_placement: overview      # overview | overview_and_nav | off
+#     # tls:                                  # only for tcp:// endpoints with mTLS
+#     #   enabled: true
+#     #   ca_cert: /path/to/ca.pem
+#     #   client_cert: /path/to/cert.pem
+#     #   client_key: /path/to/key.pem
 
 # ─── Health Monitoring ──────────────────────────
 health:
@@ -181,6 +203,8 @@ groups:
     color: "#e5a00d"           # Group accent color
     order: 1                   # Sort order
     expanded: true             # Whether group starts expanded in sidebar
+    # docker_managed: true     # Set by Docker discovery on groups it creates; muximux.group.*
+    #                          # labels apply while set. Editing the icon or colour in Settings clears it.
 
   - name: Downloads
     icon:
@@ -232,6 +256,8 @@ apps:
     # docker_key: "label:sonarr"          # stable identifier for the container
     # docker_endpoint: unix:///var/run/docker.sock
     # docker_strategy: container_ip       # container_ip | container_dns | host_port | host_docker_internal
+    # docker_managed_url, docker_managed_health_check and docker_auto are
+    # also written by Discovery. They are server-owned: leave them alone.
 
   - name: Sonarr
     url: http://localhost:8989
