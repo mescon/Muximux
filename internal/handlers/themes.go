@@ -263,7 +263,11 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 	// above were ever loosened, so the path cannot escape it.
 	root, err := os.OpenRoot(h.themesDir)
 	if err != nil {
-		respondError(w, r, http.StatusNotFound, "Theme not found")
+		if os.IsNotExist(err) {
+			respondError(w, r, http.StatusNotFound, "Theme not found")
+		} else {
+			respondError(w, r, http.StatusInternalServerError, "Failed to delete theme", "source", "themes", "theme", name, "error", err)
+		}
 		return
 	}
 	defer root.Close()
