@@ -37,3 +37,53 @@ func TestApplyAutoImportEnv(t *testing.T) {
 func TestApplyRequireExplicitEnableEnv_NilConfig(t *testing.T) {
 	ApplyRequireExplicitEnableEnv(nil, func(string) (string, bool) { return "true", true })
 }
+
+func envMap(m map[string]string) func(string) (string, bool) {
+	return func(k string) (string, bool) { v, ok := m[k]; return v, ok }
+}
+
+func TestApplyAutoImportEnv_BlankCountsAsUnset(t *testing.T) {
+	for _, blank := range []string{"", "   ", "\t\n"} {
+		cfg := &Config{}
+		cfg.Discovery.Docker.AutoImport = AutoImportSync
+		ApplyAutoImportEnv(cfg, envMap(map[string]string{EnvAutoImport: blank}))
+		if cfg.Discovery.Docker.AutoImport != AutoImportSync || cfg.IsOverridden(OverrideAutoImport) {
+			t.Errorf("blank %q forced %q", blank, cfg.Discovery.Docker.AutoImport)
+		}
+	}
+}
+
+func TestApplyRequireExplicitEnableEnv_BlankCountsAsUnset(t *testing.T) {
+	for _, blank := range []string{"", "  "} {
+		cfg := &Config{}
+		cfg.Discovery.Docker.RequireExplicitEnable = true
+		ApplyRequireExplicitEnableEnv(cfg, envMap(map[string]string{EnvRequireExplicitEnable: blank}))
+		if !cfg.Discovery.Docker.RequireExplicitEnable || cfg.IsOverridden(OverrideRequireExplicitEnable) {
+			t.Errorf("blank %q changed the value", blank)
+		}
+	}
+}
+
+func TestEnvValue(t *testing.T) {
+	t.Setenv("MUXIMUX_TEST_VALUE", "  x  ")
+	if v, ok := EnvValue("MUXIMUX_TEST_VALUE"); !ok || v != "x" {
+		t.Errorf("EnvValue = %q, %v", v, ok)
+	}
+	for _, blank := range []string{"", " \t"} {
+		t.Setenv("MUXIMUX_TEST_VALUE", blank)
+		if _, ok := EnvValue("MUXIMUX_TEST_VALUE"); ok {
+			t.Errorf("blank %q counted as set", blank)
+		}
+	}
+	if _, ok := EnvValue("MUXIMUX_TEST_UNSET_VALUE"); ok {
+		t.Error("unset counted as set")
+	}
+}
+
+func TestParseBool_EmptyIsInvalid(t *testing.T) {
+	for _, v := range []string{"", "  ", "tru", "2"} {
+		if _, ok := ParseBool(v); ok {
+			t.Errorf("ParseBool(%q) ok = true", v)
+		}
+	}
+}

@@ -269,7 +269,7 @@ func setOIDCEnvVars(getenv func(string) (string, bool)) []string {
 			continue
 		}
 		if raw, ok := getenv(v.name); ok {
-			if b, valid := parseEnvBool(strings.TrimSpace(raw)); v.kind != envBool || (valid && b) {
+			if b, valid := ParseBool(strings.TrimSpace(raw)); v.kind != envBool || (valid && b) {
 				set = append(set, v.name)
 			}
 		}
@@ -332,7 +332,7 @@ func WarnIgnoredOIDCEnv(cfg *Config, getenv func(string) (string, bool)) {
 	for i := range oidcEnvVars {
 		v := &oidcEnvVars[i]
 		if raw, ok := getenv(v.name); ok {
-			if b, valid := parseEnvBool(strings.TrimSpace(raw)); v.field != OverrideOIDCEnabled || !valid || b {
+			if b, valid := ParseBool(strings.TrimSpace(raw)); v.field != OverrideOIDCEnabled || !valid || b {
 				set = append(set, v.name)
 			}
 		}
@@ -387,7 +387,7 @@ func applyOIDCEnvVar(cfg *Config, v *oidcEnvVar, getenv func(string) (string, bo
 	}
 	switch v.kind {
 	case envBool:
-		b, valid := parseEnvBool(raw)
+		b, valid := ParseBool(raw)
 		if !valid {
 			// A boolean is not secret, so echoing it is safe.
 			cfg.addEnvWarning("Ignoring invalid boolean in environment variable; using the config file value",

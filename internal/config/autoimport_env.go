@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"strconv"
 	"strings"
 
@@ -11,14 +12,15 @@ import (
 const EnvAutoImport = "MUXIMUX_DISCOVERY_AUTO_IMPORT"
 
 // ApplyAutoImportEnv overrides the configured auto-import mode from the
-// environment when EnvAutoImport is set. The value is normalized (unknown
+// environment when EnvAutoImport is set to a non-blank value (an empty or
+// whitespace-only value counts as unset). The value is normalized (unknown
 // -> off) and recorded as an override, so Save keeps the file's own mode.
 // getenv is injected so tests need not touch the real environment.
 func ApplyAutoImportEnv(cfg *Config, getenv func(string) (string, bool)) {
 	if cfg == nil {
 		return
 	}
-	if v, ok := getenv(EnvAutoImport); ok {
+	if v, ok := nonEmptyEnv(getenv)(EnvAutoImport); ok {
 		cfg.ApplyOverride(OverrideAutoImport, EnvAutoImport, string(NormalizeAutoImport(AutoImportMode(v))))
 	}
 }
@@ -35,11 +37,11 @@ func ApplyRequireExplicitEnableEnv(cfg *Config, getenv func(string) (string, boo
 	if cfg == nil {
 		return
 	}
-	v, ok := getenv(EnvRequireExplicitEnable)
+	v, ok := nonEmptyEnv(getenv)(EnvRequireExplicitEnable)
 	if !ok {
 		return
 	}
-	val, valid := parseEnvBool(v)
+	val, valid := ParseBool(v)
 	if !valid {
 		logging.Warn("Ignoring invalid boolean in environment variable; using the config file value",
 			"source", "config", "env", EnvRequireExplicitEnable, "value", v)
@@ -48,10 +50,11 @@ func ApplyRequireExplicitEnableEnv(cfg *Config, getenv func(string) (string, boo
 	cfg.ApplyOverride(OverrideRequireExplicitEnable, EnvRequireExplicitEnable, strconv.FormatBool(val))
 }
 
-// parseEnvBool parses true/1/yes/on and false/0/no/off (case-insensitive,
-// trimmed). ok is false for anything else. It duplicates discovery.boolish
-// because config cannot import discovery.
-func parseEnvBool(v string) (val, ok bool) {
+// ParseBool parses true/1/yes/on and false/0/no/off (case-insensitive,
+// trimmed). ok is false for anything else, including an empty value. It is
+// the one boolean rule shared by the environment overrides and the Docker
+// boolean labels.
+func ParseBool(v string) (val, ok bool) {
 	switch strings.ToLower(strings.TrimSpace(v)) {
 	case "true", "1", "yes", "on":
 		return true, true
@@ -59,4 +62,13 @@ func parseEnvBool(v string) (val, ok bool) {
 		return false, true
 	}
 	return false, false
+}
+
+// EnvValue reads a MUXIMUX_* override from the process environment. A
+// variable that is unset, empty or only whitespace counts as unset (ok is
+// false), so a compose entry such as VAR=${X} with X undefined never forces
+// a value. The returned value is trimmed.
+func EnvValue(name string) (string, bool) {
+	v, ok := nonEmptyEnv(os.LookupEnv)(name)
+	return strings.TrimSpace(v), ok
 }

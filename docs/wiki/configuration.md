@@ -287,6 +287,8 @@ If the referenced environment variable is not set, the `${VAR}` reference is lef
 
 This is the complete list of environment variables Muximux reads. Most of them override a `config.yaml` setting without needing `${VAR}` syntax in the file.
 
+A variable that is set but empty or only whitespace counts as unset, for every variable below. A Compose entry such as `MUXIMUX_LISTEN=${LISTEN}` therefore leaves the config file value in place when `LISTEN` is not defined, instead of forcing an empty value.
+
 ### Process and logging
 
 | Variable | Overrides | Values | Default |
@@ -307,7 +309,7 @@ The Docker image starts Muximux with `--data /app/data`, and a flag wins over it
 | `MUXIMUX_DISCOVERY_AUTO_IMPORT` | `discovery.docker.auto_import` | `off`, `add`, `update`, `sync` | From config file |
 | `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | `discovery.docker.require_explicit_enable` | Boolean | From config file |
 
-An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warning, and so is a variable that is set but empty. An invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value (including an empty one) is ignored with a warning and the config file value stays. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
+An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warning. An invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value is ignored with a warning and the config file value stays. An empty value counts as unset for both. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
 
 ### Authentication and OIDC
 

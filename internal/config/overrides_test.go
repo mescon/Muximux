@@ -320,18 +320,18 @@ func TestApplyRequireExplicitEnableEnv_FalseAndUnset(t *testing.T) {
 
 func TestParseEnvBool(t *testing.T) {
 	for _, v := range []string{"true", "1", "YES", " on "} {
-		if val, ok := parseEnvBool(v); !val || !ok {
-			t.Errorf("parseEnvBool(%q) = %v, %v", v, val, ok)
+		if val, ok := ParseBool(v); !val || !ok {
+			t.Errorf("ParseBool(%q) = %v, %v", v, val, ok)
 		}
 	}
 	for _, v := range []string{"false", "0", "No", " OFF "} {
-		if val, ok := parseEnvBool(v); val || !ok {
-			t.Errorf("parseEnvBool(%q) = %v, %v", v, val, ok)
+		if val, ok := ParseBool(v); val || !ok {
+			t.Errorf("ParseBool(%q) = %v, %v", v, val, ok)
 		}
 	}
 	for _, v := range []string{"", "nope", "2", "tru"} {
-		if _, ok := parseEnvBool(v); ok {
-			t.Errorf("parseEnvBool(%q) ok = true", v)
+		if _, ok := ParseBool(v); ok {
+			t.Errorf("ParseBool(%q) ok = true", v)
 		}
 	}
 }
