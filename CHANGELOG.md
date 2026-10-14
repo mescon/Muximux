@@ -47,8 +47,9 @@ Upgrade notes:
 ### Security
 - **Theme deletion is confined to the themes directory.** Removing a custom
   theme now goes through `os.Root`, so the path cannot leave the themes
-  directory even if the name check were loosened; a themes directory that
-  cannot be opened returns an error instead of "not found".
+  directory even if the name check were loosened. A missing themes
+  directory still answers "Theme not found"; any other failure to open it
+  returns a server error instead.
 
 ## [3.6.1] - 2026-10-12
 
