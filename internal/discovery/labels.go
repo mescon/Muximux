@@ -86,7 +86,7 @@ type AppLabels struct {
 	IconInvalid string
 	// BoolInvalid lists, in label order, the boolean labels whose value was
 	// not a recognised boolean and so was ignored (as if unset).
-	BoolInvalid []string
+	BoolInvalid []InvalidLabel
 	Group       string
 	Port        int    // 0 = unset
 	Scheme      string // "" = unset
@@ -140,7 +140,7 @@ type GatewayLabels struct {
 	AllowedGroups      []string
 	// Invalid lists, in label order, the boolean labels whose value was not
 	// a recognised boolean and so was ignored (as if unset).
-	Invalid []string
+	Invalid []InvalidLabel
 }
 
 // appLabelHandlers maps each recognised muximux.app.* label name to
@@ -265,7 +265,7 @@ func ParseAppLabels(labels map[string]string) AppLabels {
 		out.Unknown = append(out.Unknown, k)
 	}
 	// Map order is random; keep the notes and the WARN stable.
-	sort.Strings(out.BoolInvalid)
+	sortInvalid(out.BoolInvalid)
 	return out
 }
 
@@ -306,7 +306,26 @@ func ParseGatewayLabels(labels map[string]string) GatewayLabels {
 			h(&out, v)
 		}
 	}
-	sort.Strings(out.Invalid)
+	sortInvalid(out.Invalid)
+	return out
+}
+
+// InvalidLabel is a boolean label whose value was ignored: the label name
+// and the reason, for the scan note and the warning.
+type InvalidLabel struct{ Name, Reason string }
+
+func sortInvalid(l []InvalidLabel) {
+	sort.Slice(l, func(i, j int) bool { return l[i].Name < l[j].Name })
+}
+
+// invalidReasons joins the reasons of l with "; ".
+func invalidReasons(l ...[]InvalidLabel) []string {
+	var out []string
+	for _, x := range l {
+		for i := range x {
+			out = append(out, x[i].Reason)
+		}
+	}
 	return out
 }
 
@@ -315,13 +334,13 @@ func ParseGatewayLabels(labels map[string]string) GatewayLabels {
 // trimmed) is ignored as if the label were unset and described in invalid,
 // so a typo such as "tru" never opts a container out. The rule is shared
 // with the environment overrides (config.ParseBool).
-func parseBoolLabel(name, v string, dst **bool, invalid *[]string) {
+func parseBoolLabel(name, v string, dst **bool, invalid *[]InvalidLabel) {
 	if strings.TrimSpace(v) == "" {
 		return
 	}
 	b, ok := config.ParseBool(v)
 	if !ok {
-		*invalid = append(*invalid, fmt.Sprintf("%s %q is not a boolean (use true or false)", name, v))
+		*invalid = append(*invalid, InvalidLabel{Name: name, Reason: fmt.Sprintf("%s %q is not a boolean (use true or false)", name, v)})
 		return
 	}
 	*dst = &b
@@ -462,7 +481,7 @@ func (p *Poller) warnInvalidBoolLabels(containers []ContainerSummary) {
 		c := &containers[i]
 		app := ParseAppLabels(c.Labels)
 		gw := ParseGatewayLabels(c.Labels)
-		reasons := append(append([]string(nil), app.BoolInvalid...), gw.Invalid...)
+		reasons := invalidReasons(app.BoolInvalid, gw.Invalid)
 		if len(reasons) == 0 {
 			continue
 		}

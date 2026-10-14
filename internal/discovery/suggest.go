@@ -90,6 +90,9 @@ type Suggestion struct {
 	// groupLabels holds the parsed muximux.group.* labels, so the scan can
 	// note conflicts between suggestions that share a group. Not sent.
 	groupLabels GroupLabels
+	// InvalidBoolLabels names the boolean labels whose value was ignored.
+	// Auto-import keeps the stored value of those fields on update. Not sent.
+	InvalidBoolLabels []string `json:"-"`
 	// GatewayRequested is true only when the container carries
 	// muximux.app.gateway.domain. SuggestedDomain may also hold a derived
 	// default meant to pre-fill the import modal; auto-import must not
@@ -460,11 +463,13 @@ func hasSubstantiveLabelSet(labels *AppLabels) bool {
 // field was set. Only consulted when SuggestedDomain is non-empty
 // (otherwise there's no gateway entry to configure).
 func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
+	gw := ParseGatewayLabels(containerLabels)
+	// Reported whether or not a gateway domain is set, as the poller's
+	// warning is.
+	surfaceInvalidBoolLabels(s, gw.Invalid)
 	if s.SuggestedDomain == "" {
 		return
 	}
-	gw := ParseGatewayLabels(containerLabels)
-	surfaceInvalidBoolLabels(s, gw.Invalid)
 	if !gatewayLabelsNonEmpty(&gw) {
 		return
 	}
@@ -482,9 +487,12 @@ func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
 
 // surfaceInvalidBoolLabels adds a scan note for each boolean label whose
 // value was not a recognised boolean and so was ignored.
-func surfaceInvalidBoolLabels(s *Suggestion, invalid []string) {
-	for _, r := range invalid {
-		s.Notes = append(s.Notes, "Boolean label ignored: "+r)
+// Their names are kept on the suggestion so a later update keeps the stored
+// value instead of falling back to the default.
+func surfaceInvalidBoolLabels(s *Suggestion, invalid []InvalidLabel) {
+	for i := range invalid {
+		s.Notes = append(s.Notes, "Boolean label ignored: "+invalid[i].Reason)
+		s.InvalidBoolLabels = append(s.InvalidBoolLabels, invalid[i].Name)
 	}
 }
 
