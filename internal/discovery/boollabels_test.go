@@ -72,11 +72,12 @@ func TestBoolLabels_Strict(t *testing.T) {
 					t.Errorf("%q invalid = %v", v, inv)
 				}
 			}
-			// Empty or blank is unset, not an error.
+			// An empty or blank value is ignored like a typo and reported, so
+			// reconciliation keeps the stored value instead of the default.
 			for _, v := range []string{"", "   "} {
 				got, inv := bl.get(map[string]string{bl.label: v})
-				if got != nil || len(inv) != 0 {
-					t.Errorf("%q = %v, %v; want unset and no note", v, got, inv)
+				if got != nil || len(inv) != 1 || !strings.Contains(inv[0], bl.label) {
+					t.Errorf("%q = %v, %v; want unset and one note", v, got, inv)
 				}
 			}
 		})
@@ -255,6 +256,20 @@ func TestReconcile_InvalidBoolKeepsStoredValue(t *testing.T) {
 		}
 		if u.Site == nil || !u.Site.RequireAuth || !u.Site.Streaming {
 			t.Errorf("%s: site = %+v, want require_auth and streaming kept", mode, u.Site)
+		}
+	}
+
+	// An empty value (for example an undefined template variable) is held
+	// the same way: a protected site never turns public on a blank label.
+	blank := map[string]string{LabelGatewayRequireAuth: "", LabelGatewayStreaming: "  ", LabelAppName: "Renamed"}
+	d3 := BuildDesired(typo(blank), "ep")
+	for _, mode := range []config.AutoImportMode{config.AutoImportUpdate, config.AutoImportSync} {
+		plan := Reconcile(&ReconcileInput{
+			Mode: mode, Desired: []Desired{d3},
+			Current: []config.AppConfig{app}, CurrentSites: []config.GatewaySite{site},
+		})
+		if len(plan.Update) != 1 || plan.Update[0].Site == nil || !plan.Update[0].Site.RequireAuth || !plan.Update[0].Site.Streaming {
+			t.Errorf("%s: blank labels did not keep the site flags: %+v", mode, plan.Update)
 		}
 	}
 	// The label really was a typo: a valid false does flip the site public.

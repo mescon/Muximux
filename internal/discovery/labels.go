@@ -329,15 +329,13 @@ func invalidReasons(l ...[]InvalidLabel) []string {
 	return out
 }
 
-// parseBoolLabel reads a boolean label. A blank value counts as unset. A
-// value that is not true/1/yes/on or false/0/no/off (case-insensitive,
-// trimmed) is ignored as if the label were unset and described in invalid,
-// so a typo such as "tru" never opts a container out. The rule is shared
-// with the environment overrides (config.ParseBool).
+// parseBoolLabel reads a boolean label. A value that is not
+// true/1/yes/on or false/0/no/off (case-insensitive, trimmed), including a
+// blank one, is ignored and described in invalid, so a typo such as "tru"
+// or an empty template value never opts a container out and never flips a
+// stored value: reconciliation keeps what the app or site already has. The
+// rule is shared with the environment overrides (config.ParseBool).
 func parseBoolLabel(name, v string, dst **bool, invalid *[]InvalidLabel) {
-	if strings.TrimSpace(v) == "" {
-		return
-	}
 	b, ok := config.ParseBool(v)
 	if !ok {
 		*invalid = append(*invalid, InvalidLabel{Name: name, Reason: fmt.Sprintf("%s %q is not a boolean (use true or false)", name, v)})
