@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "\"{name}\" config.yaml dosyasından kaldırılsın mı?",
   "discovery_confirmRemoveAll": "Otomatik içe aktarılan {count} geçersiz girdinin tümü config.yaml dosyasından kaldırılsın mı?",
   "discovery_detachFailed": "{name} ayrılamadı: {error}",
-  "discovery_removeFailed": "{name} kaldırılamadı: {error}"
+  "discovery_removeFailed": "{name} kaldırılamadı: {error}",
+  "nav_toggleGroup": "{group} grubunu genişlet veya daralt"
 }

@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Remover «{name}» de config.yaml?",
   "discovery_confirmRemoveAll": "Remover de config.yaml as {count} entradas importadas automaticamente inválidas?",
   "discovery_detachFailed": "Não foi possível desassociar {name}: {error}",
-  "discovery_removeFailed": "Não foi possível remover {name}: {error}"
+  "discovery_removeFailed": "Não foi possível remover {name}: {error}",
+  "nav_toggleGroup": "Expandir ou recolher o grupo {group}"
 }

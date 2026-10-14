@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Fjern „{name}“ fra config.yaml?",
   "discovery_confirmRemoveAll": "Fjern alle {count} ugyldige automatisk importerede poster fra config.yaml?",
   "discovery_detachFailed": "Kunne ikke frakoble {name}: {error}",
-  "discovery_removeFailed": "Kunne ikke fjerne {name}: {error}"
+  "discovery_removeFailed": "Kunne ikke fjerne {name}: {error}",
+  "nav_toggleGroup": "Udvid eller skjul gruppen {group}"
 }

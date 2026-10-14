@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Eltávolítja a(z) „{name}” elemet a config.yaml fájlból?",
   "discovery_confirmRemoveAll": "Eltávolítja a config.yaml fájlból mind a(z) {count} érvénytelen, automatikusan importált bejegyzést?",
   "discovery_detachFailed": "A(z) {name} leválasztása sikertelen: {error}",
-  "discovery_removeFailed": "A(z) {name} eltávolítása sikertelen: {error}"
+  "discovery_removeFailed": "A(z) {name} eltávolítása sikertelen: {error}",
+  "nav_toggleGroup": "A(z) {group} csoport kibontása vagy összecsukása"
 }

@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "config.yaml मधून \"{name}\" काढून टाकायचे?",
   "discovery_confirmRemoveAll": "आपोआप इम्पोर्ट केलेल्या सर्व {count} अवैध नोंदी config.yaml मधून काढून टाकायच्या?",
   "discovery_detachFailed": "{name} वेगळे करता आले नाही: {error}",
-  "discovery_removeFailed": "{name} काढून टाकता आले नाही: {error}"
+  "discovery_removeFailed": "{name} काढून टाकता आले नाही: {error}",
+  "nav_toggleGroup": "{group} गट विस्तृत किंवा संकुचित करा"
 }

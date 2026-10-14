@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Удалить «{name}» из config.yaml?",
   "discovery_confirmRemoveAll": "Удалить из config.yaml все недопустимые автоматически импортированные записи ({count})?",
   "discovery_detachFailed": "Не удалось отвязать {name}: {error}",
-  "discovery_removeFailed": "Не удалось удалить {name}: {error}"
+  "discovery_removeFailed": "Не удалось удалить {name}: {error}",
+  "nav_toggleGroup": "Развернуть или свернуть группу {group}"
 }

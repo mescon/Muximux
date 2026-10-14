@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "「{name}」を config.yaml から削除しますか?",
   "discovery_confirmRemoveAll": "自動インポートされた無効なエントリ {count} 件をすべて config.yaml から削除しますか?",
   "discovery_detachFailed": "{name} を切り離せませんでした: {error}",
-  "discovery_removeFailed": "{name} を削除できませんでした: {error}"
+  "discovery_removeFailed": "{name} を削除できませんでした: {error}",
+  "nav_toggleGroup": "グループ {group} を展開または折りたたむ"
 }

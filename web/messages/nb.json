@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Fjerne «{name}» fra config.yaml?",
   "discovery_confirmRemoveAll": "Fjerne alle {count} ugyldige automatisk importerte oppføringer fra config.yaml?",
   "discovery_detachFailed": "Kunne ikke koble fra {name}: {error}",
-  "discovery_removeFailed": "Kunne ikke fjerne {name}: {error}"
+  "discovery_removeFailed": "Kunne ikke fjerne {name}: {error}",
+  "nav_toggleGroup": "Utvid eller skjul gruppen {group}"
 }

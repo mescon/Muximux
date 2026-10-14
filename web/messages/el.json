@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Αφαίρεση του «{name}» από το config.yaml;",
   "discovery_confirmRemoveAll": "Αφαίρεση και των {count} μη έγκυρων εγγραφών αυτόματης εισαγωγής από το config.yaml;",
   "discovery_detachFailed": "Δεν ήταν δυνατή η αποσύνδεση του {name}: {error}",
-  "discovery_removeFailed": "Δεν ήταν δυνατή η αφαίρεση του {name}: {error}"
+  "discovery_removeFailed": "Δεν ήταν δυνατή η αφαίρεση του {name}: {error}",
+  "nav_toggleGroup": "Ανάπτυξη ή σύμπτυξη της ομάδας {group}"
 }

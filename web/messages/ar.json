@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "هل تريد إزالة \"{name}\" من config.yaml؟",
   "discovery_confirmRemoveAll": "هل تريد إزالة جميع الإدخالات المستوردة تلقائيًا غير الصالحة ({count}) من config.yaml؟",
   "discovery_detachFailed": "تعذّر فصل {name}: {error}",
-  "discovery_removeFailed": "تعذّرت إزالة {name}: {error}"
+  "discovery_removeFailed": "تعذّرت إزالة {name}: {error}",
+  "nav_toggleGroup": "توسيع أو طي المجموعة {group}"
 }

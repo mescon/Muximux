@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Noņemt “{name}” no config.yaml?",
   "discovery_confirmRemoveAll": "Noņemt no config.yaml visus nederīgos automātiski importētos ierakstus ({count})?",
   "discovery_detachFailed": "Neizdevās atvienot {name}: {error}",
-  "discovery_removeFailed": "Neizdevās noņemt {name}: {error}"
+  "discovery_removeFailed": "Neizdevās noņemt {name}: {error}",
+  "nav_toggleGroup": "Izvērst vai sakļaut grupu {group}"
 }

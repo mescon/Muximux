@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Poistetaanko ”{name}” tiedostosta config.yaml?",
   "discovery_confirmRemoveAll": "Poistetaanko kaikki {count} virheellistä automaattisesti tuotua merkintää tiedostosta config.yaml?",
   "discovery_detachFailed": "Kohdetta {name} ei voitu irrottaa: {error}",
-  "discovery_removeFailed": "Kohdetta {name} ei voitu poistaa: {error}"
+  "discovery_removeFailed": "Kohdetta {name} ei voitu poistaa: {error}",
+  "nav_toggleGroup": "Laajenna tai tiivistä ryhmä {group}"
 }
