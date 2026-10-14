@@ -9,6 +9,11 @@ All notable changes to Muximux are documented in this file.
   icon in the icon-only left and right sidebars is now a button with
   `aria-expanded` and the group name as its accessible name; it was inert,
   so apps in a collapsed group could not be reached. (#523)
+- **The health tooltip opens only from the indicator.** Clicking an app no
+  longer opens it (a mouse click focused the link and opened it, and it
+  could stay until the next click). It now needs hover on the dot or
+  keyboard focus, and closes on leave, click elsewhere, Escape, scroll or
+  app switch. (#522)
 
 ## [3.6.1] - 2026-10-12
 

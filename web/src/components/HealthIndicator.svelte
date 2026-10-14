@@ -16,6 +16,7 @@
   let tooltipY = $state(0);
   let dotEl = $state<HTMLElement | undefined>(undefined);
   let host = $state<HTMLElement | null>(null);
+  let tipEl = $state<HTMLElement | undefined>(undefined);
   const tipId = `health-tip-${Math.random().toString(36).slice(2, 9)}`;
 
   // Subscribe to health data
@@ -72,9 +73,9 @@
     return date.toLocaleString();
   }
 
-  // Pointer exits hide after a short delay so the pointer can cross the gap onto the
-  // (portaled) tooltip; keyboard blur and Escape still hide at once.
-  const HIDE_DELAY_MS = 150;
+  // Pointer exits hide after a short grace period so the pointer can cross the gap onto the
+  // (portaled) tooltip to reach "Check now"; keyboard blur and Escape hide at once.
+  const HIDE_DELAY_MS = 80;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
   function cancelHide() {
@@ -103,6 +104,24 @@
     tooltipVisible = false;
   }
 
+  // Only keyboard focus opens the tooltip: a mouse click also focuses the host link or
+  // button, and that must not pop the tooltip open (or leave it stuck there).
+  function isKeyboardFocus(el: HTMLElement): boolean {
+    try {
+      return el.matches(':focus-visible');
+    } catch {
+      return false;
+    }
+  }
+
+  function onHostFocus(e: Event) {
+    if (isKeyboardFocus(e.currentTarget as HTMLElement)) showTip();
+  }
+
+  function onDotFocus(e: FocusEvent) {
+    if (isKeyboardFocus(e.currentTarget as HTMLElement)) showTip();
+  }
+
   function onKey(e: KeyboardEvent) {
     if (e.key === 'Escape' && tooltipVisible) {
       e.stopPropagation();
@@ -111,20 +130,56 @@
   }
 
   // Keyboard path: when the dot sits inside a focusable host (a nav item button), follow the
-  // host's focus; otherwise (Splash) the dot is focusable itself.
+  // host's focus; otherwise (Splash) the dot is focusable itself. Pressing the host (a click
+  // that switches apps) always closes the tooltip.
   $effect(() => {
     if (!dotEl) return;
     const h = dotEl.parentElement?.closest<HTMLElement>('button, a, [tabindex]:not([tabindex="-1"])') ?? null;
     host = h;
     if (!h) return;
-    h.addEventListener('focus', showTip);
+    h.addEventListener('focus', onHostFocus);
     h.addEventListener('blur', hideTip);
     h.addEventListener('keydown', onKey);
+    h.addEventListener('pointerdown', hideTip);
+    h.addEventListener('click', hideTip);
     return () => {
-      h.removeEventListener('focus', showTip);
+      h.removeEventListener('focus', onHostFocus);
       h.removeEventListener('blur', hideTip);
       h.removeEventListener('keydown', onKey);
+      h.removeEventListener('pointerdown', hideTip);
+      h.removeEventListener('click', hideTip);
     };
+  });
+
+  // While open, anything that is not the dot or the tooltip dismisses it: a press elsewhere,
+  // Escape, scrolling (the fixed tooltip would drift from its dot), or losing the window.
+  $effect(() => {
+    if (!tooltipVisible) return;
+    const onPointerDown = (e: Event) => {
+      const t = e.target as Node | null;
+      if (t && (dotEl?.contains(t) || tipEl?.contains(t))) return;
+      hideTip();
+    };
+    const onDocKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') hideTip();
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onDocKey, true);
+    window.addEventListener('scroll', hideTip, true);
+    window.addEventListener('blur', hideTip);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onDocKey, true);
+      window.removeEventListener('scroll', hideTip, true);
+      window.removeEventListener('blur', hideTip);
+    };
+  });
+
+  // A different app (or a disabled tooltip) never inherits an open tooltip.
+  $effect(() => {
+    void appName;
+    if (!showTooltip) hideTip();
+    return hideTip;
   });
 
   // Focus sits on the host, so the host (not the dot) is described by the open tooltip.
@@ -173,12 +228,7 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="inline-flex items-center"
-  onmouseenter={showTip}
-  onmouseleave={scheduleHide}
->
+<div class="inline-flex items-center">
   <!-- Standalone (no focusable host, as in Splash) the dot is the only keyboard path to its tooltip, so it takes focus and handles Escape. -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
   <span
@@ -187,7 +237,9 @@
     aria-label={label}
     aria-describedby={!host && tooltipVisible && health ? tipId : undefined}
     tabindex={standaloneFocusable ? 0 : undefined}
-    onfocus={standaloneFocusable ? showTip : undefined}
+    onfocus={standaloneFocusable ? onDotFocus : undefined}
+    onmouseenter={showTip}
+    onmouseleave={scheduleHide}
     onblur={host ? undefined : hideTip}
     onkeydown={standaloneFocusable ? onKey : undefined}
     class="inline-block {sizeClasses[size]} {getStatusClass(status)}"
@@ -198,6 +250,7 @@
       <div
         class="health-tooltip"
         role="tooltip"
+        bind:this={tipEl}
         style="left: {tooltipX}px; top: {tooltipY}px;"
         onmouseenter={cancelHide}
         onmouseleave={scheduleHide}
