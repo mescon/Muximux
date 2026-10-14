@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "„{name}” uit config.yaml verwijderen?",
   "discovery_confirmRemoveAll": "Alle {count} ongeldige automatisch geïmporteerde items uit config.yaml verwijderen?",
   "discovery_detachFailed": "{name} kon niet worden losgekoppeld: {error}",
-  "discovery_removeFailed": "{name} kon niet worden verwijderd: {error}"
+  "discovery_removeFailed": "{name} kon niet worden verwijderd: {error}",
+  "nav_toggleGroup": "Groep {group} uitklappen of samenvouwen"
 }

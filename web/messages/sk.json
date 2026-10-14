@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Odstrániť „{name}“ z config.yaml?",
   "discovery_confirmRemoveAll": "Odstrániť z config.yaml všetky neplatné automaticky importované položky ({count})?",
   "discovery_detachFailed": "Nepodarilo sa odpojiť {name}: {error}",
-  "discovery_removeFailed": "Nepodarilo sa odstrániť {name}: {error}"
+  "discovery_removeFailed": "Nepodarilo sa odstrániť {name}: {error}",
+  "nav_toggleGroup": "Rozbaliť alebo zbaliť skupinu {group}"
 }

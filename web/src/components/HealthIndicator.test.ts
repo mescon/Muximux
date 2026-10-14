@@ -38,9 +38,22 @@ function makeHealth(overrides: Record<string, unknown> = {}) {
 }
 
 describe('HealthIndicator', () => {
+  // jsdom has no :focus-visible; tests choose keyboard (true) or mouse (false) modality.
+  let focusVisible = true;
+  const realMatches = HTMLElement.prototype.matches;
+
   beforeEach(() => {
     mockHealthData.set(new Map());
     vi.clearAllMocks();
+    focusVisible = true;
+    vi.spyOn(HTMLElement.prototype, 'matches').mockImplementation(function (this: HTMLElement, sel: string) {
+      if (sel === ':focus-visible') return focusVisible;
+      return realMatches.call(this, sel);
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // ─── Existing tests (preserved) ───────────────────────────────────────────
@@ -122,7 +135,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
 
       // Mock getBoundingClientRect on the dot element
       const dot = container.querySelector('span[role="img"]')!;
@@ -150,7 +163,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
 
       const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
@@ -174,7 +187,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: false } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       await fireEvent.mouseEnter(wrapper);
 
       // No tooltip should appear
@@ -184,7 +197,7 @@ describe('HealthIndicator', () => {
     it('does not show tooltip when no health data exists', async () => {
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       await fireEvent.mouseEnter(wrapper);
 
       expect(container.ownerDocument.querySelector('.health-tooltip')).not.toBeInTheDocument();
@@ -200,7 +213,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
@@ -351,7 +364,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
@@ -380,7 +393,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
@@ -412,7 +425,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
@@ -459,7 +472,7 @@ describe('HealthIndicator', () => {
 
       const { container } = render(HealthIndicator, { props: { appName: 'TestApp', showTooltip: true } });
 
-      const wrapper = container.querySelector('.inline-flex')!;
+      const wrapper = container.querySelector('span[role="img"]')!;
       const dot = container.querySelector('span[role="img"]')!;
       vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue({
         left: 100, top: 200, width: 8, height: 8,
@@ -681,10 +694,10 @@ describe('HealthIndicator', () => {
         mockHealthData.set(new Map([['TestApp', makeHealth()]]));
         mockTriggerHealthCheck.mockResolvedValue(makeHealth());
         const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-        const wrapper = container.querySelector('.inline-flex')!;
+        const wrapper = container.querySelector('span[role="img"]')!;
         await fireEvent.mouseEnter(wrapper);
         await fireEvent.mouseLeave(wrapper);
-        vi.advanceTimersByTime(100);
+        vi.advanceTimersByTime(40);
         const tip = screen.getByRole('tooltip');
         await fireEvent.mouseEnter(tip);
         vi.advanceTimersByTime(500);
@@ -697,7 +710,7 @@ describe('HealthIndicator', () => {
       it('re-entering the dot cancels a pending hide', async () => {
         mockHealthData.set(new Map([['TestApp', makeHealth()]]));
         const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-        const wrapper = container.querySelector('.inline-flex')!;
+        const wrapper = container.querySelector('span[role="img"]')!;
         await fireEvent.mouseEnter(wrapper);
         await fireEvent.mouseLeave(wrapper);
         await fireEvent.mouseEnter(wrapper);
@@ -709,13 +722,13 @@ describe('HealthIndicator', () => {
       it('closes after the delay once the pointer leaves both', async () => {
         mockHealthData.set(new Map([['TestApp', makeHealth()]]));
         const { container } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-        const wrapper = container.querySelector('.inline-flex')!;
+        const wrapper = container.querySelector('span[role="img"]')!;
         await fireEvent.mouseEnter(wrapper);
         await fireEvent.mouseLeave(wrapper);
         const tip = screen.getByRole('tooltip');
         await fireEvent.mouseEnter(tip);
         await fireEvent.mouseLeave(tip);
-        vi.advanceTimersByTime(100);
+        vi.advanceTimersByTime(40);
         await tick();
         expect(screen.getByRole('tooltip')).toBeInTheDocument();
         vi.advanceTimersByTime(100);
@@ -726,7 +739,7 @@ describe('HealthIndicator', () => {
       it('unmounting with a pending hide neither throws nor leaks', async () => {
         mockHealthData.set(new Map([['TestApp', makeHealth()]]));
         const { container, unmount } = render(HealthIndicator, { props: { appName: 'TestApp' } });
-        const wrapper = container.querySelector('.inline-flex')!;
+        const wrapper = container.querySelector('span[role="img"]')!;
         await fireEvent.mouseEnter(wrapper);
         await fireEvent.mouseLeave(wrapper);
         expect(vi.getTimerCount()).toBe(1);
@@ -736,6 +749,167 @@ describe('HealthIndicator', () => {
         expect(document.body.querySelector('.health-tooltip-portal')).toBeNull();
         expect(document.body.querySelector('.health-tooltip')).toBeNull();
       });
+    });
+  });
+
+  describe('tooltip trigger (#522)', () => {
+    function mountInHost() {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      const host = document.createElement('button');
+      const label = document.createElement('span');
+      label.textContent = 'TestApp';
+      host.append(label);
+      document.body.append(host);
+      const holder = document.createElement('span');
+      host.append(holder);
+      render(HealthIndicator, { target: holder, props: { appName: 'TestApp' } });
+      return { host, label, dot: screen.getByRole('img') };
+    }
+
+    it('opens when hovering the indicator itself', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      host.remove();
+    });
+
+    it('has an enlarged hit area on the indicator that opens the tooltip and still lets clicks reach the host', async () => {
+      const { host, dot } = mountInHost();
+      expect(dot).toHaveClass('health-hit');
+      const onClick = vi.fn();
+      host.addEventListener('click', onClick);
+      await fireEvent.mouseEnter(dot);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await fireEvent.click(dot);
+      expect(onClick).toHaveBeenCalled();
+      host.remove();
+    });
+
+    it('does not open when hovering the entry', async () => {
+      const { host, label } = mountInHost();
+      await fireEvent.mouseEnter(host);
+      await fireEvent.mouseOver(label);
+      await fireEvent.mouseMove(label);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('does not open on a mouse click, which focuses the host without focus-visible', async () => {
+      const { host } = mountInHost();
+      focusVisible = false;
+      await fireEvent.pointerDown(host);
+      await fireEvent.focus(host);
+      await fireEvent.click(host);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('opens on keyboard focus of the host', async () => {
+      const { host } = mountInHost();
+      await fireEvent.focus(host);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      host.remove();
+    });
+
+    it('does not open on mouse focus of a standalone dot, but does on keyboard focus', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+      render(HealthIndicator, { props: { appName: 'TestApp' } });
+      const dot = screen.getByRole('img');
+      focusVisible = false;
+      await fireEvent.focus(dot);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      focusVisible = true;
+      await fireEvent.focus(dot);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    });
+
+    it('treats an unsupported :focus-visible as mouse focus', async () => {
+      const { host } = mountInHost();
+      (HTMLElement.prototype.matches as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => {
+        throw new SyntaxError('unsupported selector');
+      });
+      await fireEvent.focus(host);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('closes when the host is clicked to switch apps', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      await fireEvent.click(host);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('closes on a press elsewhere but not on the tooltip itself', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      await fireEvent.pointerDown(screen.getByRole('tooltip'));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await fireEvent.pointerDown(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('closes on Escape anywhere in the document', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      await fireEvent.keyDown(document.body, { key: 'Escape' });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('ignores other keys', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      await fireEvent.keyDown(document.body, { key: 'a' });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      host.remove();
+    });
+
+    it('closes on scroll', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      await fireEvent.scroll(window);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('closes when the window loses focus', async () => {
+      const { host, dot } = mountInHost();
+      await fireEvent.mouseEnter(dot);
+      await fireEvent.blur(window);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      host.remove();
+    });
+
+    it('closes when the app switches', async () => {
+      mockHealthData.set(new Map([['TestApp', makeHealth()], ['Other', makeHealth()]]));
+      const { rerender } = render(HealthIndicator, { props: { appName: 'TestApp' } });
+      await fireEvent.mouseEnter(screen.getByRole('img'));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await rerender({ appName: 'Other' });
+      await tick();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('leaves nothing stuck after rapid enter and leave', async () => {
+      vi.useFakeTimers();
+      try {
+        mockHealthData.set(new Map([['TestApp', makeHealth()]]));
+        render(HealthIndicator, { props: { appName: 'TestApp' } });
+        const dot = screen.getByRole('img');
+        for (let i = 0; i < 20; i++) {
+          await fireEvent.mouseEnter(dot);
+          await fireEvent.mouseLeave(dot);
+        }
+        vi.advanceTimersByTime(200);
+        await tick();
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+        expect(vi.getTimerCount()).toBe(0);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

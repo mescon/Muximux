@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "要拿“{name}”从 config.yaml 里厢移脱伐？",
   "discovery_confirmRemoveAll": "要拿全部 {count} 个自动导入个无效条目从 config.yaml 里厢移脱伐？",
   "discovery_detachFailed": "{name} 分勿开：{error}",
-  "discovery_removeFailed": "{name} 移勿脱：{error}"
+  "discovery_removeFailed": "{name} 移勿脱：{error}",
+  "nav_toggleGroup": "展开或者折叠分组 {group}"
 }

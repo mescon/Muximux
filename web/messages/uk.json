@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Прибрати «{name}» із config.yaml?",
   "discovery_confirmRemoveAll": "Прибрати з config.yaml усі недійсні автоматично імпортовані записи ({count})?",
   "discovery_detachFailed": "Не вдалося відв'язати {name}: {error}",
-  "discovery_removeFailed": "Не вдалося прибрати {name}: {error}"
+  "discovery_removeFailed": "Не вдалося прибрати {name}: {error}",
+  "nav_toggleGroup": "Розгорнути або згорнути групу {group}"
 }

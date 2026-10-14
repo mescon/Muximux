@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Kas eemaldada „{name}“ failist config.yaml?",
   "discovery_confirmRemoveAll": "Kas eemaldada failist config.yaml kõik kehtetud automaatselt imporditud kirjed ({count})?",
   "discovery_detachFailed": "Objekti {name} eraldamine ebaõnnestus: {error}",
-  "discovery_removeFailed": "Objekti {name} eemaldamine ebaõnnestus: {error}"
+  "discovery_removeFailed": "Objekti {name} eemaldamine ebaõnnestus: {error}",
+  "nav_toggleGroup": "Laienda või ahenda rühm {group}"
 }

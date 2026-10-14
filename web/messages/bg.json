@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Да се премахне ли „{name}“ от config.yaml?",
   "discovery_confirmRemoveAll": "Да се премахнат ли от config.yaml всички невалидни автоматично импортирани записи ({count})?",
   "discovery_detachFailed": "Не можа да се отдели {name}: {error}",
-  "discovery_removeFailed": "Не можа да се премахне {name}: {error}"
+  "discovery_removeFailed": "Не можа да се премахне {name}: {error}",
+  "nav_toggleGroup": "Разгъване или свиване на групата {group}"
 }

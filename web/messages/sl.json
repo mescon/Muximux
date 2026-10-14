@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Želite odstraniti »{name}« iz config.yaml?",
   "discovery_confirmRemoveAll": "Želite iz config.yaml odstraniti vse neveljavne samodejno uvožene vnose ({count})?",
   "discovery_detachFailed": "Odklop {name} ni uspel: {error}",
-  "discovery_removeFailed": "Odstranitev {name} ni uspela: {error}"
+  "discovery_removeFailed": "Odstranitev {name} ni uspela: {error}",
+  "nav_toggleGroup": "Razširi ali strni skupino {group}"
 }

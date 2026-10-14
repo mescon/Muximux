@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "要從 config.yaml 移除「{name}」嗎？",
   "discovery_confirmRemoveAll": "要從 config.yaml 移除全部 {count} 個自動匯入嘅無效項目嗎？",
   "discovery_detachFailed": "無法分離 {name}：{error}",
-  "discovery_removeFailed": "無法移除 {name}：{error}"
+  "discovery_removeFailed": "無法移除 {name}：{error}",
+  "nav_toggleGroup": "展開或者摺埋分組 {group}"
 }

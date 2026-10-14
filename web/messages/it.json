@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Rimuovere «{name}» da config.yaml?",
   "discovery_confirmRemoveAll": "Rimuovere da config.yaml tutte le {count} voci importate automaticamente non valide?",
   "discovery_detachFailed": "Impossibile scollegare {name}: {error}",
-  "discovery_removeFailed": "Impossibile rimuovere {name}: {error}"
+  "discovery_removeFailed": "Impossibile rimuovere {name}: {error}",
+  "nav_toggleGroup": "Espandi o comprimi il gruppo {group}"
 }

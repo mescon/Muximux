@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Elimini „{name}” din config.yaml?",
   "discovery_confirmRemoveAll": "Elimini din config.yaml toate cele {count} intrări importate automat nevalide?",
   "discovery_detachFailed": "Nu s-a putut detașa {name}: {error}",
-  "discovery_removeFailed": "Nu s-a putut elimina {name}: {error}"
+  "discovery_removeFailed": "Nu s-a putut elimina {name}: {error}",
+  "nav_toggleGroup": "Extinde sau restrânge grupul {group}"
 }

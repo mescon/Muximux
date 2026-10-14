@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "config.yaml에서 \"{name}\"을(를) 제거하시겠습니까?",
   "discovery_confirmRemoveAll": "자동으로 가져온 잘못된 항목 {count}개를 모두 config.yaml에서 제거하시겠습니까?",
   "discovery_detachFailed": "{name}을(를) 분리할 수 없습니다: {error}",
-  "discovery_removeFailed": "{name}을(를) 제거할 수 없습니다: {error}"
+  "discovery_removeFailed": "{name}을(를) 제거할 수 없습니다: {error}",
+  "nav_toggleGroup": "{group} 그룹 펼치기 또는 접기"
 }

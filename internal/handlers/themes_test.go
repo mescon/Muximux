@@ -506,6 +506,59 @@ func TestDeleteTheme(t *testing.T) {
 		}
 	})
 
+	t.Run("themes directory missing", func(t *testing.T) {
+		dir := filepath.Join(t.TempDir(), "themes")
+		handler, _ := NewThemeHandler(dir, nil)
+		if err := os.RemoveAll(dir); err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodDelete, "/api/themes/my-theme", nil)
+		w := httptest.NewRecorder()
+		handler.DeleteTheme(w, req)
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("expected status 404, got %d", w.Code)
+		}
+	})
+
+	t.Run("themes directory unusable", func(t *testing.T) {
+		dir := filepath.Join(t.TempDir(), "themes")
+		handler, _ := NewThemeHandler(dir, nil)
+		if err := os.RemoveAll(dir); err != nil {
+			t.Fatal(err)
+		}
+		// A regular file where the directory should be cannot be opened as a root.
+		if err := os.WriteFile(dir, []byte("not a directory"), 0600); err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodDelete, "/api/themes/my-theme", nil)
+		w := httptest.NewRecorder()
+		handler.DeleteTheme(w, req)
+
+		if w.Code != http.StatusInternalServerError {
+			t.Errorf("expected status 500, got %d", w.Code)
+		}
+	})
+
+	t.Run("remove fails", func(t *testing.T) {
+		dir := t.TempDir()
+		handler, _ := NewThemeHandler(dir, nil)
+		// A non-empty directory named like a theme file cannot be removed.
+		if err := os.MkdirAll(filepath.Join(dir, "stuck.css", "child"), 0o750); err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodDelete, "/api/themes/stuck", nil)
+		w := httptest.NewRecorder()
+		handler.DeleteTheme(w, req)
+
+		if w.Code != http.StatusInternalServerError {
+			t.Errorf("expected status 500, got %d", w.Code)
+		}
+	})
+
 	t.Run("empty name", func(t *testing.T) {
 		dir := t.TempDir()
 		handler, _ := NewThemeHandler(dir, nil)

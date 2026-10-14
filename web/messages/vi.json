@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Gỡ bỏ \"{name}\" khỏi config.yaml?",
   "discovery_confirmRemoveAll": "Gỡ bỏ tất cả {count} mục tự động nhập không hợp lệ khỏi config.yaml?",
   "discovery_detachFailed": "Không thể tách {name}: {error}",
-  "discovery_removeFailed": "Không thể gỡ bỏ {name}: {error}"
+  "discovery_removeFailed": "Không thể gỡ bỏ {name}: {error}",
+  "nav_toggleGroup": "Mở rộng hoặc thu gọn nhóm {group}"
 }
