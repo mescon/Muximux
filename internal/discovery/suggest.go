@@ -90,6 +90,9 @@ type Suggestion struct {
 	// groupLabels holds the parsed muximux.group.* labels, so the scan can
 	// note conflicts between suggestions that share a group. Not sent.
 	groupLabels GroupLabels
+	// InvalidBoolLabels names the boolean labels whose value was ignored.
+	// Auto-import keeps the stored value of those fields on update. Not sent.
+	InvalidBoolLabels []string `json:"-"`
 	// GatewayRequested is true only when the container carries
 	// muximux.app.gateway.domain. SuggestedDomain may also hold a derived
 	// default meant to pre-fill the import modal; auto-import must not
@@ -238,6 +241,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	applyLabelOverrides(&s, &labels)
 	attachGatewayLabels(&s, c.Labels)
 	surfaceUnknownLabels(&s, &labels)
+	surfaceInvalidBoolLabels(&s, labels.BoolInvalid)
 	s.groupLabels = ParseGroupLabels(c.Labels)
 	noteGroupLabels(&s, &s.groupLabels)
 
@@ -459,10 +463,13 @@ func hasSubstantiveLabelSet(labels *AppLabels) bool {
 // field was set. Only consulted when SuggestedDomain is non-empty
 // (otherwise there's no gateway entry to configure).
 func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
+	gw := ParseGatewayLabels(containerLabels)
+	// Reported whether or not a gateway domain is set, as the poller's
+	// warning is.
+	surfaceInvalidBoolLabels(s, gw.Invalid)
 	if s.SuggestedDomain == "" {
 		return
 	}
-	gw := ParseGatewayLabels(containerLabels)
 	if !gatewayLabelsNonEmpty(&gw) {
 		return
 	}
@@ -475,6 +482,17 @@ func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
 		RequireAuth:        gw.RequireAuth,
 		MinRole:            gw.MinRole,
 		AllowedGroups:      gw.AllowedGroups,
+	}
+}
+
+// surfaceInvalidBoolLabels adds a scan note for each boolean label whose
+// value was not a recognised boolean and so was ignored.
+// Their names are kept on the suggestion so a later update keeps the stored
+// value instead of falling back to the default.
+func surfaceInvalidBoolLabels(s *Suggestion, invalid []InvalidLabel) {
+	for i := range invalid {
+		s.Notes = append(s.Notes, "Boolean label ignored: "+invalid[i].Reason)
+		s.InvalidBoolLabels = append(s.InvalidBoolLabels, invalid[i].Name)
 	}
 }
 

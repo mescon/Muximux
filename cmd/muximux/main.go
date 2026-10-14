@@ -28,7 +28,7 @@ var (
 )
 
 func envOrDefault(envKey, fallback string) string {
-	if v := os.Getenv(envKey); v != "" {
+	if v, ok := config.EnvValue(envKey); ok {
 		return v
 	}
 	return fallback
@@ -48,13 +48,24 @@ func resolveDataDir(dir string) string {
 func applyOverrides(cfg *config.Config, listenAddr, basePath string) {
 	if listenAddr != "" {
 		cfg.ApplyOverride(config.OverrideListen, "--listen", listenAddr)
-	} else if v := os.Getenv("MUXIMUX_LISTEN"); v != "" {
+	} else if v, ok := config.EnvValue("MUXIMUX_LISTEN"); ok {
 		cfg.ApplyOverride(config.OverrideListen, "MUXIMUX_LISTEN", v)
 	}
 	if basePath != "" {
 		cfg.ApplyOverride(config.OverrideBasePath, "--base-path", basePath)
-	} else if v := os.Getenv("MUXIMUX_BASE_PATH"); v != "" {
+	} else if v, ok := config.EnvValue("MUXIMUX_BASE_PATH"); ok {
 		cfg.ApplyOverride(config.OverrideBasePath, "MUXIMUX_BASE_PATH", v)
+	}
+}
+
+// applyLogEnv applies MUXIMUX_LOG_LEVEL and MUXIMUX_LOG_FORMAT. An empty or
+// blank value counts as unset.
+func applyLogEnv(cfg *config.Config) {
+	if v, ok := config.EnvValue("MUXIMUX_LOG_LEVEL"); ok {
+		cfg.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", v)
+	}
+	if v, ok := config.EnvValue("MUXIMUX_LOG_FORMAT"); ok {
+		cfg.ApplyOverride(config.OverrideLogFormat, "MUXIMUX_LOG_FORMAT", v)
 	}
 }
 
@@ -154,12 +165,7 @@ func main() {
 
 	// Environment variable overrides for logging (take precedence over config file)
 	// These stay in memory: Save writes the file's own values.
-	if v := os.Getenv("MUXIMUX_LOG_LEVEL"); v != "" {
-		cfg.ApplyOverride(config.OverrideLogLevel, "MUXIMUX_LOG_LEVEL", v)
-	}
-	if v := os.Getenv("MUXIMUX_LOG_FORMAT"); v != "" {
-		cfg.ApplyOverride(config.OverrideLogFormat, "MUXIMUX_LOG_FORMAT", v)
-	}
+	applyLogEnv(cfg)
 
 	logFile := filepath.Join(*dataDir, "muximux.log")
 	if err := logging.Init(logging.Config{

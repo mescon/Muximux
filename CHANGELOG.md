@@ -4,7 +4,29 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Upgrade note:** a misspelt or empty boolean label (for example
+  `muximux.app.enabled=tru` or `muximux.gateway.require_auth=`) is now
+  ignored instead of reading as false; an existing app or site keeps its
+  current value. Boolean labels accept `true`/`1`/`yes`/`on` and
+  `false`/`0`/`no`/`off`. Also, an empty `MUXIMUX_*` override variable (for
+  example `MUXIMUX_DISCOVERY_AUTO_IMPORT=` from a Compose `${VAR}` that is
+  not defined) no longer forces a value: it counts as unset and the config
+  file value stays.
+
 ### Fixed
+- **Boolean labels are strict.** Every boolean `muximux.app.*` and
+  `muximux.gateway.*` label takes `true`/`1`/`yes`/`on` or
+  `false`/`0`/`no`/`off` (case-insensitive); any other value is ignored with
+  a note in the Discover modal and one warning in the log. A misspelt or
+  empty value keeps the current setting on update and sync, so
+  `require_auth=ture` or `require_auth=` never makes a protected gateway site
+  public; on first import the default applies.
+- **An empty environment override counts as unset.** `MUXIMUX_DISCOVERY_AUTO_IMPORT`,
+  `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_LISTEN`,
+  `MUXIMUX_BASE_PATH`, `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`,
+  `MUXIMUX_DATA` and `MUXIMUX_CONFIG` now treat an empty or whitespace-only
+  value as unset, as the auth and OIDC variables already did.
 - **Sidebar groups expand and collapse with Show Labels off.** The group
   icon in the icon-only left and right sidebars is now a button with
   `aria-expanded` and the group name as its accessible name; it was inert,

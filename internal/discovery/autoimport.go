@@ -14,6 +14,10 @@ import (
 type Desired struct {
 	App  config.AppConfig
 	Site *config.GatewaySite
+	// KeepBools names the boolean labels whose value was misspelt. On an
+	// update Reconcile keeps the stored value of the fields they control;
+	// a new import uses the default.
+	KeepBools []string
 }
 
 // BuildDesired maps a label-derived Suggestion to the AppConfig (and
@@ -111,6 +115,7 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 		}
 	}
 	d.App = app
+	d.KeepBools = sug.InvalidBoolLabels
 	return d
 }
 
@@ -236,12 +241,14 @@ func Reconcile(in *ReconcileInput) ReconcilePlan {
 		k := in.Desired[i].App.DockerKey
 		desiredKeys[k] = true
 		cur, exists := curByKey[k]
+		curSite := curSiteByKey[k]
+		d := keepStoredBools(&in.Desired[i], &cur, &curSite)
 		switch {
 		case !exists || in.Quarantined[k]:
 			plan.Add = append(plan.Add, in.Desired[i])
 		case cur.DockerAutoImported && in.Mode != config.AutoImportAdd &&
-			(!sameManagedFields(&cur, &in.Desired[i].App) || gatewaySiteChanged(in.Desired[i].Site, curSiteByKey, k)):
-			plan.Update = append(plan.Update, in.Desired[i])
+			(!sameManagedFields(&cur, &d.App) || gatewaySiteChanged(d.Site, curSiteByKey, k)):
+			plan.Update = append(plan.Update, d)
 		default:
 			// Manual/detached app, add mode, or unchanged auto app:
 			// leave the current entry as-is.
@@ -280,6 +287,59 @@ func Reconcile(in *ReconcileInput) ReconcilePlan {
 		}
 	}
 	return plan
+}
+
+// keepStoredBools returns desired with the fields of every misspelt
+// boolean label (desired.KeepBools) taken from the stored app and site, so
+// an unreadable label never flips a stored value: a typo in require_auth
+// must not turn a protected site public. The result is what an update
+// compares and merges.
+func keepStoredBools(desired *Desired, cur *config.AppConfig, curSite *config.GatewaySite) Desired {
+	out := *desired
+	if len(desired.KeepBools) == 0 {
+		return out
+	}
+	site := desired.Site
+	if site != nil {
+		c := *site
+		site = &c
+		out.Site = site
+	}
+	for _, l := range desired.KeepBools {
+		switch l {
+		case LabelAppDefault:
+			out.App.Default = cur.Default
+		case LabelAppProxy:
+			out.App.Proxy = cur.Proxy
+		case LabelAppProxySkipTLSVerify:
+			out.App.ProxySkipTLSVerify = cur.ProxySkipTLSVerify
+		case LabelAppAllowNotifications:
+			out.App.AllowNotifications = cur.AllowNotifications
+		case LabelAppHTTPActionConfirm:
+			out.App.HTTPActionConfirm = cur.HTTPActionConfirm
+		case LabelAppHTTPActionShowToast:
+			out.App.HTTPActionShowToast = cur.HTTPActionShowToast
+		case LabelAppHealthCheck:
+			out.App.DockerManagedHealthCheck = cur.DockerManagedHealthCheck
+			out.App.HealthCheck = cur.HealthCheck
+		}
+		if site == nil {
+			continue
+		}
+		switch l {
+		case LabelGatewayStreaming:
+			site.Streaming = curSite.Streaming
+		case LabelGatewayStripFrameBlockers:
+			site.StripFrameBlockers = curSite.StripFrameBlockers
+		case LabelGatewayForwardedHeaders:
+			site.ForwardedHeaders = curSite.ForwardedHeaders
+		case LabelGatewaySkipTLSVerify:
+			site.BackendSkipTLSVerify = curSite.BackendSkipTLSVerify
+		case LabelGatewayRequireAuth:
+			site.RequireAuth = curSite.RequireAuth
+		}
+	}
+	return out
 }
 
 // sameManagedFields reports whether two apps agree on every

@@ -1060,3 +1060,20 @@ func TestStartupAuthEnvWarnings_LoadOnly(t *testing.T) {
 		t.Errorf("Parse repeated the startup warnings: %+v", parsed.envWarnings)
 	}
 }
+
+// An empty X_FILE counts as unset, so X=val works next to X_FILE=.
+func TestApplyAuthEnv_EmptyFileVarIsUnset(t *testing.T) {
+	cfg := defaultConfig()
+	cfg.Auth.Method = "oidc"
+	cfg.Auth.OIDC.Enabled = true
+	err := ApplyAuthEnv(cfg, fakeEnv(map[string]string{
+		EnvOIDCClientID:                 "cid",
+		EnvOIDCClientID + envFileSuffix: "",
+	}), noFiles)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Auth.OIDC.ClientID != "cid" || cfg.EnvOverrides()[string(OverrideOIDCClientID)] != EnvOIDCClientID {
+		t.Errorf("client id = %q, %v", cfg.Auth.OIDC.ClientID, cfg.EnvOverrides())
+	}
+}

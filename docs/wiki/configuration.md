@@ -287,6 +287,8 @@ If the referenced environment variable is not set, the `${VAR}` reference is lef
 
 This is the complete list of environment variables Muximux reads. Most of them override a `config.yaml` setting without needing `${VAR}` syntax in the file.
 
+A variable that is set but empty or only whitespace counts as unset, for every variable below. A Compose entry such as `MUXIMUX_LISTEN=${LISTEN}` therefore leaves the config file value in place when `LISTEN` is not defined, instead of forcing an empty value.
+
 ### Process and logging
 
 | Variable | Overrides | Values | Default |
@@ -307,7 +309,7 @@ The Docker image starts Muximux with `--data /app/data`, and a flag wins over it
 | `MUXIMUX_DISCOVERY_AUTO_IMPORT` | `discovery.docker.auto_import` | `off`, `add`, `update`, `sync` | From config file |
 | `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | `discovery.docker.require_explicit_enable` | Boolean | From config file |
 
-An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warning, and so is a variable that is set but empty. An invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value (including an empty one) is ignored with a warning and the config file value stays. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
+An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warning. An invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value is ignored with a warning and the config file value stays. An empty value counts as unset for both. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
 
 ### Authentication and OIDC
 
@@ -333,7 +335,7 @@ An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warn
 | `MUXIMUX_OIDC_AUTO_REDIRECT` | `auth.oidc.auto_redirect` | Boolean |
 | `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` | `auth.oidc.disable_local_login` | Boolean |
 
-Each defaults to the config file value. An empty or blank auth variable counts as unset. Setting both `X` and `X_FILE` is an error. Invalid auth configuration stops startup instead of leaving the instance open, for example an unknown `MUXIMUX_AUTH_METHOD`, or OIDC variables without `MUXIMUX_AUTH_METHOD` on an instance whose `config.yaml` is not already on OIDC. An unknown `MUXIMUX_OIDC_*` name is logged as a warning. The full rules, with examples, are in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables); Compose and Swarm examples with Docker secrets are in [Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets).
+Each defaults to the config file value. An empty or blank auth variable counts as unset, including an empty `X_FILE`, so `X=value` with `X_FILE=` uses the value. Setting both `X` and `X_FILE` is an error. Invalid auth configuration stops startup instead of leaving the instance open, for example an unknown `MUXIMUX_AUTH_METHOD`, or OIDC variables without `MUXIMUX_AUTH_METHOD` on an instance whose `config.yaml` is not already on OIDC. An unknown `MUXIMUX_OIDC_*` name is logged as a warning. The full rules, with examples, are in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables); Compose and Swarm examples with Docker secrets are in [Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets).
 
 ### Container image
 
