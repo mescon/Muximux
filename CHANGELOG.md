@@ -4,15 +4,22 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
-### Changed
-- **Upgrade note:** a misspelt or empty boolean label (for example
-  `muximux.app.enabled=tru` or `muximux.gateway.require_auth=`) is now
-  ignored instead of reading as false; an existing app or site keeps its
-  current value. Boolean labels accept `true`/`1`/`yes`/`on` and
-  `false`/`0`/`no`/`off`. Also, an empty `MUXIMUX_*` override variable (for
-  example `MUXIMUX_DISCOVERY_AUTO_IMPORT=` from a Compose `${VAR}` that is
-  not defined) no longer forces a value: it counts as unset and the config
-  file value stays.
+## [3.6.2] - 2026-10-14
+
+Sidebar fixes and safer parsing: groups in the icon-only sidebar can be
+expanded and collapsed again, the health tooltip no longer pops up when you
+click an app, and a misspelt or empty boolean Docker label or environment
+variable no longer changes anything behind your back.
+
+Upgrade notes:
+- A misspelt or empty boolean label (for example `muximux.app.enabled=tru`
+  or `muximux.gateway.require_auth=`) is now ignored instead of reading as
+  false; an existing app or site keeps its current value, and the Discover
+  modal notes the label. Boolean labels accept `true`/`1`/`yes`/`on` and
+  `false`/`0`/`no`/`off`.
+- An empty `MUXIMUX_*` override variable (for example
+  `MUXIMUX_DISCOVERY_AUTO_IMPORT=` from a Compose `${VAR}` that is not
+  defined) no longer forces a value; the config file value stays.
 
 ### Fixed
 - **Boolean labels are strict.** Every boolean `muximux.app.*` and
@@ -36,6 +43,12 @@ All notable changes to Muximux are documented in this file.
   could stay until the next click). It now needs hover on the dot or
   keyboard focus, and closes on leave, click elsewhere, Escape, scroll or
   app switch. (#522)
+
+### Security
+- **Theme deletion is confined to the themes directory.** Removing a custom
+  theme now goes through `os.Root`, so the path cannot leave the themes
+  directory even if the name check were loosened; a themes directory that
+  cannot be opened returns an error instead of "not found".
 
 ## [3.6.1] - 2026-10-12
 
