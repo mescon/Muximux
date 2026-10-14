@@ -27,6 +27,15 @@ All notable changes to Muximux are documented in this file.
   `MUXIMUX_BASE_PATH`, `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`,
   `MUXIMUX_DATA` and `MUXIMUX_CONFIG` now treat an empty or whitespace-only
   value as unset, as the auth and OIDC variables already did.
+- **Sidebar groups expand and collapse with Show Labels off.** The group
+  icon in the icon-only left and right sidebars is now a button with
+  `aria-expanded` and the group name as its accessible name; it was inert,
+  so apps in a collapsed group could not be reached. (#523)
+- **The health tooltip opens only from the indicator.** Clicking an app no
+  longer opens it (a mouse click focused the link and opened it, and it
+  could stay until the next click). It now needs hover on the dot or
+  keyboard focus, and closes on leave, click elsewhere, Escape, scroll or
+  app switch. (#522)
 
 ## [3.6.1] - 2026-10-12
 

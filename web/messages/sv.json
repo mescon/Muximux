@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Ta bort ”{name}” från config.yaml?",
   "discovery_confirmRemoveAll": "Ta bort alla {count} ogiltiga automatiskt importerade poster från config.yaml?",
   "discovery_detachFailed": "Det gick inte att koppla bort {name}: {error}",
-  "discovery_removeFailed": "Det gick inte att ta bort {name}: {error}"
+  "discovery_removeFailed": "Det gick inte att ta bort {name}: {error}",
+  "nav_toggleGroup": "Expandera eller fäll ihop gruppen {group}"
 }

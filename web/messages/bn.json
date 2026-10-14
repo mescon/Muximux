@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "config.yaml থেকে \"{name}\" সরাবেন?",
   "discovery_confirmRemoveAll": "স্বয়ংক্রিয়ভাবে ইমপোর্ট করা সব {count}টি অবৈধ এন্ট্রি config.yaml থেকে সরাবেন?",
   "discovery_detachFailed": "{name} বিচ্ছিন্ন করা যায়নি: {error}",
-  "discovery_removeFailed": "{name} সরানো যায়নি: {error}"
+  "discovery_removeFailed": "{name} সরানো যায়নি: {error}",
+  "nav_toggleGroup": "{group} গ্রুপ প্রসারিত বা সংকুচিত করুন"
 }

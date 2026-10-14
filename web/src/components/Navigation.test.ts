@@ -4029,3 +4029,65 @@ describe('Navigation Docker whale visibility (#515)', () => {
     });
   }
 });
+
+describe('Navigation sidebar group toggle (#523)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  for (const position of ['left', 'right'] as const) {
+    for (const showLabels of [true, false]) {
+      it(`toggles a group with the ${position} sidebar, show_labels=${showLabels}`, async () => {
+        const { container } = render(Navigation, {
+          props: {
+            apps: sampleApps,
+            currentApp: null,
+            config: makeConfig({
+              navigation: { position, show_labels: showLabels, auto_hide: false },
+              groups: [mediaGroup, toolsGroup],
+            }),
+          },
+        });
+        const header = (showLabels
+          ? screen.getAllByText('Media').map((el) => el.closest('button')!).find((b) => b.hasAttribute('aria-expanded'))
+          : screen.getByRole('button', { name: /Media/ }))!;
+        expect(header).toBeTruthy();
+        expect(header).toHaveAttribute('aria-expanded', 'true');
+        if (!showLabels) {
+          expect(header.getAttribute('aria-label')).toContain('Media');
+          expect(header.style.pointerEvents).not.toBe('none');
+        }
+        const wrapper = header.parentElement!.querySelector('.group-apps-wrapper')!;
+        expect(wrapper).toHaveClass('expanded');
+
+        await fireEvent.click(header);
+        expect(header).toHaveAttribute('aria-expanded', 'false');
+        expect(wrapper).not.toHaveClass('expanded');
+        expect(JSON.parse(localStorage.getItem('muximux_expanded_groups')!).Media).toBe(false);
+
+        await fireEvent.click(header);
+        expect(header).toHaveAttribute('aria-expanded', 'true');
+        expect(wrapper).toHaveClass('expanded');
+        expect(container).toBeTruthy();
+      });
+    }
+  }
+
+  it('expands a group that was collapsed while labels were on, once labels are off', async () => {
+    localStorage.setItem('muximux_expanded_groups', JSON.stringify({ Media: false, Tools: true }));
+    render(Navigation, {
+      props: {
+        apps: sampleApps,
+        currentApp: null,
+        config: makeConfig({
+          navigation: { position: 'left', show_labels: false, auto_hide: false },
+          groups: [mediaGroup, toolsGroup],
+        }),
+      },
+    });
+    const header = screen.getByRole('button', { name: /Media/ });
+    expect(header).toHaveAttribute('aria-expanded', 'false');
+    await fireEvent.click(header);
+    expect(header).toHaveAttribute('aria-expanded', 'true');
+  });
+});

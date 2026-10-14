@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "„{name}“ aus config.yaml entfernen?",
   "discovery_confirmRemoveAll": "Alle {count} ungültigen automatisch importierten Einträge aus config.yaml entfernen?",
   "discovery_detachFailed": "{name} konnte nicht gelöst werden: {error}",
-  "discovery_removeFailed": "{name} konnte nicht entfernt werden: {error}"
+  "discovery_removeFailed": "{name} konnte nicht entfernt werden: {error}",
+  "nav_toggleGroup": "Gruppe {group} ein- oder ausklappen"
 }

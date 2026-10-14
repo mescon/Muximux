@@ -1376,8 +1376,11 @@
           <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
             class="w-full flex items-center py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary"
-            onclick={() => !isCollapsed && toggleGroup(groupName)}
-            style="pointer-events: {isCollapsed ? 'none' : 'auto'};"
+            onclick={() => (!isCollapsed || !config.navigation.show_labels) && toggleGroup(groupName)}
+            aria-expanded={!!expandedGroups[groupName]}
+            aria-label={config.navigation.show_labels ? undefined : m.nav_toggleGroup({ group: displayGroupName(groupName) })}
+            title={config.navigation.show_labels ? undefined : displayGroupName(groupName)}
+            style="pointer-events: {isCollapsed && config.navigation.show_labels ? 'none' : 'auto'};"
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
               {#if hasIcon(groupConfig?.icon)}
@@ -1801,8 +1804,11 @@
           <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
             class="w-full flex items-center py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary"
-            onclick={() => !isCollapsedRight && toggleGroup(groupName)}
-            style="pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
+            onclick={() => (!isCollapsedRight || !config.navigation.show_labels) && toggleGroup(groupName)}
+            aria-expanded={!!expandedGroups[groupName]}
+            aria-label={config.navigation.show_labels ? undefined : m.nav_toggleGroup({ group: displayGroupName(groupName) })}
+            title={config.navigation.show_labels ? undefined : displayGroupName(groupName)}
+            style="pointer-events: {isCollapsedRight && config.navigation.show_labels ? 'none' : 'auto'};"
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
               {#if hasIcon(groupConfig?.icon)}
@@ -2420,6 +2426,7 @@
               <button
                 class="w-full flex items-center py-1 px-1 text-xs font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary rounded"
                 onclick={() => toggleGroup(groupName)}
+                aria-expanded={!!expandedGroups[groupName]}
               >
                 <div class="flex-shrink-0 flex items-center justify-center w-6">
                   {#if hasIcon(groupConfig?.icon)}

@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "Pašalinti „{name}“ iš config.yaml?",
   "discovery_confirmRemoveAll": "Pašalinti iš config.yaml visus netinkamus automatiškai importuotus įrašus ({count})?",
   "discovery_detachFailed": "Nepavyko atsieti {name}: {error}",
-  "discovery_removeFailed": "Nepavyko pašalinti {name}: {error}"
+  "discovery_removeFailed": "Nepavyko pašalinti {name}: {error}",
+  "nav_toggleGroup": "Išskleisti arba sutraukti grupę {group}"
 }

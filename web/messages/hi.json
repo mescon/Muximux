@@ -993,5 +993,6 @@
   "discovery_confirmRemove": "\"{name}\" को config.yaml से हटाएं?",
   "discovery_confirmRemoveAll": "अपने आप इम्पोर्ट की गई सभी {count} अमान्य प्रविष्टियाँ config.yaml से हटाएं?",
   "discovery_detachFailed": "{name} को अलग नहीं किया जा सका: {error}",
-  "discovery_removeFailed": "{name} को हटाया नहीं जा सका: {error}"
+  "discovery_removeFailed": "{name} को हटाया नहीं जा सका: {error}",
+  "nav_toggleGroup": "समूह {group} को विस्तृत या संक्षिप्त करें"
 }
