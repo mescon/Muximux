@@ -242,7 +242,7 @@
     onmouseleave={scheduleHide}
     onblur={host ? undefined : hideTip}
     onkeydown={standaloneFocusable ? onKey : undefined}
-    class="inline-block {sizeClasses[size]} {getStatusClass(status)}"
+    class="health-hit inline-block {sizeClasses[size]} {getStatusClass(status)}"
   ></span>
   <!-- Portal container: moved to document.body on mount; the tooltip is position: fixed. -->
   <div class="health-tooltip-portal" use:portal>
@@ -305,6 +305,16 @@
 </div>
 
 <style>
+  /* Invisible ~20px hover target around the dot. The pseudo-element belongs to the dot, so
+     hover lands on it, a click still bubbles to the host link, and layout does not move. */
+  .health-hit {
+    position: relative;
+  }
+  .health-hit::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
   .health-tooltip {
     position: fixed;
     z-index: 99999;

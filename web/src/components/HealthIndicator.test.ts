@@ -773,6 +773,18 @@ describe('HealthIndicator', () => {
       host.remove();
     });
 
+    it('has an enlarged hit area on the indicator that opens the tooltip and still lets clicks reach the host', async () => {
+      const { host, dot } = mountInHost();
+      expect(dot).toHaveClass('health-hit');
+      const onClick = vi.fn();
+      host.addEventListener('click', onClick);
+      await fireEvent.mouseEnter(dot);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await fireEvent.click(dot);
+      expect(onClick).toHaveBeenCalled();
+      host.remove();
+    });
+
     it('does not open when hovering the entry', async () => {
       const { host, label } = mountInHost();
       await fireEvent.mouseEnter(host);
