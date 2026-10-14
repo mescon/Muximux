@@ -376,8 +376,8 @@ Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](
 
 How values are read:
 
-- **Booleans** are true for `true`, `1`, `yes` or `on` (case-insensitive); any other value is false.
-- **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set. Booleans are the exception: a misspelt value such as `muximux.app.enabled=tru` reads as false, so check the spelling.
+- **Booleans** are true for `true`, `1`, `yes` or `on` and false for `false`, `0`, `no` or `off` (case-insensitive, surrounding spaces ignored). Any other value is ignored as if the label were not set, and an empty value counts as not set. This applies to every boolean label (`enabled`, `default`, `proxy`, `proxy_skip_tls_verify`, `allow_notifications`, `health_check`, `http_action_confirm`, `http_action_show_toast` and the `muximux.gateway.*` ones), so a misspelt `muximux.app.enabled=tru` does not opt the container out.
+- **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set. Each ignored value is listed in the Discover modal's notes for the container and logged as a warning once, until it changes.
 - **Labels that are set win while an app is tracked.** On apps you imported by hand, `muximux.app.name`, `icon`, `group` and `order` are re-synced on every refresh, whatever the `auto_import` mode. Auto-imported apps are re-synced from all their labels under `update`/`sync` and left alone under `off` and `add`. The `muximux.group.*` labels apply to groups Docker discovery created. A label that is not set never changes anything. To take a field back, remove the label or **Detach** the app. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps) and [Group labels](#group-labels).
 - Unknown `muximux.*` labels are listed in the Discover modal's notes for the container.
 

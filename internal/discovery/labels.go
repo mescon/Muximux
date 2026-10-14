@@ -1,9 +1,14 @@
 package discovery
 
 import (
+	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // Recognised label names. Listed here so a typo in operator labels
@@ -45,8 +50,8 @@ const (
 
 	LabelAppHTTPActionMethod    = "muximux.app.http_action_method"     // GET | POST | PUT | DELETE | PATCH
 	LabelAppHTTPActionHeaders   = "muximux.app.http_action_headers"    // Key=Value,Key2=Value2 (CSV)
-	LabelAppHTTPActionConfirm   = "muximux.app.http_action_confirm"    // boolish
-	LabelAppHTTPActionShowToast = "muximux.app.http_action_show_toast" // boolish; default true
+	LabelAppHTTPActionConfirm   = "muximux.app.http_action_confirm"    // boolean
+	LabelAppHTTPActionShowToast = "muximux.app.http_action_show_toast" // boolean; default true
 
 	// muximux.gateway.* namespace - per-gateway-site fields. Only
 	// consulted when the same container also has app.gateway.domain
@@ -79,6 +84,9 @@ type AppLabels struct {
 	Icon    IconRef // see ParseIconLabel; zero = unset or invalid
 	// IconInvalid is why a set icon label was ignored; "" = usable or unset.
 	IconInvalid string
+	// BoolInvalid lists, in label order, the boolean labels whose value was
+	// not a recognised boolean and so was ignored (as if unset).
+	BoolInvalid []string
 	Group       string
 	Port        int    // 0 = unset
 	Scheme      string // "" = unset
@@ -130,6 +138,9 @@ type GatewayLabels struct {
 	RequireAuth        *bool
 	MinRole            string
 	AllowedGroups      []string
+	// Invalid lists, in label order, the boolean labels whose value was not
+	// a recognised boolean and so was ignored (as if unset).
+	Invalid []string
 }
 
 // appLabelHandlers maps each recognised muximux.app.* label name to
@@ -138,7 +149,7 @@ type GatewayLabels struct {
 // low-complexity (one map lookup per label, no giant switch) and
 // makes adding a new label a single-line entry.
 var appLabelHandlers = map[string]func(out *AppLabels, v string){
-	LabelAppEnabled: func(out *AppLabels, v string) { b := boolish(v); out.Enabled = &b },
+	LabelAppEnabled: appBool(LabelAppEnabled, func(o *AppLabels) **bool { return &o.Enabled }),
 	// Name, icon and group are trimmed so a stray space in a compose file
 	// neither renames the app nor points at a missing icon or group. The icon
 	// is parsed by ParseIconLabel (dashboard slug, lucide:, url: or a URL).
@@ -169,15 +180,15 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 			out.OrderSet = true
 		}
 	},
-	LabelAppDefault: func(out *AppLabels, v string) { b := boolish(v); out.Default = &b },
+	LabelAppDefault: appBool(LabelAppDefault, func(o *AppLabels) **bool { return &o.Default }),
 	LabelAppOpenMode: func(out *AppLabels, v string) {
 		lv := strings.ToLower(strings.TrimSpace(v))
 		if lv == "iframe" || lv == "new_tab" || lv == "new_window" || lv == "redirect" || lv == "http_action" {
 			out.OpenMode = lv
 		}
 	},
-	LabelAppProxy:              func(out *AppLabels, v string) { b := boolish(v); out.Proxy = &b },
-	LabelAppProxySkipTLSVerify: func(out *AppLabels, v string) { b := boolish(v); out.ProxySkipTLSVerify = &b },
+	LabelAppProxy:              appBool(LabelAppProxy, func(o *AppLabels) **bool { return &o.Proxy }),
+	LabelAppProxySkipTLSVerify: appBool(LabelAppProxySkipTLSVerify, func(o *AppLabels) **bool { return &o.ProxySkipTLSVerify }),
 	LabelAppMinRole: func(out *AppLabels, v string) {
 		lv := strings.ToLower(strings.TrimSpace(v))
 		if lv == "user" || lv == "power-user" || lv == "admin" {
@@ -186,13 +197,13 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	},
 	LabelAppAllowedGroups:      func(out *AppLabels, v string) { out.AllowedGroups = splitCSV(v) },
 	LabelAppPermissions:        func(out *AppLabels, v string) { out.Permissions = splitCSV(v) },
-	LabelAppAllowNotifications: func(out *AppLabels, v string) { b := boolish(v); out.AllowNotifications = &b },
+	LabelAppAllowNotifications: appBool(LabelAppAllowNotifications, func(o *AppLabels) **bool { return &o.AllowNotifications }),
 	LabelAppShortcut: func(out *AppLabels, v string) {
 		if n, err := strconv.Atoi(v); err == nil && n >= 1 && n <= 9 {
 			out.Shortcut = n
 		}
 	},
-	LabelAppHealthCheck:   func(out *AppLabels, v string) { b := boolish(v); out.HealthCheck = &b },
+	LabelAppHealthCheck:   appBool(LabelAppHealthCheck, func(o *AppLabels) **bool { return &o.HealthCheck }),
 	LabelAppGatewayDomain: func(out *AppLabels, v string) { out.GatewayDomain = v },
 	LabelAppURL:           func(out *AppLabels, v string) { out.URL = strings.TrimSpace(v) },
 	LabelAppHTTPActionMethod: func(out *AppLabels, v string) {
@@ -205,14 +216,8 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppHTTPActionHeaders: func(out *AppLabels, v string) {
 		out.HTTPActionHeaders = parseHTTPActionHeadersCSV(v)
 	},
-	LabelAppHTTPActionConfirm: func(out *AppLabels, v string) {
-		b := boolish(v)
-		out.HTTPActionConfirm = &b
-	},
-	LabelAppHTTPActionShowToast: func(out *AppLabels, v string) {
-		b := boolish(v)
-		out.HTTPActionShowToast = &b
-	},
+	LabelAppHTTPActionConfirm:   appBool(LabelAppHTTPActionConfirm, func(o *AppLabels) **bool { return &o.HTTPActionConfirm }),
+	LabelAppHTTPActionShowToast: appBool(LabelAppHTTPActionShowToast, func(o *AppLabels) **bool { return &o.HTTPActionShowToast }),
 }
 
 // knownNonAppLabels are recognised muximux.* names that ParseAppLabels
@@ -259,6 +264,8 @@ func ParseAppLabels(labels map[string]string) AppLabels {
 		}
 		out.Unknown = append(out.Unknown, k)
 	}
+	// Map order is random; keep the notes and the WARN stable.
+	sort.Strings(out.BoolInvalid)
 	return out
 }
 
@@ -275,11 +282,11 @@ var gatewayLabelHandlers = map[string]func(out *GatewayLabels, v string){
 			out.TLS = lv
 		}
 	},
-	LabelGatewayStreaming:          func(out *GatewayLabels, v string) { b := boolish(v); out.Streaming = &b },
-	LabelGatewayStripFrameBlockers: func(out *GatewayLabels, v string) { b := boolish(v); out.StripFrameBlockers = &b },
-	LabelGatewayForwardedHeaders:   func(out *GatewayLabels, v string) { b := boolish(v); out.ForwardedHeaders = &b },
-	LabelGatewaySkipTLSVerify:      func(out *GatewayLabels, v string) { b := boolish(v); out.SkipTLSVerify = &b },
-	LabelGatewayRequireAuth:        func(out *GatewayLabels, v string) { b := boolish(v); out.RequireAuth = &b },
+	LabelGatewayStreaming:          gatewayBool(LabelGatewayStreaming, func(o *GatewayLabels) **bool { return &o.Streaming }),
+	LabelGatewayStripFrameBlockers: gatewayBool(LabelGatewayStripFrameBlockers, func(o *GatewayLabels) **bool { return &o.StripFrameBlockers }),
+	LabelGatewayForwardedHeaders:   gatewayBool(LabelGatewayForwardedHeaders, func(o *GatewayLabels) **bool { return &o.ForwardedHeaders }),
+	LabelGatewaySkipTLSVerify:      gatewayBool(LabelGatewaySkipTLSVerify, func(o *GatewayLabels) **bool { return &o.SkipTLSVerify }),
+	LabelGatewayRequireAuth:        gatewayBool(LabelGatewayRequireAuth, func(o *GatewayLabels) **bool { return &o.RequireAuth }),
 	LabelGatewayMinRole: func(out *GatewayLabels, v string) {
 		lv := strings.ToLower(strings.TrimSpace(v))
 		if lv == "user" || lv == "power-user" || lv == "admin" {
@@ -299,18 +306,35 @@ func ParseGatewayLabels(labels map[string]string) GatewayLabels {
 			h(&out, v)
 		}
 	}
+	sort.Strings(out.Invalid)
 	return out
 }
 
-// boolish parses common truthy strings (case-insensitive "true",
-// "1", "yes", "on") into bool. Anything else is false. Centralised
-// so all boolean labels agree on parsing.
-func boolish(v string) bool {
-	switch strings.ToLower(strings.TrimSpace(v)) {
-	case "true", "1", "yes", "on":
-		return true
+// parseBoolLabel reads a boolean label. A blank value counts as unset. A
+// value that is not true/1/yes/on or false/0/no/off (case-insensitive,
+// trimmed) is ignored as if the label were unset and described in invalid,
+// so a typo such as "tru" never opts a container out. The rule is shared
+// with the environment overrides (config.ParseBool).
+func parseBoolLabel(name, v string, dst **bool, invalid *[]string) {
+	if strings.TrimSpace(v) == "" {
+		return
 	}
-	return false
+	b, ok := config.ParseBool(v)
+	if !ok {
+		*invalid = append(*invalid, fmt.Sprintf("%s %q is not a boolean (use true or false)", name, v))
+		return
+	}
+	*dst = &b
+}
+
+// appBool builds the handler of one boolean muximux.app.* label.
+func appBool(name string, field func(*AppLabels) **bool) func(*AppLabels, string) {
+	return func(out *AppLabels, v string) { parseBoolLabel(name, v, field(out), &out.BoolInvalid) }
+}
+
+// gatewayBool builds the handler of one boolean muximux.gateway.* label.
+func gatewayBool(name string, field func(*GatewayLabels) **bool) func(*GatewayLabels, string) {
+	return func(out *GatewayLabels, v string) { parseBoolLabel(name, v, field(out), &out.Invalid) }
 }
 
 // hexColorPattern matches "#" followed by 3, 4, 6, or 8 hex digits.
@@ -426,4 +450,30 @@ func KeyForContainer(c *ContainerSummary) (key string, stability Stability) {
 		}
 	}
 	return "id:" + c.ID, StabilityRecreateFragile
+}
+
+// warnInvalidBoolLabels logs, once per transition, the boolean labels of
+// each container whose value was not a recognised boolean and so was
+// ignored. Rebuilt every tick, so a fixed label is forgotten and a later
+// regression warns again.
+func (p *Poller) warnInvalidBoolLabels(containers []ContainerSummary) {
+	invalid := map[string]string{}
+	for i := range containers {
+		c := &containers[i]
+		app := ParseAppLabels(c.Labels)
+		gw := ParseGatewayLabels(c.Labels)
+		reasons := append(append([]string(nil), app.BoolInvalid...), gw.Invalid...)
+		if len(reasons) == 0 {
+			continue
+		}
+		key, _ := KeyForContainer(c)
+		invalid[key] = strings.Join(reasons, "; ")
+	}
+	for k, reason := range invalid {
+		if p.boolLabelInvalid[k] != reason {
+			logging.Warn("Docker boolean label ignored: invalid value",
+				"source", "discovery", "key", k, "reason", reason)
+		}
+	}
+	p.boolLabelInvalid = invalid
 }

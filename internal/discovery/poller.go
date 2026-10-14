@@ -94,6 +94,10 @@ type Poller struct {
 	// every tick by planGroupLabels. Only touched from tick().
 	groupLabelInvalid  map[string]string
 	groupLabelConflict map[string]string
+	// boolLabelInvalid records, per tracking key, the last logged invalid
+	// boolean label values, so each is logged once per transition. Rebuilt
+	// every tick by warnInvalidBoolLabels. Only touched from tick().
+	boolLabelInvalid map[string]string
 }
 
 // syncRemovalGraceTicks is how many consecutive successful scans a
@@ -722,6 +726,7 @@ func (p *Poller) tick(ctx context.Context) {
 	// would change, so such a tick is not skipped as empty.
 	batch.containers = containers
 	batch.groupLabelsDirty = p.planGroupLabels(&groupSnap, containers)
+	p.warnInvalidBoolLabels(containers)
 
 	if batch.empty() {
 		svc.RecordRefreshTickSuccess()

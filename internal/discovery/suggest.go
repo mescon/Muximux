@@ -238,6 +238,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrat
 	applyLabelOverrides(&s, &labels)
 	attachGatewayLabels(&s, c.Labels)
 	surfaceUnknownLabels(&s, &labels)
+	surfaceInvalidBoolLabels(&s, labels.BoolInvalid)
 	s.groupLabels = ParseGroupLabels(c.Labels)
 	noteGroupLabels(&s, &s.groupLabels)
 
@@ -463,6 +464,7 @@ func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
 		return
 	}
 	gw := ParseGatewayLabels(containerLabels)
+	surfaceInvalidBoolLabels(s, gw.Invalid)
 	if !gatewayLabelsNonEmpty(&gw) {
 		return
 	}
@@ -475,6 +477,14 @@ func attachGatewayLabels(s *Suggestion, containerLabels map[string]string) {
 		RequireAuth:        gw.RequireAuth,
 		MinRole:            gw.MinRole,
 		AllowedGroups:      gw.AllowedGroups,
+	}
+}
+
+// surfaceInvalidBoolLabels adds a scan note for each boolean label whose
+// value was not a recognised boolean and so was ignored.
+func surfaceInvalidBoolLabels(s *Suggestion, invalid []string) {
+	for _, r := range invalid {
+		s.Notes = append(s.Notes, "Boolean label ignored: "+r)
 	}
 }
 

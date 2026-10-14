@@ -4,6 +4,27 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Upgrade note:** a misspelt boolean label (for example
+  `muximux.app.enabled=tru`) is now ignored as if it were not set, instead of
+  reading as false. Boolean labels accept `true`/`1`/`yes`/`on` and
+  `false`/`0`/`no`/`off`. Also, an empty `MUXIMUX_*` override variable (for
+  example `MUXIMUX_DISCOVERY_AUTO_IMPORT=` from a Compose `${VAR}` that is
+  not defined) no longer forces a value: it counts as unset and the config
+  file value stays.
+
+### Fixed
+- **Boolean labels are strict.** Every boolean `muximux.app.*` and
+  `muximux.gateway.*` label takes `true`/`1`/`yes`/`on` or
+  `false`/`0`/`no`/`off` (case-insensitive); any other value is ignored with
+  a note in the Discover modal and one warning in the log, so a typo no longer
+  opts a container out.
+- **An empty environment override counts as unset.** `MUXIMUX_DISCOVERY_AUTO_IMPORT`,
+  `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_LISTEN`,
+  `MUXIMUX_BASE_PATH`, `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`,
+  `MUXIMUX_DATA` and `MUXIMUX_CONFIG` now treat an empty or whitespace-only
+  value as unset, as the auth and OIDC variables already did.
+
 ## [3.6.1] - 2026-10-12
 
 Muximux can now be deployed entirely from the environment: the auth method
