@@ -14,7 +14,7 @@
 
   // Forwarded from the tracked-entries list so Settings can refresh its copy
   // of the config after a detach or re-link.
-  let { ontrackingchanged } = $props<{ ontrackingchanged?: () => void }>();
+  let { ontrackingchanged }: { ontrackingchanged?: () => void } = $props();
 
   // Bumped after a save so the tracked-entries panel reloads (a
   // newly-changed endpoint may strand existing tracking and we want

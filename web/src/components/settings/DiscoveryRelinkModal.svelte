@@ -3,7 +3,7 @@
   import { probeDockerRelink, confirmDockerRelink, detachDockerTracked, errorText } from '$lib/api';
   import { focusTrap } from '$lib/focusTrap';
 
-  let { trackingKey, onClose } = $props<{ trackingKey: string; onClose: () => void }>();
+  let { trackingKey, onClose }: { trackingKey: string; onClose: () => void } = $props();
 
   let probing = $state(true);
   let probeResult = $state<DiscoveryRelinkProbeResult | null>(null);
