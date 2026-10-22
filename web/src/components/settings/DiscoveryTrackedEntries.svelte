@@ -10,7 +10,7 @@
   // detach / re-link from elsewhere. Defaults to 0; any change reloads.
   // ontrackingchanged tells the parent that tracking may have changed on the
   // server (detach, re-link) so the Settings dialog can refresh its own copy.
-  let { refreshKey = 0, ontrackingchanged } = $props<{ refreshKey?: number; ontrackingchanged?: () => void }>();
+  let { refreshKey = 0, ontrackingchanged }: { refreshKey?: number; ontrackingchanged?: () => void } = $props();
 
   let result = $state<DiscoveryTrackedListResult | null>(null);
   let loading = $state(true);
