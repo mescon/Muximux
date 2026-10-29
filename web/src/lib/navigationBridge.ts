@@ -22,8 +22,8 @@
  * - The sender must have allow_navigation: true in its Muximux config and
  *   its iframe must currently be visible, so a hidden background app cannot
  *   steer the UI.
- * - The target is looked up by slug or display name among configured apps;
- *   only iframe-mode apps are valid targets.
+ * - The target is looked up by slug or display name among enabled
+ *   configured apps; only iframe-mode apps are valid targets.
  * - The path is validated by resolveDeepLink, which keeps it inside the
  *   target app; callers can never supply an arbitrary URL.
  *
@@ -81,7 +81,6 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
   const lastNavigated = new Map<string, number>();
 
   function reply(event: MessageEvent, payload: { ok: true } | { ok: false; error: NavigateError }): void {
-    if (!event.source) return;
     try {
       // Narrow to Window.postMessage (ports/SW have a different signature).
       (event.source as Window).postMessage(
@@ -134,7 +133,8 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
       return;
     }
 
-    const apps = opts.getApps();
+    // A disabled app is not shown in Muximux, so it is never a target.
+    const apps = opts.getApps().filter(a => a.enabled !== false);
     const target = apps.find(a => slugify(a.name) === targetName)
       ?? apps.find(a => a.name === targetName);
     if (!target) {

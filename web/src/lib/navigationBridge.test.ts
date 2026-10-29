@@ -137,6 +137,16 @@ describe('navigationBridge', () => {
     expect(onNavigate).not.toHaveBeenCalled();
   });
 
+  it('5: unknown_app for a disabled target, by slug or name', () => {
+    const { frame } = setup(sender(), makeApp({ name: 'My Target', url: 'https://t.local', enabled: false }));
+    send(frame, { type: 'muximux:navigate', app: 'my-target' });
+    clock += NAV_RATE_LIMIT_MS;
+    send(frame, { type: 'muximux:navigate', app: 'My Target' });
+    expect(posts.get(frame)).toHaveBeenCalledTimes(2);
+    expectReply(frame, 'unknown_app');
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
   it('5: matches the target by slug', () => {
     const { s, t, frame } = setup();
     send(frame, { type: 'muximux:navigate', app: 'my-target' });
@@ -239,11 +249,12 @@ describe('navigationBridge', () => {
     expect(onNavigate).toHaveBeenCalledTimes(1);
   });
 
-  it('does not reply when the event has no source', () => {
-    setup();
-    // Refusal path with no source: reply() must bail out quietly.
-    window.dispatchEvent(new MessageEvent('message', { data: { type: 'muximux:navigate', app: 'x' }, origin: 'https://s.local' }));
+  it('1: a message without a source matches no sender and gets no reply', () => {
+    const { frame } = setup();
+    window.dispatchEvent(new MessageEvent('message', { data: { type: 'muximux:navigate', app: 'my-target' }, origin: 'https://s.local' }));
+    expect(warn).toHaveBeenCalledWith('[muximux:navigate] no matching app for message', expect.anything());
     expect(onNavigate).not.toHaveBeenCalled();
+    expect(posts.get(frame)).not.toHaveBeenCalled();
   });
 
   it('cleanup removes the listener', () => {

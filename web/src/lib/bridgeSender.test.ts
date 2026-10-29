@@ -50,11 +50,17 @@ describe('findSenderFrame', () => {
     expect(findSenderFrame([app], 'https://a.local', frame.contentWindow)).toBeUndefined();
   });
 
-  it('accepts any origin for a proxied app from its own frame', () => {
+  it('accepts a proxied app reporting Muximux\'s own origin', () => {
     const app = makeApp({ name: 'P', url: 'https://p.local', proxyUrl: '/proxy/p/' });
     const frame = addFrame(app);
-    const res = findSenderFrame([app], 'http://localhost', frame.contentWindow);
+    const res = findSenderFrame([app], window.location.origin, frame.contentWindow);
     expect(res?.app).toBe(app);
+  });
+
+  it('rejects a proxied app reporting a foreign origin', () => {
+    const app = makeApp({ name: 'P', url: 'https://p.local', proxyUrl: '/proxy/p/' });
+    const frame = addFrame(app);
+    expect(findSenderFrame([app], 'https://p.local', frame.contentWindow)).toBeUndefined();
   });
 
   it('returns undefined when the app is missing from the list', () => {

@@ -130,6 +130,21 @@ describe('resolveDeepLink', () => {
       const app = url('http://emby/web/index.html', { proxyUrl: '/proxy/emby/' });
       expect(resolveDeepLink(app, '/web/other')).toEqual({ ok: false });
     });
+
+    it('rejects a sibling of the proxy target file', () => {
+      const app = url('http://emby/web/index.html', { proxyUrl: '/proxy/emby/' });
+      expect(resolveDeepLink(app, '/web/index.htmlX')).toEqual({ ok: false });
+    });
+  });
+
+  describe('regression pins', () => {
+    it('rejects a sibling directory sharing the base prefix', () => {
+      expect(resolveDeepLink(url('http://host/sonarr/'), '/sonarrX/')).toEqual({ ok: false });
+    });
+
+    it.each([' javascript:alert(1)', ' //evil', '\t//evil'])('rejects leading whitespace bypass %j', (p) => {
+      expect(resolveDeepLink(url('http://host/sonarr/'), p)).toEqual({ ok: false });
+    });
   });
 });
 

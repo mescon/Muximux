@@ -8,9 +8,10 @@ import type { App } from './types';
  * but it cannot pretend to be a different window handle. Iterate iframes and
  * match by source only.
  *
- * For non-proxied (cross-origin) apps we additionally check that the reported
- * `origin` matches the app's configured URL, as a second line of defence if
- * the data-app attribute is ever reused.
+ * As a second line of defence we also check the reported `origin`: a
+ * non-proxied (cross-origin) app must report the origin of its configured
+ * URL, and a proxied app is served from Muximux itself, so it must report
+ * Muximux's own origin.
  *
  * No window-handle match means the sender is not one of our registered
  * iframes, so nothing is returned. This closes the cross-app spoofing path:
@@ -28,7 +29,9 @@ export function findSenderFrame(
     const name = frame.dataset.app;
     const app = apps.find(a => a.name === name);
     if (!app) return undefined;
-    if (!app.proxyUrl) {
+    if (app.proxyUrl) {
+      if (origin !== window.location.origin) return undefined;
+    } else {
       try {
         if (new URL(app.url).origin !== origin) return undefined;
       } catch {
