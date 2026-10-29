@@ -132,7 +132,8 @@ export function applyFrameLink(
     actions.setHash(req.hash);
     return;
   }
-  const app = apps.find(a => slugify(a.name) === slug);
+  const app = apps.find(a => a.enabled !== false && slugify(a.name) === slug)
+    ?? apps.find(a => slugify(a.name) === slug);
   if (app?.enabled === false) return;
   if (app && (!app.open_mode || app.open_mode === 'iframe')) {
     actions.navigate({ senderFrame: req.senderFrame, target: app });

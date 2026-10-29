@@ -280,6 +280,7 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
     // '' (a link to Muximux without a hash) only puts the app back.
     if (typeof hash !== 'string' || (hash !== '' && !hash.startsWith('#')) || hash.length > MAX_FRAME_LINK_HASH) {
       warn('malformed frame link', 'Link to Muximux\'s address followed by #<app>');
+      restoreOnly();
       return;
     }
     if (!takeSlot(sender)) {

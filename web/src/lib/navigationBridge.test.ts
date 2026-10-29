@@ -481,10 +481,10 @@ describe('navigationBridge', () => {
       expect(warn).toHaveBeenCalled();
     });
 
-    it.each([42, 'my-target', '#' + 'x'.repeat(MAX_FRAME_LINK_HASH)])('warns on malformed hash %j', (hash) => {
+    it.each([42, 'my-target', '#' + 'x'.repeat(MAX_FRAME_LINK_HASH)])('only restores the app for malformed hash %j', (hash) => {
       const { win } = setupCopy();
       link(win, hash);
-      expect(onFrameLink).not.toHaveBeenCalled();
+      expect(onFrameLink).toHaveBeenCalledWith(expect.objectContaining({ hash: '' }));
       expect(warn).toHaveBeenCalledWith('[muximux:navigate] malformed frame link', expect.anything());
     });
 

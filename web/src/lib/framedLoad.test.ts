@@ -200,6 +200,15 @@ describe('applyFrameLink', () => {
     expect(setHash).not.toHaveBeenCalled();
   });
 
+  it('prefers an enabled app over a disabled one with the same slug', () => {
+    const apps = [
+      makeApp({ name: 'My App', url: 'http://off/', enabled: false }),
+      makeApp({ name: 'my-app', url: 'http://on/' }),
+    ];
+    const { navigate } = run('#my-app', apps);
+    expect(navigate).toHaveBeenCalledWith({ senderFrame: frame, target: apps[1] });
+  });
+
   it('sets reserved hashes on the shell even when an app has that slug', () => {
     const { navigate, setHash } = run('#settings', [makeApp({ name: 'Settings', url: 'http://s/' })]);
     expect(navigate).not.toHaveBeenCalled();
