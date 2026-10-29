@@ -30,9 +30,11 @@
   import { resolveIconUrl } from './lib/iconUrl';
   import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
+  import { installNavigationBridge } from './lib/navigationBridge';
+  import { NAV_STATE, isMuximuxEntry } from './lib/navHistory';
   import { applyConfigLocale } from './lib/localeStore';
   import * as m from '$lib/paraglide/messages.js';
-  import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
+  import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit, paneShowing, focusOrPlace } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
 
   let config = $state<Config | null>(null);
@@ -100,6 +102,14 @@
   let visitedApps = $derived(apps.filter(a => visitedAppNames.has(a.name)));
 
   let visitedOrder: string[] = []; // LRU order — most recent at end
+
+  // Pending deep links from the navigation bridge, keyed `${pane}:${app.name}`.
+  // A bumped seq makes that pane's AppFrame navigate even to the same URL.
+  let deepLinks = $state<Record<string, { url: string; seq: number }>>({});
+
+  function paneOf(frame: HTMLIFrameElement): 0 | 1 {
+    return Number(frame.closest('[data-pane]')?.getAttribute('data-pane') ?? 0) === 1 ? 1 : 0;
+  }
 
   function trackVisit(appName: string) {
     // Move to end of LRU list
@@ -380,7 +390,35 @@
       onActivate: (app) => selectApp(app),
       baseUrl: (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '',
     });
-    bridgeCleanup = removeNotificationBridge;
+    // Navigation bridge: embedded apps with allow_navigation can
+    // postMessage Muximux to switch to another app (optionally a deep link).
+    const removeNavigationBridge = installNavigationBridge({
+      getApps: () => apps,
+      isFrameVisible: (frame) => {
+        if (showSplash || showLogs || showSettings) return false;
+        const pane = splitState.enabled ? paneOf(frame) : 0;
+        return splitState.panels[pane]?.name === frame.dataset.app;
+      },
+      onNavigate: ({ senderFrame, target, url }) => {
+        const pane = splitState.enabled ? paneOf(senderFrame) : 0;
+        if (url) {
+          // Set before trackVisit so a never-visited frame mounts with it.
+          const key = `${paneShowing(target.name) ?? pane}:${target.name}`;
+          deepLinks[key] = { url, seq: (deepLinks[key]?.seq ?? 0) + 1 };
+        }
+        trackVisit(target.name);
+        focusOrPlace(target, pane);
+        showSplash = false;
+        showLogs = false;
+        updateHash();
+      },
+      baseUrl: (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '',
+    });
+    bridgeCleanup = () => { removeNotificationBridge(); removeNavigationBridge(); };
+
+    // Tag the initial history entry as Muximux's own so Back/Forward onto it
+    // takes the traversal path in the hashchange handler below.
+    history.replaceState(NAV_STATE, '', location.href);
 
     // Handle browser back/forward with hash-based app routing.
     // Sync currentNavHash BEFORE calling selectAppFromHash so that the
@@ -392,13 +430,16 @@
     // is put back (replaceState fires no hashchange, so this does not loop).
     window.addEventListener('hashchange', () => {
       if (!settingsAllowHashChange(location.hash, showSettings, closeSettings)) {
-        history.replaceState(null, '', '#settings');
+        history.replaceState(NAV_STATE, '', '#settings');
         currentNavHash = '#settings';
         return;
       }
       if (location.hash) {
+        // Entries Muximux created are tagged; an untagged one came from a
+        // link click (or a typed hash) rather than Back/Forward.
+        const fromLink = !isMuximuxEntry(history.state);
         currentNavHash = location.hash;
-        selectAppFromHash();
+        selectAppFromHash(fromLink);
       } else {
         // Hash cleared (e.g. navigating to /): go home.
         currentNavHash = '';
@@ -511,7 +552,7 @@
     // but the SPA handles auth client-side so we restore the root path.
     if (location.pathname.endsWith('/login')) {
       const base = location.pathname.replace(/\/login$/, '') || '/';
-      history.replaceState(null, '', base + location.hash);
+      history.replaceState(NAV_STATE, '', base + location.hash);
     }
 
     // Re-fetch config after login
@@ -739,21 +780,23 @@
 
   function navigateHash(newHash: string) {
     if (newHash !== currentNavHash && currentNavHash !== '') {
-      history.pushState(null, '', newHash);
+      history.pushState(NAV_STATE, '', newHash);
     } else {
-      history.replaceState(null, '', newHash);
+      history.replaceState(NAV_STATE, '', newHash);
     }
     currentNavHash = newHash;
   }
 
-  function updateHash() {
-    let newHash: string;
+  function computeHash(): string {
     if (splitState.enabled && splitState.panels[0] && splitState.panels[1]) {
-      newHash = '#' + slugify(splitState.panels[0].name) + '+' + slugify(splitState.panels[1].name);
-    } else {
-      const app = splitState.panels[0] || splitState.panels[1];
-      newHash = app ? '#' + slugify(app.name) : '';
+      return '#' + slugify(splitState.panels[0].name) + '+' + slugify(splitState.panels[1].name);
     }
+    const app = splitState.panels[0] || splitState.panels[1];
+    return app ? '#' + slugify(app.name) : '';
+  }
+
+  function updateHash() {
+    const newHash = computeHash();
     if (newHash) navigateHash(newHash);
   }
 
@@ -761,9 +804,9 @@
     if (location.hash) {
       const target = location.pathname + location.search;
       if (currentNavHash) {
-        history.pushState(null, '', target);
+        history.pushState(NAV_STATE, '', target);
       } else {
-        history.replaceState(null, '', target);
+        history.replaceState(NAV_STATE, '', target);
       }
       currentNavHash = '';
     }
@@ -818,7 +861,7 @@
 
   /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app, /#plex+sonarr).
    *  Also handles reserved hashes: #settings, #logs, #overview. */
-  function selectAppFromHash(): boolean {
+  function selectAppFromHash(fromLink = false): boolean {
     const hash = location.hash.slice(1);
     if (!hash || !apps.length) return false;
 
@@ -866,6 +909,24 @@
 
     const app = apps.find(a => slugify(a.name) === hash);
     if (app) {
+      // A link click (untagged entry) while split: focus the pane already
+      // showing the app, or place it in the sender's pane, never emptying
+      // the other one. Then rewrite the link's entry to the split hash.
+      if (fromLink && splitState.enabled && !isMobile && (!app.open_mode || app.open_mode === 'iframe')) {
+        // The clicked frame is the focused element; the iframe focus
+        // listener does not always fire, so activePanel can be stale.
+        const focused = document.activeElement;
+        const pane = focused instanceof HTMLIFrameElement && focused.closest('[data-pane]')
+          ? paneOf(focused) : splitState.activePanel;
+        trackVisit(app.name);
+        focusOrPlace(app, pane);
+        showSplash = false;
+        showLogs = false;
+        const normalized = computeHash();
+        history.replaceState(NAV_STATE, '', normalized);
+        currentNavHash = normalized;
+        return true;
+      }
       selectApp(app);
       return true;
     }
@@ -1146,6 +1207,7 @@
           <div
             class="relative overflow-hidden"
             style:flex="{splitState.dividerPosition} 1 0%"
+            data-pane="0"
             onclick={() => setActivePanel(0)}
             role="region"
             aria-label="Split panel 1"
@@ -1155,7 +1217,7 @@
                 class="absolute inset-0"
                 style:visibility={splitState.panels[0]?.name === app.name ? 'visible' : 'hidden'}
               >
-                <AppFrame {app} />
+                <AppFrame {app} deepLink={deepLinks[`0:${app.name}`]} />
               </div>
             {/each}
             {#if !splitState.panels[0]}
@@ -1180,6 +1242,7 @@
           <div
             class="relative overflow-hidden"
             style:flex="{1 - splitState.dividerPosition} 1 0%"
+            data-pane="1"
             onclick={() => setActivePanel(1)}
             role="region"
             aria-label="Split panel 2"
@@ -1189,7 +1252,7 @@
                 class="absolute inset-0"
                 style:visibility={splitState.panels[1]?.name === app.name ? 'visible' : 'hidden'}
               >
-                <AppFrame {app} />
+                <AppFrame {app} deepLink={deepLinks[`1:${app.name}`]} />
               </div>
             {/each}
             {#if !splitState.panels[1]}
@@ -1209,7 +1272,7 @@
             class="absolute inset-0"
             style:visibility={!showSplash && !showLogs && splitState.panels[0]?.name === app.name ? 'visible' : 'hidden'}
           >
-            <AppFrame {app} />
+            <AppFrame {app} deepLink={deepLinks[`0:${app.name}`]} />
           </div>
         {/each}
       {/if}
