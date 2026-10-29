@@ -37,6 +37,7 @@
 
 import type { App } from './types';
 import { debug } from './debug';
+import { findSenderFrame } from './bridgeSender';
 
 const RATE_LIMIT_MS = 2000;
 const MAX_TITLE = 120;
@@ -125,39 +126,6 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
     };
   }
 
-  function findAppForOrigin(origin: string, source: MessageEventSource | null): App | undefined {
-    const apps = opts.getApps();
-    // The unforgeable identity is `source === frame.contentWindow`: a
-    // postMessage can spoof origin (same-origin proxied apps all share
-    // window.location.origin) but it cannot pretend to be a different
-    // window handle. Iterate iframes and match by source only.
-    //
-    // For non-proxied (cross-origin) apps we additionally check that
-    // the reported `origin` matches the app's configured URL, as a
-    // second line of defence if the data-app attribute is ever reused.
-    const frames = document.querySelectorAll<HTMLIFrameElement>('iframe[data-app]');
-    for (const frame of frames) {
-      if (!source || frame.contentWindow !== source) continue;
-      const name = frame.dataset.app;
-      const app = apps.find(a => a.name === name);
-      if (!app) return undefined;
-      if (!app.proxyUrl) {
-        try {
-          if (new URL(app.url).origin !== origin) return undefined;
-        } catch {
-          return undefined;
-        }
-      }
-      return app;
-    }
-    // No window-handle match: the sender is not one of our registered
-    // iframes. Refusing here closes the cross-app spoofing path
-    // (findings.md H22): any same-origin proxied app could otherwise
-    // forge a notification on behalf of a different registered app
-    // merely by matching its origin.
-    return undefined;
-  }
-
   function replyPermission(target: MessageEventSource | null, targetOrigin: string, permission: NotificationPermission): void {
     if (!target) return;
     try {
@@ -177,7 +145,7 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
     // Warnings for the bridge are always-on (not gated by ?debug=true) so
     // app developers can immediately see why their messages aren't producing
     // notifications. These are per-message, not spam.
-    const app = findAppForOrigin(event.origin, event.source);
+    const app = findSenderFrame(opts.getApps(), event.origin, event.source)?.app;
     if (!app) {
       console.warn('[muximux:notify] no matching app for message', {
         origin: event.origin,
