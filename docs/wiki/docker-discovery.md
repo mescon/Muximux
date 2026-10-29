@@ -215,6 +215,7 @@ services:
       - muximux.app.allowed_groups=family,admins
       - muximux.app.permissions=clipboard-read,clipboard-write
       - muximux.app.allow_notifications=true
+      - muximux.app.allow_navigation=true
       - muximux.app.shortcut=1
       # ── Gateway routing (subdomain + auth gate) ──────────────
       - muximux.app.gateway.domain=sonarr.example.com
@@ -415,6 +416,7 @@ How values are read:
 | `muximux.app.allowed_groups` | csv | unset | Comma-separated group allow-list; user must belong to at least one. Case-insensitive. Stacks with `min_role`. |
 | `muximux.app.permissions` | csv | unset | Iframe feature delegations (`camera`, `microphone`, `geolocation`, `clipboard-read`, `clipboard-write`, `fullscreen`, ...). |
 | `muximux.app.allow_notifications` | bool | `false` | Enable the cross-iframe Notifications API bridge for this app. |
+| `muximux.app.allow_navigation` | bool | `false` | Let this app switch Muximux to another app (and open a page inside it) through `target="_top"` links and a `postMessage` API. A `_top` link can also send the whole tab to any website after a click, and a visible app can switch apps without a click, so enable it only for apps you trust. See [Navigation from Embedded Apps](apps.md#navigation-from-embedded-apps). |
 | `muximux.app.shortcut` | int 1-9 | unset | Keyboard shortcut slot. |
 | `muximux.app.gateway.domain` | string | unset | Required for auto-import to create a gateway site; the derived `<name>.<dashboard domain>` default only pre-fills the import modal. When set, the import modal also offers a gateway-site entry for this subdomain. Pairs with the `muximux.gateway.*` labels below. |
 

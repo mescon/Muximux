@@ -40,6 +40,7 @@ apps:
       - camera
       - microphone
     allow_notifications: false       # Enable the postMessage notification bridge (see below)
+    allow_navigation: false          # Let the app switch Muximux's apps via links or postMessage (see Navigation)
     access:                         # Restrict access to specific roles/users
       roles: []
       users: []
@@ -411,6 +412,117 @@ Notifications render through the service worker registered at `/sw.js`, which us
 | iOS Safari | Requires PWA install | iOS only allows notifications from sites installed to the home screen. Add Muximux to the home screen first; notifications then work for both proxied and non-proxied apps. |
 
 > **Design note:** Because the permission belongs to Muximux's origin, any app you enable `allow_notifications` for can send notifications. Only enable this for apps you trust to send appropriate content.
+
+---
+
+## Navigation from Embedded Apps
+
+An app embedded in Muximux (for example a Homarr dashboard) can switch Muximux to another app, and optionally open a specific page inside it. This is off by default and enabled per app, on the app that sends the request:
+
+```yaml
+apps:
+  - name: Homarr
+    url: http://homarr:7575
+    allow_navigation: true      # form label: "Allow navigating Muximux"
+```
+
+The target app needs no setting. One setting unlocks both mechanisms below. In Docker discovery the label is `muximux.app.allow_navigation` (a strict boolean, like `muximux.app.allow_notifications`).
+
+### Plain links
+
+With `allow_navigation` on, the app's iframe sandbox gets `allow-top-navigation-by-user-activation`, so a link with `target="_top"` can navigate the Muximux window:
+
+```html
+<a href="https://muximux.example.com/#emby" target="_top">Open Emby</a>
+<a href="https://muximux.example.com/#sonarr+radarr" target="_top">Sonarr and Radarr</a>
+```
+
+- The link must use `target="_top"`. A plain link (no `target`, or `_self`) loads Muximux inside the app's own frame, which Muximux refuses to render, so it stays blank.
+- The part before `#` must be the same address you have Muximux open on. If it differs, the browser does a full page load of Muximux instead of just changing the hash. That still works but reloads everything.
+- Plain links only switch apps. A hash names apps, not pages inside them; to open a specific item use the message API below.
+- In split view, a single-app link (`#emby`) goes to the pane that already shows that app and makes it active. Otherwise the app replaces the pane the link was clicked in. The other pane is not changed or reloaded. Afterwards the address bar shows the normal split hash (for example `#homarr+emby`).
+- Back and Forward work as they do for menu clicks.
+
+### Message API
+
+An opted-in app can also ask Muximux to navigate with a `postMessage`:
+
+```javascript
+window.parent.postMessage({
+  type: 'muximux:navigate',
+  app: 'emby',                              // slug or display name of the target app
+  path: '/web/index.html#!/item?id=123'     // optional: a page inside the target app
+}, '*');
+```
+
+Muximux replies to the sender (posted to the sender's origin):
+
+```javascript
+{ type: 'muximux:navigate-result', ok: true }
+{ type: 'muximux:navigate-result', ok: false, error: 'bad_path' }
+```
+
+| `error` | Meaning |
+|---------|---------|
+| `not_allowed` | The sending app does not have `allow_navigation` enabled. |
+| `not_visible` | The sending frame is not the app currently shown. Requests from hidden frames (an app in the other pane's background, or any app while the overview, logs or settings cover it) are refused. |
+| `bad_request` | Malformed message: `app` missing, not a string, empty or longer than 200 characters, or `path` not a string. |
+| `unknown_app` | No app you can see matches `app`. It is matched first against the slug used in hash routes, then against the display name. |
+| `not_embeddable` | The target does not open in an iframe (`new_tab`, `new_window`, `redirect` and `http_action` apps are refused). An unset `open_mode` counts as `iframe`. |
+| `bad_path` | `path` is not allowed (see the path rule below). |
+| `rate_limited` | More than one accepted navigation from this app within 500 ms. Refused messages do not use up the slot. |
+
+Every refusal also logs a `[muximux:navigate]` warning in the browser console explaining why and what to change. A message from a frame that is not a registered app gets no reply.
+
+#### Path rule
+
+`path` is resolved the way an `href` would be, against the target app's configured URL, and the result must stay inside the target app:
+
+- It must keep the app URL's origin and stay under its base directory, which is the app URL's path up to and including the last `/`. `http://emby:8096/web/index.html` has base `/web/`, `http://host/sonarr/` has base `/sonarr/`, and `http://homarr/?board=main` has base `/`.
+- A leading `/` means the origin root, no leading `/` is relative to the app URL. Dot segments are normalised before the check, and encoded `%2f` and `%5c` are rejected.
+- Absolute URLs, `//host`, `javascript:` and other schemes, control characters and values over 2048 characters are rejected.
+
+Examples with Emby at `http://emby:8096/`: `/web/index.html#!/item?id=123` is accepted. With Sonarr at `http://host/sonarr/`: `/series/x` is rejected (it leaves `/sonarr/`), while `series/x` and `/sonarr/series/x` are both accepted.
+
+Proxied apps use the same rule against the app's configured URL, and the accepted address is then mapped onto `/proxy/<slug>/`. A widget therefore sends the same `path` whether or not the target is proxied.
+
+#### Behaviour
+
+- Without `path`, nothing reloads: the target keeps the page it had, or loads its start page if it was never opened.
+- With `path`, only the target's frame in the chosen pane navigates. Repeating the same `path` navigates again.
+- Outside split view the target becomes the shown app, as if you had clicked it in the menu. In split view, if the target is already shown in either pane that pane becomes active; otherwise the target replaces the sender's pane. The other pane is never touched.
+- Muximux's address records only the app switch. The page opened inside the target is not part of the URL, so Back returns to the previous app, not the previous item.
+
+#### Example: dashboard widget
+
+```html
+<button id="open-movie">Open in Emby</button>
+<script>
+  function muximuxNavigate(app, path) {
+    return new Promise((resolve, reject) => {
+      const onReply = (e) => {
+        if (e.source !== window.parent || !e.data || e.data.type !== 'muximux:navigate-result') return;
+        window.removeEventListener('message', onReply);
+        e.data.ok ? resolve() : reject(new Error(e.data.error));
+      };
+      window.addEventListener('message', onReply);
+      window.parent.postMessage({ type: 'muximux:navigate', app, path }, '*');
+    });
+  }
+
+  document.getElementById('open-movie').addEventListener('click', () => {
+    muximuxNavigate('emby', '/web/index.html#!/item?id=123').catch(console.warn);
+  });
+</script>
+```
+
+### Trade-offs
+
+> **Only enable this for apps you trust.**
+>
+> - Browsers cannot restrict where a `target="_top"` link goes. An app with `allow_navigation` can therefore send the whole browser tab to any website after a click. That is why the setting is per app and off by default.
+> - Muximux cannot tell whether the user clicked before a message arrives, so an opted-in app that is visible can switch apps through the message API without a click.
+> - The message API cannot be used to load a page outside the target app: the path rule keeps the result inside the target's origin and base directory.
 
 ## Appearance API
 
