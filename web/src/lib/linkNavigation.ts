@@ -126,7 +126,7 @@ export function installFramePaneTracker(onPane: (pane: Pane) => void): () => voi
   };
   const onBlur = () => {
     check();
-    if (timer === undefined) timer = setInterval(check, FRAME_POLL_MS);
+    if (timer === undefined && !document.hidden) timer = setInterval(check, FRAME_POLL_MS);
   };
   const onFocus = (e: FocusEvent) => {
     if (e.target instanceof HTMLIFrameElement) check();

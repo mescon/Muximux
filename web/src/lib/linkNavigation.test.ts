@@ -338,6 +338,16 @@ describe('installFramePaneTracker', () => {
     expect(onPane.mock.calls).toEqual([[0], [1], [0]]);
   });
 
+  it('does not start polling on a blur that arrives after the tab is hidden', () => {
+    vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    document.dispatchEvent(new Event('visibilitychange'));
+    focused = frameIn(pane(0), A);
+    window.dispatchEvent(new Event('blur'));
+    focused = frameIn(pane(1), B);
+    vi.advanceTimersByTime(FRAME_POLL_MS * 3);
+    expect(onPane.mock.calls).toEqual([[0]]);
+  });
+
   it('does not poll when shown with the shell focused', () => {
     vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);
     document.dispatchEvent(new Event('visibilitychange'));
