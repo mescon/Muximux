@@ -31,6 +31,12 @@
   // Build the iframe allow attribute from configured permissions.
   // For proxied apps the iframe is same-origin, so 'self' is sufficient.
   // For non-proxied cross-origin apps we delegate to the app's specific origin.
+  const BASE_SANDBOX = 'allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals';
+  // Top navigation is limited to user-activated navigations, and only for apps that opt in.
+  let sandboxAttr = $derived(
+    app.allow_navigation ? `${BASE_SANDBOX} allow-top-navigation-by-user-activation` : BASE_SANDBOX
+  );
+
   let allowAttr = $derived.by(() => {
     const perms = resolvePermissions(app.permissions);
     if (perms.length === 0) return undefined;
@@ -237,7 +243,7 @@
     style:transform-origin={transformOrigin}
     style:width
     style:height
-    sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals"
+    sandbox={sandboxAttr}
     allow={allowAttr}
     referrerpolicy="no-referrer-when-downgrade"
     allowfullscreen

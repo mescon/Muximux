@@ -355,6 +355,20 @@ describe('AppFrame', () => {
       const sandboxAttr = iframe.getAttribute('sandbox') || '';
       expect(sandboxAttr).toContain('allow-pointer-lock');
     });
+
+    it('adds top navigation to the sandbox only when allow_navigation is set', () => {
+      const base = 'allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals';
+      const on = render(AppFrame, { props: { app: makeApp({ allow_navigation: true }) } });
+      const onAttr = (on.container.querySelector('iframe') as HTMLIFrameElement).getAttribute('sandbox') || '';
+      expect(onAttr).toContain('allow-top-navigation-by-user-activation');
+      expect(onAttr).not.toContain('allow-top-navigation ');
+      expect(onAttr.endsWith('allow-top-navigation')).toBe(false);
+      on.unmount();
+
+      const off = render(AppFrame, { props: { app: makeApp() } });
+      const offAttr = (off.container.querySelector('iframe') as HTMLIFrameElement).getAttribute('sandbox');
+      expect(offAttr).toBe(base);
+    });
   });
 
   describe('container styling', () => {
