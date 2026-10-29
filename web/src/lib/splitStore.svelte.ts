@@ -57,6 +57,32 @@ export function setPanelApp(app: App): void {
   splitState.panels[splitState.activePanel] = app;
 }
 
+/** Which pane currently shows the named app, or null. */
+export function paneShowing(appName: string): 0 | 1 | null {
+  if (splitState.panels[0]?.name === appName) return 0;
+  if (splitState.enabled && splitState.panels[1]?.name === appName) return 1;
+  return null;
+}
+
+/**
+ * Focus the pane already showing the app, or place it in `pane`. Never moves
+ * an app out of the other pane (unlike setPanelApp). Returns the pane used.
+ */
+export function focusOrPlace(app: App, pane: 0 | 1): 0 | 1 {
+  if (!splitState.enabled) {
+    splitState.panels[0] = app;
+    return 0;
+  }
+  const showing = paneShowing(app.name);
+  if (showing !== null) {
+    splitState.activePanel = showing;
+    return showing;
+  }
+  splitState.activePanel = pane;
+  splitState.panels[pane] = app;
+  return pane;
+}
+
 export function updateDividerPosition(position: number): void {
   splitState.dividerPosition = Math.min(0.8, Math.max(0.2, position));
 }
