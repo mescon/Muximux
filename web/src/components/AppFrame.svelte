@@ -156,10 +156,10 @@
     loadError = true;
   }
 
+  // Retry the page that failed, which is the deep link when one was opened.
   function retryLoad() {
     beginLoad();
-    lastAssigned = effectiveUrl;
-    if (iframeRef) iframeRef.src = effectiveUrl;
+    if (iframeRef) iframeRef.src = lastAssigned;
   }
 
   onMount(() => {

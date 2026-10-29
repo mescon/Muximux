@@ -788,6 +788,25 @@ describe('AppFrame', () => {
       }
     });
 
+    it('retry reloads the deep link that failed', async () => {
+      vi.useFakeTimers();
+      try {
+        const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+        const app = makeApp({ url: 'https://example.com/start' });
+        const r = render(AppFrame, { props: { app } });
+        await vi.advanceTimersByTimeAsync(30_000);
+        await r.rerender({ app, deepLink: { url: 'https://example.com/deep', seq: 1 } });
+        await vi.advanceTimersByTimeAsync(30_000);
+        const retry = r.container.querySelector('button') as HTMLButtonElement;
+        srcSet.mockClear();
+        await fireEvent.click(retry);
+        expect(srcSet).toHaveBeenCalledWith('https://example.com/deep');
+        srcSet.mockRestore();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
     it('a deep link from the error screen shows the spinner', async () => {
       vi.useFakeTimers();
       try {
