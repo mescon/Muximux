@@ -674,6 +674,7 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		ForceIconBackground:      c.ForceIconBackground,
 		Permissions:              c.Permissions,
 		AllowNotifications:       c.AllowNotifications,
+		AllowNavigation:          c.AllowNavigation,
 		DockerKey:                c.DockerKey,
 		DockerEndpoint:           c.DockerEndpoint,
 		DockerStrategy:           c.DockerStrategy,
@@ -1277,6 +1278,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		ForceIconBackground: app.ForceIconBackground,
 		Permissions:         app.Permissions,
 		AllowNotifications:  app.AllowNotifications,
+		AllowNavigation:     app.AllowNavigation,
 	}
 	// Docker tracking fields go to admins only - they reference a
 	// privileged daemon endpoint and a tracking key that's not useful
@@ -1357,6 +1359,7 @@ type ClientAppConfig struct {
 	ForceIconBackground bool              `json:"force_icon_background,omitempty"`
 	Permissions         []string          `json:"permissions,omitempty"`
 	AllowNotifications  bool              `json:"allow_notifications,omitempty"`
+	AllowNavigation     bool              `json:"allow_navigation,omitempty"`
 	// GatewayDomain is set when a gateway site references this app via
 	// `app_name`. The frontend uses this to surface a "Hosted by Muximux
 	// gateway at <domain>" badge on the App form so the operator knows

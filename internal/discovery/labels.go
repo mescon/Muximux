@@ -43,6 +43,7 @@ const (
 	LabelAppAllowedGroups      = "muximux.app.allowed_groups"      // comma-separated
 	LabelAppPermissions        = "muximux.app.permissions"         // comma-separated; iframe permission delegations
 	LabelAppAllowNotifications = "muximux.app.allow_notifications" // "true" to enable notification bridge
+	LabelAppAllowNavigation    = "muximux.app.allow_navigation"    // "true" to let the app navigate Muximux
 	LabelAppShortcut           = "muximux.app.shortcut"            // keyboard digit 1..9
 	LabelAppGatewayDomain      = "muximux.app.gateway.domain"      // suggest as gateway site
 	LabelAppURL                = "muximux.app.url"                 // absolute URL the app opens at; health still follows the container
@@ -105,6 +106,7 @@ type AppLabels struct {
 	AllowedGroups      []string
 	Permissions        []string
 	AllowNotifications *bool
+	AllowNavigation    *bool
 	HealthCheck        *bool // pointer so unset keeps the app's own setting
 	Shortcut           int   // 0 = unset
 	GatewayDomain      string
@@ -198,6 +200,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppAllowedGroups:      func(out *AppLabels, v string) { out.AllowedGroups = splitCSV(v) },
 	LabelAppPermissions:        func(out *AppLabels, v string) { out.Permissions = splitCSV(v) },
 	LabelAppAllowNotifications: appBool(LabelAppAllowNotifications, func(o *AppLabels) **bool { return &o.AllowNotifications }),
+	LabelAppAllowNavigation:    appBool(LabelAppAllowNavigation, func(o *AppLabels) **bool { return &o.AllowNavigation }),
 	LabelAppShortcut: func(out *AppLabels, v string) {
 		if n, err := strconv.Atoi(v); err == nil && n >= 1 && n <= 9 {
 			out.Shortcut = n

@@ -4,6 +4,12 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Embedded apps can navigate Muximux.** A new per-app setting, "Allow navigating Muximux" (`allow_navigation`, label `muximux.app.allow_navigation`), lets an embedded app such as a Homarr dashboard switch apps through `target="_top"` links to `#app` and `#a+b` hash routes, or open a specific page inside another app with a `muximux:navigate` message. Split view keeps working: the pane already showing the target is reused, otherwise the sender's pane is replaced, and the other pane is never touched. Off by default; an opted-in app can send the tab to any website through a `_top` link, so enable it only for apps you trust. (#529)
+
+### Fixed
+- **Clicking into an app in split view makes its pane the active one again.** Chromium-based browsers never reported the click, so the menu kept opening apps in whichever pane was active before.
+
 ## [3.6.2] - 2026-10-14
 
 Sidebar fixes and safer parsing: groups in the icon-only sidebar can be

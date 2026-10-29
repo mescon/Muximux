@@ -6,6 +6,8 @@ import {
   disableSplit,
   setActivePanel,
   setPanelApp,
+  paneShowing,
+  focusOrPlace,
   updateDividerPosition,
   resetSplit
 } from './splitStore.svelte';
@@ -128,5 +130,69 @@ describe('splitStore', () => {
       updateDividerPosition(0.6);
       expect(splitState.dividerPosition).toBe(0.6);
     });
+  });
+});
+
+describe('paneShowing and focusOrPlace', () => {
+  beforeEach(() => {
+    resetSplit();
+  });
+
+  it('paneShowing with split off', () => {
+    expect(paneShowing('Sonarr')).toBeNull();
+    splitState.panels[0] = sonarr;
+    expect(paneShowing('Sonarr')).toBe(0);
+    expect(paneShowing('Radarr')).toBeNull();
+  });
+
+  it('paneShowing with split on', () => {
+    enableSplit('horizontal');
+    splitState.panels[0] = sonarr;
+    splitState.panels[1] = radarr;
+    expect(paneShowing('Sonarr')).toBe(0);
+    expect(paneShowing('Radarr')).toBe(1);
+    expect(paneShowing('Other')).toBeNull();
+  });
+
+  it('focusOrPlace with split off sets panel 0', () => {
+    expect(focusOrPlace(sonarr, 1)).toBe(0);
+    expect(splitState.panels[0]).toEqual(sonarr);
+  });
+
+  it('focusOrPlace focuses the other pane when it shows the app', () => {
+    enableSplit('horizontal');
+    splitState.panels[0] = sonarr;
+    splitState.panels[1] = radarr;
+    splitState.activePanel = 1;
+    expect(focusOrPlace(sonarr, 1)).toBe(0);
+    expect(splitState.activePanel).toBe(0);
+    expect(splitState.panels[0]).toEqual(sonarr);
+    expect(splitState.panels[1]).toEqual(radarr);
+  });
+
+  it('focusOrPlace leaves things alone when pane already shows the app', () => {
+    enableSplit('horizontal');
+    splitState.panels[0] = sonarr;
+    splitState.panels[1] = radarr;
+    splitState.activePanel = 1;
+    expect(focusOrPlace(radarr, 1)).toBe(1);
+    expect(splitState.activePanel).toBe(1);
+    expect(splitState.panels[0]).toEqual(sonarr);
+    expect(splitState.panels[1]).toEqual(radarr);
+  });
+
+  it('focusOrPlace places a not-shown app in pane 0 or 1', () => {
+    const other = { name: 'Other' } as unknown as App;
+    enableSplit('horizontal');
+    splitState.panels[0] = sonarr;
+    splitState.panels[1] = radarr;
+    expect(focusOrPlace(other, 0)).toBe(0);
+    expect(splitState.activePanel).toBe(0);
+    expect(splitState.panels[0]).toEqual(other);
+    expect(splitState.panels[1]).toEqual(radarr);
+    expect(focusOrPlace(sonarr, 1)).toBe(1);
+    expect(splitState.activePanel).toBe(1);
+    expect(splitState.panels[0]).toEqual(other);
+    expect(splitState.panels[1]).toEqual(sonarr);
   });
 });

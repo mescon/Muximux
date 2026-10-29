@@ -1415,6 +1415,19 @@ func TestSanitizeApp(t *testing.T) {
 		}
 	})
 
+	t.Run("allow_navigation projects for admin and non-admin", func(t *testing.T) {
+		app := config.AppConfig{Name: "Nav", URL: "https://nav.local", Enabled: true, AllowNavigation: true}
+		if !sanitizeApp(&app).AllowNavigation {
+			t.Error("admin projection dropped allow_navigation")
+		}
+		if !sanitizeAppForRole(&app, false).AllowNavigation {
+			t.Error("non-admin projection dropped allow_navigation")
+		}
+		if !clientAppToConfig(&ClientAppConfig{Name: "Nav", URL: "https://nav.local", AllowNavigation: true}).AllowNavigation {
+			t.Error("clientAppToConfig dropped allow_navigation")
+		}
+	})
+
 	// Regression: the write path (client DTO -> AppConfig) must also
 	// carry the fields, or saving an http_action app through the UI
 	// would drop them on the floor.

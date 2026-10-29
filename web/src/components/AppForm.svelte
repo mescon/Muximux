@@ -688,6 +688,20 @@
         <p class="text-xs text-text-muted">{m.appForm_allowNotificationsDesc()}</p>
       </div>
     </label>
+
+    <label class="flex items-center gap-3 cursor-pointer mt-4">
+      <input
+        type="checkbox"
+        bind:checked={app.allow_navigation}
+        class="w-4 h-4 rounded border-border-input text-accent-text"
+      />
+      <div>
+        <span class="text-sm text-text-primary">{m.appForm_allowNavigation()}
+          {@render helpTip(m.appForm_helpAllowNavigation())}
+        </span>
+        <p class="text-xs text-text-muted">{m.appForm_allowNavigationDesc()}</p>
+      </div>
+    </label>
   </div>
   {/if}
 </div>

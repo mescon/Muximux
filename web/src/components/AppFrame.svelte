@@ -1,13 +1,19 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
   import { FRAME_NAME_PREFIX } from '$lib/frameRescue';
   import { isSafeAppUrl } from '$lib/appUrl';
+  import { isFragmentOnlyChange } from '$lib/navigatePath';
   import { resolvePermissions } from '$lib/constants';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { app }: { app: App } = $props();
+  let { app, deepLink, ondeeplinkused }: {
+    app: App;
+    deepLink?: { url: string; seq: number };
+    /** Called with the seq of a deep link once the frame has used it. */
+    ondeeplinkused?: (seq: number) => void;
+  } = $props();
 
   // Allowlist the iframe src so `javascript:` / `data:` URLs in app.url
   // cannot execute in Muximux's origin via the `allow-same-origin`
@@ -26,7 +32,52 @@
   // the interceptor, so a full reload of the frame would land on the shell.
   // window.name outlives navigations inside the frame; the shell reads it
   // and bounces the frame back to the proxied path (see $lib/frameRescue).
+  // A deep link (muximux:navigate) opens the iframe straight at the target so
+  // the start page is never loaded first. It is cleared when the app's
+  // configured URL changes, so a config edit still wins.
+  let deepSrc = $state<string | undefined>(untrack(() => (deepLink ? safeIframeSrc(deepLink.url) : undefined)));
+  let frameSrc = $derived(deepSrc ?? effectiveUrl);
+  let lastSeq = untrack(() => deepLink?.seq);
+  let lastEffective = untrack(() => effectiveUrl);
+  // The URL this component last pointed the iframe at, to spot deep links
+  // that only change the fragment (those fire no load event) while the
+  // frame is still loading.
+  let lastAssigned = untrack(() => frameSrc);
+
+  $effect(() => {
+    const eff = effectiveUrl;
+    if (eff === lastEffective) return;
+    lastEffective = eff;
+    lastAssigned = eff;
+    deepSrc = undefined;
+  });
+
+  // Each new seq navigates the existing iframe; assigning src always starts a
+  // navigation, even when the URL is unchanged.
+  $effect(() => {
+    const seq = deepLink?.seq;
+    if (seq === undefined || seq === lastSeq) return;
+    lastSeq = seq;
+    const url = safeIframeSrc(untrack(() => deepLink!.url));
+    if (!iframeRef) return;
+    // A frame already showing a page keeps it until the next one paints, as
+    // with a link clicked inside the app. Waiting for load there could hang:
+    // the app may have moved itself (pushState) so a fragment change cannot
+    // be told apart from a page load, and fragment changes fire no load.
+    const showing = untrack(() => iframeReady && !loadError);
+    if (!showing && !isFragmentOnlyChange(lastAssigned, url)) beginLoad();
+    lastAssigned = url;
+    iframeRef.src = url;
+    untrack(() => ondeeplinkused?.(seq));
+  });
+
   let frameName = $derived(app.proxyUrl ? FRAME_NAME_PREFIX + effectiveUrl.replace(/\/$/, '') : undefined);
+
+  const BASE_SANDBOX = 'allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals';
+  // Top navigation is limited to user-activated navigations, and only for apps that opt in.
+  let sandboxAttr = $derived(
+    app.allow_navigation ? `${BASE_SANDBOX} allow-top-navigation-by-user-activation` : BASE_SANDBOX
+  );
 
   // Build the iframe allow attribute from configured permissions.
   // For proxied apps the iframe is same-origin, so 'self' is sufficient.
@@ -56,6 +107,24 @@
   let isLoading = $state(true);
   let iframeReady = $state(false);
   let loadTimeout: ReturnType<typeof setTimeout>;
+  const LOAD_TIMEOUT_MS = 30000;
+
+  function handleLoadTimeout() {
+    if (isLoading) {
+      isLoading = false;
+      loadError = true;
+    }
+  }
+
+  // Show the loading overlay until the iframe's load event, or the error
+  // screen if it has not arrived after LOAD_TIMEOUT_MS.
+  function beginLoad() {
+    clearTimeout(loadTimeout);
+    loadError = false;
+    isLoading = true;
+    iframeReady = false;
+    loadTimeout = setTimeout(handleLoadTimeout, LOAD_TIMEOUT_MS);
+  }
 
   // Pull-to-refresh state
   let isMobile = $state(false);
@@ -87,29 +156,21 @@
     loadError = true;
   }
 
+  // Retry the page that failed, which is the deep link when one was opened.
   function retryLoad() {
-    loadError = false;
-    isLoading = true;
-    iframeReady = false;
-    loadTimeout = setTimeout(() => {
-      if (isLoading) {
-        isLoading = false;
-        loadError = true;
-      }
-    }, 30000);
-    if (iframeRef) iframeRef.src = effectiveUrl;
+    beginLoad();
+    if (iframeRef) iframeRef.src = lastAssigned;
   }
 
   onMount(() => {
     isMobile = isMobileViewport();
     hasTouch = isTouchDevice();
 
-    loadTimeout = setTimeout(() => {
-      if (isLoading) {
-        isLoading = false;
-        loadError = true;
-      }
-    }, 30000);
+    beginLoad();
+    // Mounted straight at a deep link: it has been used, so a later remount
+    // must not replay it.
+    const seq = untrack(() => deepLink?.seq);
+    if (seq !== undefined) untrack(() => ondeeplinkused?.(seq));
 
     const handleResize = () => { isMobile = isMobileViewport(); };
     window.addEventListener('resize', handleResize);
@@ -229,7 +290,7 @@
     data-app={app.name}
     name={frameName}
     bind:this={iframeRef}
-    src={effectiveUrl}
+    src={frameSrc}
     title={app.name}
     class="app-frame"
     class:app-frame-ready={iframeReady}
@@ -237,7 +298,7 @@
     style:transform-origin={transformOrigin}
     style:width
     style:height
-    sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals"
+    sandbox={sandboxAttr}
     allow={allowAttr}
     referrerpolicy="no-referrer-when-downgrade"
     allowfullscreen

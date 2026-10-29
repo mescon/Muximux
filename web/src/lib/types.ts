@@ -31,6 +31,7 @@ export interface App {
   force_icon_background?: boolean;  // show icon background even when global setting is off
   permissions?: string[];  // browser feature policy: camera, microphone, geolocation, fullscreen, etc.
   allow_notifications?: boolean;  // enable postMessage notification bridge
+  allow_navigation?: boolean;  // let the embedded app navigate Muximux (target="_top" hash links, muximux:navigate)
   gateway_domain?: string;  // populated by the backend when a gateway site references this app via app_name (Phase 4 pairing)
   // Docker auto-management tracking. When docker_key is set, the
   // refresh poller is the source of truth for `url` and the Apps
@@ -550,6 +551,7 @@ export interface DiscoverySuggestion {
   allowed_groups?: string[];
   permissions?: string[];
   allow_notifications?: boolean;
+  allow_navigation?: boolean;
   default?: boolean;
   shortcut?: number;
   http_action_method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';

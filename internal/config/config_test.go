@@ -636,6 +636,50 @@ apps:
 	})
 }
 
+func TestAllowNavigationYAMLRoundTrip(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	content := `
+apps:
+  - name: On
+    url: http://localhost:8080
+    allow_navigation: true
+  - name: Off
+    url: http://localhost:8081
+`
+	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Apps[0].AllowNavigation {
+		t.Error("expected allow_navigation=true")
+	}
+	if cfg.Apps[1].AllowNavigation {
+		t.Error("expected allow_navigation to default to false")
+	}
+	out := filepath.Join(dir, "saved.yaml")
+	if err := cfg.Save(out); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := strings.Count(string(data), "allow_navigation"); n != 1 {
+		t.Errorf("allow_navigation appears %d times in saved YAML, want 1 (false omitted)", n)
+	}
+	reloaded, err := Load(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reloaded.Apps[0].AllowNavigation || reloaded.Apps[1].AllowNavigation {
+		t.Error("allow_navigation did not survive save and reload")
+	}
+}
+
 func TestLoadPreservesBcryptHash(t *testing.T) {
 	hash := "$2a$10$/ijadDMQO1SvqjoQgLdKOO62yB9x3Voi2OZ5LSp3uVYeOGrqjmpq."
 	content := `

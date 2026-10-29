@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/svelte';
 
 // Mock $lib/types - keep getEffectiveUrl as a spy so we can verify behavior
@@ -355,6 +355,20 @@ describe('AppFrame', () => {
       const sandboxAttr = iframe.getAttribute('sandbox') || '';
       expect(sandboxAttr).toContain('allow-pointer-lock');
     });
+
+    it('adds top navigation to the sandbox only when allow_navigation is set', () => {
+      const base = 'allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals';
+      const on = render(AppFrame, { props: { app: makeApp({ allow_navigation: true }) } });
+      const onAttr = (on.container.querySelector('iframe') as HTMLIFrameElement).getAttribute('sandbox') || '';
+      expect(onAttr).toContain('allow-top-navigation-by-user-activation');
+      expect(onAttr).not.toContain('allow-top-navigation ');
+      expect(onAttr.endsWith('allow-top-navigation')).toBe(false);
+      on.unmount();
+
+      const off = render(AppFrame, { props: { app: makeApp() } });
+      const offAttr = (off.container.querySelector('iframe') as HTMLIFrameElement).getAttribute('sandbox');
+      expect(offAttr).toBe(base);
+    });
   });
 
   describe('container styling', () => {
@@ -705,6 +719,223 @@ describe('AppFrame', () => {
 
       expect(c1.querySelector('iframe[data-app="Plex"]')).toBeTruthy();
       expect(c2.querySelector('iframe[data-app="Sonarr"]')).toBeTruthy();
+    });
+  });
+
+  describe('deep link', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('opens the iframe at the deep link and never at the start page', () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const attrSet = vi.spyOn(Element.prototype, 'setAttribute');
+      const { container } = render(AppFrame, {
+        props: { app: makeApp({ url: 'https://example.com/start' }), deepLink: { url: 'https://example.com/deep', seq: 1 } },
+      });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.getAttribute('src')).toBe('https://example.com/deep');
+      const srcValues = srcSet.mock.calls.map((c) => String(c[0]));
+      const attrValues = attrSet.mock.calls.filter((c) => c[0] === 'src').map((c) => String(c[1]));
+      expect(srcValues.concat(attrValues).length).toBeGreaterThan(0);
+      for (const v of srcValues.concat(attrValues)) expect(v).not.toContain('/start');
+    });
+
+    it('navigates again when seq changes, even for the same URL', async () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const app = makeApp({ url: 'https://example.com/start' });
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/deep', seq: 1 } } });
+      srcSet.mockClear();
+      await r.rerender({ app, deepLink: { url: 'https://example.com/deep', seq: 2 } });
+      await waitFor(() => expect(srcSet).toHaveBeenCalledWith('https://example.com/deep'));
+    });
+
+    it('keeps a loaded frame shown on a deep link to another page', async () => {
+      vi.useFakeTimers();
+      try {
+        const app = makeApp();
+        const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+        const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+        await fireEvent.load(iframe);
+        await vi.advanceTimersByTimeAsync(20);
+        expect(iframe.classList.contains('app-frame-ready')).toBe(true);
+        await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 2 } });
+        expect(iframe.getAttribute('src')).toBe('https://example.com/b');
+        expect(iframe.classList.contains('app-frame-ready')).toBe(true);
+        expect(r.container.querySelector('.animate-spin')).toBeNull();
+        // No load event may ever arrive (a fragment change the shell cannot
+        // see); that must not end on the error screen.
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(r.container.querySelector('button')).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('restarts the loading state on a deep link before the first load', async () => {
+      vi.useFakeTimers();
+      try {
+        const app = makeApp();
+        const r = render(AppFrame, { props: { app } });
+        await vi.advanceTimersByTimeAsync(20_000);
+        await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 1 } });
+        expect(r.container.querySelector('.animate-spin')).not.toBeNull();
+        // The timeout starts over for the deep link.
+        await vi.advanceTimersByTimeAsync(20_000);
+        expect(r.container.querySelector('button')).toBeNull();
+        await vi.advanceTimersByTimeAsync(10_000);
+        expect(r.container.querySelector('button')).not.toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('retry reloads the deep link that failed', async () => {
+      vi.useFakeTimers();
+      try {
+        const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+        const app = makeApp({ url: 'https://example.com/start' });
+        const r = render(AppFrame, { props: { app } });
+        await vi.advanceTimersByTimeAsync(30_000);
+        await r.rerender({ app, deepLink: { url: 'https://example.com/deep', seq: 1 } });
+        await vi.advanceTimersByTimeAsync(30_000);
+        const retry = r.container.querySelector('button') as HTMLButtonElement;
+        srcSet.mockClear();
+        await fireEvent.click(retry);
+        expect(srcSet).toHaveBeenCalledWith('https://example.com/deep');
+        srcSet.mockRestore();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('a deep link from the error screen shows the spinner', async () => {
+      vi.useFakeTimers();
+      try {
+        const app = makeApp();
+        const r = render(AppFrame, { props: { app } });
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(r.container.querySelector('button')).not.toBeNull();
+        await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 1 } });
+        expect(r.container.querySelector('.animate-spin')).not.toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('does not navigate when seq is unchanged', async () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+      srcSet.mockClear();
+      await r.rerender({ app, deepLink: { url: 'https://example.com/other', seq: 1 } });
+      expect(srcSet).not.toHaveBeenCalled();
+    });
+
+    it('neutralises a javascript: deep link', () => {
+      const { container } = render(AppFrame, {
+        props: { app: makeApp(), deepLink: { url: 'javascript:alert(1)', seq: 1 } },
+      });
+      expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('about:blank');
+    });
+
+    it('a config URL change after a deep link updates src', async () => {
+      const r = render(AppFrame, {
+        props: { app: makeApp({ url: 'https://example.com/start' }), deepLink: { url: 'https://example.com/deep', seq: 1 } },
+      });
+      await r.rerender({ app: makeApp({ url: 'https://other.test' }), deepLink: { url: 'https://example.com/deep', seq: 1 } });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      await waitFor(() => expect(iframe.getAttribute('src')).toBe('https://other.test/'));
+    });
+
+    it('without deepLink uses the effective URL', () => {
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('https://example.com/');
+    });
+
+    it('reports a deep link it mounted with as used', () => {
+      const used = vi.fn();
+      render(AppFrame, { props: { app: makeApp(), deepLink: { url: 'https://example.com/a', seq: 4 }, ondeeplinkused: used } });
+      expect(used).toHaveBeenCalledWith(4);
+    });
+
+    it('reports a deep link it navigated to as used', async () => {
+      const used = vi.fn();
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, ondeeplinkused: used } });
+      expect(used).not.toHaveBeenCalled();
+      await r.rerender({ app, deepLink: { url: 'https://example.com/a', seq: 7 }, ondeeplinkused: used });
+      await waitFor(() => expect(used).toHaveBeenCalledWith(7));
+    });
+
+    it('keeps the loaded page when a used deep link is removed', async () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+      srcSet.mockClear();
+      await r.rerender({ app, deepLink: undefined });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.getAttribute('src')).toBe('https://example.com/a');
+      expect(srcSet).not.toHaveBeenCalled();
+    });
+
+    it('a remount without the consumed deep link loads the normal URL', () => {
+      const deepLink = { url: 'https://example.com/a', seq: 1 };
+      const first = render(AppFrame, { props: { app: makeApp(), deepLink } });
+      first.unmount();
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('https://example.com/');
+    });
+
+    it('a fragment-only deep link keeps the frame shown without a spinner', async () => {
+      const app = makeApp({ url: 'https://example.com/web/index.html' });
+      const r = render(AppFrame, { props: { app } });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      await fireEvent.load(iframe);
+      await waitFor(() => expect(iframe.classList.contains('app-frame-ready')).toBe(true));
+      await r.rerender({ app, deepLink: { url: 'https://example.com/web/index.html#!/item?id=1', seq: 1 } });
+      await waitFor(() => expect(iframe.getAttribute('src')).toBe('https://example.com/web/index.html#!/item?id=1'));
+      expect(iframe.classList.contains('app-frame-ready')).toBe(true);
+      expect(r.container.querySelector('.animate-spin')).toBeNull();
+      // A second fragment change is compared against the last assigned URL.
+      await r.rerender({ app, deepLink: { url: 'https://example.com/web/index.html#!/home', seq: 2 } });
+      await waitFor(() => expect(iframe.getAttribute('src')).toBe('https://example.com/web/index.html#!/home'));
+      expect(r.container.querySelector('.animate-spin')).toBeNull();
+    });
+
+  });
+
+  describe('load timeout', () => {
+    afterEach(() => vi.useRealTimers());
+
+    it('shows the error screen when no load arrives in 30 s', async () => {
+      vi.useFakeTimers();
+      const { container } = render(AppFrame, { props: { app: makeApp({ name: 'Slow' }) } });
+      expect(container.querySelector('.animate-spin')).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(29_999);
+      expect(container.textContent).not.toContain('Slow');
+      await vi.advanceTimersByTimeAsync(1);
+      expect(container.querySelector('.animate-spin')).toBeNull();
+      expect(container.querySelector('button')).not.toBeNull();
+    });
+
+    it('does nothing at the timeout when the frame has loaded', async () => {
+      vi.useFakeTimers();
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      await fireEvent.load(iframe);
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(container.querySelector('button')).toBeNull();
+    });
+
+    it('retry restarts loading and the timeout', async () => {
+      vi.useFakeTimers();
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      await vi.advanceTimersByTimeAsync(30_000);
+      const retry = container.querySelector('button') as HTMLButtonElement;
+      await fireEvent.click(retry);
+      expect(container.querySelector('.animate-spin')).not.toBeNull();
+      expect(container.querySelector('button')).toBeNull();
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(container.querySelector('button')).not.toBeNull();
     });
   });
 });

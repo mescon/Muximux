@@ -215,6 +215,7 @@ services:
       - muximux.app.allowed_groups=family,admins
       - muximux.app.permissions=clipboard-read,clipboard-write
       - muximux.app.allow_notifications=true
+      - muximux.app.allow_navigation=true
       - muximux.app.shortcut=1
       # ── Gateway routing (subdomain + auth gate) ──────────────
       - muximux.app.gateway.domain=sonarr.example.com
@@ -376,7 +377,7 @@ Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](
 
 How values are read:
 
-- **Booleans** are true for `true`, `1`, `yes` or `on` and false for `false`, `0`, `no` or `off` (case-insensitive, surrounding spaces ignored). Any other value, including an empty one, is ignored and reported in the Discover modal. This applies to every boolean label (`enabled`, `default`, `proxy`, `proxy_skip_tls_verify`, `allow_notifications`, `health_check`, `http_action_confirm`, `http_action_show_toast` and the `muximux.gateway.*` ones), so a misspelt `muximux.app.enabled=tru` does not opt the container out. A misspelt or empty value keeps the app or gateway site's current setting on update and sync (a typo or an undefined template variable in `muximux.gateway.require_auth` never makes a protected site public); on first import the default applies.
+- **Booleans** are true for `true`, `1`, `yes` or `on` and false for `false`, `0`, `no` or `off` (case-insensitive, surrounding spaces ignored). Any other value, including an empty one, is ignored and reported in the Discover modal. This applies to every boolean label (`enabled`, `default`, `proxy`, `proxy_skip_tls_verify`, `allow_notifications`, `allow_navigation`, `health_check`, `http_action_confirm`, `http_action_show_toast` and the `muximux.gateway.*` ones), so a misspelt `muximux.app.enabled=tru` does not opt the container out. A misspelt or empty value keeps the app or gateway site's current setting on update and sync (a typo or an undefined template variable in `muximux.gateway.require_auth` never makes a protected site public); on first import the default applies.
 - **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set. Each ignored value is listed in the Discover modal's notes for the container and logged as a warning once, until it changes.
 - **Labels that are set win while an app is tracked.** On apps you imported by hand, `muximux.app.name`, `icon`, `group` and `order` are re-synced on every refresh, whatever the `auto_import` mode. Auto-imported apps are re-synced from all their labels under `update`/`sync` and left alone under `off` and `add`. The `muximux.group.*` labels apply to groups Docker discovery created. A label that is not set never changes anything. To take a field back, remove the label or **Detach** the app. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps) and [Group labels](#group-labels).
 - Unknown `muximux.*` labels are listed in the Discover modal's notes for the container.
@@ -415,6 +416,7 @@ How values are read:
 | `muximux.app.allowed_groups` | csv | unset | Comma-separated group allow-list; user must belong to at least one. Case-insensitive. Stacks with `min_role`. |
 | `muximux.app.permissions` | csv | unset | Iframe feature delegations (`camera`, `microphone`, `geolocation`, `clipboard-read`, `clipboard-write`, `fullscreen`, ...). |
 | `muximux.app.allow_notifications` | bool | `false` | Enable the cross-iframe Notifications API bridge for this app. |
+| `muximux.app.allow_navigation` | bool | `false` | Let this app switch Muximux to another app (and open a page inside it) through `target="_top"` links and a `postMessage` API. A `_top` link can also send the whole tab to any website after a click, and a visible app can switch apps without a click, so enable it only for apps you trust. See [Navigation from Embedded Apps](apps.md#navigation-from-embedded-apps). |
 | `muximux.app.shortcut` | int 1-9 | unset | Keyboard shortcut slot. |
 | `muximux.app.gateway.domain` | string | unset | Required for auto-import to create a gateway site; the derived `<name>.<dashboard domain>` default only pre-fills the import modal. When set, the import modal also offers a gateway-site entry for this subdomain. Pairs with the `muximux.gateway.*` labels below. |
 

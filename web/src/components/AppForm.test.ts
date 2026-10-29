@@ -396,6 +396,23 @@ describe('AppForm', () => {
     });
   });
 
+  describe('Allow navigating Muximux', () => {
+    it('renders next to Allow notifications and toggles app.allow_navigation', async () => {
+      const app = makeApp();
+      render(AppForm, { props: { app, mode: 'edit', groups: defaultGroups, allApps: [] } });
+      const navLabel = screen.getByText('Allow navigating Muximux').closest('label') as HTMLLabelElement;
+      const notifLabel = screen.getByText('Allow notifications').closest('label') as HTMLLabelElement;
+      expect(navLabel).toBeInTheDocument();
+      expect(navLabel.parentElement).toBe(notifLabel.parentElement);
+      const checkbox = navLabel.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+      await fireEvent.click(checkbox);
+      expect(app.allow_navigation).toBe(true);
+      await fireEvent.click(checkbox);
+      expect(app.allow_navigation).toBe(false);
+    });
+  });
+
   // =========================================================================
   // Sections always visible
   // =========================================================================

@@ -611,6 +611,8 @@ type AppConfig struct {
 	// the embedded iframe can postMessage {type: 'muximux:notify', title, body, tag}
 	// to request a browser notification via Muximux's top-level origin.
 	AllowNotifications bool `yaml:"allow_notifications,omitempty" json:"allow_notifications,omitempty"`
+	// AllowNavigation lets the embedded app navigate Muximux: target="_top" links to Muximux hash routes and the muximux:navigate postMessage API.
+	AllowNavigation bool `yaml:"allow_navigation,omitempty" json:"allow_navigation,omitempty"`
 
 	// Docker auto-management. When DockerKey is non-empty, the URL of
 	// this app is updated by the discovery poller from the current

@@ -36,6 +36,7 @@ func allBoolLabels() []boolLabelCase {
 		{LabelAppProxy, appBoolGetter(func(l *AppLabels) *bool { return l.Proxy })},
 		{LabelAppProxySkipTLSVerify, appBoolGetter(func(l *AppLabels) *bool { return l.ProxySkipTLSVerify })},
 		{LabelAppAllowNotifications, appBoolGetter(func(l *AppLabels) *bool { return l.AllowNotifications })},
+		{LabelAppAllowNavigation, appBoolGetter(func(l *AppLabels) *bool { return l.AllowNavigation })},
 		{LabelAppHealthCheck, appBoolGetter(func(l *AppLabels) *bool { return l.HealthCheck })},
 		{LabelAppHTTPActionConfirm, appBoolGetter(func(l *AppLabels) *bool { return l.HTTPActionConfirm })},
 		{LabelAppHTTPActionShowToast, appBoolGetter(func(l *AppLabels) *bool { return l.HTTPActionShowToast })},
@@ -200,6 +201,7 @@ func TestReconcile_InvalidBoolKeepsStoredValue(t *testing.T) {
 		LabelAppDefault:             "ture",
 		LabelAppProxy:               "ture",
 		LabelAppAllowNotifications:  "ture",
+		LabelAppAllowNavigation:     "ture",
 		LabelAppProxySkipTLSVerify:  "ture",
 		LabelAppHTTPActionConfirm:   "ture",
 		LabelAppHTTPActionShowToast: "ture",
@@ -222,7 +224,7 @@ func TestReconcile_InvalidBoolKeepsStoredValue(t *testing.T) {
 	on := true
 	good := BuildDesired(typo(map[string]string{}), "ep")
 	app := good.App
-	app.Default, app.Proxy, app.AllowNotifications = true, true, true
+	app.Default, app.Proxy, app.AllowNotifications, app.AllowNavigation = true, true, true, true
 	app.ProxySkipTLSVerify, app.HTTPActionConfirm, app.HTTPActionShowToast = &on, true, &on
 	site := *good.Site
 	site.RequireAuth, site.Streaming = true, true
@@ -250,7 +252,7 @@ func TestReconcile_InvalidBoolKeepsStoredValue(t *testing.T) {
 		}
 		u := plan.Update[0]
 		merged := mergeManagedFields(&app, &u.App)
-		if merged.Name != "Renamed" || !merged.Default || !merged.AllowNotifications || !merged.HTTPActionConfirm ||
+		if merged.Name != "Renamed" || !merged.Default || !merged.AllowNotifications || !merged.AllowNavigation || !merged.HTTPActionConfirm ||
 			merged.ProxySkipTLSVerify == nil || !*merged.ProxySkipTLSVerify || merged.HTTPActionShowToast == nil || !*merged.HTTPActionShowToast {
 			t.Errorf("%s: merged app = %+v", mode, merged)
 		}
