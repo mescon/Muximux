@@ -4,13 +4,55 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-10-29
+
+Embedded apps can drive Muximux: a dashboard such as Homarr can switch
+apps from its tiles and links, and open a specific page inside another app
+from a widget, without touching the pane next to it. Split view in
+Chromium-based browsers follows your clicks again, and go-jose is updated
+for a denial-of-service fix.
+
+Upgrade notes:
+- Nothing changes until you turn on "Allow navigating Muximux"
+  (`allow_navigation`) for an app. Turn it on only for apps you trust: a
+  `target="_top"` link in that app can send the whole tab to any website.
+
 ### Added
-- **Embedded apps can navigate Muximux.** A new per-app setting, "Allow navigating Muximux" (`allow_navigation`, label `muximux.app.allow_navigation`), lets an embedded app such as a Homarr dashboard switch apps through `target="_top"` links to `#app` and `#a+b` hash routes, or open a specific page inside another app with a `muximux:navigate` message. Split view keeps working: the pane already showing the target is reused, otherwise the sender's pane is replaced, and the other pane is never touched. Off by default; an opted-in app can send the tab to any website through a `_top` link, so enable it only for apps you trust. (#529)
-- **Links without `target="_top"` work too.** A Homarr app tile set to open in the current tab, or any plain link to `https://muximux.example.com/#emby`, used to load Muximux inside the app's frame and leave it blank. In an app with `allow_navigation`, that copy now hands the link to the Muximux window, which puts the app back and switches. The link must be on a page at one of your apps' addresses; proxied apps still need `target="_top"`. (#529)
-- **Widgets inside an app can send `muximux:navigate`.** A page in a frame inside an opted-in app (a Homarr iframe widget, for example) can post to `window.top` and counts as that app, if it is served from the address of one of your Muximux apps. (#529)
+- **Embedded apps can navigate Muximux.** A new per-app setting, "Allow
+  navigating Muximux" (`allow_navigation`, label
+  `muximux.app.allow_navigation`), lets an embedded app such as a Homarr
+  dashboard switch apps through `target="_top"` links to `#app` and `#a+b`
+  hash routes, or open a specific page inside another app with a
+  `muximux:navigate` message. Split view keeps working: the pane already
+  showing the target is reused, otherwise the sender's pane is replaced, and
+  the other pane is never touched. Off by default; an opted-in app can send
+  the tab to any website through a `_top` link, so enable it only for apps you
+  trust. (#529)
+- **Links without `target="_top"` work too.** A Homarr app tile set to open in
+  the current tab, or any plain link to `https://muximux.example.com/#emby`,
+  used to load Muximux inside the app's frame and leave it blank. In an app
+  with `allow_navigation`, that copy now hands the link to the Muximux window,
+  which puts the app back and switches. The link must be on a page at one of
+  your apps' addresses; proxied apps still need `target="_top"`. (#529)
+- **Widgets inside an app can send `muximux:navigate`.** A page in a frame
+  inside an opted-in app (a Homarr iframe widget, for example) can post to
+  `window.top` and counts as that app, if it is served from the address of one
+  of your Muximux apps. (#529)
 
 ### Fixed
-- **Clicking into an app in split view makes its pane the active one again.** Chromium-based browsers never reported the click, so the menu kept opening apps in whichever pane was active before.
+- **Clicking into an app in split view makes its pane the active one again.**
+  Chromium-based browsers never reported the click, so the menu kept opening
+  apps in whichever pane was active before.
+
+### Security
+- **`github.com/go-jose/go-jose/v4` v4.1.6** -- fixes GHSA-mgcc-cww5-fp2q, a
+  denial of service when parsing JWKs with crafted RSA keys. Muximux parses
+  the OIDC provider's signing keys with it, so a malicious or compromised
+  provider could tie up the CPU. The copy of go-jose v3 that Caddy's PKI
+  module pulls in has no fixed release yet; govulncheck finds no reachable
+  use of it.
+- **`golang.org/x/net` v0.62.0** -- fixes GO-2026-6860 and GO-2026-6866 in
+  the HTML parser; govulncheck reports neither as reachable from Muximux.
 
 ## [3.6.2] - 2026-10-14
 
