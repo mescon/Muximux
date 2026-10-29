@@ -45,9 +45,16 @@ describe('findSenderFrame', () => {
   });
 
   it('rejects an app whose configured URL is unparseable', () => {
-    const app = makeApp({ name: 'A', url: 'not a url' });
+    const app = makeApp({ name: 'A', url: 'http://' });
     const frame = addFrame(app);
     expect(findSenderFrame([app], 'https://a.local', frame.contentWindow)).toBeUndefined();
+  });
+
+  it('matches a single-slash app URL against Muximux\'s own origin', () => {
+    const app = makeApp({ name: 'L', url: '/local/' });
+    const frame = addFrame(app);
+    expect(findSenderFrame([app], window.location.origin, frame.contentWindow)?.app).toBe(app);
+    expect(findSenderFrame([app], 'https://evil.test', frame.contentWindow)).toBeUndefined();
   });
 
   it('accepts a proxied app reporting Muximux\'s own origin', () => {

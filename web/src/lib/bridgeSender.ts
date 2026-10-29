@@ -33,7 +33,8 @@ export function findSenderFrame(
       if (origin !== window.location.origin) return undefined;
     } else {
       try {
-        if (new URL(app.url).origin !== origin) return undefined;
+        // A single-slash URL (/local/) is served from Muximux's own origin.
+        if (new URL(app.url, window.location.origin).origin !== origin) return undefined;
       } catch {
         return undefined;
       }
