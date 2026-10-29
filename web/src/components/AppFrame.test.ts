@@ -821,5 +821,67 @@ describe('AppFrame', () => {
       const { container } = render(AppFrame, { props: { app: makeApp() } });
       expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('https://example.com/');
     });
+
+    it('a fragment-only deep link keeps the frame shown without a spinner', async () => {
+      const app = makeApp({ url: 'https://example.com/web/index.html' });
+      const r = render(AppFrame, { props: { app } });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      await fireEvent.load(iframe);
+      await waitFor(() => expect(iframe.classList.contains('app-frame-ready')).toBe(true));
+      await r.rerender({ app, deepLink: { url: 'https://example.com/web/index.html#!/item?id=1', seq: 1 } });
+      await waitFor(() => expect(iframe.getAttribute('src')).toBe('https://example.com/web/index.html#!/item?id=1'));
+      expect(iframe.classList.contains('app-frame-ready')).toBe(true);
+      expect(r.container.querySelector('.animate-spin')).toBeNull();
+      // A second fragment change is compared against the last assigned URL.
+      await r.rerender({ app, deepLink: { url: 'https://example.com/web/index.html#!/home', seq: 2 } });
+      await waitFor(() => expect(iframe.getAttribute('src')).toBe('https://example.com/web/index.html#!/home'));
+      expect(r.container.querySelector('.animate-spin')).toBeNull();
+    });
+
+    it('a deep link to another page shows the spinner again', async () => {
+      const app = makeApp({ url: 'https://example.com/web/index.html' });
+      const r = render(AppFrame, { props: { app } });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      await fireEvent.load(iframe);
+      await waitFor(() => expect(r.container.querySelector('.animate-spin')).toBeNull());
+      await r.rerender({ app, deepLink: { url: 'https://example.com/web/other.html#x', seq: 1 } });
+      await waitFor(() => expect(r.container.querySelector('.animate-spin')).not.toBeNull());
+    });
+  });
+
+  describe('load timeout', () => {
+    afterEach(() => vi.useRealTimers());
+
+    it('shows the error screen when no load arrives in 30 s', async () => {
+      vi.useFakeTimers();
+      const { container } = render(AppFrame, { props: { app: makeApp({ name: 'Slow' }) } });
+      expect(container.querySelector('.animate-spin')).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(29_999);
+      expect(container.textContent).not.toContain('Slow');
+      await vi.advanceTimersByTimeAsync(1);
+      expect(container.querySelector('.animate-spin')).toBeNull();
+      expect(container.querySelector('button')).not.toBeNull();
+    });
+
+    it('does nothing at the timeout when the frame has loaded', async () => {
+      vi.useFakeTimers();
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      await fireEvent.load(iframe);
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(container.querySelector('button')).toBeNull();
+    });
+
+    it('retry restarts loading and the timeout', async () => {
+      vi.useFakeTimers();
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      await vi.advanceTimersByTimeAsync(30_000);
+      const retry = container.querySelector('button') as HTMLButtonElement;
+      await fireEvent.click(retry);
+      expect(container.querySelector('.animate-spin')).not.toBeNull();
+      expect(container.querySelector('button')).toBeNull();
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(container.querySelector('button')).not.toBeNull();
+    });
   });
 });

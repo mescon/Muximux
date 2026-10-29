@@ -3,6 +3,7 @@
   import { getEffectiveUrl, type App } from '$lib/types';
   import { FRAME_NAME_PREFIX } from '$lib/frameRescue';
   import { isSafeAppUrl } from '$lib/appUrl';
+  import { isFragmentOnlyChange } from '$lib/navigatePath';
   import { resolvePermissions } from '$lib/constants';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
   import * as m from '$lib/paraglide/messages.js';
@@ -38,11 +39,15 @@
   let frameSrc = $derived(deepSrc ?? effectiveUrl);
   let lastSeq = untrack(() => deepLink?.seq);
   let lastEffective = untrack(() => effectiveUrl);
+  // The URL this component last pointed the iframe at, to spot deep links
+  // that only change the fragment (those fire no load event).
+  let lastAssigned = untrack(() => frameSrc);
 
   $effect(() => {
     const eff = effectiveUrl;
     if (eff === lastEffective) return;
     lastEffective = eff;
+    lastAssigned = eff;
     deepSrc = undefined;
   });
 
@@ -54,16 +59,8 @@
     lastSeq = seq;
     const url = safeIframeSrc(untrack(() => deepLink!.url));
     if (!iframeRef) return;
-    clearTimeout(loadTimeout);
-    loadError = false;
-    isLoading = true;
-    iframeReady = false;
-    loadTimeout = setTimeout(() => {
-      if (isLoading) {
-        isLoading = false;
-        loadError = true;
-      }
-    }, 30000);
+    if (!isFragmentOnlyChange(lastAssigned, url)) beginLoad();
+    lastAssigned = url;
     iframeRef.src = url;
     untrack(() => ondeeplinkused?.(seq));
   });
@@ -104,6 +101,24 @@
   let isLoading = $state(true);
   let iframeReady = $state(false);
   let loadTimeout: ReturnType<typeof setTimeout>;
+  const LOAD_TIMEOUT_MS = 30000;
+
+  function handleLoadTimeout() {
+    if (isLoading) {
+      isLoading = false;
+      loadError = true;
+    }
+  }
+
+  // Show the loading overlay until the iframe's load event, or the error
+  // screen if it has not arrived after LOAD_TIMEOUT_MS.
+  function beginLoad() {
+    clearTimeout(loadTimeout);
+    loadError = false;
+    isLoading = true;
+    iframeReady = false;
+    loadTimeout = setTimeout(handleLoadTimeout, LOAD_TIMEOUT_MS);
+  }
 
   // Pull-to-refresh state
   let isMobile = $state(false);
@@ -136,15 +151,8 @@
   }
 
   function retryLoad() {
-    loadError = false;
-    isLoading = true;
-    iframeReady = false;
-    loadTimeout = setTimeout(() => {
-      if (isLoading) {
-        isLoading = false;
-        loadError = true;
-      }
-    }, 30000);
+    beginLoad();
+    lastAssigned = effectiveUrl;
     if (iframeRef) iframeRef.src = effectiveUrl;
   }
 
@@ -152,13 +160,7 @@
     isMobile = isMobileViewport();
     hasTouch = isTouchDevice();
 
-    loadTimeout = setTimeout(() => {
-      if (isLoading) {
-        isLoading = false;
-        loadError = true;
-      }
-    }, 30000);
-
+    beginLoad();
     // Mounted straight at a deep link: it has been used, so a later remount
     // must not replay it.
     const seq = untrack(() => deepLink?.seq);

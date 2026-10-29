@@ -65,3 +65,21 @@ export function resolveDeepLink(app: App, path: string, base: string = ''): Deep
 
   return isSafeAppUrl(result) ? { ok: true, url: result } : REJECT;
 }
+
+/**
+ * Whether navigating a frame from `from` to `to` only changes the fragment.
+ * Browsers then scroll or fire hashchange inside the frame but fire no load
+ * event, so a loading overlay waiting for `load` would never clear.
+ */
+export function isFragmentOnlyChange(from: string, to: string): boolean {
+  if (!to.includes('#')) return false;
+  try {
+    const a = new URL(from, window.location.href);
+    const b = new URL(to, window.location.href);
+    a.hash = '';
+    b.hash = '';
+    return a.href === b.href;
+  } catch {
+    return false;
+  }
+}

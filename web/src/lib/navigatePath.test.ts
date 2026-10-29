@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveDeepLink, MAX_NAV_PATH } from './navigatePath';
+import { resolveDeepLink, isFragmentOnlyChange, MAX_NAV_PATH } from './navigatePath';
 import { makeApp } from './types';
 
 const url = (u: string, extra: Record<string, unknown> = {}) => makeApp({ url: u, ...extra });
@@ -130,5 +130,34 @@ describe('resolveDeepLink', () => {
       const app = url('http://emby/web/index.html', { proxyUrl: '/proxy/emby/' });
       expect(resolveDeepLink(app, '/web/other')).toEqual({ ok: false });
     });
+  });
+});
+
+describe('isFragmentOnlyChange', () => {
+  it('is true when only the fragment differs', () => {
+    expect(isFragmentOnlyChange('http://emby/web/index.html', 'http://emby/web/index.html#!/item?id=1')).toBe(true);
+    expect(isFragmentOnlyChange('http://emby/web/index.html#!/home', 'http://emby/web/index.html#!/item')).toBe(true);
+  });
+
+  it('is true for the same URL with a fragment (still a fragment navigation)', () => {
+    expect(isFragmentOnlyChange('http://a/x#y', 'http://a/x#y')).toBe(true);
+  });
+
+  it('resolves relative proxy paths against the shell', () => {
+    expect(isFragmentOnlyChange('/proxy/emby/web/', '/proxy/emby/web/#!/item')).toBe(true);
+  });
+
+  it('is false when the target has no fragment', () => {
+    expect(isFragmentOnlyChange('http://a/x#y', 'http://a/x')).toBe(false);
+    expect(isFragmentOnlyChange('http://a/x', 'http://a/x')).toBe(false);
+  });
+
+  it('is false when path or query differ', () => {
+    expect(isFragmentOnlyChange('http://a/x', 'http://a/z#y')).toBe(false);
+    expect(isFragmentOnlyChange('http://a/x?q=1', 'http://a/x?q=2#y')).toBe(false);
+  });
+
+  it('is false for unparseable URLs', () => {
+    expect(isFragmentOnlyChange('http://[', 'http://a/#y')).toBe(false);
   });
 });
