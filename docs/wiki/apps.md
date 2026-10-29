@@ -428,6 +428,15 @@ apps:
 
 The target app needs no setting. One setting unlocks both mechanisms below. In Docker discovery the label is `muximux.app.allow_navigation` (a strict boolean, like `muximux.app.allow_notifications`).
 
+### What you can do with it
+
+- **Use a dashboard as your start page.** Make Homarr (or another dashboard) the [default app](#default-app) and point its tiles at Muximux addresses such as `https://muximux.example.com/#sonarr`. A click switches Muximux to Sonarr, with its menu entry, health status and keyboard shortcuts, instead of opening a second Sonarr inside the dashboard. In Homarr, set the tile to open in the current tab.
+- **One-click layouts.** A link to two apps opens them side by side in [split view](split-view.md). A "Downloads" tile linking to `#sonarr+sabnzbd`, a "Monitoring" tile linking to `#grafana+uptime-kuma` and a "Media" tile linking to `#jellyfin+jellyseerr` turn the dashboard into a set of workspaces.
+- **Go straight to the item.** A widget that lists things can open the exact one in the app that owns it: a "recently added" list that opens the movie in Emby or Jellyfin, a request list that opens the request in Jellyseerr, an alert list that opens the matching Grafana dashboard. This uses the [message API](#message-api) with a `path`. Serve the widget from one of your apps, or add the page it lives on as an app in Muximux.
+- **Runbooks that link to the tool.** A notes or wiki app embedded in Muximux can link to `#portainer` or `#proxmox` right next to the instructions, so following a runbook doesn't mean hunting through the menu.
+
+Turn `allow_navigation` on for the app the click happens in (the dashboard, the notes app), not for the apps it opens.
+
 ### Plain links
 
 With `allow_navigation` on, the app's iframe sandbox gets `allow-top-navigation-by-user-activation`, so a link with `target="_top"` can navigate the Muximux window:

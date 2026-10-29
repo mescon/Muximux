@@ -12,6 +12,24 @@ from a widget, without touching the pane next to it. Split view in
 Chromium-based browsers follows your clicks again, and go-jose is updated
 for a denial-of-service fix.
 
+Some things this makes possible:
+- **A dashboard as your start page.** Homarr tiles pointing at
+  `https://muximux.example.com/#sonarr` switch Muximux to Sonarr, menu,
+  health status and shortcuts included, instead of opening a second Sonarr
+  inside the dashboard.
+- **One-click layouts.** A tile linking to `#sonarr+sabnzbd` or
+  `#grafana+uptime-kuma` opens both apps side by side in split view, so a
+  dashboard can double as a set of workspaces.
+- **Straight to the item.** A "recently added" widget that opens the movie
+  in Emby or Jellyfin, or an alert list that opens the matching Grafana
+  dashboard, with no searching in the target app.
+- **Runbooks that link to the tool.** A notes or wiki app whose instructions
+  link to `#portainer` or `#proxmox`.
+
+Setup, more ideas and the full message API are on the
+[Navigation from Embedded Apps](https://github.com/mescon/Muximux/wiki/apps#navigation-from-embedded-apps)
+wiki page.
+
 Upgrade notes:
 - Nothing changes until you turn on "Allow navigating Muximux"
   (`allow_navigation`) for an app. Turn it on only for apps you trust: a
