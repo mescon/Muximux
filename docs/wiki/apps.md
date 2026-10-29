@@ -441,7 +441,7 @@ With `allow_navigation` on, the app's iframe sandbox gets `allow-top-navigation-
 - The part before `#` must be the same address you have Muximux open on. If it differs, the browser does a full page load of Muximux instead of just changing the hash. That still works but reloads everything.
 - Plain links only switch apps. A hash names apps, not pages inside them; to open a specific item use the message API below.
 - In split view, a single-app link (`#emby`) goes to the pane that already shows that app and makes it active. Otherwise the app replaces the pane the link was clicked in. The other pane is not changed or reloaded. Afterwards the address bar shows the normal split hash (for example `#homarr+emby`).
-- Back and Forward work as they do for menu clicks.
+- Back and Forward work as they do for menu clicks. A link to the app already shown in the other pane still adds a history entry with the same split hash as before, so Back may first return to the same layout.
 
 ### Message API
 
@@ -465,9 +465,9 @@ Muximux replies to the sender (posted to the sender's origin):
 | `error` | Meaning |
 |---------|---------|
 | `not_allowed` | The sending app does not have `allow_navigation` enabled. |
-| `not_visible` | The sending frame is not the app currently shown. Requests from hidden frames (an app in the other pane's background, or any app while the overview, logs or settings cover it) are refused. |
+| `not_visible` | The sending frame is not the app currently shown. Requests from hidden frames (an app in the other pane's background, or any app while the overview, logs, settings, command palette or shortcuts help cover it) are refused. |
 | `bad_request` | Malformed message: `app` missing, not a string, empty or longer than 200 characters, or `path` not a string. |
-| `unknown_app` | No app you can see matches `app`. It is matched first against the slug used in hash routes, then against the display name. |
+| `unknown_app` | No enabled app you can see matches `app`. It is matched first against the slug used in hash routes, then against the display name. |
 | `not_embeddable` | The target does not open in an iframe (`new_tab`, `new_window`, `redirect` and `http_action` apps are refused). An unset `open_mode` counts as `iframe`. |
 | `bad_path` | `path` is not allowed (see the path rule below). |
 | `rate_limited` | More than one accepted navigation from this app within 500 ms. Refused messages do not use up the slot. |
@@ -479,10 +479,13 @@ Every refusal also logs a `[muximux:navigate]` warning in the browser console ex
 `path` is resolved the way an `href` would be, against the target app's configured URL, and the result must stay inside the target app:
 
 - It must keep the app URL's origin and stay under its base directory, which is the app URL's path up to and including the last `/`. `http://emby:8096/web/index.html` has base `/web/`, `http://host/sonarr/` has base `/sonarr/`, and `http://homarr/?board=main` has base `/`.
+- An empty `path` (`path: ''`) is the same as no `path`.
 - A leading `/` means the origin root, no leading `/` is relative to the app URL. Dot segments are normalised before the check, and encoded `%2f` and `%5c` are rejected.
 - Absolute URLs, `//host`, `javascript:` and other schemes, control characters and values over 2048 characters are rejected.
 
 Examples with Emby at `http://emby:8096/`: `/web/index.html#!/item?id=123` is accepted. With Sonarr at `http://host/sonarr/`: `/series/x` is rejected (it leaves `/sonarr/`), while `series/x` and `/sonarr/series/x` are both accepted.
+
+For an app on a sub-path, configure its URL with a trailing slash (`http://host/sonarr/`, not `http://host/sonarr`). Without it the base directory is the parent (`/`), so relative paths resolve next to the app rather than inside it.
 
 Proxied apps use the same rule against the app's configured URL, and the accepted address is then mapped onto `/proxy/<slug>/`. A widget therefore sends the same `path` whether or not the target is proxied.
 
@@ -498,20 +501,28 @@ Proxied apps use the same rule against the app's configured URL, and the accepte
 ```html
 <button id="open-movie">Open in Emby</button>
 <script>
+  // Resolves with the reply, or { ok: false, error: 'timeout' } when none
+  // arrives (for example when the page is not embedded in Muximux).
   function muximuxNavigate(app, path) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      const done = (result) => {
+        clearTimeout(timer);
+        window.removeEventListener('message', onReply);
+        resolve(result);
+      };
       const onReply = (e) => {
         if (e.source !== window.parent || !e.data || e.data.type !== 'muximux:navigate-result') return;
-        window.removeEventListener('message', onReply);
-        e.data.ok ? resolve() : reject(new Error(e.data.error));
+        done(e.data);
       };
+      const timer = setTimeout(() => done({ ok: false, error: 'timeout' }), 2000);
       window.addEventListener('message', onReply);
       window.parent.postMessage({ type: 'muximux:navigate', app, path }, '*');
     });
   }
 
-  document.getElementById('open-movie').addEventListener('click', () => {
-    muximuxNavigate('emby', '/web/index.html#!/item?id=123').catch(console.warn);
+  document.getElementById('open-movie').addEventListener('click', async () => {
+    const result = await muximuxNavigate('emby', '/web/index.html#!/item?id=123');
+    if (!result.ok) console.warn('Muximux navigation failed:', result.error);
   });
 </script>
 ```
