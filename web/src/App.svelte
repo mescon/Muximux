@@ -31,6 +31,7 @@
   import { safeColor } from './lib/safeColor';
   import { installNotificationBridge } from './lib/notificationBridge';
   import { installNavigationBridge } from './lib/navigationBridge';
+  import { applyFrameLink, reportFramedLoad, restoreFrame } from './lib/framedLoad';
   import { NAV_STATE } from './lib/navHistory';
   import { applyLinkHash, applyNavigate, consumeDeepLink, deepLinkKey, installFramePaneTracker, isFrameVisible, layoutHash, type DeepLinks } from './lib/linkNavigation';
   import { applyConfigLocale } from './lib/localeStore';
@@ -346,13 +347,15 @@
   }
 
   onMount(async () => {
-    // Safety net: if Muximux is loaded inside an iframe (e.g. browser back
-    // navigated the iframe to "/" which serves the SPA shell), bail out.
-    // Proxied apps won't trigger this because their interceptor overrides
-    // window.top to equal window, so self === top for them.
+    // Muximux loaded inside an iframe: a link in an app without
+    // target="_top", or browser back navigating the iframe to "/" which
+    // serves the SPA shell. Never start; hand a link's hash to the shell
+    // (framedLoad.ts). Proxied apps won't trigger this because their
+    // interceptor overrides window.top to equal window, so self === top.
     if (window.self !== window.top) {
       console.warn('[Muximux] Blocked nested iframe loading');
       document.body.textContent = '';
+      reportFramedLoad();
       return;
     }
 
@@ -395,18 +398,18 @@
     // postMessage Muximux to switch to another app (optionally a deep link).
     const removeNavigationBridge = installNavigationBridge({
       getApps: () => apps,
-      isFrameVisible: (frame) => isFrameVisible(frame, {
-        splash: showSplash,
-        logs: showLogs,
-        settings: showSettings,
-        commandPalette: showCommandPalette,
-        shortcuts: showShortcuts,
-      }),
-      onNavigate: (req) => {
-        applyNavigate(req, deepLinks, trackVisit);
-        showSplash = false;
-        showLogs = false;
-        updateHash();
+      isFrameVisible: frameVisible,
+      onNavigate: (req) => navigateFromApp(req),
+      onFrameLink: async (req) => {
+        await restoreFrame(req.senderFrame, req.sender, req.pushed);
+        // The wait can take seconds: skip the switch if the user moved on or
+        // the app lost allow_navigation in the meantime.
+        const sender = apps.find(a => a.name === req.sender.name);
+        if (!sender?.allow_navigation || !frameVisible(req.senderFrame)) return;
+        applyFrameLink(req, apps, {
+          navigate: navigateFromApp,
+          setHash: (hash) => { location.hash = hash; },
+        });
       },
       baseUrl: (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '',
     });
@@ -772,6 +775,25 @@
   // (pushState -- creates a back-button entry) from "update the same view"
   // (replaceState -- no new entry).
   let currentNavHash = '';
+
+  // Whether an app frame is the one shown, with nothing covering it.
+  function frameVisible(frame: HTMLIFrameElement): boolean {
+    return isFrameVisible(frame, {
+      splash: showSplash,
+      logs: showLogs,
+      settings: showSettings,
+      commandPalette: showCommandPalette,
+      shortcuts: showShortcuts,
+    });
+  }
+
+  // An accepted request from an embedded app (navigationBridge.ts).
+  function navigateFromApp(req: Parameters<typeof applyNavigate>[0]) {
+    applyNavigate(req, deepLinks, trackVisit);
+    showSplash = false;
+    showLogs = false;
+    updateHash();
+  }
 
   function navigateHash(newHash: string) {
     if (newHash !== currentNavHash && currentNavHash !== '') {

@@ -6,6 +6,8 @@ All notable changes to Muximux are documented in this file.
 
 ### Added
 - **Embedded apps can navigate Muximux.** A new per-app setting, "Allow navigating Muximux" (`allow_navigation`, label `muximux.app.allow_navigation`), lets an embedded app such as a Homarr dashboard switch apps through `target="_top"` links to `#app` and `#a+b` hash routes, or open a specific page inside another app with a `muximux:navigate` message. Split view keeps working: the pane already showing the target is reused, otherwise the sender's pane is replaced, and the other pane is never touched. Off by default; an opted-in app can send the tab to any website through a `_top` link, so enable it only for apps you trust. (#529)
+- **Links without `target="_top"` work too.** A Homarr app tile set to open in the current tab, or any plain link to `https://muximux.example.com/#emby`, used to load Muximux inside the app's frame and leave it blank. In an app with `allow_navigation`, that copy now hands the link to the Muximux window, which puts the app back and switches. The link must be on a page at one of your apps' addresses; proxied apps still need `target="_top"`. (#529)
+- **Widgets inside an app can send `muximux:navigate`.** A page in a frame inside an opted-in app (a Homarr iframe widget, for example) can post to `window.top` and counts as that app, if it is served from the address of one of your Muximux apps. (#529)
 
 ### Fixed
 - **Clicking into an app in split view makes its pane the active one again.** Chromium-based browsers never reported the click, so the menu kept opening apps in whichever pane was active before.

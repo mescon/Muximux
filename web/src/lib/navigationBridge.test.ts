@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { installNavigationBridge, MAX_REQUEST_ID, NAV_RATE_LIMIT_MS } from './navigationBridge';
+import { installNavigationBridge, MAX_FRAME_LINK_HASH, MAX_REQUEST_ID, NAV_RATE_LIMIT_MS } from './navigationBridge';
 import { makeApp, type App } from './types';
 
 describe('navigationBridge', () => {
@@ -8,6 +8,7 @@ describe('navigationBridge', () => {
   let visible: boolean;
   let clock: number;
   let onNavigate: ReturnType<typeof vi.fn>;
+  let onFrameLink: ReturnType<typeof vi.fn>;
   let warn: ReturnType<typeof vi.spyOn>;
   const frames: HTMLIFrameElement[] = [];
   const posts = new Map<HTMLIFrameElement, ReturnType<typeof vi.fn>>();
@@ -20,6 +21,7 @@ describe('navigationBridge', () => {
     visible = true;
     clock = 10_000;
     onNavigate = vi.fn();
+    onFrameLink = vi.fn();
     warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
@@ -48,6 +50,7 @@ describe('navigationBridge', () => {
       getApps: () => apps,
       isFrameVisible: () => visible,
       onNavigate,
+      onFrameLink,
       now: () => clock,
     });
   }
@@ -289,5 +292,226 @@ describe('navigationBridge', () => {
     cleanup = null;
     send(frame, { type: 'muximux:navigate', app: 'my-target' });
     expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  describe('nested senders', () => {
+    // A widget iframe inside the sender app's document.
+    function widgetIn(frame: HTMLIFrameElement): { win: Window; post: ReturnType<typeof vi.fn> } {
+      const doc = frame.contentDocument!;
+      const child = doc.createElement('iframe');
+      doc.body.appendChild(child);
+      const post = vi.fn();
+      child.contentWindow!.postMessage = post as unknown as Window['postMessage'];
+      return { win: child.contentWindow!, post };
+    }
+
+    function sendFrom(win: Window, data: unknown, origin: string) {
+      window.dispatchEvent(new MessageEvent('message', { data, origin, source: win }));
+    }
+
+    it('counts a widget inside an opted-in app as that app', () => {
+      const { s, t, frame } = setup();
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target', id: 3 }, 'https://s.local');
+      expect(onNavigate).toHaveBeenCalledWith({ sender: s, senderFrame: frame, target: t, url: undefined });
+      expect(widget.post).toHaveBeenCalledWith(
+        { type: 'muximux:navigate-result', ok: true, id: 3 },
+        'https://s.local',
+      );
+    });
+
+    it('accepts a widget served from another configured app', () => {
+      const { frame } = setup();
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'https://t.local');
+      expect(onNavigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('refuses a widget from an address that is not an app', () => {
+      const { frame } = setup();
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'https://widget.example');
+      expect(onNavigate).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('not one of your apps'), expect.anything());
+    });
+
+    it('drops a widget with an opaque origin without a reply', () => {
+      const { frame } = setup();
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'null');
+      expect(onNavigate).not.toHaveBeenCalled();
+      expect(widget.post).not.toHaveBeenCalled();
+    });
+
+    it('does not let a direct frame with the wrong origin pass as nested', () => {
+      const { frame } = setup();
+      send(frame, { type: 'muximux:navigate', app: 'my-target' }, 'https://t.local');
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('refuses a widget whose app has not opted in', () => {
+      const { frame } = setup(makeApp({ name: 'Sender', url: 'https://s.local' }));
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'https://s.local');
+      expect(onNavigate).not.toHaveBeenCalled();
+      expect(widget.post).toHaveBeenCalledWith(
+        { type: 'muximux:navigate-result', ok: false, error: 'not_allowed' },
+        'https://s.local',
+      );
+    });
+
+    it('refuses a widget in a hidden app', () => {
+      const { frame } = setup();
+      visible = false;
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'https://s.local');
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('frame links', () => {
+    // The frame now holds a Muximux copy: same origin, the shell's path.
+    function copyFrame(app: App, pathname = window.location.pathname) {
+      const frame = document.createElement('iframe');
+      frame.dataset.app = app.name;
+      document.body.appendChild(frame);
+      frames.push(frame);
+      const win = { location: { pathname } } as unknown as Window;
+      Object.defineProperty(frame, 'contentWindow', { value: win });
+      return { frame, win };
+    }
+
+    function link(win: Window, hash: unknown, origin = window.location.origin,
+      extra: Record<string, unknown> = { referrer: 'https://s.local/board', pushed: true }) {
+      window.dispatchEvent(new MessageEvent('message', {
+        data: { type: 'muximux:frame-link', hash, ...extra }, origin, source: win,
+      }));
+    }
+
+    function setupCopy(s = sender()) {
+      apps = [s, target()];
+      const copy = copyFrame(s);
+      install();
+      return { s, ...copy };
+    }
+
+    it('hands an accepted link to onFrameLink', () => {
+      const { s, frame, win } = setupCopy();
+      link(win, '#my-target');
+      expect(onFrameLink).toHaveBeenCalledWith({ sender: s, senderFrame: frame, hash: '#my-target', pushed: true });
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('passes pushed only when it is exactly true', () => {
+      const { win } = setupCopy();
+      link(win, '#my-target', undefined, { referrer: 'https://s.local/', pushed: 'yes' });
+      expect(onFrameLink).toHaveBeenCalledWith(expect.objectContaining({ pushed: false }));
+    });
+
+    it('accepts a link on another configured app\'s page', () => {
+      const { win } = setupCopy();
+      link(win, '#my-target', undefined, { referrer: 'https://t.local/app/x' });
+      expect(onFrameLink).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ['a foreign page', 'https://evil.example/'],
+      ['no referrer', ''],
+      ['a malformed referrer', 'not a url'],
+      ['a missing referrer', undefined],
+    ])('only restores the app for a link on %s', (_label, referrer) => {
+      const { s, frame, win } = setupCopy();
+      link(win, '#my-target', undefined, { referrer, pushed: true });
+      expect(onFrameLink).toHaveBeenCalledWith({ sender: s, senderFrame: frame, hash: '', pushed: true });
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('not on the page of one of your apps'),
+        expect.objectContaining({ hint: 'Give the link target="_top"' }),
+      );
+    });
+
+    it('accepts an empty hash (a link to Muximux itself)', () => {
+      const { win } = setupCopy();
+      link(win, '');
+      expect(onFrameLink).toHaveBeenCalledWith(expect.objectContaining({ hash: '' }));
+    });
+
+    it('ignores a sender that is not a Muximux copy', () => {
+      const { win } = setupCopy();
+      link(win, '#my-target', 'https://s.local');
+      const other = copyFrame(apps[0], '/proxy/sender/');
+      link(other.win, '#my-target');
+      expect(onFrameLink).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('ignores a copy whose location cannot be read', () => {
+      apps = [sender()];
+      const frame = document.createElement('iframe');
+      frame.dataset.app = 'Sender';
+      document.body.appendChild(frame);
+      frames.push(frame);
+      const win = { get location(): Location { throw new Error('cross-origin'); } } as unknown as Window;
+      Object.defineProperty(frame, 'contentWindow', { value: win });
+      install();
+      link(win, '#my-target');
+      expect(onFrameLink).not.toHaveBeenCalled();
+    });
+
+    it('ignores a window that is not a registered frame', () => {
+      setupCopy();
+      link(window, '#my-target');
+      expect(onFrameLink).not.toHaveBeenCalled();
+    });
+
+    it('warns when the app has not opted in', () => {
+      const { win } = setupCopy(makeApp({ name: 'Sender', url: 'https://s.local' }));
+      link(win, '#my-target');
+      expect(onFrameLink).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('navigation is not enabled'),
+        expect.objectContaining({ app: 'Sender' }),
+      );
+    });
+
+    it('warns when the app is not visible', () => {
+      const { win } = setupCopy();
+      visible = false;
+      link(win, '#my-target');
+      expect(onFrameLink).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalled();
+    });
+
+    it.each([42, 'my-target', '#' + 'x'.repeat(MAX_FRAME_LINK_HASH)])('only restores the app for malformed hash %j', (hash) => {
+      const { win } = setupCopy();
+      link(win, hash);
+      expect(onFrameLink).toHaveBeenCalledWith(expect.objectContaining({ hash: '' }));
+      expect(warn).toHaveBeenCalledWith('[muximux:navigate] malformed frame link', expect.anything());
+    });
+
+    it('accepts a hash of exactly MAX_FRAME_LINK_HASH characters', () => {
+      const { win } = setupCopy();
+      link(win, '#' + 'x'.repeat(MAX_FRAME_LINK_HASH - 1));
+      expect(onFrameLink).toHaveBeenCalledTimes(1);
+    });
+
+    it('shares the rate-limit slot with navigate messages, restoring a refused link', () => {
+      const { win } = setupCopy();
+      link(win, '#my-target');
+      clock += NAV_RATE_LIMIT_MS - 1;
+      link(win, '#my-target');
+      expect(onFrameLink).toHaveBeenCalledTimes(2);
+      expect(onFrameLink).toHaveBeenLastCalledWith(expect.objectContaining({ hash: '' }));
+      expect(warn).toHaveBeenCalledWith('[muximux:navigate] navigating too fast', expect.anything());
+      clock += 1;
+      link(win, '#my-target');
+      expect(onFrameLink).toHaveBeenLastCalledWith(expect.objectContaining({ hash: '#my-target' }));
+    });
+
+    it('ignores messages from an opaque origin before any lookup', () => {
+      const { win } = setupCopy();
+      link(win, '#my-target', 'null');
+      expect(onFrameLink).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
+    });
   });
 });
