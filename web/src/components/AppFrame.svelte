@@ -7,7 +7,12 @@
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { app, deepLink }: { app: App; deepLink?: { url: string; seq: number } } = $props();
+  let { app, deepLink, ondeeplinkused }: {
+    app: App;
+    deepLink?: { url: string; seq: number };
+    /** Called with the seq of a deep link once the frame has used it. */
+    ondeeplinkused?: (seq: number) => void;
+  } = $props();
 
   // Allowlist the iframe src so `javascript:` / `data:` URLs in app.url
   // cannot execute in Muximux's origin via the `allow-same-origin`
@@ -60,6 +65,7 @@
       }
     }, 30000);
     iframeRef.src = url;
+    untrack(() => ondeeplinkused?.(seq));
   });
 
   let frameName = $derived(app.proxyUrl ? FRAME_NAME_PREFIX + effectiveUrl.replace(/\/$/, '') : undefined);
@@ -152,6 +158,11 @@
         loadError = true;
       }
     }, 30000);
+
+    // Mounted straight at a deep link: it has been used, so a later remount
+    // must not replay it.
+    const seq = untrack(() => deepLink?.seq);
+    if (seq !== undefined) untrack(() => ondeeplinkused?.(seq));
 
     const handleResize = () => { isMobile = isMobileViewport(); };
     window.addEventListener('resize', handleResize);

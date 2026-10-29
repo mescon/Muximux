@@ -787,5 +787,39 @@ describe('AppFrame', () => {
       const { container } = render(AppFrame, { props: { app: makeApp() } });
       expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('https://example.com/');
     });
+
+    it('reports a deep link it mounted with as used', () => {
+      const used = vi.fn();
+      render(AppFrame, { props: { app: makeApp(), deepLink: { url: 'https://example.com/a', seq: 4 }, ondeeplinkused: used } });
+      expect(used).toHaveBeenCalledWith(4);
+    });
+
+    it('reports a deep link it navigated to as used', async () => {
+      const used = vi.fn();
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, ondeeplinkused: used } });
+      expect(used).not.toHaveBeenCalled();
+      await r.rerender({ app, deepLink: { url: 'https://example.com/a', seq: 7 }, ondeeplinkused: used });
+      await waitFor(() => expect(used).toHaveBeenCalledWith(7));
+    });
+
+    it('keeps the loaded page when a used deep link is removed', async () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+      srcSet.mockClear();
+      await r.rerender({ app, deepLink: undefined });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.getAttribute('src')).toBe('https://example.com/a');
+      expect(srcSet).not.toHaveBeenCalled();
+    });
+
+    it('a remount without the consumed deep link loads the normal URL', () => {
+      const deepLink = { url: 'https://example.com/a', seq: 1 };
+      const first = render(AppFrame, { props: { app: makeApp(), deepLink } });
+      first.unmount();
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('https://example.com/');
+    });
   });
 });
