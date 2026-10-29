@@ -449,7 +449,7 @@
   "appForm_helpAllowNotifications": "ब्राउज़र cross-origin iframe में Notifications API को ब्लॉक करते हैं। सक्षम होने पर, यह ऐप Muximux को एक संदेश भेज सकता है ताकि Muximux के origin के अंतर्गत नोटिफिकेशन दिखाया जा सके। नोटिफिकेशन पर क्लिक करने से इस ऐप पर स्विच हो जाता है।",
   "appForm_allowNotificationsDesc": "इस ऐप के लिए Muximux नोटिफिकेशन ब्रिज सक्षम करें",
   "appForm_allowNavigation": "Muximux में नेविगेट करने की अनुमति दें",
-  "appForm_helpAllowNavigation": "यह ऐप को target=\"_top\" लिंक या muximux:navigate संदेश के ज़रिए Muximux को दूसरे ऐप्स पर स्विच करने और उनके अंदर पेज खोलने देता है। target=\"_top\" लिंक क्लिक के बाद पूरे ब्राउज़र टैब को किसी भी वेबसाइट पर भी भेज सकता है, इसलिए इसे केवल भरोसेमंद ऐप्स के लिए सक्षम करें।",
+  "appForm_helpAllowNavigation": "इस ऐप को target=\"_top\" लिंक या muximux:navigate संदेश के ज़रिए Muximux को दूसरे ऐप्स पर स्विच करने और उनके अंदर पेज खोलने देता है। target=\"_top\" लिंक क्लिक के बाद पूरे ब्राउज़र टैब को किसी भी वेबसाइट पर भी भेज सकता है, इसलिए इसे केवल भरोसेमंद ऐप्स के लिए सक्षम करें।",
   "appForm_allowNavigationDesc": "इस ऐप के लिंक और संदेश Muximux में ऐप्स बदल सकते हैं",
   "appForm_noneLabel": "कोई नहीं",
   "appForm_embedded": "एम्बेडेड",
