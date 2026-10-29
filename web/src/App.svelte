@@ -32,10 +32,10 @@
   import { installNotificationBridge } from './lib/notificationBridge';
   import { installNavigationBridge } from './lib/navigationBridge';
   import { NAV_STATE } from './lib/navHistory';
-  import { applyLinkHash, applyNavigate, consumeDeepLink, deepLinkKey, isFrameVisible, layoutHash, type DeepLinks } from './lib/linkNavigation';
+  import { applyLinkHash, applyNavigate, consumeDeepLink, deepLinkKey, installFramePaneTracker, isFrameVisible, layoutHash, type DeepLinks } from './lib/linkNavigation';
   import { applyConfigLocale } from './lib/localeStore';
   import * as m from '$lib/paraglide/messages.js';
-  import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit, } from './lib/splitStore.svelte';
+  import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
 
   let config = $state<Config | null>(null);
@@ -157,6 +157,7 @@
 
   // Cleanup handle for the notification bridge listener
   let bridgeCleanup: (() => void) | null = null;
+  let removeFramePaneTracker: (() => void) | null = null;
 
   /**
    * Resolve template variables in the dashboard title.
@@ -379,7 +380,9 @@
     window.addEventListener('resize', handleResize);
 
     // Auto-switch active split panel when the user clicks inside an iframe.
-    document.addEventListener('focus', handleIframeFocus, true);
+    removeFramePaneTracker = installFramePaneTracker((panel) => {
+      if (splitState.enabled) setActivePanel(panel);
+    });
 
     // Notification bridge: embedded apps with allow_notifications can
     // postMessage Muximux to show browser notifications.
@@ -535,7 +538,7 @@
     unsubWs?.();
     stopHealthPolling();
     disconnectWs();
-    document.removeEventListener('focus', handleIframeFocus, true);
+    removeFramePaneTracker?.();
     bridgeCleanup?.();
   });
 
@@ -926,18 +929,6 @@
       toasts.error(m.toast_failedSaveConfig());
       throw e;
     }
-  }
-
-  // Iframe clicks don't bubble to the parent DOM, but the <iframe> element
-  // receives a focus event (capture phase needed because focus doesn't bubble).
-  function handleIframeFocus(e: FocusEvent) {
-    if (!splitState.enabled) return;
-    const target = e.target;
-    if (!(target instanceof HTMLIFrameElement)) return;
-    const panel = target.closest('[aria-label="Split panel 1"]') ? 0
-      : target.closest('[aria-label="Split panel 2"]') ? 1
-      : null;
-    if (panel !== null) setActivePanel(panel);
   }
 
   function refreshActiveApp() {

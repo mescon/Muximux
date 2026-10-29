@@ -97,10 +97,55 @@ export function applyNavigate(
   return focusOrPlace(req.target, senderPane);
 }
 
+export const FRAME_POLL_MS = 200;
+
+/**
+ * Report the split pane of the app frame the user clicks into. Clicks inside
+ * an iframe never reach the shell, and Chromium fires no focus event on the
+ * iframe element either. What every browser does is blur the shell window on
+ * the first click and point document.activeElement at the clicked frame;
+ * moving between two frames after that changes activeElement silently. So
+ * the frame is checked on window blur and then polled until the shell has
+ * focus again. The capture focus listener covers browsers that do fire it.
+ */
+export function installFramePaneTracker(onPane: (pane: Pane) => void): () => void {
+  let last: Element | null = null;
+  let timer: ReturnType<typeof setInterval> | undefined;
+
+  const check = () => {
+    const el = document.activeElement;
+    if (el === last) return;
+    last = el;
+    const pane = el instanceof HTMLIFrameElement ? paneOf(el) : null;
+    if (pane !== null) onPane(pane);
+  };
+  const stop = () => {
+    clearInterval(timer);
+    timer = undefined;
+    last = null;
+  };
+  const onBlur = () => {
+    check();
+    if (timer === undefined) timer = setInterval(check, FRAME_POLL_MS);
+  };
+  const onFocus = (e: FocusEvent) => {
+    if (e.target instanceof HTMLIFrameElement) check();
+  };
+
+  window.addEventListener('blur', onBlur);
+  window.addEventListener('focus', stop);
+  document.addEventListener('focus', onFocus, true);
+  return () => {
+    stop();
+    window.removeEventListener('blur', onBlur);
+    window.removeEventListener('focus', stop);
+    document.removeEventListener('focus', onFocus, true);
+  };
+}
+
 /**
  * The pane a plain link came from. The clicked frame is the focused element;
- * the iframe focus listener does not always fire (Chromium sends no focus
- * event to the iframe element), so activePanel is only the fallback.
+ * activePanel is only the fallback for a browser that reports no focus.
  */
 export function linkSenderPane(): Pane {
   const focused = document.activeElement;

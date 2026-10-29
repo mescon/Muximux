@@ -4,6 +4,8 @@ import {
   applyNavigate,
   consumeDeepLink,
   deepLinkKey,
+  FRAME_POLL_MS,
+  installFramePaneTracker,
   isFrameVisible,
   layoutHash,
   linkSenderPane,
@@ -238,6 +240,93 @@ describe('linkSenderPane', () => {
     splitState.activePanel = 1;
     expect(linkSenderPane()).toBe(1);
     spy.mockRestore();
+  });
+});
+
+describe('installFramePaneTracker', () => {
+  let focused: Element | null;
+  let remove: () => void;
+  const onPane = vi.fn();
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    focused = document.body;
+    vi.spyOn(document, 'activeElement', 'get').mockImplementation(() => focused);
+    onPane.mockReset();
+    remove = installFramePaneTracker(onPane);
+  });
+
+  afterEach(() => {
+    remove();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('reports the pane of the frame focused when the window blurs', () => {
+    focused = frameIn(pane(1), A);
+    window.dispatchEvent(new Event('blur'));
+    expect(onPane).toHaveBeenCalledWith(1);
+  });
+
+  it('follows focus moving between frames while the window is blurred', () => {
+    const left = frameIn(pane(0), A);
+    const right = frameIn(pane(1), B);
+    focused = left;
+    window.dispatchEvent(new Event('blur'));
+    focused = right;
+    vi.advanceTimersByTime(FRAME_POLL_MS);
+    focused = left;
+    vi.advanceTimersByTime(FRAME_POLL_MS);
+    expect(onPane.mock.calls).toEqual([[0], [1], [0]]);
+  });
+
+  it('reports a pane once while focus stays put', () => {
+    focused = frameIn(pane(0), A);
+    window.dispatchEvent(new Event('blur'));
+    vi.advanceTimersByTime(FRAME_POLL_MS * 5);
+    expect(onPane).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops polling when the window regains focus', () => {
+    const left = frameIn(pane(0), A);
+    focused = left;
+    window.dispatchEvent(new Event('blur'));
+    window.dispatchEvent(new Event('focus'));
+    focused = frameIn(pane(1), B);
+    vi.advanceTimersByTime(FRAME_POLL_MS * 5);
+    expect(onPane.mock.calls).toEqual([[0]]);
+    // After focus returns, the same frame counts again on the next blur.
+    focused = left;
+    window.dispatchEvent(new Event('blur'));
+    expect(onPane.mock.calls).toEqual([[0], [0]]);
+  });
+
+  it('ignores focus on elements that are not frames in a pane', () => {
+    focused = frameIn(root, A);
+    window.dispatchEvent(new Event('blur'));
+    focused = document.createElement('button');
+    vi.advanceTimersByTime(FRAME_POLL_MS);
+    expect(onPane).not.toHaveBeenCalled();
+  });
+
+  it('uses an iframe focus event where the browser fires one', () => {
+    const f = frameIn(pane(1), A);
+    focused = f;
+    f.dispatchEvent(new FocusEvent('focus'));
+    expect(onPane).toHaveBeenCalledWith(1);
+    document.body.dispatchEvent(new FocusEvent('focus'));
+    expect(onPane).toHaveBeenCalledTimes(1);
+  });
+
+  it('removes its listeners and timer', () => {
+    focused = frameIn(pane(0), A);
+    window.dispatchEvent(new Event('blur'));
+    remove();
+    focused = frameIn(pane(1), B);
+    vi.advanceTimersByTime(FRAME_POLL_MS * 2);
+    window.dispatchEvent(new Event('blur'));
+    expect(onPane.mock.calls).toEqual([[0]]);
+    remove = () => {};
   });
 });
 
