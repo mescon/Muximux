@@ -5,7 +5,7 @@ import { isSafeAppUrl } from './appUrl';
 // whether a path requested for an embedded app stays inside that app. The
 // path is resolved against the app URL and rejected unless the result keeps
 // the app's origin and its base directory (the app URL path up to its last
-// "/"), so "../", absolute URLs, "//host", backslash tricks, control
+// "/", or the whole path when its last segment has no "."), so "../", absolute URLs, "//host", backslash tricks, control
 // characters, and javascript:/data: schemes can never leave the app. Proxied
 // apps are then mapped onto their proxy path (the app URL path with one
 // trailing "/" trimmed, as the backend proxy does), and the final URL must
@@ -44,13 +44,19 @@ export function resolveDeepLink(app: App, path: string, base: string = ''): Deep
   let u: URL;
   try {
     appBase = new URL(app.url, window.location.origin);
+    // A last segment without a "." (http://host/sonarr) names a directory,
+    // not a file, so treat it like http://host/sonarr/.
+    const last = appBase.pathname.slice(appBase.pathname.lastIndexOf('/') + 1);
+    if (last !== '' && !last.includes('.')) appBase.pathname += '/';
     u = new URL(path, appBase);
   } catch {
     return REJECT;
   }
 
   const baseDir = appBase.pathname.slice(0, appBase.pathname.lastIndexOf('/') + 1);
-  if (u.origin !== appBase.origin || !u.pathname.startsWith(baseDir)) return REJECT;
+  // The directory itself without its slash (/sonarr) is the app's own page.
+  const inBase = u.pathname.startsWith(baseDir) || u.pathname + '/' === baseDir;
+  if (u.origin !== appBase.origin || !inBase) return REJECT;
   if (hasUnsafeSegments(u.pathname)) return REJECT;
 
   let result = u.href;

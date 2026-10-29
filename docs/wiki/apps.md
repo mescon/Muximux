@@ -478,14 +478,12 @@ Every refusal also logs a `[muximux:navigate]` warning in the browser console ex
 
 `path` is resolved the way an `href` would be, against the target app's configured URL, and the result must stay inside the target app:
 
-- It must keep the app URL's origin and stay under its base directory, which is the app URL's path up to and including the last `/`. `http://emby:8096/web/index.html` has base `/web/`, `http://host/sonarr/` has base `/sonarr/`, and `http://homarr/?board=main` has base `/`.
+- It must keep the app URL's origin and stay under its base directory, which is the app URL's path up to and including the last `/`, or the whole path when its last segment has no `.` in it. `http://emby:8096/web/index.html` has base `/web/`, `http://host/sonarr/` and `http://host/sonarr` both have base `/sonarr/`, and `http://homarr/?board=main` has base `/`.
 - An empty `path` (`path: ''`) is the same as no `path`.
 - A leading `/` means the origin root, no leading `/` is relative to the app URL. Dot segments are normalised before the check, and encoded `%2f` and `%5c` are rejected.
 - Absolute URLs, `//host`, `javascript:` and other schemes, control characters and values over 2048 characters are rejected.
 
 Examples with Emby at `http://emby:8096/`: `/web/index.html#!/item?id=123` is accepted. With Sonarr at `http://host/sonarr/`: `/series/x` is rejected (it leaves `/sonarr/`), while `series/x` and `/sonarr/series/x` are both accepted.
-
-For an app on a sub-path, configure its URL with a trailing slash (`http://host/sonarr/`, not `http://host/sonarr`). Without it the base directory is the parent (`/`), so relative paths resolve next to the app rather than inside it.
 
 Proxied apps use the same rule against the app's configured URL, and the accepted address is then mapped onto `/proxy/<slug>/`. A widget therefore sends the same `path` whether or not the target is proxied.
 

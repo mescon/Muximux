@@ -28,6 +28,18 @@ describe('resolveDeepLink', () => {
     });
   });
 
+  it('treats a sub-path app url without a trailing slash as a directory', () => {
+    const app = url('http://host/sonarr');
+    expect(resolveDeepLink(app, '/series/x')).toEqual({ ok: false });
+    expect(resolveDeepLink(app, '/sonarrX/')).toEqual({ ok: false });
+    expect(resolveDeepLink(app, 'series/x')).toEqual({ ok: true, url: 'http://host/sonarr/series/x' });
+    expect(resolveDeepLink(app, '/sonarr')).toEqual({ ok: true, url: 'http://host/sonarr' });
+    expect(resolveDeepLink(app, '/sonarr/series/x?y=1')).toEqual({
+      ok: true,
+      url: 'http://host/sonarr/series/x?y=1',
+    });
+  });
+
   it('drops the base url query', () => {
     expect(resolveDeepLink(url('http://homarr/?board=main'), '/board/2')).toEqual({
       ok: true,
@@ -124,6 +136,12 @@ describe('resolveDeepLink', () => {
     it('accepts the target path itself', () => {
       const app = url('http://emby/web/index.html', { proxyUrl: '/proxy/emby/' });
       expect(resolveDeepLink(app, '/web/index.html', '')).toEqual({ ok: true, url: '/proxy/emby/' });
+    });
+
+    it('maps a sub-path app url without a trailing slash', () => {
+      const app = url('http://host/sonarr', { proxyUrl: '/proxy/sonarr/' });
+      expect(resolveDeepLink(app, 'series/x', '')).toEqual({ ok: true, url: '/proxy/sonarr/series/x' });
+      expect(resolveDeepLink(app, '/series/x', '')).toEqual({ ok: false });
     });
 
     it('rejects paths outside the proxy target path', () => {
