@@ -216,6 +216,7 @@
             if (r.s.allowed_groups && r.s.allowed_groups.length > 0) app.allowed_groups = r.s.allowed_groups;
             if (r.s.permissions && r.s.permissions.length > 0) app.permissions = r.s.permissions;
             if (typeof r.s.allow_notifications === 'boolean') app.allow_notifications = r.s.allow_notifications;
+            if (typeof r.s.allow_navigation === 'boolean') app.allow_navigation = r.s.allow_navigation;
             if (typeof r.s.default === 'boolean') app.default = r.s.default;
             if (typeof r.s.shortcut === 'number') app.shortcut = r.s.shortcut;
             if (typeof r.s.health_check === 'boolean') app.health_check = r.s.health_check || undefined;

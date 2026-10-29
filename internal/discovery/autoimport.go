@@ -75,6 +75,9 @@ func BuildDesired(sug *Suggestion, endpoint string) Desired {
 	if sug.AllowNotifications != nil {
 		app.AllowNotifications = *sug.AllowNotifications
 	}
+	if sug.AllowNavigation != nil {
+		app.AllowNavigation = *sug.AllowNavigation
+	}
 	if sug.Default != nil {
 		app.Default = *sug.Default
 	}
@@ -315,6 +318,8 @@ func keepStoredBools(desired *Desired, cur *config.AppConfig, curSite *config.Ga
 			out.App.ProxySkipTLSVerify = cur.ProxySkipTLSVerify
 		case LabelAppAllowNotifications:
 			out.App.AllowNotifications = cur.AllowNotifications
+		case LabelAppAllowNavigation:
+			out.App.AllowNavigation = cur.AllowNavigation
 		case LabelAppHTTPActionConfirm:
 			out.App.HTTPActionConfirm = cur.HTTPActionConfirm
 		case LabelAppHTTPActionShowToast:
@@ -365,6 +370,7 @@ func sameManagedFields(a, b *config.AppConfig) bool {
 		a.Proxy == b.Proxy &&
 		a.MinRole == b.MinRole &&
 		a.AllowNotifications == b.AllowNotifications &&
+		a.AllowNavigation == b.AllowNavigation &&
 		a.HTTPActionMethod == b.HTTPActionMethod &&
 		a.HTTPActionConfirm == b.HTTPActionConfirm &&
 		reflect.DeepEqual(a.ProxySkipTLSVerify, b.ProxySkipTLSVerify) &&
@@ -408,6 +414,7 @@ func mergeManagedFields(cur, desired *config.AppConfig) config.AppConfig {
 	out.AllowedGroups = desired.AllowedGroups
 	out.Permissions = desired.Permissions
 	out.AllowNotifications = desired.AllowNotifications
+	out.AllowNavigation = desired.AllowNavigation
 	out.Shortcut = desired.Shortcut
 	out.HTTPActionMethod = desired.HTTPActionMethod
 	out.HTTPActionHeaders = desired.HTTPActionHeaders

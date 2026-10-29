@@ -263,6 +263,7 @@ func TestBuildDesired_CarriesAllLabelFields(t *testing.T) {
 		AllowedGroups: []string{"g"}, Permissions: []string{"clipboard-read"},
 		Proxy: &no, ProxySkipTLSVerify: &no,
 		AllowNotifications:  &yes,
+		AllowNavigation:     &yes,
 		Default:             &yes,
 		Shortcut:            shortcut,
 		HTTPActionMethod:    "POST",
@@ -282,6 +283,9 @@ func TestBuildDesired_CarriesAllLabelFields(t *testing.T) {
 	}
 	if !a.AllowNotifications {
 		t.Error("allow notifications dropped")
+	}
+	if !a.AllowNavigation {
+		t.Error("allow navigation dropped")
 	}
 	if !a.Default {
 		t.Error("default dropped")
@@ -307,7 +311,7 @@ func TestBuildDesired_OptionalPointersUnset(t *testing.T) {
 	sug := Suggestion{Key: "k", Name: "N", URL: "http://h:1"}
 	d := BuildDesired(&sug, "e")
 	a := d.App
-	if a.AllowNotifications || a.Default || a.HTTPActionConfirm {
+	if a.AllowNotifications || a.AllowNavigation || a.Default || a.HTTPActionConfirm {
 		t.Error("unset bool pointers must yield false")
 	}
 	if a.Shortcut != nil {
@@ -538,7 +542,7 @@ func TestSameManagedFields(t *testing.T) {
 		Icon: "icon", Color: "#fff", Group: "g", Order: 3, OpenMode: "iframe",
 		MinRole: "admin", AllowedGroups: []string{"x"}, Permissions: []string{"camera"},
 		Proxy: boolPtr(true), ProxySkipTLSVerify: boolPtr(true),
-		AllowNotifications: boolPtr(true), Default: boolPtr(true), Shortcut: 4,
+		AllowNotifications: boolPtr(true), AllowNavigation: boolPtr(true), Default: boolPtr(true), Shortcut: 4,
 		HTTPActionMethod: "POST", HTTPActionHeaders: map[string]string{"A": "b"},
 		HTTPActionConfirm: boolPtr(true), HTTPActionShowToast: boolPtr(false),
 	}, "e").App
@@ -577,6 +581,7 @@ func TestSameManagedFields(t *testing.T) {
 		"AllowedGroups":       func(a *config.AppConfig) { a.AllowedGroups = []string{"y"} },
 		"Permissions":         func(a *config.AppConfig) { a.Permissions = []string{"midi"} },
 		"AllowNotifications":  func(a *config.AppConfig) { a.AllowNotifications = false },
+		"AllowNavigation":     func(a *config.AppConfig) { a.AllowNavigation = false },
 		"Default":             func(a *config.AppConfig) { a.Default = false },
 		"Shortcut":            func(a *config.AppConfig) { a.Shortcut = intPtr(9) },
 		"HTTPActionMethod":    func(a *config.AppConfig) { a.HTTPActionMethod = "GET" },

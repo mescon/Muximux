@@ -80,6 +80,7 @@ func TestParseAppLabels_ExtendedFields(t *testing.T) {
 			"muximux.app.allowed_groups":        "family, admins , staff",
 			"muximux.app.permissions":           "camera,microphone,geolocation",
 			"muximux.app.allow_notifications":   "1",
+			"muximux.app.allow_navigation":      "true",
 			"muximux.app.shortcut":              "3",
 		}
 		got := ParseAppLabels(labels)
@@ -112,6 +113,9 @@ func TestParseAppLabels_ExtendedFields(t *testing.T) {
 		}
 		if got.AllowNotifications == nil || !*got.AllowNotifications {
 			t.Errorf("AllowNotifications = %v, want pointer-to-true", got.AllowNotifications)
+		}
+		if got.AllowNavigation == nil || !*got.AllowNavigation {
+			t.Errorf("AllowNavigation = %v, want pointer-to-true", got.AllowNavigation)
 		}
 		if got.Shortcut != 3 {
 			t.Errorf("Shortcut = %d", got.Shortcut)
