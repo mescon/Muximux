@@ -50,6 +50,27 @@ describe('resolveDeepLink', () => {
     expect(resolveDeepLink(url('http://host/'), p)).toEqual({ ok: false });
   });
 
+  it.each([
+    '..%2fradarr/',
+    '%2e%2e%2fradarr/',
+    '..%2Fradarr/',
+    'x%5c..%5cradarr',
+    '%2e%2e/',
+    '%E0%A4%A',
+  ])('rejects encoded traversal %s', (p) => {
+    expect(resolveDeepLink(url('http://host/sonarr/'), p)).toEqual({ ok: false });
+    expect(
+      resolveDeepLink(url('http://host/sonarr/', { proxyUrl: '/proxy/sonarr/' }), p, ''),
+    ).toEqual({ ok: false });
+  });
+
+  it('accepts legitimate encoded characters', () => {
+    expect(resolveDeepLink(url('http://host/sonarr/'), '/sonarr/series/a%20b')).toEqual({
+      ok: true,
+      url: 'http://host/sonarr/series/a%20b',
+    });
+  });
+
   it('rejects control characters', () => {
     expect(resolveDeepLink(url('http://host/'), 'a\u0007b')).toEqual({ ok: false });
     expect(resolveDeepLink(url('http://host/'), 'a\u007fb')).toEqual({ ok: false });
