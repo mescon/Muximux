@@ -748,14 +748,58 @@ describe('AppFrame', () => {
       await waitFor(() => expect(srcSet).toHaveBeenCalledWith('https://example.com/deep'));
     });
 
-    it('shows the loading state on a deep-link navigation', async () => {
-      const app = makeApp();
-      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
-      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
-      await fireEvent.load(iframe);
-      await waitFor(() => expect(iframe.classList.contains('app-frame-ready')).toBe(true));
-      await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 2 } });
-      await waitFor(() => expect(iframe.classList.contains('app-frame-ready')).toBe(false));
+    it('keeps a loaded frame shown on a deep link to another page', async () => {
+      vi.useFakeTimers();
+      try {
+        const app = makeApp();
+        const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+        const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+        await fireEvent.load(iframe);
+        await vi.advanceTimersByTimeAsync(20);
+        expect(iframe.classList.contains('app-frame-ready')).toBe(true);
+        await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 2 } });
+        expect(iframe.getAttribute('src')).toBe('https://example.com/b');
+        expect(iframe.classList.contains('app-frame-ready')).toBe(true);
+        expect(r.container.querySelector('.animate-spin')).toBeNull();
+        // No load event may ever arrive (a fragment change the shell cannot
+        // see); that must not end on the error screen.
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(r.container.querySelector('button')).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('restarts the loading state on a deep link before the first load', async () => {
+      vi.useFakeTimers();
+      try {
+        const app = makeApp();
+        const r = render(AppFrame, { props: { app } });
+        await vi.advanceTimersByTimeAsync(20_000);
+        await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 1 } });
+        expect(r.container.querySelector('.animate-spin')).not.toBeNull();
+        // The timeout starts over for the deep link.
+        await vi.advanceTimersByTimeAsync(20_000);
+        expect(r.container.querySelector('button')).toBeNull();
+        await vi.advanceTimersByTimeAsync(10_000);
+        expect(r.container.querySelector('button')).not.toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('a deep link from the error screen shows the spinner', async () => {
+      vi.useFakeTimers();
+      try {
+        const app = makeApp();
+        const r = render(AppFrame, { props: { app } });
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(r.container.querySelector('button')).not.toBeNull();
+        await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 1 } });
+        expect(r.container.querySelector('.animate-spin')).not.toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('does not navigate when seq is unchanged', async () => {
@@ -838,15 +882,6 @@ describe('AppFrame', () => {
       expect(r.container.querySelector('.animate-spin')).toBeNull();
     });
 
-    it('a deep link to another page shows the spinner again', async () => {
-      const app = makeApp({ url: 'https://example.com/web/index.html' });
-      const r = render(AppFrame, { props: { app } });
-      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
-      await fireEvent.load(iframe);
-      await waitFor(() => expect(r.container.querySelector('.animate-spin')).toBeNull());
-      await r.rerender({ app, deepLink: { url: 'https://example.com/web/other.html#x', seq: 1 } });
-      await waitFor(() => expect(r.container.querySelector('.animate-spin')).not.toBeNull());
-    });
   });
 
   describe('load timeout', () => {

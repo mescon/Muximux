@@ -40,7 +40,8 @@
   let lastSeq = untrack(() => deepLink?.seq);
   let lastEffective = untrack(() => effectiveUrl);
   // The URL this component last pointed the iframe at, to spot deep links
-  // that only change the fragment (those fire no load event).
+  // that only change the fragment (those fire no load event) while the
+  // frame is still loading.
   let lastAssigned = untrack(() => frameSrc);
 
   $effect(() => {
@@ -59,7 +60,12 @@
     lastSeq = seq;
     const url = safeIframeSrc(untrack(() => deepLink!.url));
     if (!iframeRef) return;
-    if (!isFragmentOnlyChange(lastAssigned, url)) beginLoad();
+    // A frame already showing a page keeps it until the next one paints, as
+    // with a link clicked inside the app. Waiting for load there could hang:
+    // the app may have moved itself (pushState) so a fragment change cannot
+    // be told apart from a page load, and fragment changes fire no load.
+    const showing = untrack(() => iframeReady && !loadError);
+    if (!showing && !isFragmentOnlyChange(lastAssigned, url)) beginLoad();
     lastAssigned = url;
     iframeRef.src = url;
     untrack(() => ondeeplinkused?.(seq));
