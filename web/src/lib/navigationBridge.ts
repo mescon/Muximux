@@ -14,7 +14,9 @@
  *   { type: 'muximux:navigate-result', ok: true }
  * or
  *   { type: 'muximux:navigate-result', ok: false, error: <NavigateError> }
- * posted with the sender's origin as targetOrigin.
+ * posted with the sender's origin as targetOrigin. An optional `id` (a
+ * string up to MAX_REQUEST_ID characters, or a finite number) on the
+ * request is copied into the reply.
  *
  * Security:
  * - The sender is identified by window handle (see bridgeSender.ts), never
@@ -38,6 +40,15 @@ import { slugify } from './slug';
 
 export const NAV_RATE_LIMIT_MS = 500;
 const MAX_APP_NAME = 200;
+export const MAX_REQUEST_ID = 100;
+
+// The request's optional id, echoed in the reply so a sender with several
+// requests in flight can match each reply. Anything else is dropped.
+function replyId(id: unknown): string | number | undefined {
+  if (typeof id === 'string' && id.length <= MAX_REQUEST_ID) return id;
+  if (typeof id === 'number' && Number.isFinite(id)) return id;
+  return undefined;
+}
 
 export type NavigateError =
   | 'not_allowed'
@@ -81,10 +92,11 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
   const lastNavigated = new Map<string, number>();
 
   function reply(event: MessageEvent, payload: { ok: true } | { ok: false; error: NavigateError }): void {
+    const id = replyId((event.data as { id?: unknown }).id);
     try {
       // Narrow to Window.postMessage (ports/SW have a different signature).
       (event.source as Window).postMessage(
-        { type: 'muximux:navigate-result', ...payload },
+        { type: 'muximux:navigate-result', ...payload, ...(id === undefined ? {} : { id }) },
         event.origin,
       );
     } catch {

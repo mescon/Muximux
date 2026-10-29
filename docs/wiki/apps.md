@@ -451,16 +451,19 @@ An opted-in app can also ask Muximux to navigate with a `postMessage`:
 window.parent.postMessage({
   type: 'muximux:navigate',
   app: 'emby',                              // slug or display name of the target app
-  path: '/web/index.html#!/item?id=123'     // optional: a page inside the target app
+  path: '/web/index.html#!/item?id=123',    // optional: a page inside the target app
+  id: 'req-1'                               // optional: copied into the reply
 }, '*');
 ```
 
 Muximux replies to the sender (posted to the sender's origin):
 
 ```javascript
-{ type: 'muximux:navigate-result', ok: true }
-{ type: 'muximux:navigate-result', ok: false, error: 'bad_path' }
+{ type: 'muximux:navigate-result', ok: true, id: 'req-1' }
+{ type: 'muximux:navigate-result', ok: false, error: 'bad_path', id: 'req-1' }
 ```
+
+`id` is only echoed when the request has one: a string of up to 100 characters or a number. Use it to match replies when more than one request can be in flight.
 
 | `error` | Meaning |
 |---------|---------|
@@ -501,7 +504,9 @@ Proxied apps use the same rule against the app's configured URL, and the accepte
 <script>
   // Resolves with the reply, or { ok: false, error: 'timeout' } when none
   // arrives (for example when the page is not embedded in Muximux).
+  let nextId = 0;
   function muximuxNavigate(app, path) {
+    const id = ++nextId;
     return new Promise((resolve) => {
       const done = (result) => {
         clearTimeout(timer);
@@ -510,11 +515,12 @@ Proxied apps use the same rule against the app's configured URL, and the accepte
       };
       const onReply = (e) => {
         if (e.source !== window.parent || !e.data || e.data.type !== 'muximux:navigate-result') return;
+        if (e.data.id !== id) return;
         done(e.data);
       };
       const timer = setTimeout(() => done({ ok: false, error: 'timeout' }), 2000);
       window.addEventListener('message', onReply);
-      window.parent.postMessage({ type: 'muximux:navigate', app, path }, '*');
+      window.parent.postMessage({ type: 'muximux:navigate', app, path, id }, '*');
     });
   }
 

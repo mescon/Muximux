@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { installNavigationBridge, NAV_RATE_LIMIT_MS } from './navigationBridge';
+import { installNavigationBridge, MAX_REQUEST_ID, NAV_RATE_LIMIT_MS } from './navigationBridge';
 import { makeApp, type App } from './types';
 
 describe('navigationBridge', () => {
@@ -195,6 +195,32 @@ describe('navigationBridge', () => {
     expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ url: 'https://t.local/app/series/foo' }));
     expect(posts.get(frame)).toHaveBeenCalledWith({ type: 'muximux:navigate-result', ok: true }, 'https://s.local');
   });
+
+  it('echoes a request id in the reply', () => {
+    const { frame } = setup();
+    send(frame, { type: 'muximux:navigate', app: 'my-target', id: 'req-1' });
+    expect(posts.get(frame)).toHaveBeenLastCalledWith(
+      { type: 'muximux:navigate-result', ok: true, id: 'req-1' }, 'https://s.local');
+    clock += 1000;
+    send(frame, { type: 'muximux:navigate', app: 'my-target', id: 7 });
+    expect(posts.get(frame)).toHaveBeenLastCalledWith(
+      { type: 'muximux:navigate-result', ok: true, id: 7 }, 'https://s.local');
+  });
+
+  it('echoes a request id on refusals too', () => {
+    const { frame } = setup();
+    send(frame, { type: 'muximux:navigate', app: 'nope', id: 'r' });
+    expect(posts.get(frame)).toHaveBeenLastCalledWith(
+      { type: 'muximux:navigate-result', ok: false, error: 'unknown_app', id: 'r' }, 'https://s.local');
+  });
+
+  it.each([['x'.repeat(MAX_REQUEST_ID + 1)], [Number.NaN], [Infinity], [{ a: 1 }], [null]])(
+    'drops an unusable request id %#', (id) => {
+      const { frame } = setup();
+      send(frame, { type: 'muximux:navigate', app: 'my-target', id });
+      expect(posts.get(frame)).toHaveBeenLastCalledWith(
+        { type: 'muximux:navigate-result', ok: true }, 'https://s.local');
+    });
 
   it('7: empty path means no path', () => {
     const { frame } = setup();
