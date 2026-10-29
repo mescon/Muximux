@@ -318,6 +318,34 @@ describe('installFramePaneTracker', () => {
     expect(onPane).toHaveBeenCalledTimes(1);
   });
 
+  it('pauses polling while the tab is hidden and resumes when shown', () => {
+    let hidden = false;
+    vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
+    const left = frameIn(pane(0), A);
+    const right = frameIn(pane(1), B);
+    focused = left;
+    window.dispatchEvent(new Event('blur'));
+    hidden = true;
+    document.dispatchEvent(new Event('visibilitychange'));
+    focused = right;
+    vi.advanceTimersByTime(FRAME_POLL_MS * 5);
+    expect(onPane.mock.calls).toEqual([[0]]);
+    hidden = false;
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(onPane.mock.calls).toEqual([[0], [1]]);
+    focused = left;
+    vi.advanceTimersByTime(FRAME_POLL_MS);
+    expect(onPane.mock.calls).toEqual([[0], [1], [0]]);
+  });
+
+  it('does not poll when shown with the shell focused', () => {
+    vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);
+    document.dispatchEvent(new Event('visibilitychange'));
+    focused = frameIn(pane(1), B);
+    vi.advanceTimersByTime(FRAME_POLL_MS * 3);
+    expect(onPane).not.toHaveBeenCalled();
+  });
+
   it('removes its listeners and timer', () => {
     focused = frameIn(pane(0), A);
     window.dispatchEvent(new Event('blur'));

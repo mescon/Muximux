@@ -131,15 +131,27 @@ export function installFramePaneTracker(onPane: (pane: Pane) => void): () => voi
   const onFocus = (e: FocusEvent) => {
     if (e.target instanceof HTMLIFrameElement) check();
   };
+  // A hidden tab needs no polling. Coming back with a frame still focused
+  // fires no window focus or blur, so resume from here.
+  const onVisibility = () => {
+    if (document.hidden) {
+      clearInterval(timer);
+      timer = undefined;
+    } else if (document.activeElement instanceof HTMLIFrameElement) {
+      onBlur();
+    }
+  };
 
   window.addEventListener('blur', onBlur);
   window.addEventListener('focus', stop);
   document.addEventListener('focus', onFocus, true);
+  document.addEventListener('visibilitychange', onVisibility);
   return () => {
     stop();
     window.removeEventListener('blur', onBlur);
     window.removeEventListener('focus', stop);
     document.removeEventListener('focus', onFocus, true);
+    document.removeEventListener('visibilitychange', onVisibility);
   };
 }
 
