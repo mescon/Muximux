@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/svelte';
 
 // Mock $lib/types - keep getEffectiveUrl as a spy so we can verify behavior
@@ -719,6 +719,73 @@ describe('AppFrame', () => {
 
       expect(c1.querySelector('iframe[data-app="Plex"]')).toBeTruthy();
       expect(c2.querySelector('iframe[data-app="Sonarr"]')).toBeTruthy();
+    });
+  });
+
+  describe('deep link', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('opens the iframe at the deep link and never at the start page', () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const attrSet = vi.spyOn(Element.prototype, 'setAttribute');
+      const { container } = render(AppFrame, {
+        props: { app: makeApp({ url: 'https://example.com/start' }), deepLink: { url: 'https://example.com/deep', seq: 1 } },
+      });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.getAttribute('src')).toBe('https://example.com/deep');
+      const srcValues = srcSet.mock.calls.map((c) => String(c[0]));
+      const attrValues = attrSet.mock.calls.filter((c) => c[0] === 'src').map((c) => String(c[1]));
+      expect(srcValues.concat(attrValues).length).toBeGreaterThan(0);
+      for (const v of srcValues.concat(attrValues)) expect(v).not.toContain('/start');
+    });
+
+    it('navigates again when seq changes, even for the same URL', async () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const app = makeApp({ url: 'https://example.com/start' });
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/deep', seq: 1 } } });
+      srcSet.mockClear();
+      await r.rerender({ app, deepLink: { url: 'https://example.com/deep', seq: 2 } });
+      await waitFor(() => expect(srcSet).toHaveBeenCalledWith('https://example.com/deep'));
+    });
+
+    it('shows the loading state on a deep-link navigation', async () => {
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      await fireEvent.load(iframe);
+      await waitFor(() => expect(iframe.classList.contains('app-frame-ready')).toBe(true));
+      await r.rerender({ app, deepLink: { url: 'https://example.com/b', seq: 2 } });
+      await waitFor(() => expect(iframe.classList.contains('app-frame-ready')).toBe(false));
+    });
+
+    it('does not navigate when seq is unchanged', async () => {
+      const srcSet = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set');
+      const app = makeApp();
+      const r = render(AppFrame, { props: { app, deepLink: { url: 'https://example.com/a', seq: 1 } } });
+      srcSet.mockClear();
+      await r.rerender({ app, deepLink: { url: 'https://example.com/other', seq: 1 } });
+      expect(srcSet).not.toHaveBeenCalled();
+    });
+
+    it('neutralises a javascript: deep link', () => {
+      const { container } = render(AppFrame, {
+        props: { app: makeApp(), deepLink: { url: 'javascript:alert(1)', seq: 1 } },
+      });
+      expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('about:blank');
+    });
+
+    it('a config URL change after a deep link updates src', async () => {
+      const r = render(AppFrame, {
+        props: { app: makeApp({ url: 'https://example.com/start' }), deepLink: { url: 'https://example.com/deep', seq: 1 } },
+      });
+      await r.rerender({ app: makeApp({ url: 'https://other.test' }), deepLink: { url: 'https://example.com/deep', seq: 1 } });
+      const iframe = r.container.querySelector('iframe') as HTMLIFrameElement;
+      await waitFor(() => expect(iframe.getAttribute('src')).toBe('https://other.test/'));
+    });
+
+    it('without deepLink uses the effective URL', () => {
+      const { container } = render(AppFrame, { props: { app: makeApp() } });
+      expect((container.querySelector('iframe') as HTMLIFrameElement).getAttribute('src')).toBe('https://example.com/');
     });
   });
 });

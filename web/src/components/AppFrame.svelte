@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
   import { FRAME_NAME_PREFIX } from '$lib/frameRescue';
   import { isSafeAppUrl } from '$lib/appUrl';
@@ -7,7 +7,7 @@
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
   import * as m from '$lib/paraglide/messages.js';
 
-  let { app }: { app: App } = $props();
+  let { app, deepLink }: { app: App; deepLink?: { url: string; seq: number } } = $props();
 
   // Allowlist the iframe src so `javascript:` / `data:` URLs in app.url
   // cannot execute in Muximux's origin via the `allow-same-origin`
@@ -26,6 +26,42 @@
   // the interceptor, so a full reload of the frame would land on the shell.
   // window.name outlives navigations inside the frame; the shell reads it
   // and bounces the frame back to the proxied path (see $lib/frameRescue).
+  // A deep link (muximux:navigate) opens the iframe straight at the target so
+  // the start page is never loaded first. It is cleared when the app's
+  // configured URL changes, so a config edit still wins.
+  let deepSrc = $state<string | undefined>(untrack(() => (deepLink ? safeIframeSrc(deepLink.url) : undefined)));
+  let frameSrc = $derived(deepSrc ?? effectiveUrl);
+  let lastSeq = untrack(() => deepLink?.seq);
+  let lastEffective = untrack(() => effectiveUrl);
+
+  $effect(() => {
+    const eff = effectiveUrl;
+    if (eff === lastEffective) return;
+    lastEffective = eff;
+    deepSrc = undefined;
+  });
+
+  // Each new seq navigates the existing iframe; assigning src always starts a
+  // navigation, even when the URL is unchanged.
+  $effect(() => {
+    const seq = deepLink?.seq;
+    if (seq === undefined || seq === lastSeq) return;
+    lastSeq = seq;
+    const url = safeIframeSrc(untrack(() => deepLink!.url));
+    if (!iframeRef) return;
+    clearTimeout(loadTimeout);
+    loadError = false;
+    isLoading = true;
+    iframeReady = false;
+    loadTimeout = setTimeout(() => {
+      if (isLoading) {
+        isLoading = false;
+        loadError = true;
+      }
+    }, 30000);
+    iframeRef.src = url;
+  });
+
   let frameName = $derived(app.proxyUrl ? FRAME_NAME_PREFIX + effectiveUrl.replace(/\/$/, '') : undefined);
 
   // Build the iframe allow attribute from configured permissions.
@@ -235,7 +271,7 @@
     data-app={app.name}
     name={frameName}
     bind:this={iframeRef}
-    src={effectiveUrl}
+    src={frameSrc}
     title={app.name}
     class="app-frame"
     class:app-frame-ready={iframeReady}
