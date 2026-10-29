@@ -107,11 +107,16 @@ export function restoreFrame(
   });
 }
 
+// Hashes the shell handles itself before looking for an app (see
+// selectAppFromHash in App.svelte).
+const RESERVED_HASHES = new Set(['settings', 'logs', 'overview']);
+
 /**
  * Apply the copy's hash. A single app that opens in an iframe goes through
  * the navigate rules (reuse the pane showing it, else the sender's pane).
  * Anything else (a split '#a+b', a reserved hash) is set on the shell, the
- * same as a target="_top" link. An empty hash only restored the app.
+ * same as a target="_top" link. A disabled app's slug and an empty hash do
+ * nothing beyond restoring the sender.
  */
 export function applyFrameLink(
   req: FrameLinkRequest,
@@ -123,9 +128,14 @@ export function applyFrameLink(
 ): void {
   const slug = req.hash.slice(1);
   if (!slug) return;
-  const target = apps.find(a => a.enabled !== false && slugify(a.name) === slug);
-  if (target && (!target.open_mode || target.open_mode === 'iframe')) {
-    actions.navigate({ senderFrame: req.senderFrame, target });
+  if (RESERVED_HASHES.has(slug)) {
+    actions.setHash(req.hash);
+    return;
+  }
+  const app = apps.find(a => slugify(a.name) === slug);
+  if (app?.enabled === false) return;
+  if (app && (!app.open_mode || app.open_mode === 'iframe')) {
+    actions.navigate({ senderFrame: req.senderFrame, target: app });
   } else {
     actions.setHash(req.hash);
   }

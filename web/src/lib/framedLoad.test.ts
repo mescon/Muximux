@@ -189,13 +189,21 @@ describe('applyFrameLink', () => {
     }
   });
 
-  it('leaves non-iframe and disabled apps to the shell hash', () => {
-    const apps = [
-      makeApp({ name: 'Tab', url: 'http://tab/', open_mode: 'new_tab' }),
-      makeApp({ name: 'Off', url: 'http://off/', enabled: false }),
-    ];
+  it('leaves non-iframe apps to the shell hash', () => {
+    const apps = [makeApp({ name: 'Tab', url: 'http://tab/', open_mode: 'new_tab' })];
     expect(run('#tab', apps).setHash).toHaveBeenCalledWith('#tab');
-    expect(run('#off', apps).setHash).toHaveBeenCalledWith('#off');
+  });
+
+  it('does nothing for a disabled app', () => {
+    const { navigate, setHash } = run('#off', [makeApp({ name: 'Off', url: 'http://off/', enabled: false })]);
+    expect(navigate).not.toHaveBeenCalled();
+    expect(setHash).not.toHaveBeenCalled();
+  });
+
+  it('sets reserved hashes on the shell even when an app has that slug', () => {
+    const { navigate, setHash } = run('#settings', [makeApp({ name: 'Settings', url: 'http://s/' })]);
+    expect(navigate).not.toHaveBeenCalled();
+    expect(setHash).toHaveBeenCalledWith('#settings');
   });
 
   it('does nothing for an empty hash', () => {

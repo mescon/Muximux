@@ -327,12 +327,20 @@ describe('navigationBridge', () => {
       expect(onNavigate).toHaveBeenCalledTimes(1);
     });
 
-    it.each(['https://widget.example', 'null'])('refuses a widget from %s, which is not an app address', (origin) => {
+    it('refuses a widget from an address that is not an app', () => {
       const { frame } = setup();
       const widget = widgetIn(frame);
-      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, origin);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'https://widget.example');
       expect(onNavigate).not.toHaveBeenCalled();
       expect(warn).toHaveBeenCalledWith(expect.stringContaining('not one of your apps'), expect.anything());
+    });
+
+    it('drops a widget with an opaque origin without a reply', () => {
+      const { frame } = setup();
+      const widget = widgetIn(frame);
+      sendFrom(widget.win, { type: 'muximux:navigate', app: 'my-target' }, 'null');
+      expect(onNavigate).not.toHaveBeenCalled();
+      expect(widget.post).not.toHaveBeenCalled();
     });
 
     it('does not let a direct frame with the wrong origin pass as nested', () => {
@@ -411,10 +419,10 @@ describe('navigationBridge', () => {
       ['no referrer', ''],
       ['a malformed referrer', 'not a url'],
       ['a missing referrer', undefined],
-    ])('warns for a link on %s', (_label, referrer) => {
-      const { win } = setupCopy();
-      link(win, '#my-target', undefined, { referrer });
-      expect(onFrameLink).not.toHaveBeenCalled();
+    ])('only restores the app for a link on %s', (_label, referrer) => {
+      const { s, frame, win } = setupCopy();
+      link(win, '#my-target', undefined, { referrer, pushed: true });
+      expect(onFrameLink).toHaveBeenCalledWith({ sender: s, senderFrame: frame, hash: '', pushed: true });
       expect(warn).toHaveBeenCalledWith(
         expect.stringContaining('not on the page of one of your apps'),
         expect.objectContaining({ hint: 'Give the link target="_top"' }),
@@ -486,16 +494,24 @@ describe('navigationBridge', () => {
       expect(onFrameLink).toHaveBeenCalledTimes(1);
     });
 
-    it('shares the rate-limit slot with navigate messages', () => {
+    it('shares the rate-limit slot with navigate messages, restoring a refused link', () => {
       const { win } = setupCopy();
       link(win, '#my-target');
       clock += NAV_RATE_LIMIT_MS - 1;
       link(win, '#my-target');
-      expect(onFrameLink).toHaveBeenCalledTimes(1);
+      expect(onFrameLink).toHaveBeenCalledTimes(2);
+      expect(onFrameLink).toHaveBeenLastCalledWith(expect.objectContaining({ hash: '' }));
       expect(warn).toHaveBeenCalledWith('[muximux:navigate] navigating too fast', expect.anything());
       clock += 1;
       link(win, '#my-target');
-      expect(onFrameLink).toHaveBeenCalledTimes(2);
+      expect(onFrameLink).toHaveBeenLastCalledWith(expect.objectContaining({ hash: '#my-target' }));
+    });
+
+    it('ignores messages from an opaque origin before any lookup', () => {
+      const { win } = setupCopy();
+      link(win, '#my-target', 'null');
+      expect(onFrameLink).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
     });
   });
 });

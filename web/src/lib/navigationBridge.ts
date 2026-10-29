@@ -96,7 +96,7 @@ export interface NavigationBridgeOptions {
   onFrameLink: (req: FrameLinkRequest) => void;
   /** Base URL for resolving proxied deep links. */
   baseUrl?: string;
-  /** Clock override for tests; defaults to Date.now. */
+  /** Clock override for tests; defaults to performance.now (monotonic). */
   now?: () => number;
 }
 
@@ -123,7 +123,7 @@ function messageType(data: unknown): unknown {
 }
 
 export function installNavigationBridge(opts: NavigationBridgeOptions): () => void {
-  const now = opts.now ?? Date.now;
+  const now = opts.now ?? (() => performance.now());
   const lastNavigated = new Map<string, number>();
 
   function reply(event: MessageEvent, payload: { ok: true } | { ok: false; error: NavigateError }): void {
@@ -156,6 +156,9 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
   }
 
   function handleMessage(event: MessageEvent): void {
+    // An opaque origin is never a configured app or Muximux itself; each
+    // handler then checks the origin its message must come from.
+    if (event.origin === 'null') return;
     const type = messageType(event.data);
     if (type === 'muximux:navigate') handleNavigate(event, event.data as NavigateMessage);
     else if (type === 'muximux:frame-link') handleFrameLink(event, event.data as { hash?: unknown; referrer?: unknown; pushed?: unknown });
@@ -263,9 +266,14 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
       warn('sender app is not the visible app', 'Only the app currently shown in Muximux can request navigation');
       return;
     }
+    // From here on the app has opted in, so a refused link still puts the
+    // app back (an empty hash) instead of leaving the blank copy.
+    const pushed = data.pushed === true;
+    const restoreOnly = () => opts.onFrameLink({ sender, senderFrame: frame, hash: '', pushed });
     if (!isAppOrigin(opts.getApps(), referrerOrigin(data.referrer))) {
       warn('the link was not on the page of one of your apps, or the page sends no referrer',
         'Give the link target="_top"');
+      restoreOnly();
       return;
     }
     const hash = data.hash;
@@ -276,9 +284,10 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
     }
     if (!takeSlot(sender)) {
       warn('navigating too fast', `Wait at least ${NAV_RATE_LIMIT_MS} ms between navigations`);
+      restoreOnly();
       return;
     }
-    opts.onFrameLink({ sender, senderFrame: frame, hash, pushed: data.pushed === true });
+    opts.onFrameLink({ sender, senderFrame: frame, hash, pushed });
   }
 
   window.addEventListener('message', handleMessage);

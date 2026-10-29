@@ -398,16 +398,14 @@
     // postMessage Muximux to switch to another app (optionally a deep link).
     const removeNavigationBridge = installNavigationBridge({
       getApps: () => apps,
-      isFrameVisible: (frame) => isFrameVisible(frame, {
-        splash: showSplash,
-        logs: showLogs,
-        settings: showSettings,
-        commandPalette: showCommandPalette,
-        shortcuts: showShortcuts,
-      }),
+      isFrameVisible: frameVisible,
       onNavigate: (req) => navigateFromApp(req),
       onFrameLink: async (req) => {
         await restoreFrame(req.senderFrame, req.sender, req.pushed);
+        // The wait can take seconds: skip the switch if the user moved on or
+        // the app lost allow_navigation in the meantime.
+        const sender = apps.find(a => a.name === req.sender.name);
+        if (!sender?.allow_navigation || !frameVisible(req.senderFrame)) return;
         applyFrameLink(req, apps, {
           navigate: navigateFromApp,
           setHash: (hash) => { location.hash = hash; },
@@ -777,6 +775,17 @@
   // (pushState -- creates a back-button entry) from "update the same view"
   // (replaceState -- no new entry).
   let currentNavHash = '';
+
+  // Whether an app frame is the one shown, with nothing covering it.
+  function frameVisible(frame: HTMLIFrameElement): boolean {
+    return isFrameVisible(frame, {
+      splash: showSplash,
+      logs: showLogs,
+      settings: showSettings,
+      commandPalette: showCommandPalette,
+      shortcuts: showShortcuts,
+    });
+  }
 
   // An accepted request from an embedded app (navigationBridge.ts).
   function navigateFromApp(req: Parameters<typeof applyNavigate>[0]) {
