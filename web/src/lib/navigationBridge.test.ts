@@ -164,6 +164,14 @@ describe('navigationBridge', () => {
     expect(onNavigate).toHaveBeenCalledTimes(1);
   });
 
+  it('6: a target with an empty open_mode (unset in YAML) is embeddable', () => {
+    const t = makeApp({ name: 'My Target', url: 'https://t.local' });
+    (t as unknown as { open_mode: string }).open_mode = '';
+    const { frame } = setup(sender(), t);
+    send(frame, { type: 'muximux:navigate', app: 'my-target' });
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+  });
+
   it('7: bad_path when the path escapes the app', () => {
     const { frame } = setup();
     send(frame, { type: 'muximux:navigate', app: 'my-target', path: '../escape' });

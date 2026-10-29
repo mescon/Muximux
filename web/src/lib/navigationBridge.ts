@@ -142,7 +142,8 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
         'Use the target app\'s name or slug exactly as configured in Muximux');
       return;
     }
-    if (target.open_mode !== undefined && target.open_mode !== 'iframe') {
+    // An unset open_mode arrives as '' from the API and means iframe.
+    if (target.open_mode && target.open_mode !== 'iframe') {
       refuse(event, 'not_embeddable', 'target app does not open in an iframe', sender.name,
         'Set the target app\'s open mode to iframe');
       return;
