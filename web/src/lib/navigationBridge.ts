@@ -18,6 +18,19 @@
  * string up to MAX_REQUEST_ID characters, or a finite number) on the
  * request is copied into the reply.
  *
+ * A frame nested inside an opted-in app (a dashboard's iframe widget, say)
+ * can send the same message; it counts as that app. Its origin must be the
+ * origin of one of the configured apps, since any page the app frame shows
+ * could otherwise nest a frame of its own and send as the app.
+ *
+ * A second message, muximux:frame-link, comes from Muximux itself: a link
+ * without target="_top" in an app (a Homarr tile set to open in the current
+ * tab) loads Muximux inside that app's frame. That copy does not start; it
+ * sends { type: 'muximux:frame-link', hash, referrer, pushed } to this
+ * window, which puts the app back and applies the hash (see framedLoad.ts).
+ * The referrer, the page the link was on, must have a configured app's
+ * origin for the same reason. No reply is sent.
+ *
  * Security:
  * - The sender is identified by window handle (see bridgeSender.ts), never
  *   by the origin it claims.
@@ -34,13 +47,14 @@
  */
 
 import type { App } from './types';
-import { findSenderFrame } from './bridgeSender';
+import { findNestedSenderFrame, findSenderFrame, frameOfWindow, isAppOrigin } from './bridgeSender';
 import { resolveDeepLink } from './navigatePath';
 import { slugify } from './slug';
 
 export const NAV_RATE_LIMIT_MS = 500;
 const MAX_APP_NAME = 200;
 export const MAX_REQUEST_ID = 100;
+export const MAX_FRAME_LINK_HASH = 2 * MAX_APP_NAME + 2;
 
 // The request's optional id, echoed in the reply so a sender with several
 // requests in flight can match each reply. Anything else is dropped.
@@ -66,10 +80,20 @@ export interface NavigateRequest {
   url?: string;
 }
 
+export interface FrameLinkRequest {
+  sender: App;
+  senderFrame: HTMLIFrameElement;
+  /** The copy's location.hash: '' or starting with '#'. */
+  hash: string;
+  /** Whether the link's load added a history entry the shell can go back over. */
+  pushed: boolean;
+}
+
 export interface NavigationBridgeOptions {
   getApps: () => App[];
   isFrameVisible: (frame: HTMLIFrameElement) => boolean;
   onNavigate: (req: NavigateRequest) => void;
+  onFrameLink: (req: FrameLinkRequest) => void;
   /** Base URL for resolving proxied deep links. */
   baseUrl?: string;
   /** Clock override for tests; defaults to Date.now. */
@@ -82,9 +106,20 @@ interface NavigateMessage {
   path?: unknown;
 }
 
-function isNavigateMessage(data: unknown): data is NavigateMessage {
-  if (!data || typeof data !== 'object') return false;
-  return (data as { type?: unknown }).type === 'muximux:navigate';
+// The origin of a copy's document.referrer; 'null' (never an app origin)
+// when it is missing or not a URL.
+function referrerOrigin(referrer: unknown): string {
+  if (typeof referrer !== 'string' || referrer === '') return 'null';
+  try {
+    return new URL(referrer).origin;
+  } catch {
+    return 'null';
+  }
+}
+
+function messageType(data: unknown): unknown {
+  if (!data || typeof data !== 'object') return undefined;
+  return (data as { type?: unknown }).type;
 }
 
 export function installNavigationBridge(opts: NavigationBridgeOptions): () => void {
@@ -111,11 +146,25 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
     reply(event, { ok: false, error });
   }
 
-  function handleMessage(event: MessageEvent): void {
-    if (!isNavigateMessage(event.data)) return;
-    const data = event.data;
+  // One accepted navigation per sender every NAV_RATE_LIMIT_MS.
+  function takeSlot(sender: App): boolean {
+    const t = now();
+    const last = lastNavigated.get(sender.name);
+    if (last !== undefined && t - last < NAV_RATE_LIMIT_MS) return false;
+    lastNavigated.set(sender.name, t);
+    return true;
+  }
 
-    const found = findSenderFrame(opts.getApps(), event.origin, event.source);
+  function handleMessage(event: MessageEvent): void {
+    const type = messageType(event.data);
+    if (type === 'muximux:navigate') handleNavigate(event, event.data as NavigateMessage);
+    else if (type === 'muximux:frame-link') handleFrameLink(event, event.data as { hash?: unknown; referrer?: unknown; pushed?: unknown });
+  }
+
+  function handleNavigate(event: MessageEvent, data: NavigateMessage): void {
+    const direct = findSenderFrame(opts.getApps(), event.origin, event.source);
+    const nested = direct ? undefined : findNestedSenderFrame(opts.getApps(), event.source);
+    const found = direct ?? nested;
     if (!found) {
       console.warn('[muximux:navigate] no matching app for message', {
         origin: event.origin,
@@ -128,6 +177,11 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
     if (!sender.allow_navigation) {
       refuse(event, 'not_allowed', 'navigation not enabled for app', sender.name,
         'Toggle "Allow navigating Muximux" in the app\'s settings');
+      return;
+    }
+    if (nested && !isAppOrigin(opts.getApps(), event.origin)) {
+      refuse(event, 'not_allowed', 'a frame inside the app sent the message from an address that is not one of your apps',
+        sender.name, `Serve the page from the address of an app in Muximux (it came from ${event.origin})`);
       return;
     }
     if (!opts.isFrameVisible(frame)) {
@@ -172,17 +226,59 @@ export function installNavigationBridge(opts: NavigationBridgeOptions): () => vo
       url = resolved.url;
     }
 
-    const t = now();
-    const last = lastNavigated.get(sender.name);
-    if (last !== undefined && t - last < NAV_RATE_LIMIT_MS) {
+    if (!takeSlot(sender)) {
       refuse(event, 'rate_limited', 'navigating too fast', sender.name,
         `Wait at least ${NAV_RATE_LIMIT_MS} ms between navigate messages`);
       return;
     }
-    lastNavigated.set(sender.name, t);
 
     opts.onNavigate({ sender, senderFrame: frame, target, url });
     reply(event, { ok: true });
+  }
+
+  // The copy is Muximux, so it must report this origin and be showing the
+  // shell's own page; a same-origin proxied app cannot pass for it.
+  function isShellCopy(frame: HTMLIFrameElement, origin: string): boolean {
+    if (origin !== window.location.origin) return false;
+    try {
+      return frame.contentWindow?.location.pathname === window.location.pathname;
+    } catch {
+      return false;
+    }
+  }
+
+  function handleFrameLink(event: MessageEvent, data: { hash?: unknown; referrer?: unknown; pushed?: unknown }): void {
+    const found = frameOfWindow(opts.getApps(), event.source);
+    if (!found || !isShellCopy(found.frame, event.origin)) return;
+    const { app: sender, frame } = found;
+    const warn = (reason: string, hint: string) =>
+      console.warn(`[muximux:navigate] ${reason}`, { app: sender.name, hint });
+
+    if (!sender.allow_navigation) {
+      warn('a link in this app opened Muximux inside it, but navigation is not enabled for the app',
+        'Toggle "Allow navigating Muximux" in the app\'s settings, or give the link target="_top"');
+      return;
+    }
+    if (!opts.isFrameVisible(frame)) {
+      warn('sender app is not the visible app', 'Only the app currently shown in Muximux can request navigation');
+      return;
+    }
+    if (!isAppOrigin(opts.getApps(), referrerOrigin(data.referrer))) {
+      warn('the link was not on the page of one of your apps, or the page sends no referrer',
+        'Give the link target="_top"');
+      return;
+    }
+    const hash = data.hash;
+    // '' (a link to Muximux without a hash) only puts the app back.
+    if (typeof hash !== 'string' || (hash !== '' && !hash.startsWith('#')) || hash.length > MAX_FRAME_LINK_HASH) {
+      warn('malformed frame link', 'Link to Muximux\'s address followed by #<app>');
+      return;
+    }
+    if (!takeSlot(sender)) {
+      warn('navigating too fast', `Wait at least ${NAV_RATE_LIMIT_MS} ms between navigations`);
+      return;
+    }
+    opts.onFrameLink({ sender, senderFrame: frame, hash, pushed: data.pushed === true });
   }
 
   window.addEventListener('message', handleMessage);

@@ -437,8 +437,12 @@ With `allow_navigation` on, the app's iframe sandbox gets `allow-top-navigation-
 <a href="https://muximux.example.com/#sonarr+radarr" target="_top">Sonarr and Radarr</a>
 ```
 
-- The link must use `target="_top"`. A plain link (no `target`, or `_self`) loads Muximux inside the app's own frame, which Muximux refuses to render, so it stays blank.
-- The part before `#` must be the same address you have Muximux open on. If it differs, the browser does a full page load of Muximux instead of just changing the hash. That still works but reloads everything.
+- The part before `#` must be the same address you have Muximux open on. If it differs, the browser does a full page load of Muximux instead of just changing the hash (with `target="_top"`), or the frame stays blank (without it).
+- A link without `target` (or with `_self`) works too, for example a Homarr app tile set to open in the current tab. The browser first loads Muximux inside the app's own frame. That copy doesn't start: it passes the hash to the Muximux window, which puts the app back in its frame and then switches. The app reloads once, on the page the link was on (or on its start page in browsers without the Navigation API). This needs:
+  - `allow_navigation` on the app. Without it the frame stays blank, and the browser console says which setting to change.
+  - The link to be on a page at the address of one of your apps, as shown by the browser's referrer. A page that sends no referrer (`Referrer-Policy: no-referrer`, `rel="noreferrer"`) or a site the app frame wandered off to leaves the frame blank; use `target="_top"` there.
+  - An app that is not behind Muximux's [reverse proxy](reverse-proxy.md). In a proxied app the frame goes back to the app's own start page instead; use `target="_top"`.
+- Links in a frame inside the app (for example a Homarr iframe widget) need `target="_top"`. Without it the browser refuses to load Muximux there, because the app's page is still around it.
 - Plain links only switch apps. A hash names apps, not pages inside them; to open a specific item use the message API below.
 - In split view, a single-app link (`#emby`) goes to the pane that already shows that app and makes it active. Otherwise the app replaces the pane the link was clicked in. The other pane is not changed or reloaded. Afterwards the address bar shows the normal split hash (for example `#homarr+emby`).
 - Back and Forward work as they do for menu clicks. A link to the app already shown in the other pane still adds a history entry with the same split hash as before, so Back may first return to the same layout.
@@ -448,7 +452,7 @@ With `allow_navigation` on, the app's iframe sandbox gets `allow-top-navigation-
 An opted-in app can also ask Muximux to navigate with a `postMessage`:
 
 ```javascript
-window.parent.postMessage({
+window.top.postMessage({
   type: 'muximux:navigate',
   app: 'emby',                              // slug or display name of the target app
   path: '/web/index.html#!/item?id=123',    // optional: a page inside the target app
@@ -462,6 +466,10 @@ Muximux replies to the sender (posted to the sender's origin):
 { type: 'muximux:navigate-result', ok: true, id: 'req-1' }
 { type: 'muximux:navigate-result', ok: false, error: 'bad_path', id: 'req-1' }
 ```
+
+A page directly inside Muximux can use `window.parent` or `window.top`, which are the same window. A page in a frame inside the app (a Homarr iframe widget, say) must use `window.top`, since its `parent` is the app. Such a nested frame counts as the app it sits in, up to five frames deep, as long as the nested page is served from the address of one of your Muximux apps (the sending app's or another one's). A widget page hosted anywhere else is refused with `not_allowed`.
+
+A page served through Muximux's [reverse proxy](reverse-proxy.md) cannot send the message: the proxy points its `window.parent` and `window.top` at the page itself. Use links there, or turn the proxy off for the sending app. A widget the proxied app embeds from another address is not proxied and can still use `window.top`.
 
 `id` is only echoed when the request has one: a string of up to 100 characters or a number. Use it to match replies when more than one request can be in flight.
 
@@ -514,13 +522,13 @@ Proxied apps use the same rule against the app's configured URL, and the accepte
         resolve(result);
       };
       const onReply = (e) => {
-        if (e.source !== window.parent || !e.data || e.data.type !== 'muximux:navigate-result') return;
+        if (e.source !== window.top || !e.data || e.data.type !== 'muximux:navigate-result') return;
         if (e.data.id !== id) return;
         done(e.data);
       };
       const timer = setTimeout(() => done({ ok: false, error: 'timeout' }), 2000);
       window.addEventListener('message', onReply);
-      window.parent.postMessage({ type: 'muximux:navigate', app, path, id }, '*');
+      window.top.postMessage({ type: 'muximux:navigate', app, path, id }, '*');
     });
   }
 
@@ -537,6 +545,7 @@ Proxied apps use the same rule against the app's configured URL, and the accepte
 >
 > - Browsers cannot restrict where a `target="_top"` link goes. An app with `allow_navigation` can therefore send the whole browser tab to any website after a click. That is why the setting is per app and off by default.
 > - Muximux cannot tell whether the user clicked before a message arrives, so an opted-in app that is visible can switch apps through the message API without a click.
+> - A frame inside an opted-in app can send the message as that app if it is served from one of your apps' addresses.
 > - The message API cannot be used to load a page outside the target app: the path rule keeps the result inside the target's origin and base directory.
 
 ## Appearance API
