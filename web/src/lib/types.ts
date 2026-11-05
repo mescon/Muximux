@@ -32,6 +32,7 @@ export interface App {
   permissions?: string[];  // browser feature policy: camera, microphone, geolocation, fullscreen, etc.
   allow_notifications?: boolean;  // enable postMessage notification bridge
   allow_navigation?: boolean;  // let the embedded app navigate Muximux (target="_top" hash links, muximux:navigate)
+  allow_deep_links?: boolean;  // let hash routes open a page inside this app (#app?path=...)
   gateway_domain?: string;  // populated by the backend when a gateway site references this app via app_name (Phase 4 pairing)
   // Docker auto-management tracking. When docker_key is set, the
   // refresh poller is the source of truth for `url` and the Apps
@@ -552,6 +553,7 @@ export interface DiscoverySuggestion {
   permissions?: string[];
   allow_notifications?: boolean;
   allow_navigation?: boolean;
+  allow_deep_links?: boolean;
   default?: boolean;
   shortcut?: number;
   http_action_method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';

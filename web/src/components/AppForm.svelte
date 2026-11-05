@@ -702,6 +702,20 @@
         <p class="text-xs text-text-muted">{m.appForm_allowNavigationDesc()}</p>
       </div>
     </label>
+
+    <label class="flex items-center gap-3 cursor-pointer mt-4">
+      <input
+        type="checkbox"
+        bind:checked={app.allow_deep_links}
+        class="w-4 h-4 rounded border-border-input text-accent-text"
+      />
+      <div>
+        <span class="text-sm text-text-primary">{m.appForm_allowDeepLinks()}
+          {@render helpTip(m.appForm_helpAllowDeepLinks())}
+        </span>
+        <p class="text-xs text-text-muted">{m.appForm_allowDeepLinksDesc()}</p>
+      </div>
+    </label>
   </div>
   {/if}
 </div>

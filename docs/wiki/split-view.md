@@ -48,6 +48,7 @@ Split view state is reflected in the URL hash:
 |-----|--------|
 | `#sonarr` | Single view with Sonarr loaded |
 | `#sonarr+radarr` | Split view with Sonarr in panel 1 and Radarr in panel 2 |
+| `#sonarr+radarr?sonarr=%2Fseries%2Fx&radarr=%2Fmovie%2F1` | The same, with a page opened in each app (apps need [Allow deep links](apps.md#deep-links-in-links)) |
 
 This means you can bookmark a split view configuration or share it as a link. When Muximux loads with a `+` in the hash, it automatically enables horizontal split and loads both apps.
 

@@ -1428,6 +1428,19 @@ func TestSanitizeApp(t *testing.T) {
 		}
 	})
 
+	t.Run("allow_deep_links projects for admin and non-admin", func(t *testing.T) {
+		app := config.AppConfig{Name: "Deep", URL: "https://deep.local", Enabled: true, AllowDeepLinks: true}
+		if !sanitizeApp(&app).AllowDeepLinks {
+			t.Error("admin projection dropped allow_deep_links")
+		}
+		if !sanitizeAppForRole(&app, false).AllowDeepLinks {
+			t.Error("non-admin projection dropped allow_deep_links")
+		}
+		if !clientAppToConfig(&ClientAppConfig{Name: "Deep", URL: "https://deep.local", AllowDeepLinks: true}).AllowDeepLinks {
+			t.Error("clientAppToConfig dropped allow_deep_links")
+		}
+	})
+
 	// Regression: the write path (client DTO -> AppConfig) must also
 	// carry the fields, or saving an http_action app through the UI
 	// would drop them on the floor.

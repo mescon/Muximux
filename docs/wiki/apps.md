@@ -432,7 +432,7 @@ The target app needs no setting. One setting unlocks both mechanisms below. In D
 
 - **Use a dashboard as your start page.** Make Homarr (or another dashboard) the [default app](#default-app) and point its tiles at Muximux addresses such as `https://muximux.example.com/#sonarr`. A click switches Muximux to Sonarr, with its menu entry, health status and keyboard shortcuts, instead of opening a second Sonarr inside the dashboard. In Homarr, set the tile to open in the current tab.
 - **One-click layouts.** A link to two apps opens them side by side in [split view](split-view.md). A "Downloads" tile linking to `#sonarr+sabnzbd`, a "Monitoring" tile linking to `#grafana+uptime-kuma` and a "Media" tile linking to `#jellyfin+jellyseerr` turn the dashboard into a set of workspaces.
-- **Go straight to the item.** A widget that lists things can open the exact one in the app that owns it: a "recently added" list that opens the movie in Emby or Jellyfin, a request list that opens the request in Jellyseerr, an alert list that opens the matching Grafana dashboard. This uses the [message API](#message-api) with a `path`. Serve the widget from one of your apps, or add the page it lives on as an app in Muximux.
+- **Go straight to the item.** A widget that lists things can open the exact one in the app that owns it: a "recently added" list that opens the movie in Emby or Jellyfin, a request list that opens the request in Jellyseerr, an alert list that opens the matching Grafana dashboard. Put the path in the link itself ([deep links in links](#deep-links-in-links)), or use the [message API](#message-api) from a script.
 - **Runbooks that link to the tool.** A notes or wiki app embedded in Muximux can link to `#portainer` or `#proxmox` right next to the instructions, so following a runbook doesn't mean hunting through the menu.
 
 Turn `allow_navigation` on for the app the click happens in (the dashboard, the notes app), not for the apps it opens.
@@ -452,9 +452,39 @@ With `allow_navigation` on, the app's iframe sandbox gets `allow-top-navigation-
   - The link to be on a page at the address of one of your apps, as shown by the browser's referrer. A link on a page that sends no referrer (`Referrer-Policy: no-referrer`, `rel="noreferrer"`), or on a site the app frame wandered off to, only puts the app back without switching; use `target="_top"` there.
   - An app that is not behind Muximux's [reverse proxy](reverse-proxy.md). In a proxied app the frame goes back to the app's own start page instead; use `target="_top"`.
 - Links in a frame inside the app (for example a Homarr iframe widget) need `target="_top"`. Without it the browser refuses to load Muximux there, because the app's page is still around it.
-- Plain links only switch apps. A hash names apps, not pages inside them; to open a specific item use the message API below.
+- To open a specific item, add its path to the link (see [Deep links in links](#deep-links-in-links) below) or use the message API.
 - In split view, a single-app link (`#emby`) goes to the pane that already shows that app and makes it active. Otherwise the app replaces the pane the link was clicked in. The other pane is not changed or reloaded. Afterwards the address bar shows the normal split hash (for example `#homarr+emby`).
 - Back and Forward work as they do for menu clicks. A link to the app already shown in the other pane still adds a history entry with the same split hash as before, so Back may first return to the same layout.
+
+### Deep links in links
+
+A link can also open a page inside the target app, by adding the path after `?` in the hash. This works in any link, bookmark or address bar, not only in embedded apps:
+
+```
+https://muximux.example.com/#emby?path=%2Fweb%2Findex.html%23!%2Fitem%3Fid%3D123
+https://muximux.example.com/#radarr?path=%2Fmovie%2F384978
+https://muximux.example.com/#emby+radarr?emby=%2Fweb%2Findex.html%23!%2Fitem%3Fid%3D123&radarr=%2Fmovie%2F384978
+```
+
+The target app has to allow it:
+
+```yaml
+apps:
+  - name: Emby
+    url: http://emby:8096
+    allow_deep_links: true      # form label: "Allow deep links"
+```
+
+- A single-app link takes `path=`. A split link takes one key per app slug (`emby=`, `uptime-kuma=`), in any order.
+- URL-encode the path (`encodeURIComponent` in JavaScript). An unencoded path works too as long as it contains no `&`.
+- The path follows the same [path rule](#path-rule) as the message API: it must stay inside the target app. A refused path, or a target without `allow_deep_links`, still switches apps, and the browser console says why the page was not opened.
+- Muximux opens the page once and then shows the plain route (`#emby`) in the address bar, so a reload or Back does not reopen the item.
+- Pane choice in split view is the same as for plain links. Only the frames that get a path reload.
+- The sending app needs nothing extra beyond what plain links already need (`allow_navigation` for a link inside an embedded app). In Homarr, this covers tiles set to open in the current tab and plain links in Custom JSX widgets, which cannot run the message API.
+
+> **Why the target opts in:** anyone who can send you a link can open any page of an app with `allow_deep_links` in Muximux, where you are logged in. Leave it off for apps that change something when a page is merely opened (a "delete" or "run now" URL).
+
+In Docker discovery the label is `muximux.app.allow_deep_links`.
 
 ### Message API
 
