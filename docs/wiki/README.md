@@ -5,7 +5,7 @@
 [![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
 
-Muximux is a modern, self-hosted web application portal for your homelab. It runs as a single binary, serves on a single port, and stores all configuration in one YAML file. Add your self-hosted applications, organize them into groups, and access them from a unified dashboard with health monitoring, keyboard shortcuts, and a built-in reverse proxy.
+Muximux is a self-hosted web application portal for your homelab. It runs as a single binary, serves on a single port, and stores all configuration in one YAML file. Add your self-hosted applications, organize them into groups, and access them from one dashboard with health monitoring, keyboard shortcuts, and a built-in reverse proxy.
 
 ![Muximux tour](https://raw.githubusercontent.com/mescon/Muximux/main/docs/muximux-tour.gif)
 

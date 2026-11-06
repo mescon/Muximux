@@ -2,7 +2,7 @@
 
 Muximux can optionally act as a security gate in front of your gateway sites. When enabled per-site, requests to that subdomain run through Muximux's session check before reaching the backend. Anonymous visitors are redirected to Muximux's login page; authenticated visitors are forwarded based on their role and group membership.
 
-The gate sits **in front of** the backend - it does not replace the backend's own authentication if it has one. It's a layered defence: log in to Muximux once, gain access to every gated subdomain you have permission for.
+The gate sits **in front of** the backend. It does not replace the backend's own authentication if it has one: the two work as separate layers. Log in to Muximux once and you can reach every gated subdomain you have permission for.
 
 ```
 Browser -> sonarr.example.com (Caddy)
@@ -37,7 +37,7 @@ Browser -> sonarr.example.com (Caddy)
 The gate uses Muximux's session cookie as the auth source. For the cookie to be visible at every gated subdomain, you need:
 
 1. **Muximux's dashboard and every gated site to share a parent domain.** Example: `muximux.example.com`, `sonarr.example.com`, `grafana.example.com` all share `.example.com`.
-2. **A consistent transport.** Either all HTTPS (recommended) or all plain HTTP for local-only setups - browsers reject mixed-Secure cookies across the same domain.
+2. **A consistent transport.** Either all HTTPS (recommended) or all plain HTTP for local-only setups. Browsers reject mixed-Secure cookies across the same domain.
 3. **`server.session_cookie_domain` configured** so Muximux issues the cookie with the right scope.
 
 The validator at config load enforces this. If a site has `require_auth: true` but isn't a subdomain of `session_cookie_domain`, Muximux exits at startup with a specific error pointing at the offending site.
@@ -57,7 +57,7 @@ server:
     domain: "muximux.example.com"
 ```
 
-The leading dot is the browser-canonical form but optional - browsers treat both equally.
+The leading dot is the browser-canonical form but optional; browsers treat both equally.
 
 ### 2. Enable Require Auth per site
 
@@ -117,7 +117,7 @@ Backends receive `X-Muximux-User` and `X-Muximux-Role` headers on every forwarde
 
 `/logout` on Muximux invalidates the session cookie. Because the cookie is scoped to `.example.com`, this clears it for **every gated subdomain at once**. Next request to any gated site triggers the login redirect again.
 
-There is intentionally no per-site logout: the gate is a centralised SSO layer, and "log out of one app but not the others" doesn't compose cleanly with that model. If your backend has its own logout, that's separate - the gate doesn't propagate.
+There is intentionally no per-site logout: the gate is a centralised SSO layer, and "log out of one app but not the others" doesn't compose cleanly with that model. If your backend has its own logout, that's separate, and the gate doesn't propagate to it.
 
 ---
 
@@ -185,4 +185,4 @@ forward-auth denied  source=audit host=admin.example.com user=alice role=user re
 forward-auth denied  source=audit host=family.example.com user=bob role=user result=group_mismatch
 ```
 
-Use this for both observability and post-incident review. Failed access attempts are first-class events, not just operational noise.
+Use this for both observability and post-incident review. Failed access attempts are recorded as audit events, the same as allowed ones.

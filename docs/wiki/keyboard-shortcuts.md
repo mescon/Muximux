@@ -1,6 +1,6 @@
 # Keyboard Shortcuts
 
-Muximux includes a set of keyboard shortcuts for fast navigation and control. All shortcuts can be customized or disabled as needed.
+Muximux has keyboard shortcuts for navigation and control. All shortcuts can be customized or disabled as needed.
 
 ## Default Keyboard Shortcuts
 
@@ -30,7 +30,7 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 
 The command palette (opened with `Ctrl+K`) provides quick access to apps and actions without navigating through menus.
 
-The palette supports the following:
+The palette offers:
 
 - **App search** -- Type an app name to quickly switch to it. Recently used apps appear first.
 - **Actions** -- Open Settings, Show Shortcuts, Toggle Fullscreen, Refresh, View Logs, Go Home.
@@ -98,4 +98,4 @@ You can also assign shortcuts in **Settings > Keybindings** without editing the 
 
 ## Import and Export Keybindings
 
-The Settings panel provides options to export your keybinding configuration as JSON and import it on another Muximux instance. This is useful for keeping a consistent shortcut layout across multiple installations.
+The Settings panel provides options to export your keybinding configuration as JSON and import it on another Muximux instance. That keeps the same shortcut layout across multiple installations.

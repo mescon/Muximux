@@ -1,6 +1,6 @@
 # Docker Discovery
 
-Connect Muximux to a Docker daemon and it can enumerate running containers, propose them as apps, and keep their URLs current as IPs shift across restarts. **Off by default** because it requires read access to the Docker socket.
+Connect Muximux to a Docker daemon and it can enumerate running containers, propose them as apps, and keep their URLs current as IPs shift across restarts. It is off by default because it requires read access to the Docker socket.
 
 ---
 
@@ -96,11 +96,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
 
-That's the whole prerequisite. The entrypoint stats the bind-mounted socket at startup, reads its group ownership from the host, and adds the runtime user to a matching group inside the container - so the non-root muximux process can actually read the socket. No `DOCKER_GID` env var, no `group_add`, no hunting for the right number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
+That is all you need. The entrypoint stats the bind-mounted socket at startup, reads its group ownership from the host, and adds the runtime user to a matching group inside the container, so the non-root muximux process can read the socket. You do not need a `DOCKER_GID` env var or `group_add`, or to look up the right group number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
 
 The trailing `:ro` is the default and keeps Muximux read-only: with `:ro` it can see and list your containers but cannot start, stop, or change any of them. Marking the mount read-only means a compromised Muximux can't pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
 
-Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers: the socket must be mounted `:rw` **and** `discovery.docker.lifecycle_enabled: true` must be set. Neither one alone is enough - the dashboard still won't start, stop, or restart anything until you turn on both. Even with both on, Muximux can only start, stop, and restart the containers it already tracks - it can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Every action, and every blocked attempt, is written to the audit log.
+Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers: the socket must be mounted `:rw` **and** `discovery.docker.lifecycle_enabled: true` must be set. Neither one alone is enough: the dashboard still won't start, stop, or restart anything until you turn on both. Even with both on, Muximux can only start, stop, and restart the containers it already tracks. It can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Every action, and every blocked attempt, is written to the audit log.
 
 For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, two override env vars are available: `DOCKER_SOCKET` (the path the entrypoint stats) and `DOCKER_GID` (bypass auto-detect and force a specific GID). Almost no one needs these.
 
@@ -444,7 +444,7 @@ These describe the group the container's app is in. They apply only to a group D
 | `muximux.gateway.min_role` | `user` \| `power-user` \| `admin` | unset | When `require_auth=true`, minimum role to access the site. |
 | `muximux.gateway.allowed_groups` | csv | unset | When `require_auth=true`, allow-list groups (comma-separated, case-insensitive). |
 
-Unknown `muximux.*` labels are surfaced in the Discover modal's per-row notes so a typo is visible, not silently ignored.
+Unknown `muximux.*` labels are surfaced in the Discover modal's per-row notes, so a typo shows up instead of being silently ignored.
 
 ---
 
@@ -673,7 +673,7 @@ Browser → /proxy/sonarr → Muximux Go server → http://192.168.1.4:8989
 
 - **App.url** = the container URL (kept as the upstream)
 - **App.proxy** = true
-- Muximux's built-in path-prefix reverse proxy strips iframe-blockers, rewrites HTML/CSS/JS paths, isolates `window.parent`, etc. - makes apps work in iframes that refuse them.
+- Muximux's built-in path-prefix reverse proxy strips iframe-blockers, rewrites HTML/CSS/JS paths, isolates `window.parent`, etc., so apps that refuse to load in iframes work.
 - Same tracking semantics as Direct (poller refreshes the upstream URL)
 
 Use when: the app misbehaves in iframes, the dashboard machine cannot reach the container directly, or you want auth/CSP layering through Muximux.
@@ -688,7 +688,7 @@ Point the subdomain's DNS at the Muximux host: Muximux **is** the reverse proxy 
 
 - **App.url** = `https://<gateway-domain>` (static)
 - **App.proxy** = false
-- **App is NOT auto-managed** - the gateway site becomes the docker-managed entry instead
+- **App is NOT auto-managed**: the gateway site becomes the docker-managed entry instead
 - The poller refreshes the gateway site's `backend_url` (not the App's URL, which doesn't depend on the container)
 
 Use when: you want a public subdomain that survives container moves, and a clickable dashboard link that uses that domain.
@@ -713,7 +713,7 @@ Apps with a fixed `muximux.app.url` are not rewritten by the poller; their `dock
 
 ### docker_managed_url (internal)
 
-You'll see a `docker_managed_url` field appear next to `docker_key` for tracked entries. Muximux writes it from the import flow and updates it on every poller tick. You don't need to touch it. If you do hand-author a tracked entry from scratch, just set `docker_managed_url` to the same value as `url` (or `backend_url` for a gateway site) so the file-edit detach mechanism has a baseline to compare against.
+You'll see a `docker_managed_url` field appear next to `docker_key` for tracked entries. Muximux writes it from the import flow and updates it on every poller tick. You don't need to touch it. If you do hand-author a tracked entry from scratch, set `docker_managed_url` to the same value as `url` (or `backend_url` for a gateway site) so the file-edit detach mechanism has a baseline to compare against.
 
 ---
 
@@ -725,7 +725,7 @@ Caddy's reload is transactional only at the parse step. Post-parse failures (lis
 - Both fail → **divergence counter** increments, sticky red banner appears in Settings → Discovery
 - First clean tick after a divergence → banner transitions to amber "recovered"
 
-The banner gives you a one-glance signal that the running Caddy may not match disk. Recovery happens automatically on the next successful tick; the banner stays amber until you acknowledge it (currently by waiting - a future iteration may add a "clear" button).
+The banner shows at a glance that the running Caddy may not match disk. Recovery happens automatically on the next successful tick; the banner stays amber until you acknowledge it (currently by waiting; a future iteration may add a "clear" button).
 
 ---
 
@@ -793,6 +793,6 @@ If you want the dashboard to start / stop / restart tracked containers from the 
 3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups. These are **user and identity-provider group names** (built-in user groups, the OIDC groups claim, the forward-auth groups header), not dashboard groups. Renaming or deleting a dashboard group never touches this list.
 4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
 
-Once enabled, Docker-tracked apps on the overview show the Docker logo (to admins only; hide it with `navigation.show_docker_badge: false`, see [Navigation > Docker Badge](navigation.md#docker-badge)) plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot - quiet by default). Hovering the card reveals the action buttons in a footer below it - Start when stopped, Stop and Restart when running; on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.
+Once enabled, Docker-tracked apps on the overview show the Docker logo (to admins only; hide it with `navigation.show_docker_badge: false`, see [Navigation > Docker Badge](navigation.md#docker-badge)) plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot, so cards stay quiet by default). Hovering the card reveals the action buttons in a footer below it (Start when stopped, Stop and Restart when running); on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.
 
-Every action - success, failure, and denied attempt (role floor not met, group mismatch, socket read-only, lifecycle disabled) - is audit-logged with the caller's username, app name, container id, and outcome (`source=audit`).
+Every action is audit-logged with the caller's username, app name, container id, and outcome (`source=audit`). That covers successes, failures and denied attempts (role floor not met, group mismatch, socket read-only, lifecycle disabled).

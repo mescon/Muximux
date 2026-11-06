@@ -172,7 +172,7 @@ The admin groups can also be edited in Settings -> Security, and they are kept w
 
 When forward auth is enabled, Muximux will not show a login form. Instead, users who reach Muximux without being authenticated (e.g., by accessing the internal IP directly instead of through the reverse proxy) see an informational message explaining that authentication is handled by an external provider.
 
-This prevents confusion from showing a username/password form that cannot be used -- since forward auth delegates all authentication to the reverse proxy, there are no local credentials to enter.
+A username/password form would only confuse people here: forward auth delegates all authentication to the reverse proxy, so there are no local credentials to enter.
 
 ### Typical Setup with Authelia
 
@@ -466,7 +466,7 @@ If you restore a backup whose OIDC provider cannot be reached, Muximux clears th
 
 ### What if a user has no groups?
 
-A user with no groups passes the role gate but fails any non-empty `allowed_groups` gate. So apps without `allowed_groups` stay visible; apps with `allowed_groups` become invisible. This is intentional: it means a misconfigured IdP claim defaults to "no access" rather than "access to everything", which is the safer side to land on.
+A user with no groups passes the role gate but fails any non-empty `allowed_groups` gate. So apps without `allowed_groups` stay visible; apps with `allowed_groups` become invisible. This is intentional: a misconfigured IdP claim then defaults to "no access" rather than "access to everything", which is the safer failure.
 
 ---
 
@@ -474,7 +474,7 @@ A user with no groups passes the role gate but fails any non-empty `allowed_grou
 
 Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Seerr or a cron job reach Muximux without having to maintain a logged-in session.
 
-**Important scope note:** the API key is not a universal bypass. It only authenticates requests whose path has been **allowlisted** with `require_api_key: true`. Everything else still requires a session cookie. This keeps a leaked key's blast radius bounded to exactly the endpoints the operator has opted in.
+The API key is not a universal bypass. It only authenticates requests whose path has been **allowlisted** with `require_api_key: true`. Everything else still requires a session cookie, so a leaked key can only reach the endpoints the operator has opted in.
 
 ### Where the API Key Works
 
@@ -484,7 +484,7 @@ Out of the box, these paths accept `X-Api-Key`:
 |---|---|
 | `GET /api/appearance` | Embedded / external apps fetching Muximux's current language and theme (see [Apps > Appearance API](apps.md#appearance-api)). |
 
-Additionally, operators can allowlist **per-app proxy paths** via `auth_bypass` on each proxied app. This is the common integration pattern: expose a backend app's own API (e.g. Sonarr's `/api/v3/*`) through the Muximux reverse proxy, gated by the Muximux API key at the front door. See [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the full setup.
+Operators can also allowlist **per-app proxy paths** via `auth_bypass` on each proxied app. This is the common integration pattern: expose a backend app's own API (e.g. Sonarr's `/api/v3/*`) through the Muximux reverse proxy, gated by the Muximux API key at the front door. See [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the full setup.
 
 #### Example 1: Seerr calling Sonarr through Muximux
 
@@ -510,7 +510,7 @@ curl -H "X-Api-Key: $MUXIMUX_API_KEY" \
   https://muximux.example.com/proxy/sonarr/api/v3/series
 ```
 
-Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. Two different keys, two different jobs, in the same request.
+Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. The same request carries both keys, and each one does a different job.
 
 #### Example 2: GitHub webhook hitting a proxied app
 
@@ -546,7 +546,7 @@ Then the request flow is:
 
 Scope is tight by design: this rule allows only `POST /proxy/ci/hooks/github`. The same key cannot hit `GET /proxy/ci/admin` or any other `/api/*` endpoint that has not been allowlisted.
 
-> **Header note:** Muximux does not strip the inbound `X-Api-Key` header before forwarding to the backend. If the proxied app reads `X-Api-Key` for its own auth (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app so Muximux overwrites the inbound key with the backend's own key before forwarding. If the backend ignores `X-Api-Key`, no action is needed: the Muximux key just rides through and gets dropped on the backend's floor.
+> **Header note:** Muximux does not strip the inbound `X-Api-Key` header before forwarding to the backend. If the proxied app reads `X-Api-Key` for its own auth (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app so Muximux overwrites the inbound key with the backend's own key before forwarding. If the backend ignores `X-Api-Key`, no action is needed: the Muximux key rides through and the backend ignores it.
 
 ### What the API Key Does NOT Unlock
 
@@ -610,7 +610,7 @@ Muximux authentication controls access to the **Muximux dashboard and its API**.
 
 - **Without `proxy: true`** -- The browser loads the app directly from its own URL (in an iframe, new tab, etc.). Muximux is not in the request path and has no ability to block or authenticate those requests. Anyone who knows the app's URL can access it directly.
 
-**Bottom line:** If you expose Muximux to the internet and want it to gate access to your apps, enable the reverse proxy for those apps. If other services need to call a backend app's API through Muximux, add an `auth_bypass` rule with `require_api_key: true` for the specific paths those services need. Otherwise, secure your apps with their own authentication, a separate reverse proxy, or a VPN.
+In short: if you expose Muximux to the internet and want it to gate access to your apps, enable the reverse proxy for those apps. If other services need to call a backend app's API through Muximux, add an `auth_bypass` rule with `require_api_key: true` for the specific paths those services need. Otherwise, secure your apps with their own authentication, a separate reverse proxy, or a VPN.
 
 See [Apps & Groups > Open Modes](apps.md#open-modes) for more details on the three-way choice and [Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the integration pattern.
 
@@ -618,7 +618,7 @@ See [Apps & Groups > Open Modes](apps.md#open-modes) for more details on the thr
 
 ## First-Run Setup
 
-When Muximux starts with no configuration, the onboarding wizard includes a **Security** step that lets you configure authentication before anything else. You can choose between password authentication, forward auth, or no authentication. This ensures the dashboard is secured from the first launch.
+When Muximux starts with no configuration, the onboarding wizard includes a **Security** step that lets you configure authentication before anything else. You can choose between password authentication, forward auth, or no authentication. That way the dashboard is secured from the first launch.
 
 If authentication is already configured (or you're running behind an auth proxy), the security step is skipped and the wizard proceeds directly to app setup.
 

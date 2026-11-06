@@ -38,7 +38,7 @@ The setting is stored in `config.yaml` under `server.language` and applies to al
 
 ## Contributing a Translation
 
-Adding a new language requires no Go code, no Svelte changes, and no CSS changes. The entire process happens in the `web/` directory.
+Adding a new language needs no Go, Svelte or CSS changes. All of the work happens in the `web/` directory.
 
 ### Prerequisites
 

@@ -12,7 +12,7 @@ theme:
   variant: system              # dark, light, system
 ```
 
-This is the authoritative source of truth and syncs across all browsers and devices. The browser also caches the current theme in localStorage for instant application on page load (avoiding a flash of unstyled content), but the server config always takes precedence when loaded.
+This is the source of truth and syncs across all browsers and devices. The browser also caches the current theme in localStorage for instant application on page load (avoiding a flash of unstyled content), but the server config always takes precedence when loaded.
 
 ## Built-in Themes
 
@@ -90,7 +90,7 @@ The ID in the selector is the file name without `.css` (`data/themes/paper.css` 
 
 ## Theme CSS Variables
 
-Themes control the visual appearance through CSS custom properties defined on `:root`. The key variable groups include:
+Themes control the visual appearance through CSS custom properties defined on `:root`. The main variable groups are:
 
 - **Background colors** -- Page background, surface, elevated surface
 - **Text colors** -- Primary, secondary, muted
@@ -138,11 +138,11 @@ The `--color-brand-*` palette is no longer used by the interface and is kept onl
 
 ## Importing and Exporting Themes
 
-Themes are plain CSS files, which makes sharing straightforward:
+Themes are plain CSS files, so sharing one means copying a file:
 
 - **Import:** Copy a `.css` theme file into the `data/themes/` directory. It will appear in Settings automatically on the next page load.
 - **Export/Share:** Copy a theme file from `data/themes/` and share it with others or transfer it to another Muximux installation.
-- **Manual editing:** You can open any theme CSS file in a text editor for fine-grained control over individual variables.
+- **Manual editing:** You can open any theme CSS file in a text editor to adjust individual variables.
 
 ## Deleting Custom Themes
 

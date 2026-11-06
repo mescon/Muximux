@@ -6,7 +6,7 @@
 
 A self-hosted homelab dashboard with an optional built-in embedding proxy that makes stubborn apps work in iframes.
 
-One binary. One port. One YAML config file.
+One binary, one port, one YAML config file.
 
 [![CI](https://github.com/mescon/Muximux/actions/workflows/ci.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
@@ -70,17 +70,17 @@ One binary. One port. One YAML config file.
 
 There's a good chance you already have a homelab dashboard. [Homepage](https://gethomepage.dev), [Homarr](https://homarr.dev), [Organizr](https://github.com/causefx/Organizr), and [Dashy](https://dashy.to) are all excellent tools in this space. If one of them already fits your workflow, you probably don't need to read further.
 
-Muximux is built for a specific kind of user: someone who spends the day working *inside* their self-hosted apps, not glancing at widgets on a landing page. Click Sonarr and Sonarr opens inside the dashboard. Click Plex and Plex does too. No new tabs, no context switches. You never actually leave Muximux.
+Muximux is built for a specific kind of user: someone who spends the day working *inside* their self-hosted apps, not glancing at widgets on a landing page. Click Sonarr and Sonarr opens inside the dashboard. Click Plex and Plex does too. You don't juggle new tabs or switch context, and you never leave Muximux.
 
-Making apps embed reliably is where it gets interesting. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in **embedding proxy** that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime so even heavy single-page apps work the way they do when opened directly. Most dashboards point at your apps. Muximux makes them actually embed. No other dashboard does this, and it is the reason Muximux exists.
+Getting apps to embed reliably is the hard part. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in **embedding proxy** that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime, so even heavy single-page apps work the way they do when opened directly. No other dashboard does this, and it is the reason Muximux exists.
 
-There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a freeform grid editor where you arrange resizable widgets on a canvas (Homarr is built around that). It doesn't have Dashy's breadth of built-in monitoring widgets. It's focused on one thing: making apps work side by side inside a single tab, polished enough to live in.
+There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a freeform grid editor where you arrange resizable widgets on a canvas (Homarr is built around that). It doesn't have Dashy's breadth of built-in monitoring widgets. Its focus is making apps work side by side inside a single tab, polished enough to live in.
 
-Everything is configured in one YAML file, no database, no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
+Everything is configured in one YAML file, with no database and no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
 
 ### How does it compare?
 
-The dashboards in this space approach things differently. This table is a quick way to see where each one leans.
+The dashboards in this space take different approaches. The table shows where each one leans.
 
 | | Muximux | Homepage | Homarr | Organizr | Dashy |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -108,7 +108,7 @@ If the rows near the top describe what you want, keep reading.
 
 ## Why v3?
 
-Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mescon/Muximux/tree/v2.0) was a PHP application that served as a simple bookmark portal. v3 replaces it with a modern stack and a much broader feature set:
+Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mescon/Muximux/tree/v2.0) was a simple bookmark portal written in PHP. v3 replaces it with a modern stack and a much broader feature set:
 
 - **Go backend** with the frontend embedded in the binary - no PHP, no web server, no runtime dependencies
 - **Built-in embedding proxy** that rewrites HTML, CSS, JS, and headers so apps actually work inside iframes (distinct from the optional gateway below)
@@ -132,13 +132,13 @@ You already have Traefik, nginx, or Caddy handling TLS and auth. Run Muximux beh
 
 ### Dashboard with the embedding proxy
 
-Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux's **embedding proxy** forwards them through `/proxy/{slug}/`, stripping iframe-blocking headers and rewriting paths so they render inside the dashboard. This runs inside the Go server, works in every deployment mode, and is the one thing no other dashboard does - no extra configuration needed.
+Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux's **embedding proxy** forwards them through `/proxy/{slug}/`, stripping iframe-blocking headers and rewriting paths so they render inside the dashboard. This runs inside the Go server and works in every deployment mode with no extra configuration. No other dashboard does this.
 
 Note these are two different jobs: the **embedding proxy** exists to make an app render *inside the dashboard*, which a general-purpose proxy can't do. The **gateway** below is the ordinary "route a subdomain to a backend" kind of proxy.
 
 ### Dashboard plus gateway (skip the separate proxy)
 
-No existing proxy, and you would rather not run one? Muximux's optional **gateway** - an embedded [Caddy](https://caddyserver.com) - can front your other services too. Set `tls.domain` for automatic HTTPS via Let's Encrypt and declare services under `gateway_sites:` in `config.yaml` (or **Settings -> Gateway**) to serve them on their own subdomains, with optional per-site auth. TLS certificates, HTTP-to-HTTPS redirects, and routing all come from the same single binary.
+No existing proxy, and you would rather not run one? Muximux's optional **gateway** (an embedded [Caddy](https://caddyserver.com)) can front your other services too. Set `tls.domain` for automatic HTTPS via Let's Encrypt and declare services under `gateway_sites:` in `config.yaml` (or **Settings -> Gateway**) to serve them on their own subdomains, with optional per-site auth. TLS certificates, HTTP-to-HTTPS redirects, and routing all come from the same single binary.
 
 The gateway is deliberately homelab-simple. If you need wildcard certificates, complex routing rules, load balancing, or access-control lists, keep a dedicated proxy - [Nginx Proxy Manager](https://nginxproxymanager.com), [Traefik](https://traefik.io), or Caddy on its own - and run Muximux behind it (the first option above). The gateway is here so you *do not have to* run a separate proxy for a homelab-sized setup, not to out-feature the tools that specialize in it.
 
@@ -221,7 +221,7 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 
 ## Configuration at a Glance
 
-Everything lives in one YAML file. Here's the essentials:
+Everything lives in one YAML file. These are the essentials:
 
 ```yaml
 server:
@@ -307,9 +307,9 @@ For the full configuration reference, authentication options, TLS setup, and mor
 
 ## Project Philosophy
 
-Muximux aims to be a solid, focused piece of software. The goal is a homelab dashboard that does its job well - not a monitoring suite, not a system management tool, not a kitchen sink. Features are evaluated by whether they serve the core purpose: giving you a single page to access and organize your self-hosted apps.
+Muximux aims to be a focused homelab dashboard that does its job well. It is not meant to become a monitoring suite, a system management tool or a kitchen sink. Features are judged by whether they serve the core purpose: giving you a single page to access and organize your self-hosted apps.
 
-Suggestions and ideas are always welcome. Not everything will make it in, but that's by design - quality over quantity, and the project is better for it.
+Suggestions and ideas are always welcome. Not everything will make it in. That is deliberate: the project picks quality over quantity.
 
 ## Development
 

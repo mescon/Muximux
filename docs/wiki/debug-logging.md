@@ -1,6 +1,6 @@
 # Debug Logging
 
-Muximux includes a debug logging system for both the **frontend** (browser console) and the **backend** (server logs). These are designed to help you diagnose issues without needing to modify code or restart the server.
+Muximux includes a debug logging system for both the **frontend** (browser console) and the **backend** (server logs). Both help you diagnose issues without modifying code or restarting the server.
 
 ---
 
@@ -30,7 +30,7 @@ Or manually remove the flag:
 localStorage.removeItem('muximux_debug');
 ```
 
-> **Important:** Simply removing `?debug=true` from the URL does **not** turn off debug logging - it persists in localStorage until you explicitly disable it with `?debug=false`.
+> **Important:** Removing `?debug=true` from the URL does **not** turn off debug logging. The flag persists in localStorage until you explicitly disable it with `?debug=false`.
 
 ### What Gets Logged
 
@@ -58,7 +58,7 @@ In Chrome/Firefox DevTools, use the Console filter box to show only specific cat
 
 ### Zero Overhead in Production
 
-When debug logging is disabled (the default), each `debug()` call is a single boolean check that returns immediately. There is no string formatting, no object serialization, and no console output. The performance impact is effectively zero.
+When debug logging is disabled (the default), each `debug()` call is a single boolean check that returns immediately. It does no string formatting, object serialization or console output, so the performance impact is effectively zero.
 
 ---
 
@@ -109,7 +109,7 @@ Some log sources are active at the default INFO level; others only appear when y
 
 ### Request ID Correlation
 
-Every HTTP request is assigned a unique `request_id` that appears in all log entries for that request. This makes it easy to trace a single request across auth, handler, and proxy logs.
+Every HTTP request is assigned a unique `request_id` that appears in all log entries for that request, so you can trace a single request across auth, handler, and proxy logs.
 
 - If an upstream proxy (Nginx, Traefik, Caddy) sends an `X-Request-ID` header, Muximux reuses it
 - Otherwise, a random 16-character hex ID is generated
@@ -119,7 +119,7 @@ Filter logs by request ID in the log viewer to see the full lifecycle of a singl
 
 ### Understanding Auth Bypass Messages
 
-When debug logging is enabled, you'll see `Auth bypassed` messages for certain paths. This is **expected behavior** - these are static assets and endpoints that must be accessible without authentication:
+When debug logging is enabled, you'll see `Auth bypassed` messages for certain paths. This is **expected behavior**: these are static assets and endpoints that must be accessible without authentication:
 
 | Path Pattern | Why It's Bypassed |
 |---|---|
@@ -176,5 +176,5 @@ On restart, the most recent log entries are reloaded into the in-memory buffer s
 ## Privacy
 
 - Frontend debug logs are written only to your browser's console. They are not sent to any server.
-- The `localStorage` flag (`muximux_debug`) contains only the value `"1"` - no personal data.
+- The `localStorage` flag (`muximux_debug`) contains only the value `"1"` and no personal data.
 - Backend debug logs may include usernames and request paths. Be mindful of this when sharing logs publicly.

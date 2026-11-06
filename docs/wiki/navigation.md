@@ -30,7 +30,7 @@ Horizontal bar across the bottom of the screen. Same layout as the top bar, just
 
 ### Floating
 
-A floating action button (FAB) that opens a popover panel with your apps organized by group. This option maximizes the screen space available to your apps since nothing is visible until you tap the button. The FAB can be dragged to any position on the screen - its location is saved per browser in localStorage. The `floating_position` config option (bottom-right, bottom-left, top-right, top-left) sets the default corner for first-time visitors. Double-click the FAB to snap it back to its configured corner.
+A floating action button (FAB) that opens a popover panel with your apps organized by group. This option maximizes the screen space available to your apps since nothing is visible until you tap the button. The FAB can be dragged to any position on the screen, and its location is saved per browser in localStorage. The `floating_position` config option (bottom-right, bottom-left, top-right, top-left) sets the default corner for first-time visitors. Double-click the FAB to snap it back to its configured corner.
 
 ## Bar Style (Top/Bottom Only)
 
@@ -42,7 +42,7 @@ Apps are organized under collapsible group headers. Each group has its own secti
 
 ### Flat
 
-A streamlined layout that displays all apps in a single continuous row. Groups are separated by small icon dividers (using the group's configured icon) rather than full headers. This creates a more compact, dock-like appearance and is useful when you want to maximize horizontal space or prefer a cleaner look.
+All apps sit in a single continuous row. Groups are separated by small icon dividers (using the group's configured icon) rather than full headers. The result is more compact and dock-like, which suits you if you want to maximize horizontal space or prefer a cleaner look.
 
 The dividers are buttons, not decoration: hovering one highlights that group's apps and dims the rest, and clicking it scrolls the bar to the start of that group. Flat mode has no collapsible sections, so this is how you jump straight to a group when the row is longer than the window.
 
@@ -116,17 +116,17 @@ When `show_labels` is `false` on left or right sidebars, the sidebar collapses t
 - **Hover** over it to expand the sidebar and reveal a drawer with all footer actions (Logs, Refresh, Split View, Sign Out, Settings) and their labels.
 - The drawer closes when the mouse leaves the sidebar.
 
-This ensures all controls remain accessible regardless of whether labels are visible or hidden.
+All controls stay reachable whether labels are visible or hidden.
 
 ## Split View Controls
 
-The navigation bar includes inline split view controls on all five positions. When split view is off, a single icon enables it. When split view is active, the controls expand to show orientation toggle, panel selector arrows, and a close button - all within the existing button row.
+The navigation bar includes inline split view controls on all five positions. When split view is off, a single icon enables it. When split view is active, the controls expand to show orientation toggle, panel selector arrows, and a close button, all within the existing button row.
 
 See the [Split View](split-view.md) page for full documentation.
 
 ## Toggle Buttons
 
-The **Overview** and **Logs** buttons in the navigation bar act as toggles. Clicking the logs button while viewing an app opens the log viewer. Clicking it again returns to the app you were viewing. The overview button works the same way - click to see the overview, click again to return to your app.
+The **Overview** and **Logs** buttons in the navigation bar act as toggles. Clicking the logs button while viewing an app opens the log viewer. Clicking it again returns to the app you were viewing. The overview button works the same way: click to see the overview, click again to return to your app.
 
 ## Auto-Hide Behavior
 
@@ -141,7 +141,7 @@ Toggling `auto_hide` in Settings during a session does not retroactively collaps
 
 ## Mobile
 
-On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. This provides a clean mobile experience: a single floating button opens the full app list as a popover panel, leaving the rest of the screen to the app. The button sits in whichever corner `floating_position` names (default `bottom-right`), so it can be moved out of the way of an app's own controls. Your configured position is preserved in settings and takes effect again on wider viewports.
+On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. A single floating button opens the full app list as a popover panel, leaving the rest of the screen to the app. The button sits in whichever corner `floating_position` names (default `bottom-right`), so it can be moved out of the way of an app's own controls. Your configured position is preserved in settings and takes effect again on wider viewports.
 
 | App open | Navigation open |
 |---|---|
@@ -153,4 +153,4 @@ Swipe left or right on the main content area to switch between apps.
 
 ## All Settings Are Live
 
-Every navigation setting can be changed in the Settings panel with an immediate preview. Changes take effect instantly -- no page reload or restart is needed. This makes it easy to experiment with different layouts and find the one that works best for your setup.
+Every navigation setting can be changed in the Settings panel with an immediate preview. Changes take effect instantly, with no page reload or restart, so you can try different layouts and keep the one that suits your setup.

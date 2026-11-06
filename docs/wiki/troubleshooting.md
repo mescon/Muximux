@@ -55,7 +55,7 @@ Muximux includes a runtime URL interceptor that handles most of these cases auto
 | `location.pathname` checks | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
 | Inline event handlers | `<div onclick="go('/page')">` | URL in HTML attribute, not intercepted by runtime patches |
 
-**Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs, solving the problem at the source. Many popular apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
+**Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs. Many apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
 
 ### Single-Page App (SPA) Routing Issues
 
@@ -355,7 +355,7 @@ start/stop/restart buttons return an error.
 1. Mount the socket. Discovery and auto-import need it read-only:
    `- /var/run/docker.sock:/var/run/docker.sock:ro`
    The container entrypoint auto-detects the socket's group and grants the
-   runtime user access -- no `group_add`, root, or custom entrypoint needed.
+   runtime user access, so you don't need `group_add`, root, or a custom entrypoint.
 2. Lifecycle controls (start/stop/restart) additionally require write access
    (`:rw`) AND `discovery.docker.lifecycle_enabled: true`. They are role-gated
    and audit-logged.

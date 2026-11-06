@@ -385,7 +385,7 @@ When Muximux saves the configuration it writes defaults for fields you omitted, 
 
 A restored backup is read exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once; listen address, TLS, base-path routing and session cookie settings still need a restart.
 
-Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level, log format -- is applied immediately.
+Everything else is applied immediately: navigation, themes, apps, groups, icons, keybindings, health monitoring, log level and log format.
 
 ## Config Export and Import
 

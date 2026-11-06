@@ -57,7 +57,7 @@ apps:
 
 ### Adding apps from Docker
 
-If your apps run as Docker containers, **Apps tab → Discover from Docker** scans your daemon and proposes ready-to-import entries (name, icon, port pre-filled for known images). Imported apps are auto-managed: Muximux refreshes their URL whenever the container's IP changes. Prefer GitOps? Turn on `discovery.docker.auto_import` and labeled containers are imported automatically -- no modal, no click. See [Docker Discovery](docker-discovery.md) for the full flow.
+If your apps run as Docker containers, **Apps tab → Discover from Docker** scans your daemon and proposes ready-to-import entries (name, icon, port pre-filled for known images). Imported apps are auto-managed: Muximux refreshes their URL whenever the container's IP changes. If you prefer GitOps, turn on `discovery.docker.auto_import` and labeled containers are imported automatically, without the modal. See [Docker Discovery](docker-discovery.md) for the full flow.
 
 ---
 
@@ -152,9 +152,9 @@ The hash is the app name converted to a URL-friendly slug (lowercase, spaces rep
 Use a `+` between two app slugs to open them in split view. The first app loads in panel 1 (left/top) and the second in panel 2 (right/bottom).
 
 This is useful for:
-- **Bookmarking** a specific app or split view layout in your browser.
-- **Sharing** a link that opens Muximux with a particular app (or pair) already loaded.
-- **Home screen shortcuts** on mobile devices.
+- Bookmarking a specific app or split view layout in your browser.
+- Sharing a link that opens Muximux with a particular app (or pair) already loaded.
+- Home screen shortcuts on mobile devices.
 
 When Muximux loads with a hash in the URL, it skips the splash screen and opens the matching app directly. If no app matches the hash, the normal startup behavior applies (default app or splash screen).
 
@@ -235,7 +235,7 @@ This is useful for temporarily hiding apps that are down for maintenance or that
 
 When authentication is enabled globally, you may need to allow certain paths of a proxied app to be accessed without logging in. The `auth_bypass` field lets you define exceptions.
 
-This is also the **primary reason** Muximux has an API key. Combining `proxy: true` with `auth_bypass: [{require_api_key: true}]` exposes a backend app's API through Muximux without requiring a Muximux login session -- integrations present the Muximux API key at the front door, Muximux forwards to the backend with the backend's own credentials injected via `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
+This is also the main reason Muximux has an API key. Combining `proxy: true` with `auth_bypass: [{require_api_key: true}]` exposes a backend app's API through Muximux without requiring a Muximux login session -- integrations present the Muximux API key at the front door, Muximux forwards to the backend with the backend's own credentials injected via `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
 
 ```yaml
 apps:
@@ -261,7 +261,7 @@ Each bypass rule supports the following fields:
 | `require_api_key` | No | If `true`, the request must include a valid `X-Api-Key` header. This trades one form of auth for another rather than removing it entirely. |
 | `allowed_ips` | No | List of IP addresses or CIDR ranges. If set, only requests from these sources are allowed through. |
 
-**Common use cases:**
+Common use cases:
 
 - Allowing RSS feed readers to fetch feeds without a login session
 - Allowing API integrations (e.g., Seerr calling Sonarr) to communicate through the proxy

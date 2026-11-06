@@ -2,7 +2,7 @@
 
 This guide sets up Muximux to authenticate against Authentik, including emitting Authentik group memberships in the ID token so they're available to `admin_groups` and per-app `allowed_groups`.
 
-The end state: users sign in with their Authentik account, Muximux receives their groups as `groups: ["Engineering", "Muximux-Admins"]`, and admins land on Settings automatically.
+When you're done, users sign in with their Authentik account, Muximux receives their groups as `groups: ["Engineering", "Muximux-Admins"]`, and admins land on Settings automatically.
 
 ---
 
@@ -23,7 +23,7 @@ The end state: users sign in with their Authentik account, Muximux receives thei
 5. **Protocol settings**:
    - Client type: **Confidential**
    - Client ID: leave the auto-generated value or override (e.g. `muximux`).
-   - Client Secret: copy this value, you'll paste it into `config.yaml`.
+   - Client Secret: copy this value; you'll paste it into `config.yaml`.
    - Redirect URIs / Origins: `https://muximux.example.com/api/auth/oidc/callback`. Use **Strict** matching mode if available.
    - Signing Key: pick `authentik Self-signed Certificate` unless you've configured your own.
 6. Under **Advanced protocol settings**:

@@ -8,7 +8,7 @@ For example, an app named "My Sonarr" would be proxied at `/proxy/my-sonarr/`.
 
 All requests to that path are forwarded to the app's configured `url`, and the responses are rewritten so the app works correctly at its new location.
 
-> **Note:** This per-app reverse proxy is built into the Go server and works in every deployment mode -- whether Muximux is behind Traefik, running standalone, or acting as a full reverse proxy appliance with Caddy. It is completely independent of Caddy and requires no extra configuration beyond `proxy: true`.
+> **Note:** This per-app reverse proxy is built into the Go server and works in every deployment mode: behind Traefik, standalone, or as a full reverse proxy appliance with Caddy. It is completely independent of Caddy and requires no extra configuration beyond `proxy: true`.
 
 ---
 
@@ -135,9 +135,9 @@ proxy_headers:
   X-Forwarded-Groups: "${groups}"
 ```
 
-The values are resolved per request from the current session and stripped of any CR/LF/NUL, so a crafted identity claim can't inject a header. On an unauthenticated instance (`auth.method: none`) the variables expand to empty. Static values (API keys, bearer tokens) are sent verbatim -- only values containing `${...}` are templated.
+The values are resolved per request from the current session and stripped of any CR/LF/NUL, so a crafted identity claim can't inject a header. On an unauthenticated instance (`auth.method: none`) the variables expand to empty. Static values (API keys, bearer tokens) are sent verbatim; only values containing `${...}` are templated.
 
-> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux -- bind the backend to Muximux's network / an internal address so a client can't send `X-Forwarded-User` directly. This is the same trust model as any reverse-proxy header auth.
+> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux. Bind the backend to Muximux's network / an internal address so a client can't send `X-Forwarded-User` directly. This is the same trust model as any reverse-proxy header auth.
 
 The global `server.proxy_timeout` (default: `30s`) controls how long the proxy waits for a backend response before timing out. This applies to all proxied apps.
 
@@ -169,7 +169,7 @@ Even with the proxy and runtime interceptor enabled, some applications may not w
 - **Runtime-constructed paths** -- Template literals (`` `${base}/api` ``) and string concatenation (`'/api' + endpoint`) are invisible to any rewriter.
 - **SPA routing conflicts** -- Some SPAs may not recognize the `/proxy/{slug}/` prefix in their client-side router if they hardcode routes rather than using a configurable base path. The runtime interceptor patches `location.pathname` to strip the prefix, which handles most cases.
 
-> **Note:** Many patterns that were previously problematic are now handled automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
+> **Note:** The proxy handles these patterns automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
 
 For detailed explanations of each limitation, symptoms, and workarounds, see the [Troubleshooting](troubleshooting.md#reverse-proxy-limitations) page.
 
@@ -248,7 +248,7 @@ This section describes the technical internals for users who want to understand 
 
 ### Three Layers of URL Rewriting
 
-The proxy uses three complementary strategies to ensure URLs work correctly:
+The proxy rewrites URLs in three layers:
 
 **Layer 1: Static Rewriting (Server-Side)**
 
@@ -260,7 +260,7 @@ When a response passes through the proxy, the Go server rewrites URLs in the res
 | CSS | Full rewriting - `url()` references |
 | JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
 
-The distinction matters: API responses (JSON, XML) contain data that the SPA reads programmatically. If the proxy rewrites paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`), the SPA may embed those already-rewritten paths in new URLs, causing double-prefixing.
+API responses (JSON, XML) contain data that the SPA reads programmatically. If the proxy rewrites paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`), the SPA may embed those already-rewritten paths in new URLs, causing double-prefixing.
 
 Only text content types are buffered for rewriting. Binary responses (images, videos, archives, file downloads) stream directly from the backend to the browser without being read into memory. Text responses larger than 50 MB are also streamed through without rewriting as a safety measure.
 

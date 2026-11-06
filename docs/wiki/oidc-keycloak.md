@@ -2,7 +2,7 @@
 
 This guide sets up Muximux to authenticate against a Keycloak realm, with group memberships emitted in the ID token so Muximux can promote users to admin and gate per-app visibility.
 
-The end state: users sign in with their Keycloak account, Muximux receives their group list as `groups: ["developers", "Muximux-Admins"]`, and admins land on the Settings page automatically.
+When you're done, users sign in with their Keycloak account, Muximux receives their group list as `groups: ["developers", "Muximux-Admins"]`, and admins land on the Settings page automatically.
 
 ---
 
