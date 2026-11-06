@@ -17,6 +17,10 @@ export default defineConfig({
       // suite run against a locale strategy the build never ships.
       strategy: ['localStorage', 'baseLocale'],
       emitGitIgnore: false,
+      // Paraglide 3 defaults the Vite plugin to virtual modules, which only
+      // resolve through this plugin. Write the same physical files the CLI
+      // does, so vitest, svelte-check and eslint see what the build ships.
+      outputStructure: 'message-modules',
     }),
     svelte(),
   ],

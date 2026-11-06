@@ -139,7 +139,8 @@ describe('CommandPalette', () => {
       const css = readFileSync(join(process.cwd(), 'src/app.css'), 'utf8');
       const focusRules = css.slice(css.indexOf(':focus-visible {'), css.indexOf('/* An invalid field'));
       const style = document.createElement('style');
-      style.textContent = focusRules;
+      // Define the token, since jsdom 31 resolves var() in computed values.
+      style.textContent = ':root { --border-focus: #123456; }\n' + focusRules;
       document.head.appendChild(style);
       try {
         render(CommandPalette, {
@@ -149,8 +150,10 @@ describe('CommandPalette', () => {
         input.focus();
         expect(document.activeElement).toBe(input);
         expect(input.matches(':focus-visible')).toBe(true);
-        // jsdom keeps the outline shorthand as written and does not expand it to longhands.
-        expect(getComputedStyle(input).outline).toBe('2px solid var(--border-focus)');
+        const cs = getComputedStyle(input);
+        expect(cs.outlineWidth).toBe('2px');
+        expect(cs.outlineStyle).toBe('solid');
+        expect(cs.outlineColor).toBe('rgb(18, 52, 86)');
       } finally {
         style.remove();
       }
