@@ -413,6 +413,22 @@ describe('AppForm', () => {
     });
   });
 
+  describe('Allow deep links', () => {
+    it('renders next to Allow navigating Muximux and toggles app.allow_deep_links', async () => {
+      const app = makeApp();
+      render(AppForm, { props: { app, mode: 'edit', groups: defaultGroups, allApps: [] } });
+      const deepLabel = screen.getByText('Allow deep links').closest('label') as HTMLLabelElement;
+      const navLabel = screen.getByText('Allow navigating Muximux').closest('label') as HTMLLabelElement;
+      expect(deepLabel.parentElement).toBe(navLabel.parentElement);
+      const checkbox = deepLabel.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+      await fireEvent.click(checkbox);
+      expect(app.allow_deep_links).toBe(true);
+      await fireEvent.click(checkbox);
+      expect(app.allow_deep_links).toBe(false);
+    });
+  });
+
   // =========================================================================
   // Sections always visible
   // =========================================================================

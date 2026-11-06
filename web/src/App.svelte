@@ -32,6 +32,7 @@
   import { installNotificationBridge } from './lib/notificationBridge';
   import { installNavigationBridge } from './lib/navigationBridge';
   import { applyFrameLink, reportFramedLoad, restoreFrame } from './lib/framedLoad';
+  import { applyHashPaths, parseHashRoute } from './lib/hashRoute';
   import { NAV_STATE } from './lib/navHistory';
   import { applyLinkHash, applyNavigate, consumeDeepLink, deepLinkKey, installFramePaneTracker, isFrameVisible, layoutHash, type DeepLinks } from './lib/linkNavigation';
   import { applyConfigLocale } from './lib/localeStore';
@@ -409,9 +410,10 @@
         applyFrameLink(req, apps, {
           navigate: navigateFromApp,
           setHash: (hash) => { location.hash = hash; },
+          baseUrl: baseUrl(),
         });
       },
-      baseUrl: (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '',
+      baseUrl: baseUrl(),
     });
     bridgeCleanup = () => { removeNotificationBridge(); removeNavigationBridge(); };
 
@@ -787,6 +789,10 @@
     });
   }
 
+  function baseUrl(): string {
+    return (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
+  }
+
   // An accepted request from an embedded app (navigationBridge.ts).
   function navigateFromApp(req: Parameters<typeof applyNavigate>[0]) {
     applyNavigate(req, deepLinks, trackVisit);
@@ -873,8 +879,22 @@
   // entryState is history.state of the entry hashchange landed on; the
   // default (a Muximux entry) means "not a link click".
   function selectAppFromHash(entryState: unknown = NAV_STATE): boolean {
-    const hash = location.hash.slice(1);
+    const { route: hash, paths } = parseHashRoute(location.hash.slice(1));
     if (!hash || !apps.length) return false;
+    // Deep-link paths (#emby?path=...) are applied once and not kept: the
+    // entry is rewritten to the plain route, so reload and Back/Forward see
+    // the usual #emby. The entry's state is kept (a link click stays a link
+    // click for applyLinkHash).
+    if (location.hash !== '#' + hash) {
+      history.replaceState(history.state, '', location.pathname + location.search + '#' + hash);
+      if (currentNavHash) currentNavHash = '#' + hash;
+    }
+    const selected = selectRoute(hash, entryState);
+    if (selected && paths.size) applyHashPaths(paths, apps, deepLinks, baseUrl());
+    return selected;
+  }
+
+  function selectRoute(hash: string, entryState: unknown): boolean {
 
     // Reserved hashes
     if (hash === 'settings') {

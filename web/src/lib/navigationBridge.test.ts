@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MAX_NAV_PATH } from './navigatePath';
 import { installNavigationBridge, MAX_FRAME_LINK_HASH, MAX_REQUEST_ID, NAV_RATE_LIMIT_MS } from './navigationBridge';
 import { makeApp, type App } from './types';
 
@@ -492,6 +493,14 @@ describe('navigationBridge', () => {
       const { win } = setupCopy();
       link(win, '#' + 'x'.repeat(MAX_FRAME_LINK_HASH - 1));
       expect(onFrameLink).toHaveBeenCalledTimes(1);
+    });
+
+    it('accepts a split link carrying two maximum-length CJK paths', () => {
+      const { win } = setupCopy();
+      const name = 'x'.repeat(200);
+      const path = encodeURIComponent('/' + '中'.repeat(MAX_NAV_PATH - 1));
+      link(win, `#${name}+${name}?${name}=${path}&${name}=${path}`);
+      expect(onFrameLink).toHaveBeenCalledWith(expect.objectContaining({ hash: expect.stringContaining(path) }));
     });
 
     it('shares the rate-limit slot with navigate messages, restoring a refused link', () => {

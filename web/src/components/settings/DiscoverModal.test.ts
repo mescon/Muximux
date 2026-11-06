@@ -142,6 +142,7 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
       permissions: ['camera', 'microphone'],
       allow_notifications: true,
       allow_navigation: true,
+      allow_deep_links: true,
       default: true,
       shortcut: 3,
       suggested_domain: 'sonarr.example.com',
@@ -190,6 +191,7 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     expect(app.permissions).toEqual(['camera', 'microphone']);
     expect(app.allow_notifications).toBe(true);
     expect(app.allow_navigation).toBe(true);
+    expect(app.allow_deep_links).toBe(true);
     expect(app.default).toBe(true);
     expect(app.shortcut).toBe(3);
     // Gateway-level label pass-through.

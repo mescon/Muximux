@@ -613,6 +613,8 @@ type AppConfig struct {
 	AllowNotifications bool `yaml:"allow_notifications,omitempty" json:"allow_notifications,omitempty"`
 	// AllowNavigation lets the embedded app navigate Muximux: target="_top" links to Muximux hash routes and the muximux:navigate postMessage API.
 	AllowNavigation bool `yaml:"allow_navigation,omitempty" json:"allow_navigation,omitempty"`
+	// AllowDeepLinks lets a Muximux hash route open a page inside this app (#app?path=...).
+	AllowDeepLinks bool `yaml:"allow_deep_links,omitempty" json:"allow_deep_links,omitempty"`
 
 	// Docker auto-management. When DockerKey is non-empty, the URL of
 	// this app is updated by the discovery poller from the current

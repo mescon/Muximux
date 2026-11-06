@@ -4,6 +4,17 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Deep links in Muximux links.** A link can open a page inside the target
+  app: `#emby?path=%2Fweb%2Findex.html%23!%2Fitem%3Fid%3D123`, or one path
+  per app in split view (`#emby+radarr?emby=...&radarr=...`). This works
+  from Homarr tiles and Custom JSX widgets, bookmarks and the address bar,
+  where the `muximux:navigate` message is not available. The target app
+  opts in with the new "Allow deep links" setting (`allow_deep_links`,
+  label `muximux.app.allow_deep_links`), and the path must stay inside the
+  app, the same rule as the message API. Without it the link only switches
+  apps. (#545)
+
 ## [3.7.0] - 2026-10-29
 
 Embedded apps can drive Muximux: a dashboard such as Homarr can switch

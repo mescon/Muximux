@@ -20,6 +20,7 @@ import type { FrameLinkRequest } from './navigationBridge';
 import { getEffectiveUrl } from './types';
 import { isSafeAppUrl } from './appUrl';
 import { slugify } from './slug';
+import { hashDeepLinkUrl, parseHashRoute } from './hashRoute';
 
 export const FRAME_RESTORE_TIMEOUT_MS = 3000;
 
@@ -113,20 +114,22 @@ const RESERVED_HASHES = new Set(['settings', 'logs', 'overview']);
 
 /**
  * Apply the copy's hash. A single app that opens in an iframe goes through
- * the navigate rules (reuse the pane showing it, else the sender's pane).
+ * the navigate rules (reuse the pane showing it, else the sender's pane),
+ * with its deep-link path if the hash has one the app allows (#545).
  * Anything else (a split '#a+b', a reserved hash) is set on the shell, the
- * same as a target="_top" link. A disabled app's slug and an empty hash do
- * nothing beyond restoring the sender.
+ * same as a target="_top" link, and the shell applies its paths. A disabled
+ * app's slug and an empty hash do nothing beyond restoring the sender.
  */
 export function applyFrameLink(
   req: FrameLinkRequest,
   apps: App[],
   actions: {
-    navigate: (req: { senderFrame: HTMLIFrameElement; target: App }) => void;
+    navigate: (req: { senderFrame: HTMLIFrameElement; target: App; url?: string }) => void;
     setHash: (hash: string) => void;
+    baseUrl: string;
   },
 ): void {
-  const slug = req.hash.slice(1);
+  const { route: slug, paths } = parseHashRoute(req.hash.slice(1));
   if (!slug) return;
   if (RESERVED_HASHES.has(slug)) {
     actions.setHash(req.hash);
@@ -136,7 +139,9 @@ export function applyFrameLink(
     ?? apps.find(a => slugify(a.name) === slug);
   if (app?.enabled === false) return;
   if (app && (!app.open_mode || app.open_mode === 'iframe')) {
-    actions.navigate({ senderFrame: req.senderFrame, target: app });
+    const path = paths.get(slug);
+    const url = path === undefined ? null : hashDeepLinkUrl(app, path, actions.baseUrl);
+    actions.navigate({ senderFrame: req.senderFrame, target: app, ...(url ? { url } : {}) });
   } else {
     actions.setHash(req.hash);
   }

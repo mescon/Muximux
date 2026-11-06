@@ -171,7 +171,7 @@ describe('applyFrameLink', () => {
   function run(hash: string, apps = [sender, makeApp({ name: 'Emby', url: 'http://emby/' })]) {
     const navigate = vi.fn();
     const setHash = vi.fn();
-    applyFrameLink(req(hash), apps, { navigate, setHash });
+    applyFrameLink(req(hash), apps, { navigate, setHash, baseUrl: '' });
     return { navigate, setHash };
   }
 
@@ -213,6 +213,25 @@ describe('applyFrameLink', () => {
     const { navigate, setHash } = run('#settings', [makeApp({ name: 'Settings', url: 'http://s/' })]);
     expect(navigate).not.toHaveBeenCalled();
     expect(setHash).toHaveBeenCalledWith('#settings');
+  });
+
+  it('passes an allowed deep-link path to navigate', () => {
+    const emby = makeApp({ name: 'Emby', url: 'http://emby/', allow_deep_links: true });
+    const { navigate } = run('#emby?path=%2Fweb%2Fitem%3Fid%3D1', [sender, emby]);
+    expect(navigate).toHaveBeenCalledWith({ senderFrame: frame, target: emby, url: 'http://emby/web/item?id=1' });
+  });
+
+  it('switches without the path when the target does not allow deep links', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { navigate } = run('#emby?path=%2Fweb%2F');
+    expect(navigate).toHaveBeenCalledWith({ senderFrame: frame, target: expect.objectContaining({ name: 'Emby' }) });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('does not allow deep links'), expect.any(String));
+    warn.mockRestore();
+  });
+
+  it('sets a split hash with paths on the shell unchanged', () => {
+    const hash = '#homarr+emby?emby=%2Fweb%2F';
+    expect(run(hash).setHash).toHaveBeenCalledWith(hash);
   });
 
   it('does nothing for an empty hash', () => {

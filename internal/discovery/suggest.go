@@ -69,6 +69,7 @@ type Suggestion struct {
 	Permissions        []string `json:"permissions,omitempty"`
 	AllowNotifications *bool    `json:"allow_notifications,omitempty"`
 	AllowNavigation    *bool    `json:"allow_navigation,omitempty"`
+	AllowDeepLinks     *bool    `json:"allow_deep_links,omitempty"`
 	HealthCheck        *bool    `json:"health_check,omitempty"`
 	Default            *bool    `json:"default,omitempty"`
 	Shortcut           int      `json:"shortcut,omitempty"`
@@ -433,6 +434,7 @@ func applyLabelOverrides(s *Suggestion, labels *AppLabels) {
 	s.Permissions = labels.Permissions
 	s.AllowNotifications = labels.AllowNotifications
 	s.AllowNavigation = labels.AllowNavigation
+	s.AllowDeepLinks = labels.AllowDeepLinks
 	s.HealthCheck = labels.HealthCheck
 	s.Default = labels.Default
 	s.Shortcut = labels.Shortcut
