@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.2.8
 	github.com/caddyserver/caddy/v2 v2.11.9
 	github.com/coreos/go-oidc/v3 v3.21.0
-	github.com/go-jose/go-jose/v4 v4.1.6
+	github.com/go-jose/go-jose/v4 v4.1.9
 	github.com/gorilla/websocket v1.5.3
 	golang.org/x/crypto v0.58.0
 	golang.org/x/term v0.47.0
