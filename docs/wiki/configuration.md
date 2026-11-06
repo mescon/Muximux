@@ -181,7 +181,7 @@ discovery:
     refresh_interval: 60s                        # poller cadence
     auto_import: off                             # off (default) | add | update | sync; auto-import muximux.*-labeled containers
     require_explicit_enable: false               # auto-import only containers labelled muximux.app.enabled=true
-    lifecycle_enabled: false                     # allow start/stop/restart of tracked containers (requires :rw socket mount)
+    lifecycle_enabled: false                     # allow start/stop/restart of tracked containers (needs a daemon that accepts writes; see Docker Discovery)
     lifecycle_min_role: admin                    # min role for lifecycle controls
     lifecycle_allowed_groups: []                 # additionally require group membership
     health_badge_placement: overview             # overview | overview_and_nav | off
