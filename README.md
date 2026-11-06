@@ -72,11 +72,11 @@ There's a good chance you already have a homelab dashboard. [Homepage](https://g
 
 Muximux is built for a specific kind of user: someone who spends the day working *inside* their self-hosted apps, not glancing at widgets on a landing page. Click Sonarr and Sonarr opens inside the dashboard. Click Plex and Plex does too. You don't juggle new tabs or switch context, and you never leave Muximux.
 
-Getting apps to embed reliably is the hard part. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in **embedding proxy** that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime, so even heavy single-page apps work the way they do when opened directly. No other dashboard does this, and it is the reason Muximux exists.
+Getting apps to embed reliably is the hard part. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in **embedding proxy** that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime, so even heavy single-page apps work the way they do when opened directly. No other dashboard does this, and it is the reason Muximux exists. Passkeys are the exception: a proxied app runs on Muximux's address, so a passkey registered for the app's own hostname works only if the app also accepts Muximux's address for it.
 
 There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a freeform grid editor where you arrange resizable widgets on a canvas (Homarr is built around that). It doesn't have Dashy's breadth of built-in monitoring widgets. Its focus is making apps work side by side inside a single tab, polished enough to live in.
 
-Everything is configured in one YAML file, with no database and no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
+Everything is configured in one YAML file, with no database and no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. The exception is a setting you set with an environment variable: Settings shows it locked, and you change it by changing the variable and restarting (see [environment overrides](docs/wiki/configuration.md#booleans-precedence-and-the-memory-only-rule)). To back up or migrate your setup, copy `config.yaml`, plus `data/icons/custom/` and `data/themes/` if you added your own icons or themes. Bring along any environment variables and secret files your deployment sets too: without an auth override that the old host had, the new one can start with a different auth method, or none.
 
 ### How does it compare?
 
@@ -128,7 +128,7 @@ Muximux fits different setups. Pick the level that matches yours.
 
 ### Dashboard behind your existing proxy
 
-You already have Traefik, nginx, or Caddy handling TLS and auth. Run Muximux behind it with `auth: none` and let your proxy do the heavy lifting. Muximux serves on a single port and your proxy forwards to it. This is the simplest setup.
+You already have Traefik, nginx, or Caddy handling TLS and auth. Run Muximux behind it with `auth: none` and let your proxy do the heavy lifting. Muximux serves on a single port and your proxy forwards to it. The proxy must forward WebSocket upgrades: Muximux's live health updates and many embedded apps depend on them (see the [Deployment Guide](docs/wiki/deployment.md#behind-an-external-reverse-proxy)). This is the simplest setup.
 
 ### Dashboard with the embedding proxy
 
@@ -138,7 +138,7 @@ Note these are two different jobs: the **embedding proxy** exists to make an app
 
 ### Dashboard plus gateway (skip the separate proxy)
 
-No existing proxy, and you would rather not run one? Muximux's optional **gateway** (an embedded [Caddy](https://caddyserver.com)) can front your other services too. Set `tls.domain` for automatic HTTPS via Let's Encrypt and declare services under `gateway_sites:` in `config.yaml` (or **Settings -> Gateway**) to serve them on their own subdomains, with optional per-site auth. TLS certificates, HTTP-to-HTTPS redirects, and routing all come from the same single binary.
+No existing proxy, and you would rather not run one? Muximux's optional **gateway** (an embedded [Caddy](https://caddyserver.com)) can front your other services too. Set `tls.domain` and `tls.email` for automatic HTTPS via Let's Encrypt and declare services under `gateway_sites:` in `config.yaml` (or **Settings -> Gateway**) to serve them on their own subdomains, with optional per-site auth. TLS certificates, HTTP-to-HTTPS redirects, and routing all come from the same single binary.
 
 The gateway is deliberately homelab-simple. If you need wildcard certificates, complex routing rules, load balancing, or access-control lists, keep a dedicated proxy - [Nginx Proxy Manager](https://nginxproxymanager.com), [Traefik](https://traefik.io), or Caddy on its own - and run Muximux behind it (the first option above). The gateway is here so you *do not have to* run a separate proxy for a homelab-sized setup, not to out-feature the tools that specialize in it.
 

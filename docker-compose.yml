@@ -17,6 +17,14 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    # The entrypoint starts as root, fixes ownership of /app/data and
+    # then drops to PUID/PGID. It needs these three to do that; without
+    # them the container exits with "su-exec: setgroups: Operation not
+    # permitted" before Muximux starts.
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
     ports:
       - "8080:8080"
       # Uncomment if using tls.domain or gateway_sites (the embedded
@@ -41,10 +49,10 @@ services:
       #
       # Uncomment to expose the Docker socket so Muximux can scan
       # the daemon for running containers (Settings → Discovery in
-      # 3.1.0+). Read-only is enough for discovery; with :ro Muximux
-      # reads container metadata but cannot start/stop/build anything.
-      # (To also start/stop/restart tracked containers from the
-      # dashboard, use the :rw mount in the next block instead.)
+      # 3.1.0+). The :ro flag does not limit Docker API calls: it only
+      # stops the container replacing the socket file. To keep Muximux
+      # read-only, put a socket proxy in front that only exposes the
+      # list/inspect endpoints (filter by endpoint: a GET can attach).
       # Mount this only if you trust the dashboard's auth posture - the
       # socket grants effective root on the host.
       # The entrypoint auto-detects the socket's group ownership and
@@ -52,14 +60,14 @@ services:
       # - /var/run/docker.sock:/var/run/docker.sock:ro
       #
       # Container lifecycle controls (opt-in, 3.1.1+). To let the
-      # dashboard start/stop/restart tracked containers, use the :rw
-      # mount below INSTEAD of the :ro one above AND set
-      # discovery.docker.lifecycle_enabled: true in config.yaml. With
-      # :rw + lifecycle_enabled Muximux can start/stop/restart tracked
-      # containers (every action audit-logged) but still cannot pull,
-      # build, create, destroy, or exec into containers. See
+      # dashboard start/stop/restart tracked containers, set
+      # discovery.docker.lifecycle_enabled: true in config.yaml; a plain
+      # socket mount (:ro or not) already accepts the writes, and a
+      # socket proxy must allow POST to those three endpoints. Muximux then starts/stops/restarts
+      # tracked containers (every action audit-logged) and never calls
+      # the parts of the API that pull, build, create, destroy, or exec
+      # into containers. See
       # docs/wiki/docker-discovery.md#container-lifecycle-controls.
-      # - /var/run/docker.sock:/var/run/docker.sock:rw
     environment:
       # ── User/Group ───────────────────────────────────────────────
       - PUID=1000

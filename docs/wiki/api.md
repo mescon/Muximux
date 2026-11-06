@@ -226,7 +226,7 @@ Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is
 | `/api/app/{name}` | PUT | Admin | Update app (full replace; omitted fields are reset) |
 | `/api/app/{name}` | DELETE | Admin | Delete app |
 | `/api/app-action/{name}` | POST | Per-app role gate | Fire the app's configured http_action HTTP request |
-| `/api/app-docker/{name}/{start\|stop\|restart}` | POST | Role-gated | Control a Docker-tracked container (requires lifecycle_enabled + :rw socket) |
+| `/api/app-docker/{name}/{start\|stop\|restart}` | POST | Role-gated | Control a Docker-tracked container (requires lifecycle_enabled and a daemon that accepts writes) |
 
 **Create app request:**
 ```json

@@ -82,7 +82,7 @@ server:
 #     auto_import: off                        # off (default) | add | update | sync
 #                                             # imports only containers with a muximux.* label
 #     require_explicit_enable: false          # auto-import only containers labelled muximux.app.enabled=true
-#     # lifecycle_enabled: false              # start/stop/restart tracked containers (needs a :rw socket mount)
+#     # lifecycle_enabled: false              # start/stop/restart tracked containers (needs a daemon that accepts writes; :ro does not limit API calls)
 #     # lifecycle_min_role: admin             # minimum role for lifecycle controls
 #     # lifecycle_allowed_groups: []          # also require one of these user / identity-provider groups
 #     # health_badge_placement: overview      # overview | overview_and_nav | off

@@ -175,10 +175,15 @@ Please do not open a public issue for a security problem. Report it privately th
 5. **Use the reverse proxy for sensitive apps** -- Set `proxy: true` on apps that should be gated behind Muximux's authentication.
 6. **Restrict network access** -- In a homelab, consider running Muximux on an internal network or behind a VPN for defense-in-depth.
 7. **Monitor audit logs** -- Filter for `source=audit` in the log viewer to track authentication and configuration events.
-8. **Treat the Docker socket as privileged** -- Mount it read-only
-   (`:ro`) for discovery/auto-import; only grant write access (`:rw`) if you
-   enable lifecycle controls (`discovery.docker.lifecycle_enabled`), which let
-   authorized users start/stop/restart containers (role-gated, audit-logged).
+8. **Treat the Docker socket as privileged** -- A `:ro` mount does not
+   limit Docker API calls, so socket access is root on the host either way.
+   Put a socket proxy in front that filters by endpoint, not only by
+   method (a `GET` can attach to a container, a broad container `POST`
+   can create one). Allow the start/stop/restart endpoints only if you
+   enable lifecycle controls (`discovery.docker.lifecycle_enabled`), which
+   let authorized users start/stop/restart containers (role-gated,
+   audit-logged). Muximux's role checks do not cover requests sent to the
+   proxy directly, so keep it reachable only by Muximux.
 9. **Auto-import is opt-in** -- It is off by default. Enabling
    `discovery.docker.auto_import` imports every container with `muximux.*`
    labels without a click, including any exposed via public gateway
@@ -214,3 +219,5 @@ In practice, **trust a proxied app the way you trust its upstream, plus Muximux*
 The HTTP `Permissions-Policy` header is the ceiling for iframe `allow` delegations. An iframe can only grant features the parent page is itself permitted to use, so Muximux ships with every delegatable feature set to `*`. This lets per-app iframe `allow` attributes scope camera/microphone/WebAuthn/etc. down to specific app origins. Muximux's own frontend never calls these APIs, so the wide ceiling does not broaden Muximux's own attack surface. The narrowing happens per iframe.
 
 To tighten this, use the `permissions` array on each app, which controls per-app delegation.
+
+For proxied apps (`proxy: true`) the array is not a boundary. The iframe is same-origin with Muximux, so it inherits the features whose browser default is `'self'` (camera, microphone, geolocation, passkeys and most others) even when `permissions` leaves them out, subject to the browser's own permission prompt. Script in the iframe can also call these APIs through the parent page. A non-proxied, cross-origin app gets only what `permissions` delegates, plus fullscreen (every app frame allows it) and the few features browsers allow everywhere, such as picture-in-picture.

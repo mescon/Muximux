@@ -141,7 +141,7 @@ Toggling `auto_hide` in Settings during a session does not retroactively collaps
 
 ## Mobile
 
-On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. A single floating button opens the full app list as a popover panel, leaving the rest of the screen to the app. The button sits in whichever corner `floating_position` names (default `bottom-right`), so it can be moved out of the way of an app's own controls. Your configured position is preserved in settings and takes effect again on wider viewports.
+On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. A single floating button opens the full app list as a popover panel, leaving the rest of the screen to the app. On small screens the button defaults to the bottom-right corner, whatever `floating_position` says. If it covers an app's own controls, drag it somewhere else: the browser remembers where you left it, and that position wins over the default. Your configured position is preserved in settings and takes effect again on wider viewports.
 
 | App open | Navigation open |
 |---|---|
