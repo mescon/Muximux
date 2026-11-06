@@ -440,10 +440,24 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// rules would then open it. The per-app API and SaveConfig refuse
 	// this; the import must too.
 	if err := config.ValidateUniqueAppSlugs(apps); err != nil {
+		// Mark the rows whose slug collides; the rest of the batch is
+		// rolled back with it, like any other batch failure.
+		slugCount := make(map[string]int, len(apps))
+		for i := range apps {
+			if apps[i].Enabled {
+				slugCount[config.Slugify(apps[i].Name)]++
+			}
+		}
 		for i := range results {
-			if results[i].Status == StatusCreated {
+			if results[i].Status != StatusCreated {
+				continue
+			}
+			if app := req.Items[i].App; app != nil && slugCount[config.Slugify(app.Name)] > 1 {
 				results[i].Status = StatusValidationFailed
 				results[i].Error = err.Error()
+			} else {
+				results[i].Status = StatusAbortedByBatchFailure
+				results[i].Error = "rolled back because another item's app slug collides with an existing app"
 			}
 		}
 		sendJSON(w, http.StatusOK, ImportResult{Success: false, Error: err.Error(), Items: results})

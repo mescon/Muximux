@@ -592,17 +592,27 @@ func TestImportDocker_SlugCollisionWithExisting(t *testing.T) {
 		{Name: "Sonarr", URL: "http://sonarr:8989", Proxy: true, Enabled: true},
 	})
 	res, _ := postImport(t, h, ImportRequest{
-		Items: []ImportItem{{
-			Key:      "name:x",
-			Strategy: "container_ip",
-			App:      &ClientAppConfig{Name: "sonarr!", URL: "http://other:80", Enabled: true},
-		}},
+		Items: []ImportItem{
+			{
+				Key:      "name:x",
+				Strategy: "container_ip",
+				App:      &ClientAppConfig{Name: "sonarr!", URL: "http://other:80", Enabled: true},
+			},
+			{
+				Key:      "name:y",
+				Strategy: "container_ip",
+				App:      &ClientAppConfig{Name: "Radarr", URL: "http://radarr:7878", Enabled: true},
+			},
+		},
 	})
 	if res.Success {
 		t.Fatal("Success should be false on a slug collision")
 	}
 	if res.Items[0].Status != "validation_failed" || !strings.Contains(res.Items[0].Error, "sonarr") {
 		t.Errorf("item[0] = %+v, want validation_failed naming the slug", res.Items[0])
+	}
+	if res.Items[1].Status != "aborted_by_batch_failure" {
+		t.Errorf("item[1].Status = %q, want aborted_by_batch_failure (it does not collide)", res.Items[1].Status)
 	}
 	if len(cfg.Apps) != 1 || cfg.Apps[0].URL != "http://sonarr:8989" {
 		t.Errorf("config changed: %+v", cfg.Apps)
