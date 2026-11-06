@@ -15,6 +15,23 @@ All notable changes to Muximux are documented in this file.
   app, the same rule as the message API. Without it the link only switches
   apps. (#545)
 
+### Fixed
+- **Per-app `auth_bypass` rules now take effect.** They were read from the
+  config but never handed to the auth middleware, so an allowlisted path on
+  a proxied app (an API called with the Muximux API key, an RSS feed, a
+  webhook) still redirected to the login page. Rule paths are relative to
+  the app (`/api/*` covers `/proxy/sonarr/api/*`); the full path also
+  works. A rule that could reach outside its app (an empty path, another
+  app's prefix, `..`, or a slug two apps share) is ignored with a warning,
+  and changes apply on save. When a rule passes a request on the Muximux
+  API key, the key is removed before the request reaches the backend.
+- Docker discovery import refuses an app whose name maps to the same
+  `/proxy/<slug>/` path as an existing app, as Settings already did.
+
+### Changed
+- Dependencies updated to their latest releases, including Caddy 2.11.9,
+  Paraglide 3, jsdom 31 and `klauspost/compress` 1.20.2 (GO-2026-6865).
+
 ## [3.7.0] - 2026-10-29
 
 Embedded apps can drive Muximux: a dashboard such as Homarr can switch

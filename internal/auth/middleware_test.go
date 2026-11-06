@@ -1355,3 +1355,60 @@ func TestMiddleware_ConfigReturnsCurrentSnapshot(t *testing.T) {
 		t.Errorf("Config after update = %+v", c)
 	}
 }
+
+func TestSetAppBypassRules(t *testing.T) {
+	key := "app-rule-key"
+	cfg := &AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: HashAPIKey(key)}
+	m, _, _ := newTestMiddleware(cfg)
+	reached := false
+	h := m.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		reached = true
+		w.WriteHeader(http.StatusOK)
+	}))
+	do := func(path, apiKey string) bool {
+		reached = false
+		req := httptest.NewRequest(http.MethodGet, path, nil)
+		if apiKey != "" {
+			req.Header.Set("X-Api-Key", apiKey)
+		}
+		h.ServeHTTP(httptest.NewRecorder(), req)
+		return reached
+	}
+
+	if do("/proxy/sonarr/api/v3/series", key) {
+		t.Fatal("no app rules set: the request must not bypass auth")
+	}
+
+	m.SetAppBypassRules([]BypassRule{{Path: "/proxy/sonarr/api/*", RequireAPIKey: true}})
+	if !do("/proxy/sonarr/api/v3/series", key) {
+		t.Error("a matching app rule with the right key must bypass auth")
+	}
+	if do("/proxy/sonarr/api/v3/series", "wrong") {
+		t.Error("a wrong key must not bypass auth")
+	}
+	if do("/proxy/sonarr/admin", key) {
+		t.Error("a path outside the rule must not bypass auth")
+	}
+
+	// Rebuilding AuthConfig (auth method change, restore) must keep the app rules.
+	m.UpdateConfig(cfg)
+	if !do("/proxy/sonarr/api/v3/series", key) {
+		t.Error("UpdateConfig dropped the app rules")
+	}
+
+	// The slice is copied: changing the caller's slice afterwards has no effect.
+	rules := []BypassRule{{Path: "/proxy/feed/*"}}
+	m.SetAppBypassRules(rules)
+	rules[0].Path = "/proxy/sonarr/*"
+	if do("/proxy/sonarr/api/v3/series", "") {
+		t.Error("SetAppBypassRules must copy the rules")
+	}
+	if !do("/proxy/feed/rss", "") {
+		t.Error("a public app rule must bypass auth")
+	}
+
+	m.SetAppBypassRules(nil)
+	if do("/proxy/feed/rss", "") {
+		t.Error("clearing the app rules must remove the bypass")
+	}
+}

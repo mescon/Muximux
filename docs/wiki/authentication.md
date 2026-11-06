@@ -474,7 +474,7 @@ A user with no groups passes the role gate but fails any non-empty `allowed_grou
 
 Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Seerr or a cron job reach Muximux without having to maintain a logged-in session.
 
-The API key is not a universal bypass. It only authenticates requests whose path has been **allowlisted** with `require_api_key: true`. Everything else still requires a session cookie, so a leaked key can only reach the endpoints the operator has opted in.
+The API key is not a universal bypass. It only authenticates requests on **allowlisted** paths: the built-in ones listed below, plus any proxied-app paths you add with `require_api_key: true`. Everything else that needs a login still requires a session cookie, so a leaked key can only reach those paths. (A few endpoints, such as `GET /api/auth/status` and `GET /api/health`, need no credentials at all.)
 
 ### Where the API Key Works
 
@@ -510,7 +510,7 @@ curl -H "X-Api-Key: $MUXIMUX_API_KEY" \
   https://muximux.example.com/proxy/sonarr/api/v3/series
 ```
 
-Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. The same request carries both keys, and each one does a different job.
+Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. Each key covers one hop: `proxy_headers` replaces the caller's `X-Api-Key`, so Sonarr only ever sees its own key.
 
 #### Example 2: GitHub webhook hitting a proxied app
 
@@ -525,7 +525,7 @@ apps:
     proxy: true
     # Caller -> Muximux: only the webhook path, only POST, only with the API key.
     auth_bypass:
-      - path: /proxy/ci/hooks/github
+      - path: /hooks/github      # relative to the app: /proxy/ci/hooks/github
         methods: [POST]
         require_api_key: true
 ```
@@ -546,7 +546,7 @@ Then the request flow is:
 
 Scope is tight by design: this rule allows only `POST /proxy/ci/hooks/github`. The same key cannot hit `GET /proxy/ci/admin` or any other `/api/*` endpoint that has not been allowlisted.
 
-> **Header note:** Muximux does not strip the inbound `X-Api-Key` header before forwarding to the backend. If the proxied app reads `X-Api-Key` for its own auth (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app so Muximux overwrites the inbound key with the backend's own key before forwarding. If the backend ignores `X-Api-Key`, no action is needed: the Muximux key rides through and the backend ignores it.
+> **Header note:** When a rule with `require_api_key: true` lets a request through, Muximux removes the Muximux key (`X-Api-Key`) before forwarding, so a backend never receives the instance-wide key. If the proxied app wants its own `X-Api-Key` (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app. Requests that pass with a session cookie instead keep whatever `X-Api-Key` the caller sent.
 
 ### What the API Key Does NOT Unlock
 

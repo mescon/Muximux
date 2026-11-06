@@ -246,6 +246,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// /proxy/<slug>/ would 404 until the next restart or SaveConfig
 	// call.
 	s.rebuildProxyRoutes = func() {
+		// Rules first, then routes: once a save removes a rule, no new
+		// request can match it while the routes are still being rebuilt.
+		s.authMiddleware.SetAppBypassRules(appBypassRules(cfg.Apps))
 		reverseProxyHandler.RebuildRoutes(cfg.Apps)
 		// Keep the health monitor's app set in step with config changes
 		// (add/remove/edit an app, or a poller URL refresh). Without this
@@ -254,6 +257,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		// were checked against the stale URL.
 		s.setHealthApps(cfg.Apps)
 	}
+	s.authMiddleware.SetAppBypassRules(appBypassRules(cfg.Apps))
 	api.SetOnConfigSave(s.rebuildProxyRoutes)
 
 	// Caddy setup
