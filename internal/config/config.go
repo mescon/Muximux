@@ -858,6 +858,9 @@ func decodeConfig(data []byte) (*Config, error) {
 	if err := dec.Decode(cfg); err != nil {
 		return nil, err
 	}
+	if err := ApplyAppEnabledDefault([]byte(expanded), cfg); err != nil {
+		return nil, err
+	}
 	cfg.MissingEnvVars = missingEnv
 	cfg.envRefs = refs
 
@@ -2052,17 +2055,28 @@ func defaultDockerEndpoint() string {
 	return "unix:///var/run/docker.sock"
 }
 
-// UnmarshalYAML gives an app without an `enabled` key the default true.
-// The docs have always described apps as enabled by default, and their
-// minimal examples leave the key out; the Settings UI writes it
-// explicitly for every app, so only hand-written YAML relies on this.
-func (a *AppConfig) UnmarshalYAML(value *yaml.Node) error {
-	type plain AppConfig // no methods, so no recursion
-	p := plain{Enabled: true}
-	if err := value.Decode(&p); err != nil {
+// ApplyAppEnabledDefault enables every app whose YAML entry has no
+// `enabled` key. The docs have always described apps as enabled by
+// default, and their minimal examples leave the key out; the Settings UI
+// writes it explicitly for every app, so only hand-written YAML relies on
+// this. It reads src a second time, loosely, after the strict decode into
+// cfg: a custom UnmarshalYAML on AppConfig would bypass the decoder's
+// KnownFields check, so typos inside an app entry would load silently.
+func ApplyAppEnabledDefault(src []byte, cfg *Config) error {
+	var raw struct {
+		Apps []map[string]yaml.Node `yaml:"apps"`
+	}
+	if err := yaml.Unmarshal(src, &raw); err != nil {
 		return err
 	}
-	*a = AppConfig(p)
+	for i := range raw.Apps {
+		if i >= len(cfg.Apps) {
+			break
+		}
+		if _, ok := raw.Apps[i]["enabled"]; !ok {
+			cfg.Apps[i].Enabled = true
+		}
+	}
 	return nil
 }
 

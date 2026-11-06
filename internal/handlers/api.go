@@ -181,6 +181,10 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid YAML: %s", err.Error()), "source", "config", "error", err)
 		return
 	}
+	if err := config.ApplyAppEnabledDefault(body, &cfg); err != nil {
+		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid YAML: %s", err.Error()), "source", "config", "error", err)
+		return
+	}
 
 	if len(cfg.Apps) == 0 {
 		respondError(w, r, http.StatusBadRequest, "Config must contain at least one app")

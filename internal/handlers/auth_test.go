@@ -2876,3 +2876,21 @@ func TestDeleteUser_PersistFailureRollsBackConfigUsers(t *testing.T) {
 		t.Errorf("config users = %v, want [admin bob]", got)
 	}
 }
+
+// Switching to forward auth in Settings must keep Cloudflare Access token
+// checks from config.yaml: without a token, header identity is refused.
+func TestUpdateAuthMethod_ForwardAuth_KeepsCloudflareAccess(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	handler.config.Auth.CloudflareAccess = &config.CloudflareAccessConfig{TeamDomain: "team.cloudflareaccess.com", Audience: "aud"}
+
+	putForwardAuth(t, handler, nil)
+
+	if got := forwardAuthRole(t, handler, "admins"); got != "" {
+		t.Errorf("a header-only request was accepted with role %q; token verification was dropped", got)
+	}
+	handler.config.Auth.CloudflareAccess = nil
+	putForwardAuth(t, handler, nil)
+	if got := forwardAuthRole(t, handler, "admins"); got != auth.RoleAdmin {
+		t.Errorf("without cloudflare_access the header path must work: role %q", got)
+	}
+}

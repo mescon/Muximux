@@ -2871,6 +2871,26 @@ unknown_future_field: "this should not be accepted"
 		}
 	})
 
+	t.Run("rejects unknown fields inside an app", func(t *testing.T) {
+		handler := NewAPIHandler(createTestConfig(), "", &sync.RWMutex{})
+		body := []byte("apps:\n  - name: Sonarr\n    url: http://localhost:8989\n    enabld: false\n")
+		w := httptest.NewRecorder()
+		handler.ParseImportedConfig(w, httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(body)))
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 for a typo inside an app, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("an app without enabled is enabled", func(t *testing.T) {
+		handler := NewAPIHandler(createTestConfig(), "", &sync.RWMutex{})
+		body := []byte("apps:\n  - name: Sonarr\n    url: http://localhost:8989\n")
+		w := httptest.NewRecorder()
+		handler.ParseImportedConfig(w, httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(body)))
+		if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), `"enabled":true`) {
+			t.Errorf("expected the imported app enabled, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
 	t.Run("wrong method", func(t *testing.T) {
 		cfg := createTestConfig()
 		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})

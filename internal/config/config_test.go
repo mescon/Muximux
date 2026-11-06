@@ -2689,11 +2689,14 @@ func TestAppAccessConfigAllows(t *testing.T) {
 }
 
 func TestAppConfig_EnabledDefaultsToTrue(t *testing.T) {
-	var cfg struct {
-		Apps []AppConfig `yaml:"apps"`
-	}
+	dir := t.TempDir()
+	p := filepath.Join(dir, "config.yaml")
 	src := "apps:\n  - name: A\n    url: http://a\n  - name: B\n    url: http://b\n    enabled: false\n  - name: C\n    url: http://c\n    enabled: true\n"
-	if err := yaml.Unmarshal([]byte(src), &cfg); err != nil {
+	if err := os.WriteFile(p, []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(p)
+	if err != nil {
 		t.Fatal(err)
 	}
 	want := []bool{true, false, true}
@@ -2702,8 +2705,14 @@ func TestAppConfig_EnabledDefaultsToTrue(t *testing.T) {
 			t.Errorf("%s: enabled = %v, want %v", a.Name, a.Enabled, want[i])
 		}
 	}
-	if cfg.Apps[0].URL != "http://a" {
-		t.Error("the other fields must still decode")
+
+	// The default must not loosen strict decoding inside an app entry.
+	typo := "apps:\n  - name: A\n    url: http://a\n    enabld: false\n"
+	if err := os.WriteFile(p, []byte(typo), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(p); err == nil || !strings.Contains(err.Error(), "enabld") {
+		t.Errorf("an unknown key inside an app must still be rejected, got %v", err)
 	}
 }
 
