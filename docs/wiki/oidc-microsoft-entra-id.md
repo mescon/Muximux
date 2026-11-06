@@ -21,7 +21,7 @@ When you're done, users sign in to Muximux with their corporate Microsoft accoun
 3. Click **New registration**.
 4. Fill in these fields:
    - **Name**: `Muximux` (or the name you want users to see on the consent screen).
-   - **Supported account types**: pick **Accounts in this organizational directory only**. Pick another option only if you need multi-tenant or personal Microsoft accounts.
+   - **Supported account types**: pick **Accounts in this organizational directory only**. The issuer URL in Step 5 names your tenant. So only users of your tenant can sign in, and users from other organizations only if they are guests in your tenant. A multi-tenant account type does not change this.
    - **Redirect URI**: choose **Web** and enter `https://muximux.example.com/api/auth/oidc/callback`. The path is fixed. The host must match your Muximux URL exactly.
 5. Click **Register**.
 
@@ -49,11 +49,11 @@ Many homelab and small-team setups skip this step. Then they cannot find out why
 
 1. In the app registration, open **Token configuration**.
 2. Click **Add groups claim**.
-3. Under **Select group types to include**, pick **Security groups**, unless you also use Microsoft 365 / mail-enabled groups for access decisions.
+3. Under **Select group types to include**, pick **Security groups**, unless you also use Microsoft 365 / mail-enabled groups for access decisions. If you want **Cloud-only group display names** in step 5, pick **Groups assigned to the application** instead. Then assign the admin group to the application (**Enterprise applications > Muximux > Users and groups**), and make the users direct members of that group. Group assignment needs an Entra ID P1 license. Without it, use group IDs.
 4. Expand the **ID** section. (Optionally also expand **Access** / **SAML** if you will use them later.)
 5. In each section you expanded, choose how Entra sends groups:
    - **Group ID** (the default) sends group GUIDs. Muximux works, but your config will look like `admin_groups: [22e90a9d-1c5d-4f0b-9c5f-...]`.
-   - **`sAMAccountName`** or **Cloud-only group display names** sends readable names like `Engineering`. Pick `sAMAccountName` if your tenant is hybrid (synced from on-prem AD). Pick **Cloud-only group display names** for cloud-only Entra tenants.
+   - **`sAMAccountName`** or **Cloud-only group display names** sends readable names like `Engineering`. Pick `sAMAccountName` if your tenant is hybrid (synced from on-prem AD). Pick **Cloud-only group display names** for cloud-only Entra tenants (this needs **Groups assigned to the application**, see step 3). If no group name matches `admin_groups`, Muximux gives the user the `user` role.
 6. Click **Add**.
 
 > **Note on group overage.** A user can be a member of more than ~200 groups. For that user, Entra sends a `_claim_names` claim instead, which points to Microsoft Graph. Muximux does **not** follow that pointer. If your tenant has users with that many groups, narrow the **Groups assigned to the application** filter on the **Groups claim** dialog. Then Entra sends only the groups Muximux cares about.
@@ -134,7 +134,7 @@ Entra ID offers RP-initiated logout (Muximux sends the user to the provider to s
 
 Entra ID does not offer OIDC back-channel logout (the provider tells Muximux directly that a session ended). It offers **front-channel** logout, which Muximux does not implement. So signing out at Microsoft does not end the Muximux session.
 
-- **Return address.** Microsoft requires the `post_logout_redirect_uri` to match a redirect URI registered on the app. In the app registration, open **Authentication**. Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) under **Redirect URIs**.
+- **Return address.** Microsoft requires the `post_logout_redirect_uri` to match a redirect URI registered on the app. In the app registration, open **Authentication**. Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) under **Redirect URIs**. If the app registration supports personal Microsoft accounts, Entra does not accept a redirect URI with a query string. Then set `post_logout_redirect_url` to an address without one, such as `https://muximux.example.com/login`, and register that address. Without `?logged_out=1`, a login page with `auto_redirect: true` sends the user straight back to Microsoft after logout.
 - **Front-channel logout URL.** Leave the **Front-channel logout URL** field empty. Muximux has no endpoint for it.
 
 ---

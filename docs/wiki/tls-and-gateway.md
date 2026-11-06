@@ -1,6 +1,6 @@
 # TLS and Gateway
 
-> **3.1.0 note:** The `server.gateway:` Caddyfile path is no longer the configured way to serve additional sites. Use `server.gateway_sites:` (declarative YAML) instead. Muximux rejects a non-empty `server.gateway:` value at startup. On first boot under 3.1.0, Muximux auto-migrates 3.0.x configs to `gateway_sites:`. The Caddyfile recipes on [Gateway Examples](gateway-examples.md) are still useful as a reference for what each gateway-site option does. See the [Migration notes in the 3.1.0 CHANGELOG](https://github.com/mescon/Muximux/blob/main/CHANGELOG.md#breaking-changes) for details.
+> **3.1.0 note:** The `server.gateway:` Caddyfile path is no longer the configured way to serve additional sites. Use `server.gateway_sites:` (declarative YAML) instead. Muximux rejects a non-empty `server.gateway:` value at startup. On first boot under 3.1.0, Muximux auto-migrates 3.0.x configs to `gateway_sites:`. This works only when the Caddyfile converts with no loss. If the conversion would lose settings, Muximux stops at startup with an error. Then run `muximux migrate-gateway <Caddyfile>` to convert the file by hand. The Caddyfile recipes on [Gateway Examples](gateway-examples.md) are still useful as a reference for what each gateway-site option does. See the [Migration notes in the 3.1.0 CHANGELOG](https://github.com/mescon/Muximux/blob/main/CHANGELOG.md#breaking-changes) for details.
 
 ## Overview
 
@@ -93,7 +93,7 @@ You need none of these when Muximux runs **behind** another reverse proxy that a
 For that setup, set `server.gateway_listen` to a non-privileged address. Then:
 
 - Caddy binds that address instead of 80/443.
-- Caddy serves all gateway sites as plain HTTP.
+- Caddy serves gateway sites as plain HTTP. The exception is a site with `tls: custom`: Caddy serves it as HTTPS on that address, with your certificate. The upstream proxy must then connect to that site over HTTPS.
 - The upstream proxy handles TLS.
 
 For example:

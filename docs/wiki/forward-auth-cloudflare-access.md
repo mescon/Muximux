@@ -62,29 +62,7 @@ Edit `config.yaml`:
 auth:
   method: forward_auth
   trusted_proxies:
-    - 173.245.48.0/20      # Cloudflare IPv4 ranges, see below for the full list
-    - 103.21.244.0/22
-    - 103.22.200.0/22
-    - 103.31.4.0/22
-    - 141.101.64.0/18
-    - 108.162.192.0/18
-    - 190.93.240.0/20
-    - 188.114.96.0/20
-    - 197.234.240.0/22
-    - 198.41.128.0/17
-    - 162.158.0.0/15
-    - 104.16.0.0/13
-    - 104.24.0.0/14
-    - 172.64.0.0/13
-    - 131.0.72.0/22
-    # IPv6 ranges
-    - 2400:cb00::/32
-    - 2606:4700::/32
-    - 2803:f800::/32
-    - 2405:b500::/32
-    - 2405:8100::/32
-    - 2a06:98c0::/29
-    - 2c0f:f248::/32
+    - 127.0.0.1/32         # the address cloudflared connects from, see below
   headers:
     user: Cf-Access-Authenticated-User-Email
     email: Cf-Access-Authenticated-User-Email
@@ -92,7 +70,15 @@ auth:
   logout_url: https://example.cloudflareaccess.com/cdn-cgi/access/logout
 ```
 
-`trusted_proxies` is the most important field. Muximux only trusts identity headers from these IPs. Use Cloudflare's published IP ranges. The list above is current as of writing. Check https://www.cloudflare.com/ips/ for the canonical list. If Cloudflare's tunnel terminates locally on the same host, restrict it to `127.0.0.1/32` instead.
+`trusted_proxies` is the most important field. Muximux only trusts identity headers from these IPs. Muximux checks the address of the direct connection. With a Cloudflare Tunnel, that is always the `cloudflared` connector, not a Cloudflare address. So list the address that the connector uses to reach Muximux:
+
+- If `cloudflared` runs on the same host as Muximux, outside Docker or with host networking, use `127.0.0.1/32`.
+- If `cloudflared` runs in its own container on a Docker bridge network, use the address of the connector container on that network, for example `172.18.0.5/32`. Give the container a fixed address (`ipv4_address` in Docker Compose), because Docker can give it a new address when it restarts.
+- If `cloudflared` runs on a different machine, use the address of that machine.
+
+Cloudflare's published IP ranges do not apply here, because tunnel requests never come to Muximux directly from them.
+
+> **Security.** Muximux does not check the `Cf-Access-Jwt-Assertion` token. It trusts the email header from every address in `trusted_proxies`. So a process that can connect to Muximux from one of these addresses can sign in as any user. Make sure that only the connector and processes that you trust can connect from these addresses. For example, do not trust a full Docker network that other containers share. Do not trust `127.0.0.1` on a host where untrusted processes run.
 
 The `logout_url` ends in `/cdn-cgi/access/logout`. It uses your Access team domain, which you can see at the top of the Zero Trust dashboard. Opening this URL logs the user out of Cloudflare Access. Without it, Muximux's logout button only ends the local session. Then the next request silently signs the user back in.
 
@@ -110,9 +96,10 @@ The `logout_url` ends in `/cdn-cgi/access/logout`. It uses your Access team doma
 
 By default, Cloudflare Access does not send a "groups" header. Muximux's forward auth promotes anyone with `admin`/`admins`/`administrators` in `Remote-Groups` to admin. Without extra setup, this promotion won't work.
 
-Two options:
+In forward auth mode, Muximux takes the role from the groups header on every request. A role that you set on a local user has no effect, and the UI does not show user management in this mode. So without a groups header, every user signs in as a regular user, and nobody is an admin.
 
-- **Manage admin status in Muximux directly.** The first sign-in lands as a regular user. Promote the user in **Settings > Security > Users** in the Muximux UI.
+To get admins, send a groups header:
+
 - **Make a groups header from Access policy.** Cloudflare Access can add custom headers based on which policy matched. Open **Access > Applications > Muximux > Policies > Edit policy**. Expand **Custom Headers** and set, for example, `Cf-Access-Groups: admin`. Then add `headers.groups: Cf-Access-Groups` to Muximux's config. You need a separate policy for each group. This gets hard to manage past two or three groups.
 
 If group-based access is central to your setup, the OIDC providers (Keycloak, Authentik, etc.) are a better fit. Cloudflare Access suits you when you want a single sign-on layer at the edge with simple allow/deny rules.
@@ -124,7 +111,7 @@ If group-based access is central to your setup, the OIDC providers (Keycloak, Au
 | Symptom | Cause | Fix |
 |---|---|---|
 | Cloudflare Access prompts for sign-in repeatedly | The browser is blocking the `CF_Authorization` cookie, or the application's session timed out. | Check browser cookie settings for `*.cloudflareaccess.com`. Increase the session duration in the Access application settings. |
-| Muximux returns 401 even after Cloudflare lets you through | `trusted_proxies` doesn't include the source IP of the inbound request. | If `cloudflared` runs on the same host as Muximux, use `127.0.0.1/32`. Otherwise list Cloudflare's IP ranges. |
+| Muximux returns 401 even after Cloudflare lets you through | `trusted_proxies` doesn't include the source IP of the inbound request. | Add the address that the `cloudflared` connector connects from. On the same host without Docker, this is `127.0.0.1/32`. In a separate container, it is the container's address on the Docker network. The Muximux log line "Forward auth request not from trusted proxy" shows the address. |
 | `Cf-Access-Authenticated-User-Email` is empty | Request reached Muximux without going through Cloudflare. | Block direct access to Muximux's port from anywhere except Cloudflare or the tunnel connector. |
 | Logout doesn't actually sign the user out | `logout_url` is missing or wrong. | Set it to `https://<your-team>.cloudflareaccess.com/cdn-cgi/access/logout`. |
 

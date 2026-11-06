@@ -78,7 +78,9 @@ server:
 
 ### 3. Reload
 
-Restart Muximux. If you changed the gateway site in the Gateway tab, saving there does this for you. Caddy's reload picks up the new `forward_auth` directive on every gated site.
+If you edited `config.yaml` in step 1, restart Muximux before you save a site in the Gateway tab. Muximux reads `session_cookie_domain` only at startup. A save in the Gateway tab writes the configuration that Muximux has in memory, so it can overwrite an edit to `config.yaml` that Muximux has not loaded. If the cookie keeps its old scope, gated sites send users back to the login page.
+
+After that restart, a save in the Gateway tab reloads Caddy for you. If you changed the gateway site in `config.yaml` instead, restart Muximux again. Caddy's reload picks up the new `forward_auth` directive on every gated site.
 
 ---
 

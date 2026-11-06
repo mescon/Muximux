@@ -77,7 +77,7 @@ The `open_mode` field controls how Muximux opens an app when you click it in the
 
 > **Security warning:** Muximux authentication only protects the Muximux dashboard itself. If you embed an app in an iframe **without** `proxy: true`, the browser loads it directly from the app's own URL. Muximux is not in the request path, so it cannot enforce authentication on those requests. Anyone who knows (or guesses) the app's URL can open it directly and bypass Muximux entirely.
 >
-> If you need Muximux to control access to an app, enable the reverse proxy (`proxy: true`). All requests then go through Muximux, which enforces authentication. Without the proxy, you must rely on the app's own authentication, or on a separate reverse proxy or VPN, to secure it.
+> If you need Muximux to control access to an app, enable the reverse proxy (`proxy: true`). All requests then go through Muximux, which enforces authentication. The proxy protects only the requests that go through it. If users can also reach the backend directly, they can bypass Muximux. So block direct access to the backend (for example, with a firewall or a private Docker network), or turn on the backend's own authentication. Without the proxy, you must rely on the app's own authentication, or on a separate reverse proxy or VPN, to secure it.
 >
 > This applies to all open modes. `new_tab`, `new_window` and `redirect` all open the app's direct URL in the browser.
 
@@ -235,7 +235,7 @@ This is useful for temporarily hiding apps that are down for maintenance or that
 
 When authentication is enabled globally, some paths of a proxied app may need to work without a login. The `auth_bypass` field lets you define these exceptions.
 
-This is also the main reason Muximux has an API key. Combine `proxy: true` with `auth_bypass: [{require_api_key: true}]`. This exposes a backend app's API through Muximux without a Muximux login session. Integrations present the Muximux API key at the front door. Muximux then forwards the request to the backend, and adds the backend's own credentials through `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
+This is also the main reason Muximux has an API key. Combine `proxy: true` with `auth_bypass: [{path: /api/*, require_api_key: true}]`. Change `/api/*` to the API path of your backend. Muximux ignores a rule without a `path`. This exposes a backend app's API through Muximux without a Muximux login session. Integrations present the Muximux API key at the front door. Muximux then forwards the request to the backend, and adds the backend's own credentials through `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
 
 ```yaml
 apps:
@@ -368,12 +368,12 @@ When `proxy: true` is set, Muximux injects a `Notification` API shim into the ap
 // Inside the embedded app, works as if Muximux wasn't there:
 new Notification('New message', { body: 'You have a new task' });
 
-// Permission checks also "just work" (always returns granted):
+// Permission checks report the Muximux window's state ("default", "granted" or "denied"):
 if (Notification.permission === 'granted') { ... }
 await Notification.requestPermission();
 ```
 
-Most existing apps use exactly this pattern. So they work immediately once `allow_notifications` is enabled.
+Most existing apps use exactly this pattern. So they work once `allow_notifications` is enabled and the user allows notifications for Muximux in the browser. Apps must still handle the `default` and `denied` states.
 
 Muximux syncs the permission state from the top-level Muximux window with a `postMessage` handshake. The shim starts at `"default"` and asks the parent on load. It forwards any `Notification.requestPermission()` call to Muximux, so the real browser prompt appears at Muximux's origin. Reads of `Notification.permission` inside the embedded app show the parent's actual state.
 
@@ -635,7 +635,9 @@ Example response:
 
 `/api/appearance` accepts two credential shapes.
 
-**Proxied apps (`proxy: true`)** run at `/proxy/<slug>/` on Muximux's own origin. So a same-origin `fetch('/api/appearance')` automatically carries the Muximux session cookie. The app does not need to know about auth at all. This is the zero-config path, and the one most integrations should take.
+**Proxied apps (`proxy: true`)** run at `/proxy/<slug>/` on Muximux's own origin. So a same-origin request automatically carries the Muximux session cookie. The app does not need to know about auth at all. This is the zero-config path, and the one most integrations should take.
+
+Inside a proxied app, the interceptor script (the script that Muximux injects to keep URLs inside `/proxy/<slug>/`) changes the app's own `fetch('/api/appearance')` to `/proxy/<slug>/api/appearance`. That request goes to the app's backend, not to Muximux. So use the `fetch` of the Muximux window instead: `window.parent.fetch('/api/appearance')`. The app and Muximux have the same origin, so the app can call it. The same applies to `theme_css_url`. The examples below do this.
 
 **External apps** (cross-origin iframes, scripts, dashboards, scheduled jobs) can authenticate with an API key instead of a session cookie. Add the header:
 
@@ -679,7 +681,7 @@ Most apps will fetch this once, on page load, and either:
 ```js
 async function applyMuximuxTheme() {
   try {
-    const r = await fetch('/api/appearance');
+    const r = await window.parent.fetch('/api/appearance');
     if (!r.ok) return;
     const a = await r.json();
     for (const [name, value] of Object.entries(a.colors)) {
@@ -699,14 +701,17 @@ applyMuximuxTheme();
 
 ```js
 async function importMuximuxTheme() {
-  const r = await fetch('/api/appearance');
+  const r = await window.parent.fetch('/api/appearance');
   if (!r.ok) return;
   const a = await r.json();
   if (!a.theme_css_url) return;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = a.theme_css_url;
-  document.head.appendChild(link);
+  // A <link href> would also be changed to point at the app's backend,
+  // so read the CSS through the Muximux window and add it as a <style>.
+  const css = await window.parent.fetch(a.theme_css_url);
+  if (!css.ok) return;
+  const style = document.createElement('style');
+  style.textContent = await css.text();
+  document.head.appendChild(style);
 }
 ```
 
@@ -740,7 +745,7 @@ The `theme.id` field is the exact value Muximux puts on `<html data-theme="...">
 - Dark variant: `<family>` -- e.g. `catppuccin`, `nord`, `muximux` (the built-in default)
 - Light variant: `<family>-light` -- e.g. `catppuccin-light`, `nord-light`, `muximux-light`
 
-If `theme.variant === "system"`, the operator has asked Muximux to follow the client's OS preference. The server cannot know that preference, so it returns the dark palette (`muximux`) as the default. An app that cares about this can use `matchMedia('(prefers-color-scheme: light)')` in the browser and fetch again with the opposite variant. In practice, most apps just take whatever the endpoint returns.
+If `theme.variant === "system"`, the operator has asked Muximux to follow the client's OS preference. The server cannot know that preference, so it returns the dark palette (`muximux`) as the default. The endpoint has no option to ask for the light variant, so a second request returns the same dark palette. An app that cares about this can use `matchMedia('(prefers-color-scheme: light)')` in the browser. If the result is light, the app must select a light palette itself, for example the `<family>-light` theme. In practice, most apps just take whatever the endpoint returns.
 
 ### Re-fetching on changes
 
