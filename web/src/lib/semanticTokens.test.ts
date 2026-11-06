@@ -77,18 +77,20 @@ describe('semantic tokens', () => {
       // The override wins over :root.
       expect(computed('--danger-text')).toBe('#123456');
       expect(computed('--accent-primary')).toBe('#ff00aa');
-      // Tokens the theme omits come from :root.
-      // (jsdom may re-serialise whitespace, so compare without spaces.)
-      const squash = (v: string) => v.replace(/\s+/g, '');
-      expect(squash(computed('--success-text'))).toBe(squash(EXPECTED['--success-text']));
-      expect(squash(computed('--accent-text'))).toBe(squash(EXPECTED['--accent-text']));
-      // Resolving the cascaded values: accent-text follows the theme's own accent,
-      // mixed towards the dark-scheme ink (51% of #ff00aa + 49% white = #ff7dd4).
+      // Tokens the theme omits come from :root. Compare resolved colours:
+      // jsdom 31 substitutes var() in computed custom properties, as the spec
+      // says, where older versions returned the declaration as written.
       const vars = Object.fromEntries(Object.keys(rootVars()).map((k) => [k, computed(k)]));
+      const resolved = (v: string, from: Record<string, string>) => hex(parseColor(v, from)!);
+      expect(resolved(computed('--success-text'), vars)).toBe(resolved(EXPECTED['--success-text'], vars));
+      // accent-text follows the theme's own accent, mixed towards the
+      // dark-scheme ink (51% of #ff00aa + 49% white = #ff7dd4).
+      expect(resolved(computed('--accent-text'), vars)).toBe('#ff7dd4');
       expect(hex(parseColor('var(--accent-text)', vars)!)).toBe('#ff7dd4');
       // Without the theme attribute, :root alone applies.
       delete html.dataset.theme;
-      expect(squash(getComputedStyle(html).getPropertyValue('--danger-text'))).toBe(squash(EXPECTED['--danger-text']));
+      const root = rootVars();
+      expect(resolved(getComputedStyle(html).getPropertyValue('--danger-text'), root)).toBe(resolved(EXPECTED['--danger-text'], root));
     } finally {
       delete html.dataset.theme;
       styles.forEach((el) => el.remove());

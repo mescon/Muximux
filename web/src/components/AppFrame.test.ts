@@ -297,7 +297,8 @@ describe('AppFrame', () => {
       });
       const iframe = container.querySelector('iframe') as HTMLIFrameElement;
       const style = iframe.getAttribute('style') || '';
-      expect(style).toContain('top left');
+      // jsdom 31 serialises the value in canonical order (left top).
+      expect(style).toMatch(/transform-origin: (top left|left top)/);
     });
 
     it('does not set transform-origin when scale is 1', () => {
