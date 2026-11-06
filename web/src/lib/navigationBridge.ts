@@ -48,13 +48,16 @@
 
 import type { App } from './types';
 import { findNestedSenderFrame, findSenderFrame, frameOfWindow, isAppOrigin } from './bridgeSender';
-import { resolveDeepLink } from './navigatePath';
+import { MAX_NAV_PATH, resolveDeepLink } from './navigatePath';
 import { slugify } from './slug';
 
 export const NAV_RATE_LIMIT_MS = 500;
 const MAX_APP_NAME = 200;
 export const MAX_REQUEST_ID = 100;
-export const MAX_FRAME_LINK_HASH = 2 * MAX_APP_NAME + 2;
+// A split route plus a key and a fully percent-encoded path per app (#545).
+// One UTF-16 unit encodes to at most 9 characters (a CJK character is three
+// UTF-8 bytes, %E4%B8%AD), so a maximum-length path in any script fits.
+export const MAX_FRAME_LINK_HASH = 2 * MAX_APP_NAME + 2 + 2 * (MAX_APP_NAME + 2 + 9 * MAX_NAV_PATH);
 
 // The request's optional id, echoed in the reply so a sender with several
 // requests in flight can match each reply. Anything else is dropped.

@@ -44,6 +44,7 @@ const (
 	LabelAppPermissions        = "muximux.app.permissions"         // comma-separated; iframe permission delegations
 	LabelAppAllowNotifications = "muximux.app.allow_notifications" // "true" to enable notification bridge
 	LabelAppAllowNavigation    = "muximux.app.allow_navigation"    // "true" to let the app navigate Muximux
+	LabelAppAllowDeepLinks     = "muximux.app.allow_deep_links"    // "true" to let hash routes open a page inside the app
 	LabelAppShortcut           = "muximux.app.shortcut"            // keyboard digit 1..9
 	LabelAppGatewayDomain      = "muximux.app.gateway.domain"      // suggest as gateway site
 	LabelAppURL                = "muximux.app.url"                 // absolute URL the app opens at; health still follows the container
@@ -107,6 +108,7 @@ type AppLabels struct {
 	Permissions        []string
 	AllowNotifications *bool
 	AllowNavigation    *bool
+	AllowDeepLinks     *bool
 	HealthCheck        *bool // pointer so unset keeps the app's own setting
 	Shortcut           int   // 0 = unset
 	GatewayDomain      string
@@ -201,6 +203,7 @@ var appLabelHandlers = map[string]func(out *AppLabels, v string){
 	LabelAppPermissions:        func(out *AppLabels, v string) { out.Permissions = splitCSV(v) },
 	LabelAppAllowNotifications: appBool(LabelAppAllowNotifications, func(o *AppLabels) **bool { return &o.AllowNotifications }),
 	LabelAppAllowNavigation:    appBool(LabelAppAllowNavigation, func(o *AppLabels) **bool { return &o.AllowNavigation }),
+	LabelAppAllowDeepLinks:     appBool(LabelAppAllowDeepLinks, func(o *AppLabels) **bool { return &o.AllowDeepLinks }),
 	LabelAppShortcut: func(out *AppLabels, v string) {
 		if n, err := strconv.Atoi(v); err == nil && n >= 1 && n <= 9 {
 			out.Shortcut = n

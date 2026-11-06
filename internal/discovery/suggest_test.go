@@ -77,6 +77,15 @@ func TestSuggest_LabelCarriesAllowNavigation(t *testing.T) {
 	}
 }
 
+func TestSuggest_LabelCarriesAllowDeepLinks(t *testing.T) {
+	c := sonarrContainer()
+	c.Labels = map[string]string{"muximux.app.allow_deep_links": "true"}
+	s := suggestForContainer(&c, "container_ip", "", "")
+	if s.AllowDeepLinks == nil || !*s.AllowDeepLinks {
+		t.Errorf("AllowDeepLinks = %v, want pointer-to-true", s.AllowDeepLinks)
+	}
+}
+
 func TestSuggest_CatalogPrefersStrategyOverridesGlobal(t *testing.T) {
 	c := ContainerSummary{
 		ID:    strings.Repeat("a", 64),

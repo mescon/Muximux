@@ -202,7 +202,7 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 - [Installation](docs/wiki/installation.md) - Docker, binary, building from source, and verifying a download
 - [Getting Started](docs/wiki/getting-started.md) - First launch and onboarding
 - [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
-- [Apps](docs/wiki/apps.md) - Adding and configuring applications
+- [Apps](docs/wiki/apps.md) - Adding and configuring applications, and links that open a page inside an app
 - [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
 - [Docker Discovery](docs/wiki/docker-discovery.md) - Import containers as apps (one-click, or automatically from labels) and control them from the dashboard
 - [HTTP Actions](docs/wiki/http-actions.md) - Turn an app into a one-click HTTP request
@@ -291,6 +291,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Container Controls** | Start, stop, and restart Docker-discovered containers from the dashboard, with a status dot on each app card that stays quiet until a container is stopped, unhealthy, or restarting. Opt-in behind a read-write socket mount and role/group permissions; every action is audit-logged |
 | **HTTP Actions** | Turn an app into a button that fires an HTTP request (any method, custom headers) through a server-side relay instead of opening a page -- useful for webhooks and automations such as triggering a backup or waking a host. Optional confirmation prompt, and every fire is audit-logged |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
+| **Links Into Apps** | A bookmark, a Homarr tile or a note can open Muximux on a given app, a split layout, or a page inside the app (`#emby?path=...`, `#sonarr+radarr?sonarr=...&radarr=...`). Apps you allow can also switch apps and open pages from their own links or a small `postMessage` API. Every path stays inside its target app, and both features are opt-in per app ([Navigation from Embedded Apps](docs/wiki/apps.md#navigation-from-embedded-apps)) |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), pinned apps as one-click buttons in the bar, draggable FAB, auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Keybindings for switching apps, toggling navigation, and search |
