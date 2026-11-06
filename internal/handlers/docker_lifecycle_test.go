@@ -363,8 +363,8 @@ func TestDockerStart_AppAccessDenied_Denied(t *testing.T) {
 	r = r.WithContext(auth.WithUserContext(r.Context(), user))
 	w := httptest.NewRecorder()
 	h.DockerStart(w, r, "sonarr")
-	if w.Code != http.StatusForbidden {
-		t.Fatalf("want 403 (per-app access denied), got %d", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("want 404 (per-app access denied looks like an unknown app), got %d", w.Code)
 	}
 }
 

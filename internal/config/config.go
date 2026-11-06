@@ -682,9 +682,12 @@ func (a *AppAccessConfig) Restricted() bool {
 
 // Allows reports whether a user passes the access list. An empty list
 // allows everyone. Otherwise the user must hold one of the listed roles
-// or have one of the listed usernames; either is enough. Both compare
-// case-insensitively. Admins are exempted by the callers, as for the
-// app's other gates, so this check never decides for them.
+// or have one of the listed usernames; either is enough. Roles compare
+// case-insensitively (they come from a fixed, validated set). Usernames
+// must match exactly: with forward auth or OIDC the identity provider
+// supplies the name, and case or Unicode folding could let a different
+// account match. Admins are exempted by the callers, as for the app's
+// other gates, so this check never decides for them.
 func (a *AppAccessConfig) Allows(username, role string) bool {
 	if !a.Restricted() {
 		return true
@@ -695,7 +698,7 @@ func (a *AppAccessConfig) Allows(username, role string) bool {
 		}
 	}
 	for _, u := range a.Users {
-		if username != "" && strings.EqualFold(u, username) {
+		if username != "" && u == username {
 			return true
 		}
 	}

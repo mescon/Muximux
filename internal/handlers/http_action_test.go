@@ -255,7 +255,7 @@ func TestFireAppAction_NetworkError(t *testing.T) {
 
 func TestFireAppAction_NotAnHTTPAction(t *testing.T) {
 	cfg := &config.Config{Apps: []config.AppConfig{{
-		Name: "App", URL: "http://example.com", OpenMode: "iframe",
+		Name: "App", URL: "http://example.com", Enabled: true, OpenMode: "iframe",
 	}}}
 	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
 	w := fireWithUser(h, "App", defaultUser())
@@ -279,8 +279,8 @@ func TestFireAppAction_AccessDenied_Role(t *testing.T) {
 	}}}
 	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
 	w := fireWithUser(h, "Admin Webhook", defaultUser())
-	if w.Code != http.StatusForbidden {
-		t.Fatalf("expected 403 for role mismatch, got %d", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for role mismatch (hidden apps look unknown), got %d", w.Code)
 	}
 }
 
@@ -291,8 +291,8 @@ func TestFireAppAction_AccessDenied_Group(t *testing.T) {
 	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
 	user := &auth.User{ID: "u", Username: "alice", Role: auth.RoleUser, Groups: []string{"devs"}}
 	w := fireWithUser(h, "Restricted Webhook", user)
-	if w.Code != http.StatusForbidden {
-		t.Fatalf("expected 403 for group mismatch, got %d", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for group mismatch (hidden apps look unknown), got %d", w.Code)
 	}
 }
 
@@ -388,9 +388,10 @@ func TestFireAppAction_AccessList(t *testing.T) {
 		user *auth.User
 		want int
 	}{
-		{&auth.User{ID: "1", Username: "alice", Role: auth.RoleUser}, http.StatusForbidden},
+		{&auth.User{ID: "1", Username: "alice", Role: auth.RoleUser}, http.StatusNotFound},
 		{&auth.User{ID: "2", Username: "carol", Role: auth.RolePowerUser}, http.StatusOK},
-		{&auth.User{ID: "3", Username: "bob", Role: auth.RoleUser}, http.StatusOK}, // username, case-insensitive
+		{&auth.User{ID: "3", Username: "Bob", Role: auth.RoleUser}, http.StatusOK},
+		{&auth.User{ID: "5", Username: "bob", Role: auth.RoleUser}, http.StatusNotFound}, // usernames are exact
 		{&auth.User{ID: "4", Username: "root", Role: auth.RoleAdmin}, http.StatusOK},
 	}
 	for _, c := range cases {

@@ -2545,7 +2545,8 @@ func TestSanitizeApps_AccessList(t *testing.T) {
 		want       int
 	}{
 		{"user", "alice", 1},
-		{"user", "Bob", 2},
+		{"user", "bob", 2},
+		{"user", "Bob", 1},
 		{"power-user", "carol", 2},
 		{"admin", "root", 2},
 		{"", "", 2}, // setup preview sees everything
@@ -2553,6 +2554,26 @@ func TestSanitizeApps_AccessList(t *testing.T) {
 		if got := sanitizeApps(apps, c.role, nil, c.user, nil); len(got) != c.want {
 			t.Errorf("%s/%s: got %v, want %d apps", c.role, c.user, names(got), c.want)
 		}
+	}
+}
+
+func TestSanitizeApps_ActionURLHidesQuery(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Hook", URL: "https://u:p@hooks.example.com/run?token=s3cr3t#frag", Enabled: true, OpenMode: "http_action"}, //nolint:gosec // test fixture: the credentials are what is being stripped
+		{Name: "Site", URL: "https://site.example.com/?view=1", Enabled: true},
+	}
+	user := sanitizeApps(apps, "user", nil, "alice", nil)
+	if got := user[0].URL; got != "https://hooks.example.com/run" {
+		t.Errorf("non-admin action URL = %q, want scheme, host and path only", got)
+	}
+	if got := user[1].URL; got != "https://site.example.com/?view=1" {
+		t.Errorf("a non-action URL keeps its query: got %q", got)
+	}
+	if got := sanitizeApps(apps, "admin", nil, "root", nil)[0].URL; got != apps[0].URL {
+		t.Errorf("admins see the full action URL, got %q", got)
+	}
+	if got := stripURLQuery("http://exa mple.com/?token=x"); got != "" {
+		t.Errorf("an unparsable URL must be dropped, got %q", got)
 	}
 }
 

@@ -292,7 +292,7 @@ If `access` is not set on an app, all authenticated users can see it.
 
 You can use `roles`, `users`, or both. When you set both, a user who matches **either** condition gets access. The user does not need to match both.
 
-Muximux checks the list everywhere the app can be reached: the menu and the apps API, the reverse proxy (`/proxy/<slug>/`), HTTP actions, health status and Docker controls. It adds to `min_role` and `allowed_groups`: a user must pass all three. Matching is case-insensitive. Admins always pass.
+Muximux checks the list everywhere the app can be reached: the menu and the apps API, the reverse proxy (`/proxy/<slug>/`), HTTP actions, health status and Docker controls. It adds to `min_role` and `allowed_groups`: a user must pass all three. Role names are case-insensitive. Usernames must match exactly, including case. Admins always pass.
 
 ---
 

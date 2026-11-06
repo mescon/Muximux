@@ -2321,7 +2321,8 @@ func TestReverseProxy_EnforcesAccessList(t *testing.T) {
 	}{
 		{"alice", auth.RoleUser, http.StatusForbidden},
 		{"carol", auth.RolePowerUser, http.StatusOK},
-		{"Bob", auth.RoleUser, http.StatusOK},
+		{"bob", auth.RoleUser, http.StatusOK},
+		{"Bob", auth.RoleUser, http.StatusForbidden},
 		{"root", auth.RoleAdmin, http.StatusOK},
 	} {
 		if got := requestAs(c.user, c.role); got != c.want {

@@ -41,25 +41,26 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 		return
 	}
 
-	if app.OpenMode != "http_action" {
-		respondError(w, r, http.StatusBadRequest, "App is not an http_action")
-		return
-	}
-
-	// A disabled action is hidden from the menu; it must not fire from a
-	// direct POST either. Same answer as an unknown app, so the endpoint
-	// doesn't confirm that a disabled action exists.
-	if !app.Enabled {
-		respondError(w, r, http.StatusNotFound, errAppNotFound)
-		return
-	}
-
+	// A hidden or disabled app answers exactly like an unknown one, and
+	// before anything that depends on its settings, so the endpoint can't
+	// be used to learn which hidden apps exist or what they are.
 	if !appAccessible(user, &app) {
 		logging.Audit("HTTP action denied",
 			"app", app.Name,
 			"caller", user.Username,
 			"reason", "access_denied")
-		respondError(w, r, http.StatusForbidden, "Access denied")
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
+		return
+	}
+	// A disabled action is hidden from the menu; it must not fire from a
+	// direct POST either.
+	if !app.Enabled {
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
+		return
+	}
+
+	if app.OpenMode != "http_action" {
+		respondError(w, r, http.StatusBadRequest, "App is not an http_action")
 		return
 	}
 

@@ -29,12 +29,18 @@ All notable changes to Muximux are documented in this file.
   effect.** Like `auth_bypass`, they were read from the config but never
   enforced. They now apply wherever `min_role` and `allowed_groups` do
   (the menu and apps API, the reverse proxy, HTTP actions, health status
-  and Docker controls), on top of those two. Admins always pass.
+  and Docker controls), on top of those two. Usernames must match exactly.
+  Admins always pass.
 - **A disabled HTTP action can no longer be fired** by POSTing to
   `/api/app-action/{name}`. It was only hidden from the menu.
 - **A failed HTTP action no longer exposes its URL.** The error in the
   audit log and in the response quoted the full target URL, including
-  any secret in its query string. Only the host is reported now.
+  any secret in its query string. Only the host is reported now. The app
+  list also sent the full action URL to every user who could see the
+  action; non-admins now get it without the query string.
+- The HTTP action and Docker lifecycle endpoints answer 404, not 403,
+  for an app the caller may not see, so they no longer reveal which
+  hidden apps exist.
 - Docs: an app without `enabled: true` in a hand-written `config.yaml`
   is disabled. The wiki said apps are enabled by default.
 - Docker discovery import refuses an app whose name maps to the same

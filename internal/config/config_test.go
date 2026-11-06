@@ -2667,10 +2667,12 @@ func TestAppAccessConfigAllows(t *testing.T) {
 		{"alice", "user", false},
 		{"carol", "power-user", true},
 		{"carol", "POWER-USER", true},
-		{"bob", "user", true}, // username match, case-insensitive
+		{"Bob", "user", true},  // exact username match
+		{"bob", "user", false}, // usernames are case-sensitive
+		{"B\u212Aob", "user", false},
 		{"", "", false},
 		{"", "power-user", true},
-		{"bob", "", true},
+		{"Bob", "", true},
 	}
 	for _, c := range cases {
 		if got := a.Allows(c.user, c.role); got != c.want {
@@ -2678,6 +2680,9 @@ func TestAppAccessConfigAllows(t *testing.T) {
 		}
 	}
 	usersOnly := AppAccessConfig{Users: []string{"bob"}}
+	if usersOnly.Allows("", "user") {
+		t.Error("a users-only list must deny a caller with no username")
+	}
 	if usersOnly.Allows("alice", "admin") {
 		t.Error("the role must not match when only users are listed (admins are exempted by the callers)")
 	}

@@ -1251,6 +1251,12 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		proxyHeaders = app.ProxyHeaders
 	} else {
 		url = stripURLCredentials(url)
+		// An action's URL is a webhook, often with a secret in its
+		// query string. Non-admins never need it: the server fires the
+		// action. Keep scheme, host and path for the confirmation dialog.
+		if app.OpenMode == "http_action" {
+			url = stripURLQuery(url)
+		}
 	}
 	out := ClientAppConfig{
 		Name:                app.Name,
@@ -1313,6 +1319,23 @@ func stripURLCredentials(raw string) string {
 		return raw
 	}
 	u.User = nil
+	return u.String()
+}
+
+// stripURLQuery drops the query string and fragment from a URL. A URL
+// that does not parse is dropped entirely, so nothing unparsed leaks.
+func stripURLQuery(raw string) string {
+	if raw == "" {
+		return raw
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return ""
+	}
+	u.RawQuery = ""
+	u.ForceQuery = false
+	u.Fragment = ""
+	u.RawFragment = ""
 	return u.String()
 }
 
