@@ -331,13 +331,15 @@ If you edited `config.yaml` directly (not through the Settings panel), Muximux w
 sudo chown -R 1000:1000 ./data
 ```
 
-Or, if you prefer to use a different UID, you can set it in your `docker-compose.yml`:
+Or, if you prefer to use a different UID, set `PUID` and `PGID` in your `docker-compose.yml`. Don't use `user:` for this: the entrypoint has to start as root to create the user and fix ownership of `/app/data` before it drops privileges.
 
 ```yaml
 services:
   muximux:
     image: ghcr.io/mescon/muximux:latest
-    user: "1000:1000"
+    environment:
+      - PUID=1000
+      - PGID=1000
     volumes:
       - ./data:/app/data
 ```
@@ -352,12 +354,15 @@ start/stop/restart buttons return an error.
 **Cause:** Muximux can't reach the Docker socket.
 
 **Solutions:**
-1. Mount the socket. Discovery and auto-import need it read-only:
+1. Mount the socket:
    `- /var/run/docker.sock:/var/run/docker.sock:ro`
+   (`:ro` doesn't limit Docker API calls; see
+   [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux).)
    The container entrypoint auto-detects the socket's group and grants the
    runtime user access, so you don't need `group_add`, root, or a custom entrypoint.
-2. Lifecycle controls (start/stop/restart) additionally require write access
-   (`:rw`) AND `discovery.docker.lifecycle_enabled: true`. They are role-gated
+2. Lifecycle controls (start/stop/restart) additionally require a daemon that
+   accepts write requests (a plain socket mount does; a socket proxy must allow
+   `POST`) AND `discovery.docker.lifecycle_enabled: true`. They are role-gated
    and audit-logged.
 3. Confirm discovery is enabled (`discovery.docker.enabled: true`) and check
    the server logs for socket connection errors on startup.

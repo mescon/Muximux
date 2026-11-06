@@ -72,7 +72,7 @@ discovery:
     refresh_interval: 60s                   # poller cadence, [10s, 1h]
     auto_import: off                        # off (default) | add | update | sync (3.2.0)
     require_explicit_enable: false          # only containers with muximux.app.enabled=true (3.6.0)
-    lifecycle_enabled: false                # allow start/stop/restart of tracked containers (needs :rw socket)
+    lifecycle_enabled: false                # allow start/stop/restart of tracked containers (needs a daemon that accepts writes)
     lifecycle_min_role: admin               # min role for lifecycle controls
     lifecycle_allowed_groups: []            # additionally require group membership
     health_badge_placement: overview        # overview | overview_and_nav | off
@@ -91,16 +91,16 @@ services:
     # ... usual ports / volumes / env ...
     volumes:
       - ./data:/app/data
-      # :ro = discovery only (read-only). Use :rw instead to also enable
-      # start/stop/restart controls -- see "Container lifecycle controls" below.
+      # :ro does not limit Docker API calls; see "Container lifecycle
+      # controls" below for what actually gates start/stop/restart.
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
 
 That is all you need. The entrypoint stats the bind-mounted socket at startup, reads its group ownership from the host, and adds the runtime user to a matching group inside the container, so the non-root muximux process can read the socket. You do not need a `DOCKER_GID` env var or `group_add`, or to look up the right group number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
 
-The trailing `:ro` is the default and keeps Muximux read-only: with `:ro` it can see and list your containers but cannot start, stop, or change any of them. Marking the mount read-only means a compromised Muximux can't pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+The trailing `:ro` only stops the container from replacing or deleting the socket file. It does not limit what can be sent through the socket: anything that can connect to it can use the whole Docker API, including creating privileged containers. Treat socket access as root on the host, whatever the mount flag, and gate the dashboard with auth. To make the socket truly read-only, put a socket proxy in front of it (for example tecnativa/docker-socket-proxy) that allows only `GET` requests, and point `endpoint` at the proxy.
 
-Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers: the socket must be mounted `:rw` **and** `discovery.docker.lifecycle_enabled: true` must be set. Neither one alone is enough: the dashboard still won't start, stop, or restart anything until you turn on both. Even with both on, Muximux can only start, stop, and restart the containers it already tracks. It can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Every action, and every blocked attempt, is written to the audit log.
+Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers: the daemon must accept write requests **and** `discovery.docker.lifecycle_enabled: true` must be set. When it connects to the daemon, Muximux sends a harmless `POST` to check the first; a plain socket mount passes it, `:ro` or not, and a socket proxy that blocks `POST` fails it. Neither layer alone is enough: the dashboard still won't start, stop, or restart anything until both are in place. Even with both on, Muximux can only start, stop, and restart the containers it already tracks. It can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Every action, and every blocked attempt, is written to the audit log.
 
 For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, two override env vars are available: `DOCKER_SOCKET` (the path the entrypoint stats) and `DOCKER_GID` (bypass auto-detect and force a specific GID). Almost no one needs these.
 
@@ -788,7 +788,7 @@ Field-level details and examples are in the [API Reference](api.md#discovery).
 
 If you want the dashboard to start / stop / restart tracked containers from the overview page:
 
-1. Edit `docker-compose.yml` and switch the Docker socket mount from `:ro` to `:rw` -- change the line to `- /var/run/docker.sock:/var/run/docker.sock:rw`. The `:ro` mount stays as the documented default; you opt in by changing this one character.
+1. Make sure the daemon accepts write requests from Muximux. A plain socket mount already does (`:ro` makes no difference). If Muximux talks to a socket proxy, allow `POST` requests for containers there.
 2. Set `discovery.docker.lifecycle_enabled: true` in your `config.yaml`, or toggle "Enable container lifecycle controls" under Settings -> Discovery (the checkbox is disabled until the socket is writable).
 3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups. These are **user and identity-provider group names** (built-in user groups, the OIDC groups claim, the forward-auth groups header), not dashboard groups. Renaming or deleting a dashboard group never touches this list.
 4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
