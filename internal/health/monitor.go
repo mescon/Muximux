@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"crypto/tls"
+	"github.com/mescon/muximux/v3/internal/safeerr"
 	"io"
 	"net/http"
 	"sync"
@@ -190,7 +191,7 @@ func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 	start := time.Now()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		m.updateHealth(app.Name, StatusUnhealthy, 0, err.Error())
+		m.updateHealth(app.Name, StatusUnhealthy, 0, safeerr.Describe(err))
 		return
 	}
 
@@ -198,7 +199,7 @@ func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 	responseTime := time.Since(start)
 
 	if err != nil {
-		m.updateHealth(app.Name, StatusUnhealthy, responseTime, err.Error())
+		m.updateHealth(app.Name, StatusUnhealthy, responseTime, safeerr.Describe(err))
 		return
 	}
 	// Drain body so the connection can be reused by the HTTP client pool

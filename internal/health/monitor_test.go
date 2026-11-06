@@ -1,6 +1,7 @@
 package health
 
 import (
+	"strings"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -388,5 +389,20 @@ func TestMonitor_DisabledAppsNotChecked(t *testing.T) {
 	// But the health status should reflect the actual check
 	if hitCount != 1 {
 		t.Errorf("expected 1 hit from CheckNow, got %d", hitCount)
+	}
+}
+
+// A failed check must not keep the URL in LastError: health status reaches
+// non-admins, and a health URL can carry a token.
+func TestMonitor_CheckApp_ErrorHidesURL(t *testing.T) {
+	const secret = "s3cr3t-token"
+	m := NewMonitor(time.Minute, 200*time.Millisecond)
+	m.SetApps([]AppConfig{{Name: "hook", URL: "http://127.0.0.1:1/" + secret + "?token=" + secret, Enabled: true}})
+	result := m.CheckNow("hook")
+	if result == nil || result.Status != StatusUnhealthy {
+		t.Fatalf("want unhealthy, got %+v", result)
+	}
+	if result.LastError == "" || strings.Contains(result.LastError, secret) {
+		t.Errorf("LastError = %q; want a description without the URL", result.LastError)
 	}
 }

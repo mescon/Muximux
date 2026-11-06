@@ -37,7 +37,10 @@ All notable changes to Muximux are documented in this file.
   audit log and in the response quoted the full target URL, including
   any secret in its query string. Only the host is reported now. The app
   list also sent the full action URL to every user who could see the
-  action; non-admins now get it without the query string.
+  action; non-admins now get only its scheme and host. Relay and health
+  check errors no longer quote any URL (Go's errors include the full URL,
+  and for a bad redirect the Location header), and non-admins no longer
+  receive an app's `health_url`.
 - The HTTP action and Docker lifecycle endpoints answer 404, not 403,
   for an app the caller may not see, so they no longer reveal which
   hidden apps exist.

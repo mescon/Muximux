@@ -1251,17 +1251,17 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		proxyHeaders = app.ProxyHeaders
 	} else {
 		url = stripURLCredentials(url)
-		// An action's URL is a webhook, often with a secret in its
-		// query string. Non-admins never need it: the server fires the
-		// action. Keep scheme, host and path for the confirmation dialog.
+		// An action's URL is a webhook, often with a secret in its path
+		// or query string. Non-admins never need it: the server fires the
+		// action. Keep only scheme and host for the confirmation dialog.
 		if app.OpenMode == "http_action" {
-			url = stripURLQuery(url)
+			url = urlOrigin(url)
 		}
 	}
 	out := ClientAppConfig{
 		Name:                app.Name,
 		URL:                 url,
-		HealthURL:           stripURLCredentialsIf(!isAdmin, app.HealthURL),
+		HealthURL:           adminOnlyString(isAdmin, app.HealthURL),
 		ProxyURL:            proxyURL,
 		Icon:                app.Icon,
 		Color:               app.Color,
@@ -1322,28 +1322,26 @@ func stripURLCredentials(raw string) string {
 	return u.String()
 }
 
-// stripURLQuery drops the query string and fragment from a URL. A URL
-// that does not parse is dropped entirely, so nothing unparsed leaks.
-func stripURLQuery(raw string) string {
+// urlOrigin keeps only the scheme and host of a URL. A URL that does not
+// parse, or has no host, gives "" so nothing unparsed leaks.
+func urlOrigin(raw string) string {
 	if raw == "" {
 		return raw
 	}
 	u, err := url.Parse(raw)
-	if err != nil {
+	if err != nil || u.Host == "" {
 		return ""
 	}
-	u.RawQuery = ""
-	u.ForceQuery = false
-	u.Fragment = ""
-	u.RawFragment = ""
-	return u.String()
+	return u.Scheme + "://" + u.Host
 }
 
-func stripURLCredentialsIf(strip bool, raw string) string {
-	if !strip {
-		return raw
+// adminOnlyString returns s for admins and "" for everyone else. A health
+// URL can carry a token, and only the Settings form uses it.
+func adminOnlyString(isAdmin bool, s string) string {
+	if isAdmin {
+		return s
 	}
-	return stripURLCredentials(raw)
+	return ""
 }
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)

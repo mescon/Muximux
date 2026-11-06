@@ -47,12 +47,13 @@ apps:
       users: []
 ```
 
-Most fields are optional. A minimal app definition only needs `name` and `url`:
+Most fields are optional. A minimal app definition needs `name`, `url` and `enabled: true` (without it, a hand-written app stays disabled):
 
 ```yaml
 apps:
   - name: Sonarr
     url: http://sonarr:8989
+    enabled: true
 ```
 
 ### Adding apps from Docker
@@ -283,6 +284,7 @@ You can restrict which users or roles are allowed to see specific apps using the
 apps:
   - name: Admin Panel
     url: http://admin:9090
+    enabled: true
     access:
       roles: [admin]           # Only users with the "admin" role can see this app
       users: [alice, bob]      # Or allow specific usernames
@@ -293,6 +295,8 @@ If `access` is not set on an app, all authenticated users can see it.
 You can use `roles`, `users`, or both. When you set both, a user who matches **either** condition gets access. The user does not need to match both.
 
 Muximux checks the list everywhere the app can be reached: the menu and the apps API, the reverse proxy (`/proxy/<slug>/`), HTTP actions, health status and Docker controls. It adds to `min_role` and `allowed_groups`: a user must pass all three. Role names are case-insensitive. Usernames must match exactly, including case. Admins always pass.
+
+The list does not cover a [gateway site](tls-and-gateway.md) linked to the app with `app_name`. A gateway site uses its own `require_auth`, `min_role` and `allowed_groups`. So set those on the site too, or a user the list keeps out can still reach the backend on the site's own domain.
 
 ---
 

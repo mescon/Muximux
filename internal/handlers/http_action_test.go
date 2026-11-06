@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -416,22 +415,5 @@ func TestFireAppAction_ErrorHidesURL(t *testing.T) {
 	}
 	if strings.Contains(w.Body.String(), secret) || strings.Contains(w.Body.String(), "/hook") {
 		t.Errorf("response leaks the URL: %s", w.Body.String())
-	}
-}
-
-func TestRelayErrorText(t *testing.T) {
-	const secret = "s3cr3t-token"
-	_, parseErr := url.Parse("http://exa mple.com/?token=" + secret) //nolint:staticcheck // deliberately invalid: a parse error quotes the URL
-	wrapped := &url.Error{Op: "Post", URL: "https://example.com/?token=" + secret, Err: errors.New("dial tcp: connection refused")}
-	for _, err := range []error{parseErr, wrapped} {
-		if got := relayErrorText(err); strings.Contains(got, secret) || got == "" {
-			t.Errorf("relayErrorText(%v) = %q", err, got)
-		}
-	}
-	if got := relayErrorText(wrapped); got != "Post: dial tcp: connection refused" {
-		t.Errorf("relayErrorText = %q, want the op and cause", got)
-	}
-	if got := relayErrorText(errors.New("plain")); got != "plain" {
-		t.Errorf("non-URL error = %q, want it unchanged", got)
 	}
 }

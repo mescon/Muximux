@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +11,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
+	"github.com/mescon/muximux/v3/internal/safeerr"
 )
 
 type fireActionResult struct {
@@ -72,7 +72,7 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 
 	req, err := http.NewRequestWithContext(r.Context(), method, app.URL, nil)
 	if err != nil {
-		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("invalid url: %s", relayErrorText(err)))
+		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("invalid url: %s", safeerr.Describe(err)))
 		return
 	}
 	for k, v := range app.HTTPActionHeaders {
@@ -89,10 +89,10 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 			"method", method,
 			"url_host", urlHost,
 			"caller", user.Username,
-			"error", relayErrorText(err),
+			"error", safeerr.Describe(err),
 			"latency_ms", latency.Milliseconds())
 		sendJSON(w, http.StatusBadGateway, fireActionResult{
-			Error: relayErrorText(err), LatencyMS: latency.Milliseconds(), URLHost: urlHost, Method: method,
+			Error: safeerr.Describe(err), LatencyMS: latency.Milliseconds(), URLHost: urlHost, Method: method,
 		})
 		return
 	}
@@ -134,18 +134,6 @@ func appAccessible(user *auth.User, app *config.AppConfig) bool {
 		return false
 	}
 	return app.Access.Allows(user.Username, user.Role)
-}
-
-// relayErrorText describes a relay failure without the target URL. Go's
-// HTTP client and URL parser quote the whole URL in their errors, and a
-// webhook URL often carries a secret in its query string, so that text
-// must reach neither the audit log nor the caller.
-func relayErrorText(err error) string {
-	var ue *url.Error
-	if errors.As(err, &ue) {
-		return ue.Op + ": " + ue.Err.Error()
-	}
-	return err.Error()
 }
 
 func safeURLHost(rawURL string) string {
