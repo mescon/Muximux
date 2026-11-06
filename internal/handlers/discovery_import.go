@@ -435,6 +435,21 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// Cross-reference + structural validation against the candidate
 	// shape. ValidateGatewaySites is a *Config method that walks
 	// gateway sites and checks AppName references existing apps.
+	// Two apps whose names slugify alike would share /proxy/<slug>/:
+	// the later one takes the route, and the earlier one's auth_bypass
+	// rules would then open it. The per-app API and SaveConfig refuse
+	// this; the import must too.
+	if err := config.ValidateUniqueAppSlugs(apps); err != nil {
+		for i := range results {
+			if results[i].Status == StatusCreated {
+				results[i].Status = StatusValidationFailed
+				results[i].Error = err.Error()
+			}
+		}
+		sendJSON(w, http.StatusOK, ImportResult{Success: false, Error: err.Error(), Items: results})
+		return
+	}
+
 	candidate := *h.config // shallow copy
 	candidate.Apps = apps
 	candidate.Server.GatewaySites = sites

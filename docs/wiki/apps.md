@@ -263,6 +263,8 @@ Each bypass rule supports the following fields:
 
 Paths are relative to the app's proxy path: on Sonarr, `/api/*` covers `/proxy/sonarr/api/*`. The full path (`/proxy/sonarr/api/*`) works too. Rules only apply to apps that are enabled and have `proxy: true`, because only their traffic passes through Muximux. A rule that could reach outside its app is ignored and logged as a warning: an empty `path`, a path under another app's `/proxy/` prefix, or a path containing `..`. Changes apply as soon as the config is saved.
 
+A request that matches a rule needs no Muximux login, so the app's `access`, `min_role` and `allowed_groups` do not apply to it. Use `require_api_key` or `allowed_ips` to decide who gets through, and keep rules to the paths integrations actually need.
+
 Common use cases:
 
 - Allowing RSS feed readers to fetch feeds without a login session

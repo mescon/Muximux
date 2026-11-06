@@ -83,6 +83,18 @@ func TestAppBypassRules(t *testing.T) {
 	if got[0].Methods[0] != "GET" {
 		t.Error("appBypassRules must copy the methods slice")
 	}
+	// A slug shared by two proxied apps gets no rules for either.
+	shared := []config.AppConfig{
+		{Name: "Sonarr", URL: "http://a", Proxy: true, Enabled: true, AuthBypass: []config.AuthBypassRule{{Path: "/api/*"}}},
+		{Name: "sonarr!", URL: "http://b", Proxy: true, Enabled: true},
+	}
+	if got := appBypassRules(shared); got != nil {
+		t.Errorf("shared slug: got %+v, want no rules", got)
+	}
+	shared[1].Enabled = false
+	if got := appBypassRules(shared); len(got) != 1 {
+		t.Errorf("slug no longer shared once the other app is disabled: got %+v", got)
+	}
 	if appBypassRules(nil) != nil {
 		t.Error("no apps should give no rules")
 	}
@@ -151,6 +163,17 @@ func TestAppBypass_EndToEnd(t *testing.T) {
 	}
 	if hits.Load() != before {
 		t.Error("a refused request reached the backend")
+	}
+
+	// Without proxy_headers the Muximux key used to pass the rule is
+	// stripped, so the backend never receives the instance-wide key.
+	s.config.Apps[0].ProxyHeaders = nil
+	s.rebuildProxyRoutes()
+	if code := do(http.MethodGet, "/proxy/sonarr/api/v3/series", key); code != http.StatusOK {
+		t.Fatalf("key on an allowlisted path without proxy_headers: status %d, want 200", code)
+	}
+	if got := lastKey.Load(); got != "" {
+		t.Errorf("backend received X-Api-Key %q; the Muximux key must be stripped", got)
 	}
 
 	// A Settings save rebuilds the rules: dropping the rule closes the path.

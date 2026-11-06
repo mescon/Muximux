@@ -226,9 +226,17 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 
 		// Check bypass rules — still attempt best-effort auth so that
 		// bypassed endpoints (e.g. /api/auth/status) can see the user.
-		if m.shouldBypass(r, snap) {
+		if rule := m.matchedBypassRule(r, snap); rule != nil {
 			logging.From(r.Context()).Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
 			user, session := m.authenticateRequest(r, snap)
+			// The key just proved the caller to Muximux; it is the
+			// instance-wide key, so it must not travel on to a proxied
+			// backend, which could replay it against every other path
+			// that accepts it. proxy_headers can still set the
+			// backend's own X-Api-Key.
+			if rule.RequireAPIKey {
+				r.Header.Del("X-Api-Key")
+			}
 			if user != nil {
 				ctx := context.WithValue(r.Context(), ContextKeyUser, user)
 				ctx = logging.SetUser(ctx, user.Username)
@@ -347,19 +355,25 @@ func (m *Middleware) RequireRole(roles ...string) func(http.Handler) http.Handle
 }
 
 func (m *Middleware) shouldBypass(r *http.Request, snap *authSnapshot) bool {
-	for _, rule := range snap.config.BypassRules {
-		if m.matchBypassRule(r, rule, snap) {
-			return true
+	return m.matchedBypassRule(r, snap) != nil
+}
+
+// matchedBypassRule returns the first built-in or per-app rule the
+// request satisfies, or nil.
+func (m *Middleware) matchedBypassRule(r *http.Request, snap *authSnapshot) *BypassRule {
+	for i := range snap.config.BypassRules {
+		if m.matchBypassRule(r, snap.config.BypassRules[i], snap) {
+			return &snap.config.BypassRules[i]
 		}
 	}
 	if rules := m.appRules.Load(); rules != nil {
-		for _, rule := range *rules {
-			if m.matchBypassRule(r, rule, snap) {
-				return true
+		for i := range *rules {
+			if m.matchBypassRule(r, (*rules)[i], snap) {
+				return &(*rules)[i]
 			}
 		}
 	}
-	return false
+	return nil
 }
 
 func (m *Middleware) matchBypassRule(r *http.Request, rule BypassRule, snap *authSnapshot) bool {

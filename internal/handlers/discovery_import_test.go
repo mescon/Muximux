@@ -584,3 +584,27 @@ func TestImportDocker_ManualImportNeverSetsHealthCheckMarker(t *testing.T) {
 		t.Errorf("health_check must pass through: %+v", app.HealthCheck)
 	}
 }
+
+// An imported app whose name slugifies like an existing one would take
+// over that app's /proxy/<slug>/ route (and so its auth_bypass rules).
+func TestImportDocker_SlugCollisionWithExisting(t *testing.T) {
+	h, cfg := newTestImportHandler(t, []config.AppConfig{
+		{Name: "Sonarr", URL: "http://sonarr:8989", Proxy: true, Enabled: true},
+	})
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:x",
+			Strategy: "container_ip",
+			App:      &ClientAppConfig{Name: "sonarr!", URL: "http://other:80", Enabled: true},
+		}},
+	})
+	if res.Success {
+		t.Fatal("Success should be false on a slug collision")
+	}
+	if res.Items[0].Status != "validation_failed" || !strings.Contains(res.Items[0].Error, "sonarr") {
+		t.Errorf("item[0] = %+v, want validation_failed naming the slug", res.Items[0])
+	}
+	if len(cfg.Apps) != 1 || cfg.Apps[0].URL != "http://sonarr:8989" {
+		t.Errorf("config changed: %+v", cfg.Apps)
+	}
+}

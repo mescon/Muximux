@@ -18,10 +18,21 @@ import (
 // /proxy/<slug>/ prefix is taken as is. A rule is skipped, with a
 // warning, when it could open anything outside its app: an empty path
 // (which the matcher treats as "everything"), a path under another
-// app's prefix, or a path with dot segments. Apps that are disabled or
+// app's prefix, a path with dot segments, or a slug that more than one
+// proxied app claims. Apps that are disabled or
 // not proxied get no rules, since their traffic never passes through
 // /proxy/.
 func appBypassRules(apps []config.AppConfig) []auth.BypassRule {
+	// Two proxied apps whose names slugify alike share /proxy/<slug>/,
+	// and the route goes to whichever was built last. Validation refuses
+	// this on save, but a rule must not depend on that: a shared slug
+	// gets no rules, so one app's rules can never open the other.
+	claims := make(map[string]int, len(apps))
+	for i := range apps {
+		if apps[i].Proxy && apps[i].Enabled {
+			claims[handlers.Slugify(apps[i].Name)]++
+		}
+	}
 	var out []auth.BypassRule
 	for i := range apps {
 		app := &apps[i]
@@ -34,6 +45,11 @@ func appBypassRules(apps []config.AppConfig) []auth.BypassRule {
 			continue
 		}
 		slug := handlers.Slugify(app.Name)
+		if claims[slug] > 1 {
+			logging.Warn("Ignoring auth_bypass: another proxied app has the same slug",
+				"source", "auth", "app", app.Name, "slug", slug)
+			continue
+		}
 		for j := range app.AuthBypass {
 			rule := &app.AuthBypass[j]
 			path, ok := appBypassPath(slug, rule.Path)

@@ -546,7 +546,7 @@ Then the request flow is:
 
 Scope is tight by design: this rule allows only `POST /proxy/ci/hooks/github`. The same key cannot hit `GET /proxy/ci/admin` or any other `/api/*` endpoint that has not been allowlisted.
 
-> **Header note:** Muximux does not strip the inbound `X-Api-Key` header before forwarding to the backend. If the proxied app reads `X-Api-Key` for its own auth (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app so Muximux overwrites the inbound key with the backend's own key before forwarding. If the backend ignores `X-Api-Key`, no action is needed: the Muximux key rides through and the backend ignores it.
+> **Header note:** When a rule with `require_api_key: true` lets a request through, Muximux removes the Muximux key (`X-Api-Key`) before forwarding, so a backend never receives the instance-wide key. If the proxied app wants its own `X-Api-Key` (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app. Requests that pass with a session cookie instead keep whatever `X-Api-Key` the caller sent.
 
 ### What the API Key Does NOT Unlock
 
