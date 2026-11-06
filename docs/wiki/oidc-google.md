@@ -81,10 +81,9 @@ Set `GOOGLE_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ## Step 4: Decide Who Becomes Admin
 
-Muximux gives an OIDC user the `admin` role only when one of the user's groups is in `admin_groups`. Google sends no groups, so with the default `groups_claim`, a user who signs in with Google gets the `user` role. There are two exceptions:
+Muximux gives an OIDC user the `admin` role only when one of the user's groups is in `admin_groups`. Google sends no groups, so with the default `groups_claim`, a user who signs in with Google gets the `user` role. There is one exception: Muximux reads the claim that `groups_claim` names. With `groups_claim: email`, the user's email address becomes the user's only group. An address that you put in `admin_groups` then gives that Google user the `admin` role.
 
-- Muximux reads the claim that `groups_claim` names. With `groups_claim: email`, the user's email address becomes the user's only group. An address that you put in `admin_groups` then gives that Google user the `admin` role.
-- If the username from Google is the same as the username of a local account, Muximux uses the local account and its role for that session. So a local admin with that username gives the Google user admin access. Do not give a local account a username that a Google user can have (here, an email address), unless you want this.
+A Google sign-in never uses a local account, even when the usernames match. It always gets the role from its own sign-in.
 
 Muximux does not add OIDC users to its user list. So you cannot promote a Google user in **Settings > Security > Users**.
 
