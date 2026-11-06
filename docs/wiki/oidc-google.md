@@ -93,7 +93,9 @@ To keep admin access:
 If Google users must be admins, put a provider that sends groups in front of Google (see the note at the top of this page).
 
 **Restrict at the consent screen.**
-These settings control who can sign in. They do not control who is an admin. If your Google Cloud project has User type **Internal**, only members of your Workspace can sign in. If it's **External** with **Test users** set, only the listed users can sign in.
+These settings control who can sign in. They do not control who is an admin. If your Google Cloud project has User type **Internal**, only members of your Workspace can sign in.
+
+With User type **External**, do not rely on the **Test users** list. A published External app lets any Google account sign in. A testing app can also let unlisted accounts sign in when it asks only for `openid`, `profile` and `email`, the scopes Muximux uses. Every account that signs in becomes a Muximux user with the `user` role, and it sees every app that has no `min_role` or `allowed_groups`. So with External, restrict access in another way as well, for example with Cloudflare Access or a VPN in front of Muximux.
 
 For a Workspace-only deployment, **Internal** plus a local admin account is the simplest pattern.
 

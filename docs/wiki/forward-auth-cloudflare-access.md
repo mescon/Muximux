@@ -80,6 +80,10 @@ Cloudflare's published IP ranges do not apply here, because tunnel requests neve
 
 > **Security.** Muximux does not check the `Cf-Access-Jwt-Assertion` token. It trusts the email header from every address in `trusted_proxies`. So a process that can connect to Muximux from one of these addresses can sign in as any user. Make sure that only the connector and processes that you trust can connect from these addresses. For example, do not trust a full Docker network that other containers share. Do not trust `127.0.0.1` on a host where untrusted processes run.
 
+> **Protect every route.** Access sets the email header itself on a route that it protects, so a client cannot fake it there. On a tunnel route (public hostname) without Access, the client can send its own `Cf-Access-Authenticated-User-Email` and sign in as anyone. So protect every route that reaches Muximux with Access, or remove the route.
+
+> **Remove the groups header.** Cloudflare passes request headers from the browser on to Muximux. Access does not set a groups header. Muximux reads groups from `Remote-Groups` unless `headers.groups` names another header. So a signed-in user can send `Remote-Groups: admin` and become an admin. Add a Cloudflare rule that removes that header from every request to Muximux: **Rules > Transform Rules > Modify Request Header**, action **Remove**. If you send groups from an Access policy (see [On Groups and Admin Promotion](#on-groups-and-admin-promotion)), check that a copy of that header sent by the client cannot reach Muximux either.
+
 The `logout_url` ends in `/cdn-cgi/access/logout`. It uses your Access team domain, which you can see at the top of the Zero Trust dashboard. Opening this URL logs the user out of Cloudflare Access. Without it, Muximux's logout button only ends the local session. Then the next request silently signs the user back in.
 
 ---

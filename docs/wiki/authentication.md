@@ -640,6 +640,8 @@ Muximux authentication controls access to the **Muximux dashboard and its API**.
 
 In short: if you expose Muximux to the internet and want it to gate access to your apps, set an authentication method and enable the reverse proxy for those apps. If other services need to call a backend app's API through Muximux, add an `auth_bypass` rule with `require_api_key: true`. Limit that rule to the specific paths that those services need. Otherwise, secure your apps with their own authentication, a separate reverse proxy or a VPN.
 
+Muximux only protects requests that go through it. If the backend is also reachable directly (a published port, a shared network), anyone who reaches it there skips Muximux. So block direct access to the backend from untrusted networks, or turn on the backend's own authentication.
+
 See [Apps & Groups > Open Modes](apps.md#open-modes) for more details on the three-way choice and [Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the integration pattern.
 
 ---

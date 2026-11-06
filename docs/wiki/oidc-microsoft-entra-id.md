@@ -49,7 +49,7 @@ Many homelab and small-team setups skip this step. Then they cannot find out why
 
 1. In the app registration, open **Token configuration**.
 2. Click **Add groups claim**.
-3. Under **Select group types to include**, pick **Security groups**, unless you also use Microsoft 365 / mail-enabled groups for access decisions. If you want **Cloud-only group display names** in step 5, pick **Groups assigned to the application** instead. Then assign the admin group to the application (**Enterprise applications > Muximux > Users and groups**), and make the users direct members of that group. Group assignment needs an Entra ID P1 license. Without it, use group IDs.
+3. Under **Select group types to include**, pick **Security groups**, unless you also use Microsoft 365 / mail-enabled groups for access decisions. If you want **Cloud-only group display names** in step 5, pick **Groups assigned to the application** instead. Then assign the admin group to the application (**Enterprise applications > Muximux > Users and groups**), and make the users direct members of that group. Do the same for every group you use in `allowed_groups`. Entra leaves out groups that are not assigned to the application, so their members could sign in but would not see the apps that those groups unlock. Group assignment needs an Entra ID P1 license. Without it, use group IDs.
 4. Expand the **ID** section. (Optionally also expand **Access** / **SAML** if you will use them later.)
 5. In each section you expanded, choose how Entra sends groups:
    - **Group ID** (the default) sends group GUIDs. Muximux works, but your config will look like `admin_groups: [22e90a9d-1c5d-4f0b-9c5f-...]`.
