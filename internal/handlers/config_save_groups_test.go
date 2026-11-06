@@ -27,7 +27,7 @@ func groupSaveFixture(t *testing.T) (*APIHandler, *config.Config, ClientConfigUp
 		t.Fatal(err)
 	}
 	h := NewAPIHandler(cfg, path, &sync.RWMutex{})
-	wire, _ := json.Marshal(buildClientConfigResponse(cfg, auth.RoleAdmin, nil))
+	wire, _ := json.Marshal(buildClientConfigResponse(cfg, auth.RoleAdmin, nil, ""))
 	var loaded ClientConfigUpdate
 	if err := json.Unmarshal(wire, &loaded); err != nil {
 		t.Fatal(err)

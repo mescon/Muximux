@@ -47,7 +47,7 @@ apps:
       users: []
 ```
 
-Most fields are optional. A minimal app definition only needs `name` and `url`:
+Most fields are optional. A minimal app definition only needs `name` and `url`. An app without `enabled` is enabled:
 
 ```yaml
 apps:
@@ -225,7 +225,7 @@ apps:
     enabled: false    # Hidden from navigation
 ```
 
-Muximux keeps the app's configuration. To enable the app again at any time, set `enabled: true` or remove the field entirely. Apps are enabled by default.
+Muximux keeps the app's configuration. To enable the app again at any time, set `enabled: true` or remove the field. Apps are enabled by default.
 
 This is useful for temporarily hiding apps that are down for maintenance or that you are still configuring.
 
@@ -283,6 +283,7 @@ You can restrict which users or roles are allowed to see specific apps using the
 apps:
   - name: Admin Panel
     url: http://admin:9090
+    enabled: true
     access:
       roles: [admin]           # Only users with the "admin" role can see this app
       users: [alice, bob]      # Or allow specific usernames
@@ -291,6 +292,10 @@ apps:
 If `access` is not set on an app, all authenticated users can see it.
 
 You can use `roles`, `users`, or both. When you set both, a user who matches **either** condition gets access. The user does not need to match both.
+
+Muximux checks the list everywhere the app can be reached: the menu and the apps API, the reverse proxy (`/proxy/<slug>/`), HTTP actions, health status and Docker controls. It adds to `min_role` and `allowed_groups`: a user must pass all three. Role names are case-insensitive. Usernames must match exactly, including case. Admins always pass.
+
+The list does not cover a [gateway site](tls-and-gateway.md) linked to the app with `app_name`. A gateway site uses its own `require_auth`, `min_role` and `allowed_groups`. So set those on the site too, or a user the list keeps out can still reach the backend on the site's own domain.
 
 ---
 
@@ -637,7 +642,7 @@ Example response:
 
 **Proxied apps (`proxy: true`)** run at `/proxy/<slug>/` on Muximux's own origin. So a same-origin request automatically carries the Muximux session cookie. The app does not need to send any credentials.
 
-There is one catch. Inside a proxied app, the interceptor script (the script that Muximux injects to keep URLs inside `/proxy/<slug>/`) rewrites root-relative URLs. A plain `fetch('/api/appearance')` becomes `/proxy/<slug>/api/appearance` and goes to the app's backend, not to Muximux. The same happens to `theme_css_url`. The interceptor leaves protocol-relative URLs (`//host/path`) alone. So build the URL from the page's own host: `'//' + location.host + '/api/appearance'`. If Muximux runs under a `server.base_path` (for example `/muximux`), put it before `/api/appearance` and before `theme_css_url`. The examples below do this.
+Inside a proxied app, the interceptor script (the script that Muximux injects to keep URLs inside `/proxy/<slug>/`) rewrites root-relative URLs so they go to the app's backend. It makes one exception: it leaves `/api/appearance` alone, so a plain `fetch('/api/appearance')` reaches Muximux. Two cases still need care. First, `theme_css_url` (for example `/themes/nord.css`) is rewritten like any other path. Second, if Muximux runs under a `server.base_path` (for example `/muximux`), its API is at `/muximux/api/appearance`, which the interceptor also rewrites. For both, build the URL from the page's own host: the interceptor leaves protocol-relative URLs (`//host/path`) alone. The examples below do this, so they work in every setup.
 
 **External apps** (cross-origin iframes, scripts, dashboards, scheduled jobs) can authenticate with an API key instead of a session cookie. Add the header:
 

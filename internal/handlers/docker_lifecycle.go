@@ -138,11 +138,13 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 	// is not allowed to SEE this app (its own min_role / allowed_groups)
 	// must not be able to control its container. The lifecycle gate alone
 	// governs the capability; this governs which apps it applies to.
-	// Mirrors http_action's appAccessible; admins bypass by role.
+	// Mirrors http_action's appAccessible; admins bypass by role. The
+	// caller gets the same 404 as for an unknown app, so the endpoint
+	// can't be used to learn the names of hidden apps.
 	if !appAccessible(user, &app) {
 		logging.Audit("Docker lifecycle action denied",
 			"app", name, "action", action, "caller", caller, "reason", "app_access_denied")
-		respondError(w, r, http.StatusForbidden, errAccessDenied)
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
 		return
 	}
 	appName := app.Name
@@ -209,7 +211,7 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 		// A restricted app (min_role / allowed_groups) broadcasts its
 		// realtime state to admins only, matching the docker-state GET
 		// filter, so a non-admin can't learn a hidden app's state.
-		restricted := app.MinRole != "" || len(app.AllowedGroups) > 0
+		restricted := app.MinRole != "" || len(app.AllowedGroups) > 0 || app.Access.Restricted()
 		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState), restricted)
 	}
 

@@ -122,6 +122,8 @@ type proxyRoute struct {
 	// data path - the actual proxy was wide open. (codebase review C1)
 	minRole       string
 	allowedGroups []string
+	// access is the app's roles/users list, enforced the same way.
+	access config.AppAccessConfig
 }
 
 // contentRewriter handles URL rewriting in response content
@@ -905,6 +907,10 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 		forwardedHeaders:  app.ForwardedOrDefault(),
 		minRole:           app.MinRole,
 		allowedGroups:     append([]string(nil), app.AllowedGroups...),
+		access: config.AppAccessConfig{
+			Roles: append([]string(nil), app.Access.Roles...),
+			Users: append([]string(nil), app.Access.Users...),
+		},
 	}
 }
 
@@ -1247,6 +1253,12 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`function R(u){` +
 		`if(u instanceof URL)u=u.href;` +
 		`if(typeof u!=="string")return u;` +
+		// Muximux's own Appearance API is the one root path a proxied app
+		// means to reach on Muximux, not on its backend (see apps.md >
+		// Appearance API). Leave it, and its same-origin absolute form,
+		// alone.
+		`if(u==="/api/appearance"||u.indexOf("/api/appearance?")===0)return u;` +
+		`try{var _ap=new URL(u);if(_ap.host===location.host&&_ap.pathname==="/api/appearance")return u}catch(e){}` +
 		`if(u[0]==="/"&&u[1]!=="/"&&!u.startsWith(P+"/")&&u!==P)return P+u;` +
 		`try{var p=new URL(u);if(p.host===location.host&&!p.pathname.startsWith(P+"/")&&p.pathname!==P){p.pathname=P+p.pathname;return p.href}}catch(e){}` +
 		`if(u&&u[0]!=="#"&&u[0]!=="?"&&u[0]!=="/"&&u.indexOf(":")===-1)return P+"/"+u;` +
@@ -2290,7 +2302,7 @@ func (route *proxyRoute) userMayAccess(r *http.Request) bool {
 			return false
 		}
 	}
-	return true
+	return route.access.Allows(user.Username, user.Role)
 }
 
 // userInAnyGroup reports whether any of the user's groups is in the

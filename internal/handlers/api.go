@@ -106,7 +106,7 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.RUnlock()
 
 	userRole, userGroups := getUserRoleAndGroups(r)
-	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, userRole, userGroups))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, userRole, userGroups, callerUsername(r)))
 }
 
 // ExportConfig returns the full configuration as a downloadable YAML file,
@@ -181,6 +181,10 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid YAML: %s", err.Error()), "source", "config", "error", err)
 		return
 	}
+	if err := config.ApplyAppEnabledDefault(body, &cfg); err != nil {
+		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid YAML: %s", err.Error()), "source", "config", "error", err)
+		return
+	}
 
 	if len(cfg.Apps) == 0 {
 		respondError(w, r, http.StatusBadRequest, "Config must contain at least one app")
@@ -193,7 +197,7 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Return as the same sanitized JSON format the frontend expects
-	sendJSON(w, http.StatusOK, buildClientConfigResponse(&cfg, "", nil))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(&cfg, "", nil, ""))
 }
 
 // validateImportedConfig rejects backups that would leave the running
@@ -317,7 +321,7 @@ type clientAuthConfig struct {
 // buildClientConfigResponse creates a sanitized config response from the server config.
 // userRole filters apps by minimum role; empty string means no filtering (e.g. import preview).
 // userGroups filters apps by allowed_groups; nil means no group filtering.
-func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups []string) clientConfigResponse {
+func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups []string, username string) clientConfigResponse {
 	language := cfg.Server.Language
 	if language == "" {
 		language = "en"
@@ -332,7 +336,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 		Theme:               cfg.Theme,
 		Health:              &cfg.Health,
 		Groups:              groupsForRole(cfg.Groups, isAdminRole(userRole)),
-		Apps:                sanitizeApps(cfg.Apps, userRole, userGroups, cfg.Server.GatewaySites),
+		Apps:                sanitizeApps(cfg.Apps, userRole, userGroups, username, cfg.Server.GatewaySites),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -415,7 +419,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	var baseApps []ClientAppConfig
 	if update.Base != nil {
 		baseApps = update.Base.Apps
-		resp := buildClientConfigResponse(h.config, auth.RoleAdmin, nil)
+		resp := buildClientConfigResponse(h.config, auth.RoleAdmin, nil, "")
 		merged, err := mergeThreeWay(update.Base, &update, updateFromResponse(&resp))
 		if err != nil {
 			respondError(w, r, mergeErrorStatus(err), err.Error())
@@ -525,7 +529,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	// Admin role automatically passes every group gate, so no need to
 	// thread the admin's actual group list here.
-	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin, nil))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin, nil, ""))
 }
 
 // mergeErrorStatus maps a three-way merge error to its HTTP status: 409
@@ -763,7 +767,7 @@ func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.RUnlock()
 
 	userRole, userGroups := getUserRoleAndGroups(r)
-	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole, userGroups, h.config.Server.GatewaySites))
+	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole, userGroups, callerUsername(r), h.config.Server.GatewaySites))
 }
 
 // GetGroups returns the list of groups
@@ -803,7 +807,7 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 		if h.config.Apps[i].Name != name {
 			continue
 		}
-		if !appVisibleTo(&h.config.Apps[i], userRole, userGroups) {
+		if !appVisibleTo(&h.config.Apps[i], userRole, userGroups, callerUsername(r)) {
 			break
 		}
 		client := sanitizeAppForRole(&h.config.Apps[i], isAdmin)
@@ -1251,11 +1255,17 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		proxyHeaders = app.ProxyHeaders
 	} else {
 		url = stripURLCredentials(url)
+		// An action's URL is a webhook, often with a secret in its path
+		// or query string. Non-admins never need it: the server fires the
+		// action. Keep only scheme and host for the confirmation dialog.
+		if app.OpenMode == "http_action" {
+			url = urlOrigin(url)
+		}
 	}
 	out := ClientAppConfig{
 		Name:                app.Name,
 		URL:                 url,
-		HealthURL:           stripURLCredentialsIf(!isAdmin, app.HealthURL),
+		HealthURL:           adminOnlyString(isAdmin, app.HealthURL),
 		ProxyURL:            proxyURL,
 		Icon:                app.Icon,
 		Color:               app.Color,
@@ -1316,11 +1326,26 @@ func stripURLCredentials(raw string) string {
 	return u.String()
 }
 
-func stripURLCredentialsIf(strip bool, raw string) string {
-	if !strip {
+// urlOrigin keeps only the scheme and host of a URL. A URL that does not
+// parse, or has no host, gives "" so nothing unparsed leaks.
+func urlOrigin(raw string) string {
+	if raw == "" {
 		return raw
 	}
-	return stripURLCredentials(raw)
+	u, err := url.Parse(raw)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	return u.Scheme + "://" + u.Host
+}
+
+// adminOnlyString returns s for admins and "" for everyone else. A health
+// URL can carry a token, and only the Settings form uses it.
+func adminOnlyString(isAdmin bool, s string) string {
+	if isAdmin {
+		return s
+	}
+	return ""
 }
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
@@ -1413,9 +1438,10 @@ func isAdminRole(userRole string) bool {
 // manage them in Settings and a save that round-trips a filtered list would
 // silently delete the rest. Non-admins see enabled apps that pass the
 // app's min_role and, when it declares one, its allowed_groups list
-// (case-insensitive, matching the admin-group check elsewhere). The empty
-// role disables both gates so the setup preview sees everything.
-func appVisibleTo(app *config.AppConfig, userRole string, userGroups []string) bool {
+// (case-insensitive, matching the admin-group check elsewhere), and its
+// access list (roles or usernames) when it has one. The empty role
+// disables every gate so the setup preview sees everything.
+func appVisibleTo(app *config.AppConfig, userRole string, userGroups []string, username string) bool {
 	isAdmin := isAdminRole(userRole)
 	if !isAdmin && !app.Enabled {
 		return false
@@ -1426,15 +1452,18 @@ func appVisibleTo(app *config.AppConfig, userRole string, userGroups []string) b
 	if userRole != "" && !isAdmin && len(app.AllowedGroups) > 0 && !userInAnyAllowedGroup(userGroups, app.AllowedGroups) {
 		return false
 	}
+	if userRole != "" && !isAdmin && !app.Access.Allows(username, userRole) {
+		return false
+	}
 	return true
 }
 
-func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string, gatewaySites []config.GatewaySite) []ClientAppConfig {
+func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string, username string, gatewaySites []config.GatewaySite) []ClientAppConfig {
 	isAdmin := isAdminRole(userRole)
 	domains := gatewayDomainsByAppName(gatewaySites)
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
-		if !appVisibleTo(&apps[i], userRole, userGroups) {
+		if !appVisibleTo(&apps[i], userRole, userGroups, username) {
 			continue
 		}
 		client := sanitizeAppForRole(&apps[i], isAdmin)
@@ -1495,6 +1524,15 @@ func Slugify(name string) string {
 // from the request context in one lookup. Used by handlers that need to
 // run sanitizeApps, where role gates min_role and groups gate
 // allowed_groups.
+// callerUsername returns the signed-in user's name, or "" when there is
+// no user (the setup preview).
+func callerUsername(r *http.Request) string {
+	if user := auth.GetUserFromContext(r.Context()); user != nil {
+		return user.Username
+	}
+	return ""
+}
+
 func getUserRoleAndGroups(r *http.Request) (string, []string) {
 	user := auth.GetUserFromContext(r.Context())
 	if user == nil {

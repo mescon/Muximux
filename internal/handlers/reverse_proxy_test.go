@@ -15,6 +15,9 @@ import (
 	"net/http/httptest"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -2297,6 +2300,40 @@ func TestReverseProxy_EnforcesMinRoleAndAllowedGroups(t *testing.T) {
 	})
 }
 
+// TestReverseProxy_EnforcesAccessList: access.roles / access.users gate the
+// proxy like min_role and allowed_groups. Either list is enough; admins pass.
+func TestReverseProxy_EnforcesAccessList(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+	handler := NewReverseProxyHandler([]config.AppConfig{{
+		Name: "Listed", URL: backend.URL, Enabled: true, Proxy: true,
+		Access: config.AppAccessConfig{Roles: []string{auth.RolePowerUser}, Users: []string{"bob"}},
+	}}, "30s")
+	requestAs := func(username, role string) int {
+		req := httptest.NewRequest(http.MethodGet, "/proxy/listed/", nil)
+		ctx := context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{Username: username, Role: role})
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, req.WithContext(ctx))
+		return w.Code
+	}
+	for _, c := range []struct {
+		user, role string
+		want       int
+	}{
+		{"alice", auth.RoleUser, http.StatusForbidden},
+		{"carol", auth.RolePowerUser, http.StatusOK},
+		{"bob", auth.RoleUser, http.StatusOK},
+		{"Bob", auth.RoleUser, http.StatusForbidden},
+		{"root", auth.RoleAdmin, http.StatusOK},
+	} {
+		if got := requestAs(c.user, c.role); got != c.want {
+			t.Errorf("%s (%s): status %d, want %d", c.user, c.role, got, c.want)
+		}
+	}
+}
+
 // TestHasRoutes and TestGetRoutes test route introspection methods.
 func TestHasRoutes(t *testing.T) {
 	t.Run("no routes", func(t *testing.T) {
@@ -4239,5 +4276,50 @@ func TestDirector_DropsEmbeddingHint(t *testing.T) {
 	}
 	if v := req.Header.Get("X-Custom-Kept"); v != "yes" {
 		t.Errorf("unrelated header lost: %q", v)
+	}
+}
+
+// TestInterceptorScriptAppearanceExempt runs the interceptor's real R()
+// URL rewriter in node: Muximux's own /api/appearance must stay on
+// Muximux, while every other root path still goes to the app's backend.
+func TestInterceptorScriptAppearanceExempt(t *testing.T) {
+	if _, err := exec.LookPath("node"); err != nil {
+		t.Skip("node not available")
+	}
+	script := string(newContentRewriter("/proxy/app", "", "").interceptorScript())
+	start := strings.Index(script, "function R(u){")
+	if start < 0 {
+		t.Fatal("R() not found in the interceptor script")
+	}
+	depth, end := 0, -1
+	for i := start; i < len(script) && end < 0; i++ {
+		switch script[i] {
+		case '{':
+			depth++
+		case '}':
+			depth--
+			if depth == 0 {
+				end = i + 1
+			}
+		}
+	}
+	if end < 0 {
+		t.Fatal("R() has no closing brace")
+	}
+	m := script[start:end]
+	js := `var P="/proxy/app";var location={host:"mx.example.com"};` + m + `
+var cases=[["/api/appearance","/api/appearance"],["/api/appearance?x=1","/api/appearance?x=1"],
+["https://mx.example.com/api/appearance","https://mx.example.com/api/appearance"],
+["/api/appearances","/proxy/app/api/appearances"],["/api/other","/proxy/app/api/other"],
+["/themes/a.css","/proxy/app/themes/a.css"]];
+var bad=cases.filter(function(c){return R(c[0])!==c[1]}).map(function(c){return c[0]+" -> "+R(c[0])});
+if(bad.length){console.log(bad.join("; "));process.exit(1)}`
+	f := filepath.Join(t.TempDir(), "r.cjs")
+	if err := os.WriteFile(f, []byte(js), 0o600); err != nil { //nolint:gosec // f is in t.TempDir()
+		t.Fatal(err)
+	}
+	out, err := exec.Command("node", f).CombinedOutput() //nolint:gosec // fixed args; f is a controlled temp path
+	if err != nil {
+		t.Errorf("R() rewrote the wrong URLs: %s", out)
 	}
 }

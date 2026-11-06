@@ -11,6 +11,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
+	"github.com/mescon/muximux/v3/internal/safeerr"
 )
 
 type fireActionResult struct {
@@ -40,17 +41,26 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 		return
 	}
 
-	if app.OpenMode != "http_action" {
-		respondError(w, r, http.StatusBadRequest, "App is not an http_action")
-		return
-	}
-
+	// A hidden or disabled app answers exactly like an unknown one, and
+	// before anything that depends on its settings, so the endpoint can't
+	// be used to learn which hidden apps exist or what they are.
 	if !appAccessible(user, &app) {
 		logging.Audit("HTTP action denied",
 			"app", app.Name,
 			"caller", user.Username,
 			"reason", "access_denied")
-		respondError(w, r, http.StatusForbidden, "Access denied")
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
+		return
+	}
+	// A disabled action is hidden from the menu; it must not fire from a
+	// direct POST either.
+	if !app.Enabled {
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
+		return
+	}
+
+	if app.OpenMode != "http_action" {
+		respondError(w, r, http.StatusBadRequest, "App is not an http_action")
 		return
 	}
 
@@ -62,7 +72,7 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 
 	req, err := http.NewRequestWithContext(r.Context(), method, app.URL, nil)
 	if err != nil {
-		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("invalid url: %s", err))
+		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("invalid url: %s", safeerr.Describe(err)))
 		return
 	}
 	for k, v := range app.HTTPActionHeaders {
@@ -79,10 +89,10 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 			"method", method,
 			"url_host", urlHost,
 			"caller", user.Username,
-			"error", err.Error(),
+			"error", safeerr.Describe(err),
 			"latency_ms", latency.Milliseconds())
 		sendJSON(w, http.StatusBadGateway, fireActionResult{
-			Error: err.Error(), LatencyMS: latency.Milliseconds(), URLHost: urlHost, Method: method,
+			Error: safeerr.Describe(err), LatencyMS: latency.Milliseconds(), URLHost: urlHost, Method: method,
 		})
 		return
 	}
@@ -123,7 +133,7 @@ func appAccessible(user *auth.User, app *config.AppConfig) bool {
 	if len(app.AllowedGroups) > 0 && !userInAnyAllowedGroup(user.Groups, app.AllowedGroups) {
 		return false
 	}
-	return true
+	return app.Access.Allows(user.Username, user.Role)
 }
 
 func safeURLHost(rawURL string) string {

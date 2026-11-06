@@ -216,7 +216,7 @@ func TestUpdateFromResponse_CopiesEveryMergedField(t *testing.T) {
 	cfg.Server.ProxyTimeout = "45s"
 	cfg.Apps = []config.AppConfig{{Name: "A", URL: "u", Enabled: true}}
 	cfg.Groups = []config.GroupConfig{{Name: "G"}}
-	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil)
+	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil, "")
 	got := updateFromResponse(&resp)
 	gv := reflect.ValueOf(got).Elem()
 	rv := reflect.ValueOf(resp)

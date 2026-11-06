@@ -444,12 +444,16 @@ type AuthConfig struct {
 	// so an operator running Authelia / Authentik with a custom
 	// admin-group name (e.g. "dashboard-admins") can grant admin
 	// without renaming their IdP groups.
-	ForwardAuthAdminGroups []string   `yaml:"forward_auth_admin_groups,omitempty"`
-	OIDC                   OIDCConfig `yaml:"oidc"`
-	SessionMaxAge          string     `yaml:"session_max_age"` // e.g., "24h", "7d"
-	SecureCookies          bool       `yaml:"secure_cookies"`
-	APIKeyHash             string     `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
-	SetupComplete          bool       `yaml:"setup_complete"`
+	ForwardAuthAdminGroups []string `yaml:"forward_auth_admin_groups,omitempty"`
+	// CloudflareAccess, when set, makes forward auth verify Cloudflare
+	// Access's signed Cf-Access-Jwt-Assertion token on every request and
+	// take the user from it, instead of trusting the email header alone.
+	CloudflareAccess *CloudflareAccessConfig `yaml:"cloudflare_access,omitempty"`
+	OIDC             OIDCConfig              `yaml:"oidc"`
+	SessionMaxAge    string                  `yaml:"session_max_age"` // e.g., "24h", "7d"
+	SecureCookies    bool                    `yaml:"secure_cookies"`
+	APIKeyHash       string                  `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
+	SetupComplete    bool                    `yaml:"setup_complete"`
 }
 
 // UserConfig holds local user credentials
@@ -675,6 +679,36 @@ type AppAccessConfig struct {
 	Users []string `yaml:"users"`
 }
 
+// Restricted reports whether the list limits the app to some users.
+func (a *AppAccessConfig) Restricted() bool {
+	return len(a.Roles) > 0 || len(a.Users) > 0
+}
+
+// Allows reports whether a user passes the access list. An empty list
+// allows everyone. Otherwise the user must hold one of the listed roles
+// or have one of the listed usernames; either is enough. Roles compare
+// case-insensitively (they come from a fixed, validated set). Usernames
+// must match exactly: with forward auth or OIDC the identity provider
+// supplies the name, and case or Unicode folding could let a different
+// account match. Admins are exempted by the callers, as for the app's
+// other gates, so this check never decides for them.
+func (a *AppAccessConfig) Allows(username, role string) bool {
+	if !a.Restricted() {
+		return true
+	}
+	for _, r := range a.Roles {
+		if role != "" && strings.EqualFold(r, role) {
+			return true
+		}
+	}
+	for _, u := range a.Users {
+		if username != "" && u == username {
+			return true
+		}
+	}
+	return false
+}
+
 // ParseFlexDuration parses a duration string, additionally accepting a "d"
 // (day) suffix that Go's time.ParseDuration rejects. It is the single source
 // of truth for duration parsing across the runtime and the config import
@@ -822,6 +856,9 @@ func decodeConfig(data []byte) (*Config, error) {
 	dec := yaml.NewDecoder(strings.NewReader(expanded))
 	dec.KnownFields(true)
 	if err := dec.Decode(cfg); err != nil {
+		return nil, err
+	}
+	if err := ApplyAppEnabledDefault([]byte(expanded), cfg); err != nil {
 		return nil, err
 	}
 	cfg.MissingEnvVars = missingEnv
@@ -1110,6 +1147,9 @@ func (c *Config) validate() error {
 		return err
 	}
 	if err := c.validateAuthEnv(); err != nil {
+		return err
+	}
+	if err := validateCloudflareAccess(c.Auth.CloudflareAccess); err != nil {
 		return err
 	}
 	tls := c.Server.TLS
@@ -2013,4 +2053,53 @@ func defaultDockerEndpoint() string {
 		return `npipe:////./pipe/docker_engine`
 	}
 	return "unix:///var/run/docker.sock"
+}
+
+// ApplyAppEnabledDefault enables every app whose YAML entry has no
+// `enabled` key. The docs have always described apps as enabled by
+// default, and their minimal examples leave the key out; the Settings UI
+// writes it explicitly for every app, so only hand-written YAML relies on
+// this. It reads src a second time, loosely, after the strict decode into
+// cfg: a custom UnmarshalYAML on AppConfig would bypass the decoder's
+// KnownFields check, so typos inside an app entry would load silently.
+func ApplyAppEnabledDefault(src []byte, cfg *Config) error {
+	var raw struct {
+		Apps []map[string]yaml.Node `yaml:"apps"`
+	}
+	if err := yaml.Unmarshal(src, &raw); err != nil {
+		return err
+	}
+	for i := range raw.Apps {
+		if i >= len(cfg.Apps) {
+			break
+		}
+		if _, ok := raw.Apps[i]["enabled"]; !ok {
+			cfg.Apps[i].Enabled = true
+		}
+	}
+	return nil
+}
+
+// CloudflareAccessConfig identifies the Cloudflare Access application whose
+// tokens forward auth accepts.
+type CloudflareAccessConfig struct {
+	// TeamDomain is the Access team domain, e.g. "example.cloudflareaccess.com".
+	TeamDomain string `yaml:"team_domain"`
+	// Audience is the application's AUD tag from the Access dashboard.
+	Audience string `yaml:"audience"`
+}
+
+// validateCloudflareAccess checks the cloudflare_access block, if any.
+func validateCloudflareAccess(c *CloudflareAccessConfig) error {
+	if c == nil {
+		return nil
+	}
+	d := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(c.TeamDomain), "https://"), "/")
+	if d == "" || strings.ContainsAny(d, "/?#@ ") {
+		return fmt.Errorf("auth.cloudflare_access.team_domain must be a host name such as example.cloudflareaccess.com, got %q", c.TeamDomain)
+	}
+	if strings.TrimSpace(c.Audience) == "" {
+		return fmt.Errorf("auth.cloudflare_access.audience is required (the AUD tag of the Access application)")
+	}
+	return nil
 }

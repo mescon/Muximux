@@ -3,6 +3,7 @@ package health
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -388,5 +389,41 @@ func TestMonitor_DisabledAppsNotChecked(t *testing.T) {
 	// But the health status should reflect the actual check
 	if hitCount != 1 {
 		t.Errorf("expected 1 hit from CheckNow, got %d", hitCount)
+	}
+}
+
+// A failed check must not keep the URL in LastError: health status reaches
+// non-admins, and a health URL can carry a token.
+func TestMonitor_CheckApp_ErrorHidesURL(t *testing.T) {
+	const secret = "s3cr3t-token"
+	m := NewMonitor(time.Minute, 200*time.Millisecond)
+	m.SetApps([]AppConfig{{Name: "hook", URL: "http://127.0.0.1:1/" + secret + "?token=" + secret, Enabled: true}})
+	result := m.CheckNow("hook")
+	if result == nil || result.Status != StatusUnhealthy {
+		t.Fatalf("want unhealthy, got %+v", result)
+	}
+	if result.LastError == "" || strings.Contains(result.LastError, secret) {
+		t.Errorf("LastError = %q; want a description without the URL", result.LastError)
+	}
+}
+
+// The monitor follows three redirects, so a chain of three that ends in an
+// error is unhealthy (it used to stop at the third 3xx and call it healthy).
+func TestMonitor_CheckApp_FollowsThreeRedirects(t *testing.T) {
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/", "/r1", "/r2":
+			next := map[string]string{"/": "/r1", "/r1": "/r2", "/r2": "/end"}[r.URL.Path]
+			http.Redirect(w, r, srv.URL+next, http.StatusFound)
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}))
+	defer srv.Close()
+	m := NewMonitor(time.Minute, time.Second)
+	m.SetApps([]AppConfig{{Name: "chain", URL: srv.URL + "/", Enabled: true}})
+	if got := m.CheckNow("chain"); got == nil || got.Status != StatusUnhealthy {
+		t.Fatalf("three redirects to a 500: got %+v, want unhealthy", got)
 	}
 }

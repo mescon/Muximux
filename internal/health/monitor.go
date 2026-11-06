@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/logging"
+	"github.com/mescon/muximux/v3/internal/safeerr"
 )
 
 // Status represents the health status of an app
@@ -70,8 +71,8 @@ func NewMonitor(interval, timeout time.Duration) *Monitor {
 				},
 			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				// Follow redirects but limit to 3
-				if len(via) >= 3 {
+				// Follow up to 3 redirects; a fourth stops and its 3xx is reported
+				if len(via) > 3 {
 					return http.ErrUseLastResponse
 				}
 				return nil
@@ -190,7 +191,7 @@ func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 	start := time.Now()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		m.updateHealth(app.Name, StatusUnhealthy, 0, err.Error())
+		m.updateHealth(app.Name, StatusUnhealthy, 0, safeerr.Describe(err))
 		return
 	}
 
@@ -198,7 +199,7 @@ func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 	responseTime := time.Since(start)
 
 	if err != nil {
-		m.updateHealth(app.Name, StatusUnhealthy, responseTime, err.Error())
+		m.updateHealth(app.Name, StatusUnhealthy, responseTime, safeerr.Describe(err))
 		return
 	}
 	// Drain body so the connection can be reused by the HTTP client pool

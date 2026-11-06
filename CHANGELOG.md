@@ -15,6 +15,14 @@ All notable changes to Muximux are documented in this file.
   app, the same rule as the message API. Without it the link only switches
   apps. (#545)
 
+### Security
+- **Forward auth can verify Cloudflare Access tokens.** Set
+  `auth.cloudflare_access.team_domain` and `.audience` and Muximux checks
+  the signed `Cf-Access-Jwt-Assertion` on every request (signature,
+  issuer, audience, expiry) and takes the user's email, name and groups
+  from it. Headers, which Cloudflare passes through from the browser, no
+  longer decide who the user is or whether they are an admin.
+
 ### Fixed
 - **Per-app `auth_bypass` rules now take effect.** They were read from the
   config but never handed to the auth middleware, so an allowlisted path on
@@ -25,6 +33,35 @@ All notable changes to Muximux are documented in this file.
   app's prefix, `..`, or a slug two apps share) is ignored with a warning,
   and changes apply on save. When a rule passes a request on the Muximux
   API key, the key is removed before the request reaches the backend.
+- **Per-app `access` lists (`access.roles`, `access.users`) now take
+  effect.** Like `auth_bypass`, they were read from the config but never
+  enforced. They now apply wherever `min_role` and `allowed_groups` do
+  (the menu and apps API, the reverse proxy, HTTP actions, health status
+  and Docker controls), on top of those two. Usernames must match exactly.
+  Admins always pass.
+- **A disabled HTTP action can no longer be fired** by POSTing to
+  `/api/app-action/{name}`. It was only hidden from the menu.
+- **A failed HTTP action no longer exposes its URL.** The error in the
+  audit log and in the response quoted the full target URL, including
+  any secret in its query string. Only the host is reported now. The app
+  list also sent the full action URL to every user who could see the
+  action; non-admins now get only its scheme and host. Relay and health
+  check errors no longer quote any URL (Go's errors include the full URL,
+  and for a bad redirect the Location header), and non-admins no longer
+  receive an app's `health_url`.
+- The HTTP action and Docker lifecycle endpoints answer 404, not 403,
+  for an app the caller may not see, so they no longer reveal which
+  hidden apps exist.
+- **An OIDC sign-in no longer takes over a local account with the same
+  name.** The session's ID is the provider's username claim, so a
+  provider user named like a local user (such as a kept break-glass
+  `admin`) signed in with that account's role.
+- Health checks follow three redirects, as documented, instead of two.
+- A proxied app's plain `fetch('/api/appearance')` now reaches Muximux;
+  the proxy's interceptor used to send it to the app's backend.
+- Gateway migration from a Caddyfile now refuses a site that uses TLS
+  client authentication (`client_auth`), which `gateway_sites` cannot
+  express, instead of migrating it without the certificate check.
 - Docker discovery import refuses an app whose name maps to the same
   `/proxy/<slug>/` path as an existing app, as Settings already did.
 - **The example `docker-compose.yml` now starts.** It dropped all Linux
@@ -38,6 +75,12 @@ All notable changes to Muximux are documented in this file.
   lifecycle controls actually need.
 
 ### Changed
+- **Apps without an `enabled` key are enabled.** They loaded as disabled,
+  although the wiki always described apps as enabled by default and its
+  minimal examples left the key out. The Settings UI writes the key for
+  every app, so only hand-written YAML changes: check that apps you left
+  without the key are meant to be visible. Two such apps whose names map
+  to the same `/proxy/<slug>/` path now stop startup with an error.
 - Dependencies updated to their latest releases, including Caddy 2.11.9,
   Paraglide 3, jsdom 31 and `klauspost/compress` 1.20.2 (GO-2026-6865).
 

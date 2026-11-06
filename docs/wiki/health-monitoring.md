@@ -22,7 +22,7 @@ Muximux reads the `health` section only at startup. After you change `enabled`, 
 ## How It Works
 
 - Muximux sends an HTTP GET request to each app that has `health_check: true`. It uses `health_url` if configured, otherwise the main `url`.
-- A final response with HTTP status 2xx or 3xx counts as **healthy**. Muximux follows redirects automatically, but only the first 2. At the third redirect, Muximux stops and uses that 3xx response, and it counts as healthy. Muximux does not check the destination of that redirect. Timeouts, connection errors, and 4xx/5xx responses count as **unhealthy**. Muximux ignores TLS certificate errors, so self-signed certs work fine.
+- A final response with HTTP status 2xx or 3xx counts as **healthy**. Muximux follows up to 3 redirects automatically. At a fourth redirect, Muximux stops and uses that 3xx response, and it counts as healthy. Muximux does not check the destination of that redirect. Timeouts, connection errors, and 4xx/5xx responses count as **unhealthy**. Muximux ignores TLS certificate errors, so self-signed certs work fine.
 - Muximux sends the results to all connected browsers in real time over WebSocket (a connection that stays open so the server can push updates).
 
 ## Custom Health URLs

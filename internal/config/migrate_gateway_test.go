@@ -248,3 +248,43 @@ func anyContains(warns []string, sub string) bool {
 	}
 	return false
 }
+
+// A site that requires client certificates cannot be expressed in
+// gateway_sites, so the conversion must warn (which makes the runtime
+// auto-migration refuse it) rather than quietly drop the requirement.
+func TestMigrateCaddyfileToSites_ClientAuthWarns(t *testing.T) {
+	src := []byte(`secure.example.com {
+	tls internal {
+		client_auth {
+			mode require_and_verify
+			trust_pool file /certs/ca.pem
+		}
+	}
+	reverse_proxy http://backend:8080
+}
+`)
+	_, warnings, err := migrateCaddyfileToSites(src)
+	if err != nil {
+		t.Fatalf("migrate: %v", err)
+	}
+	found := false
+	for _, w := range warnings {
+		if strings.Contains(w, "client_auth") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected a client_auth warning, got %v", warnings)
+	}
+
+	plain := []byte("plain.example.com {\n\treverse_proxy http://backend:8080\n}\n")
+	_, warnings, err = migrateCaddyfileToSites(plain)
+	if err != nil {
+		t.Fatalf("migrate plain: %v", err)
+	}
+	for _, w := range warnings {
+		if strings.Contains(w, "client_auth") {
+			t.Errorf("a site without client_auth must not get the warning: %v", warnings)
+		}
+	}
+}

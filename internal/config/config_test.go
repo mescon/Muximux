@@ -2650,3 +2650,91 @@ func TestNavigation_ShowDockerBadge_Default(t *testing.T) {
 		t.Errorf("false value not persisted in YAML:\n%s", out)
 	}
 }
+
+func TestAppAccessConfigAllows(t *testing.T) {
+	empty := AppAccessConfig{}
+	if empty.Restricted() || !empty.Allows("anyone", "user") {
+		t.Error("an empty access list must allow everyone")
+	}
+	a := AppAccessConfig{Roles: []string{"power-user"}, Users: []string{"Bob"}}
+	if !a.Restricted() {
+		t.Error("a list with entries must report Restricted")
+	}
+	cases := []struct {
+		user, role string
+		want       bool
+	}{
+		{"alice", "user", false},
+		{"carol", "power-user", true},
+		{"carol", "POWER-USER", true},
+		{"Bob", "user", true},  // exact username match
+		{"bob", "user", false}, // usernames are case-sensitive
+		{"B\u212Aob", "user", false},
+		{"", "", false},
+		{"", "power-user", true},
+		{"Bob", "", true},
+	}
+	for _, c := range cases {
+		if got := a.Allows(c.user, c.role); got != c.want {
+			t.Errorf("Allows(%q, %q) = %v, want %v", c.user, c.role, got, c.want)
+		}
+	}
+	usersOnly := AppAccessConfig{Users: []string{"bob"}}
+	if usersOnly.Allows("", "user") {
+		t.Error("a users-only list must deny a caller with no username")
+	}
+	if usersOnly.Allows("alice", "admin") {
+		t.Error("the role must not match when only users are listed (admins are exempted by the callers)")
+	}
+}
+
+func TestAppConfig_EnabledDefaultsToTrue(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "config.yaml")
+	src := "apps:\n  - name: A\n    url: http://a\n  - name: B\n    url: http://b\n    enabled: false\n  - name: C\n    url: http://c\n    enabled: true\n"
+	if err := os.WriteFile(p, []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []bool{true, false, true}
+	for i, a := range cfg.Apps {
+		if a.Enabled != want[i] {
+			t.Errorf("%s: enabled = %v, want %v", a.Name, a.Enabled, want[i])
+		}
+	}
+
+	// The default must not loosen strict decoding inside an app entry.
+	typo := "apps:\n  - name: A\n    url: http://a\n    enabld: false\n"
+	if err := os.WriteFile(p, []byte(typo), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(p); err == nil || !strings.Contains(err.Error(), "enabld") {
+		t.Errorf("an unknown key inside an app must still be rejected, got %v", err)
+	}
+}
+
+func TestValidateCloudflareAccess(t *testing.T) {
+	if err := validateCloudflareAccess(nil); err != nil {
+		t.Errorf("nil: %v", err)
+	}
+	for _, ok := range []CloudflareAccessConfig{
+		{TeamDomain: "team.cloudflareaccess.com", Audience: "aud"},
+		{TeamDomain: "https://team.cloudflareaccess.com/", Audience: "aud"},
+	} {
+		if err := validateCloudflareAccess(&ok); err != nil {
+			t.Errorf("%+v: %v", ok, err)
+		}
+	}
+	for _, bad := range []CloudflareAccessConfig{
+		{TeamDomain: "", Audience: "aud"},
+		{TeamDomain: "team.cloudflareaccess.com/path", Audience: "aud"},
+		{TeamDomain: "team.cloudflareaccess.com", Audience: " "},
+	} {
+		if err := validateCloudflareAccess(&bad); err == nil {
+			t.Errorf("%+v: want an error", bad)
+		}
+	}
+}

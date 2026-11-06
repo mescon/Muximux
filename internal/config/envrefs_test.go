@@ -260,10 +260,12 @@ func TestSave_DuplicateItemNamesKeepTheirOwnReferences(t *testing.T) {
 	cfg, path := loadWithEnv(t, `apps:
   - name: Media
     url: http://one
+    enabled: false
     proxy_headers:
       X-Api-Key: ${ONE_KEY}
   - name: Media
     url: http://two
+    enabled: false
     proxy_headers:
       X-Api-Key: ${TWO_KEY}
 `, map[string]string{"ONE_KEY": "one-secret", "TWO_KEY": "two-secret"})
