@@ -635,9 +635,9 @@ Example response:
 
 `/api/appearance` accepts two credential shapes.
 
-**Proxied apps (`proxy: true`)** run at `/proxy/<slug>/` on Muximux's own origin. So a same-origin request automatically carries the Muximux session cookie. The app does not need to know about auth at all. This is the zero-config path, and the one most integrations should take.
+**Proxied apps (`proxy: true`)** run at `/proxy/<slug>/` on Muximux's own origin. So a same-origin request automatically carries the Muximux session cookie. The app does not need to send any credentials.
 
-Inside a proxied app, the interceptor script (the script that Muximux injects to keep URLs inside `/proxy/<slug>/`) changes the app's own `fetch('/api/appearance')` to `/proxy/<slug>/api/appearance`. That request goes to the app's backend, not to Muximux. So use the `fetch` of the Muximux window instead: `window.parent.fetch('/api/appearance')`. The app and Muximux have the same origin, so the app can call it. The same applies to `theme_css_url`. The examples below do this.
+There is one catch. Inside a proxied app, the interceptor script (the script that Muximux injects to keep URLs inside `/proxy/<slug>/`) rewrites root-relative URLs. A plain `fetch('/api/appearance')` becomes `/proxy/<slug>/api/appearance` and goes to the app's backend, not to Muximux. The same happens to `theme_css_url`. The interceptor leaves protocol-relative URLs (`//host/path`) alone. So build the URL from the page's own host: `'//' + location.host + '/api/appearance'`. If Muximux runs under a `server.base_path` (for example `/muximux`), put it before `/api/appearance` and before `theme_css_url`. The examples below do this.
 
 **External apps** (cross-origin iframes, scripts, dashboards, scheduled jobs) can authenticate with an API key instead of a session cookie. Add the header:
 
@@ -679,9 +679,14 @@ Most apps will fetch this once, on page load, and either:
 **Option 1: Apply the returned colors as CSS custom properties** (simplest, works in any app that already uses `var(--something)`):
 
 ```js
+// Muximux's address, written so the proxy's interceptor leaves it alone.
+// Set BASE to your server.base_path, or leave it empty.
+const BASE = '';
+const MUXIMUX = '//' + location.host + BASE;
+
 async function applyMuximuxTheme() {
   try {
-    const r = await window.parent.fetch('/api/appearance');
+    const r = await fetch(MUXIMUX + '/api/appearance');
     if (!r.ok) return;
     const a = await r.json();
     for (const [name, value] of Object.entries(a.colors)) {
@@ -700,18 +705,16 @@ applyMuximuxTheme();
 **Option 2: Load the full theme CSS into your own `<head>`** if you want every variable, not just the curated subset:
 
 ```js
+// Uses the MUXIMUX constant from Option 1.
 async function importMuximuxTheme() {
-  const r = await window.parent.fetch('/api/appearance');
+  const r = await fetch(MUXIMUX + '/api/appearance');
   if (!r.ok) return;
   const a = await r.json();
   if (!a.theme_css_url) return;
-  // A <link href> would also be changed to point at the app's backend,
-  // so read the CSS through the Muximux window and add it as a <style>.
-  const css = await window.parent.fetch(a.theme_css_url);
-  if (!css.ok) return;
-  const style = document.createElement('style');
-  style.textContent = await css.text();
-  document.head.appendChild(style);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = MUXIMUX + a.theme_css_url; // protocol-relative, so not rewritten
+  document.head.appendChild(link);
 }
 ```
 
@@ -753,7 +756,7 @@ The endpoint does not push updates. If the operator changes the theme while your
 
 ### Limitations
 
-- Proxied apps authenticate automatically through the session cookie (same-origin). External integrations need an `X-Api-Key` header. Other `/api/*` endpoints are not reachable by API key.
+- Proxied apps authenticate automatically through the session cookie (same-origin), but must use a protocol-relative URL so the interceptor does not send the request to the app's backend. External integrations need an `X-Api-Key` header. Other `/api/*` endpoints are not reachable by API key.
 - No push / event channel. Apps read once on boot.
 - `colors` is a curated subset, not every theme variable. Use `theme_css_url` for the rest.
 - `variant: "system"` resolves to the dark palette server-side; clients that care can check `prefers-color-scheme`.
