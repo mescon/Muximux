@@ -106,6 +106,9 @@ auth:
     name: Remote-Name          # Note: key is "name" not "display_name"
   logout_url: ""               # Auth provider logout URL (e.g., https://auth.example.com/logout)
   forward_auth_admin_groups: []  # Groups that grant admin (default: admin, admins, administrators)
+  # cloudflare_access:           # Forward auth behind Cloudflare Access: verify its signed token
+  #   team_domain: example.cloudflareaccess.com
+  #   audience: ""               # Application Audience (AUD) tag
 
   # OIDC settings
   oidc:

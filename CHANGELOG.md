@@ -15,6 +15,14 @@ All notable changes to Muximux are documented in this file.
   app, the same rule as the message API. Without it the link only switches
   apps. (#545)
 
+### Security
+- **Forward auth can verify Cloudflare Access tokens.** Set
+  `auth.cloudflare_access.team_domain` and `.audience` and Muximux checks
+  the signed `Cf-Access-Jwt-Assertion` on every request (signature,
+  issuer, audience, expiry) and takes the user's email, name and groups
+  from it. Headers, which Cloudflare passes through from the browser, no
+  longer decide who the user is or whether they are an admin.
+
 ### Fixed
 - **Per-app `auth_bypass` rules now take effect.** They were read from the
   config but never handed to the auth middleware, so an allowlisted path on
@@ -44,8 +52,16 @@ All notable changes to Muximux are documented in this file.
 - The HTTP action and Docker lifecycle endpoints answer 404, not 403,
   for an app the caller may not see, so they no longer reveal which
   hidden apps exist.
-- Docs: an app without `enabled: true` in a hand-written `config.yaml`
-  is disabled. The wiki said apps are enabled by default.
+- **An OIDC sign-in no longer takes over a local account with the same
+  name.** The session's ID is the provider's username claim, so a
+  provider user named like a local user (such as a kept break-glass
+  `admin`) signed in with that account's role.
+- Health checks follow three redirects, as documented, instead of two.
+- A proxied app's plain `fetch('/api/appearance')` now reaches Muximux;
+  the proxy's interceptor used to send it to the app's backend.
+- Gateway migration from a Caddyfile now refuses a site that uses TLS
+  client authentication (`client_auth`), which `gateway_sites` cannot
+  express, instead of migrating it without the certificate check.
 - Docker discovery import refuses an app whose name maps to the same
   `/proxy/<slug>/` path as an existing app, as Settings already did.
 - **The example `docker-compose.yml` now starts.** It dropped all Linux
@@ -59,6 +75,12 @@ All notable changes to Muximux are documented in this file.
   lifecycle controls actually need.
 
 ### Changed
+- **Apps without an `enabled` key are enabled.** They loaded as disabled,
+  although the wiki always described apps as enabled by default and its
+  minimal examples left the key out. The Settings UI writes the key for
+  every app, so only hand-written YAML changes: check that apps you left
+  without the key are meant to be visible. Two such apps whose names map
+  to the same `/proxy/<slug>/` path now stop startup with an error.
 - Dependencies updated to their latest releases, including Caddy 2.11.9,
   Paraglide 3, jsdom 31 and `klauspost/compress` 1.20.2 (GO-2026-6865).
 
