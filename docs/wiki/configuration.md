@@ -2,7 +2,7 @@
 
 ## Overview
 
-Muximux is configured via a single YAML file. By default, this is `data/config.yaml` (inside the data directory). The data directory defaults to `data/` relative to the binary's location and can be changed with `--data` or `MUXIMUX_DATA`. You can also override the config path directly:
+Muximux reads its configuration from a single YAML file. By default, this is `data/config.yaml` (inside the data directory). The data directory defaults to `data/` relative to the binary's location. You can change it with `--data` or `MUXIMUX_DATA`. You can also override the config path directly:
 
 ```bash
 # Change the data directory (config will be at /opt/muximux/data/config.yaml)
@@ -268,7 +268,7 @@ Precedence: CLI flag > environment variable > config file value > default.
 
 ## Environment Variable Expansion
 
-Use `${VARIABLE_NAME}` in any string value to reference environment variables. This is useful for keeping secrets out of config files:
+Use `${VARIABLE_NAME}` in any string value to reference environment variables. This helps you keep secrets out of config files:
 
 ```yaml
 auth:
@@ -281,13 +281,13 @@ apps:
     url: ${PLEX_URL}
 ```
 
-If the referenced environment variable is not set, the `${VAR}` reference is left as-is (the literal string is preserved). This avoids silently deleting values when an env var is missing.
+If the referenced environment variable is not set, Muximux leaves the `${VAR}` reference as-is (it keeps the literal string). This avoids silently deleting values when an env var is missing.
 
 ## Environment Variable Reference
 
 This is the complete list of environment variables Muximux reads. Most of them override a `config.yaml` setting without needing `${VAR}` syntax in the file.
 
-A variable that is set but empty or only whitespace counts as unset, for every variable below. A Compose entry such as `MUXIMUX_LISTEN=${LISTEN}` therefore leaves the config file value in place when `LISTEN` is not defined, instead of forcing an empty value.
+For every variable below, a variable that is set but empty or only whitespace counts as unset. Take a Compose entry such as `MUXIMUX_LISTEN=${LISTEN}`. When `LISTEN` is not defined, this entry leaves the config file value in place. It does not force an empty value.
 
 ### Process and logging
 
@@ -300,7 +300,7 @@ A variable that is set but empty or only whitespace counts as unset, for every v
 | `MUXIMUX_LOG_LEVEL` | `server.log_level` | `debug`, `info`, `warn`, `error` | From config file |
 | `MUXIMUX_LOG_FORMAT` | `server.log_format` | `text` or `json` | From config file |
 
-The Docker image starts Muximux with `--data /app/data`, and a flag wins over its variable, so `MUXIMUX_DATA` has no effect in the container unless you replace the command.
+The Docker image starts Muximux with `--data /app/data`. A flag wins over its variable. So `MUXIMUX_DATA` has no effect in the container unless you replace the command.
 
 ### Docker discovery
 
@@ -309,7 +309,7 @@ The Docker image starts Muximux with `--data /app/data`, and a flag wins over it
 | `MUXIMUX_DISCOVERY_AUTO_IMPORT` | `discovery.docker.auto_import` | `off`, `add`, `update`, `sync` | From config file |
 | `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` | `discovery.docker.require_explicit_enable` | Boolean | From config file |
 
-An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warning. An invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value is ignored with a warning and the config file value stays. An empty value counts as unset for both. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
+Muximux treats an unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value as `off` and logs a warning. It ignores an invalid `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` value and logs a warning. The config file value then stays. An empty value counts as unset for both. See [Docker Discovery > Automatic Import](docker-discovery.md#automatic-import).
 
 ### Authentication and OIDC
 
@@ -335,11 +335,11 @@ An unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value is treated as `off` with a warn
 | `MUXIMUX_OIDC_AUTO_REDIRECT` | `auth.oidc.auto_redirect` | Boolean |
 | `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` | `auth.oidc.disable_local_login` | Boolean |
 
-Each defaults to the config file value. An empty or blank auth variable counts as unset, including an empty `X_FILE`, so `X=value` with `X_FILE=` uses the value. Setting both `X` and `X_FILE` is an error. Invalid auth configuration stops startup instead of leaving the instance open, for example an unknown `MUXIMUX_AUTH_METHOD`, or OIDC variables without `MUXIMUX_AUTH_METHOD` on an instance whose `config.yaml` is not already on OIDC. An unknown `MUXIMUX_OIDC_*` name is logged as a warning. The full rules, with examples, are in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables); Compose and Swarm examples with Docker secrets are in [Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets).
+Each defaults to the config file value. An empty or blank auth variable counts as unset. This includes an empty `X_FILE`, so `X=value` with `X_FILE=` uses the value. Setting both `X` and `X_FILE` is an error. Invalid auth configuration stops startup instead of leaving the instance open. Two examples: an unknown `MUXIMUX_AUTH_METHOD`, or OIDC variables without `MUXIMUX_AUTH_METHOD` on an instance whose `config.yaml` is not already on OIDC. Muximux logs an unknown `MUXIMUX_OIDC_*` name as a warning. The full rules, with examples, are in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables). Compose and Swarm examples with Docker secrets are in [Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets).
 
 ### Container image
 
-These are read by the Docker image's entrypoint, not by Muximux itself:
+The Docker image's entrypoint (the start script of the container) reads these, not Muximux itself:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
@@ -352,26 +352,26 @@ These are read by the Docker image's entrypoint, not by Muximux itself:
 
 - **Booleans** accept `true`, `1`, `yes`, `on` and `false`, `0`, `no`, `off` (case-insensitive).
 - **Precedence:** command-line flag, then environment variable, then the `config.yaml` value (including a `${VAR}` reference there), then the built-in default.
-- **Memory only.** An override changes the running configuration only. Saving from Settings (or through the API) writes the value `config.yaml` already had, never the override, so removing the variable brings the file's value back on the next start. The one exception is a setup wizard completed under `MUXIMUX_AUTH_METHOD=builtin`, which saves `method: builtin` with the new admin.
-- **Locked in Settings.** A field whose value comes from a variable or flag is shown locked, labelled with the variable's name ("From MUXIMUX_LISTEN", "Set by MUXIMUX_OIDC_CLIENT_SECRET_FILE"). The admin `GET /api/config` response lists these fields in `env_overrides` (field to variable name, never the value); see the [API Reference](api.md#configuration).
-- **First start.** The overrides also apply when there is no `config.yaml` yet, so a container configured only through the environment starts with those values.
+- **Memory only.** An override changes the running configuration only. Saving from Settings (or through the API) writes the value `config.yaml` already had, never the override. So if you remove the variable, the file's value comes back on the next start. The one exception is a setup wizard completed under `MUXIMUX_AUTH_METHOD=builtin`. That wizard saves `method: builtin` with the new admin.
+- **Locked in Settings.** Settings shows a field locked when its value comes from a variable or flag. The label names the variable ("From MUXIMUX_LISTEN", "Set by MUXIMUX_OIDC_CLIENT_SECRET_FILE"). The admin `GET /api/config` response lists these fields in `env_overrides` (field to variable name, never the value). See the [API Reference](api.md#configuration).
+- **First start.** The overrides also apply when there is no `config.yaml` yet. A container configured only through the environment therefore starts with those values.
 - **Restart.** Variables are read at startup. Change one and restart Muximux.
 
 ## Validation Rules
 
-Muximux validates the configuration on startup and will refuse to start if the configuration is invalid. The following rules are enforced:
+Muximux validates the configuration on startup. If the configuration is invalid, Muximux refuses to start. Muximux enforces the following rules:
 
 - If `tls.domain` is set, `tls.email` is required (for Let's Encrypt registration).
 - `tls.cert` and `tls.key` must both be set or both empty. You cannot provide only one.
 - `tls.domain` and `tls.cert` are mutually exclusive. Use either auto-HTTPS or manual certificates, not both.
-- Legacy `gateway:` (Caddyfile path) configs from 3.0.x are auto-migrated to `gateway_sites:` on first boot under 3.1.0 (clean conversions only; lossy ones surface a hard error pointing at `muximux migrate-gateway`).
-- If any `gateway_sites[]` entry has `require_auth: true`, `server.session_cookie_domain` is required and every gated site must be a subdomain of it (real host-suffix check: `evilexample.com` is not a subdomain of `example.com`).
+- On first boot under 3.1.0, Muximux auto-migrates legacy `gateway:` (Caddyfile path) configs from 3.0.x to `gateway_sites:`. This applies to clean conversions only. A lossy conversion (one that would lose settings) shows a hard error that points at `muximux migrate-gateway`.
+- If any `gateway_sites[]` entry has `require_auth: true`, then `server.session_cookie_domain` is required. Every gated site must also be a subdomain of it. The check is a real host-suffix check: `evilexample.com` is not a subdomain of `example.com`.
 - `gateway_sites[].min_role` must be one of `user`, `power-user`, `admin` when set (empty means "any authenticated user").
 - `server.gateway_listen` must be a valid bind address (e.g., `:8443` or `127.0.0.1:8443`).
 
 ## Live Configuration
 
-Most settings can be changed through the Settings panel while Muximux is running. Changes are saved to `data/config.yaml` immediately and take effect without restarting.
+You can change most settings through the Settings panel while Muximux is running. Muximux saves changes to `data/config.yaml` immediately. They take effect without a restart.
 
 The following settings **require a restart** to take effect:
 - `server.listen` (listen address/port)
@@ -381,9 +381,15 @@ The following settings **require a restart** to take effect:
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
 - `server.gateway_sites:` schema changes (the auth gate; backend swaps and TLS-mode flips reload Caddy in place)
 
-When Muximux saves the configuration it writes defaults for fields you omitted, so a saved `config.yaml` can contain more keys than you wrote by hand. Settings saves are a three-way merge: changes made on the server while Settings is open (a Docker URL refresh, auto-import, another tab) are kept, and fields you did not touch keep the server's value. A save that would create two apps or groups with the same name is refused (409) and Settings blocks Save until one is renamed. Settings closes only after the save succeeds; on failure it stays open with the server's message. Closing it with unsaved changes asks first, and **Discard** also reverts keybinding and theme previews. Every open browser gets a live update (the `config_updated` event) and refetches the config; the page reloads only when the language changed, and an open Settings dialog keeps its unsaved edits on top of the new state.
+When Muximux saves the configuration, it writes defaults for fields you omitted. A saved `config.yaml` can therefore contain more keys than you wrote by hand.
 
-A restored backup is read exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once; listen address, TLS, base-path routing and session cookie settings still need a restart.
+Settings saves are a three-way merge (Muximux combines your edits, the version you started from, and the current server version). Muximux keeps changes made on the server while Settings is open (a Docker URL refresh, auto-import, another tab). Fields you did not touch keep the server's value.
+
+Muximux refuses a save that would create two apps or groups with the same name (409). Settings blocks Save until you rename one. Settings closes only after the save succeeds. If the save fails, Settings stays open with the server's message. If you close it with unsaved changes, it asks first. **Discard** also reverts keybinding and theme previews.
+
+Every open browser gets a live update (the `config_updated` event) and refetches the config. The page reloads only when the language changed. An open Settings dialog keeps its unsaved edits on top of the new state.
+
+Muximux reads a restored backup exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once. Listen address, TLS, base-path routing and session cookie settings still need a restart.
 
 Everything else is applied immediately: navigation, themes, apps, groups, icons, keybindings, health monitoring, log level and log format.
 
@@ -394,11 +400,11 @@ You can export your configuration as a downloadable YAML file and import it on a
 - **Export** strips sensitive data (password hashes, OIDC secrets, API key hashes) before download.
 - **Import** parses the uploaded YAML, validates it, and shows a preview so you can review before applying.
 
-This is available in the Settings panel under the General tab, or via the API (see [API Reference](api.md)).
+You can do this in the Settings panel under the General tab, or via the API (see [API Reference](api.md)).
 
 ## Config API
 
-The configuration can also be read and updated via the API:
+You can also read and update the configuration via the API:
 
 - `GET /api/config` -- Retrieve the current configuration (any authenticated user).
 - `PUT /api/config` -- Update the full configuration (admin role required).

@@ -2,7 +2,7 @@
 
 [Zitadel](https://zitadel.com) is a self-hosted (or managed) cloud-native identity platform with a multi-organization model. It's used as a Keycloak alternative in Kubernetes and self-hosted setups.
 
-This guide sets up Muximux to authenticate against Zitadel with group memberships emitted in the ID token via Zitadel's project-roles mechanism.
+This guide sets up Muximux to sign users in with Zitadel. Zitadel puts group memberships in the ID token (the signed sign-in record that Zitadel sends to Muximux). It does this through its project roles.
 
 ---
 
@@ -15,25 +15,27 @@ This guide sets up Muximux to authenticate against Zitadel with group membership
 
 ## Step 1: Create the Project
 
-In Zitadel, applications live inside projects, and projects belong to organizations.
+In Zitadel, applications live inside projects. Projects belong to organizations.
 
-1. Sign in to Zitadel admin, pick the org you want Muximux under, and open **Projects > Create**.
-2. Name: `Muximux`.
-3. Open the new project. On the **General** tab:
-   - Enable **Assert Roles on Authentication**. This is what makes role memberships ride in the ID token.
-   - Optionally enable **Check Roles on Authentication** to refuse sign-in for users with no role at all in this project.
+1. Sign in to Zitadel admin.
+2. Pick the org you want Muximux under.
+3. Open **Projects > Create**.
+4. Name: `Muximux`.
+5. Open the new project.
+6. On the **General** tab, enable **Assert Roles on Authentication**. This setting puts role memberships in the ID token.
+7. Optionally, enable **Check Roles on Authentication**. Then Zitadel refuses sign-in for users with no role at all in this project.
 
 ---
 
 ## Step 2: Define Roles
 
-Roles in Zitadel are project-scoped strings; Muximux will receive them in the `urn:zitadel:iam:org:project:roles` claim. To use them as Muximux groups, set `groups_claim` to that exact path.
+Roles in Zitadel are project-scoped strings. Muximux receives them in the `urn:zitadel:iam:org:project:roles` claim. To use them as Muximux groups, set `groups_claim` to that exact path.
 
 1. In the project, open **Roles > New**.
 2. Create at least:
    - Key: `muximux-admin`, Display Name: `Muximux Admin`
    - Key: `muximux-user`, Display Name: `Muximux User`
-3. Add any other roles you'll later use for per-app filtering, e.g. `engineering`, `on-call`.
+3. Add any other roles you will later use for per-app filtering, e.g. `engineering`, `on-call`.
 
 ---
 
@@ -42,26 +44,32 @@ Roles in Zitadel are project-scoped strings; Muximux will receive them in the `u
 1. Inside the project, open **New Application > Web > Next**.
 2. Authentication method: **CODE** (authorization code with a client secret).
 3. Redirect URIs: `https://muximux.example.com/api/auth/oidc/callback`
-4. Post Logout Redirect URIs: `https://muximux.example.com/login` (or wherever you want users to land after logout).
-5. Continue and copy the **Client ID** and **Client Secret** Zitadel generates. Both are needed for `config.yaml`.
-
-After creation, open the application's **Token Settings** tab and confirm:
-
-- **Auth Token Type**: `JWT`
-- **Add user roles to the access token**: enabled (only relevant if you'll consume access tokens; harmless either way)
-- **User roles inside ID Token**: enabled. This is the important toggle for Muximux.
+4. Post Logout Redirect URIs: `https://muximux.example.com/login` (or the page where you want users to land after logout).
+5. Continue.
+6. Copy the **Client ID** and **Client Secret** that Zitadel generates. You need both for `config.yaml`.
+7. Open the application's **Token Settings** tab.
+8. Confirm these settings:
+   - **Auth Token Type**: `JWT`
+   - **Add user roles to the access token**: enabled. This matters only if you will use access tokens. It is harmless either way.
+   - **User roles inside ID Token**: enabled. This is the important toggle for Muximux.
 
 ---
 
 ## Step 4: Grant Roles to Users
 
-Users get project roles via **Authorizations**, either directly or through a Zitadel project grant.
+Users get project roles through **Authorizations**. They get them either directly or through a Zitadel project grant.
 
 1. In the project, open **Authorizations > New**.
-2. Pick the user, choose the role you want them to have (e.g. `muximux-admin`).
-3. Save. Repeat for any other users.
+2. Pick the user.
+3. Choose the role you want the user to have (e.g. `muximux-admin`).
+4. Save.
+5. Repeat for any other users.
 
-For groups of users, create a Zitadel **Group**, assign roles to the group, and add users to the group.
+For groups of users, do these steps:
+
+1. Create a Zitadel **Group**.
+2. Assign roles to the group.
+3. Add users to the group.
 
 ---
 
@@ -92,33 +100,49 @@ auth:
       - muximux-admin
 ```
 
-The unusual scope (`urn:zitadel:iam:org:project:id:zitadel:aud`) tells Zitadel that Muximux's audience is the Zitadel project itself; without it, ID token validation can fail in strict-audience mode. Replace `zitadel` in that scope name with your project's resource ID if you have a different one.
+The unusual scope (`urn:zitadel:iam:org:project:id:zitadel:aud`) tells Zitadel that Muximux's audience (the intended receiver of the token) is the Zitadel project itself. Without it, ID token validation can fail in strict-audience mode. If your project has a different resource ID, put it in place of `zitadel` in that scope name.
 
-`issuer_url` is the base URL of your Zitadel instance, no trailing path.
+`issuer_url` is the base URL of your Zitadel instance, with no trailing path.
 
 Set `ZITADEL_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the base URL of your Zitadel instance as the issuer URL, the client ID from Step 3, the extra audience scope shown above added to the scopes, `urn:zitadel:iam:org:project:roles` as the groups claim, and your role key (for example `muximux-admin`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+You can use the Settings page instead of editing `config.yaml`:
+
+1. Open **Settings > Security**.
+2. Choose **Single sign-on (OIDC)**.
+3. For the issuer URL, enter the base URL of your Zitadel instance.
+4. Enter the client ID from Step 3.
+5. Add the extra audience scope shown above to the scopes.
+6. For the groups claim, enter `urn:zitadel:iam:org:project:roles`.
+7. Under admin groups, enter your role key (for example `muximux-admin`).
+8. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
+9. Press **Test connection**.
+10. Press **Update Method**.
+
+See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 
 ## Step 6: Validate
 
-1. Visit `https://muximux.example.com/login` and click **Login with SSO**.
-2. Sign in to Zitadel and approve the consent screen if shown.
-3. Confirm a `muximux-admin` user sees the Settings gear.
-4. To inspect what Zitadel actually emitted: in Zitadel, open **Project > Application > Token Inspector** and exchange a fresh code; the decoded ID token shows the `urn:zitadel:iam:org:project:roles` map.
+1. Visit `https://muximux.example.com/login`.
+2. Click **Login with SSO**.
+3. Sign in to Zitadel.
+4. If Zitadel shows the consent screen, approve it.
+5. Confirm that a `muximux-admin` user sees the Settings gear.
+6. To see what Zitadel actually sent, open **Project > Application > Token Inspector** in Zitadel.
+7. Exchange a fresh code. The decoded ID token shows the `urn:zitadel:iam:org:project:roles` map.
 
 ---
 
 ## Sign-out
 
-Zitadel supports RP-initiated logout at `/oidc/v1/end_session` (listed as `end_session_endpoint` in discovery) and OIDC back-channel logout.
+Zitadel supports RP-initiated logout (Muximux sends the user to the provider to sign out) at `/oidc/v1/end_session`. Discovery lists it as `end_session_endpoint`. Zitadel also supports OIDC back-channel logout (the provider tells Muximux directly that a session ended).
 
-- **Return address.** The `post_logout_redirect_uri` must match one of the post-logout URIs registered on the application exactly. Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the application's post-logout redirect URIs (the **Redirect Settings** section of the application in Console), and set `provider_logout: true`.
-- **Back-channel logout.** Register `https://muximux.example.com/api/auth/oidc/backchannel-logout` as the application's back-channel logout URI (`backchannel_logout_uri`). The label of this field in Console could not be confirmed from the documentation consulted; check your Zitadel version's application settings. Once set, Zitadel notifies Muximux for sessions started after the setting was saved.
+- **Return address.** The `post_logout_redirect_uri` must exactly match one of the post-logout URIs registered on the application. Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the application's post-logout redirect URIs. These are in the **Redirect Settings** section of the application in Console. Then set `provider_logout: true`.
+- **Back-channel logout.** Register `https://muximux.example.com/api/auth/oidc/backchannel-logout` as the application's back-channel logout URI (`backchannel_logout_uri`). The label of this field in Console could not be confirmed from the documentation consulted. Check the application settings in your Zitadel version. After you set it, Zitadel notifies Muximux for sessions that started after you saved the setting.
 
 ---
 

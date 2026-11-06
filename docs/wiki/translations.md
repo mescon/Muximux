@@ -34,7 +34,7 @@ English is the base locale and the fallback for any missing translations.
 3. Select a language from the **Language** dropdown.
 4. Click **Save**. The page reloads automatically in the new language.
 
-The setting is stored in `config.yaml` under `server.language` and applies to all users and devices.
+Muximux stores the setting in `config.yaml` under `server.language`. It applies to all users and devices.
 
 ## Contributing a Translation
 
@@ -112,11 +112,11 @@ npm run build
 npx vitest run
 ```
 
-All tests should pass. Start the dev server and switch to your language in Settings to verify the UI looks correct.
+All tests should pass. Then start the dev server. Switch to your language in Settings, and check that the UI looks correct.
 
 **8. Submit a pull request**
 
-Commit your changes and open a PR. The diff should include:
+Commit your changes. Then open a PR. The diff should include:
 
 - `web/messages/your-tag.json` (new file)
 - `web/project.inlang/settings.json` (tag added to array)
@@ -132,11 +132,11 @@ Commit your changes and open a PR. The diff should include:
 
 ## Technical Details
 
-Muximux uses [Paraglide.js](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) for compile-time i18n. Message functions are generated from the JSON files and tree-shaken per page -- only the active locale's strings are loaded at runtime.
+Muximux uses [Paraglide.js](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) for compile-time i18n (translations built into the code when the frontend is built). The build generates message functions from the JSON files. It tree-shakes them per page (removes the unused code), so only the active locale's strings are loaded at runtime.
 
-The locale is stored in three places that stay in sync:
+Muximux stores the locale in three places that stay in sync:
 - **Server config** (`config.yaml` → `server.language`) -- source of truth, synced across devices.
-- **localStorage** (`PARAGLIDE_LOCALE`) -- used by Paraglide on page load before the server config is fetched.
+- **localStorage** (`PARAGLIDE_LOCALE`) -- used by Paraglide on page load, before Muximux fetches the server config.
 - **`<html lang="..." dir="...">` attributes** -- set on every page load for accessibility and CSS logical properties (RTL support).
 
-When the user changes language in Settings and saves, the config is written to the server, and the page reloads. On reload, Paraglide reads the locale from localStorage and renders the new language immediately, then the server config confirms it.
+When the user changes the language in Settings and saves, Muximux writes the config to the server. The page then reloads. On reload, Paraglide reads the locale from localStorage and renders the new language immediately. Then the server config confirms it.

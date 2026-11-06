@@ -6,37 +6,43 @@ This page walks you through what happens the first time you launch Muximux and h
 
 ## First Launch
 
-When Muximux starts with no apps configured (either no `data/config.yaml` exists or the file has an empty `apps` list), it shows the **Onboarding Wizard** -- a guided setup that walks you through initial configuration.
+Muximux can start with no apps configured. This happens when no `data/config.yaml` exists, or when the file has an empty `apps` list. Then Muximux shows the **Onboarding Wizard**, a guided setup for the initial configuration.
 
-Open your browser and navigate to Muximux (by default, `http://your-server:8080`).
+Open your browser and go to Muximux (by default, `http://your-server:8080`).
 
 ---
 
 ## Onboarding Wizard
 
-The wizard has six steps on a first launch, including a **Security** step where you choose your authentication method. If authentication has already been configured (e.g., you deleted all apps but kept your auth settings), the Security step is skipped, making it five steps. You can move forward and backward between steps at any time.
+On a first launch, the wizard has six steps. One of them is a **Security** step, where you choose your authentication method. Authentication can already be configured (e.g., you deleted all apps but kept your auth settings). In that case the wizard skips the Security step and has five steps. You can move forward and backward between steps at any time.
 
 ### Step 1: Welcome
 
-A brief introduction to Muximux and its core features: embedded app views via iframes, health monitoring, and keyboard-driven navigation. Click **Let's Get Started** to begin.
+A brief introduction to Muximux and its core features: embedded app views via iframes (frames that show another web page inside this page), health monitoring, and keyboard-driven navigation. Click **Let's Get Started** to begin.
 
 [![Onboarding - Welcome](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)
 
 ### Step 2: Security (fresh install only)
 
-On a fresh install where no authentication has been configured, the wizard includes a Security step. Here you choose how users authenticate:
+On a fresh install with no authentication configured, the wizard includes a Security step. Here you choose how users sign in:
 
 - **Password** -- Create an admin account with a username and password. This uses Muximux's built-in authentication.
-- **Forward Auth** -- Use an external authentication proxy (Authelia, Authentik, etc.). You'll need to provide at least one trusted proxy CIDR range.
+- **Forward Auth** -- Use an external authentication proxy (Authelia, Authentik, etc.). You must give at least one trusted proxy CIDR range (a block of IP addresses).
 - **None** -- Disable authentication entirely. Anyone who can reach Muximux has full access.
 
-This step only appears during initial setup. After setup is complete, authentication settings can be changed in Settings, including single sign-on (OIDC), which is set up under Settings > Security. See [Authentication](authentication#setting-up-oidc-in-settings).
+This step only appears during initial setup. After setup, you can change authentication settings in Settings. This includes single sign-on (OIDC), which you set up under Settings > Security. See [Authentication](authentication#setting-up-oidc-in-settings).
 
 ### Step 3: Apps & Groups
 
 This step uses a two-column layout (single column on mobile):
 
-**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. Tick the box, confirm the Docker endpoint (default is the standard unix socket) and pick a network strategy; when onboarding completes Muximux saves the discovery config so **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan. That happens after onboarding, so you can review what gets imported.
+**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. To use it:
+
+1. Tick the box.
+2. Confirm the Docker endpoint. The default is the standard unix socket.
+3. Pick a network strategy.
+
+When onboarding completes, Muximux saves the discovery config. Then **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan. The scan happens after onboarding, so that you can review what gets imported.
 
 Below the Docker card, browse popular self-hosted application templates organized by category:
 
@@ -45,9 +51,9 @@ Below the Docker card, browse popular self-hosted application templates organize
 - **System** -- Portainer, Proxmox, Unraid, TrueNAS, Home Assistant, Pi-hole, AdGuard Home, Nginx Proxy Manager, Traefik, Grafana, Prometheus, Uptime Kuma
 - **Utilities** -- Vaultwarden, Nextcloud, Photoprism, Immich, Paperless-ngx, Gitea, Code Server, Syncthing, Mealie, Bookstack
 
-Click on any app to select it. When selected, a URL field appears so you can enter the actual address of that service in your network (e.g., change `http://localhost:32400/web` to `http://192.168.1.50:32400/web`).
+Click on any app to select it. A URL field appears. Enter the actual address of that service in your network (e.g., change `http://localhost:32400/web` to `http://192.168.1.50:32400/web`).
 
-At the top of the left column is the **Add Custom App** card. Click it to expand a form where you can provide a name, URL, icon (via the icon browser), color, and group. The group dropdown lists existing groups plus a "No Group" option.
+The **Add Custom App** card is at the top of the left column. Click it to expand a form. In the form, give a name, URL, icon (from the icon browser), color, and group. The group dropdown lists existing groups plus a "No Group" option.
 
 **Right column** -- Shows your current selections:
 
@@ -89,9 +95,9 @@ Choose a visual theme for your dashboard:
 
 - Use the **variant selector** (Dark / System / Light) to control whether to follow the OS preference or force a specific mode.
 - Browse available **theme families** in a grid. Each card shows color swatches for background, surface, and accent colors. Click a family to select it.
-- Changes apply **live** -- you can see the theme update the wizard background as you click.
+- Changes apply **live** -- the wizard background shows the new theme as you click.
 
-Custom themes can be created later in Settings. The selected theme is saved to `config.yaml` as part of the server-side configuration.
+You can create custom themes later in Settings. Muximux saves the selected theme to `config.yaml` as part of the server-side configuration.
 
 | Muximux (Default) | Catppuccin | Dracula |
 |:---:|:---:|:---:|
@@ -99,7 +105,7 @@ Custom themes can be created later in Settings. The selected theme is saved to `
 
 ### Step 6: Complete
 
-A summary of your choices is displayed: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
+Muximux shows a summary of your choices: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
 
 [![Onboarding - Complete](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)
 
@@ -107,9 +113,13 @@ A summary of your choices is displayed: number of apps, navigation position, the
 
 ## Restore from Backup
 
-If you have an existing `config.yaml` backup (e.g. from a previous Muximux install or from the **Export Config** button in Settings), you can restore it directly from the welcome screen instead of going through the wizard.
+You can have an existing `config.yaml` backup (e.g. from a previous Muximux install or from the **Export Config** button in Settings). Then you can restore it directly from the welcome screen, instead of going through the wizard.
 
-On the welcome page, enter the one-time **Setup token** (see [Authentication > First-Run Setup](authentication.md#first-run-setup) for where to find it), click **Restore from Backup** below the "Let's Get Started" button, and select your `.yaml` file. Muximux will validate the config, save it, and reload -- skipping the entire wizard.
+1. On the welcome page, enter the one-time **Setup token**. See [Authentication > First-Run Setup](authentication.md#first-run-setup) for where to find it.
+2. Click **Restore from Backup** below the "Let's Get Started" button.
+3. Select your `.yaml` file.
+
+Muximux validates the config, saves it, and reloads. It skips the entire wizard.
 
 ---
 
@@ -119,8 +129,8 @@ Once the wizard completes:
 
 - Your configuration is saved to `data/config.yaml`.
 - The first app in your list is automatically set as the **default app**, which loads when you open the dashboard.
-- **Health monitoring** is available but off by default. Enable it per-app in Settings or in bulk via the Apps tab. When enabled, Muximux checks each app at the configured interval (default: every 30 seconds).
-- The onboarding wizard will appear automatically whenever no apps are configured. Once you add apps, it will not appear again unless all apps are removed.
+- **Health monitoring** is available but off by default. Enable it per-app in Settings, or for many apps at once in the Apps tab. When it is on, Muximux checks each app at the configured interval (default: every 30 seconds).
+- The onboarding wizard appears automatically whenever no apps are configured. After you add apps, it does not appear again, unless you remove all apps.
 
 You can open **Settings** at any time from the navigation bar to modify apps, groups, navigation style, themes, and all other options.
 
@@ -134,13 +144,13 @@ To completely start fresh and see the onboarding wizard again:
 2. **Delete or rename** the `data/config.yaml` file (or the config file in your configured data directory).
 3. **Start Muximux** again.
 
-The onboarding wizard will appear automatically because no apps are configured. No browser state needs to be cleared.
+The onboarding wizard appears automatically, because no apps are configured. You do not need to clear any browser state.
 
 ---
 
 ## Quick Manual Setup
 
-If you prefer to skip the onboarding wizard entirely, you can create a `data/config.yaml` by hand before starting Muximux. Here is a minimal example:
+You can skip the onboarding wizard entirely. To do this, create a `data/config.yaml` by hand before you start Muximux. Here is a minimal example:
 
 ```yaml
 server:

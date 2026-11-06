@@ -2,26 +2,26 @@
 
 ## What It Does
 
-When `proxy: true` is set on an app, Muximux proxies all requests to that app through `/proxy/{app-slug}/` on the same port Muximux is running on. The slug is derived from the app name: lowercased, with spaces replaced by hyphens.
+A reverse proxy is a server that forwards requests to another server. When you set `proxy: true` on an app, Muximux proxies all requests to that app through `/proxy/{app-slug}/`. This path is on the same port that Muximux runs on. Muximux derives the slug (the URL-safe name) from the app name: lowercased, with spaces replaced by hyphens.
 
-For example, an app named "My Sonarr" would be proxied at `/proxy/my-sonarr/`.
+For example, Muximux proxies an app named "My Sonarr" at `/proxy/my-sonarr/`.
 
-All requests to that path are forwarded to the app's configured `url`, and the responses are rewritten so the app works correctly at its new location.
+Muximux forwards all requests on that path to the app's configured `url`. It then rewrites the responses so the app works correctly at its new location.
 
-> **Note:** This per-app reverse proxy is built into the Go server and works in every deployment mode: behind Traefik, standalone, or as a full reverse proxy appliance with Caddy. It is completely independent of Caddy and requires no extra configuration beyond `proxy: true`.
+> **Note:** This per-app reverse proxy is built into the Go server. It works in every deployment mode: behind Traefik, standalone, or as a full reverse proxy appliance with Caddy. It is completely independent of Caddy. It needs no extra configuration beyond `proxy: true`.
 
 ---
 
 ## Why It Exists
 
-Most web applications set security headers that prevent them from being loaded inside iframes:
+Most web applications set security headers that stop other pages from loading them inside iframes (frames that show one web page inside another page):
 
 - `X-Frame-Options: DENY` or `SAMEORIGIN`
 - `Content-Security-Policy: frame-ancestors 'none'`
 
-Since Muximux's primary interface loads apps in iframes, these headers cause the app to show a blank frame or a "refused to connect" error. The reverse proxy strips these headers so the app can be embedded.
+Muximux's primary interface loads apps in iframes. Because of this, these headers make the app show a blank frame or a "refused to connect" error. The reverse proxy strips these headers, so Muximux can embed the app.
 
-Beyond header stripping, the proxy also rewrites paths throughout the response so that the app's internal links, asset references, and API calls continue to work from the new `/proxy/{slug}/` base path.
+The proxy also rewrites paths throughout the response. This keeps the app's internal links, asset references, and API calls working from the new `/proxy/{slug}/` base path.
 
 ---
 
@@ -63,7 +63,7 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 
 ### Runtime URL Interceptor
 
-For single-page applications (SPAs) that build URLs dynamically in JavaScript, static text rewriting is not enough. The proxy injects a small script into every HTML response that intercepts URL usage at runtime:
+Some single-page applications (SPAs, apps that load one page and then update it with JavaScript) build URLs dynamically in JavaScript. For these apps, static text rewriting is not enough. The proxy injects a small script into every HTML response. This script intercepts URL usage at runtime:
 
 - **`fetch()`, `XMLHttpRequest`, `sendBeacon()`** - API calls are rewritten before they leave the browser
 - **`WebSocket`, `EventSource`** - Real-time connections are routed through the proxy
@@ -82,7 +82,7 @@ For single-page applications (SPAs) that build URLs dynamically in JavaScript, s
 - **`localStorage` / `sessionStorage` isolation** - Namespaced per proxied app so multiple apps sharing the Muximux origin don't collide on storage keys
 - **Service worker blocking** - `register()` is no-op'd to prevent proxied apps from registering service workers under the Muximux origin; existing proxy-scoped registrations are unregistered
 
-This means apps like **Plex**, which construct all their image and API URLs in JavaScript at runtime, work through the proxy without needing any configuration in the app itself.
+Some apps, like **Plex**, construct all their image and API URLs in JavaScript at runtime. These apps work through the proxy without any configuration in the app itself.
 
 ### SRI (Subresource Integrity)
 
@@ -91,7 +91,7 @@ This means apps like **Plex**, which construct all their image and API URLs in J
 
 ### Gzip Handling
 
-Compressed (gzipped) responses are transparently decompressed before rewriting. The rewritten response is sent uncompressed; if Muximux sits behind an external reverse proxy (nginx, Traefik, Caddy), that proxy can apply its own compression to the final response. No configuration is needed.
+The proxy transparently decompresses compressed (gzipped) responses before rewriting. It sends the rewritten response uncompressed. If Muximux sits behind an external reverse proxy (nginx, Traefik, Caddy), that proxy can apply its own compression to the final response. No configuration is needed.
 
 ---
 
@@ -119,7 +119,7 @@ apps:
 
 #### Forwarding the signed-in user's identity
 
-A `proxy_headers` value can reference the authenticated Muximux user, so the backend can do header-based ("proxy") auth without its own login. Use any of these variables in a value:
+A `proxy_headers` value can reference the authenticated Muximux user. The backend can then do header-based ("proxy") auth without its own login. Use any of these variables in a value:
 
 | Variable | Expands to |
 |---|---|
@@ -135,11 +135,11 @@ proxy_headers:
   X-Forwarded-Groups: "${groups}"
 ```
 
-The values are resolved per request from the current session and stripped of any CR/LF/NUL, so a crafted identity claim can't inject a header. On an unauthenticated instance (`auth.method: none`) the variables expand to empty. Static values (API keys, bearer tokens) are sent verbatim; only values containing `${...}` are templated.
+Muximux resolves the values per request from the current session. It strips any CR/LF/NUL from them, so a crafted identity claim can't inject a header. On an unauthenticated instance (`auth.method: none`), the variables expand to empty. Muximux sends static values (API keys, bearer tokens) verbatim. It templates only values that contain `${...}`.
 
-> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux. A shared Docker network or an internal address is not enough on its own: anything else that can reach the backend can send its own `X-Forwarded-User`. Make Muximux the only thing that can connect to the backend: a network that holds just the two of them or a firewall rule, and no published ports on the backend. Or have the backend also check a secret that only Muximux sends, such as a static value in `proxy_headers`, over HTTPS or a private network so it can't be read in transit. This is the same trust model as any reverse-proxy header auth.
+> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux. A shared Docker network or an internal address is not enough on its own. Anything else that can reach the backend can send its own `X-Forwarded-User`. Make Muximux the only thing that can connect to the backend. Use a network that holds just the two of them or a firewall rule, and publish no ports on the backend. Or have the backend also check a secret that only Muximux sends, such as a static value in `proxy_headers`. Send that secret over HTTPS or a private network, so it can't be read in transit. This is the same trust model as any reverse-proxy header auth.
 
-The global `server.proxy_timeout` (default: `30s`) controls how long the proxy waits for a backend response before timing out. This applies to all proxied apps.
+The global `server.proxy_timeout` (default: `30s`) sets how long the proxy waits for a backend response before it times out. This applies to all proxied apps.
 
 ### When to Use It
 
@@ -147,7 +147,7 @@ Enable `proxy: true` when:
 
 - The app refuses to load in an iframe. You see a blank frame, a "refused to connect" error, or a message saying the page cannot be displayed in a frame.
 - The app loads in the iframe but assets (CSS, JS, images) fail because their paths do not resolve correctly.
-- The app loads and looks correct but navigation and links break because they point to the original path instead of the proxy path.
+- The app loads and looks correct, but navigation and links break. They point to the original path instead of the proxy path.
 
 ---
 
@@ -156,18 +156,18 @@ Enable `proxy: true` when:
 Leave `proxy: false` (or omit it) when:
 
 - The app already works fine in an iframe without proxy. Some apps allow embedding by default and do not need any rewriting.
-- You are using `open_mode: new_tab`, `new_window`, or `redirect`. The proxy is only useful for iframe mode, since the other modes open the app at its original URL.
-- You want to reduce overhead. The proxy adds a small amount of latency due to the rewriting step, so skip it if it is not needed.
+- You are using `open_mode: new_tab`, `new_window`, or `redirect`. The proxy is only useful for iframe mode, because the other modes open the app at its original URL.
+- You want to reduce overhead. The rewriting step adds a small amount of latency, so skip the proxy if you don't need it.
 
 ---
 
 ## Why Some Apps May Not Work
 
-Even with the proxy and runtime interceptor enabled, some applications may not work correctly in an iframe. The most common reasons are:
+Some applications may not work correctly in an iframe, even with the proxy and runtime interceptor enabled. The most common reasons are:
 
 - **Binary protocols** -- gRPC, MessagePack, and other non-text formats with embedded paths cannot be rewritten.
 - **Runtime-constructed paths** -- Template literals (`` `${base}/api` ``) and string concatenation (`'/api' + endpoint`) are invisible to any rewriter.
-- **SPA routing conflicts** -- Some SPAs may not recognize the `/proxy/{slug}/` prefix in their client-side router if they hardcode routes rather than using a configurable base path. The runtime interceptor patches `location.pathname` to strip the prefix, which handles most cases.
+- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. The runtime interceptor patches `location.pathname` to strip the prefix, which handles most cases.
 
 > **Note:** The proxy handles these patterns automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
 
@@ -175,11 +175,11 @@ For detailed explanations of each limitation, symptoms, and workarounds, see the
 
 ### WebSocket Connections
 
-WebSocket connections are fully supported. The proxy detects `Upgrade: websocket` requests and transparently proxies them by establishing a direct TCP connection to the backend. Path rewriting is applied to the initial HTTP upgrade request, then data flows bidirectionally without modification. Apps using WebSockets for live updates, logs, or chat should work through the proxy without additional configuration.
+The proxy fully supports WebSocket connections. It detects `Upgrade: websocket` requests. It proxies them transparently over a direct TCP connection to the backend. The proxy rewrites the path of the initial HTTP upgrade request. After that, data flows in both directions without modification. Apps that use WebSockets for live updates, logs, or chat should work through the proxy without additional configuration.
 
 ### Mixed Content
 
-If Muximux is served over HTTPS but the proxied app is HTTP-only on the internal network, this is handled transparently by the proxy (the browser talks HTTPS to Muximux, and Muximux talks HTTP to the app). However, if the app's JavaScript makes direct HTTP requests to other internal services, the browser may block those as mixed content.
+Muximux may be served over HTTPS while the proxied app is HTTP-only on the internal network. The proxy handles this transparently: the browser talks HTTPS to Muximux, and Muximux talks HTTP to the app. However, the app's JavaScript may make direct HTTP requests to other internal services. The browser may block those requests as mixed content (HTTP content on an HTTPS page).
 
 ---
 
@@ -187,22 +187,22 @@ If Muximux is served over HTTPS but the proxied app is HTTP-only on the internal
 
 ### Blank iframe
 
-Open the browser's developer tools (F12) and check the Console tab for errors. Common causes:
+Open the browser's developer tools (F12). Check the Console tab for errors. Common causes:
 
 - The app uses a Content-Security-Policy that was not fully stripped. Look for "refused to frame" or "blocked by Content-Security-Policy" messages.
 - The app's URL is unreachable from the Muximux server. Verify you can reach the URL from the machine running Muximux.
 
 ### Broken Styles or Images
 
-The path rewriting may have missed some URLs. Try accessing the app directly at `/proxy/{slug}/` in a new browser tab (not in the iframe). This lets you use developer tools more easily to see which requests are failing and what paths they are trying to reach.
+The path rewriting may have missed some URLs. Try opening the app directly at `/proxy/{slug}/` in a new browser tab (not in the iframe). There, the developer tools are easier to use. You can see which requests fail and what paths they try to reach.
 
 ### Login Loops
 
-The app's authentication system may conflict with the proxy. This often happens when the app redirects to a login page using an absolute URL that bypasses the proxy. If the app supports configuring a base URL or external URL, set it to match the proxy path (e.g., `/proxy/sonarr`).
+The app's authentication system may conflict with the proxy. This often happens when the app redirects to a login page with an absolute URL that bypasses the proxy. If the app lets you configure a base URL or external URL, set it to match the proxy path (e.g., `/proxy/sonarr`).
 
 ### Intermittent Failures
 
-If the app works sometimes but not others, it may be a timing issue with WebSocket connections or service workers. Check the Network tab in developer tools for failed requests.
+If the app works only some of the time, the cause may be a timing issue with WebSocket connections or service workers. Check the Network tab in developer tools for failed requests.
 
 ### If Nothing Works
 
@@ -216,7 +216,7 @@ apps:
     open_mode: new_tab
 ```
 
-The app opens in its own browser tab with no proxy involvement. You lose the integrated dashboard experience, but the app will work exactly as it does when accessed directly.
+The app opens in its own browser tab, without the proxy. You lose the integrated dashboard experience. But the app works exactly as it does when you open it directly.
 
 ---
 
@@ -232,13 +232,13 @@ The built-in reverse proxy and the Caddy-based gateway are completely separate s
 | **Works without TLS** | Yes | The gateway is only active when TLS/Caddy is enabled |
 | **Rewrites content** | Yes (headers, HTML, CSS, JS, runtime) | No (standard reverse proxy behavior) |
 
-The per-app `proxy: true` setting is for iframe embedding. The `gateway_sites:` entries serve additional sites alongside Muximux on their own subdomains or handle TLS termination. They can be used independently or together.
+The per-app `proxy: true` setting is for iframe embedding. The `gateway_sites:` entries serve additional sites alongside Muximux on their own subdomains, or handle TLS termination. You can use them independently or together.
 
 ---
 
 ## Dynamic Route Rebuilds
 
-Proxy routes are rebuilt automatically whenever you save configuration changes (add, edit, or delete an app). You do not need to restart Muximux for proxy changes to take effect. New apps with `proxy: true` become available immediately, and removed apps stop being proxied right away.
+Muximux rebuilds proxy routes automatically whenever you save configuration changes (add, edit, or delete an app). You do not need to restart Muximux for proxy changes to take effect. New apps with `proxy: true` become available immediately. Removed apps stop being proxied right away.
 
 ---
 
@@ -252,7 +252,7 @@ The proxy rewrites URLs in three layers:
 
 **Layer 1: Static Rewriting (Server-Side)**
 
-When a response passes through the proxy, the Go server rewrites URLs in the response body based on content type:
+When a response passes through the proxy, the Go server rewrites URLs in the response body. The method depends on the content type:
 
 | Content Type | Rewriting Strategy |
 |---|---|
@@ -260,13 +260,13 @@ When a response passes through the proxy, the Go server rewrites URLs in the res
 | CSS | Full rewriting - `url()` references |
 | JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
 
-API responses (JSON, XML) contain data that the SPA reads programmatically. If the proxy rewrites paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`), the SPA may embed those already-rewritten paths in new URLs, causing double-prefixing.
+API responses (JSON, XML) contain data that the SPA reads programmatically. The proxy could rewrite paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`). The SPA may then embed those already-rewritten paths in new URLs. This causes double-prefixing (the prefix appears twice).
 
-Only text content types are buffered for rewriting. Binary responses (images, videos, archives, file downloads) stream directly from the backend to the browser without being read into memory. Text responses larger than 50 MB are also streamed through without rewriting as a safety measure.
+The proxy buffers (holds in memory) only text content types for rewriting. Binary responses (images, videos, archives, file downloads) stream directly from the backend to the browser without being read into memory. As a safety measure, text responses larger than 50 MB also stream through without rewriting.
 
 **Layer 2: Runtime Interceptor (Client-Side, Synchronous)**
 
-A small `<script>` tag injected into every HTML response patches browser APIs before the app's own JavaScript runs:
+The proxy injects a small `<script>` tag into every HTML response. This script patches browser APIs before the app's own JavaScript runs:
 
 | Category | What's Patched | How |
 |----------|---|---|
@@ -281,17 +281,17 @@ A small `<script>` tag injected into every HTML response patches browser APIs be
 | Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |
 | Blocked | `navigator.serviceWorker.register()` | Returns resolved promise (no-op) |
 
-Property setter overrides are **synchronous** - when the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. This preserves the app's normal event chain (load events, animations, etc.) because the image loads from the correct URL on the first try.
+Property setter overrides are **synchronous** (they run at once, in the same step). When the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. The image loads from the correct URL on the first try. This keeps the app's normal event chain (load events, animations, etc.) intact.
 
 **Layer 3: MutationObserver (Client-Side, Fallback)**
 
-A `MutationObserver` watches for new elements added to the DOM and attribute changes on `src`/`poster`. This catches elements created via `innerHTML`, HTML template parsing, or other paths that bypass JavaScript property setters. If a `src` attribute contains an un-prefixed URL, it's rewritten.
+A `MutationObserver` (a browser API that reports changes to the page) watches for new elements added to the DOM. It also watches for attribute changes on `src`/`poster`. This catches elements created via `innerHTML`, HTML template parsing, or other paths that bypass JavaScript property setters. If a `src` attribute contains an un-prefixed URL, the observer rewrites it.
 
 ### Chrome Iframe Timeline Workaround
 
-Chrome may freeze `document.timeline` inside iframes, causing CSS and Web Animations API animations to stall. Some apps (notably Plex) use `element.animate()` for image fade-in effects with `fill: "auto"`, which means the animation's end state is not persisted. When the timeline freezes, images remain stuck at opacity 0 despite being fully loaded.
+Chrome may freeze `document.timeline` inside iframes. CSS and Web Animations API animations then stall. Some apps (notably Plex) use `element.animate()` for image fade-in effects with `fill: "auto"`. With this setting, the animation's end state is not persisted. When the timeline freezes, images stay stuck at opacity 0, even though they are fully loaded.
 
-The interceptor includes a periodic scan (every 200ms for the first 30 seconds) that detects loaded images with `style.opacity === "0"`, cancels any frozen animations, and forces them visible. This self-disables after 30 seconds to avoid unnecessary work on long-lived pages.
+The interceptor includes a periodic scan (every 200ms for the first 30 seconds). The scan detects loaded images with `style.opacity === "0"`. It cancels any frozen animations and forces the images visible. The scan turns itself off after 30 seconds, to avoid unnecessary work on long-lived pages.
 
 ### Tested Apps
 

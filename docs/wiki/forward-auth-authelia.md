@@ -1,11 +1,11 @@
 # Authelia (forward auth or OIDC)
 
-Authelia can sit in front of Muximux as either a **forward-auth provider** or an **OIDC provider**. This guide covers both. Forward auth is the original Authelia integration model and is the most common; OIDC is the more recent, more portable approach.
+Authelia can sit in front of Muximux as either a **forward-auth provider** or an **OIDC provider**. This guide covers both. Forward auth is the original Authelia integration model and is the most common. OIDC is the more recent and more portable approach.
 
 If you're not sure which to pick:
 
-- Pick **forward auth** if Authelia is already protecting other apps in your stack via your reverse proxy (Traefik, Nginx, Caddy). It's the lighter setup.
-- Pick **OIDC** if you want Muximux to authenticate against Authelia the same way it would authenticate against Keycloak or Entra ID, independent of your reverse proxy.
+- Pick **forward auth** if Authelia already protects other apps in your stack through your reverse proxy (a server that forwards requests to another server, such as Traefik, Nginx, Caddy). It's the lighter setup.
+- Pick **OIDC** if you want Muximux to sign users in with Authelia the same way it would with Keycloak or Entra ID. This works independently of your reverse proxy.
 
 ---
 
@@ -15,7 +15,7 @@ In this mode, your reverse proxy calls Authelia on every request. Authelia decid
 
 ### Step 1: Configure Authelia
 
-If you already have Authelia protecting other apps, you only need to add a rule for Muximux's host. In `configuration.yml`:
+If Authelia already protects other apps, you only need to add a rule for Muximux's host. Add it in `configuration.yml`:
 
 ```yaml
 access_control:
@@ -25,11 +25,11 @@ access_control:
       policy: two_factor    # or one_factor; pick what suits your risk model
 ```
 
-No special Authelia config is required for the headers themselves; Authelia emits `Remote-User`, `Remote-Email`, `Remote-Name`, and `Remote-Groups` by default.
+The headers themselves need no special Authelia config. Authelia sends `Remote-User`, `Remote-Email`, `Remote-Name`, and `Remote-Groups` by default.
 
 ### Step 2: Configure the Reverse Proxy
 
-The exact syntax depends on your proxy. The pattern is the same: forward Muximux's traffic to Authelia's `/api/verify` endpoint and copy the auth headers into the upstream request.
+The exact syntax depends on your proxy. The pattern is the same for all proxies. Forward Muximux's traffic to Authelia's `/api/verify` endpoint. Then copy the auth headers into the request that goes on to Muximux.
 
 **Traefik (file provider):**
 
@@ -61,7 +61,7 @@ http:
           - Remote-Name
 ```
 
-**Nginx:** see Authelia's [official Nginx integration page](https://www.authelia.com/integration/proxies/nginx/) for the verbatim snippet, then point the protected `location` at Muximux.
+**Nginx:** see Authelia's [official Nginx integration page](https://www.authelia.com/integration/proxies/nginx/) for the exact snippet. Then point the protected `location` at Muximux.
 
 **Caddy:** Authelia's [Caddy integration page](https://www.authelia.com/integration/proxies/caddy/) covers `forward_auth` directives.
 
@@ -80,9 +80,9 @@ auth:
   logout_url: https://auth.example.com/logout
 ```
 
-`trusted_proxies` is required: Muximux only honours auth headers that arrived from a trusted hop. Setting it to `0.0.0.0/0` defeats the protection; restrict it to your reverse proxy's actual address or subnet.
+`trusted_proxies` is required. Muximux only accepts auth headers that arrived from a trusted hop. Setting it to `0.0.0.0/0` removes the protection. Restrict it to your reverse proxy's actual address or subnet.
 
-For admin promotion via groups, Authelia by default puts your group memberships into `Remote-Groups` as a comma-separated list. Muximux looks for any of `admin`, `admins`, or `administrators` (case-insensitive). If your admin group has a different name, set `forward_auth_admin_groups` on the `auth` block to name it instead:
+You can promote users to admin through groups. By default, Authelia puts your group memberships into `Remote-Groups` as a comma-separated list. Muximux looks for any of `admin`, `admins`, or `administrators` (case-insensitive). If your admin group has a different name, set `forward_auth_admin_groups` on the `auth` block to that name:
 
 ```yaml
 auth:
@@ -93,15 +93,15 @@ auth:
 
 ### Step 4: Validate
 
-1. Open `https://muximux.example.com/`. You should be redirected to Authelia's login page.
-2. After you sign in (and complete 2FA if required), you should land on the Muximux dashboard.
+1. Open `https://muximux.example.com/`. You should see Authelia's login page.
+2. Sign in. Complete 2FA if Authelia asks for it. You should land on the Muximux dashboard.
 3. Sign in as a user whose `groups` field in Authelia includes `admin` (or `admins` / `administrators`). The Settings gear should appear.
 
 ---
 
 ## Option B: Authelia as an OIDC Provider
 
-Authelia can also act as an OIDC provider. In that mode you don't need any forward-auth wiring; Muximux talks to Authelia directly.
+Authelia can also act as an OIDC provider. In that mode you don't need any forward-auth setup. Muximux talks to Authelia directly.
 
 ### Step 1: Configure the OIDC Client in Authelia
 
@@ -131,7 +131,7 @@ identity_providers:
         userinfo_signing_algorithm: none
 ```
 
-Authelia stores client secrets as hashes; use `authelia hash-password '<secret>'` to generate one.
+Authelia stores client secrets as hashes. Use `authelia hash-password '<secret>'` to generate one.
 
 ### Step 2: Configure Muximux
 
@@ -157,11 +157,16 @@ auth:
       - Muximux-Admins
 ```
 
-`issuer_url` is the public base URL of your Authelia instance, no trailing path. Authelia exposes the OIDC discovery document at `https://auth.example.com/.well-known/openid-configuration`.
+`issuer_url` is the public base URL of your Authelia instance, with no trailing path. Authelia exposes the OIDC discovery document at `https://auth.example.com/.well-known/openid-configuration`.
 
 ### Step 3: Validate
 
-Same as the OIDC case in any other provider: visit `/login`, click **Login with SSO**, sign in to Authelia, get redirected back to Muximux. Members of the group listed in `admin_groups` see the Settings gear.
+Validate the same way as for any other OIDC provider:
+
+1. Visit `/login`.
+2. Click **Login with SSO**.
+3. Sign in to Authelia. Authelia sends you back to Muximux.
+4. Sign in as a member of the group listed in `admin_groups`. Members of that group see the Settings gear.
 
 ---
 

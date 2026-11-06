@@ -24,11 +24,11 @@ Muximux has keyboard shortcuts for navigation and control. All shortcuts can be 
 | `P` | Previous App |
 | `1` - `9` | Jump to App (apps with an assigned shortcut) |
 
-**Note:** Keyboard shortcuts are only active when the Muximux UI itself is focused. When an iframe app has focus, keystrokes are sent to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
+**Note:** Keyboard shortcuts work only when the Muximux UI itself has focus. When an iframe app has focus, the browser sends keystrokes to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
 
 ## Command Palette
 
-The command palette (opened with `Ctrl+K`) provides quick access to apps and actions without navigating through menus.
+The command palette (opened with `Ctrl+K`) gives quick access to apps and actions, so you do not have to go through menus.
 
 The palette offers:
 
@@ -43,12 +43,12 @@ Use the **arrow keys** to navigate results, **Enter** to select, and **Escape** 
 Muximux can be used without a mouse:
 
 - **Tab** and **Shift+Tab** move between controls. The control with keyboard focus always shows the same visible outline (in the theme's `--border-focus` colour).
-- **Dialogs** (Settings, the Discover dialog, confirmations, the onboarding wizard and the others) keep focus inside while they are open: Tab wraps around within the dialog, the page behind it cannot be reached, and closing it returns focus to the control that opened it. **Escape** closes the topmost dialog; for an icon picker or other sub-dialog opened over a dialog, it closes only that sub-dialog.
+- **Dialogs** (Settings, the Discover dialog, confirmations, the onboarding wizard and the others) keep focus inside while they are open. Tab wraps around within the dialog, and you cannot reach the page behind it. Closing a dialog returns focus to the control that opened it. **Escape** closes the topmost dialog. If an icon picker or other sub-dialog is open over a dialog, Escape closes only that sub-dialog.
 - **Health status.** Focusing an app in the navigation, or a health dot on the overview, opens its health tooltip; **Escape** hides it. The tooltip's "Check now" action is mouse-only for now.
 - **Logs.** The log list can be focused and scrolled with the arrow and Page keys.
 - **Command palette.** `Ctrl+K`, then the arrow keys, **Enter** and **Escape** (see above).
 
-Screen readers hear errors as alerts and confirmations as status messages, and icon-only buttons have names. Muximux also honours the operating system's reduced-motion setting, and every bundled theme meets WCAG 2.1 AA contrast. See [Themes > Focus, motion and screen readers](themes.md#focus-motion-and-screen-readers).
+Screen readers announce errors as alerts and confirmations as status messages. Icon-only buttons have names. Muximux also honours the operating system's reduced-motion setting. Every bundled theme meets WCAG 2.1 AA contrast. See [Themes > Focus, motion and screen readers](themes.md#focus-motion-and-screen-readers).
 
 ## Customizing Shortcuts
 
@@ -77,7 +77,7 @@ Only customized bindings are stored in the configuration file. Any action that i
 
 ## Assigning Number Keys to Apps
 
-Keys `1` through `9` switch to apps that have an explicit `shortcut` assignment. During onboarding, shortcuts are automatically assigned to the first 9 apps. After that, you manage them manually -- assigning a number to a new app removes it from whichever app previously held it.
+Keys `1` through `9` switch to apps that have an explicit `shortcut` assignment. During onboarding, Muximux assigns shortcuts to the first 9 apps automatically. After that, you manage them manually. When you assign a number to a new app, Muximux removes it from the app that held it before.
 
 ```yaml
 apps:
@@ -90,7 +90,7 @@ apps:
     shortcut: 5              # Accessible via key "5"
 ```
 
-Only apps with an explicit `shortcut` value respond to number keys. Apps without a shortcut have no number key binding. The splash screen badges reflect this -- only apps with assigned shortcuts show a number badge.
+Only apps with an explicit `shortcut` value respond to number keys. Apps without a shortcut have no number key binding. The splash screen badges match this: only apps with assigned shortcuts show a number badge.
 
 You can also assign shortcuts in **Settings > Keybindings** without editing the config file.
 
@@ -98,4 +98,4 @@ You can also assign shortcuts in **Settings > Keybindings** without editing the 
 
 ## Import and Export Keybindings
 
-The Settings panel provides options to export your keybinding configuration as JSON and import it on another Muximux instance. That keeps the same shortcut layout across multiple installations.
+In the Settings panel, you can export your keybinding configuration as JSON. You can then import it on another Muximux instance. This keeps the same shortcut layout across multiple installations.

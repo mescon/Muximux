@@ -22,13 +22,13 @@ Then open `http://your-server:8080` in your browser.
 
 ### What the volume mount does
 
-The `-v $(pwd)/data:/app/data` flag maps a local `data/` directory into the container at `/app/data`. This is where Muximux stores all persistent state:
+The `-v $(pwd)/data:/app/data` flag maps a local `data/` directory into the container at `/app/data`. Muximux stores all persistent state here:
 
 - **config.yaml** -- your main configuration file (created automatically on first run)
 - **themes/** -- user-created custom CSS theme files
 - **icons/** -- cached and uploaded icons
 
-Without this volume mount, your configuration would be lost every time the container is recreated.
+Without this volume mount, you lose your configuration every time the container is recreated.
 
 ### Environment variables
 
@@ -39,7 +39,7 @@ Without this volume mount, your configuration would be lost every time the conta
 | `MUXIMUX_LISTEN` | Override listen address (e.g., `:9090`). |
 | `TZ` | Timezone (e.g., `America/New_York`, `Europe/London`). Defaults to `UTC`. |
 
-These are the common ones. Logging, base path, Docker discovery, the auth method and every OIDC setting can also be set from the environment; see the full [Environment Variable Reference](configuration.md#environment-variable-reference).
+These are the common ones. You can also set logging, base path, Docker discovery, the auth method and every OIDC setting from the environment. See the full [Environment Variable Reference](configuration.md#environment-variable-reference).
 
 ---
 
@@ -85,7 +85,7 @@ Run it directly:
 ./muximux
 ```
 
-By default, Muximux uses `data/` beside the binary as its base data directory, which contains `config.yaml`, themes, and icon caches. If the config file does not exist, Muximux starts with default settings and no apps configured.
+By default, Muximux uses `data/` beside the binary as its base data directory. This directory contains `config.yaml`, themes and icon caches. If the config file does not exist, Muximux starts with default settings and no apps configured.
 
 ### Command-line flags
 
@@ -102,10 +102,11 @@ By default, Muximux uses `data/` beside the binary as its base data directory, w
 ## Verifying a Download
 
 Every release binary and container image published from 3.3.2 onward carries
-a signed [SLSA provenance](https://slsa.dev/provenance/v1) attestation binding
-it to the exact workflow, repository and tag that produced it. The signing key
-is ephemeral and never stored -- GitHub's OIDC token binds the certificate to
-the individual workflow run.
+a signed [SLSA provenance](https://slsa.dev/provenance/v1) attestation (a signed
+record of how the file was built). The attestation binds the file to the exact
+workflow, repository and tag that produced it. The signing key is ephemeral
+(made for one use only) and never stored. GitHub's OIDC token binds the
+certificate to the individual workflow run.
 
 Verification needs the [GitHub CLI](https://cli.github.com/) and no other setup.
 
@@ -125,31 +126,32 @@ gh attestation verify oci://ghcr.io/mescon/muximux:3.3.2 \
   --signer-workflow mescon/Muximux/.github/workflows/release.yml
 ```
 
-An exit status of `0` means the artifact verified; recent `gh` versions print
+An exit status of `0` means the artifact verified. Recent `gh` versions print
 nothing on success. A failure exits non-zero and says why.
 
 **Prefer `--signer-workflow` over bare `--repo`.** On its own, `--repo` only
 asserts that *some* workflow in the repository signed the artifact. Naming the
-workflow asserts *which* one, so a build produced by any other workflow in the
-repo -- including one added by a compromised or mistaken change -- fails the
-check rather than passing it.
+workflow asserts *which* one. So a build produced by any other workflow in the
+repo fails the check, instead of passing it. This includes a workflow added by
+a compromised or mistaken change.
 
 ### Checksums
 
-`checksums.txt` accompanies every release and covers the binaries and the SBOM:
+`checksums.txt` comes with every release. It covers the binaries and the SBOM:
 
 ```bash
 sha256sum -c checksums.txt
 ```
 
-Checksums confirm the file is intact; the attestation confirms *where it came
-from*. They answer different questions, so use both.
+Checksums confirm that the file is intact. The attestation confirms *where it
+came from*. They answer different questions, so use both.
 
 ### SBOM
 
-`muximux-sbom.spdx.json` is an SPDX 2.3 software bill of materials for the
-release. It lets you answer "is this build affected by CVE-X" without
-rebuilding, and can be fed straight to a scanner:
+`muximux-sbom.spdx.json` is an SPDX 2.3 software bill of materials (a list of
+every component in the build) for the release. With it, you can answer "is this
+build affected by CVE-X" without rebuilding. You can also feed it straight to a
+scanner:
 
 ```bash
 grype sbom:muximux-sbom.spdx.json
@@ -181,7 +183,7 @@ go build -tags embed_web -o muximux ./cmd/muximux
 ./muximux
 ```
 
-The `npm run build` step compiles the Svelte frontend and outputs it to `internal/server/dist/`. The `go build -tags embed_web` step then embeds those files into the Go binary. The `-tags embed_web` flag is required -- without it, the binary will not include the web UI. The result is a single, self-contained executable.
+The `npm run build` step compiles the Svelte frontend and writes it to `internal/server/dist/`. The `go build -tags embed_web` step then embeds those files into the Go binary. The `-tags embed_web` flag is required. Without it, the binary does not include the web UI. The result is a single, self-contained executable.
 
 > **Note:** There is no Makefile. The two-step build (frontend, then backend) is all that is needed.
 
@@ -189,7 +191,7 @@ The `npm run build` step compiles the Svelte frontend and outputs it to `interna
 
 ## Data Directory Structure
 
-Whether you use Docker or run the binary directly, Muximux stores all mutable data (config, themes, icon caches) in a single directory. In Docker, this is `/app/data` (mapped via volume). When running the binary, this defaults to `data/` relative to the binary's location (not the working directory). You can change it with `--data` or the `MUXIMUX_DATA` environment variable.
+Muximux stores all mutable data (config, themes, icon caches) in a single directory. This is true whether you use Docker or run the binary directly. In Docker, this is `/app/data` (mapped through a volume). When you run the binary, the default is `data/` relative to the binary's location (not the working directory). You can change it with `--data` or the `MUXIMUX_DATA` environment variable.
 
 ```
 data/
@@ -203,17 +205,17 @@ data/
 
 ### config.yaml
 
-The main configuration file. Contains all settings: server, authentication, navigation, apps, groups, health monitoring, keyboard shortcuts, and icon settings. See the [Configuration Reference](configuration.md) for the full format.
+The main configuration file. It contains all settings: server, authentication, navigation, apps, groups, health monitoring, keyboard shortcuts, and icon settings. See the [Configuration Reference](configuration.md) for the full format.
 
-If this file does not exist when Muximux starts, defaults are used and the onboarding wizard is shown on first visit.
+If this file does not exist when Muximux starts, Muximux uses defaults. It shows the onboarding wizard on the first visit.
 
 ### themes/
 
-Custom CSS theme files created through the Settings UI or placed here manually. The built-in Muximux palette (theme ids `muximux` and `muximux-light`) and the bundled third-party themes (Catppuccin, Nord, Dracula, etc.) are compiled into the binary and do not appear in this directory.
+Custom CSS theme files that you create through the Settings UI or place here manually. The built-in Muximux palette (theme ids `muximux` and `muximux-light`) and the bundled third-party themes (Catppuccin, Nord, Dracula, etc.) are compiled into the binary. They do not appear in this directory.
 
 ### icons/dashboard/
 
-Locally cached copies of icons fetched from the [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) project. These are downloaded on demand and cached according to the configured TTL (default: 7 days).
+Locally cached copies of icons fetched from the [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) project. Muximux downloads them on demand and caches them according to the configured TTL (time to live, default: 7 days).
 
 ### icons/lucide/
 

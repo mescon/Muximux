@@ -8,7 +8,7 @@ Split view displays two apps side by side (horizontal) or stacked (vertical) in 
 
 ## Enabling Split View
 
-Click the split view icon in the navigation bar. This activates horizontal split by default and opens a second panel. The navigation controls expand to show orientation and panel selection options.
+Click the split view icon in the navigation bar. Muximux turns on horizontal split by default and opens a second panel. The navigation controls expand to show orientation and panel selection options.
 
 The split view controls appear inline in the navigation bar across all five positions (top, left, right, bottom, floating).
 
@@ -25,7 +25,7 @@ When split view is active, the navigation bar shows:
 
 ### Selecting a Panel
 
-The panel arrows in the navigation bar control which panel is the **target** - when you click an app in the navigation, it loads into the target panel. The arrows adapt to the current orientation:
+The panel arrows in the navigation bar set which panel is the **target**. When you click an app in the navigation, it loads into the target panel. The arrows change with the current orientation:
 
 - **Horizontal split:** Left (◀) and right (▶) arrows
 - **Vertical split:** Up (▲) and down (▼) arrows
@@ -38,7 +38,7 @@ The draggable divider between panels shows a colored accent line on the active p
 
 ## Draggable Divider
 
-The divider between the two panels can be dragged to resize them. Double-click the divider to reset it to a 50/50 split. The divider position is clamped between 20% and 80% to prevent either panel from becoming too small.
+Drag the divider between the two panels to resize them. Double-click the divider to reset it to a 50/50 split. Muximux keeps the divider between 20% and 80%, so neither panel becomes too small.
 
 ## URL Hash Routing
 
@@ -58,10 +58,10 @@ Click the horizontal or vertical icon to switch orientation while split view is 
 
 ## Closing Split View
 
-Click the close (X) button in the split view controls. The app in the currently active panel is kept, and the other panel is discarded. The view returns to single-panel mode.
+Click the close (X) button in the split view controls. Muximux keeps the app in the active panel and discards the other panel. The view returns to single-panel mode.
 
 ## Configuration
 
 Split view is a client-side feature with no configuration in `config.yaml`. It is available on all navigation positions and works with any combination of apps.
 
-Split view is not available on mobile viewports (below 640px) where the screen is too narrow to display two panels effectively.
+Split view is not available on mobile viewports (below 640px). On these screens, two panels do not fit well.
