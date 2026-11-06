@@ -65,11 +65,7 @@ Users get project roles through **Authorizations**. They get them either directl
 4. Save.
 5. Repeat for any other users.
 
-For groups of users, do these steps:
-
-1. Create a Zitadel **Group**.
-2. Assign roles to the group.
-3. Add users to the group.
+Zitadel assigns project roles to each user. It does not assign them to a group of users. So repeat the steps above for every user who needs a role.
 
 ---
 
@@ -100,7 +96,7 @@ auth:
       - muximux-admin
 ```
 
-The unusual scope (`urn:zitadel:iam:org:project:id:zitadel:aud`) tells Zitadel that Muximux's audience (the intended receiver of the token) is the Zitadel project itself. Without it, ID token validation can fail in strict-audience mode. If your project has a different resource ID, put it in place of `zitadel` in that scope name.
+The unusual scope (`urn:zitadel:iam:org:project:id:zitadel:aud`) adds the Zitadel project to the token audience. The audience is the `aud` claim: the list of intended receivers of the token. The scope does not replace the client ID in that list. Muximux accepts an ID token only if its `aud` claim contains the `client_id` from your config. If validation fails, decode the ID token and check its `aud` claim. If the client ID is missing, a change to the project in this scope does not fix it.
 
 `issuer_url` is the base URL of your Zitadel instance, with no trailing path.
 
@@ -114,12 +110,13 @@ You can use the Settings page instead of editing `config.yaml`:
 2. Choose **Single sign-on (OIDC)**.
 3. For the issuer URL, enter the base URL of your Zitadel instance.
 4. Enter the client ID from Step 3.
-5. Add the extra audience scope shown above to the scopes.
-6. For the groups claim, enter `urn:zitadel:iam:org:project:roles`.
-7. Under admin groups, enter your role key (for example `muximux-admin`).
-8. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
-9. Press **Test connection**.
-10. Press **Update Method**.
+5. Enter the client secret from Step 3. The connection test does not check the secret, but Zitadel needs it when Muximux signs a user in.
+6. Add the extra audience scope shown above to the scopes.
+7. For the groups claim, enter `urn:zitadel:iam:org:project:roles`.
+8. Under admin groups, enter your role key (for example `muximux-admin`).
+9. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
+10. Press **Test connection**.
+11. Press **Update Method**.
 
 See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
@@ -150,7 +147,7 @@ Zitadel supports RP-initiated logout (Muximux sends the user to the provider to 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Sign-in fails with `audience not allowed` or `invalid token` | The audience scope from Step 5 is missing or names the wrong project. | Open the application's **URLs** tab in Zitadel; the scope it expects is shown there. Copy verbatim. |
+| Sign-in fails with `audience not allowed` or `invalid token` | The ID token's `aud` claim does not contain the `client_id` that Muximux has. | Check that `client_id` is the Client ID of this application in Zitadel. Decode the ID token and check that its `aud` claim contains that ID. |
 | Sign-in works but admin gear is missing | Either **User roles inside ID Token** is off, or `groups_claim` doesn't match the URN. | Re-check Step 3's token settings, then verify `groups_claim:` is exactly `urn:zitadel:iam:org:project:roles`. |
 | User has no role and sign-in is refused | **Check Roles on Authentication** is on and the user has no project authorization. | Either grant the user a role (Step 4), or turn off **Check Roles on Authentication** to allow role-less sign-in. |
 | `unauthorized_client` | Authentication method on the application doesn't match (e.g. set to `NONE` but Muximux is sending a secret). | Edit the application and set Authentication method to **CODE**. |

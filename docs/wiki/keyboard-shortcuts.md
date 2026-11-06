@@ -24,7 +24,7 @@ Muximux has keyboard shortcuts for navigation and control. All shortcuts can be 
 | `P` | Previous App |
 | `1` - `9` | Jump to App (apps with an assigned shortcut) |
 
-**Note:** Keyboard shortcuts work only when the Muximux UI itself has focus. When an iframe app has focus, the browser sends keystrokes to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
+**Note:** Keyboard shortcuts work only when the Muximux UI itself has focus. When an iframe app has focus, the browser sends keystrokes to that app instead. Click outside the iframe, for example on the navigation bar, to return focus to Muximux. `Escape` does not return focus, because the app receives that key too.
 
 ## Command Palette
 

@@ -4,7 +4,7 @@
 
 Muximux provides a REST API for managing configuration, apps, groups, health, authentication, icons, and themes. All endpoints return JSON.
 
-When authentication is enabled, most endpoints need a valid session cookie or API key (`X-Api-Key` header). Write operations (POST, PUT, DELETE) need the `admin` role.
+When authentication is enabled, most endpoints need a valid session cookie. An API key (`X-Api-Key` header) works only on a short list of allowed paths. See [API key authentication](#authentication) below. Most write operations (POST, PUT, DELETE) need the `admin` role. Some do not: for example, login needs no authentication, and an app action uses the role gate of its app. The "Auth Required" column of each endpoint table gives the requirement.
 
 ---
 
@@ -81,7 +81,7 @@ The `auth_method` field returns the active authentication method: `none`, `built
 Non-browser integrations can authenticate with an API key via the `X-Api-Key` header. This works **only on allowlisted paths**, not on every `/api/*` endpoint. Out of the box, the allowlist is:
 
 - `GET /api/appearance` -- read Muximux's current theme + language (see [Apps > Appearance API](apps.md#appearance-api))
-- Any proxied-app path the operator has opted into via `auth_bypass: [{require_api_key: true}]` (see [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass))
+- Any proxied-app path the operator has opted into via an `auth_bypass` rule with a `path` and `require_api_key: true` (see [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass))
 
 Example, calling Sonarr through Muximux with a configured bypass:
 

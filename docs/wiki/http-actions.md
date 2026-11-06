@@ -49,13 +49,13 @@ When you click an `http_action` app:
 2. The backend looks up the app and checks your role, group memberships and the app's `access` list. Then it sends the configured method/headers to the app's `url`.
 3. Muximux shows the result (status + latency) as a toast. The audit log records method, host, caller, status, and latency.
 
-The relay timeout is 10 seconds, and you cannot change it. The relay follows redirects. Muximux never returns the response body to the browser and never logs it.
+The relay timeout is 10 seconds, and you cannot change it. The relay does not follow redirects. If the target returns a redirect, Muximux reports that 3xx status and does not request the new location. So configure the final URL directly. Muximux never returns the response body to the browser and never logs it.
 
 ## Security model
 
 - **No URL allowlist.** Operators trust the URLs they configure. The validator only checks for an `http://` or `https://` scheme and a non-empty hostname.
 - **Audit log records the host only.** Webhook URLs often contain secrets in the query string (`?token=...`). So we never log the path or query string, only the hostname. This also applies when a request fails: the error in the audit log and in the response leaves out the URL. Non-admins never receive the path or query string either: the app list sends them only the action's scheme and host. Health check errors leave out the URL in the same way.
-- **CSRF protection** (protection against requests that other sites forge in your name) is the same as on every other state-changing endpoint. The request must carry the `X-Requested-With: XMLHttpRequest` header.
+- **CSRF protection** (protection against requests that other sites forge in your name) is the same as on every other state-changing endpoint. The request must carry the `X-Requested-With: XMLHttpRequest` header or a `Content-Type: application/json` header. The Muximux UI sends `X-Requested-With`.
 - **Per-app role + group gate** mirrors the access control that hides the app from the menu.
 
 ## Discovery labels

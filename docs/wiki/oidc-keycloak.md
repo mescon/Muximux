@@ -2,7 +2,7 @@
 
 This guide sets up Muximux to sign users in with a Keycloak realm (a separate space of users and settings in Keycloak). Keycloak puts group memberships in the ID token (the signed sign-in record that Keycloak sends to Muximux). Muximux uses these groups to promote users to admin and to control which apps each user sees.
 
-When you're done, users sign in with their Keycloak account. Muximux receives their group list as `groups: ["developers", "Muximux-Admins"]`. Admins land on the Settings page automatically.
+When you're done, users sign in with their Keycloak account. Muximux receives their group list as `groups: ["developers", "Muximux-Admins"]`. Admins see the Settings gear, which opens the Settings page.
 
 ---
 

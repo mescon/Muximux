@@ -167,7 +167,7 @@ Some applications may not work correctly in an iframe, even with the proxy and r
 
 - **Binary protocols** -- gRPC, MessagePack, and other non-text formats with embedded paths cannot be rewritten.
 - **Runtime-constructed paths** -- Template literals (`` `${base}/api` ``) and string concatenation (`'/api' + endpoint`) are invisible to any rewriter.
-- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. The runtime interceptor patches `location.pathname` to strip the prefix, which handles most cases.
+- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. The runtime interceptor tries to patch `location.pathname` so that it returns the path without the prefix. Some browsers do not let scripts patch `location` properties. There, the interceptor removes the prefix from the page address with `history.replaceState` instead, after each navigation and on back/forward. This handles most cases.
 
 > **Note:** The proxy handles these patterns automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
 
@@ -274,8 +274,8 @@ The proxy injects a small `<script>` tag into every HTML response. This script p
 | Real-time | `WebSocket`, `EventSource` constructors | Wrapper rewrites URL argument |
 | DOM setters | `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` | Property setter override on prototype |
 | Special setters | `img.srcset`, `setAttribute()`, `CSSStyleSheet.insertRule()`, `insertAdjacentHTML()` | Custom wrappers for multi-URL and CSS-in-JS |
-| Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip prefix; setters add prefix; Navigation API fallback intercepts `location.href` assignment when setter is non-configurable (Chrome) |
-| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; init guard re-strips prefix during initialization when getters can't be patched (Chrome); prefix restored after init so back/forward navigates correctly |
+| Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip prefix where the browser lets the interceptor patch them; otherwise `history.replaceState` removes the prefix from the page address; setters add prefix; Navigation API fallback intercepts `location.href` assignment when setter is non-configurable (Chrome) |
+| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; when getters can't be patched (Chrome), a guard re-strips the prefix after each call, for the life of the page; a full reload of the frame then reaches the Muximux shell, which sends the frame back to `/proxy/<slug>/...` |
 | Constructors | `Worker`, `SharedWorker`, `Audio` | Wrapper rewrites URL argument |
 | Isolation | `window.parent`, `window.top` | `Object.defineProperty` override |
 | Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |
