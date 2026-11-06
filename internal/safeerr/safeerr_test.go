@@ -53,8 +53,9 @@ func TestDescribe_RealBadRedirect(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &http.Client{Timeout: 2 * time.Second}
-	_, err := c.Get(srv.URL + "/?token=" + secret)
+	resp, err := c.Get(srv.URL + "/?token=" + secret)
 	if err == nil {
+		resp.Body.Close()
 		t.Skip("client accepted the malformed Location header")
 	}
 	if !strings.Contains(err.Error(), secret) {

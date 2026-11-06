@@ -3,13 +3,13 @@ package health
 import (
 	"context"
 	"crypto/tls"
-	"github.com/mescon/muximux/v3/internal/safeerr"
 	"io"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/logging"
+	"github.com/mescon/muximux/v3/internal/safeerr"
 )
 
 // Status represents the health status of an app
