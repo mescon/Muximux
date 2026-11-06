@@ -54,6 +54,9 @@ type AuthConfig struct {
 	BypassRules            []BypassRule
 	APIKeyHash             string // bcrypt hash of API key
 	BasePath               string // e.g. "/muximux" — prepended to login redirect
+	// CloudflareAccess, when non-nil, makes forward auth require and
+	// verify Cloudflare Access's Cf-Access-Jwt-Assertion token.
+	CloudflareAccess *CloudflareAccessConfig
 }
 
 // ForwardAuthHeaders defines the header names for forward auth
@@ -77,6 +80,8 @@ type BypassRule struct {
 type authSnapshot struct {
 	config      AuthConfig
 	trustedNets []*net.IPNet
+	// cfAccess verifies Cloudflare Access tokens; nil when not configured.
+	cfAccess *cfAccessVerifier
 }
 
 // Middleware provides authentication middleware
@@ -128,6 +133,7 @@ func NewMiddleware(config *AuthConfig, sessionStore *SessionStore, userStore *Us
 	m.snap.Store(&authSnapshot{
 		config:      *config,
 		trustedNets: parseTrustedProxies(config.TrustedProxies),
+		cfAccess:    newCFAccessVerifier(config.CloudflareAccess),
 	})
 	return m
 }
@@ -138,6 +144,7 @@ func (m *Middleware) UpdateConfig(config *AuthConfig) {
 	m.snap.Store(&authSnapshot{
 		config:      *config,
 		trustedNets: trustedNets,
+		cfAccess:    newCFAccessVerifier(config.CloudflareAccess),
 	})
 	logging.Info("Auth config updated", "source", "auth", "method", string(config.Method))
 }
@@ -277,10 +284,17 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 	case AuthMethodBuiltin, AuthMethodOIDC:
 		session := m.sessionStore.GetFromRequest(r)
 		if session != nil {
+			// An OIDC session never resolves to a local account. Its ID
+			// is the provider's username claim, so a provider user named
+			// like a local user (a kept break-glass "admin", say) would
+			// otherwise sign in with that account's role.
+			if isOIDCSession(session) {
+				return userFromSession(session), session
+			}
 			user := m.userStore.GetByID(session.UserID)
 			if user == nil {
-				// Session-only user (e.g. OIDC) — not in the config-based
-				// UserStore. Reconstruct from session data.
+				// Session-only user, not in the config-based UserStore.
+				// Reconstruct from session data.
 				user = userFromSession(session)
 			}
 			return user, session
@@ -297,6 +311,14 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 
 // userFromSession constructs a User from session data. This is used for
 // session-only users (OIDC) that aren't persisted to the config-based UserStore.
+// isOIDCSession reports whether s was created by an OIDC sign-in. Those
+// sessions always record the token issuer; a local password login never
+// does.
+func isOIDCSession(s *Session) bool {
+	iss, _ := s.Data["oidc_iss"].(string)
+	return iss != ""
+}
+
 func userFromSession(s *Session) *User {
 	u := &User{
 		ID:       s.UserID,
@@ -518,12 +540,25 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	groupsHeader := headerWithDefault(snap.config.Headers.Groups, "Remote-Groups")
 
 	username := r.Header.Get(userHeader)
+	email := r.Header.Get(emailHeader)
+	displayName := r.Header.Get(nameHeader)
+
+	// With Cloudflare Access verification on, the identity comes from
+	// the signed token, never from a header a client could set.
+	if snap.cfAccess != nil {
+		tokenEmail, err := snap.cfAccess.verify(r.Context(), r.Header.Get(cfAccessJWTHeader))
+		if err != nil {
+			logging.From(r.Context()).Warn("Cloudflare Access token rejected", "source", "auth", "error", err.Error(), "client_ip", getClientIP(r, snap))
+			return nil
+		}
+		username, email = tokenEmail, tokenEmail
+		if displayName == "" {
+			displayName = tokenEmail
+		}
+	}
 	if username == "" {
 		return nil
 	}
-
-	email := r.Header.Get(emailHeader)
-	displayName := r.Header.Get(nameHeader)
 	groups := r.Header.Get(groupsHeader)
 
 	// Parse the comma-separated Remote-Groups list into a slice.

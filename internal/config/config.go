@@ -444,12 +444,16 @@ type AuthConfig struct {
 	// so an operator running Authelia / Authentik with a custom
 	// admin-group name (e.g. "dashboard-admins") can grant admin
 	// without renaming their IdP groups.
-	ForwardAuthAdminGroups []string   `yaml:"forward_auth_admin_groups,omitempty"`
-	OIDC                   OIDCConfig `yaml:"oidc"`
-	SessionMaxAge          string     `yaml:"session_max_age"` // e.g., "24h", "7d"
-	SecureCookies          bool       `yaml:"secure_cookies"`
-	APIKeyHash             string     `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
-	SetupComplete          bool       `yaml:"setup_complete"`
+	ForwardAuthAdminGroups []string `yaml:"forward_auth_admin_groups,omitempty"`
+	// CloudflareAccess, when set, makes forward auth verify Cloudflare
+	// Access's signed Cf-Access-Jwt-Assertion token on every request and
+	// take the user from it, instead of trusting the email header alone.
+	CloudflareAccess *CloudflareAccessConfig `yaml:"cloudflare_access,omitempty"`
+	OIDC             OIDCConfig              `yaml:"oidc"`
+	SessionMaxAge    string                  `yaml:"session_max_age"` // e.g., "24h", "7d"
+	SecureCookies    bool                    `yaml:"secure_cookies"`
+	APIKeyHash       string                  `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
+	SetupComplete    bool                    `yaml:"setup_complete"`
 }
 
 // UserConfig holds local user credentials
@@ -1140,6 +1144,9 @@ func (c *Config) validate() error {
 		return err
 	}
 	if err := c.validateAuthEnv(); err != nil {
+		return err
+	}
+	if err := validateCloudflareAccess(c.Auth.CloudflareAccess); err != nil {
 		return err
 	}
 	tls := c.Server.TLS
@@ -2043,4 +2050,42 @@ func defaultDockerEndpoint() string {
 		return `npipe:////./pipe/docker_engine`
 	}
 	return "unix:///var/run/docker.sock"
+}
+
+// UnmarshalYAML gives an app without an `enabled` key the default true.
+// The docs have always described apps as enabled by default, and their
+// minimal examples leave the key out; the Settings UI writes it
+// explicitly for every app, so only hand-written YAML relies on this.
+func (a *AppConfig) UnmarshalYAML(value *yaml.Node) error {
+	type plain AppConfig // no methods, so no recursion
+	p := plain{Enabled: true}
+	if err := value.Decode(&p); err != nil {
+		return err
+	}
+	*a = AppConfig(p)
+	return nil
+}
+
+// CloudflareAccessConfig identifies the Cloudflare Access application whose
+// tokens forward auth accepts.
+type CloudflareAccessConfig struct {
+	// TeamDomain is the Access team domain, e.g. "example.cloudflareaccess.com".
+	TeamDomain string `yaml:"team_domain"`
+	// Audience is the application's AUD tag from the Access dashboard.
+	Audience string `yaml:"audience"`
+}
+
+// validateCloudflareAccess checks the cloudflare_access block, if any.
+func validateCloudflareAccess(c *CloudflareAccessConfig) error {
+	if c == nil {
+		return nil
+	}
+	d := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(c.TeamDomain), "https://"), "/")
+	if d == "" || strings.ContainsAny(d, "/?#@ ") {
+		return fmt.Errorf("auth.cloudflare_access.team_domain must be a host name such as example.cloudflareaccess.com, got %q", c.TeamDomain)
+	}
+	if strings.TrimSpace(c.Audience) == "" {
+		return fmt.Errorf("auth.cloudflare_access.audience is required (the AUD tag of the Access application)")
+	}
+	return nil
 }

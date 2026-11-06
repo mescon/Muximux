@@ -1412,3 +1412,32 @@ func TestSetAppBypassRules(t *testing.T) {
 		t.Error("clearing the app rules must remove the bypass")
 	}
 }
+
+// An OIDC user whose username matches a local account must keep the
+// role from its own sign-in, never take over the local account.
+func TestOIDCSessionDoesNotResolveToLocalUser(t *testing.T) {
+	m, ss, us := newTestMiddleware(&AuthConfig{Method: AuthMethodOIDC})
+	if err := us.Add(&User{ID: "admin", Username: "admin", Role: RoleAdmin, PasswordHash: "x"}); err != nil {
+		t.Fatalf("seed local admin: %v", err)
+	}
+	oidc, err := ss.CreateWithData("admin", "admin", RoleUser, map[string]interface{}{"oidc_iss": "https://idp.example.com", "email": "a@idp"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	local, err := ss.Create("admin", "admin", RoleAdmin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct {
+		name string
+		sess *Session
+		want string
+	}{{"oidc session", oidc, RoleUser}, {"local session", local, RoleAdmin}} {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.AddCookie(&http.Cookie{Name: "test_session", Value: c.sess.ID})
+		u, _ := m.authenticateRequest(req, m.snapshot())
+		if u == nil || u.Role != c.want {
+			t.Errorf("%s: user %+v, want role %s", c.name, u, c.want)
+		}
+	}
+}

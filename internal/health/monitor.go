@@ -71,8 +71,8 @@ func NewMonitor(interval, timeout time.Duration) *Monitor {
 				},
 			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				// Follow redirects but limit to 3
-				if len(via) >= 3 {
+				// Follow up to 3 redirects; a fourth stops and its 3xx is reported
+				if len(via) > 3 {
 					return http.ErrUseLastResponse
 				}
 				return nil

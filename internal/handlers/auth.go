@@ -985,10 +985,16 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Trusted proxies required for forward_auth"})
 			return
 		}
+		h.configMu.RLock()
+		cfAccess := auth.CloudflareAccessFromConfig(h.config.Auth.CloudflareAccess)
+		h.configMu.RUnlock()
 		authCfg = auth.AuthConfig{
 			Method:         auth.AuthMethodForwardAuth,
 			TrustedProxies: req.TrustedProxies,
 			Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
+			// Settings has no field for it; keep the YAML value so a
+			// method change here never switches token checks off.
+			CloudflareAccess: cfAccess,
 		}
 
 	case "oidc":
@@ -1300,6 +1306,7 @@ func (h *AuthHandler) refreshAuthSnapshotLocked() {
 		TrustedProxies:         h.config.Auth.TrustedProxies,
 		Headers:                auth.ForwardAuthHeadersFromMap(h.config.Auth.Headers),
 		ForwardAuthAdminGroups: h.config.Auth.ForwardAuthAdminGroups,
+		CloudflareAccess:       auth.CloudflareAccessFromConfig(h.config.Auth.CloudflareAccess),
 	}
 	h.authMiddleware.UpdateConfig(&authCfg)
 }

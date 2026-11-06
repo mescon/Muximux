@@ -563,6 +563,7 @@ func authConfigFromConfig(cfg *config.Config) *auth.AuthConfig {
 		BasePath:               cfg.Server.NormalizedBasePath(),
 		Headers:                auth.ForwardAuthHeadersFromMap(cfg.Auth.Headers),
 		ForwardAuthAdminGroups: cfg.Auth.ForwardAuthAdminGroups,
+		CloudflareAccess:       auth.CloudflareAccessFromConfig(cfg.Auth.CloudflareAccess),
 		BypassRules:            defaultBypassRules,
 	}
 }

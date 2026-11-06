@@ -76,6 +76,15 @@ func migrateCaddyfileToSites(src []byte) ([]GatewaySite, []string, error) {
 		if len(srv.Listen) == 0 {
 			warnings = append(warnings, fmt.Sprintf("server %q has no explicit listen; assuming auto-HTTPS for its sites - verify the tls mode for each site after import", name))
 		}
+		// gateway_sites has no client-certificate setting. Migrating
+		// such a server would silently open its sites to clients
+		// without a certificate, so the conversion must count as lossy.
+		for _, p := range srv.TLSConnectionPolicies {
+			if len(p.ClientAuthentication) > 0 && string(p.ClientAuthentication) != "null" {
+				warnings = append(warnings, fmt.Sprintf("server %q requires TLS client certificates (client_auth); gateway_sites cannot express this, so its sites would accept clients without a certificate - keep them off the gateway", name))
+				break
+			}
+		}
 		listenIsHTTPOnly := serverListenIsHTTPOnly(srv.Listen)
 		for i := range srv.Routes {
 			site, ws := routeToSite(&srv.Routes[i], listenIsHTTPOnly)
@@ -100,6 +109,11 @@ func migrateCaddyfileToSites(src []byte) ([]GatewaySite, []string, error) {
 type caddyServer struct {
 	Listen []string     `json:"listen"`
 	Routes []caddyRoute `json:"routes"`
+	// TLSConnectionPolicies is read only to spot client-certificate
+	// authentication, which gateway_sites cannot express.
+	TLSConnectionPolicies []struct {
+		ClientAuthentication json.RawMessage `json:"client_authentication,omitempty"`
+	} `json:"tls_connection_policies,omitempty"`
 }
 
 type caddyRoute struct {

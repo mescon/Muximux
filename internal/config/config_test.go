@@ -2687,3 +2687,45 @@ func TestAppAccessConfigAllows(t *testing.T) {
 		t.Error("the role must not match when only users are listed (admins are exempted by the callers)")
 	}
 }
+
+func TestAppConfig_EnabledDefaultsToTrue(t *testing.T) {
+	var cfg struct {
+		Apps []AppConfig `yaml:"apps"`
+	}
+	src := "apps:\n  - name: A\n    url: http://a\n  - name: B\n    url: http://b\n    enabled: false\n  - name: C\n    url: http://c\n    enabled: true\n"
+	if err := yaml.Unmarshal([]byte(src), &cfg); err != nil {
+		t.Fatal(err)
+	}
+	want := []bool{true, false, true}
+	for i, a := range cfg.Apps {
+		if a.Enabled != want[i] {
+			t.Errorf("%s: enabled = %v, want %v", a.Name, a.Enabled, want[i])
+		}
+	}
+	if cfg.Apps[0].URL != "http://a" {
+		t.Error("the other fields must still decode")
+	}
+}
+
+func TestValidateCloudflareAccess(t *testing.T) {
+	if err := validateCloudflareAccess(nil); err != nil {
+		t.Errorf("nil: %v", err)
+	}
+	for _, ok := range []CloudflareAccessConfig{
+		{TeamDomain: "team.cloudflareaccess.com", Audience: "aud"},
+		{TeamDomain: "https://team.cloudflareaccess.com/", Audience: "aud"},
+	} {
+		if err := validateCloudflareAccess(&ok); err != nil {
+			t.Errorf("%+v: %v", ok, err)
+		}
+	}
+	for _, bad := range []CloudflareAccessConfig{
+		{TeamDomain: "", Audience: "aud"},
+		{TeamDomain: "team.cloudflareaccess.com/path", Audience: "aud"},
+		{TeamDomain: "team.cloudflareaccess.com", Audience: " "},
+	} {
+		if err := validateCloudflareAccess(&bad); err == nil {
+			t.Errorf("%+v: want an error", bad)
+		}
+	}
+}
