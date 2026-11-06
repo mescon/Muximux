@@ -33,7 +33,7 @@ func markerFixture(t *testing.T) (*APIHandler, *config.Config, ClientConfigUpdat
 		t.Fatal(err)
 	}
 	h := NewAPIHandler(cfg, path, &sync.RWMutex{})
-	wire, _ := json.Marshal(buildClientConfigResponse(cfg, auth.RoleAdmin, nil))
+	wire, _ := json.Marshal(buildClientConfigResponse(cfg, auth.RoleAdmin, nil, ""))
 	var loaded ClientConfigUpdate
 	if err := json.Unmarshal(wire, &loaded); err != nil {
 		t.Fatal(err)
@@ -165,13 +165,13 @@ func TestSaveConfig_TwoWayMarkerRules(t *testing.T) {
 
 func TestGroupsForRole(t *testing.T) {
 	cfg := &config.Config{Groups: []config.GroupConfig{{Name: "Media", DockerManaged: true}}}
-	if got := buildClientConfigResponse(cfg, auth.RoleUser, nil); got.Groups[0].DockerManaged {
+	if got := buildClientConfigResponse(cfg, auth.RoleUser, nil, ""); got.Groups[0].DockerManaged {
 		t.Error("non-admin config response carries the marker")
 	}
 	if !cfg.Groups[0].DockerManaged {
 		t.Error("stripping for a non-admin mutated the live config")
 	}
-	if got := buildClientConfigResponse(cfg, auth.RoleAdmin, nil); !got.Groups[0].DockerManaged {
+	if got := buildClientConfigResponse(cfg, auth.RoleAdmin, nil, ""); !got.Groups[0].DockerManaged {
 		t.Error("admin config response lacks the marker")
 	}
 }
@@ -341,7 +341,7 @@ func TestDockerOrderNeverAcceptedFromClient(t *testing.T) {
 		t.Errorf("UpdateGroup took docker_order: %+v", g)
 	}
 
-	resp := buildClientConfigResponse(cfg, auth.RoleUser, nil)
+	resp := buildClientConfigResponse(cfg, auth.RoleUser, nil, "")
 	for i := range resp.Groups {
 		if resp.Groups[i].DockerOrder {
 			t.Errorf("non-admin sees docker_order on %s", resp.Groups[i].Name)
@@ -352,7 +352,7 @@ func TestDockerOrderNeverAcceptedFromClient(t *testing.T) {
 	if strings.Contains(w.Body.String(), "docker_order") {
 		t.Errorf("non-admin GetGroup = %s", w.Body.String())
 	}
-	if admin := buildClientConfigResponse(cfg, auth.RoleAdmin, nil); !admin.Groups[0].DockerOrder {
+	if admin := buildClientConfigResponse(cfg, auth.RoleAdmin, nil, ""); !admin.Groups[0].DockerOrder {
 		t.Error("admin lacks docker_order")
 	}
 }

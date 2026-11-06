@@ -2297,6 +2297,39 @@ func TestReverseProxy_EnforcesMinRoleAndAllowedGroups(t *testing.T) {
 	})
 }
 
+// TestReverseProxy_EnforcesAccessList: access.roles / access.users gate the
+// proxy like min_role and allowed_groups. Either list is enough; admins pass.
+func TestReverseProxy_EnforcesAccessList(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+	handler := NewReverseProxyHandler([]config.AppConfig{{
+		Name: "Listed", URL: backend.URL, Enabled: true, Proxy: true,
+		Access: config.AppAccessConfig{Roles: []string{auth.RolePowerUser}, Users: []string{"bob"}},
+	}}, "30s")
+	requestAs := func(username, role string) int {
+		req := httptest.NewRequest(http.MethodGet, "/proxy/listed/", nil)
+		ctx := context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{Username: username, Role: role})
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, req.WithContext(ctx))
+		return w.Code
+	}
+	for _, c := range []struct {
+		user, role string
+		want       int
+	}{
+		{"alice", auth.RoleUser, http.StatusForbidden},
+		{"carol", auth.RolePowerUser, http.StatusOK},
+		{"Bob", auth.RoleUser, http.StatusOK},
+		{"root", auth.RoleAdmin, http.StatusOK},
+	} {
+		if got := requestAs(c.user, c.role); got != c.want {
+			t.Errorf("%s (%s): status %d, want %d", c.user, c.role, got, c.want)
+		}
+	}
+}
+
 // TestHasRoutes and TestGetRoutes test route introspection methods.
 func TestHasRoutes(t *testing.T) {
 	t.Run("no routes", func(t *testing.T) {

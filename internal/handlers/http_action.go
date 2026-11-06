@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -45,6 +46,14 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 		return
 	}
 
+	// A disabled action is hidden from the menu; it must not fire from a
+	// direct POST either. Same answer as an unknown app, so the endpoint
+	// doesn't confirm that a disabled action exists.
+	if !app.Enabled {
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
+		return
+	}
+
 	if !appAccessible(user, &app) {
 		logging.Audit("HTTP action denied",
 			"app", app.Name,
@@ -62,7 +71,7 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 
 	req, err := http.NewRequestWithContext(r.Context(), method, app.URL, nil)
 	if err != nil {
-		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("invalid url: %s", err))
+		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("invalid url: %s", relayErrorText(err)))
 		return
 	}
 	for k, v := range app.HTTPActionHeaders {
@@ -79,10 +88,10 @@ func (h *APIHandler) FireAppAction(w http.ResponseWriter, r *http.Request, name 
 			"method", method,
 			"url_host", urlHost,
 			"caller", user.Username,
-			"error", err.Error(),
+			"error", relayErrorText(err),
 			"latency_ms", latency.Milliseconds())
 		sendJSON(w, http.StatusBadGateway, fireActionResult{
-			Error: err.Error(), LatencyMS: latency.Milliseconds(), URLHost: urlHost, Method: method,
+			Error: relayErrorText(err), LatencyMS: latency.Milliseconds(), URLHost: urlHost, Method: method,
 		})
 		return
 	}
@@ -123,7 +132,19 @@ func appAccessible(user *auth.User, app *config.AppConfig) bool {
 	if len(app.AllowedGroups) > 0 && !userInAnyAllowedGroup(user.Groups, app.AllowedGroups) {
 		return false
 	}
-	return true
+	return app.Access.Allows(user.Username, user.Role)
+}
+
+// relayErrorText describes a relay failure without the target URL. Go's
+// HTTP client and URL parser quote the whole URL in their errors, and a
+// webhook URL often carries a secret in its query string, so that text
+// must reach neither the audit log nor the caller.
+func relayErrorText(err error) string {
+	var ue *url.Error
+	if errors.As(err, &ue) {
+		return ue.Op + ": " + ue.Err.Error()
+	}
+	return err.Error()
 }
 
 func safeURLHost(rawURL string) string {

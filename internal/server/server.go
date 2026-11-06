@@ -1889,7 +1889,7 @@ func (s *Server) appAccessRestricted(name string) bool {
 	defer s.configMu.RUnlock()
 	for i := range s.config.Apps {
 		if s.config.Apps[i].Name == name {
-			return s.config.Apps[i].MinRole != "" || len(s.config.Apps[i].AllowedGroups) > 0
+			return s.config.Apps[i].MinRole != "" || len(s.config.Apps[i].AllowedGroups) > 0 || s.config.Apps[i].Access.Restricted()
 		}
 	}
 	return true

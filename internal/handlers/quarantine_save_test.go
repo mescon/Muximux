@@ -41,7 +41,7 @@ apps:
 	}
 	handler := NewAPIHandler(cfg, path, &sync.RWMutex{})
 
-	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil)
+	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil, "")
 	wire, err := json.Marshal(resp)
 	if err != nil {
 		t.Fatal(err)

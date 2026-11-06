@@ -2650,3 +2650,35 @@ func TestNavigation_ShowDockerBadge_Default(t *testing.T) {
 		t.Errorf("false value not persisted in YAML:\n%s", out)
 	}
 }
+
+func TestAppAccessConfigAllows(t *testing.T) {
+	empty := AppAccessConfig{}
+	if empty.Restricted() || !empty.Allows("anyone", "user") {
+		t.Error("an empty access list must allow everyone")
+	}
+	a := AppAccessConfig{Roles: []string{"power-user"}, Users: []string{"Bob"}}
+	if !a.Restricted() {
+		t.Error("a list with entries must report Restricted")
+	}
+	cases := []struct {
+		user, role string
+		want       bool
+	}{
+		{"alice", "user", false},
+		{"carol", "power-user", true},
+		{"carol", "POWER-USER", true},
+		{"bob", "user", true}, // username match, case-insensitive
+		{"", "", false},
+		{"", "power-user", true},
+		{"bob", "", true},
+	}
+	for _, c := range cases {
+		if got := a.Allows(c.user, c.role); got != c.want {
+			t.Errorf("Allows(%q, %q) = %v, want %v", c.user, c.role, got, c.want)
+		}
+	}
+	usersOnly := AppAccessConfig{Users: []string{"bob"}}
+	if usersOnly.Allows("alice", "admin") {
+		t.Error("the role must not match when only users are listed (admins are exempted by the callers)")
+	}
+}

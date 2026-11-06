@@ -209,7 +209,7 @@ func (h *APIHandler) dockerAction(w http.ResponseWriter, r *http.Request, name, 
 		// A restricted app (min_role / allowed_groups) broadcasts its
 		// realtime state to admins only, matching the docker-state GET
 		// filter, so a non-admin can't learn a hidden app's state.
-		restricted := app.MinRole != "" || len(app.AllowedGroups) > 0
+		restricted := app.MinRole != "" || len(app.AllowedGroups) > 0 || app.Access.Restricted()
 		h.dockerHub.BroadcastDockerStateChanged(appName, DockerStatePayloadFromState(&newState), restricted)
 	}
 

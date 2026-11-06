@@ -225,7 +225,7 @@ apps:
     enabled: false    # Hidden from navigation
 ```
 
-Muximux keeps the app's configuration. To enable the app again at any time, set `enabled: true` or remove the field entirely. Apps are enabled by default.
+Muximux keeps the app's configuration. To enable the app again at any time, set `enabled: true`. Settings writes the field for every app it saves. In a hand-written `config.yaml`, an app without `enabled: true` stays disabled.
 
 This is useful for temporarily hiding apps that are down for maintenance or that you are still configuring.
 
@@ -291,6 +291,8 @@ apps:
 If `access` is not set on an app, all authenticated users can see it.
 
 You can use `roles`, `users`, or both. When you set both, a user who matches **either** condition gets access. The user does not need to match both.
+
+Muximux checks the list everywhere the app can be reached: the menu and the apps API, the reverse proxy (`/proxy/<slug>/`), HTTP actions, health status and Docker controls. It adds to `min_role` and `allowed_groups`: a user must pass all three. Matching is case-insensitive. Admins always pass.
 
 ---
 

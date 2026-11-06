@@ -122,6 +122,8 @@ type proxyRoute struct {
 	// data path - the actual proxy was wide open. (codebase review C1)
 	minRole       string
 	allowedGroups []string
+	// access is the app's roles/users list, enforced the same way.
+	access config.AppAccessConfig
 }
 
 // contentRewriter handles URL rewriting in response content
@@ -905,6 +907,10 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 		forwardedHeaders:  app.ForwardedOrDefault(),
 		minRole:           app.MinRole,
 		allowedGroups:     append([]string(nil), app.AllowedGroups...),
+		access: config.AppAccessConfig{
+			Roles: append([]string(nil), app.Access.Roles...),
+			Users: append([]string(nil), app.Access.Users...),
+		},
 	}
 }
 
@@ -2290,7 +2296,7 @@ func (route *proxyRoute) userMayAccess(r *http.Request) bool {
 			return false
 		}
 	}
-	return true
+	return route.access.Allows(user.Username, user.Role)
 }
 
 // userInAnyGroup reports whether any of the user's groups is in the

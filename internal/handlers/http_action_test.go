@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -274,7 +275,7 @@ func TestFireAppAction_AppNotFound(t *testing.T) {
 
 func TestFireAppAction_AccessDenied_Role(t *testing.T) {
 	cfg := &config.Config{Apps: []config.AppConfig{{
-		Name: "Admin Webhook", URL: "http://example.com", OpenMode: "http_action", MinRole: "admin",
+		Name: "Admin Webhook", URL: "http://example.com", Enabled: true, OpenMode: "http_action", MinRole: "admin",
 	}}}
 	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
 	w := fireWithUser(h, "Admin Webhook", defaultUser())
@@ -285,7 +286,7 @@ func TestFireAppAction_AccessDenied_Role(t *testing.T) {
 
 func TestFireAppAction_AccessDenied_Group(t *testing.T) {
 	cfg := &config.Config{Apps: []config.AppConfig{{
-		Name: "Restricted Webhook", URL: "http://example.com", OpenMode: "http_action", AllowedGroups: []string{"ops"},
+		Name: "Restricted Webhook", URL: "http://example.com", Enabled: true, OpenMode: "http_action", AllowedGroups: []string{"ops"},
 	}}}
 	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
 	user := &auth.User{ID: "u", Username: "alice", Role: auth.RoleUser, Groups: []string{"devs"}}
@@ -302,7 +303,7 @@ func TestFireAppAction_AdminBypassesGroupGate(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}
 	h := newFireActionTest(t, &config.AppConfig{
-		Name: "Restricted", URL: "RESOLVE_UPSTREAM", OpenMode: "http_action", AllowedGroups: []string{"ops"},
+		Name: "Restricted", URL: "RESOLVE_UPSTREAM", Enabled: true, OpenMode: "http_action", AllowedGroups: []string{"ops"},
 	}, upstream)
 	admin := &auth.User{ID: "u", Username: "root", Role: auth.RoleAdmin}
 	w := fireWithUser(h, "Restricted", admin)
@@ -316,7 +317,7 @@ func TestFireAppAction_AdminBypassesGroupGate(t *testing.T) {
 
 func TestFireAppAction_QueryStringNotInAuditLog(t *testing.T) {
 	h := newFireActionTest(t, &config.AppConfig{
-		Name: "Webhook", URL: "RESOLVE_UPSTREAM_WITH_QUERY", OpenMode: "http_action",
+		Name: "Webhook", URL: "RESOLVE_UPSTREAM_WITH_QUERY", Enabled: true, OpenMode: "http_action",
 	}, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
@@ -355,3 +356,81 @@ func TestSafeURLHost(t *testing.T) {
 
 var _ = fmt.Sprintf
 var _ = io.Discard
+
+// A disabled action is hidden from the menu, and a direct POST must not
+// fire it either. It answers like an unknown app.
+func TestFireAppAction_DisabledIsNotFound(t *testing.T) {
+	hit := false
+	h := newFireActionTest(t, &config.AppConfig{
+		Name: "Webhook", URL: "RESOLVE_UPSTREAM", Enabled: false, OpenMode: "http_action",
+	}, func(w http.ResponseWriter, _ *http.Request) {
+		hit = true
+		w.WriteHeader(http.StatusOK)
+	})
+	for _, u := range []*auth.User{defaultUser(), {ID: "a", Username: "root", Role: auth.RoleAdmin}} {
+		if w := fireWithUser(h, "Webhook", u); w.Code != http.StatusNotFound {
+			t.Errorf("%s: status %d, want 404", u.Role, w.Code)
+		}
+	}
+	if hit {
+		t.Error("a disabled action reached its target")
+	}
+}
+
+// access.roles / access.users gate the action like min_role and
+// allowed_groups do: matching either list is enough; admins pass.
+func TestFireAppAction_AccessList(t *testing.T) {
+	h := newFireActionTest(t, &config.AppConfig{
+		Name: "Webhook", URL: "RESOLVE_UPSTREAM", Enabled: true, OpenMode: "http_action",
+		Access: config.AppAccessConfig{Roles: []string{"power-user"}, Users: []string{"Bob"}},
+	}, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	cases := []struct {
+		user *auth.User
+		want int
+	}{
+		{&auth.User{ID: "1", Username: "alice", Role: auth.RoleUser}, http.StatusForbidden},
+		{&auth.User{ID: "2", Username: "carol", Role: auth.RolePowerUser}, http.StatusOK},
+		{&auth.User{ID: "3", Username: "bob", Role: auth.RoleUser}, http.StatusOK}, // username, case-insensitive
+		{&auth.User{ID: "4", Username: "root", Role: auth.RoleAdmin}, http.StatusOK},
+	}
+	for _, c := range cases {
+		if w := fireWithUser(h, "Webhook", c.user); w.Code != c.want {
+			t.Errorf("%s (%s): status %d, want %d", c.user.Username, c.user.Role, w.Code, c.want)
+		}
+	}
+}
+
+// A failed relay must not echo the target URL: webhook URLs often carry
+// a secret in the query string.
+func TestFireAppAction_ErrorHidesURL(t *testing.T) {
+	const secret = "s3cr3t-token"
+	cfg := &config.Config{Apps: []config.AppConfig{{
+		Name: "Webhook", URL: "http://127.0.0.1:1/hook?token=" + secret, Enabled: true, OpenMode: "http_action",
+	}}}
+	h := NewAPIHandler(cfg, "", &sync.RWMutex{})
+	h.actionClient = &http.Client{Timeout: 200 * time.Millisecond}
+	w := fireWithUser(h, "Webhook", defaultUser())
+	if w.Code != http.StatusBadGateway {
+		t.Fatalf("status %d, want 502", w.Code)
+	}
+	if strings.Contains(w.Body.String(), secret) || strings.Contains(w.Body.String(), "/hook") {
+		t.Errorf("response leaks the URL: %s", w.Body.String())
+	}
+}
+
+func TestRelayErrorText(t *testing.T) {
+	const secret = "s3cr3t-token"
+	_, parseErr := url.Parse("http://exa mple.com/?token=" + secret) //nolint:staticcheck // deliberately invalid: a parse error quotes the URL
+	wrapped := &url.Error{Op: "Post", URL: "https://example.com/?token=" + secret, Err: errors.New("dial tcp: connection refused")}
+	for _, err := range []error{parseErr, wrapped} {
+		if got := relayErrorText(err); strings.Contains(got, secret) || got == "" {
+			t.Errorf("relayErrorText(%v) = %q", err, got)
+		}
+	}
+	if got := relayErrorText(wrapped); got != "Post: dial tcp: connection refused" {
+		t.Errorf("relayErrorText = %q, want the op and cause", got)
+	}
+	if got := relayErrorText(errors.New("plain")); got != "plain" {
+		t.Errorf("non-URL error = %q, want it unchanged", got)
+	}
+}

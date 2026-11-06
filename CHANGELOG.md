@@ -25,6 +25,18 @@ All notable changes to Muximux are documented in this file.
   app's prefix, `..`, or a slug two apps share) is ignored with a warning,
   and changes apply on save. When a rule passes a request on the Muximux
   API key, the key is removed before the request reaches the backend.
+- **Per-app `access` lists (`access.roles`, `access.users`) now take
+  effect.** Like `auth_bypass`, they were read from the config but never
+  enforced. They now apply wherever `min_role` and `allowed_groups` do
+  (the menu and apps API, the reverse proxy, HTTP actions, health status
+  and Docker controls), on top of those two. Admins always pass.
+- **A disabled HTTP action can no longer be fired** by POSTing to
+  `/api/app-action/{name}`. It was only hidden from the menu.
+- **A failed HTTP action no longer exposes its URL.** The error in the
+  audit log and in the response quoted the full target URL, including
+  any secret in its query string. Only the host is reported now.
+- Docs: an app without `enabled: true` in a hand-written `config.yaml`
+  is disabled. The wiki said apps are enabled by default.
 - Docker discovery import refuses an app whose name maps to the same
   `/proxy/<slug>/` path as an existing app, as Settings already did.
 - **The example `docker-compose.yml` now starts.** It dropped all Linux

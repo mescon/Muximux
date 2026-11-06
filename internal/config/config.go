@@ -675,6 +675,33 @@ type AppAccessConfig struct {
 	Users []string `yaml:"users"`
 }
 
+// Restricted reports whether the list limits the app to some users.
+func (a *AppAccessConfig) Restricted() bool {
+	return len(a.Roles) > 0 || len(a.Users) > 0
+}
+
+// Allows reports whether a user passes the access list. An empty list
+// allows everyone. Otherwise the user must hold one of the listed roles
+// or have one of the listed usernames; either is enough. Both compare
+// case-insensitively. Admins are exempted by the callers, as for the
+// app's other gates, so this check never decides for them.
+func (a *AppAccessConfig) Allows(username, role string) bool {
+	if !a.Restricted() {
+		return true
+	}
+	for _, r := range a.Roles {
+		if role != "" && strings.EqualFold(r, role) {
+			return true
+		}
+	}
+	for _, u := range a.Users {
+		if username != "" && strings.EqualFold(u, username) {
+			return true
+		}
+	}
+	return false
+}
+
 // ParseFlexDuration parses a duration string, additionally accepting a "d"
 // (day) suffix that Go's time.ParseDuration rejects. It is the single source
 // of truth for duration parsing across the runtime and the config import

@@ -39,14 +39,14 @@ apps:
 | `http_action_confirm`       | bool   | `false` | When true, click shows a confirmation modal with method + URL               |
 | `http_action_show_toast`    | bool   | `true`  | When false, fires silently (audit log still records every fire)             |
 
-The `url`, `min_role`, `allowed_groups`, `enabled`, and `icon` fields work the same as every other app. The server enforces per-app access control. A user who can't see the app in the menu can't fire its action either.
+The `url`, `min_role`, `allowed_groups`, `enabled`, and `icon` fields work the same as every other app. The server enforces per-app access control, including the `access` list. A user who can't see the app in the menu can't fire its action either. A disabled action (`enabled: false`) can't be fired, even by an admin.
 
 ## How it works
 
 When you click an `http_action` app:
 
 1. The browser POSTs `/api/app-action/{name}` to Muximux (with the session cookie).
-2. The backend looks up the app and checks your role and group memberships. Then it sends the configured method/headers to the app's `url`.
+2. The backend looks up the app and checks your role, group memberships and the app's `access` list. Then it sends the configured method/headers to the app's `url`.
 3. Muximux shows the result (status + latency) as a toast. The audit log records method, host, caller, status, and latency.
 
 The relay timeout is 10 seconds, and you cannot change it. The relay follows redirects. Muximux never returns the response body to the browser and never logs it.
@@ -54,7 +54,7 @@ The relay timeout is 10 seconds, and you cannot change it. The relay follows red
 ## Security model
 
 - **No URL allowlist.** Operators trust the URLs they configure. The validator only checks for an `http://` or `https://` scheme and a non-empty hostname.
-- **Audit log records the host only.** Webhook URLs often contain secrets in the query string (`?token=...`). So we never log the path or query string, only the hostname.
+- **Audit log records the host only.** Webhook URLs often contain secrets in the query string (`?token=...`). So we never log the path or query string, only the hostname. This also applies when a request fails: the error in the audit log and in the response leaves out the URL.
 - **CSRF protection** (protection against requests that other sites forge in your name) is the same as on every other state-changing endpoint. The request must carry the `X-Requested-With: XMLHttpRequest` header.
 - **Per-app role + group gate** mirrors the access control that hides the app from the menu.
 

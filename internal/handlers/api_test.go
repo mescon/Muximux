@@ -1045,7 +1045,7 @@ func TestMergeClientApp(t *testing.T) {
 func TestBuildClientConfigResponse(t *testing.T) {
 	cfg := createTestConfig()
 
-	resp := buildClientConfigResponse(cfg, "admin", nil)
+	resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 	if resp.Title != "Test Dashboard" {
 		t.Errorf("expected title 'Test Dashboard', got %q", resp.Title)
@@ -1073,7 +1073,7 @@ func TestBuildClientConfigResponse(t *testing.T) {
 			"search": {{Key: "k", Ctrl: true}},
 		},
 	}
-	resp = buildClientConfigResponse(cfg, "admin", nil)
+	resp = buildClientConfigResponse(cfg, "admin", nil, "")
 	if resp.Keybindings == nil {
 		t.Error("expected keybindings to be set")
 	}
@@ -1088,14 +1088,14 @@ func TestBuildClientConfigResponse_SessionCookieDomain(t *testing.T) {
 	cfg := createTestConfig()
 
 	// Default: unset.
-	resp := buildClientConfigResponse(cfg, "admin", nil)
+	resp := buildClientConfigResponse(cfg, "admin", nil, "")
 	if resp.SessionCookieDomain != "" {
 		t.Errorf("expected empty SessionCookieDomain by default, got %q", resp.SessionCookieDomain)
 	}
 
 	// Explicit value flows through.
 	cfg.Server.SessionCookieDomain = ".example.com"
-	resp = buildClientConfigResponse(cfg, "admin", nil)
+	resp = buildClientConfigResponse(cfg, "admin", nil, "")
 	if resp.SessionCookieDomain != ".example.com" {
 		t.Errorf("expected SessionCookieDomain '.example.com', got %q", resp.SessionCookieDomain)
 	}
@@ -1141,7 +1141,7 @@ func TestSaveConfig_RoundTripPreservesDisabledAppsForAdmin(t *testing.T) {
 
 	// Admin response must include disabled apps so the round-trip
 	// can preserve them.
-	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil)
+	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil, "")
 	gotDisabled := 0
 	for _, a := range resp.Apps {
 		if disabledNames[a.Name] {
@@ -1156,7 +1156,7 @@ func TestSaveConfig_RoundTripPreservesDisabledAppsForAdmin(t *testing.T) {
 	// Symmetry check: non-admin responses still filter disabled
 	// apps. The "disabled = hidden from nav" semantic for non-admins
 	// is preserved.
-	respUser := buildClientConfigResponse(cfg, auth.RoleUser, nil)
+	respUser := buildClientConfigResponse(cfg, auth.RoleUser, nil, "")
 	for _, a := range respUser.Apps {
 		if disabledNames[a.Name] {
 			t.Errorf("non-admin response leaked disabled app %q", a.Name)
@@ -1183,7 +1183,7 @@ func TestSaveConfig_PreservesSessionCookieDomainThroughRoundTrip(t *testing.T) {
 	cfg.Server.SessionCookieDomain = ".example.com"
 
 	// 1. Build the response shape the frontend GETs.
-	resp := buildClientConfigResponse(cfg, "admin", nil)
+	resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 	// 2. Marshal to JSON, then unmarshal into ClientConfigUpdate.
 	// This is what happens on the wire: server emits JSON, frontend
@@ -1234,7 +1234,7 @@ func TestSaveConfig_RejectsInvalidSessionCookieDomain(t *testing.T) {
 
 	// Build a valid-looking response, then mutate the cookie domain
 	// to something that no longer covers the gated site.
-	resp := buildClientConfigResponse(cfg, "admin", nil)
+	resp := buildClientConfigResponse(cfg, "admin", nil, "")
 	wire, err := json.Marshal(resp)
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
@@ -2241,7 +2241,7 @@ func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	}
 
 	t.Run("admin keeps secrets", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin", nil, nil)
+		result := sanitizeApps(apps, "admin", nil, "", nil)
 		if len(result) != 1 || !strings.Contains(result[0].URL, "adminuser:s3cret@") {
 			t.Errorf("admin URL = %q, want credentials preserved", result[0].URL)
 		}
@@ -2251,7 +2251,7 @@ func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	})
 
 	t.Run("non-admin loses credentials", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil, nil)
+		result := sanitizeApps(apps, "user", nil, "", nil)
 		if len(result) != 1 {
 			t.Fatalf("expected 1 app, got %d", len(result))
 		}
@@ -2275,7 +2275,7 @@ func TestSanitizeApps(t *testing.T) {
 	// Settings UI can manage them and a save round-trip preserves
 	// them. The nav-bar itself filters disabled apps on the client.
 	t.Run("admin sees disabled apps", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin", nil, nil)
+		result := sanitizeApps(apps, "admin", nil, "", nil)
 		if len(result) != 3 {
 			t.Fatalf("expected 3 apps for admin (incl. disabled), got %d", len(result))
 		}
@@ -2295,7 +2295,7 @@ func TestSanitizeApps(t *testing.T) {
 
 	// Non-admin roles still get the "disabled = hidden" semantic.
 	t.Run("non-admin filters disabled apps", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil, nil)
+		result := sanitizeApps(apps, "user", nil, "", nil)
 		if len(result) != 2 {
 			t.Errorf("expected 2 enabled apps for user, got %d", len(result))
 		}
@@ -2315,14 +2315,14 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	}
 
 	t.Run("admin sees all", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin", nil, nil)
+		result := sanitizeApps(apps, "admin", nil, "", nil)
 		if len(result) != 3 {
 			t.Errorf("admin should see 3 apps, got %d", len(result))
 		}
 	})
 
 	t.Run("power-user sees public and power-user", func(t *testing.T) {
-		result := sanitizeApps(apps, "power-user", nil, nil)
+		result := sanitizeApps(apps, "power-user", nil, "", nil)
 		if len(result) != 2 {
 			t.Errorf("power-user should see 2 apps, got %d", len(result))
 		}
@@ -2334,7 +2334,7 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	})
 
 	t.Run("user sees only public", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil, nil)
+		result := sanitizeApps(apps, "user", nil, "", nil)
 		if len(result) != 1 {
 			t.Errorf("user should see 1 app, got %d", len(result))
 		}
@@ -2344,7 +2344,7 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	})
 
 	t.Run("empty role disables filtering", func(t *testing.T) {
-		result := sanitizeApps(apps, "", nil, nil)
+		result := sanitizeApps(apps, "", nil, "", nil)
 		if len(result) != 3 {
 			t.Errorf("empty role should see all 3 apps, got %d", len(result))
 		}
@@ -2360,7 +2360,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	}
 
 	t.Run("user with no groups only sees open apps", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil, nil)
+		result := sanitizeApps(apps, "user", nil, "", nil)
 		if len(result) != 1 {
 			t.Errorf("user with no groups should see 1 app (Open), got %d: %+v", len(result), names(result))
 		}
@@ -2370,7 +2370,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	})
 
 	t.Run("user in developers group sees Open and DevsOnly", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", []string{"developers"}, nil)
+		result := sanitizeApps(apps, "user", []string{"developers"}, "", nil)
 		if len(result) != 2 {
 			t.Errorf("expected 2 apps, got %d: %+v", len(result), names(result))
 		}
@@ -2380,7 +2380,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 		// User group is uppercase, app's allowed_groups is lowercase.
 		// Mirroring the OIDC admin-group case-insensitive comparison
 		// keeps operators from being bitten by IdP casing variations.
-		result := sanitizeApps(apps, "user", []string{"DEVELOPERS"}, nil)
+		result := sanitizeApps(apps, "user", []string{"DEVELOPERS"}, "", nil)
 		if len(result) != 2 {
 			t.Errorf("case-insensitive match failed: got %d, want 2", len(result))
 		}
@@ -2388,7 +2388,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 
 	t.Run("user in any of multiple allowed groups passes the gate", func(t *testing.T) {
 		// OnCall app allows ["sre", "on-call"]; user in just "on-call".
-		result := sanitizeApps(apps, "user", []string{"on-call"}, nil)
+		result := sanitizeApps(apps, "user", []string{"on-call"}, "", nil)
 		if len(result) != 2 {
 			t.Errorf("expected Open + OnCall, got %+v", names(result))
 		}
@@ -2406,7 +2406,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	t.Run("admin bypasses group gate", func(t *testing.T) {
 		// Even with no group memberships, admin sees every app the
 		// role allows — including ones with allowed_groups set.
-		result := sanitizeApps(apps, "admin", nil, nil)
+		result := sanitizeApps(apps, "admin", nil, "", nil)
 		if len(result) != 4 {
 			t.Errorf("admin should see all 4 apps, got %d: %+v", len(result), names(result))
 		}
@@ -2415,7 +2415,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	t.Run("non-admin in matching group still gated by min_role", func(t *testing.T) {
 		// AdminAndDevs requires admin role AND developers group. A
 		// user in developers but not admin should not see it.
-		result := sanitizeApps(apps, "user", []string{"developers"}, nil)
+		result := sanitizeApps(apps, "user", []string{"developers"}, "", nil)
 		for _, a := range result {
 			if a.Name == "AdminAndDevs" {
 				t.Error("user role should not pass min_role=admin gate even with matching group")
@@ -2426,7 +2426,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	t.Run("empty role disables both gates", func(t *testing.T) {
 		// Mirrors the existing role-only behaviour: unauth setup
 		// previews see every app regardless of allowed_groups.
-		result := sanitizeApps(apps, "", nil, nil)
+		result := sanitizeApps(apps, "", nil, "", nil)
 		if len(result) != 4 {
 			t.Errorf("expected all 4 apps for empty role, got %d", len(result))
 		}
@@ -2441,7 +2441,7 @@ func TestSanitizeApps_GatewayPairing(t *testing.T) {
 	}
 
 	t.Run("no gateway sites means no GatewayDomain on any app", func(t *testing.T) {
-		got := sanitizeApps(apps, "admin", nil, nil)
+		got := sanitizeApps(apps, "admin", nil, "", nil)
 		for _, c := range got {
 			if c.GatewayDomain != "" {
 				t.Errorf("app %q got unexpected GatewayDomain %q", c.Name, c.GatewayDomain)
@@ -2454,7 +2454,7 @@ func TestSanitizeApps_GatewayPairing(t *testing.T) {
 			{Domain: "sonarr.example.com", BackendURL: "http://sonarr:8989", AppName: "Sonarr"},
 			{Domain: "plex.example.com", BackendURL: "http://plex:32400", AppName: "Plex", Streaming: true},
 		}
-		got := sanitizeApps(apps, "admin", nil, sites)
+		got := sanitizeApps(apps, "admin", nil, "", sites)
 
 		byName := map[string]string{}
 		for _, c := range got {
@@ -2476,7 +2476,7 @@ func TestSanitizeApps_GatewayPairing(t *testing.T) {
 		sites := []config.GatewaySite{
 			{Domain: "standalone.example.com", BackendURL: "http://app:80"}, // no AppName
 		}
-		got := sanitizeApps(apps, "admin", nil, sites)
+		got := sanitizeApps(apps, "admin", nil, "", sites)
 		for _, c := range got {
 			if c.GatewayDomain != "" {
 				t.Errorf("app %q got unexpected GatewayDomain %q", c.Name, c.GatewayDomain)
@@ -2492,7 +2492,7 @@ func TestSanitizeApps_GatewayPairing(t *testing.T) {
 		sites := []config.GatewaySite{
 			{Domain: "ghost.example.com", BackendURL: "http://x:80", AppName: "DoesNotExist"},
 		}
-		got := sanitizeApps(apps, "admin", nil, sites)
+		got := sanitizeApps(apps, "admin", nil, "", sites)
 		for _, c := range got {
 			if c.GatewayDomain != "" {
 				t.Errorf("app %q should not be paired, got %q", c.Name, c.GatewayDomain)
@@ -2534,6 +2534,28 @@ func TestGatewayDomainsByAppName(t *testing.T) {
 // names extracts app names from a sanitized result for nicer test
 // output when length-only assertions fail. Indexes rather than ranging
 // so gocritic doesn't flag the per-iteration struct copy.
+func TestSanitizeApps_AccessList(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Open", URL: "http://a", Enabled: true},
+		{Name: "Listed", URL: "http://b", Enabled: true,
+			Access: config.AppAccessConfig{Roles: []string{"power-user"}, Users: []string{"bob"}}},
+	}
+	for _, c := range []struct {
+		role, user string
+		want       int
+	}{
+		{"user", "alice", 1},
+		{"user", "Bob", 2},
+		{"power-user", "carol", 2},
+		{"admin", "root", 2},
+		{"", "", 2}, // setup preview sees everything
+	} {
+		if got := sanitizeApps(apps, c.role, nil, c.user, nil); len(got) != c.want {
+			t.Errorf("%s/%s: got %v, want %d apps", c.role, c.user, names(got), c.want)
+		}
+	}
+}
+
 func names(apps []ClientAppConfig) []string {
 	out := make([]string, len(apps))
 	for i := range apps {
@@ -2927,7 +2949,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Auth.Method = "builtin"
 
-		resp := buildClientConfigResponse(cfg, "admin", nil)
+		resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 		if resp.Auth == nil {
 			t.Fatal("expected auth to be set")
@@ -2949,7 +2971,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg.Auth.TrustedProxies = []string{"10.0.0.0/8"}
 		cfg.Auth.Headers = map[string]string{"X-User": "username"}
 
-		resp := buildClientConfigResponse(cfg, "admin", nil)
+		resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 		if resp.Auth == nil {
 			t.Fatal("expected auth to be set")
@@ -2969,7 +2991,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Auth.Method = ""
 
-		resp := buildClientConfigResponse(cfg, "admin", nil)
+		resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 		if resp.Auth != nil {
 			t.Error("expected auth to be nil when method is empty")
@@ -2980,7 +3002,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Health = config.HealthConfig{Enabled: true, Interval: "30s", Timeout: "5s"}
 
-		resp := buildClientConfigResponse(cfg, "admin", nil)
+		resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 		if resp.Health == nil {
 			t.Fatal("expected health config to be included")
@@ -2994,7 +3016,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Server.ProxyTimeout = "60s"
 
-		resp := buildClientConfigResponse(cfg, "admin", nil)
+		resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 		if resp.ProxyTimeout != "60s" {
 			t.Errorf("expected proxy_timeout '60s', got %q", resp.ProxyTimeout)
@@ -3005,7 +3027,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Server.LogLevel = "debug"
 
-		resp := buildClientConfigResponse(cfg, "admin", nil)
+		resp := buildClientConfigResponse(cfg, "admin", nil, "")
 
 		if resp.LogLevel != "debug" {
 			t.Errorf("expected log_level 'debug', got %q", resp.LogLevel)
@@ -3210,7 +3232,7 @@ func TestUpdateApp_StaleTrackingDoesNotReattach(t *testing.T) {
 // round-tripped through JSON so it shares no memory with cfg.
 func clientSnapshot(t *testing.T, cfg *config.Config) ClientConfigUpdate {
 	t.Helper()
-	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil)
+	resp := buildClientConfigResponse(cfg, auth.RoleAdmin, nil, "")
 	raw, err := json.Marshal(updateFromResponse(&resp))
 	if err != nil {
 		t.Fatal(err)
