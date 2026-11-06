@@ -95,6 +95,22 @@ type Middleware struct {
 	// migration rather than one persist per request.
 	onAPIKeyUpgrade func(oldHash, newHash string)
 	apiKeyUpgrading atomic.Bool
+
+	// appRules holds the per-app auth_bypass rules, already resolved to
+	// full /proxy/<slug>/ paths. They live apart from AuthConfig because
+	// several places rebuild AuthConfig (auth method changes, setup,
+	// restore) and none of them knows about apps; keeping the rules here
+	// means none of those rebuilds can drop them.
+	appRules atomic.Pointer[[]BypassRule]
+}
+
+// SetAppBypassRules replaces the per-app auth_bypass rules. Call it at
+// startup and whenever the app list changes. Each rule's Path must
+// already be the full request path under the app's /proxy/<slug>/
+// prefix; an empty Path would match every request.
+func (m *Middleware) SetAppBypassRules(rules []BypassRule) {
+	cp := append([]BypassRule(nil), rules...)
+	m.appRules.Store(&cp)
 }
 
 // SetOnAPIKeyUpgrade wires the opportunistic legacy-hash migration hook.
@@ -334,6 +350,13 @@ func (m *Middleware) shouldBypass(r *http.Request, snap *authSnapshot) bool {
 	for _, rule := range snap.config.BypassRules {
 		if m.matchBypassRule(r, rule, snap) {
 			return true
+		}
+	}
+	if rules := m.appRules.Load(); rules != nil {
+		for _, rule := range *rules {
+			if m.matchBypassRule(r, rule, snap) {
+				return true
+			}
 		}
 	}
 	return false

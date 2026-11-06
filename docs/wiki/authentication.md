@@ -474,7 +474,7 @@ A user with no groups passes the role gate but fails any non-empty `allowed_grou
 
 Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Seerr or a cron job reach Muximux without having to maintain a logged-in session.
 
-The API key is not a universal bypass. It only authenticates requests whose path has been **allowlisted** with `require_api_key: true`. Everything else still requires a session cookie, so a leaked key can only reach the endpoints the operator has opted in.
+The API key is not a universal bypass. It only authenticates requests on **allowlisted** paths: the built-in ones listed below, plus any proxied-app paths you add with `require_api_key: true`. Everything else that needs a login still requires a session cookie, so a leaked key can only reach those paths. (A few endpoints, such as `GET /api/auth/status` and `GET /api/health`, need no credentials at all.)
 
 ### Where the API Key Works
 
@@ -510,7 +510,7 @@ curl -H "X-Api-Key: $MUXIMUX_API_KEY" \
   https://muximux.example.com/proxy/sonarr/api/v3/series
 ```
 
-Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. The same request carries both keys, and each one does a different job.
+Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. Each key covers one hop: `proxy_headers` replaces the caller's `X-Api-Key`, so Sonarr only ever sees its own key.
 
 #### Example 2: GitHub webhook hitting a proxied app
 
@@ -525,7 +525,7 @@ apps:
     proxy: true
     # Caller -> Muximux: only the webhook path, only POST, only with the API key.
     auth_bypass:
-      - path: /proxy/ci/hooks/github
+      - path: /hooks/github      # relative to the app: /proxy/ci/hooks/github
         methods: [POST]
         require_api_key: true
 ```

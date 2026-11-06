@@ -261,6 +261,8 @@ Each bypass rule supports the following fields:
 | `require_api_key` | No | If `true`, the request must include a valid `X-Api-Key` header. This trades one form of auth for another rather than removing it entirely. |
 | `allowed_ips` | No | List of IP addresses or CIDR ranges. If set, only requests from these sources are allowed through. |
 
+Paths are relative to the app's proxy path: on Sonarr, `/api/*` covers `/proxy/sonarr/api/*`. The full path (`/proxy/sonarr/api/*`) works too. Rules only apply to apps that are enabled and have `proxy: true`, because only their traffic passes through Muximux. A rule that could reach outside its app is ignored and logged as a warning: an empty `path`, a path under another app's `/proxy/` prefix, or a path containing `..`. Changes apply as soon as the config is saved.
+
 Common use cases:
 
 - Allowing RSS feed readers to fetch feeds without a login session

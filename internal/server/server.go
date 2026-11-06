@@ -253,7 +253,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		// went unchecked, deleted apps kept being probed, and URL edits
 		// were checked against the stale URL.
 		s.setHealthApps(cfg.Apps)
+		// Per-app auth_bypass rules follow the same app list, so a rule
+		// added or removed in Settings applies without a restart.
+		s.authMiddleware.SetAppBypassRules(appBypassRules(cfg.Apps))
 	}
+	s.authMiddleware.SetAppBypassRules(appBypassRules(cfg.Apps))
 	api.SetOnConfigSave(s.rebuildProxyRoutes)
 
 	// Caddy setup
