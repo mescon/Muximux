@@ -2,13 +2,13 @@
 
 [Pocket ID](https://github.com/stonith404/pocket-id) is a lightweight self-hosted OIDC provider that authenticates users with passkeys instead of passwords. It's a popular choice in homelab setups because the entire IdP is one small container.
 
-This guide gets Muximux signing in against Pocket ID with group memberships flowing through to `admin_groups`.
+This guide sets up Muximux to sign in against Pocket ID. Group memberships flow through to `admin_groups`.
 
 ---
 
 ## Prerequisites
 
-- A running Pocket ID instance, accessible to whichever browser will use Muximux. The default port is `1411`; you'll typically reverse-proxy it at something like `https://id.example.com`.
+- A running Pocket ID instance. Every browser that will use Muximux must be able to reach it. The default port is `1411`. You'll typically put it behind a reverse proxy (a server that forwards requests to another server) at an address like `https://id.example.com`.
 - Admin access to Pocket ID.
 - Muximux on a stable URL.
 
@@ -16,28 +16,30 @@ This guide gets Muximux signing in against Pocket ID with group memberships flow
 
 ## Step 1: Register the OIDC Client
 
-1. In Pocket ID admin, open **OIDC Clients** and click **Add OIDC Client**.
-2. Fill in:
+1. In Pocket ID admin, open **OIDC Clients**.
+2. Click **Add OIDC Client**.
+3. Fill in:
    - Name: `Muximux`
    - Callback URLs: `https://muximux.example.com/api/auth/oidc/callback`
    - Logout Callback URLs: leave empty unless you've configured a Muximux logout redirect.
    - Public Client: **Off** (we want a confidential client with a secret)
    - PKCE: leave at the default.
-3. Save. Pocket ID shows you a **Client ID** and **Client Secret**. Copy both.
+4. Save. Pocket ID shows you a **Client ID** and **Client Secret**.
+5. Copy both.
 
 ---
 
 ## Step 2: Allow the Client to See Group Memberships
 
-Pocket ID emits the `groups` claim only when the client is allowed to read it.
+Pocket ID emits the `groups` claim (the list of the user's groups in the token) only when the client is allowed to read it.
 
 1. In the same OIDC client edit page, find the **Allowed User Groups** section.
-2. Add the groups you want Muximux to see. Anyone who belongs to one of these groups can sign in to Muximux; everyone else gets refused at the IdP. Add at least:
+2. Add the groups you want Muximux to see. Anyone who belongs to one of these groups can sign in to Muximux. The IdP (identity provider) refuses everyone else. Add at least:
    - `Muximux-Admins` (or whatever you want admin status to map to)
    - any other group you'll later use for per-app filtering
 3. Save.
 
-If you don't have those groups yet, create them under **Groups** first and assign members.
+If you don't have those groups yet, create them under **Groups** first. Then assign members.
 
 ---
 
@@ -67,30 +69,46 @@ auth:
       - Muximux-Admins
 ```
 
-`issuer_url` is the public URL of Pocket ID, with no trailing path. Pocket ID exposes the OIDC discovery document at `https://id.example.com/.well-known/openid-configuration`.
+`issuer_url` is the public URL of Pocket ID, with no trailing path. Pocket ID exposes the OIDC discovery document (a file that lists the provider's endpoints) at `https://id.example.com/.well-known/openid-configuration`.
 
-Set `POCKETID_CLIENT_SECRET` in the environment. Restart Muximux.
+1. Set `POCKETID_CLIENT_SECRET` in the environment.
+2. Restart Muximux.
 
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security** and choose **Single sign-on (OIDC)**. Enter the public URL of Pocket ID (for example `https://id.example.com`, no trailing path) as the issuer URL, the client ID and secret from Step 1, `groups` added to the scopes, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+Instead of editing `config.yaml`, you can use Settings:
+
+1. Open **Settings > Security**.
+2. Choose **Single sign-on (OIDC)**.
+3. As the issuer URL, enter the public URL of Pocket ID (for example `https://id.example.com`, no trailing path).
+4. Enter the client ID and secret from Step 1.
+5. Add `groups` to the scopes.
+6. Enter `groups` as the groups claim.
+7. Enter your admin group (for example `Muximux-Admins`) under admin groups.
+8. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
+9. Press **Test connection**.
+10. Press **Update Method**.
+
+See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 
 ## Step 4: Validate
 
-1. Visit `https://muximux.example.com/login` and click **Login with SSO**. Pocket ID prompts you for a passkey.
-2. After successful sign-in you should land back on the Muximux dashboard.
-3. Sign in as a member of `Muximux-Admins` and confirm the Settings gear is visible.
+1. Visit `https://muximux.example.com/login`.
+2. Click **Login with SSO**. Pocket ID prompts you for a passkey.
+3. Sign in. You should land back on the Muximux dashboard.
+4. Sign in as a member of `Muximux-Admins`.
+5. Confirm that the Settings gear is visible.
 
 ---
 
 ## Sign-out
 
-Pocket ID's discovery document publishes an `end_session_endpoint` and advertises back-channel logout support. Each client has a list of **logout callback URLs** and a single **backchannel logout URL**. This guide could not confirm the exact labels in the admin form, so check the OIDC client form in your Pocket ID version.
+Pocket ID's discovery document publishes an `end_session_endpoint`. It also advertises back-channel logout support (the provider tells Muximux directly when a user signs out). Each client has a list of **logout callback URLs** and a single **backchannel logout URL**. This guide could not confirm the exact labels in the admin form. Check the OIDC client form in your Pocket ID version.
 
-- **Return address.** Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the client's logout callback URLs, and set `provider_logout: true`.
-- **Back-channel logout.** Set the client's backchannel logout URL to `https://muximux.example.com/api/auth/oidc/backchannel-logout`. Pocket ID does not include the session ID (`sid`) in logout tokens (its discovery document reports `backchannel_logout_session_supported` as false), so Muximux matches sessions by `sub`.
+- **Return address.** Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the client's logout callback URLs. Then set `provider_logout: true`.
+- **Back-channel logout.** Set the client's backchannel logout URL to `https://muximux.example.com/api/auth/oidc/backchannel-logout`. Pocket ID does not include the session ID (`sid`) in logout tokens. (Its discovery document reports `backchannel_logout_session_supported` as false.) Muximux therefore matches sessions by `sub`.
 
 ---
 

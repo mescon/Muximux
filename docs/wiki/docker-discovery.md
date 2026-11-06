@@ -6,11 +6,11 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
 
 ## What It Does
 
-- **Scan**: lists running containers and proposes a name, icon, URL, port, and group for each, with confidence ratings (high / medium / low).
-- **Import**: one-click adds the chosen containers as apps in the menu, gateway subdomains, or both. Each row picks a routing mode: Direct URL, internal Proxy, or Gateway domain.
-- **Refresh**: a background poller (default 60s) re-resolves each tracked container against the daemon and rewrites the saved URL if the container's IP changes. Caddy reloads once per tick when gateway-site URLs change.
-- **Auto-import** (optional): with `discovery.docker.auto_import` set to `add`/`update`/`sync`, Muximux imports every container that carries at least one `muximux.*` label (a `muximux.discovery.id` alone is enough) and does not carry `muximux.app.enabled=false`, with no modal and no click. Unlabelled containers are never auto-imported. `add` imports each new labeled container once; `update` also re-syncs an imported app when its labels change; `sync` additionally removes an imported app when its container disappears or opts out. Off by default. See [Automatic Import](#automatic-import).
-- **Detach / Re-link**: per-row controls in Settings → Discovery let you stop auto-managing an entry or re-point it at a different container when you migrate daemons.
+- **Scan**: lists running containers. For each one, it proposes a name, icon, URL, port, and group, with confidence ratings (high / medium / low).
+- **Import**: adds the chosen containers in one click, as apps in the menu, gateway subdomains, or both. Each row picks a routing mode: Direct URL, internal Proxy, or Gateway domain.
+- **Refresh**: a background poller (a task that runs on a timer, default 60s) looks up each tracked container on the daemon again. If the container's IP changes, it rewrites the saved URL. When gateway-site URLs change, Caddy (the web server built into Muximux) reloads once per tick (one run of the poller).
+- **Auto-import** (optional): set `discovery.docker.auto_import` to `add`/`update`/`sync`. Muximux then imports, with no modal and no click, every container that carries at least one `muximux.*` label (a `muximux.discovery.id` alone is enough) and does not carry `muximux.app.enabled=false`. Unlabelled containers are never auto-imported. `add` imports each new labeled container once. `update` also re-syncs an imported app when its labels change. `sync` also removes an imported app when its container disappears or opts out. Off by default. See [Automatic Import](#automatic-import).
+- **Detach / Re-link**: per-row controls in Settings → Discovery. Detach stops auto-managing an entry. Re-link points it at a different container when you migrate daemons.
 
 Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
 
@@ -30,27 +30,39 @@ Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
 
 ## Quickstart
 
-1. **Settings → Discovery**: tick **Enable Docker discovery**, pick a **Network strategy**, click **Test connection**. The banner turns green when Muximux can reach the daemon and identify enough about itself to use the chosen strategy.
+1. Open **Settings → Discovery**.
+2. Tick **Enable Docker discovery**.
+3. Pick a **Network strategy**.
+4. Click **Test connection**.
 
-2. **Apps tab** (or Gateway tab) → **Discover from Docker**: the modal lists every running container the daemon returned (Muximux's own container is excluded so you can't accidentally import yourself as an app). Each row shows:
-   - Suggested name, icon, group (catalog-recognised images get these auto-filled at "medium" confidence)
-   - Stable tracking key (operator label > Swarm service > Compose service > container name > container ID)
+   The banner turns green when Muximux can reach the daemon and can identify enough about itself to use the chosen strategy.
+
+5. Open the **Apps** tab (or the **Gateway** tab).
+6. Click **Discover from Docker**.
+
+   The modal lists every running container that the daemon returned. Muximux leaves out its own container, so you can't import yourself as an app by accident. Each row shows:
+   - Suggested name, icon, group (catalog-recognised images get these auto-filled at "medium" confidence; the catalog is Muximux's built-in list of known apps)
+   - Stable tracking key, the ID that Muximux uses to follow the container (operator label > Swarm service > Compose service > container name > container ID)
    - Resolved URL preview
    - Stability warning when the key is likely to break on a `docker-compose --force-recreate` or swarm task reschedule
    - A **Not importable** chip when auto-import would skip the container, with the reason (see [Why a container is skipped](#why-a-container-is-skipped))
 
-   The catalog matcher is lenient about operator prefix conventions: a container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` still picks up the matching catalog entry just like a bare `sonarr` / `radarr` / `plex` would. Tokens are split on `-`, `_`, and `.`; comparison is exact-token (so `transmissionic` doesn't masquerade as `transmission`). Multi-word app names like `home-assistant` work via an adjacent-pair fallback.
+   The catalog matcher accepts the prefixes that operators often add to names. A container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` still picks up the matching catalog entry, just like a bare `sonarr` / `radarr` / `plex` would. The matcher splits names into tokens at `-`, `_`, and `.`. It compares whole tokens only, so `transmissionic` doesn't masquerade as `transmission`. Multi-word app names like `home-assistant` match through a fallback that compares adjacent pairs of tokens.
 
-3. **Pick routing per row** and click **Import**:
+   A container that is already tracked shows a **Tracked** chip in the Discover dialog. The chip names what tracks it: an app, an auto-imported app, a gateway site or a quarantined entry, plus the endpoint when it differs. You cannot select its row, because you cannot import it again. A row whose name another app already uses shows "Name already in use by another app".
+
+7. Pick the routing mode for each row:
    - **Direct** - menu links to `http://<container-ip>:<port>` directly
-   - **Proxy** - menu links via Muximux's `/proxy/<slug>` path-prefix reverse proxy
-   - **Gateway domain** - menu links to `https://<your-subdomain>`; requires also creating the gateway site in the same row
+   - **Proxy** - menu links via Muximux's `/proxy/<slug>` path-prefix reverse proxy (a server that forwards requests to another server, here under a path on the Muximux address)
+   - **Gateway domain** - menu links to `https://<your-subdomain>`; you must also create the gateway site in the same row
+
+8. Click **Import**.
 
    If a row's group does not exist yet, the import creates it in the same save (see [Groups are created automatically](#groups-are-created-automatically)).
 
-   A container that is already tracked shows a **Tracked** chip in the Discover dialog, naming what tracks it (an app, an auto-imported app, a gateway site or a quarantined entry, plus the endpoint when it differs). Its row cannot be selected, since it cannot be imported again. A row whose name is used by another app shows "Name already in use by another app".
+9. Open **Settings → Discovery → Currently tracked**.
 
-4. **Settings → Discovery → Currently tracked**: every imported app or gateway site appears here. Per-row **Detach** stops auto-management; **Re-link** appears when the saved `DockerEndpoint` no longer matches the configured endpoint (typical after a daemon migration). A row shows "Container missing since <time>" while its container cannot be found on the daemon. Invalid Docker-owned entries that were not loaded are listed below the table; see [Quarantined entries](#quarantined-entries).
+   Every imported app or gateway site appears here. **Detach** on a row stops auto-management. **Re-link** appears when the saved `DockerEndpoint` no longer matches the configured endpoint (typical after a daemon migration). A row shows "Container missing since <time>" while Muximux cannot find its container on the daemon. Invalid Docker-owned entries that Muximux did not load are listed below the table; see [Quarantined entries](#quarantined-entries).
 
 ---
 
@@ -80,7 +92,7 @@ discovery:
 
 ### Make the daemon socket reachable from Muximux
 
-How you grant Muximux access to the Docker daemon depends on how you run Muximux. The `endpoint:` field in `config.yaml` is auto-populated to the platform default if you leave it blank, so most operators only need the OS-level access step below.
+How you grant Muximux access to the Docker daemon depends on how you run Muximux. If you leave the `endpoint:` field in `config.yaml` blank, Muximux fills in the platform default. So most operators only need the OS-level access step below.
 
 #### Linux, running Muximux in a container (most common)
 
@@ -96,17 +108,17 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
 
-That is all you need. The entrypoint stats the bind-mounted socket at startup, reads its group ownership from the host, and adds the runtime user to a matching group inside the container, so the non-root muximux process can read the socket. You do not need a `DOCKER_GID` env var or `group_add`, or to look up the right group number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
+That is all you need. At startup, the entrypoint (the script that starts Muximux in the container) checks the bind-mounted socket and reads its group ownership from the host. It then adds the runtime user to a matching group inside the container. This lets the non-root muximux process read the socket. You do not need a `DOCKER_GID` env var or `group_add`, or to look up the right group number. The default `endpoint: unix:///var/run/docker.sock` already matches the mount.
 
-The trailing `:ro` only stops the container from replacing or deleting the socket file. It does not limit what can be sent through the socket: anything that can connect to it can use the whole Docker API, including creating privileged containers. Treat socket access as root on the host, whatever the mount flag, and gate the dashboard with auth. To narrow what Muximux can do, put a socket proxy in front of the socket and point `endpoint` at the proxy. Filter by endpoint, not only by HTTP method: a `GET` can attach to a running container's console through a WebSocket, and a broad `POST` allowance for containers also allows creating them. Expose only what Muximux needs (listing and inspecting containers, plus services and tasks on Swarm), add the start, stop and restart endpoints only if you use lifecycle controls, and keep the proxy itself reachable only by Muximux.
+The trailing `:ro` only stops the container from replacing or deleting the socket file. It does not limit what can be sent through the socket. Anything that can connect to the socket can use the whole Docker API, including to create privileged containers. Treat socket access as root on the host, whatever the mount flag. Gate the dashboard with auth. To narrow what Muximux can do, put a socket proxy (a small service that filters Docker API calls) in front of the socket. Then point `endpoint` at the proxy. Filter by endpoint, not only by HTTP method. A `GET` can attach to a running container's console through a WebSocket. A broad `POST` allowance for containers also allows creating them. Expose only what Muximux needs: listing and inspecting containers, plus services and tasks on Swarm. Add the start, stop and restart endpoints only if you use lifecycle controls. Keep the proxy itself reachable only by Muximux.
 
-Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers: the daemon must accept write requests **and** `discovery.docker.lifecycle_enabled: true` must be set. When it connects to the daemon, Muximux sends a harmless `POST` to check the first; a plain socket mount passes it, `:ro` or not, and a socket proxy that blocks `POST` fails it. Neither layer alone is enough: the dashboard still won't start, stop, or restart anything until both are in place. Even with both on, Muximux can only start, stop, and restart the containers it already tracks. It can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Every action, and every blocked attempt, is written to the audit log.
+Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers. The daemon must accept write requests, **and** `discovery.docker.lifecycle_enabled: true` must be set. When Muximux connects to the daemon, it sends a harmless `POST` to check the first layer. A plain socket mount passes this check, `:ro` or not. A socket proxy that blocks `POST` fails it. Neither layer alone is enough: the dashboard still won't start, stop, or restart anything until both are in place. Even with both on, Muximux can only start, stop, and restart the containers it already tracks. It can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Muximux writes every action, and every blocked attempt, to the audit log.
 
 For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, two override env vars are available: `DOCKER_SOCKET` (the path the entrypoint stats) and `DOCKER_GID` (bypass auto-detect and force a specific GID). Almost no one needs these.
 
 #### Linux, running Muximux as a native binary
 
-There's no container in this path, so no entrypoint script. Linux's normal socket permissions apply: the OS user the binary runs as must be a member of the host's `docker` group.
+In this setup there is no container, so there is no entrypoint script. Linux's normal socket permissions apply. The OS user that runs the binary must be a member of the host's `docker` group.
 
 ```bash
 # Add the user that runs Muximux to the docker group:
@@ -116,7 +128,7 @@ sudo usermod -aG docker $(whoami)
 # group membership takes effect.
 ```
 
-For systemd unit installs, you can also encode it directly in the unit:
+If you install Muximux as a systemd unit, you can also set the group directly in the unit:
 
 ```ini
 [Service]
@@ -129,9 +141,9 @@ The default `endpoint: unix:///var/run/docker.sock` works as is.
 
 #### macOS, running Muximux as a native binary
 
-Docker Desktop on macOS creates a host-side socket symlink at `/var/run/docker.sock`, so the default `endpoint: unix:///var/run/docker.sock` works out of the box for most setups.
+Docker Desktop on macOS creates a host-side socket symlink at `/var/run/docker.sock`. So the default `endpoint: unix:///var/run/docker.sock` works out of the box for most setups.
 
-If you've disabled **Docker Desktop → Settings → Advanced → "Allow the default Docker socket to be used"**, the symlink isn't created. Either re-enable that toggle, or point `endpoint:` at the per-user socket Docker Desktop still maintains:
+If you've disabled **Docker Desktop → Settings → Advanced → "Allow the default Docker socket to be used"**, Docker Desktop does not create the symlink. Either re-enable that toggle, or point `endpoint:` at the per-user socket that Docker Desktop still maintains:
 
 ```yaml
 discovery:
@@ -141,7 +153,7 @@ discovery:
 
 #### Windows, running Muximux as a native binary
 
-Docker on Windows exposes a **named pipe** rather than a unix socket. Muximux 3.1.0+ supports the `npipe://` scheme natively and uses it by default when running on Windows - no extra config needed:
+Docker on Windows exposes a **named pipe** (a Windows channel between programs) rather than a unix socket. Muximux 3.1.0+ supports the `npipe://` scheme natively. It uses that scheme by default when it runs on Windows, so you need no extra config:
 
 ```yaml
 discovery:
@@ -150,7 +162,7 @@ discovery:
     # endpoint is auto-filled to npipe:////./pipe/docker_engine on Windows
 ```
 
-If the Windows account that runs Muximux is a member of the `docker-users` group, that's sufficient.
+The Windows account that runs Muximux only needs to be a member of the `docker-users` group.
 
 #### Remote daemon over TCP (any platform)
 
@@ -168,7 +180,7 @@ discovery:
       client_key: /etc/muximux/docker-key.pem
 ```
 
-The remote daemon must expose its API with TLS (`dockerd --tlsverify`), and the cert/key paths must be readable by the Muximux process.
+The remote daemon must expose its API with TLS (`dockerd --tlsverify`). The Muximux process must be able to read the cert/key paths.
 
 ### Network strategies
 
@@ -179,13 +191,13 @@ The remote daemon must expose its API with TLS (`dockerd --tlsverify`), and the 
 | `host_port` | `http://<host_ip>:<published-port>` | Container has `-p <host>:<container>` published; `host_ip` is set in config |
 | `host_docker_internal` | `http://host.docker.internal:<published-port>` | Muximux runs in a Docker Desktop / WSL container where `host.docker.internal` resolves |
 
-Strategy gating: when Muximux runs natively (not in a container), `container_ip` and `container_dns` need a `network_filter` to substitute for self-identification. The banner above the form tells you whether the chosen strategy is workable in your environment.
+Strategy gating: when Muximux runs natively (not in a container), it cannot identify its own container. So `container_ip` and `container_dns` need a `network_filter` instead. The banner above the form tells you whether the chosen strategy is workable in your environment.
 
-`network_filter` applies everywhere Muximux reads containers: the scan and the background refresh list the same filtered set and see the same networks. A container attached to several networks gets its URL from the filtered network only, so a refresh never rewrites it to an address on another network. A tracked container that is not on the filtered network counts as missing. On Swarm, the `/services` endpoint is read once per refresh tick.
+`network_filter` applies everywhere Muximux reads containers. The scan and the background refresh list the same filtered set and see the same networks. A container attached to several networks gets its URL from the filtered network only, so a refresh never rewrites it to an address on another network. A tracked container that is not on the filtered network counts as missing. On Swarm, the `/services` endpoint is read once per refresh tick.
 
 ### Labels on your containers
 
-Label any container with `muximux.*` keys and the Discover modal picks them up as high-confidence pre-fills. A fully-labelled container goes from `docker compose up` to a fully-configured Muximux entry with a single click in the Discover modal, no post-import editing -- or with no click at all if you turn on [automatic import](#automatic-import). This is the "GitOps your apps" pattern: declare your dashboard intent in `docker-compose.yml` alongside the service it describes.
+Label any container with `muximux.*` keys, and the Discover modal picks them up as high-confidence pre-fills (values filled in for you). After `docker compose up`, a fully-labelled container becomes a fully-configured Muximux entry with a single click in the Discover modal. You need no editing after the import. If you turn on [automatic import](#automatic-import), you need no click at all. This is the "GitOps your apps" pattern: declare your dashboard intent in `docker-compose.yml` alongside the service it describes.
 
 Full example, showing one of each kind:
 
@@ -230,9 +242,9 @@ services:
 
 #### Common scenarios
 
-The example above sets every label at once. In practice you set only the few an app needs. With automatic import (3.2.0+) these labels are the whole configuration, so here is what each common case looks like on its own. Every block is a complete, copy-pasteable `services:` entry.
+The example above sets every label at once. In practice you set only the few an app needs. With automatic import (3.2.0+), these labels are the whole configuration. Here is what each common case looks like on its own. Every block is a complete, copy-pasteable `services:` entry.
 
-**A catalog app, the short way.** If the image is one Muximux recognises, a single tracking label is enough -- name, icon, group, port, and health come from the catalog:
+**A catalog app, the short way.** If the image is one Muximux recognises, a single tracking label is enough. The name, icon, group, port, and health come from the catalog:
 
 ```yaml
 services:
@@ -284,7 +296,7 @@ services:
       - muximux.gateway.require_auth=true
 ```
 
-**A button that fires a request, not a page.** Use `http_action` to turn a tile into a webhook trigger (for example an n8n flow), with a confirmation prompt. The app URL (built from `port` + `path`) is the request target:
+**A button that fires a request, not a page.** Use `http_action` to turn a tile into a webhook trigger (for example an n8n flow), with a confirmation prompt. Muximux sends the request to the app URL, which it builds from `port` + `path`:
 
 ```yaml
 services:
@@ -332,11 +344,11 @@ services:
       - muximux.app.health=/ping
 ```
 
-Sonarr opens at `https://sonarr.example.com`. The health check calls `http://<container IP>:8989/ping`, and the poller keeps that address current when the container's IP changes (logging "Docker health address refreshed"); the app URL is never rewritten. A relative health label is resolved against the container; an absolute URL label is kept as written and never rewritten. Without a health label the check goes to the container's URL, including `muximux.app.path`. Enable monitoring with `muximux.app.health_check=true` or in the app's settings.
+Sonarr opens at `https://sonarr.example.com`. The health check calls `http://<container IP>:8989/ping`. When the container's IP changes, the poller updates that address and logs "Docker health address refreshed". The poller never rewrites the app URL. Muximux resolves a relative health label against the container. It keeps an absolute URL label as written and never rewrites it. Without a health label, the check goes to the container's URL, including `muximux.app.path`. Enable monitoring with `muximux.app.health_check=true` or in the app's settings.
 
-The poller owns the health address of such an app: it rewrites `health_url` on every refresh, so an edit made in Settings is overwritten. To pin it, set `muximux.app.health` to an absolute URL, which is kept as written.
+The poller owns the health address of such an app. It rewrites `health_url` on every refresh, so it overwrites an edit made in Settings. To pin the address, set `muximux.app.health` to an absolute URL. Muximux keeps that URL as written.
 
-Removing `muximux.app.url` later returns the app to its container URL on the next refresh tick. Editing the URL by hand in Settings detaches the app, as with any tracked app. Known limitation: after removing the `muximux.app.url` label, an app imported manually keeps the container address it had as its health address; set it in the app's settings if needed. Auto-imported apps get it reset by auto-import.
+If you remove `muximux.app.url` later, the app returns to its container URL on the next refresh tick. Editing the URL by hand in Settings detaches the app, as with any tracked app. Known limitation: after you remove the `muximux.app.url` label, an app imported manually keeps the container address it had as its health address. Set it in the app's settings if needed. For auto-imported apps, auto-import resets it.
 
 #### Icon label formats
 
@@ -356,19 +368,19 @@ labels:
   - muximux.group.icon=https://example.com/icons/media.svg
 ```
 
-- A bare value is always a Dashboard Icons slug. Muximux never guesses Lucide from a bare name, because names such as `server` exist in both sets; write `lucide:server`. A bare value containing `:`, `/`, `\`, `?`, `#` or whitespace is not a slug and is ignored (since 3.6.1); use the `dashboard:`, `lucide:` or URL form.
+- A bare value is always a Dashboard Icons slug. Muximux never guesses Lucide from a bare name, because names such as `server` exist in both sets. Write `lucide:server` instead. A bare value containing `:`, `/`, `\`, `?`, `#` or whitespace is not a slug. Since 3.6.1, Muximux ignores it. Use the `dashboard:`, `lucide:` or URL form.
 - Prefixes are case-insensitive. Slugs and Lucide names are lowercased; URLs are kept exactly as written (paths and queries are case-sensitive).
 - A Lucide name is lowercase letters, digits and dashes. Muximux checks that format only, so a name Lucide does not have shows as a missing icon, as in the UI.
-- A URL must be an absolute `https` URL with a host, no credentials or spaces, and at most 2048 characters. Muximux's Content-Security-Policy only allows images over https, so `http` URLs and other schemes such as `javascript:`, `data:` and `file:` are refused. The browser loads a URL icon straight from that address (Muximux does not proxy or cache it), so the host must be reachable from the browser.
-- An invalid value is ignored: the scan notes it, one warning is logged each time it changes, the stored icon is kept, and discovery carries on.
-- Custom uploads cannot be named by a label.
+- A URL must be an absolute `https` URL with a host, no credentials or spaces, and at most 2048 characters. Muximux's Content-Security-Policy (the rules that tell the browser what it may load) only allows images over https. So Muximux refuses `http` URLs and other schemes such as `javascript:`, `data:` and `file:`. The browser loads a URL icon straight from that address, and Muximux does not proxy or cache it. So the host must be reachable from the browser.
+- Muximux ignores an invalid value. The scan notes it, and Muximux logs one warning each time the value changes. The stored icon is kept, and discovery carries on.
+- A label cannot name a custom upload.
 
 #### Finding an icon slug
 
-A bare `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug -- the icon filename without its extension (`sonarr.svg` becomes `sonarr`). Because the label flow has no GUI in front of you, here is where to look one up:
+A bare `muximux.app.icon` value is a [Dashboard Icons](https://dashboardicons.com) slug: the icon filename without its extension (`sonarr.svg` becomes `sonarr`). The label flow has no GUI in front of you, so here is where to look one up:
 
 - Browse the gallery at [dashboardicons.com](https://dashboardicons.com) and search for your app.
-- Or search visually in Muximux's own app editor (Add or Edit an app, then the icon picker); the name you land on is the slug to paste into the label.
+- Or search visually in Muximux's own app editor (Add or Edit an app, then the icon picker). The name you land on is the slug to paste into the label.
 - Or list them straight from your running instance: `GET /api/icons/dashboard` returns every available slug (it is the same data the picker uses).
 
 Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](https://lucide.dev/icons) or the Lucide tab of the icon picker.
@@ -377,9 +389,9 @@ Omit the label to fall back to the catalog icon. For Lucide icons, see [Lucide](
 
 How values are read:
 
-- **Booleans** are true for `true`, `1`, `yes` or `on` and false for `false`, `0`, `no` or `off` (case-insensitive, surrounding spaces ignored). Any other value, including an empty one, is ignored and reported in the Discover modal. This applies to every boolean label (`enabled`, `default`, `proxy`, `proxy_skip_tls_verify`, `allow_notifications`, `allow_navigation`, `allow_deep_links`, `health_check`, `http_action_confirm`, `http_action_show_toast` and the `muximux.gateway.*` ones), so a misspelt `muximux.app.enabled=tru` does not opt the container out. A misspelt or empty value keeps the app or gateway site's current setting on update and sync (a typo or an undefined template variable in `muximux.gateway.require_auth` never makes a protected site public); on first import the default applies.
-- **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored as if the label were not set. Each ignored value is listed in the Discover modal's notes for the container and logged as a warning once, until it changes.
-- **Labels that are set win while an app is tracked.** On apps you imported by hand, `muximux.app.name`, `icon`, `group` and `order` are re-synced on every refresh, whatever the `auto_import` mode. Auto-imported apps are re-synced from all their labels under `update`/`sync` and left alone under `off` and `add`. The `muximux.group.*` labels apply to groups Docker discovery created. A label that is not set never changes anything. To take a field back, remove the label or **Detach** the app. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps) and [Group labels](#group-labels).
+- **Booleans** are true for `true`, `1`, `yes` or `on` and false for `false`, `0`, `no` or `off` (case-insensitive, surrounding spaces ignored). Muximux ignores any other value, including an empty one, and reports it in the Discover modal. This applies to every boolean label (`enabled`, `default`, `proxy`, `proxy_skip_tls_verify`, `allow_notifications`, `allow_navigation`, `allow_deep_links`, `health_check`, `http_action_confirm`, `http_action_show_toast` and the `muximux.gateway.*` ones). So a misspelt `muximux.app.enabled=tru` does not opt the container out. On update and sync, a misspelt or empty value keeps the app or gateway site's current setting. So a typo or an undefined template variable in `muximux.gateway.require_auth` never makes a protected site public. On first import, the default applies.
+- **Invalid values** for other typed labels (a port outside 1-65535, an unknown `open_mode`, a colour that is not a hex colour, and so on) are ignored, as if the label were not set. Muximux lists each ignored value in the Discover modal's notes for the container. It logs a warning once for each value, until the value changes.
+- **Labels that are set win while an app is tracked.** On apps you imported by hand, Muximux re-syncs `muximux.app.name`, `icon`, `group` and `order` on every refresh, whatever the `auto_import` mode. Under `update`/`sync`, Muximux re-syncs auto-imported apps from all their labels. Under `off` and `add`, it leaves them alone. The `muximux.group.*` labels apply to groups that Docker discovery created. A label that is not set never changes anything. To take a field back, remove the label or **Detach** the app. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps) and [Group labels](#group-labels).
 - Unknown `muximux.*` labels are listed in the Discover modal's notes for the container.
 
 ##### Tracking
@@ -450,9 +462,9 @@ Unknown `muximux.*` labels are surfaced in the Discover modal's per-row notes, s
 
 ## Automatic Import
 
-Everything above is the **manual** path: labels become high-confidence pre-fills, and you click **Import** to commit them. Automatic import removes that review step. When enabled, Muximux imports every container that carries at least one `muximux.*` label (and is not opted out) by itself -- no modal, no click -- and keeps the imported apps in step with the labels over time.
+Everything above is the **manual** path. Labels become high-confidence pre-fills, and you click **Import** to commit them. Automatic import removes that review step. When it is on, Muximux imports by itself every container that carries at least one `muximux.*` label (and is not opted out). There is no modal and no click. Muximux also keeps the imported apps in step with the labels over time.
 
-> **Security -- read before enabling.** Auto-import is **off by default** and only the host operator (who controls `config.yaml` or the environment) can turn it on. Once on, **any container on the shared Docker socket can write itself into your config with no review step** -- including a `muximux.app.gateway.domain` label that publishes a **public HTTPS subdomain with an auto-issued ACME certificate**. Treat enabling this as trusting every label on every container the daemon can see. If you don't control all of those containers, leave it `off` and import by hand.
+> **Security -- read before enabling.** Auto-import is **off by default**. Only the host operator (who controls `config.yaml` or the environment) can turn it on. Once it is on, **any container on the shared Docker socket can write itself into your config with no review step**. This includes a `muximux.app.gateway.domain` label, which publishes a **public HTTPS subdomain with an auto-issued ACME certificate** (a TLS certificate that is issued automatically). Treat enabling this as trusting every label on every container the daemon can see. If you don't control all of those containers, leave it `off` and import by hand.
 
 ### Modes
 
@@ -465,10 +477,10 @@ Set the mode with the `discovery.docker.auto_import` config key, or override it 
 | `update` | yes | yes | no |
 | `sync` | yes | yes | yes -- full GitOps mirror |
 
-- **`off`** -- today's behavior. Labeled containers are suggestions only; nothing is written until you click **Import**.
+- **`off`** -- today's behavior. Labeled containers are suggestions only. Muximux writes nothing until you click **Import**.
 - **`add`** -- a newly labeled container is imported one time, then never touched again. Good for bootstrapping.
 - **`update`** -- like `add`, plus Muximux re-syncs the app's fields from the labels whenever they change. Never removes anything.
-- **`sync`** -- like `update`, plus when a tracked container disappears from the daemon, or opts out with `muximux.app.enabled=false`, the auto-imported app (and its gateway site) is removed. Removal waits until the container has been absent for three consecutive successful scans, so a restart does not remove and re-create the app. Only auto-imported apps are removed; apps you imported by hand or detached are never touched. The config becomes an exact mirror of the labelled containers.
+- **`sync`** -- like `update`, plus Muximux removes the auto-imported app (and its gateway site) when its tracked container disappears from the daemon or opts out with `muximux.app.enabled=false`. Removal waits until the container has been absent for three consecutive successful scans, so a restart does not remove and re-create the app. Only auto-imported apps are removed. Muximux never touches apps you imported by hand or detached. The config becomes an exact mirror of the labelled containers.
 
 ```yaml
 discovery:
@@ -482,15 +494,15 @@ discovery:
 MUXIMUX_DISCOVERY_AUTO_IMPORT=sync
 ```
 
-The override applies in memory only and is never written to `config.yaml`. Settings -> Discovery shows the field as locked ("From MUXIMUX_DISCOVERY_AUTO_IMPORT"). The Discovery tab shows the stored values (host IP, network filter, refresh interval, auto-import mode, badge placement) and its save merges onto the stored config, so fields it does not show are kept. On Windows, `npipe://` endpoints can be entered in Settings.
+The override applies in memory only and is never written to `config.yaml`. Settings -> Discovery shows the field as locked ("From MUXIMUX_DISCOVERY_AUTO_IMPORT"). The Discovery tab shows the stored values (host IP, network filter, refresh interval, auto-import mode, badge placement). When you save the tab, Muximux merges it onto the stored config, so fields that the tab does not show are kept. On Windows, `npipe://` endpoints can be entered in Settings.
 
 ### Opting a container out
 
-A container with `muximux.app.enabled=false` is excluded from auto-import and hidden from the Discover modal. Use it to keep a labelled container off the dashboard without stripping its labels. Under `sync` an app already auto-imported from that container, and its gateway site, is removed after the grace period; under `update` it is left alone.
+Auto-import skips a container with `muximux.app.enabled=false`, and the Discover modal hides it. Use it to keep a labelled container off the dashboard without stripping its labels. Under `sync`, Muximux removes an app already auto-imported from that container, and its gateway site, after the grace period. Under `update`, Muximux leaves the app alone.
 
 ### Explicit opt-in
 
-By default every labelled container that is not opted out is imported. To require a positive label per container, set `discovery.docker.require_explicit_enable: true` (or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE=true`, which wins and applies in memory only; Settings shows the field as locked). Then only containers with `muximux.app.enabled=true` are imported; labelled containers without it are skipped as `not_enabled`. Invalid values of the environment variable are ignored with a warning. (#496)
+By default, every labelled container that is not opted out is imported. To require a positive label per container, set `discovery.docker.require_explicit_enable: true` (or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE=true`, which wins and applies in memory only; Settings shows the field as locked). Then Muximux imports only containers with `muximux.app.enabled=true`. It skips labelled containers without it as `not_enabled`. Muximux ignores invalid values of the environment variable and logs a warning. (#496)
 
 ### Why a container is skipped
 
@@ -507,19 +519,19 @@ A container with no usable URL is never imported. The Discover modal shows a **N
 
 ### Containers that lose their labels
 
-When a container loses all its `muximux.*` labels, its auto-imported app is detached from auto-import: it is kept, its URL is still refreshed, and `sync` never removes it. It is still tracked, so the [label re-sync](#label-re-sync-for-tracked-apps) applies to it if labels come back. The same happens on upgrade to an auto-imported app whose container has no labels, and when explicit opt-in is turned on for containers without `enabled=true`.
+When a container loses all its `muximux.*` labels, Muximux detaches its auto-imported app from auto-import. The app is kept, its URL is still refreshed, and `sync` never removes it. The app is still tracked, so the [label re-sync](#label-re-sync-for-tracked-apps) applies to it if labels come back. The same happens in two other cases. On upgrade, it happens to an auto-imported app whose container has no labels. When you turn on explicit opt-in, it happens for containers without `enabled=true`.
 
 ### Edit-wins (URL edits detach)
 
-Auto-import never silently clobbers a URL you took manual control of. **Changing an auto-imported app's URL** -- in Settings, through the API, or in `config.yaml` directly -- detaches that app from auto-management. Removing the container's `muximux.*` labels also detaches it from auto-import (see above). From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
+Auto-import never silently overwrites a URL that you took manual control of. **Changing an auto-imported app's URL** detaches that app from auto-management. This applies to a change in Settings, through the API, or in `config.yaml` directly. Removing the container's `muximux.*` labels also detaches it from auto-import (see above). From then on it is a normal manual entry: `update`/`sync` will not re-sync it from labels, and `sync` will not remove it. This is the same edit-lock / auto-detach mechanism described below for tracked URLs.
 
-Other managed-field edits (name, icon, group, and similar) do **not** detach. The same applies to the health check: when `muximux.app.health_check` is set, Muximux records a server-owned `docker_managed_health_check` marker on the app, re-syncs the value under `update`/`sync`, and the app form shows the toggle locked. Remove the label to unlock it. Under `update`/`sync` they are re-synced from the labels on the next tick, so the labels remain the source of truth; under `add` they stick, because `add` never re-syncs an already-imported app.
+Other managed-field edits (name, icon, group, and similar) do **not** detach. The same applies to the health check. When `muximux.app.health_check` is set, Muximux records a server-owned `docker_managed_health_check` marker on the app. It re-syncs the value under `update`/`sync`, and the app form shows the toggle locked. Remove the label to unlock it. Under `update`/`sync`, Muximux re-syncs those edited fields from the labels on the next tick, so the labels remain the source of truth. Under `add`, the edits stick, because `add` never re-syncs an already-imported app.
 
 ### Label re-sync for tracked apps
 
 **While an app is tracked, labels that are set win; detach to take control.**
 
-This holds for every tracked app, including apps you imported by hand through the Discover dialog, and it works with `auto_import: off`. On each refresh tick, for every tracked app whose container is present, Muximux applies these labels when they are set on the container:
+This holds for every tracked app, including apps you imported by hand through the Discover dialog. It also works with `auto_import: off`. On each refresh tick, Muximux checks every tracked app whose container is present. It applies these labels when they are set on the container:
 
 | Label | Applied as |
 |---|---|
@@ -531,26 +543,26 @@ This holds for every tracked app, including apps you imported by hand through th
 The URL and health address keep following the container as before.
 
 - A label that is **not set** never changes anything: your own name, icon, group or order stays.
-- If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). An app you detached (Detach in Settings), or an untracked app you created yourself in Settings, is never touched.
+- If you change one of these fields in Settings while the label is set, the next tick sets it back. To take control, remove the label or **Detach** the app (Settings -> Discovery -> Currently tracked). Muximux never touches an app you detached (Detach in Settings), or an untracked app you created yourself in Settings.
 - The re-sync only updates apps that are already tracked. It never imports a container or removes an app, whatever the `auto_import` mode.
 - Auto-imported apps follow their `auto_import` mode instead (re-synced under `update`/`sync`, left alone under `off` and `add`), so no field is written twice.
 - If you rename a group in Settings while a container's `muximux.app.group` label still names the old group, the label re-creates the old group on the next tick. Change the label too.
-- A label is held back, and a warning is logged once, when it cannot be applied: the name is already used by another app (names are compared like proxy paths, so `TV` and `tv` collide), or the name is over 100 characters. The app keeps its current value until the conflict is resolved.
-- If saving the config fails, the whole tick is rolled back and retried on the next tick.
+- When Muximux cannot apply a label, it holds the label back and logs a warning once. This happens when the name is already used by another app, or when the name is over 100 characters. Muximux compares names like proxy paths, so `TV` and `tv` collide. The app keeps its current value until the conflict is resolved.
+- If saving the config fails, Muximux rolls back the whole tick and retries on the next tick.
 
 ### Groups are created automatically
 
-When an app lands in a group that does not exist, Muximux creates the group in the same save. This covers a manual import from the Discover dialog, auto-import (new apps and re-synced ones) and the label re-sync above, and applies to a group from a `muximux.app.group` label as well as a catalog group.
+When an app lands in a group that does not exist, Muximux creates the group in the same save. This covers a manual import from the Discover dialog, auto-import (new apps and re-synced ones) and the label re-sync above. It applies to a group from a `muximux.app.group` label as well as a catalog group.
 
-- An existing group is matched by name first, then ignoring case and spacing, so `media`, `Media ` and `media-server` / `Media Server` never create a near-duplicate. The app is stored with the existing group's exact name.
-- A new group gets the same defaults as one added in Settings: a folder icon, no colour, expanded. It is placed after your existing groups, in the order the apps were processed. Customise it in Settings like any other group.
-- While a tracked app has `muximux.app.group` set, a group you delete is created again on the next tick. Remove the label or detach the app to stop that.
-- If the save fails, the new groups are rolled back together with the apps.
-- An app whose group is missing anyway (for example a group removed from `config.yaml` by hand) is never hidden: the navigation and **Settings -> Apps** list it under **Ungrouped** until the group exists again.
+- Muximux matches an existing group by name first, then ignoring case and spacing. So `media`, `Media ` and `media-server` / `Media Server` never create a near-duplicate. Muximux stores the app with the existing group's exact name.
+- A new group gets the same defaults as one added in Settings: a folder icon, no colour, expanded. Muximux places it after your existing groups, in the order it processed the apps. Customise it in Settings like any other group.
+- If you delete a group while a tracked app has `muximux.app.group` set to it, Muximux creates the group again on the next tick. Remove the label or detach the app to stop that.
+- If the save fails, Muximux rolls back the new groups together with the apps.
+- Muximux never hides an app whose group is missing anyway (for example a group removed from `config.yaml` by hand). The navigation and **Settings -> Apps** list it under **Ungrouped** until the group exists again.
 
 ### Group labels
 
-`muximux.group.icon`, `muximux.group.color` and `muximux.group.order` set the look and position of the group a container's app is in. Put them on any container whose app is in the group; they need no `muximux.app.group` on the same container, but without a group there is nothing to apply them to (the Discover dialog notes that).
+`muximux.group.icon`, `muximux.group.color` and `muximux.group.order` set the look and position of the group a container's app is in. Put them on any container whose app is in the group. They need no `muximux.app.group` on the same container. But without a group there is nothing to apply them to, and the Discover dialog notes that.
 
 ```yaml
 services:
@@ -562,23 +574,23 @@ services:
       - muximux.group.order=1
 ```
 
-- **Only groups Docker discovery created.** A group made by an import, auto-import or the label re-sync is marked as Docker-managed (`docker_managed: true` in `config.yaml`). The labels are applied when the group is created and re-synced on every tick while it stays managed. A group you created yourself is never touched.
-- **Edit in Settings to take control.** Changing the icon or colour of a managed group in Settings clears the marker. Changing its order (including dragging groups into a new order) clears it only when the order comes from a `muximux.group.order` label; a managed group whose order no label sets can be reordered freely and stays managed. Once the marker is cleared the group is yours and later label changes are ignored. Renaming or expanding/collapsing the group does not count. Set `docker_managed: true` in `config.yaml` to hand a group back to the labels.
+- **Only groups Docker discovery created.** Muximux marks a group made by an import, auto-import or the label re-sync as Docker-managed (`docker_managed: true` in `config.yaml`). It applies the labels when it creates the group, and re-syncs them on every tick while the group stays managed. Muximux never touches a group you created yourself.
+- **Edit in Settings to take control.** Changing the icon or colour of a managed group in Settings clears the marker. Changing its order (including dragging groups into a new order) clears the marker only when the order comes from a `muximux.group.order` label. If no label sets the order of a managed group, you can reorder it freely and it stays managed. Once the marker is cleared, the group is yours, and Muximux ignores later label changes. Renaming or expanding/collapsing the group does not count. To hand a group back to the labels, set `docker_managed: true` in `config.yaml`.
 - **A label that is not set never changes anything:** the group keeps its own value for that field.
 - **Conflicts.** When several containers in one group set different values, the container with the lowest tracking key wins, per field. The others get a scan note in the Discover dialog and a warning in the log (once until the conflict changes).
-- **Invalid values** (a colour that is not a hex colour, an order outside 0-9999) are ignored, with one warning per change and a scan note.
-- The labels are read from the containers of tracked apps and of tracked gateway sites (through the site's linked app), whatever the `auto_import` mode. A group created by a manual import gets its label values on the next refresh tick.
-- Applying them is part of the tick's single save: if the save fails, the group changes are rolled back together with everything else.
+- **Invalid values** (a colour that is not a hex colour, an order outside 0-9999) are ignored. Muximux logs one warning per change and adds a scan note.
+- Muximux reads the labels from the containers of tracked apps and of tracked gateway sites (through the site's linked app), whatever the `auto_import` mode. A group created by a manual import gets its label values on the next refresh tick.
+- Applying them is part of the tick's single save. If the save fails, Muximux rolls back the group changes together with everything else.
 
 ### Gateway labels and `update`/`sync`
 
-In `update` and `sync`, re-sync compares both the **app** fields and the **gateway site** built from labels against what is stored. Gateway labels that change the app's URL -- `muximux.app.gateway.domain` and `muximux.gateway.tls` -- and gateway-**only** labels that do not map to any app field -- `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.allowed_groups`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, `muximux.gateway.forwarded_headers`, and `muximux.gateway.skip_tls_verify` -- all propagate on the next tick. Toggling `muximux.gateway.require_auth` on a running container, for example, is re-synced without any app-field change.
+In `update` and `sync`, re-sync compares both the **app** fields and the **gateway site** built from labels against what is stored. Two kinds of gateway labels propagate on the next tick. The first kind changes the app's URL: `muximux.app.gateway.domain` and `muximux.gateway.tls`. The second kind is gateway-**only** labels that do not map to any app field: `muximux.gateway.require_auth`, `muximux.gateway.min_role`, `muximux.gateway.allowed_groups`, `muximux.gateway.streaming`, `muximux.gateway.strip_frame_blockers`, `muximux.gateway.forwarded_headers`, and `muximux.gateway.skip_tls_verify`. For example, if you toggle `muximux.gateway.require_auth` on a running container, Muximux re-syncs it without any app-field change.
 
-Only the explicit `muximux.app.gateway.domain` label makes auto-import create a gateway site. With `server.tls.domain` set, the derived `<name>.<dashboard domain>` default is only a pre-fill in the import dialog. An update changes only label-managed fields: health check, auth bypass, access, scale, pinned, proxy headers and other per-app settings are kept.
+Only the explicit `muximux.app.gateway.domain` label makes auto-import create a gateway site. With `server.tls.domain` set, the derived `<name>.<dashboard domain>` default is only a pre-fill in the import dialog. An update changes only label-managed fields. It keeps the health check, auth bypass, access, scale, pinned, proxy headers and other per-app settings.
 
-**Upgrade note:** earlier versions created a gateway site `<name>.<your domain>` for every labelled container when `server.tls.domain` was set. If you relied on those derived subdomains, add `muximux.app.gateway.domain=<name>.<your domain>` to those containers before upgrading; otherwise the first refresh removes the sites and points the apps at their container URLs.
+**Upgrade note:** when `server.tls.domain` was set, earlier versions created a gateway site `<name>.<your domain>` for every labelled container. If you relied on those derived subdomains, add `muximux.app.gateway.domain=<name>.<your domain>` to those containers before upgrading. Otherwise, the first refresh removes the sites and points the apps at their container URLs.
 
-Removing the `muximux.app.gateway.domain` label from an already-imported container reverts its app to the direct container URL and drops the now-orphaned gateway site on the next tick.
+If you remove the `muximux.app.gateway.domain` label from an already-imported container, the next tick acts on it. Muximux returns the app to the direct container URL and drops the gateway site, which no label declares any more.
 
 ---
 
@@ -598,32 +610,32 @@ The key is the first of these that applies:
 | 4 | Container name | `name:<name>` (shown with a stability warning) |
 | 5 | Container ID | `id:<id>` (last resort) |
 
-Swarm tasks and Compose services therefore no longer need `muximux.discovery.id` for stability. Existing `name:` keys are migrated to the stable key automatically on the first refresh (a `Docker tracking key migrated` audit line is logged). Entries tracked on another endpoint are migrated after **Re-link**. Quarantined entries keep their old key; `sync` removes them once the task is gone from the endpoint it polls, or you can remove them in Settings. Duplicates left by earlier redeploys are cleaned by `sync`.
+So Swarm tasks and Compose services no longer need `muximux.discovery.id` for stability. On the first refresh, Muximux migrates existing `name:` keys to the stable key automatically and logs a `Docker tracking key migrated` audit line. Entries tracked on another endpoint are migrated after **Re-link**. Quarantined entries keep their old key. `sync` removes them once the task is gone from the endpoint it polls, or you can remove them in Settings. `sync` also cleans up duplicates left by earlier redeploys.
 
-There is one app per key: Swarm replicas and the containers of a scaled Compose service (`--scale`) are collapsed into a single app. With `container_ip` and several replicas the address may alternate between them.
+There is one app per key. Muximux collapses Swarm replicas and the containers of a scaled Compose service (`--scale`) into a single app. With `container_ip` and several replicas, the address may alternate between them.
 
 ### Docker Swarm
 
-- Labels under the service's `labels:` reach the task. `deploy.labels` are service labels and are read too; container labels win when both set the same key.
+- Labels under the service's `labels:` reach the task. `deploy.labels` are service labels, and Muximux reads them too. Container labels win when both set the same key.
 - Published ports come from the service, so the `host_port` and `host_docker_internal` strategies work with ingress-published ports.
 - `container_dns` uses the service name.
-- The endpoint must be a manager node, because only managers answer `/services`. On a worker the scan shows a note and the app needs `muximux.app.port`.
-- Behind a socket proxy such as tecnativa/docker-socket-proxy, allow `/services` with `SERVICES=1`. Without it Muximux logs one warning ("Swarm services unavailable; using task data only") and uses task data only, so service labels and published ports are missing.
+- The endpoint must be a manager node, because only managers answer `/services`. On a worker, the scan shows a note and the app needs `muximux.app.port`.
+- Behind a socket proxy such as tecnativa/docker-socket-proxy, allow `/services` with `SERVICES=1`. Without it, Muximux logs one warning ("Swarm services unavailable; using task data only") and uses task data only. Service labels and published ports are then missing.
 
 ---
 
 ## Quarantined entries
 
-An invalid Docker-owned entry in `config.yaml` (an auto-imported app or gateway site that fails validation, for example one written without a URL by an older version) no longer stops Muximux from starting and no longer rejects a save from Settings. Instead it is:
+A Docker-owned entry is an auto-imported app, or a gateway site that auto-import created for one. An invalid one fails validation, for example one that an older version wrote without a URL. Such an entry in `config.yaml` no longer stops Muximux from starting, and it no longer causes a save from Settings to be rejected. Instead, Muximux quarantines the entry. The entry is:
 
 - kept in `config.yaml`, unchanged, until it is fixed, removed, or superseded (see below),
 - not loaded, so it does not appear on the dashboard,
 - logged once at startup as "Invalid Docker auto-imported entry quarantined", and
 - listed in **Settings -> Discovery -> Tracked** with its reason.
 
-Fix the container's labels and the next refresh replaces the entry, or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`; a live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded, and dropped from `config.yaml` at the next save (logged as "Quarantined entry superseded by a live entry"), when a live app takes its name or slug or a live gateway site takes its domain; a quarantined site goes with its superseded app. Under `sync`, a quarantined app whose container is gone from the polled endpoint is removed after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined; other invalid config still fails validation as before.
+Fix the container's labels, and the next refresh replaces the entry. Or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`. A live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded when a live app takes its name or slug, or a live gateway site takes its domain. Muximux then drops the entry from `config.yaml` at the next save and logs "Quarantined entry superseded by a live entry". A quarantined site goes with its superseded app. Under `sync`, Muximux removes a quarantined app whose container is gone from the polled endpoint after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined. Other invalid config still fails validation as before.
 
-Other housekeeping that applies to discovery: image names whose last segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry, apps whose names differ only by case or spacing are deduplicated, and a tracked container that cannot be found is logged once when it goes missing instead of on every refresh.
+Other housekeeping applies to discovery. Image names whose last segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry. Muximux deduplicates apps whose names differ only by case or spacing. When a tracked container goes missing, Muximux logs it once instead of on every refresh.
 
 ---
 
@@ -631,10 +643,10 @@ Other housekeeping that applies to discovery: image names whose last segment is 
 
 Discovery behaves more predictably from 3.6.0, and a few changes show up on the first refresh after an upgrade:
 
-- **Auto-import needs a label.** Only containers with at least one `muximux.*` label are auto-imported. An auto-imported app whose container has no labels is detached from auto-import on the first refresh under `update`/`sync`: the app stays and its URL keeps refreshing, but `sync` no longer removes it. Add a label (`muximux.discovery.id` is enough) if you want the container managed again. See [Containers that lose their labels](#containers-that-lose-their-labels).
-- **New tracking keys for Swarm and Compose.** Keys become `swarm:<service>` and `compose:<project>:<service>` and existing `name:` keys are migrated in place on the first refresh (logged as `Docker tracking key migrated`). Entries tracked on another endpoint are migrated after **Re-link**. See [Tracking keys](#tracking-keys).
-- **Swarm app names.** Under `update`/`sync`, an auto-imported Swarm app without `muximux.app.name` is renamed from the task name to the service name, which can change its slug and its `/proxy/<slug>/` path. Behind a socket proxy, allow `/services` (`SERVICES=1`).
-- **Labels re-sync onto apps you imported by hand.** A set `muximux.app.name`, `icon`, `group` or `order` label now wins on every tracked app, in every mode including `off`, so an edit to those fields in Settings is reset on the next refresh. Remove the label or **Detach** the app to keep your edit. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps).
+- **Auto-import needs a label.** Only containers with at least one `muximux.*` label are auto-imported. Under `update`/`sync`, the first refresh detaches an auto-imported app from auto-import if its container has no labels. The app stays and its URL keeps refreshing, but `sync` no longer removes it. Add a label (`muximux.discovery.id` is enough) if you want the container managed again. See [Containers that lose their labels](#containers-that-lose-their-labels).
+- **New tracking keys for Swarm and Compose.** Keys become `swarm:<service>` and `compose:<project>:<service>`. On the first refresh, Muximux migrates existing `name:` keys in place and logs `Docker tracking key migrated`. Entries tracked on another endpoint are migrated after **Re-link**. See [Tracking keys](#tracking-keys).
+- **Swarm app names.** Under `update`/`sync`, Muximux renames an auto-imported Swarm app without `muximux.app.name` from the task name to the service name. This can change its slug and its `/proxy/<slug>/` path. Behind a socket proxy, allow `/services` (`SERVICES=1`).
+- **Labels re-sync onto apps you imported by hand.** A set `muximux.app.name`, `icon`, `group` or `order` label now wins on every tracked app, in every mode including `off`. So the next refresh resets an edit to those fields in Settings. Remove the label or **Detach** the app to keep your edit. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps).
 - **Invalid entries no longer stop startup.** An invalid auto-imported app or gateway site in `config.yaml` is quarantined (kept in the file, not loaded) with a warning. See [Quarantined entries](#quarantined-entries).
 - **`sync` removes less.** Only auto-imported apps are removed, and only after the container has been absent for three consecutive scans.
 - **Catalog matching.** Images whose last path segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry by that segment, so such a container may need `muximux.app.name`, `icon` and `port` labels.
@@ -645,7 +657,7 @@ From 3.6.1:
 - The Docker whale in the navigation and on the overview is shown to admins only, and can be hidden with `navigation.show_docker_badge: false`.
 - `MUXIMUX_DISCOVERY_AUTO_IMPORT` and `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE` now also apply on a first start without `config.yaml`. A container that relied on them being ignored there will see them take effect.
 - A `muximux.app.health` value starting with `//` or `/\` is ignored.
-- A bare `muximux.app.icon` (or `muximux.group.icon`) value is trimmed, then refused as a Dashboard Icons slug if it still contains `:`, `/`, `\`, `?`, `#`, whitespace or control characters; use the `dashboard:`, `lucide:` or URL forms (see [Icon label formats](#icon-label-formats)).
+- Muximux trims a bare `muximux.app.icon` (or `muximux.group.icon`) value. It then refuses the value as a Dashboard Icons slug if it still contains `:`, `/`, `\`, `?`, `#`, whitespace or control characters. Use the `dashboard:`, `lucide:` or URL forms (see [Icon label formats](#icon-label-formats)).
 
 ---
 
@@ -673,7 +685,7 @@ Browser → /proxy/sonarr → Muximux Go server → http://192.168.1.4:8989
 
 - **App.url** = the container URL (kept as the upstream)
 - **App.proxy** = true
-- Muximux's built-in path-prefix reverse proxy strips iframe-blockers, rewrites HTML/CSS/JS paths, isolates `window.parent`, etc., so apps that refuse to load in iframes work.
+- Muximux's built-in path-prefix reverse proxy strips iframe-blockers (headers that stop a page from loading in an iframe), rewrites HTML/CSS/JS paths, isolates `window.parent`, etc. This lets apps that refuse to load in iframes work.
 - Same tracking semantics as Direct (poller refreshes the upstream URL)
 
 Use when: the app misbehaves in iframes, the dashboard machine cannot reach the container directly, or you want auth/CSP layering through Muximux.
@@ -684,7 +696,7 @@ Use when: the app misbehaves in iframes, the dashboard machine cannot reach the 
 Browser → https://sonarr.example.com → Muximux (embedded Caddy, :443, auto-HTTPS) → http://192.168.1.4:8989
 ```
 
-Point the subdomain's DNS at the Muximux host: Muximux **is** the reverse proxy here. Its embedded Caddy binds 80/443, provisions the certificate via Let's Encrypt, and proxies the request to the container. You do not put nginx or another proxy in front of it for this to work.
+Point the subdomain's DNS at the Muximux host. Muximux **is** the reverse proxy here. Its embedded Caddy listens on ports 80/443 and gets the certificate from Let's Encrypt. Then it proxies the request to the container. You do not put nginx or another proxy in front of it for this to work.
 
 - **App.url** = `https://<gateway-domain>` (static)
 - **App.proxy** = false
@@ -693,45 +705,45 @@ Point the subdomain's DNS at the Muximux host: Muximux **is** the reverse proxy 
 
 Use when: you want a public subdomain that survives container moves, and a clickable dashboard link that uses that domain.
 
-> If you already run an edge proxy (Cloudflare Tunnel, an upstream Traefik/nginx) and would rather it terminate TLS, set `server.gateway_listen: ":8443"` and have that proxy forward to Muximux on that port instead. In that case the flow is `Browser → upstream proxy → muximux:8443 → http://192.168.1.4:8989`.
+> You may already run an edge proxy (Cloudflare Tunnel, an upstream Traefik/nginx) and would rather it terminate TLS (decrypt the HTTPS traffic). If so, set `server.gateway_listen: ":8443"`. Then have that proxy forward to Muximux on that port instead. In that case, the flow is `Browser → upstream proxy → muximux:8443 → http://192.168.1.4:8989`.
 
 ---
 
 ## Edit Lock + Auto-Detach
 
-When an App or GatewaySite is tracked, the URL field is **read-only** in the editor with an amber lock badge. Muximux protects your edits across all three ways you might change the URL:
+When an App or GatewaySite is tracked, the URL field in the editor is **read-only** and shows an amber lock badge. Muximux protects your edits across all three ways you might change the URL:
 
-1. **In Settings**, the URL field is locked. To change it, click **Detach** under Settings → Discovery → Currently tracked. The app's URL unlocks right away in the same Settings session; saving afterwards keeps it detached.
-2. **Through the API**, if a SaveConfig request changes the URL of a tracked entry, Muximux treats that as a deliberate takeover, drops the tracking, and writes an audit log entry.
-3. **In `config.yaml` by hand**, the same thing happens at next boot: Muximux notices your URL differs from the one the poller last wrote, drops the tracking, and notes it in the log. Your edit survives the next refresh tick.
+1. **In Settings**, the URL field is locked. To change it, click **Detach** under Settings → Discovery → Currently tracked. The app's URL unlocks right away in the same Settings session. If you save afterwards, the app stays detached.
+2. **Through the API**, if a SaveConfig request changes the URL of a tracked entry, Muximux treats that as a deliberate takeover. It drops the tracking and writes an audit log entry.
+3. **In `config.yaml` by hand**, the same thing happens at next boot. Muximux notices that your URL differs from the one the poller last wrote. It drops the tracking and notes it in the log. Your edit survives the next refresh tick.
 
 The sanctioned forget path is the **Detach** button in Settings → Discovery (or `DELETE /api/discovery/docker/track/<key>` from a script).
 
-Tracking itself belongs to Muximux, not to the save payload: `docker_key`, `docker_endpoint`, `docker_strategy` and `docker_managed_url` in a SaveConfig or per-app PUT are ignored and the stored values kept. A save can detach an app by changing its URL, but it cannot attach one, re-attach a detached one, or switch it to another container. Only Discover, auto-import and **Re-link** create or change tracking.
+Tracking itself belongs to Muximux, not to the save payload. Muximux ignores `docker_key`, `docker_endpoint`, `docker_strategy` and `docker_managed_url` in a SaveConfig or per-app PUT, and keeps the stored values. A save can detach an app by changing its URL. But it cannot attach one, re-attach a detached one, or switch it to another container. Only Discover, auto-import and **Re-link** create or change tracking.
 
-Apps with a fixed `muximux.app.url` are not rewritten by the poller; their `docker_managed_url` equals the label URL. Their `health_url` is refreshed from the container on every tick, so a health address edited in Settings is overwritten unless `muximux.app.health` is an absolute URL.
+The poller does not rewrite apps with a fixed `muximux.app.url`. Their `docker_managed_url` equals the label URL. The poller refreshes their `health_url` from the container on every tick. So it overwrites a health address edited in Settings, unless `muximux.app.health` is an absolute URL.
 
 ### docker_managed_url (internal)
 
-You'll see a `docker_managed_url` field appear next to `docker_key` for tracked entries. Muximux writes it from the import flow and updates it on every poller tick. You don't need to touch it. If you do hand-author a tracked entry from scratch, set `docker_managed_url` to the same value as `url` (or `backend_url` for a gateway site) so the file-edit detach mechanism has a baseline to compare against.
+You'll see a `docker_managed_url` field appear next to `docker_key` for tracked entries. Muximux writes it from the import flow and updates it on every poller tick. You don't need to touch it. If you do write a tracked entry by hand from scratch, set `docker_managed_url` to the same value as `url` (or `backend_url` for a gateway site). The file-edit detach mechanism then has a baseline to compare against.
 
 ---
 
 ## Divergence Banner
 
-Caddy's reload is transactional only at the parse step. Post-parse failures (listener collision, async cert provisioning, module panic) can leave the running config in an indeterminate state. The refresh poller handles this with rollback:
+Caddy's reload is transactional (all or nothing) only at the parse step. Failures after the parse step (listener collision, async cert provisioning, module panic) can leave the running config in an unknown state. The refresh poller handles this with rollback (a reload of the previous config):
 
 - Candidate reload fails, rollback reload succeeds → audit log warning, refresh tick skipped
 - Both fail → **divergence counter** increments, sticky red banner appears in Settings → Discovery
 - First clean tick after a divergence → banner transitions to amber "recovered"
 
-The banner shows at a glance that the running Caddy may not match disk. Recovery happens automatically on the next successful tick; the banner stays amber until you acknowledge it (currently by waiting; a future iteration may add a "clear" button).
+The banner shows at a glance that the running Caddy may not match disk. Recovery happens automatically on the next successful tick. The banner stays amber until you acknowledge it (currently by waiting; a future iteration may add a "clear" button).
 
 ---
 
 ## Running Behind Another Reverse Proxy
 
-Caddy binds 80/443 with auto-HTTPS by default, which requires root or `CAP_NET_BIND_SERVICE`. For "behind another proxy" topologies (Traefik, Cloudflare Tunnel, nginx), set `server.gateway_listen` to a non-privileged port:
+By default, Caddy listens on 80/443 with auto-HTTPS. This requires root or `CAP_NET_BIND_SERVICE`. For "behind another proxy" topologies (Traefik, Cloudflare Tunnel, nginx), set `server.gateway_listen` to a non-privileged port:
 
 ```yaml
 server:
@@ -789,10 +801,11 @@ Field-level details and examples are in the [API Reference](api.md#discovery).
 If you want the dashboard to start / stop / restart tracked containers from the overview page:
 
 1. Make sure the daemon accepts write requests from Muximux. A plain socket mount already does (`:ro` makes no difference). If Muximux talks to a socket proxy, allow `POST` to the start, stop and restart endpoints there, and nothing broader.
-2. Set `discovery.docker.lifecycle_enabled: true` in your `config.yaml`, or toggle "Enable container lifecycle controls" under Settings -> Discovery (the checkbox is disabled until the socket is writable).
-3. Optional: narrow who can use the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`; set it to `power-user` or `user` to widen access. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups. These are **user and identity-provider group names** (built-in user groups, the OIDC groups claim, the forward-auth groups header), not dashboard groups. Renaming or deleting a dashboard group never touches this list.
-4. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
+2. Set `discovery.docker.lifecycle_enabled: true` in your `config.yaml`. Or toggle "Enable container lifecycle controls" under Settings -> Discovery. The checkbox is disabled until the socket is writable.
+3. Optional: set the minimum role for the controls. `discovery.docker.lifecycle_min_role` defaults to `admin`. Set it to `power-user` or `user` to widen access.
+4. Optional: narrow who can use the controls. Set `discovery.docker.lifecycle_allowed_groups` to additionally require membership in specific groups. These are **user and identity-provider group names** (built-in user groups, the OIDC groups claim, the forward-auth groups header), not dashboard groups. Renaming or deleting a dashboard group never touches this list.
+5. Optional: set `discovery.docker.health_badge_placement` to `overview_and_nav` to show container state badges in the navigation sidebar as well as the overview (default is `overview`; `off` hides them).
 
-Once enabled, Docker-tracked apps on the overview show the Docker logo (to admins only; hide it with `navigation.show_docker_badge: false`, see [Navigation > Docker Badge](navigation.md#docker-badge)) plus a small status dot when the container needs a glance: red for stopped, amber for unhealthy or paused, blue for restarting (a healthy, running container shows no dot, so cards stay quiet by default). Hovering the card reveals the action buttons in a footer below it (Start when stopped, Stop and Restart when running); on touch devices the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation; Start fires immediately.
+Once the controls are enabled, Docker-tracked apps on the overview show the Docker logo (to admins only; hide it with `navigation.show_docker_badge: false`, see [Navigation > Docker Badge](navigation.md#docker-badge)). When the container needs a glance, the card also shows a small status dot: red for stopped, amber for unhealthy or paused, blue for restarting. A healthy, running container shows no dot, so cards stay quiet by default. When you hover over the card, the action buttons appear in a footer below it (Start when stopped, Stop and Restart when running). On touch devices, the buttons stay visible. The footer sits outside the card's open-app area, so a tap to open the app can't trigger a container action by accident. Stop and Restart prompt for confirmation. Start fires immediately.
 
-Every action is audit-logged with the caller's username, app name, container id, and outcome (`source=audit`). That covers successes, failures and denied attempts (role floor not met, group mismatch, socket read-only, lifecycle disabled).
+Muximux writes every action to the audit log, with the caller's username, app name, container id, and outcome (`source=audit`). That covers successes, failures and denied attempts (role floor not met, group mismatch, socket read-only, lifecycle disabled).

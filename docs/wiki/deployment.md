@@ -8,7 +8,7 @@ Muximux supports three deployment styles. Pick the one that matches your setup.
 | **Standalone with built-in proxy** | Direct access, optional built-in auth | Dashboard + per-app `/proxy/{slug}/` for iframe embedding | 8080 |
 | **Full reverse proxy appliance** | DNS records | TLS certificates, HTTP→HTTPS redirects, gateway for other services | 80, 443 |
 
-The built-in per-app reverse proxy (`proxy: true`) works in **all three styles** -- it runs inside the Go server and is independent of Caddy or any external proxy.
+The built-in per-app reverse proxy (`proxy: true`, a proxy that forwards each app's requests through Muximux) works in **all three styles**. It runs inside the Go server, and it is independent of Caddy or any external proxy.
 
 ---
 
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 ```
 
-Set `auth.method: none` or `forward_auth` in config.yaml and let your external proxy handle TLS and authentication.
+Set `auth.method: none` or `forward_auth` in config.yaml. Let your external proxy handle TLS and authentication.
 
 ### As a full reverse proxy appliance
 
@@ -47,17 +47,17 @@ services:
     restart: unless-stopped
 ```
 
-Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. Port 8080 does not need to be exposed -- Caddy handles all traffic on 80/443.
+Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. Port 8080 does not need to be exposed. Caddy handles all traffic on 80/443.
 
-> **Note:** The legacy `server.gateway:` Caddyfile path was removed in 3.1.0 and replaced by the declarative `server.gateway_sites:` YAML. A 3.0.x config (and any mounted `sites.Caddyfile`) is auto-migrated on first boot under 3.1.0.
+> **Note:** 3.1.0 removed the legacy `server.gateway:` Caddyfile path. The declarative `server.gateway_sites:` YAML replaced it. Under 3.1.0, Muximux migrates a 3.0.x config (and any mounted `sites.Caddyfile`) automatically on first boot.
 
 ### OIDC from environment variables and Docker secrets
 
-Single sign-on can be configured entirely from the environment, with the client secret in a Docker secret, so the container needs no `config.yaml` to start on OIDC. The variables, precedence and startup checks are described in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
+You can configure single sign-on entirely from the environment, with the client secret in a Docker secret. So the container needs no `config.yaml` to start on OIDC. See [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables) for the variables, precedence and startup checks.
 
-Both examples assume Muximux is already reachable at `https://muximux.example.com` through your HTTPS reverse proxy (or the built-in TLS above), because the identity provider sends the browser back to that address. Plain `http://` on port 8080 is not enough for the callback.
+Both examples assume that Muximux is already reachable at `https://muximux.example.com` through your HTTPS reverse proxy (or the built-in TLS above). The reason is that the identity provider sends the browser back to that address. Plain `http://` on port 8080 is not enough for the callback.
 
-**Docker Compose** with a file-based secret. Compose mounts it at `/run/secrets/<name>`; the file must be readable by the container user (`PUID`).
+**Docker Compose** with a file-based secret. Compose mounts it at `/run/secrets/<name>`. The file must be readable by the container user (`PUID`).
 
 ```yaml
 # docker-compose.yml
@@ -84,7 +84,7 @@ secrets:
     file: ./secrets/muximux_oidc_secret.txt
 ```
 
-**Docker Swarm** stack with an external secret. Create the secret once, then deploy the stack:
+**Docker Swarm** stack with an external secret. Create the secret once. Then deploy the stack:
 
 ```bash
 printf '%s' 'the-client-secret-from-your-provider' | docker secret create muximux_oidc_secret -
@@ -120,7 +120,7 @@ volumes:
   muximux-data:
 ```
 
-The client ID can come from a secret the same way with `MUXIMUX_OIDC_CLIENT_ID_FILE`. Register `https://muximux.example.com/api/auth/oidc/callback` as the redirect URL at your provider. The first start creates no setup token and opens the login page with the SSO button; add `MUXIMUX_OIDC_AUTO_REDIRECT=true` to skip that page and go straight to the provider.
+The client ID can come from a secret in the same way, with `MUXIMUX_OIDC_CLIENT_ID_FILE`. Register `https://muximux.example.com/api/auth/oidc/callback` as the redirect URL at your provider. The first start creates no setup token. It opens the login page with the SSO button. Add `MUXIMUX_OIDC_AUTO_REDIRECT=true` to skip that page and go straight to the provider.
 
 ### Volume
 
@@ -219,9 +219,9 @@ sudo systemctl restart muximux
 
 ## Behind an External Reverse Proxy
 
-If you run Muximux behind Nginx, Traefik, or Caddy (external), you do **not** need Muximux's built-in TLS or gateway. Your external proxy handles TLS termination and optionally authentication. Set `auth.method: none` (if your proxy handles auth) or `forward_auth` (for Authelia/Authentik) in config.yaml.
+If you run Muximux behind Nginx, Traefik, or Caddy (external), you do **not** need Muximux's built-in TLS or gateway. Your external proxy handles TLS termination (decrypting HTTPS), and optionally authentication. In config.yaml, set `auth.method: none` if your proxy handles auth. Or set `forward_auth` for Authelia/Authentik.
 
-The per-app reverse proxy (`proxy: true`) still works in this setup -- it runs inside the Go server and is unrelated to the external proxy.
+The per-app reverse proxy (`proxy: true`) still works in this setup. It runs inside the Go server and is unrelated to the external proxy.
 
 ### Nginx
 
@@ -267,7 +267,7 @@ services:
 
 ## Subpath Deployment (Base Path)
 
-If your reverse proxy serves Muximux at a subpath (e.g., `https://example.com/muximux/` instead of a dedicated domain), configure the base path so Muximux generates correct URLs for assets, API calls, and WebSocket connections.
+If your reverse proxy serves Muximux at a subpath (e.g., `https://example.com/muximux/` instead of a dedicated domain), configure the base path. Muximux then generates correct URLs for assets, API calls and WebSocket connections.
 
 ### Configuration
 
@@ -343,8 +343,8 @@ services:
 ## Network Considerations
 
 - **Same network as apps**: Muximux needs to reach your apps (for health checks and the built-in reverse proxy). In Docker, use the same Docker network or host networking.
-- **WebSocket support**: If running behind an external reverse proxy, make sure it supports WebSocket connections (needed for real-time health updates).
+- **WebSocket support**: If you run behind an external reverse proxy, make sure that it supports WebSocket connections. Real-time health updates need them.
 - **Ports**:
-  - Behind an external proxy: only 8080 (or your configured listen port), and it doesn't need to be publicly accessible.
+  - Behind an external proxy: only 8080 (or your configured listen port). It does not need to be publicly accessible.
   - Standalone: 8080 (or your configured listen port).
   - Full reverse proxy appliance: 80 and 443. Port 8080 is not needed externally.

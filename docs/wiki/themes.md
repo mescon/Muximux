@@ -12,7 +12,7 @@ theme:
   variant: system              # dark, light, system
 ```
 
-This is the source of truth and syncs across all browsers and devices. The browser also caches the current theme in localStorage for instant application on page load (avoiding a flash of unstyled content), but the server config always takes precedence when loaded.
+This is the source of truth. It syncs across all browsers and devices. The browser also caches the current theme in localStorage (the browser's local storage for this site). This lets it apply the theme instantly on page load, without a flash of unstyled content. But when the server config loads, it always takes precedence.
 
 ## Built-in Themes
 
@@ -36,7 +36,7 @@ Each theme supports three variant modes:
 
 - **Dark** -- Always use the dark variant of the selected theme.
 - **Light** -- Always use the light variant of the selected theme.
-- **System** -- Automatically follow your operating system's preference. This uses the `prefers-color-scheme` media query, so switching your OS between light and dark mode will update Muximux in real time.
+- **System** -- Automatically follow your operating system's preference. This uses the `prefers-color-scheme` media query. So when you switch your OS between light and dark mode, Muximux updates in real time.
 
 ## Changing Themes
 
@@ -44,7 +44,7 @@ Each theme supports three variant modes:
 2. Go to the **Appearance** tab.
 3. Select a theme family and a variant mode.
 
-Changes apply instantly and are saved to `config.yaml` when you click Save. No restart is needed. Switching theme from the command palette is a per-browser preview; the next Settings save persists it.
+Changes apply instantly. Muximux saves them to `config.yaml` when you click Save. No restart is needed. If you switch theme from the command palette, you get a preview in that browser only. The next Settings save keeps it.
 
 [![Theme selector with 9 theme families](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)
 
@@ -67,11 +67,11 @@ You can create fully custom themes through the Settings panel:
 
 [![Theme editor with color pickers](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)
 
-A custom theme name must not match a bundled theme's name; the save is refused.
+A custom theme name must not match a bundled theme's name. If it does, Muximux refuses the save.
 
-Custom themes are stored as CSS files in the `data/themes/` directory. When you create a theme, Muximux generates a CSS file that overrides the default CSS custom properties (variables) with your chosen values.
+Muximux stores custom themes as CSS files in the `data/themes/` directory. When you create a theme, Muximux generates a CSS file. The file overrides the default CSS custom properties (variables) with your chosen values.
 
-A theme file starts with a comment holding `@theme-*` metadata, followed by one rule scoped to the theme's ID. A file without any `@theme-*` line is not listed. A minimal hand-written light theme:
+A theme file starts with a comment that holds `@theme-*` metadata. One rule scoped to the theme's ID follows it. Muximux does not list a file without any `@theme-*` line. Here is a minimal hand-written light theme:
 
 ```css
 /**
@@ -86,7 +86,7 @@ A theme file starts with a comment holding `@theme-*` metadata, followed by one 
 }
 ```
 
-The ID in the selector is the file name without `.css` (`data/themes/paper.css` here). `@theme-is-dark` decides which way the derived status, accent and form-control colours go (see [Status and accent tokens](#status-and-accent-tokens)), so set it correctly for a light theme.
+The ID in the selector is the file name without `.css` (`data/themes/paper.css` here). `@theme-is-dark` decides which way the derived status, accent and form-control colours go (see [Status and accent tokens](#status-and-accent-tokens)). So set it correctly for a light theme.
 
 ## Theme CSS Variables
 
@@ -99,11 +99,11 @@ Themes control the visual appearance through CSS custom properties defined on `:
 - **Shadow definitions** -- Drop shadows for depth and layering
 - **Navigation-specific colors** -- Background, text, and active state colors for the navigation bar
 
-You do not need to override every variable. Any variable you omit will fall back to the base theme's default.
+You do not need to override every variable. Any variable you omit falls back to the base theme's default.
 
 ### Status and accent tokens
 
-Status boxes, pills, inline messages, form control borders and the danger button read these variables. A theme may override any of them; omitted ones are derived from the theme's own `--status-*` and `--accent-primary` colours (see below).
+Status boxes, pills, inline messages, form control borders and the danger button read these variables. A theme may override any of them. Muximux derives the omitted ones from the theme's own `--status-*` and `--accent-primary` colours (see below).
 
 | token | used for | derived when omitted |
 |---|---|---|
@@ -119,18 +119,33 @@ Status boxes, pills, inline messages, form control borders and the danger button
 
 Every bundled theme defines the status and accent tokens with values that meet WCAG 2.1 AA on that theme's surfaces: 4.5:1 for text, 3:1 for borders and the focus outline. `--border-input` meets 3:1 on the base, surface, elevated and overlay backgrounds, so a form control stays visible wherever it sits. Card and divider borders (`--border-subtle`, `--border-default`, `--border-strong`) are unchanged.
 
-A custom theme that omits the tokens gets values derived from its `--status-*` and `--accent-primary` colours. The "ink" is white on a dark theme and black on a light one: text uses 40% of the status colour mixed with the ink, borders use 60%, and backgrounds are a 12% tint of the status colour. These pass AA for every bundled palette. Which way to go comes from the theme's `@theme-is-dark` header, which the app turns into a `data-color-scheme` attribute on the root element; set `@theme-is-dark: false` for a light theme (a theme without the `@theme-is-dark` line counts as dark). If you set the tokens yourself, aim for the same ratios. The `themeContrast` test in `web/src/lib/themeContrast.test.ts` is strict (no list of known failures) and checks every bundled theme and the derived fallback; it is the reference implementation. `web/src/lib/builtCss.test.ts` guards the compiled CSS against `light-dark()`, which the build would turn into a form that ignores the theme's scheme.
+A custom theme that omits the tokens gets values derived from its `--status-*` and `--accent-primary` colours. The "ink" is white on a dark theme and black on a light one. Text uses 40% of the status colour mixed with the ink. Borders use 60%. Backgrounds are a 12% tint of the status colour. These pass AA for every bundled palette.
 
-For contrast, bundled themes were adjusted: muted and secondary text is slightly lighter on the dark themes and darker on the light ones (Solarized Light and Tokyo Night Light also darken their primary text), the elevated and overlay surfaces of Catppuccin, Cineplex Dark, Gruvbox, Nord and Solarized Dark are a step darker, buttons on most themes use dark text on the accent, and the focus outline of Cineplex Light, Gruvbox Light, Solarized Light and Tokyo Night Light uses the text-safe accent. Accent and status base colours are unchanged.
+The theme's `@theme-is-dark` header decides which way to go. The app turns this header into a `data-color-scheme` attribute on the root element. Set `@theme-is-dark: false` for a light theme. A theme without the `@theme-is-dark` line counts as dark. If you set the tokens yourself, aim for the same ratios.
 
-For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent (one of the two always reaches at least 4.5:1). When you save a custom theme, the theme editor works this out from your accent colour (a translucent accent is judged over `--bg-base`) and writes it for you. If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from the theme's `--accent-primary` (over `--bg-base` when the accent is translucent) and picks white or black accordingly; a theme that defines the token is never overridden. The primary button and the floating navigation button keep their `--accent-primary` fill on hover and signal it with a glow and shadow (`--shadow-glow`) instead of switching to `--accent-secondary`.
+The `themeContrast` test in `web/src/lib/themeContrast.test.ts` is strict (no list of known failures). It checks every bundled theme and the derived fallback. It is the reference implementation. `web/src/lib/builtCss.test.ts` guards the compiled CSS against `light-dark()`. The build would turn that function into a form that ignores the theme's scheme.
+
+The bundled themes were adjusted for contrast:
+
+- Muted and secondary text is slightly lighter on the dark themes and darker on the light ones. Solarized Light and Tokyo Night Light also darken their primary text.
+- The elevated and overlay surfaces of Catppuccin, Cineplex Dark, Gruvbox, Nord and Solarized Dark are a step darker.
+- Buttons on most themes use dark text on the accent.
+- The focus outline of Cineplex Light, Gruvbox Light, Solarized Light and Tokyo Night Light uses the text-safe accent.
+
+Accent and status base colours are unchanged.
+
+For `--accent-on-primary`, use `#ffffff` or `#000000`, whichever has the higher contrast on your accent. One of the two always reaches at least 4.5:1. When you save a custom theme, the theme editor works this out from your accent colour and writes it for you. It judges a translucent accent over `--bg-base`.
+
+If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from the theme's `--accent-primary`. It uses `--bg-base` as the backdrop when the accent is translucent. Then it picks white or black. Muximux never overrides a theme that defines the token.
+
+The primary button and the floating navigation button keep their `--accent-primary` fill on hover. They show the hover with a glow and shadow (`--shadow-glow`) instead of switching to `--accent-secondary`.
 
 The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
 
 ### Focus, motion and screen readers
 
 - **Focus.** Every focusable element shows the same outline in `--border-focus` while it has keyboard focus. A field with an error keeps its danger border while focused.
-- **Dialogs.** Settings and every other dialog keep Tab and Shift+Tab inside them, make the page behind them inert, and return focus to the control that opened them; Escape closes the topmost dialog. See [Keyboard Shortcuts > Keyboard navigation](keyboard-shortcuts.md#keyboard-navigation).
+- **Dialogs.** Settings and every other dialog keep Tab and Shift+Tab inside them. They make the page behind them inert (not usable until the dialog closes). When they close, they return focus to the control that opened them. Escape closes the topmost dialog. See [Keyboard Shortcuts > Keyboard navigation](keyboard-shortcuts.md#keyboard-navigation).
 - **Links and toasts.** Links in running text are underlined, so they do not rely on colour. Toasts use the theme's surface and status tokens instead of always being dark.
 - **Reduced motion.** When your operating system asks for reduced motion, transitions collapse, spinners slow down and pulses stop.
 - **Health indicator.** Each status has its own shape (circle, diamond or ring) so it does not rely on colour alone. The indicator has an accessible name and a tooltip that opens with the keyboard. The "Check now" action in that tooltip is mouse-only for now.
@@ -140,7 +155,7 @@ The `--color-brand-*` palette is no longer used by the interface and is kept onl
 
 Themes are plain CSS files, so sharing one means copying a file:
 
-- **Import:** Copy a `.css` theme file into the `data/themes/` directory. It will appear in Settings automatically on the next page load.
+- **Import:** Copy a `.css` theme file into the `data/themes/` directory. It appears in Settings automatically on the next page load.
 - **Export/Share:** Copy a theme file from `data/themes/` and share it with others or transfer it to another Muximux installation.
 - **Manual editing:** You can open any theme CSS file in a text editor to adjust individual variables.
 
@@ -152,4 +167,4 @@ To delete a custom theme:
 2. Find the custom theme card.
 3. Click the **delete** button on the theme card.
 
-If the deleted theme was active, Muximux will revert to the default dark theme. Built-in themes cannot be deleted.
+If the deleted theme was active, Muximux reverts to the default dark theme. Built-in themes cannot be deleted.

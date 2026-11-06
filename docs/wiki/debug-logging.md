@@ -14,11 +14,11 @@ Add `?debug=true` to your Muximux URL:
 https://muximux.example.com/?debug=true
 ```
 
-This writes a flag to your browser's `localStorage`, so debug logging persists across page reloads and navigation. You only need to add the query parameter once.
+This writes a flag to your browser's `localStorage` (the browser's local storage for this site). So debug logging stays on across page reloads and navigation. You only need to add the query parameter once.
 
 ### Disabling
 
-Navigate to:
+Go to:
 
 ```
 https://muximux.example.com/?debug=false
@@ -34,7 +34,7 @@ localStorage.removeItem('muximux_debug');
 
 ### What Gets Logged
 
-All debug messages appear in the browser console under `console.debug()`. In most browsers, you need to enable the "Verbose" log level in DevTools to see them.
+All debug messages appear in the browser console under `console.debug()`. In most browsers, you must enable the "Verbose" log level in DevTools to see them.
 
 Messages are prefixed with `[muximux:category]` for easy filtering:
 
@@ -58,7 +58,7 @@ In Chrome/Firefox DevTools, use the Console filter box to show only specific cat
 
 ### Zero Overhead in Production
 
-When debug logging is disabled (the default), each `debug()` call is a single boolean check that returns immediately. It does no string formatting, object serialization or console output, so the performance impact is effectively zero.
+When debug logging is off (the default), each `debug()` call is a single true/false check that returns immediately. It does no string formatting, object serialization or console output. So the performance impact is effectively zero.
 
 ---
 
@@ -77,7 +77,7 @@ server:
   log_level: debug
 ```
 
-Or override with an environment variable (takes precedence over config file):
+Or override it with an environment variable. The variable takes precedence over the config file:
 
 ```bash
 MUXIMUX_LOG_LEVEL=debug muximux
@@ -85,7 +85,7 @@ MUXIMUX_LOG_LEVEL=debug muximux
 
 ### What Gets Logged at Each Level
 
-Some log sources are active at the default INFO level; others only appear when you switch to DEBUG.
+Some log sources are active at the default INFO level. Others only appear when you switch to DEBUG.
 
 **Always active (INFO and above):**
 
@@ -105,21 +105,21 @@ Some log sources are active at the default INFO level; others only appear when y
 | `proxy` | Route rebuilds when config changes |
 | `websocket` | Client connect/disconnect events |
 
-> **Tip:** At the default `info` level, you'll see one log line per API call -- not per CSS/JS/image load. Set `log_level: warn` to suppress request logs entirely and see only warnings and errors.
+> **Tip:** At the default `info` level, you see one log line per API call -- not per CSS/JS/image load. Set `log_level: warn` to hide request logs entirely. Then you see only warnings and errors.
 
 ### Request ID Correlation
 
-Every HTTP request is assigned a `request_id` that appears in all log entries for that request, so you can trace a single request across auth, handler, and proxy logs.
+Muximux gives every HTTP request a `request_id`. The ID appears in all log entries for that request. So you can trace a single request across auth, handler, and proxy logs.
 
-- If the request carries an `X-Request-ID` header (up to 128 ASCII letters, digits, `-` or `_`), Muximux reuses it. Muximux doesn't check that it is unique: that is up to whatever set it, usually your upstream proxy (Nginx, Traefik, Caddy). A client can send one too, and two requests with the same ID show up together when you filter by it
-- Otherwise, a random 16-character hex ID is generated
-- The `X-Request-ID` response header is always set, so you can match browser requests to server logs
+- If the request carries an `X-Request-ID` header (up to 128 ASCII letters, digits, `-` or `_`), Muximux reuses it. Muximux doesn't check that it is unique. That is up to whatever set it, usually your upstream proxy (Nginx, Traefik, Caddy). A client can send one too. Two requests with the same ID show up together when you filter by it
+- Otherwise, Muximux generates a random 16-character hex ID
+- Muximux always sets the `X-Request-ID` response header, so you can match browser requests to server logs
 
 Filter logs by request ID in the log viewer to see the full lifecycle of a single request.
 
 ### Understanding Auth Bypass Messages
 
-When debug logging is enabled, you'll see `Auth bypassed` messages for certain paths. This is **expected behavior**: these are static assets and endpoints that must be accessible without authentication:
+When debug logging is on, you see `Auth bypassed` messages for certain paths. This is **expected behavior**. These paths are static assets and endpoints that must be accessible without authentication:
 
 | Path Pattern | Why It's Bypassed |
 |---|---|
@@ -129,7 +129,7 @@ When debug logging is enabled, you'll see `Auth bypassed` messages for certain p
 | `/themes/*.css` | Theme stylesheets (needed to style the login page) |
 | `/favicon.ico`, `/apple-touch-icon.png` | Browser-requested icons |
 
-All API endpoints that return user data (`/api/config`, `/api/apps/*`, etc.) require authentication and show `Authenticated request` with the username.
+All API endpoints that return user data (`/api/config`, `/api/apps/*`, etc.) require authentication. They show `Authenticated request` with the username.
 
 ---
 
@@ -155,21 +155,21 @@ When reporting an issue:
 4. Copy the relevant console output and server logs
 5. Include them in your bug report
 
-Frontend logs can be copied from the browser's DevTools Console tab. Backend logs appear in the server's standard output and in `muximux.log` inside the data directory.
+Copy frontend logs from the browser's DevTools Console tab. Backend logs appear in the server's standard output and in `muximux.log` inside the data directory.
 
 ---
 
 ## Log Rotation
 
-The `muximux.log` file (in the data directory) is automatically rotated to prevent unbounded disk growth:
+Muximux automatically rotates the `muximux.log` file (in the data directory), so that it does not fill the disk:
 
-- When the log file reaches **10 MB**, it is rotated
-- Up to **3** rotated copies are kept (`muximux.log.1`, `muximux.log.2`, `muximux.log.3`)
-- Older rotated files are automatically deleted
+- When the log file reaches **10 MB**, Muximux rotates it
+- Muximux keeps up to **3** rotated copies (`muximux.log.1`, `muximux.log.2`, `muximux.log.3`)
+- Muximux automatically deletes older rotated files
 
 No external log rotation tool (e.g., `logrotate`) is needed.
 
-On restart, the most recent log entries are reloaded into the in-memory buffer so the **/logs** page shows history from before the restart.
+On restart, Muximux reloads the most recent log entries into the in-memory buffer. So the **/logs** page shows history from before the restart.
 
 ---
 

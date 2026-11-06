@@ -15,7 +15,7 @@ icon:
 
 ### Configuration
 
-Dashboard icon behavior is configured in the `icons` section of `config.yaml`:
+You configure dashboard icon behavior in the `icons` section of `config.yaml`:
 
 ```yaml
 icons:
@@ -24,10 +24,10 @@ icons:
     cache_ttl: 7d                # How long a cached icon is reused before refetch
 ```
 
-Dashboard icons are downloaded the first time they are requested and cached
-locally under `cache_dir`; subsequent loads are served from cache until
-`cache_ttl` expires, then refetched. The first load of each icon has a slight
-delay, after which it is instant.
+Muximux downloads a dashboard icon the first time it is requested, and caches
+it locally under `cache_dir`. Later loads come from the cache until `cache_ttl`
+expires. Muximux then fetches the icon again. The first load of each icon has a
+slight delay. After that, it is instant.
 
 ## Lucide Icons
 
@@ -39,9 +39,9 @@ icon:
   name: server        # Lucide icon name
 ```
 
-Lucide icons are fetched from jsDelivr CDN and cached locally. They work well for generic icons (settings, home, play, download, folder, etc.) when dashboard-icons doesn't have a match for your app.
+Muximux fetches Lucide icons from the jsDelivr CDN (a public content delivery network) and caches them locally. They work well for generic icons (settings, home, play, download, folder, etc.), when dashboard-icons does not have a match for your app.
 
-The list of icon names comes from the Lucide repository on GitHub (`api.github.com`) and the categories used by the picker's filter from `https://lucide.dev/api/categories`. If the category request fails, the icons are still listed without categories and a warning is logged once (see [Troubleshooting](troubleshooting.md#lucide-icon-categories-are-missing)).
+The list of icon names comes from the Lucide repository on GitHub (`api.github.com`). The categories for the picker's filter come from `https://lucide.dev/api/categories`. If the category request fails, Muximux still lists the icons, without categories. It logs a warning once (see [Troubleshooting](troubleshooting.md#lucide-icon-categories-are-missing)).
 
 ## Custom Icons
 
@@ -55,11 +55,11 @@ icon:
 
 **Upload limits:** 2MB per icon. Admin role required.
 
-Custom icons are stored in the `data/icons/custom/` directory and served at `/icons/custom/{filename}`.
+Muximux stores custom icons in the `data/icons/custom/` directory and serves them at `/icons/custom/{filename}`.
 
 You can add custom icons in three ways:
 1. **File upload** -- Through the Settings panel icon browser (click "Upload" in the Custom tab)
-2. **Fetch from URL** -- Paste an image URL in the Custom tab and click "Fetch". The server downloads the image, validates it, and saves it locally as a custom icon. This is the recommended way to use icons from external sources, since the image is stored locally and won't break if the remote server goes down.
+2. **Fetch from URL** -- Paste an image URL in the Custom tab and click "Fetch". The server downloads the image, validates it, and saves it locally as a custom icon. This is the recommended way to use icons from external sources. The image is stored locally, so it does not break if the remote server goes down.
 3. **API** -- `POST /api/icons/custom` (multipart upload) or `POST /api/icons/custom/fetch` (download from URL)
 
 ## URL Icons
@@ -74,13 +74,13 @@ icon:
 
 Useful for apps that provide their own favicon or icon URL.
 
-**Note:** The URL must be accessible from the user's browser, not from the Muximux server. The browser loads URL icons directly, so the image host must be reachable from wherever your users are browsing.
+**Note:** The URL must be accessible from the user's browser, not from the Muximux server. The browser loads URL icons directly. So the image host must be reachable from wherever your users are browsing.
 
-> **Prefer fetching over hotlinking.** URL icons break if the remote server goes down or the image moves. The icon browser's **Fetch from URL** feature (in the Custom tab) downloads the image and stores it locally, avoiding this problem. Use `type: url` only when you need a live reference to an image that changes externally.
+> **Prefer fetching over hotlinking** (loading the image straight from another site). URL icons break if the remote server goes down or the image moves. The icon browser's **Fetch from URL** feature (in the Custom tab) downloads the image and stores it locally. This avoids the problem. Use `type: url` only when you need a live reference to an image that changes externally.
 
 ## Icons from Docker Labels
 
-With [Docker Discovery](docker-discovery.md), the `muximux.app.icon` and `muximux.group.icon` labels pick an icon for an imported app or a Docker-created group: a Dashboard Icons slug (`sonarr` or `dashboard:sonarr`), a Lucide icon (`lucide:shield-check`) or an `https` URL. Custom uploads cannot be named by a label. See [Icon label formats](docker-discovery.md#icon-label-formats).
+With [Docker Discovery](docker-discovery.md), the `muximux.app.icon` and `muximux.group.icon` labels pick an icon for an imported app or a Docker-created group. A label can name a Dashboard Icons slug (`sonarr` or `dashboard:sonarr`), a Lucide icon (`lucide:shield-check`) or an `https` URL. A label cannot name a custom upload. See [Icon label formats](docker-discovery.md#icon-label-formats).
 
 ## Icon Appearance Options
 
@@ -98,21 +98,21 @@ icon:
 
 ### Color
 
-The `color` field applies a color tint to Lucide icons. It has no effect on other icon types (dashboard, custom, or URL icons already have their own colors baked in).
+The `color` field applies a color tint to Lucide icons. It has no effect on other icon types. Dashboard, custom and URL icons already have their own colors baked in.
 
 ### Background
 
-The `background` field sets a custom background color behind the icon. By default, the app's accent `color` is used as the icon background. Setting `background` overrides that default for just the icon, without changing the app's accent color elsewhere (tab indicator, sidebar highlight).
+The `background` field sets a custom background color behind the icon. By default, Muximux uses the app's accent `color` as the icon background. `background` overrides that default for the icon only. It does not change the app's accent color elsewhere (tab indicator, sidebar highlight).
 
 The background is only visible when `show_icon_background` is enabled in the navigation settings, unless the app has `force_icon_background: true` set.
 
 ### Invert
 
-The `invert` field flips the icon's colors -- turning light icons dark and dark icons bright. This is useful when a dashboard icon only comes in a variant that clashes with your theme. For example, if an app only provides a white-on-transparent icon and you are using a light theme, setting `invert: true` makes it visible.
+The `invert` field flips the icon's colors. It turns light icons dark and dark icons bright. This is useful when a dashboard icon only comes in a variant that clashes with your theme. For example, an app may only provide a white-on-transparent icon while you use a light theme. Then `invert: true` makes the icon visible.
 
 ## Icon Browser
 
-The Settings panel includes an icon browser that lets you search and preview icons from all available sources. You can:
+The Settings panel includes an icon browser. It lets you search and preview icons from all available sources. You can:
 
 - Search icons by name across all sources
 - Filter by source (Dashboard, Lucide, Custom)
@@ -121,4 +121,7 @@ The Settings panel includes an icon browser that lets you search and preview ico
 - Upload new custom icons directly from the browser
 - Fetch icons from a URL (downloaded and stored locally)
 
-To open the icon browser, edit any app or group in Settings and click the icon field.
+To open the icon browser:
+
+1. Edit any app or group in Settings.
+2. Click the icon field.

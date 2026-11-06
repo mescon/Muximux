@@ -15,13 +15,13 @@ health:
   timeout: 5s       # HTTP request timeout per check (default: 5s)
 ```
 
-Set `enabled: false` to disable health monitoring entirely. When disabled, all apps show a gray (unknown) status indicator.
+Set `enabled: false` to turn off health monitoring entirely. When it is off, all apps show a gray (unknown) status indicator.
 
 ## How It Works
 
-- Muximux sends an HTTP GET request to each app that has `health_check: true` (using `health_url` if configured, otherwise the main `url`).
-- A final response with HTTP status 2xx or 3xx is considered **healthy**. Redirects are followed automatically (up to 3 hops); if more redirects remain after the limit, the last 3xx response is used and still counts as healthy. Timeouts, connection errors, and 4xx/5xx responses are considered **unhealthy**. TLS certificate errors are ignored, so self-signed certs work fine.
-- Results are broadcast to all connected browsers via WebSocket in real-time.
+- Muximux sends an HTTP GET request to each app that has `health_check: true`. It uses `health_url` if configured, otherwise the main `url`.
+- A final response with HTTP status 2xx or 3xx counts as **healthy**. Muximux follows redirects automatically, up to 3 hops. If more redirects remain after the limit, Muximux uses the last 3xx response, and it still counts as healthy. Timeouts, connection errors, and 4xx/5xx responses count as **unhealthy**. Muximux ignores TLS certificate errors, so self-signed certs work fine.
+- Muximux sends the results to all connected browsers in real time over WebSocket (a connection that stays open so the server can push updates).
 
 ## Custom Health URLs
 
@@ -36,7 +36,7 @@ apps:
 
 If `health_url` is not set, the main `url` is used for health checks.
 
-Docker-discovered apps with a `muximux.app.url` label get their health address from the container automatically and keep it current as the container's IP changes. See [Docker Discovery](docker-discovery.md#running-behind-your-own-reverse-proxy).
+Docker-discovered apps with a `muximux.app.url` label get their health address from the container automatically. Muximux keeps that address current when the container's IP changes. See [Docker Discovery](docker-discovery.md#running-behind-your-own-reverse-proxy).
 
 **Tip:** Many self-hosted apps expose endpoints like `/api/health`, `/ping`, `/status`, or `/identity` that are fast and don't require login. Check your app's documentation for available endpoints.
 
@@ -60,9 +60,9 @@ When `health_check` is not set or is `false`:
 - No health status indicator (dot) is shown in the navigation.
 - The app always appears at full opacity regardless of other apps' health status.
 
-By default, **no apps have health checks enabled**. You enable them individually for the apps you care about, or use the bulk toggle in **Settings > General > Health Checks** to enable/disable all at once.
+By default, **no apps have health checks enabled**. You enable them one by one for the apps you care about. Or use the bulk toggle in **Settings > General > Health Checks** to turn all of them on or off at once.
 
-This opt-in design keeps things quiet by default and lets you choose which apps to monitor -- useful when you have external services, VPN-only apps, or services behind firewalls that Muximux can't reach.
+This opt-in design keeps things quiet by default and lets you choose which apps to monitor. This helps when you have external services, VPN-only apps, or services behind firewalls that Muximux can't reach.
 
 ## Health Status Indicators
 
@@ -92,14 +92,14 @@ You can trigger an immediate health check for any app via the API:
 POST /api/apps/{name}/health/check
 ```
 
-This bypasses the regular interval and checks the app right away. The result is broadcast to all connected browsers.
+This skips the regular interval and checks the app right away. Muximux sends the result to all connected browsers.
 
 ## Real-time Updates
 
-Health status changes are pushed to your browser via WebSocket. Your dashboard updates instantly when an app goes up or down -- no polling or page refresh needed.
+Muximux pushes health status changes to your browser over WebSocket. Your dashboard updates instantly when an app goes up or down. You need no polling or page refresh.
 
-If the WebSocket connection drops (for example, due to a network interruption), the client automatically reconnects with exponential backoff.
+If the WebSocket connection drops (for example, due to a network interruption), the client reconnects automatically. It uses exponential backoff: it waits longer after each failed attempt.
 
 ## Common Issues
 
-If health checks are showing unexpected results, see the [Troubleshooting](troubleshooting.md) page for solutions to common problems like apps showing unhealthy when they work fine, or health status not updating in real-time.
+If health checks show unexpected results, see the [Troubleshooting](troubleshooting.md) page. It has solutions to common problems, such as apps that show unhealthy when they work fine, or health status that does not update in real time.

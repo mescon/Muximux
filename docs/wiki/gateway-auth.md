@@ -1,8 +1,8 @@
 # Gateway Auth Gate
 
-Muximux can optionally act as a security gate in front of your gateway sites. When enabled per-site, requests to that subdomain run through Muximux's session check before reaching the backend. Anonymous visitors are redirected to Muximux's login page; authenticated visitors are forwarded based on their role and group membership.
+Muximux can optionally act as a security gate in front of your gateway sites. You turn the gate on per site. Then requests to that subdomain go through Muximux's session check before they reach the backend (the app behind the site). Muximux sends anonymous visitors to its login page. It forwards signed-in visitors based on their role and group membership.
 
-The gate sits **in front of** the backend. It does not replace the backend's own authentication if it has one: the two work as separate layers. Log in to Muximux once and you can reach every gated subdomain you have permission for.
+The gate sits **in front of** the backend. If the backend has its own authentication, the gate does not replace it. The two work as separate layers. Log in to Muximux once, and you can reach every gated subdomain you have permission for.
 
 ```
 Browser -> sonarr.example.com (Caddy)
@@ -34,13 +34,13 @@ Browser -> sonarr.example.com (Caddy)
 
 ## Topology requirement
 
-The gate uses Muximux's session cookie as the auth source. For the cookie to be visible at every gated subdomain, you need:
+The gate uses Muximux's session cookie as the auth source. The cookie must be visible at every gated subdomain. For this, you need:
 
 1. **Muximux's dashboard and every gated site to share a parent domain.** Example: `muximux.example.com`, `sonarr.example.com`, `grafana.example.com` all share `.example.com`.
-2. **A consistent transport.** Either all HTTPS (recommended) or all plain HTTP for local-only setups. Browsers reject mixed-Secure cookies across the same domain.
-3. **`server.session_cookie_domain` configured** so Muximux issues the cookie with the right scope.
+2. **A consistent transport.** Use either all HTTPS (recommended), or all plain HTTP for local-only setups. Browsers reject mixed-Secure cookies across the same domain.
+3. **`server.session_cookie_domain` configured**, so that Muximux issues the cookie with the right scope.
 
-The validator at config load enforces this. If a site has `require_auth: true` but isn't a subdomain of `session_cookie_domain`, Muximux exits at startup with a specific error pointing at the offending site.
+Muximux checks this when it loads the config. A site can have `require_auth: true` but not be a subdomain of `session_cookie_domain`. Then Muximux exits at startup, with an error that names that site.
 
 ---
 
@@ -57,11 +57,11 @@ server:
     domain: "muximux.example.com"
 ```
 
-The leading dot is the browser-canonical form but optional; browsers treat both equally.
+The leading dot is the browser-canonical form, but it is optional. Browsers treat both forms the same.
 
 ### 2. Enable Require Auth per site
 
-In Settings → Gateway, edit a site and tick **Require Muximux login**:
+In Settings → Gateway, edit a site. Tick **Require Muximux login**. The result in YAML is:
 
 ```yaml
 server:
@@ -78,7 +78,7 @@ server:
 
 ### 3. Reload
 
-Restart Muximux (or, for an in-flight gateway-site mutation, the Gateway tab's save does this for you). Caddy's reload picks up the new `forward_auth` directive on every gated site.
+Restart Muximux. If you changed the gateway site in the Gateway tab, saving there does this for you. Caddy's reload picks up the new `forward_auth` directive on every gated site.
 
 ---
 
@@ -109,24 +109,24 @@ When Caddy calls `/api/auth/forward` for a gated site:
 | `403 Forbidden` | Returns body verbatim | Small "you're signed in but lack permission" page with a sign-out link |
 | `500` / `503` | Returns body | "gateway misconfigured" message (rare; surfaces operator config errors) |
 
-Backends receive `X-Muximux-User` and `X-Muximux-Role` headers on every forwarded request. Apps that honour these (rare but increasing) can use them as an external-auth source.
+Backends receive `X-Muximux-User` and `X-Muximux-Role` headers on every forwarded request. Some apps accept these headers (rare, but becoming more common). They can use them as an external-auth source.
 
 ---
 
 ## Sign-out
 
-`/logout` on Muximux invalidates the session cookie. Because the cookie is scoped to `.example.com`, this clears it for **every gated subdomain at once**. Next request to any gated site triggers the login redirect again.
+`/logout` on Muximux makes the session cookie invalid. The cookie is scoped to `.example.com`, so this clears it for **every gated subdomain at once**. The next request to any gated site sends the user to the login page again.
 
-There is intentionally no per-site logout: the gate is a centralised SSO layer, and "log out of one app but not the others" doesn't compose cleanly with that model. If your backend has its own logout, that's separate, and the gate doesn't propagate to it.
+There is no per-site logout, on purpose. The gate is a central SSO layer. "Log out of one app but not the others" does not fit that model. If your backend has its own logout, that is separate. The gate does not pass the logout on to it.
 
 ---
 
 ## Hardening at the gate endpoint
 
-A couple of defence-in-depth measures sit on the gate endpoint:
+The gate endpoint has some extra layers of protection (defence in depth):
 
-- **Only reachable from inside Muximux.** `/api/auth/forward` is the receive side of Caddy's forward_auth call, so it only ever gets reached over the loopback interface during normal operation. The endpoint refuses non-loopback callers, which means a public visitor can't probe session validity or gateway-site configuration by hitting it directly.
-- **Login-redirect target is locked to your configured sites.** When the gate sends an anonymous visitor to `/login`, the post-login bounce-back URL is built from the configured `gateway_sites` domain rather than a header value the caller controls. Off-site redirect attacks via header injection are prevented by construction.
+- **Only reachable from inside Muximux.** `/api/auth/forward` receives Caddy's forward_auth call. So in normal operation, requests reach it only over the loopback interface. The endpoint refuses callers that are not on loopback. So a public visitor can't call it directly to probe session validity or gateway-site configuration.
+- **Login-redirect target is locked to your configured sites.** The gate can send an anonymous visitor to `/login`. Muximux then builds the URL to return to after login from the configured `gateway_sites` domain. It does not use a header value that the caller controls. This design blocks off-site redirect attacks through header injection.
 - **Audit log on every decision.** Allows, denials, and permission-denied responses each leave an audit-log line with the host and the session's user/role.
 
 ---
@@ -185,4 +185,4 @@ forward-auth denied  source=audit host=admin.example.com user=alice role=user re
 forward-auth denied  source=audit host=family.example.com user=bob role=user result=group_mismatch
 ```
 
-Use this for both observability and post-incident review. Failed access attempts are recorded as audit events, the same as allowed ones.
+Use this for both observability and post-incident review. Muximux records failed access attempts as audit events, the same as allowed ones.

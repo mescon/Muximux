@@ -1,8 +1,8 @@
 # Cloudflare Access (forward auth)
 
-Cloudflare Access (part of Cloudflare Zero Trust) sits in front of self-hosted apps published through Cloudflare Tunnel. It authenticates users with whatever identity source you configure (Google, GitHub, Entra ID, SAML, etc.), then passes the result to your app via HTTP headers and a signed JWT.
+Cloudflare Access (part of Cloudflare Zero Trust) sits in front of self-hosted apps published through Cloudflare Tunnel. It signs users in with the identity source you configure (Google, GitHub, Entra ID, SAML, etc.). Then it passes the result to your app in HTTP headers and a signed JWT (a token that proves who the user is).
 
-Muximux integrates with Cloudflare Access using **forward auth**. You don't need OIDC config; you tell Muximux to trust Cloudflare's headers, and Cloudflare handles the actual authentication.
+Muximux works with Cloudflare Access through **forward auth** (a proxy in front of Muximux signs the user in and passes the identity in headers). You don't need OIDC config. You tell Muximux to trust Cloudflare's headers. Cloudflare does the actual sign-in.
 
 ---
 
@@ -10,7 +10,7 @@ Muximux integrates with Cloudflare Access using **forward auth**. You don't need
 
 - A Cloudflare account with Zero Trust enabled.
 - A domain on Cloudflare (any plan, including the free plan).
-- Muximux running somewhere reachable from a Cloudflare Tunnel (it doesn't need to be internet-exposed; the tunnel handles ingress).
+- Muximux running somewhere that a Cloudflare Tunnel can reach. It doesn't need to be exposed to the internet, because the tunnel handles incoming traffic.
 - `cloudflared` installed and authenticated against your Cloudflare account.
 
 ---
@@ -19,29 +19,33 @@ Muximux integrates with Cloudflare Access using **forward auth**. You don't need
 
 If you already publish Muximux through a Cloudflare Tunnel, skip this step.
 
-1. In the Cloudflare Zero Trust dashboard, open **Networks > Tunnels** and create a tunnel.
-2. Install the `cloudflared` connector on the host that can reach Muximux. Cloudflare gives you a one-line install command keyed to the tunnel.
-3. Add a public hostname:
+1. In the Cloudflare Zero Trust dashboard, open **Networks > Tunnels**.
+2. Create a tunnel.
+3. Install the `cloudflared` connector on the host that can reach Muximux. Cloudflare gives you a one-line install command for the tunnel.
+4. Add a public hostname:
    - Subdomain + Domain: `muximux.example.com`
-   - Service: `http://muximux:8080` (or whatever address `cloudflared` uses to reach Muximux on its network)
-4. Save. The hostname now resolves to Muximux.
+   - Service: `http://muximux:8080` (or the address that `cloudflared` uses to reach Muximux on its network)
+5. Save. The hostname now resolves to Muximux.
 
 ---
 
 ## Step 2: Create an Access Application
 
-1. In **Zero Trust > Access > Applications**, click **Add an application > Self-hosted**.
-2. Fill in:
+1. Open **Zero Trust > Access > Applications**.
+2. Click **Add an application > Self-hosted**.
+3. Fill in these fields:
    - Application name: `Muximux`
-   - Session duration: pick something reasonable for your use case (24h is typical).
+   - Session duration: pick a value that suits your use case (24h is typical).
    - Application domain: `muximux.example.com`
-3. Continue to **Identity providers** and pick at least one (Google, Entra ID, Authentik, etc.).
-4. Continue to **Policies**. Create policies that decide who can sign in. The simplest policy:
+4. Continue to **Identity providers**.
+5. Pick at least one identity provider (Google, Entra ID, Authentik, etc.).
+6. Continue to **Policies**.
+7. Create policies that decide who can sign in. The simplest policy is:
    - Action: **Allow**
-   - Selector: **Emails ending in** `example.com` (or whatever rule fits).
-5. Save.
+   - Selector: **Emails ending in** `example.com` (or a rule that fits your case).
+8. Save.
 
-Cloudflare Access now intercepts every request to `muximux.example.com`, sends unauthenticated users to a sign-in page, and forwards authenticated requests to Muximux.
+Cloudflare Access now catches every request to `muximux.example.com`. It sends users who are not signed in to a sign-in page. It forwards requests from signed-in users to Muximux.
 
 ---
 
@@ -50,7 +54,7 @@ Cloudflare Access now intercepts every request to `muximux.example.com`, sends u
 Cloudflare Access injects two headers on every authenticated request:
 
 - `Cf-Access-Authenticated-User-Email`: the email of the signed-in user.
-- `Cf-Access-Jwt-Assertion`: a signed JWT proving Cloudflare authenticated the user. Useful for downstream apps that want to verify the source independently. Muximux's forward auth uses the email header directly.
+- `Cf-Access-Jwt-Assertion`: a signed JWT that proves Cloudflare signed the user in. Apps behind Cloudflare can use it to check the source on their own. Muximux's forward auth uses the email header directly.
 
 Edit `config.yaml`:
 
@@ -88,30 +92,30 @@ auth:
   logout_url: https://example.cloudflareaccess.com/cdn-cgi/access/logout
 ```
 
-`trusted_proxies` is the most important field: Muximux only trusts identity headers from these IPs. Use Cloudflare's published IP ranges (the list above is current as of writing; check https://www.cloudflare.com/ips/ for the canonical list) or, if Cloudflare's tunnel terminates locally on the same host, restrict to `127.0.0.1/32`.
+`trusted_proxies` is the most important field. Muximux only trusts identity headers from these IPs. Use Cloudflare's published IP ranges. The list above is current as of writing. Check https://www.cloudflare.com/ips/ for the canonical list. If Cloudflare's tunnel terminates locally on the same host, restrict it to `127.0.0.1/32` instead.
 
-The `logout_url` ends in `/cdn-cgi/access/logout` and uses your Access team domain (visible at the top of the Zero Trust dashboard). Hitting it logs the user out of Cloudflare Access; without it, Muximux's logout button only kills the local session and the next request silently signs them back in.
+The `logout_url` ends in `/cdn-cgi/access/logout`. It uses your Access team domain, which you can see at the top of the Zero Trust dashboard. Opening this URL logs the user out of Cloudflare Access. Without it, Muximux's logout button only ends the local session. Then the next request silently signs the user back in.
 
 ---
 
 ## Step 4: Validate
 
-1. Open `https://muximux.example.com` in an incognito window. You should be redirected to Cloudflare Access for sign-in.
-2. After signing in, you should land on the Muximux dashboard with your email shown in the top-right user menu.
-3. Visit Muximux on a machine that bypasses Cloudflare (e.g. directly on the LAN, or a VPN that lets you hit the origin). Muximux should refuse the request because the source IP isn't in `trusted_proxies`.
+1. Open `https://muximux.example.com` in an incognito window. Cloudflare Access should ask you to sign in.
+2. Sign in. You should land on the Muximux dashboard. Your email shows in the top-right user menu.
+3. Visit Muximux from a machine that bypasses Cloudflare (e.g. directly on the LAN, or through a VPN that reaches the origin server). Muximux should refuse the request, because the source IP isn't in `trusted_proxies`.
 
 ---
 
 ## On Groups and Admin Promotion
 
-Cloudflare Access does not by default emit a "groups" header, so Muximux's forward auth admin promotion (anyone with `admin`/`admins`/`administrators` in `Remote-Groups`) won't work without extra setup.
+By default, Cloudflare Access does not send a "groups" header. Muximux's forward auth promotes anyone with `admin`/`admins`/`administrators` in `Remote-Groups` to admin. Without extra setup, this promotion won't work.
 
 Two options:
 
-- **Manage admin status in Muximux directly.** First sign-in lands as a regular user; promote them via **Settings > Security > Users** in the Muximux UI.
-- **Synthesize a groups header from Access policy.** Cloudflare Access can inject custom headers based on which policy matched. In **Access > Applications > Muximux > Policies > Edit policy**, expand **Custom Headers** and set, for example, `Cf-Access-Groups: admin`. Then add `headers.groups: Cf-Access-Groups` to Muximux's config. This requires defining a separate policy per group, which gets cumbersome past two or three groups.
+- **Manage admin status in Muximux directly.** The first sign-in lands as a regular user. Promote the user in **Settings > Security > Users** in the Muximux UI.
+- **Make a groups header from Access policy.** Cloudflare Access can add custom headers based on which policy matched. Open **Access > Applications > Muximux > Policies > Edit policy**. Expand **Custom Headers** and set, for example, `Cf-Access-Groups: admin`. Then add `headers.groups: Cf-Access-Groups` to Muximux's config. You need a separate policy for each group. This gets hard to manage past two or three groups.
 
-The OIDC providers (Keycloak, Authentik, etc.) are a better fit if group-based access is central to your setup. Cloudflare Access suits you when you want a single sign-on layer at the edge with simple allow/deny rules.
+If group-based access is central to your setup, the OIDC providers (Keycloak, Authentik, etc.) are a better fit. Cloudflare Access suits you when you want a single sign-on layer at the edge with simple allow/deny rules.
 
 ---
 

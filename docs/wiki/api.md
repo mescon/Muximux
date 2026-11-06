@@ -4,7 +4,7 @@
 
 Muximux provides a REST API for managing configuration, apps, groups, health, authentication, icons, and themes. All endpoints return JSON.
 
-When authentication is enabled, most endpoints require a valid session cookie or API key (`X-Api-Key` header). Write operations (POST, PUT, DELETE) require the `admin` role.
+When authentication is enabled, most endpoints need a valid session cookie or API key (`X-Api-Key` header). Write operations (POST, PUT, DELETE) need the `admin` role.
 
 ---
 
@@ -72,13 +72,13 @@ GET /api/auth/status
 }
 ```
 
-The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. When `auth_method` is `forward_auth` and a logout URL is configured, the response includes a `logout_url` field for client-side redirect on sign-out. The response also carries `oidc_auto_redirect` and `local_login` (whether the password form is offered), and `auth_method_env` (the variable's name, for example `MUXIMUX_AUTH_METHOD`) while the method comes from the environment.
+The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. The response includes a `logout_url` field when `auth_method` is `forward_auth` and a logout URL is configured. The client uses it to redirect on sign-out. The response also carries `oidc_auto_redirect` and `local_login` (whether the password form is offered). While the method comes from the environment, it also carries `auth_method_env` (the variable's name, for example `MUXIMUX_AUTH_METHOD`).
 
-**Before setup completes.** On a new install, until the onboarding wizard finishes, only these endpoints answer: `GET /api/auth/status`, `POST /api/auth/setup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, the `/api/auth/oidc/*` sign-in routes, `GET /api/health`, `POST /api/config/restore`, and the read-only theme list and icon routes the wizard uses. Every other endpoint, including user and API key management, the auth method and OIDC settings, the log viewer, `/api/system/*`, the `/ws` live stream and the `/proxy/` app routes, returns `503` with `{"error": "setup_required"}`.
+**Before setup completes.** On a new install, only these endpoints answer until the onboarding wizard finishes: `GET /api/auth/status`, `POST /api/auth/setup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, the `/api/auth/oidc/*` sign-in routes, `GET /api/health`, `POST /api/config/restore`, and the read-only theme list and icon routes the wizard uses. Every other endpoint returns `503` with `{"error": "setup_required"}`. This includes user and API key management, the auth method and OIDC settings, the log viewer, `/api/system/*`, the `/ws` live stream and the `/proxy/` app routes.
 
 **API key authentication:**
 
-Non-browser integrations can authenticate with an API key via the `X-Api-Key` header, but **only on allowlisted paths**, not on every `/api/*` endpoint. Out of the box:
+Non-browser integrations can authenticate with an API key via the `X-Api-Key` header. This works **only on allowlisted paths**, not on every `/api/*` endpoint. Out of the box, the allowlist is:
 
 - `GET /api/appearance` -- read Muximux's current theme + language (see [Apps > Appearance API](apps.md#appearance-api))
 - Any proxied-app path the operator has opted into via `auth_bypass: [{require_api_key: true}]` (see [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass))
@@ -90,7 +90,7 @@ GET /proxy/sonarr/api/v3/series
 X-Api-Key: your-api-key-here
 ```
 
-State-changing endpoints like `/api/config`, `/api/apps`, `/api/themes`, and `/api/auth/users` require a session cookie; the API key does not work against them. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full scope and setup instructions.
+State-changing endpoints like `/api/config`, `/api/apps`, `/api/themes`, and `/api/auth/users` need a session cookie. The API key does not work against them. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full scope and setup instructions.
 
 ### User Management
 
@@ -119,7 +119,7 @@ POST /api/auth/users
 }
 ```
 
-Validation: username is required, password must be at least 8 characters. Valid roles: `admin`, `power-user`, `user`. If the role is omitted or invalid, it defaults to `user`.
+Validation: the username is required. The password must be at least 8 characters. Valid roles: `admin`, `power-user`, `user`. If the role is omitted or invalid, it defaults to `user`.
 
 **Update user:**
 ```json
@@ -131,14 +131,14 @@ PUT /api/auth/users/newuser
 }
 ```
 
-All fields are optional; only the fields you send are updated.
+All fields are optional. Muximux updates only the fields you send.
 
 **Delete user:**
 ```
 DELETE /api/auth/users/newuser
 ```
 
-Constraints: you cannot delete your own account, and you cannot delete the last admin user.
+Constraints: you cannot delete your own account. You also cannot delete the last admin user.
 
 ### Auth Method Switching
 
@@ -158,9 +158,14 @@ PUT /api/auth/method
 }
 ```
 
-Valid methods: `builtin`, `forward_auth`, `oidc`, `none`. Switching to `builtin` requires at least one user to exist. Switching to `forward_auth` requires `trusted_proxies`. Switching to `oidc` takes the provider settings in an `oidc` object, which are validated and discovered before the switch. The optional `logout_url` configures where the browser redirects on sign-out to clear the auth provider's session. The change takes effect immediately without a restart.
+Valid methods: `builtin`, `forward_auth`, `oidc`, `none`. Switching to `builtin` requires at least one user to exist. Switching to `forward_auth` requires `trusted_proxies`. Switching to `oidc` takes the provider settings in an `oidc` object. Muximux validates these settings and runs discovery (fetches the provider's endpoint list) before the switch. The optional `logout_url` sets where the browser redirects on sign-out, to clear the auth provider's session. The change takes effect immediately without a restart.
 
-Settings owned by the environment are not changed here. While `MUXIMUX_AUTH_METHOD` is set, a different method is refused with `409 Conflict` and a message naming the variable (sending the current method to edit other settings is fine). Choosing `oidc` while `MUXIMUX_OIDC_ENABLED=false`, and leaving `oidc` while OIDC variables are set without `MUXIMUX_AUTH_METHOD`, are refused the same way. OIDC fields set by a `MUXIMUX_OIDC_*` variable or a `${VAR}` reference keep their value whatever the request sends; `GET /api/auth/settings/oidc` lists them in `env_fields` (field to variable name, never the value; `enabled` appears there when `MUXIMUX_AUTH_METHOD=oidc` or `MUXIMUX_OIDC_ENABLED` sets it). `GET /api/auth/status` includes `auth_method_env` (the variable name) while the method comes from the environment, and `POST /api/auth/setup` refuses any other method with `409`. See [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
+This endpoint does not change settings owned by the environment. While `MUXIMUX_AUTH_METHOD` is set, Muximux refuses a different method with `409 Conflict` and a message naming the variable. (Sending the current method to edit other settings is fine.) Muximux refuses two more cases the same way:
+
+- choosing `oidc` while `MUXIMUX_OIDC_ENABLED=false`;
+- leaving `oidc` while OIDC variables are set without `MUXIMUX_AUTH_METHOD`.
+
+OIDC fields set by a `MUXIMUX_OIDC_*` variable or a `${VAR}` reference keep their value, whatever the request sends. `GET /api/auth/settings/oidc` lists them in `env_fields` (field to variable name, never the value). `enabled` appears there when `MUXIMUX_AUTH_METHOD=oidc` or `MUXIMUX_OIDC_ENABLED` sets it. While the method comes from the environment, `GET /api/auth/status` includes `auth_method_env` (the variable name), and `POST /api/auth/setup` refuses any other method with `409`. See [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
 
 ---
 
@@ -175,19 +180,19 @@ Settings owned by the environment are not changed here. While `MUXIMUX_AUTH_METH
 | `/api/config/restore` | POST | Pre-setup only (requires `X-Setup-Token`) | Replace the live config with an uploaded YAML during first-run onboarding; parsed like `config.yaml` at startup |
 | `/api/appearance` | GET | Any authenticated user, or any caller with `X-Api-Key` | Read-only snapshot of language + theme + colors for embedded apps |
 
-The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) require a restart.
+The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) need a restart.
 
-**Saving with `base` (three-way merge).** The request body may carry an optional `base`: the config the client loaded before editing. When it is present, Muximux merges the edit onto the current server config. Only the fields you changed are applied; everything else keeps the server's value, so changes made while you were editing (a Docker URL refresh, auto-import, a gateway cookie scope, another tab's save) are kept. If the merge would produce two apps or two groups with the same name, the save is refused with `409 Conflict` and a message naming the conflict. Without `base`, the payload replaces the config (the old two-way behaviour): omitted fields are reset, and an omitted `proxy_timeout` clears it. Scripts that `PUT /api/config` without `base` keep working unchanged.
+**Saving with `base` (three-way merge).** The request body may carry an optional `base`: the config the client loaded before editing. When `base` is present, Muximux merges the edit onto the current server config. Muximux applies only the fields you changed. Everything else keeps the server's value. Changes made while you were editing are therefore kept (a Docker URL refresh, auto-import, a gateway cookie scope, another tab's save). The merge may produce two apps or two groups with the same name. In that case, Muximux refuses the save with `409 Conflict` and a message naming the conflict. Without `base`, the payload replaces the config (the old two-way behaviour). Omitted fields are reset, and an omitted `proxy_timeout` clears it. Scripts that `PUT /api/config` without `base` keep working unchanged.
 
-Apps and groups in the payload may carry `original_name`, the name they had when loaded. It tells the merge which server item an edited item corresponds to, so a rename keeps the app's access rules, Docker tracking and forwarded-headers setting. `original_name` is ignored by `POST /api/groups` and `PUT /api/group/{name}`.
+Apps and groups in the payload may carry `original_name`, the name they had when loaded. It tells the merge which server item matches an edited item. A rename therefore keeps the app's access rules, Docker tracking and forwarded-headers setting. `POST /api/groups` and `PUT /api/group/{name}` ignore `original_name`.
 
-The admin `GET /api/config` response includes `env_overrides`, a map of field to environment variable name for settings currently overridden from the environment or a command-line flag (for example `server.listen` from `MUXIMUX_LISTEN`). Overrides apply in memory only and are never written to `config.yaml`. The Settings dialog shows these fields as locked. Auth method changes can be made live via `PUT /api/auth/method`.
+The admin `GET /api/config` response includes `env_overrides`. This is a map of field to environment variable name. It lists settings currently overridden from the environment or a command-line flag (for example `server.listen` from `MUXIMUX_LISTEN`). Overrides apply in memory only. Muximux never writes them to `config.yaml`. The Settings dialog shows these fields as locked. You can make auth method changes live via `PUT /api/auth/method`.
 
 **Export config:**
 ```
 GET /api/config/export
 ```
-Returns a downloadable YAML file with password hashes, OIDC client secrets, and API keys removed. The filename includes the current date (e.g., `muximux-config-2025-01-15.yaml`).
+Returns a downloadable YAML file. The file has password hashes, OIDC client secrets, and API keys removed. The filename includes the current date (e.g., `muximux-config-2025-01-15.yaml`).
 
 **Import config (preview):**
 ```
@@ -196,7 +201,7 @@ Content-Type: application/x-yaml
 
 (YAML body, max 1 MB)
 ```
-Validates the YAML and returns the parsed config as JSON for preview. The frontend can then apply it via `PUT /api/config`. Validation requires at least one app with a name and URL.
+Validates the YAML. Returns the parsed config as JSON for preview. The frontend can then apply it via `PUT /api/config`. Validation requires at least one app with a name and URL.
 
 **Restore config (first-run only):**
 ```
@@ -206,13 +211,13 @@ X-Setup-Token: <token from server stdout or data/.setup-token>
 
 (YAML body, max 1 MB)
 ```
-Replaces the live config during the initial onboarding flow. The uploaded YAML goes through the same load path as `config.yaml` at startup: `${VAR}` references are expanded (and kept as references in the file), defaults are applied and the result is validated. A backup that still uses the legacy `server.gateway` setting is refused with `400`. An OIDC provider that cannot be reached is cleared, so OIDC login stays off until it is fixed. Users, auth, OIDC, discovery and proxy routes are reloaded immediately, all sessions are dropped, and a login in progress during the restore is refused. Listen address, TLS, base-path routing and session cookie settings still need a restart. Only accepted while the instance is in the pre-setup state; subsequent calls return `409 Conflict`. Missing or invalid `X-Setup-Token` returns `401`. See [Authentication > First-Run Setup](authentication.md#first-run-setup) for how to find the token.
+Replaces the live config during the initial onboarding flow. The uploaded YAML goes through the same load path as `config.yaml` at startup. Muximux expands `${VAR}` references (and keeps them as references in the file). It applies defaults and validates the result. Muximux refuses a backup that still uses the legacy `server.gateway` setting with `400`. If Muximux cannot reach the OIDC provider, it clears the provider, so OIDC login stays off until you fix it. Muximux reloads users, auth, OIDC, discovery and proxy routes immediately. It drops all sessions. It refuses a login that is in progress during the restore. Listen address, TLS, base-path routing and session cookie settings still need a restart. Muximux accepts this call only while the instance is in the pre-setup state. Later calls return `409 Conflict`. A missing or invalid `X-Setup-Token` returns `401`. See [Authentication > First-Run Setup](authentication.md#first-run-setup) for how to find the token.
 
 **Appearance (read-only):**
 ```
 GET /api/appearance
 ```
-Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is_dark`), `colors` (a curated subset of CSS custom-property values), and `theme_css_url`. Embedded apps call this once on boot to sync their own styling with Muximux. See [Apps > Appearance API](apps.md#appearance-api) for the full contract and usage examples.
+Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is_dark`), `colors` (a curated subset of CSS custom-property values), and `theme_css_url`. Embedded apps call this once on boot. They use it to sync their own styling with Muximux. See [Apps > Appearance API](apps.md#appearance-api) for the full contract and usage examples.
 
 ---
 
@@ -256,7 +261,7 @@ POST /api/apps
 | `/api/group/{name}` | PUT | Admin | Update group (full replace; omitted fields are reset) |
 | `/api/group/{name}` | DELETE | Admin | Delete group |
 
-Admins also receive `docker_managed: true` on a group Docker discovery created and still manages from `muximux.group.*` labels (in these endpoints and in `GET /api/config`). The marker is server-owned: `POST /api/groups`, `PUT /api/group/{name}` and `PUT /api/config` ignore it in the payload. Admins also receive `docker_order: true` while the group's order comes from a `muximux.group.order` label; it is server-owned in the same way. An update that changes the group's `icon` or `color` clears `docker_managed`, after which the labels no longer apply to that group. A change to `order` (a drag in Settings, for example) clears it only when `docker_order` is set.
+Admins also receive `docker_managed: true` on a group that Docker discovery created and still manages from `muximux.group.*` labels. This applies in these endpoints and in `GET /api/config`. The marker is server-owned: `POST /api/groups`, `PUT /api/group/{name}` and `PUT /api/config` ignore it in the payload. Admins also receive `docker_order: true` while the group's order comes from a `muximux.group.order` label. This marker is server-owned in the same way. An update that changes the group's `icon` or `color` clears `docker_managed`. After that, the labels no longer apply to that group. A change to `order` (a drag in Settings, for example) clears it only when `docker_order` is set.
 
 ---
 
@@ -277,7 +282,7 @@ Admins also receive `docker_managed: true` on a group Docker discovery created a
 | `/api/discovery/docker/relink/confirm` | POST | Admin | Confirm a re-link |
 | `/api/discovery/docker-state` | GET | Any | Current container-state map for tracked apps |
 
-`GET /api/discovery/docker/config` returns the stored values under `config`, including fields the Discovery tab does not edit. `env_overrides` is present only when an environment variable sets a field's live value; it maps the field to the variable's name (the tab shows such fields as locked):
+`GET /api/discovery/docker/config` returns the stored values under `config`. This includes fields the Discovery tab does not edit. `env_overrides` is present only when an environment variable sets a field's live value. It maps the field to the variable's name (the tab shows such fields as locked):
 
 ```json
 {
@@ -288,13 +293,24 @@ Admins also receive `docker_managed: true` on a group Docker discovery created a
 
 `PUT` takes the bare config object (without the `config` wrapper).
 
-`PUT` merges onto the stored config, so fields you leave out (such as `auto_import` or the TLS paths) are kept. A field set by an environment variable keeps its live value whatever the request sends. `npipe://` endpoints are accepted on Windows, and an enabled config with an empty endpoint gets the platform default. The response is the new discovery status, as from `GET /api/discovery/docker/status`.
+`PUT` merges onto the stored config. Fields you leave out (such as `auto_import` or the TLS paths) are therefore kept. A field set by an environment variable keeps its live value, whatever the request sends. Muximux accepts `npipe://` endpoints on Windows. An enabled config with an empty endpoint gets the platform default. The response is the new discovery status, as from `GET /api/discovery/docker/status`.
 
-`GET /api/discovery/docker/scan` returns per container: `labeled` (any `muximux.*` label), `label_enabled` (the value of `muximux.app.enabled`, absent when unset) and `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container; codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`). Containers opted out with `muximux.app.enabled=false` are omitted from the rows and counted in `opted_out`. A container the config already tracks (matched by key, on any endpoint) carries `tracked` (`{kind, name, auto_imported, endpoint?}`; `kind` is `app`, `site` or `quarantined`, `name` is the app name or site domain, and `endpoint` is present only when the entry is tracked against a different Docker daemon than the one scanned); it is omitted for untracked containers. `name_taken` is `true` on an untracked container whose name matches an existing app, so an import under that name would collide.
+`GET /api/discovery/docker/scan` returns these fields per container:
 
-`GET /api/discovery/docker/tracked` returns `entries` (each with an optional `missing_since` timestamp, set while the container cannot be found) and `quarantined`, an array of `{kind, name, key, reason}` for invalid Docker-owned entries kept in `config.yaml` but not loaded (until they are removed or superseded by a live entry; see [Quarantined entries](docker-discovery.md#quarantined-entries)). Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint. Add `?scope=quarantined` to remove only the quarantined entries: a live app or gateway site with the same key stays tracked, and the call returns 404 when no quarantined entry has the key. Any other `scope` value is a 400.
+- `labeled` (any `muximux.*` label);
+- `label_enabled` (the value of `muximux.app.enabled`, absent when unset);
+- `auto_import_skip` (`{code, detail}`, present when auto-import would not add the container). The codes are `unlabeled`, `disabled`, `not_enabled`, `no_port`, `no_url`, `invalid`.
 
-**Server-owned Docker fields.** These fields are written only by discovery (Discover import, auto-import, the refresh poller and **Re-link**). They are returned to admins only, and any value in a request payload (`POST /api/apps`, `PUT /api/app/{name}`, `PUT /api/config`, the group and gateway site endpoints) is ignored:
+The scan omits containers opted out with `muximux.app.enabled=false` from the rows. It counts them in `opted_out`. A container that the config already tracks (matched by key, on any endpoint) carries `tracked` (`{kind, name, auto_imported, endpoint?}`). In it, `kind` is `app`, `site` or `quarantined`, and `name` is the app name or site domain. `endpoint` is present only when the entry is tracked against a different Docker daemon than the one scanned. Untracked containers have no `tracked` field. `name_taken` is `true` on an untracked container whose name matches an existing app. An import under that name would collide.
+
+`GET /api/discovery/docker/tracked` returns two fields:
+
+- `entries`: each has an optional `missing_since` timestamp, set while the container cannot be found.
+- `quarantined`: an array of `{kind, name, key, reason}` for invalid Docker-owned entries. These entries stay in `config.yaml` but are not loaded, until they are removed or a live entry supersedes them. See [Quarantined entries](docker-discovery.md#quarantined-entries).
+
+Tracking keys are `label:<id>`, `swarm:<service>`, `compose:<project>:<service>`, `name:<name>` or `id:<id>`. `DELETE /api/discovery/docker/track/{key}` also removes quarantined entries for the key, whatever their endpoint. To remove only the quarantined entries, add `?scope=quarantined`. A live app or gateway site with the same key then stays tracked. The call returns 404 when no quarantined entry has the key. Any other `scope` value is a 400.
+
+**Server-owned Docker fields.** Only discovery writes these fields (Discover import, auto-import, the refresh poller and **Re-link**). Muximux returns them to admins only. It ignores any value in a request payload (`POST /api/apps`, `PUT /api/app/{name}`, `PUT /api/config`, the group and gateway site endpoints):
 
 | Object | Field | Meaning |
 |---|---|---|
@@ -303,9 +319,9 @@ Admins also receive `docker_managed: true` on a group Docker discovery created a
 | App | `docker_managed_health_check` | The value of `muximux.app.health_check` last applied; while set, the app form shows the health check locked |
 | Group | `docker_managed`, `docker_order` | See [Groups](#groups) |
 
-A save can detach an app or site by changing its URL, but cannot attach, re-attach or move one. Whether an app was created by auto-import is stored as `docker_auto` in `config.yaml` only; it is not part of the API (the scan's `tracked.auto_imported` reports it).
+A save can detach an app or site by changing its URL. A save cannot attach, re-attach or move one. Muximux stores whether auto-import created an app as `docker_auto`, in `config.yaml` only. This field is not part of the API (the scan's `tracked.auto_imported` reports it).
 
-Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`, or `sync`). The discovery configuration is also part of the full configuration object, so it can be set via `PUT /api/config` as well as `PUT /api/discovery/docker/config`.
+Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`, or `sync`). The discovery configuration is also part of the full configuration object. You can therefore set it via `PUT /api/config` as well as `PUT /api/discovery/docker/config`.
 
 ---
 
@@ -318,7 +334,7 @@ Auto-import is opt-in via `discovery.docker.auto_import` (`off`, `add`, `update`
 | `/api/apps/{name}/health` | GET | Get health status for one app |
 | `/api/apps/{name}/health/check` | POST | Trigger immediate health check |
 
-The `/api/health` endpoint always returns 200 OK when the server is running. It is intended for use with load balancers and uptime monitors.
+The `/api/health` endpoint always returns 200 OK when the server is running. It is meant for load balancers and uptime monitors.
 
 **Health status response:**
 ```json
@@ -380,7 +396,7 @@ Content-Type: application/json
 }
 ```
 
-The server downloads the image, validates the content type and size (2MB limit), and stores it locally. Returns `{"name": "my-icon", "status": "uploaded"}` on success.
+The server downloads the image. It validates the content type and size (2MB limit), and stores the image locally. Returns `{"name": "my-icon", "status": "uploaded"}` on success.
 
 ---
 
@@ -432,7 +448,7 @@ GET /api/logs/recent?limit=50&level=error
 ]
 ```
 
-Logs are stored in a 1000-entry ring buffer. When the buffer is full, the oldest entries are dropped. Entries are also broadcast in real-time via WebSocket (see below).
+Muximux stores logs in a 1000-entry ring buffer (a fixed-size list that overwrites its oldest entries). When the buffer is full, Muximux drops the oldest entries. Muximux also broadcasts entries in real-time via WebSocket (see below).
 
 ---
 
@@ -500,7 +516,7 @@ The declarative `server.gateway_sites:` model is the current gateway path (the l
 | `/api/gateway/sites/{domain}` | DELETE | Admin | Delete a gateway site |
 | `/api/gateway/validate` | POST | Admin | Validate a gateway site config without saving |
 
-`/api/auth/forward` is the internal forward-auth verify endpoint used by the gateway to gate access. It is not meant to be called directly from a browser (a direct hit returns `400`).
+`/api/auth/forward` is the internal forward-auth verify endpoint. The gateway uses it to gate access. Do not call it directly from a browser (a direct hit returns `400`).
 
 ---
 
@@ -510,7 +526,7 @@ The declarative `server.gateway_sites:` model is the current gateway path (the l
 |----------|----------|-------------|
 | `/ws` | WebSocket | Real-time event stream |
 
-Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
+Connect to `/ws` to receive real-time updates. Muximux sends events as JSON messages:
 
 ```json
 {"type": "config_updated", "payload": {}}
@@ -528,13 +544,13 @@ Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
 | `docker_state_changed` | `{"app_name": "name", "state": {...}}` | Container state changed for a Docker-tracked app (status, health, restart count, etc.) |
 | `log_entry` | `LogEntry` object | A new log entry was recorded (see Logs section above). Admin-only: only broadcast to admin clients |
 
-The WebSocket client automatically reconnects if the connection drops, using exponential backoff (up to 30 seconds between retries, max 10 attempts).
+If the connection drops, the WebSocket client automatically reconnects. It uses exponential backoff (a wait that grows after each failed try), up to 30 seconds between retries, max 10 attempts.
 
 ---
 
 ## Rate Limiting
 
-The following endpoints are rate-limited to **5 attempts per IP address per minute** to prevent brute-force attacks. If the limit is exceeded, the endpoint returns HTTP 429 (Too Many Requests).
+The following endpoints allow only **5 attempts per IP address per minute**. This prevents brute-force attacks. If a client exceeds the limit, the endpoint returns HTTP 429 (Too Many Requests).
 
 - `POST /api/auth/login` -- Login attempts
 - `POST /api/auth/setup` -- Initial setup attempts

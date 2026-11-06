@@ -1,6 +1,6 @@
 # Troubleshooting
 
-> **Tip:** Enable [debug logging](debug-logging.md) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs, or set log level to `debug` in Settings for backend request-level detail.
+> **Tip:** Enable [debug logging](debug-logging.md) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs. For backend request-level detail, set the log level to `debug` in Settings.
 
 ---
 
@@ -8,15 +8,15 @@
 
 **Symptom:** Blank iframe, "refused to connect" error, or security error in browser console.
 
-**Cause:** Many web applications send HTTP headers (`X-Frame-Options`, `Content-Security-Policy`) that prevent them from being embedded in iframes.
+**Cause:** Many web applications send HTTP headers (`X-Frame-Options`, `Content-Security-Policy`) that block embedding. These headers stop other pages from showing the app in an iframe (a frame that shows one web page inside another page).
 
 **Solutions:**
 
-1. **Enable the proxy** -- Set `proxy: true` on the app. Muximux's built-in reverse proxy strips the headers that block iframe embedding.
+1. **Enable the proxy** -- Set `proxy: true` on the app. Muximux's built-in reverse proxy (a server that forwards requests to another server) strips the headers that block iframe embedding.
 
-2. **Debug the proxy** -- If proxy mode doesn't help, the app may use JavaScript-based iframe detection. Try accessing `/proxy/{slug}/` directly in a new browser tab to see what the app looks like through the proxy.
+2. **Debug the proxy** -- If proxy mode doesn't help, the app may use JavaScript to detect the iframe. To see what the app looks like through the proxy, open `/proxy/{slug}/` directly in a new browser tab.
 
-3. **Use a different open mode** -- As a last resort, set `open_mode: new_tab` so the app opens in a separate browser tab instead of an iframe.
+3. **Use a different open mode** -- As a last resort, set `open_mode: new_tab`. The app then opens in a separate browser tab instead of an iframe.
 
 ---
 
@@ -24,27 +24,29 @@
 
 **Symptom:** The app loads in the iframe but styles are missing, images don't appear, or there are JavaScript errors in the browser console.
 
-**Cause:** The app's internal URLs for CSS, JavaScript, and images may not resolve correctly when served through the reverse proxy.
+**Cause:** When the reverse proxy serves the app, the app's internal URLs for CSS, JavaScript, and images may not resolve correctly.
 
 **Solutions:**
 
-1. Open browser DevTools (F12) and check the **Network** tab for 404 errors on asset files.
+1. Open browser DevTools (F12).
 
-2. If the app has a "base URL", "URL base", or "path prefix" setting in its own configuration, try setting it to `/proxy/{slug}` where `{slug}` is the lowercase, hyphenated version of your app name.
+2. In the **Network** tab, look for 404 errors on asset files.
 
-3. Some apps require specific configuration to work behind a reverse proxy. Check the app's own documentation for reverse proxy setup instructions.
+3. Look in the app's own configuration for a "base URL", "URL base", or "path prefix" setting. If the app has one, try setting it to `/proxy/{slug}`. `{slug}` is the lowercase, hyphenated version of your app name.
+
+4. Some apps need specific configuration to work behind a reverse proxy. Check the app's own documentation for reverse proxy setup instructions.
 
 ---
 
 ## Reverse Proxy Limitations
 
-The built-in reverse proxy rewrites paths in HTML, CSS, JavaScript, JSON, and HTTP headers so that apps work at `/proxy/{slug}/` instead of their original URL. However, some patterns cannot be rewritten. This section explains what is **not supported**, why, and what you can do about it.
+The built-in reverse proxy rewrites paths in HTML, CSS, JavaScript, JSON, and HTTP headers. This lets apps work at `/proxy/{slug}/` instead of their original URL. However, the proxy cannot rewrite some patterns. This section explains what is **not supported**, why, and what you can do about it.
 
 ### JavaScript That Builds URLs at Runtime
 
-Muximux includes a runtime URL interceptor that handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so that dynamically constructed URLs are rewritten before the browser sends them. This section describes the remaining edge cases.
+Muximux includes a runtime URL interceptor (a script that rewrites URLs inside the browser). It handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.). As a result, it rewrites URLs that the page builds at runtime before the browser sends them. This section describes the remaining edge cases.
 
-**Symptom:** The app loads but some features, API calls, or navigation links point to wrong paths. You see 404 errors in the Network tab for URLs that are missing the `/proxy/{slug}/` prefix.
+**Symptom:** The app loads, but some features, API calls, or navigation links point to wrong paths. The Network tab shows 404 errors for URLs that are missing the `/proxy/{slug}/` prefix.
 
 **Patterns that may still cause issues:**
 
@@ -55,57 +57,57 @@ Muximux includes a runtime URL interceptor that handles most of these cases auto
 | `location.pathname` checks | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
 | Inline event handlers | `<div onclick="go('/page')">` | URL in HTML attribute, not intercepted by runtime patches |
 
-**Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs. Many apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
+**Workaround:** Check if the app has a "base URL", "URL base", or "path prefix" setting in its own configuration. If it does, set it to `/proxy/{slug}`. The app then adds the correct prefix when it builds URLs. Many apps support this setting (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
 
 ### Single-Page App (SPA) Routing Issues
 
 **Symptom:** The app loads initially but navigating within it causes a blank page, a 404, or routes back to the home page.
 
-**What happens:** SPAs define client-side routes like `/dashboard` or `/users/settings`. When the app is proxied at `/proxy/my-app/`, the browser's URL becomes `/proxy/my-app/dashboard`. The app's router sees the full path including the `/proxy/my-app/` prefix, which it doesn't recognize, causing a route mismatch.
+**What happens:** SPAs define client-side routes like `/dashboard` or `/users/settings`. When Muximux proxies the app at `/proxy/my-app/`, the browser's URL becomes `/proxy/my-app/dashboard`. The app's router sees the full path, including the `/proxy/my-app/` prefix. The router doesn't recognize this path, so the route doesn't match.
 
-The proxy mitigates this by rewriting base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/my-app"`), which helps many apps. However, apps that hardcode routes in their JavaScript or use a routing framework that doesn't respect the base path may still break.
+The proxy reduces this problem. It rewrites base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/my-app"`), which helps many apps. However, some apps may still break: apps that hardcode routes in their JavaScript, and apps that use a routing framework that doesn't respect the base path.
 
-**Workaround:** Configure the app's base URL/path prefix setting to `/proxy/{slug}` if available. This is the most reliable fix because it makes the app aware of its actual path.
+**Workaround:** If the app has a base URL/path prefix setting, set it to `/proxy/{slug}`. This is the most reliable fix, because the app then knows its actual path.
 
 ### Service Workers
 
-**Symptom:** The app works on first load but breaks after a page refresh, or cached content appears stale, or the app tries to serve offline content at wrong paths.
+**Symptom:** The app works on first load but breaks after a page refresh. Cached content can also appear stale, or the app tries to serve offline content at wrong paths.
 
-**What happens:** Service workers register under the page's origin and intercept network requests. When an app is proxied through Muximux, its service worker would register under Muximux's origin, potentially intercepting unrelated requests.
+**What happens:** A service worker (a script that the browser runs in the background for a site) registers under the page's origin and intercepts network requests. When Muximux proxies an app, the app's service worker would register under Muximux's origin. It could then intercept unrelated requests.
 
-**Mitigation:** Since v3.0.9, Muximux's proxy interceptor automatically blocks `navigator.serviceWorker.register()` calls from proxied apps and cleans up any previously leaked registrations. If you still experience stale cache issues from a service worker registered before upgrading, clear it manually: open DevTools > Application > Service Workers > Unregister.
+**Mitigation:** Since v3.0.9, Muximux's proxy interceptor automatically blocks `navigator.serviceWorker.register()` calls from proxied apps. It also cleans up any registrations that leaked before. A service worker registered before you upgraded can still cause stale cache issues. In that case, clear it manually: open DevTools > Application > Service Workers > Unregister.
 
 ### Binary and Non-Text Protocols
 
 **Symptom:** Features that use gRPC, Protocol Buffers, MessagePack, or other binary protocols fail when the app is proxied.
 
-**What happens:** The proxy rewrites text-based content by matching patterns in the response body. Binary protocols encode data in non-text formats where path strings cannot be found or safely modified by regex-based rewriting.
+**What happens:** The proxy rewrites text-based content by matching patterns in the response body. Binary protocols encode data in non-text formats. In those formats, regex-based rewriting cannot find path strings or change them safely.
 
-**Workaround:** No proxy-side fix is possible. Use `open_mode: new_tab` for apps that rely on binary protocols, or configure the app to use its non-binary API if one exists.
+**Workaround:** No proxy-side fix is possible. For apps that rely on binary protocols, use `open_mode: new_tab`. Or, if the app has a non-binary API, configure the app to use it.
 
 ### Large Text Responses and Memory
 
-**Symptom:** Muximux uses more memory than expected when a proxied app serves very large text responses (e.g., a JSON API endpoint that returns hundreds of megabytes of data).
+**Symptom:** Muximux uses more memory than expected when a proxied app serves very large text responses. An example is a JSON API endpoint that returns hundreds of megabytes of data.
 
-**What happens:** The proxy buffers text-based responses (HTML, CSS, JavaScript, JSON, XML) in memory so it can rewrite URLs in the content. For unusually large text responses this can cause memory pressure.
+**What happens:** The proxy buffers (holds in memory) text-based responses (HTML, CSS, JavaScript, JSON, XML) so it can rewrite URLs in the content. Unusually large text responses can cause memory pressure.
 
-Binary content (images, videos, archives, file downloads) is **not** buffered - it streams directly from the backend to your browser without being read into memory. Only text content types are buffered for rewriting.
+The proxy does **not** buffer binary content (images, videos, archives, file downloads). This content streams directly from the backend to your browser without being read into memory. The proxy buffers only text content types for rewriting.
 
 ### Cookie Domain Attribute
 
 **Symptom:** Login sessions in a proxied app don't persist, or you need to log in repeatedly.
 
-**What happens:** The proxy rewrites the `Path` attribute of `Set-Cookie` headers so cookies are scoped to the proxy path. However, the `Domain` attribute is **not** rewritten. If the app sets a cookie with an explicit domain (e.g., `Domain=app.internal`), the browser may reject it because the cookie domain doesn't match the Muximux domain.
+**What happens:** The proxy rewrites the `Path` attribute of `Set-Cookie` headers, so cookies are scoped to the proxy path. However, the proxy does **not** rewrite the `Domain` attribute. The app may set a cookie with an explicit domain (e.g., `Domain=app.internal`). The browser may then reject the cookie, because the cookie domain doesn't match the Muximux domain.
 
-**Workaround:** Configure the app to not set an explicit cookie domain, if possible. Most apps that are designed for reverse proxy use will work correctly without an explicit domain.
+**Workaround:** If possible, configure the app to not set an explicit cookie domain. Most apps that are designed for reverse proxy use work correctly without an explicit domain.
 
 ### Strict Origin Validation
 
-**Symptom:** Proxied app rejects requests with CSRF errors, "invalid origin", or "forbidden" responses when submitting forms or making API calls.
+**Symptom:** A proxied app rejects requests when you submit forms or make API calls. It returns CSRF errors, "invalid origin", or "forbidden" responses.
 
-**What happens:** Some apps validate the `Origin` or `Referer` HTTP header to prevent cross-site request forgery (CSRF). When accessed through the proxy, these headers contain Muximux's hostname instead of the app's hostname, causing the app to reject the request.
+**What happens:** Some apps check the `Origin` or `Referer` HTTP header to prevent cross-site request forgery (CSRF, an attack where another site sends requests in your name). Through the proxy, these headers contain Muximux's hostname instead of the app's hostname. The app then rejects the request.
 
-**Workaround:** Check the app's settings for a "trusted origins" or "CORS allowed origins" option and add Muximux's URL. Some apps also have a "disable CSRF" or "allow reverse proxy" toggle.
+**Workaround:** Look in the app's settings for a "trusted origins" or "CORS allowed origins" option. Add Muximux's URL there. Some apps also have a "disable CSRF" or "allow reverse proxy" toggle.
 
 ---
 
@@ -172,7 +174,7 @@ Binary content (images, videos, archives, file downloads) is **not** buffered - 
 
 - Verify that `trusted_proxies` in your configuration includes your reverse proxy's IP address or CIDR range.
 - Check that your authentication proxy is sending the expected headers (`Remote-User`, `Remote-Email`, etc.).
-- Muximux logs rejected forward auth attempts. Check server logs for details on why requests are being rejected.
+- Muximux logs rejected forward auth attempts. Check the server logs to see why it rejects the requests.
 
 ### Session expires too quickly
 
@@ -183,7 +185,7 @@ Binary content (images, videos, archives, file downloads) is **not** buffered - 
     session_max_age: 7d
   ```
 
-- Sessions are refreshed on activity, so users who are actively using Muximux should not be logged out unexpectedly.
+- Muximux refreshes sessions on activity. Users who actively use Muximux should not be logged out unexpectedly.
 
 ---
 
@@ -204,21 +206,21 @@ Binary content (images, videos, archives, file downloads) is **not** buffered - 
     listen: ":9090"
   ```
 
-- If you are using auto-HTTPS (`tls.domain`), ports 80 and 443 must also be available. These are used by Caddy for certificate issuance and HTTPS serving.
+- If you use auto-HTTPS (`tls.domain`), ports 80 and 443 must also be available. Caddy uses them for certificate issuance and HTTPS serving.
 
 ---
 
 ## Onboarding Wizard Doesn't Appear
 
-The onboarding wizard opens only while the server reports setup as pending (a new install where setup was never completed and no apps, users or auth method are configured), and only for an administrator. It never opens for a non-admin or on an established instance.
+The onboarding wizard opens only while the server reports setup as pending. Setup is pending on a new install where setup was never completed and no apps, users or auth method are configured. The wizard also opens only for an administrator. It never opens for a non-admin or on an established instance.
 
-If you deleted your `data/config.yaml` but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. The `data/` directory is resolved relative to the binary's location (not the working directory), so make sure you're looking at the correct path. Check the server logs to confirm config loading.
+You may delete your `data/config.yaml` and still not see the wizard. In that case, verify that the server restarted and is serving the default (empty) config. Muximux resolves the `data/` directory relative to the binary's location, not the working directory. Make sure you're looking at the correct path. Check the server logs to confirm that the config loaded.
 
 ---
 
 ## Settings Shows Values I Did Not Set
 
-A field shown locked ("From VAR" or "Set by VAR") gets its value from an environment variable or command-line flag, for example `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`, `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_AUTH_METHOD` or a `MUXIMUX_OIDC_*` variable. An OIDC field written in `config.yaml` as exactly `${VAR}` is locked the same way. The override applies in memory only and is never written to `config.yaml`; unset the variable and restart to see the file's value. The full list is in the [Environment Variable Reference](configuration.md#environment-variable-reference). Settings -> Discovery shows the stored values, including the auto-import mode. If Save is blocked with a name conflict, rename one of the two apps or groups with the same name.
+A locked field shows "From VAR" or "Set by VAR". It gets its value from an environment variable or command-line flag, for example `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`, `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_AUTH_METHOD` or a `MUXIMUX_OIDC_*` variable. An OIDC field written in `config.yaml` as exactly `${VAR}` is locked the same way. The override applies in memory only. Muximux never writes it to `config.yaml`. To see the file's value, unset the variable and restart. The full list is in the [Environment Variable Reference](configuration.md#environment-variable-reference). Settings -> Discovery shows the stored values, including the auto-import mode. If Save is blocked with a name conflict, rename one of the two apps or groups with the same name.
 
 ---
 
@@ -226,7 +228,7 @@ A field shown locked ("From VAR" or "Set by VAR") gets its value from an environ
 
 **Symptom:** The container exits at startup with `Failed to load configuration:` followed by a message naming a `MUXIMUX_AUTH_METHOD` or `MUXIMUX_OIDC_*` variable.
 
-**Cause:** Authentication from the environment fails closed: a configuration that could leave the instance open, or unable to sign anyone in, stops startup instead. Common messages:
+**Cause:** Authentication from the environment fails closed (it stops instead of running in an unsafe state). If a configuration could leave the instance open, or unable to sign anyone in, it stops startup instead. Common messages:
 
 | Message contains | Fix |
 |---|---|
@@ -237,29 +239,29 @@ A field shown locked ("From VAR" or "Set by VAR") gets its value from an environ
 | `_FILE: cannot read`, `is empty`, `is larger than` | The secret file is missing, unreadable by the container user (`PUID`), empty or too large. |
 | `issuer_url is required`, `client_id is required`, `must be an absolute http(s) URL` | Set the named variable to a valid value. |
 
-Invalid booleans, unknown `MUXIMUX_OIDC_*` names and OIDC variables the chosen method does not use only log a warning at startup. See [Authentication > Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
+Some problems only log a warning at startup: invalid booleans, unknown `MUXIMUX_OIDC_*` names, and OIDC variables the chosen method does not use. See [Authentication > Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables).
 
 ---
 
 ## API Returns 503 "setup_required"
 
-On a new install, most of the API (and `/ws` and `/proxy/`) waits until the onboarding wizard is finished. Complete setup with the [setup token](authentication.md#setup-token), or start with `MUXIMUX_AUTH_METHOD` set to skip the wizard. See [API Reference > Authentication](api.md#authentication) for the endpoints that stay open.
+On a new install, most of the API (and `/ws` and `/proxy/`) waits until the onboarding wizard is finished. Complete setup with the [setup token](authentication.md#setup-token). Or, to skip the wizard, start with `MUXIMUX_AUTH_METHOD` set. See [API Reference > Authentication](api.md#authentication) for the endpoints that stay open.
 
 ---
 
 ## Docker App Missing: "Not loaded" in Settings -> Discovery
 
-**Symptom:** An auto-imported app or gateway site is gone from the dashboard, the log says `Invalid Docker auto-imported entry quarantined`, and Settings -> Discovery lists it under **Not loaded: invalid auto-imported entries**.
+**Symptom:** An auto-imported app or gateway site is gone from the dashboard. The log says `Invalid Docker auto-imported entry quarantined`. Settings -> Discovery lists it under **Not loaded: invalid auto-imported entries**.
 
-**Cause:** The entry in `config.yaml` fails validation (for example it was written without a URL by an older version). Instead of refusing to start, Muximux keeps it in the file but does not load it.
+**Cause:** The entry in `config.yaml` fails validation. For example, an older version wrote it without a URL. Muximux does not refuse to start. Instead, it keeps the entry in the file but does not load it.
 
-**Solution:** Fix the container's labels so the next refresh writes a valid entry, or click **Remove** (or **Remove all**) to delete it from `config.yaml`. See [Docker Discovery > Quarantined entries](docker-discovery.md#quarantined-entries).
+**Solution:** Fix the container's labels so the next refresh writes a valid entry. Or click **Remove** (or **Remove all**) to delete it from `config.yaml`. See [Docker Discovery > Quarantined entries](docker-discovery.md#quarantined-entries).
 
 ---
 
 ## Labelled Container Is Not Auto-Imported
 
-Open the Discover dialog: a container auto-import skips shows a **Not importable** chip with the reason.
+Open the Discover dialog. Each container that auto-import skips shows a **Not importable** chip with the reason.
 
 | Reason | Fix |
 |---|---|
@@ -275,7 +277,7 @@ A container with `muximux.app.enabled=false` is opted out and hidden from the di
 
 ## My Edit to a Docker App Keeps Reverting
 
-While an app is tracked, a set `muximux.app.name`, `icon`, `group` or `order` label wins: an edit to that field in Settings is put back on the next refresh, even for an app you imported by hand and with `auto_import: off`. Remove the label, or **Detach** the app in Settings -> Discovery -> Currently tracked, to keep your edit. For groups, editing the icon or colour of a Docker-created group in Settings hands it back to you. See [Label re-sync for tracked apps](docker-discovery.md#label-re-sync-for-tracked-apps).
+While an app is tracked, a set `muximux.app.name`, `icon`, `group` or `order` label wins. If you edit that field in Settings, the next refresh puts the label's value back. This happens even for an app you imported by hand, and even with `auto_import: off`. To keep your edit, remove the label, or **Detach** the app in Settings -> Discovery -> Currently tracked. For groups, a different rule applies: if you edit the icon or colour of a Docker-created group in Settings, that hands the group back to you. See [Label re-sync for tracked apps](docker-discovery.md#label-re-sync-for-tracked-apps).
 
 ---
 
@@ -283,9 +285,13 @@ While an app is tracked, a set `muximux.app.name`, `icon`, `group` or `order` la
 
 **Symptom:** The Lucide tab of the icon picker lists icons but the category filter is empty, and the log shows `Lucide categories fetch failed; serving icon names without category metadata`.
 
-**Cause:** Muximux fetches the category list from `https://lucide.dev/api/categories`. When that request fails (no outbound internet access, DNS, a firewall), icon names are still served without categories, and the warning is logged once per process. Releases before 3.6.1 always failed here because the upstream file they used was removed.
+**Cause:** Muximux fetches the category list from `https://lucide.dev/api/categories`. That request can fail (no outbound internet access, DNS, a firewall). Muximux then still serves the icon names, but without categories. It logs the warning once per process. Releases before 3.6.1 always failed here, because the upstream file they used was removed.
 
-**Solution:** Upgrade to 3.6.1 or later and allow Muximux outbound HTTPS to `lucide.dev`, `api.github.com` (icon list) and `cdn.jsdelivr.net` (icon files). The icon list is kept in memory for the icon cache lifetime (`icons.dashboard_icons.cache_ttl`, 7 days by default), so restart Muximux after fixing network access to fetch the categories again.
+**Solution:**
+
+1. Upgrade to 3.6.1 or later.
+2. Allow Muximux outbound HTTPS to `lucide.dev`, `api.github.com` (icon list) and `cdn.jsdelivr.net` (icon files).
+3. Restart Muximux to fetch the categories again. A restart is needed because Muximux keeps the icon list in memory for the icon cache lifetime (`icons.dashboard_icons.cache_ttl`, 7 days by default).
 
 ---
 
@@ -315,7 +321,7 @@ Different settings have different reload behaviors:
 | Gateway sites (`gateway_sites`) | No -- Caddy reloads in place |
 | Auth method (via Settings or API) | No -- applied immediately |
 
-If you edited `config.yaml` directly (not through the Settings panel), Muximux will pick up the changes on the next restart.
+If you edit `config.yaml` directly (not through the Settings panel), Muximux picks up the changes on the next restart.
 
 ---
 
@@ -331,7 +337,7 @@ If you edited `config.yaml` directly (not through the Settings panel), Muximux w
 sudo chown -R 1000:1000 ./data
 ```
 
-Or, if you prefer to use a different UID, set `PUID` and `PGID` in your `docker-compose.yml`. Don't use `user:` for this: the entrypoint has to start as root to create the user and fix ownership of `/app/data` before it drops privileges. If you drop capabilities (`cap_drop: ALL`), add back `CHOWN`, `SETUID` and `SETGID`, as the example `docker-compose.yml` does. Without them the container exits with `su-exec: setgroups: Operation not permitted`.
+Or, to use a different UID, set `PUID` and `PGID` in your `docker-compose.yml`. Don't use `user:` for this. The entrypoint has to start as root to create the user and fix ownership of `/app/data`. Only then does it drop privileges. If you drop capabilities (`cap_drop: ALL`), add back `CHOWN`, `SETUID` and `SETGID`, as the example `docker-compose.yml` does. Without them, the container exits with `su-exec: setgroups: Operation not permitted`.
 
 ```yaml
 services:
@@ -358,14 +364,17 @@ start/stop/restart buttons return an error.
    `- /var/run/docker.sock:/var/run/docker.sock:ro`
    (`:ro` doesn't limit Docker API calls; see
    [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux).)
-   The container entrypoint auto-detects the socket's group and grants the
-   runtime user access, so you don't need `group_add`, root, or a custom entrypoint.
-2. Lifecycle controls (start/stop/restart) additionally require a daemon that
-   accepts write requests (a plain socket mount does; a socket proxy must allow
-   `POST`) AND `discovery.docker.lifecycle_enabled: true`. They are role-gated
-   and audit-logged.
-3. Confirm discovery is enabled (`discovery.docker.enabled: true`) and check
-   the server logs for socket connection errors on startup.
-4. For rootless Docker, a docker-socket-proxy sidecar, or a custom socket
+   The container entrypoint auto-detects the socket's group. It then gives the
+   runtime user access. You don't need `group_add`, root, or a custom entrypoint.
+2. For lifecycle controls (start/stop/restart), set up two more things. You need
+   both:
+   - a daemon that accepts write requests (a plain socket mount does; a socket
+     proxy must allow `POST`);
+   - `discovery.docker.lifecycle_enabled: true`.
+
+   Muximux limits these controls by role and writes each use to the audit log.
+3. Confirm that discovery is enabled (`discovery.docker.enabled: true`).
+4. Check the server logs for socket connection errors on startup.
+5. For rootless Docker, a docker-socket-proxy sidecar, or a custom socket
    path, set the `DOCKER_SOCKET` and `DOCKER_GID` override env vars (see
    [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux)).

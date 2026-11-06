@@ -1,66 +1,69 @@
 # OIDC: Keycloak
 
-This guide sets up Muximux to authenticate against a Keycloak realm, with group memberships emitted in the ID token so Muximux can promote users to admin and gate per-app visibility.
+This guide sets up Muximux to sign users in with a Keycloak realm (a separate space of users and settings in Keycloak). Keycloak puts group memberships in the ID token (the signed sign-in record that Keycloak sends to Muximux). Muximux uses these groups to promote users to admin and to control which apps each user sees.
 
-When you're done, users sign in with their Keycloak account, Muximux receives their group list as `groups: ["developers", "Muximux-Admins"]`, and admins land on the Settings page automatically.
+When you're done, users sign in with their Keycloak account. Muximux receives their group list as `groups: ["developers", "Muximux-Admins"]`. Admins land on the Settings page automatically.
 
 ---
 
 ## Prerequisites
 
-- A running Keycloak instance (any 19.x or newer release works). You need realm-administrator access on the realm Muximux will use.
-- Muximux on a stable URL (HTTPS in production, HTTP works for localhost testing).
-- The base URL of your Keycloak instance, including the realm path. The full **issuer URL** for a realm called `homelab` running at `https://auth.example.com` is `https://auth.example.com/realms/homelab`. Note the format; it changed in Keycloak 17 (older versions used `/auth/realms/...`).
+- A running Keycloak instance. Any 19.x or newer release works. You need realm-administrator access on the realm Muximux will use.
+- Muximux on a stable URL. Use HTTPS in production. HTTP works for localhost testing.
+- The base URL of your Keycloak instance, including the realm path. Take a realm called `homelab` running at `https://auth.example.com`. Its full **issuer URL** (the address Muximux uses to find the provider) is `https://auth.example.com/realms/homelab`. Note the format. It changed in Keycloak 17. Older versions used `/auth/realms/...`.
 
 ---
 
 ## Step 1: Create the Client
 
-1. Sign in to the Keycloak admin console and select the realm.
-2. Open **Clients** and click **Create client**.
-3. **General settings**:
+1. Sign in to the Keycloak admin console.
+2. Select the realm.
+3. Open **Clients**.
+4. Click **Create client**.
+5. **General settings**:
    - Client type: `OpenID Connect`
    - Client ID: `muximux`
-4. **Capability config**:
+6. **Capability config**:
    - Client authentication: **On** (gives you a client secret).
-   - Authentication flow: leave **Standard flow** checked, uncheck the rest.
-5. **Login settings**:
+   - Authentication flow: leave **Standard flow** checked. Uncheck the rest.
+7. **Login settings**:
    - Root URL: `https://muximux.example.com`
    - Valid redirect URIs: `https://muximux.example.com/api/auth/oidc/callback`
    - Web origins: `https://muximux.example.com`
-6. Save.
-
-Switch to the **Credentials** tab and copy the **Client secret**. You'll need it in `config.yaml`.
+8. Save.
+9. Switch to the **Credentials** tab.
+10. Copy the **Client secret**. You will need it in `config.yaml`.
 
 ---
 
 ## Step 2: Add a Group Membership Mapper
 
-Out of the box Keycloak does not include groups in the ID token. Muximux needs them for `admin_groups` and per-app `allowed_groups` to work.
+By default, Keycloak does not include groups in the ID token. Muximux needs them, or `admin_groups` and per-app `allowed_groups` do not work.
 
-1. Open the `muximux` client and go to **Client scopes**.
-2. Click on **muximux-dedicated** in the list (the client's dedicated scope).
-3. Click **Add mapper > By configuration > Group Membership**.
-4. Fill in:
+1. Open the `muximux` client.
+2. Go to **Client scopes**.
+3. Click on **muximux-dedicated** in the list (the client's dedicated scope).
+4. Click **Add mapper > By configuration > Group Membership**.
+5. Fill in these fields:
    - Name: `groups`
    - Token Claim Name: `groups`
-   - **Full group path**: **Off** (this is the important one; with it on, Keycloak emits `/Engineering` instead of `Engineering` and `admin_groups` won't match what you'd write naturally)
+   - **Full group path**: **Off**. This is the important one. When it is on, Keycloak sends `/Engineering` instead of `Engineering`. Then `admin_groups` won't match the names you would naturally write.
    - Add to ID token: **On**
    - Add to access token: **On**
    - Add to userinfo: **On**
-5. Save.
+6. Save.
 
 ---
 
 ## Step 3: Create or Identify Admin Groups
 
-If you want some users to log in as Muximux admins, the group has to exist in Keycloak.
+If you want some users to log in as Muximux admins, the admin group must exist in Keycloak.
 
 1. Open **Groups > Create group**.
-2. Name: `Muximux-Admins` (or whatever you'd like to recognize).
-3. Add members on the **Members** tab, or assign the group to users via **Users > <user> > Groups**.
+2. Name: `Muximux-Admins` (or another name you will recognize).
+3. Add members on the **Members** tab. Or assign the group to users in **Users > <user> > Groups**.
 
-You can repeat this for any other groups you'd like to use later for per-app filtering, e.g. `Engineering`, `On-Call`.
+You can repeat this for other groups you want to use later for per-app filtering, e.g. `Engineering`, `On-Call`.
 
 ---
 
@@ -94,25 +97,42 @@ Set `KEYCLOAK_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the realm URL (`https://auth.example.com/realms/homelab`) as the issuer URL, the client ID from Step 1, the client secret from the client's Credentials tab, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+You can use the Settings page instead of editing `config.yaml`:
+
+1. Open **Settings > Security**.
+2. Choose **Single sign-on (OIDC)**.
+3. For the issuer URL, enter the realm URL (`https://auth.example.com/realms/homelab`).
+4. Enter the client ID from Step 1.
+5. Enter the client secret from the client's Credentials tab.
+6. For the groups claim, enter `groups`.
+7. Under admin groups, enter your admin group (for example `Muximux-Admins`).
+8. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
+9. Press **Test connection**.
+10. Press **Update Method**.
+
+See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 
 ## Step 5: Validate
 
-1. Visit `https://muximux.example.com/login` and click **Login with SSO**. You should be redirected to Keycloak.
-2. After Keycloak sign-in you should land back on the Muximux dashboard.
-3. Sign in as a member of `Muximux-Admins` and confirm the Settings gear appears in the navigation.
-4. To inspect the actual claims Keycloak is sending: in Keycloak admin, open **Clients > muximux > Client scopes > Evaluate**, pick a user, and click **Generated ID Token**. The `groups` claim should be there with the names you expect (no leading slash).
+1. Visit `https://muximux.example.com/login`.
+2. Click **Login with SSO**. Muximux should send you to Keycloak.
+3. Sign in at Keycloak. You should land back on the Muximux dashboard.
+4. Sign in as a member of `Muximux-Admins`.
+5. Confirm that the Settings gear appears in the navigation.
+6. To see the actual claims Keycloak sends, open **Clients > muximux > Client scopes > Evaluate** in Keycloak admin.
+7. Pick a user.
+8. Click **Generated ID Token**. The `groups` claim should be there with the names you expect (no leading slash).
 
 ---
 
 ## Sign-out
 
-Keycloak supports RP-initiated logout (its discovery document lists an `end_session_endpoint`) and OIDC back-channel logout.
+Keycloak supports RP-initiated logout (Muximux sends the user to the provider to sign out). Its discovery document lists an `end_session_endpoint`. Keycloak also supports OIDC back-channel logout (the provider tells Muximux directly that a session ended).
 
-- **Sign out at Keycloak from Muximux.** Set `provider_logout: true` under `auth.oidc`. In the client's settings, add Muximux's return address (`https://muximux.example.com/login?logged_out=1`, or your `post_logout_redirect_url`) to **Valid post logout redirect URIs**. A value of `+` reuses the **Valid redirect URIs** list, but that list holds only the callback URL, so add the return address explicitly.
-- **Sign out of Muximux when the user signs out at Keycloak.** In the client's settings, under the logout settings, set **Backchannel logout URL** to `https://muximux.example.com/api/auth/oidc/backchannel-logout` and turn **Backchannel logout session required** on, so Keycloak includes the session ID (`sid`) in the logout token. Leave **Front channel logout** off: Keycloak uses the back-channel URL only when front-channel logout is off.
+- **Sign out at Keycloak from Muximux.** Set `provider_logout: true` under `auth.oidc`. In the client's settings, add Muximux's return address (`https://muximux.example.com/login?logged_out=1`, or your `post_logout_redirect_url`) to **Valid post logout redirect URIs**. A value of `+` reuses the **Valid redirect URIs** list. That list holds only the callback URL, so add the return address explicitly.
+- **Sign out of Muximux when the user signs out at Keycloak.** Open the logout settings in the client's settings. Set **Backchannel logout URL** to `https://muximux.example.com/api/auth/oidc/backchannel-logout`. Turn **Backchannel logout session required** on, so that Keycloak includes the session ID (`sid`) in the logout token. Leave **Front channel logout** off. Keycloak uses the back-channel URL only when front-channel logout is off.
 
 See [Authentication](authentication#oidc-openid-connect) for what each option does.
 

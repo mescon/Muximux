@@ -1,6 +1,6 @@
 # HTTP Actions
 
-An app with `open_mode: http_action` doesn't navigate when you click it. It fires an HTTP request against the configured URL via Muximux's server-side relay, audit-logs the result, and shows a toast.
+An app with `open_mode: http_action` doesn't navigate when you click it. Instead, Muximux sends an HTTP request to the configured URL through its server-side relay (the Muximux server sends the request for you). Muximux writes the result to the audit log and shows a toast (a short pop-up message).
 
 Common uses:
 
@@ -39,23 +39,23 @@ apps:
 | `http_action_confirm`       | bool   | `false` | When true, click shows a confirmation modal with method + URL               |
 | `http_action_show_toast`    | bool   | `true`  | When false, fires silently (audit log still records every fire)             |
 
-The `url`, `min_role`, `allowed_groups`, `enabled`, and `icon` fields work the same as every other app. Per-app access control is enforced server-side: a user who can't see the app in the menu can't fire its action either.
+The `url`, `min_role`, `allowed_groups`, `enabled`, and `icon` fields work the same as every other app. The server enforces per-app access control. A user who can't see the app in the menu can't fire its action either.
 
 ## How it works
 
 When you click an `http_action` app:
 
 1. The browser POSTs `/api/app-action/{name}` to Muximux (with the session cookie).
-2. The backend looks up the app, verifies your role and group memberships, and fires the configured method/headers against the app's `url`.
-3. The result (status + latency) is shown as a toast. Audit log records method, host, caller, status, and latency.
+2. The backend looks up the app and checks your role and group memberships. Then it sends the configured method/headers to the app's `url`.
+3. Muximux shows the result (status + latency) as a toast. The audit log records method, host, caller, status, and latency.
 
-The relay timeout is 10 seconds, hard-coded. Redirects are followed. The response body is never returned to the browser or logged.
+The relay timeout is 10 seconds, and you cannot change it. The relay follows redirects. Muximux never returns the response body to the browser and never logs it.
 
 ## Security model
 
-- **No URL allowlist.** Operators trust the URLs they configure. The validator only enforces `http://` or `https://` scheme and a non-empty hostname.
-- **Audit log records the host only.** Webhook URLs commonly embed secrets in query strings (`?token=...`); we never log the path or query string, only the hostname.
-- **CSRF protection** is the same as every other state-changing endpoint: the `X-Requested-With: XMLHttpRequest` header on the request is required.
+- **No URL allowlist.** Operators trust the URLs they configure. The validator only checks for an `http://` or `https://` scheme and a non-empty hostname.
+- **Audit log records the host only.** Webhook URLs often contain secrets in the query string (`?token=...`). So we never log the path or query string, only the hostname.
+- **CSRF protection** (protection against requests that other sites forge in your name) is the same as on every other state-changing endpoint. The request must carry the `X-Requested-With: XMLHttpRequest` header.
 - **Per-app role + group gate** mirrors the access control that hides the app from the menu.
 
 ## Discovery labels
@@ -70,4 +70,4 @@ You can declare an http_action via container labels:
 | `muximux.app.http_action_confirm`      | boolish  | `true`                                   |
 | `muximux.app.http_action_show_toast`   | boolish  | `false`                                  |
 
-Headers are `Key=Value` pairs, comma-separated. Values can contain `=`; the split is on the first `=` only.
+Headers are `Key=Value` pairs, separated by commas. A value can contain `=`, because Muximux splits each pair at the first `=` only.
