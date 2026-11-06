@@ -73,6 +73,7 @@ auth:
 `trusted_proxies` is the most important field. Muximux only trusts identity headers from these IPs. Muximux checks the address of the direct connection. With a Cloudflare Tunnel, that is always the `cloudflared` connector, not a Cloudflare address. So list the address that the connector uses to reach Muximux:
 
 - If `cloudflared` runs on the same host as Muximux, outside Docker or with host networking, use `127.0.0.1/32`.
+  This applies only when Muximux also runs outside Docker or with host networking. If Muximux runs in a container and `cloudflared` connects to a port that Docker publishes, Docker passes the connection on from the gateway address of the bridge network (for example `172.17.0.1`). Then Muximux does not see `127.0.0.1`, and it rejects the identity headers. In that case, trust the gateway address, or put `cloudflared` on the same Docker network as Muximux (see the next item).
 - If `cloudflared` runs in its own container on a Docker bridge network, use the address of the connector container on that network, for example `172.18.0.5/32`. Give the container a fixed address (`ipv4_address` in Docker Compose), because Docker can give it a new address when it restarts.
 - If `cloudflared` runs on a different machine, use the address of that machine.
 

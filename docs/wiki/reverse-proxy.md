@@ -275,7 +275,7 @@ The proxy injects a small `<script>` tag into every HTML response. This script p
 | DOM setters | `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` | Property setter override on prototype |
 | Special setters | `img.srcset`, `setAttribute()`, `CSSStyleSheet.insertRule()`, `insertAdjacentHTML()` | Custom wrappers for multi-URL and CSS-in-JS |
 | Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip prefix where the browser lets the interceptor patch them; otherwise `history.replaceState` removes the prefix from the page address; setters add prefix; Navigation API fallback intercepts `location.href` assignment when setter is non-configurable (Chrome) |
-| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; init guard re-strips prefix during initialization when getters can't be patched (Chrome); prefix restored after init so back/forward navigates correctly |
+| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; when getters can't be patched (Chrome), a guard re-strips the prefix after each call, for the life of the page; a full reload of the frame then reaches the Muximux shell, which sends the frame back to `/proxy/<slug>/...` |
 | Constructors | `Worker`, `SharedWorker`, `Audio` | Wrapper rewrites URL argument |
 | Isolation | `window.parent`, `window.top` | `Object.defineProperty` override |
 | Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |

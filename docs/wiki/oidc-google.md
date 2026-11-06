@@ -5,7 +5,7 @@ This guide sets up Muximux to sign users in with Google accounts. It uses a Goog
 > **Note:** Google's standard OIDC tokens **do not** include group memberships. Workspace can expose groups, but only through a separate Google Cloud API call. Muximux does not currently make this call. In practice:
 >
 > - Sign-in works fine for any Google account you allow.
-> - `admin_groups` will not promote users to admin based on Workspace groups. So every user who signs in with Google gets the `user` role. Keep a local admin account for administration (see Step 4).
+> - `admin_groups` will not promote users to admin based on Workspace groups. So with the default settings, a user who signs in with Google gets the `user` role. Step 4 lists the exceptions. Keep a local admin account for administration (see Step 4).
 > - Per-app `allowed_groups` filtering still applies. Google sends no groups, so a non-admin Google user cannot see an app that has a non-empty `allowed_groups` list. Admins bypass this filter.
 >
 > If you need group-based filtering, put Keycloak / Authentik / Pocket ID / Zitadel in front of Google as a federated identity layer (a provider that signs users in through another provider). Most of those can use Google as an upstream identity source. They still send their own `groups` claim to Muximux.
@@ -81,7 +81,12 @@ Set `GOOGLE_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ## Step 4: Decide Who Becomes Admin
 
-Muximux gives an OIDC user the `admin` role only when one of the user's groups is in `admin_groups`. Google sends no groups, so every user who signs in with Google gets the `user` role. Muximux does not add OIDC users to its user list. So you cannot promote a Google user in **Settings > Security > Users**.
+Muximux gives an OIDC user the `admin` role only when one of the user's groups is in `admin_groups`. Google sends no groups, so with the default `groups_claim`, a user who signs in with Google gets the `user` role. There are two exceptions:
+
+- Muximux reads the claim that `groups_claim` names. With `groups_claim: email`, the user's email address becomes the user's only group. An address that you put in `admin_groups` then gives that Google user the `admin` role.
+- If the username from Google is the same as the username of a local account, Muximux uses the local account and its role for that session. So a local admin with that username gives the Google user admin access. Do not give a local account a username that a Google user can have (here, an email address), unless you want this.
+
+Muximux does not add OIDC users to its user list. So you cannot promote a Google user in **Settings > Security > Users**.
 
 **Keep a local admin account.**
 To keep admin access:
@@ -95,7 +100,7 @@ If Google users must be admins, put a provider that sends groups in front of Goo
 **Restrict at the consent screen.**
 These settings control who can sign in. They do not control who is an admin. If your Google Cloud project has User type **Internal**, only members of your Workspace can sign in.
 
-With User type **External**, do not rely on the **Test users** list. A published External app lets any Google account sign in. A testing app can also let unlisted accounts sign in when it asks only for `openid`, `profile` and `email`, the scopes Muximux uses. Every account that signs in becomes a Muximux user with the `user` role, and it sees every app that has no `min_role` or `allowed_groups`. So with External, restrict access in another way as well, for example with Cloudflare Access or a VPN in front of Muximux.
+With User type **External**, do not rely on the **Test users** list. A published External app lets any Google account sign in. A testing app can also let unlisted accounts sign in when it asks only for `openid`, `profile` and `email`, the scopes Muximux uses. Every account that signs in becomes a Muximux user, with the `user` role unless an exception in Step 4 applies. It sees every app that has no `min_role` or `allowed_groups`. So with External, restrict access in another way as well, for example with Cloudflare Access or a VPN in front of Muximux.
 
 For a Workspace-only deployment, **Internal** plus a local admin account is the simplest pattern.
 
@@ -122,7 +127,7 @@ See [Authentication](authentication#setting-up-oidc-in-settings) for how the for
 1. Visit `https://muximux.example.com/login`.
 2. Click **Login with SSO**. Google's consent screen appears.
 3. Approve. You should land back on the Muximux dashboard.
-4. Check the role. A Google user always signs in as a regular user. For admin tasks, sign in with the local admin account (see Step 4).
+4. Check the role. With the default settings, a Google user signs in as a regular user. For admin tasks, sign in with the local admin account (see Step 4).
 
 ---
 
@@ -140,7 +145,7 @@ If you want Muximux to be SSO-only, `auto_redirect` and `disable_local_login` st
 |---|---|---|
 | `redirect_uri_mismatch` from Google | The URI in your OAuth client doesn't exactly match what Muximux sends. | In **Credentials**, edit the OAuth client and add the exact URL, including `https://`, host, and `/api/auth/oidc/callback`. No wildcards. |
 | `access_denied` immediately after consent | The Google account isn't in the project's test-user list (External + testing) or isn't part of the Workspace (Internal). | Add the user to test users, or publish the app, or switch User type. |
-| Sign-in works but you wanted groups | Google doesn't emit groups in standard OIDC tokens. | Use a federated IdP (Keycloak, Authentik, etc.) with Google as an upstream identity source, or assign Muximux roles manually. |
+| Sign-in works but you wanted groups | Google doesn't emit groups in standard OIDC tokens. | Use a federated IdP (Keycloak, Authentik, etc.) with Google as an upstream identity source. Or give admin access in one of the ways in Step 4: a local admin account, or `groups_claim: email` with the admin addresses in `admin_groups`. |
 | Browser warns "Google hasn't verified this app" | The OAuth consent screen is still in unverified state. | Either complete Google's verification process (only required if you're publishing to a wide audience) or accept the warning for trusted users. |
 
 ---

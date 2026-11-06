@@ -393,6 +393,7 @@ If the provider is down and SSO-only sign-in locks you out:
 1. Set `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` to `false`. If you only remove the variable, the `config.yaml` value applies again, and that value can also be `true`.
 2. Make sure `config.yaml` has a local admin user.
 3. Restart Muximux.
+4. Open `/login?local=1` to get the password form. If `auto_redirect` is on, the plain `/login` page still sends you to the provider.
 
 ### `${VAR}` references in config.yaml
 

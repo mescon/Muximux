@@ -128,6 +128,8 @@ muximux.example.com          -> https terminated upstream -> http://muximux-host
 | `none` | Plain HTTP | Same outcome as `auto` in this mode. |
 | `custom` | HTTPS with operator-supplied cert | Useful for split-DNS where some clients hit Muximux directly. The cert must be valid for the gateway domain. |
 
+Do not mix `tls: custom` sites with `tls: auto` or `tls: none` sites while `gateway_listen` is set. All gateway sites share one port, and Caddy cannot serve HTTP and HTTPS on the same port. Caddy then rejects the configuration, so the start or reload fails. Give all gateway sites the same protocol.
+
 The dashboard (`server.listen`) is independent. It always binds the port you set there, with the TLS setup that `server.tls.*` describes.
 
 **Format**: `gateway_listen` accepts anything `net.Listen` does: `":8443"` (all interfaces), `"127.0.0.1:8443"` (loopback only), `"[::]:8443"` (IPv6 all). Empty (the default) restores the auto-binding behaviour.

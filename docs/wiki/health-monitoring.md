@@ -17,6 +17,8 @@ health:
 
 Set `enabled: false` to turn off health monitoring entirely. When it is off, apps with `health_check: true` show a gray (unknown) status indicator. Apps without `health_check: true` show no status indicator.
 
+Muximux reads the `health` section only at startup. After you change `enabled`, `interval` or `timeout`, restart Muximux. Until then, the monitor keeps its old settings.
+
 ## How It Works
 
 - Muximux sends an HTTP GET request to each app that has `health_check: true`. It uses `health_url` if configured, otherwise the main `url`.
