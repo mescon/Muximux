@@ -53,7 +53,7 @@ grafana.example.com {
 }
 ```
 
-Caddy automatically obtains a Let's Encrypt certificate, redirects HTTP to HTTPS, and proxies all traffic. Nothing else needed.
+Caddy obtains a Let's Encrypt certificate, redirects HTTP to HTTPS, and proxies all traffic without any further configuration.
 
 ---
 
@@ -110,7 +110,7 @@ services:
 
 ## WebSocket Support
 
-Caddy proxies WebSocket connections automatically -- no extra configuration. This works out of the box for apps like Homeassistant, Code Server, Portainer, and Gotify.
+Caddy proxies WebSocket connections automatically, so apps like Homeassistant, Code Server, Portainer, and Gotify work with no extra configuration.
 
 ```
 homeassistant.example.com {

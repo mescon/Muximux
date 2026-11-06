@@ -5,13 +5,13 @@
 [![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
 
-Muximux is designed with security as a first-class concern. This page documents the security measures built into the application, the standards they're based on, and how they protect your deployment.
+This page covers the security measures built into Muximux, the standards they're based on, and how they protect your deployment.
 
 ## Security Standards
 
 Muximux's security posture is evaluated against the [OWASP Application Security Verification Standard (ASVS) 4.0](https://owasp.org/www-project-application-security-verification-standard/), Level 2. ASVS is the industry standard for web application security requirements, maintained by the Open Worldwide Application Security Project.
 
-**Why Level 2?** ASVS defines three levels: L1 (minimum), L2 (standard -- recommended for applications that handle sensitive data), and L3 (advanced -- banking, healthcare, critical infrastructure). As a self-hosted application portal that manages access to your services, Level 2 is the appropriate target.
+ASVS defines three levels: L1 (minimum), L2 (standard, recommended for applications that handle sensitive data), and L3 (advanced: banking, healthcare, critical infrastructure). Muximux is a self-hosted application portal that manages access to your services, so Level 2 is the right target.
 
 Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applicable to Muximux's architecture. The controls below cover all requirements that apply to a single-binary Go web application with cookie-based sessions.
 
@@ -65,7 +65,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applica
   - Config import/export/restore
   - OIDC authentication events
   - API key authentication failures
-- **Centralized error logging** -- All HTTP error responses are logged at appropriate severity: 5xx at ERROR, 401/403 at WARN, other 4xx at DEBUG. No silent errors.
+- **Centralized error logging** -- All HTTP error responses are logged at appropriate severity: 5xx at ERROR, 401/403 at WARN, other 4xx at DEBUG.
 - **OIDC back-channel logout** -- `/api/auth/oidc/backchannel-logout` accepts a provider's logout token only after checking its signature, issuer, audience, event claim, absence of a nonce, freshness (at most 10 minutes old) and a one-time `jti`, then ends the matching sessions.
 - **Environment references kept on save** -- `${VAR}` references in `config.yaml` are kept when Settings saves the file, so secrets held in the environment are not written back in plain text. This holds when a list item (an app, user or gateway site) is renamed, or when items are reordered or removed, in separate saves; renaming an item and moving it in the same save can write its value in plain text, so check `config.yaml` after such an edit. A value you change in Settings replaces its reference.
 - **Real-time log streaming** -- The built-in log viewer supports WebSocket-based live streaming with source-based filtering, so you can monitor audit events in real time.
@@ -112,7 +112,7 @@ base-uri 'self'
 - **`frame-src *`** -- Muximux's core feature is embedding arbitrary web applications in iframes. Restricting frame sources would break the primary use case.
 - **`frame-ancestors 'self'`** -- Modern clickjacking protection that replaces reliance on the deprecated `X-Frame-Options` alone. Muximux will only load inside its own origin.
 - **`form-action 'self'`** -- Blocks a form-hijack that would POST user submissions to an attacker origin.
-- **`connect-src 'self'`** -- Same-origin fetches and WebSocket (`ws://`/`wss://` on the same host) both fall under `'self'`; dropping the wildcard `ws: wss:` closed a stealth exfiltration lane for any injected script.
+- **`connect-src 'self'`** -- Same-origin fetches and WebSocket (`ws://`/`wss://` on the same host) both fall under `'self'`. Leaving out the wildcard `ws: wss:` closes a WebSocket exfiltration path for any injected script.
 - **`style-src 'unsafe-inline'`** -- Required for Svelte component scoped styles and CSS custom property theming. Risk mitigated by the strict `script-src 'self'` policy, which prevents inline script execution.
 - **`img-src https:`** -- Allows external icon URLs (url-type app icons, favicons). Icons from Dashboard Icons and Lucide are served through Muximux's backend API, so they're covered by `'self'`.
 - **HSTS on TLS only** -- Muximux emits `Strict-Transport-Security: max-age=31536000` on requests that actually arrived over TLS. Plain-HTTP deployments in trusted networks are unaffected; TLS deployments get automatic HTTPS pinning without extra configuration.
@@ -141,13 +141,13 @@ When `proxy: false`, the browser connects directly to the app. Muximux has no co
 
 ### Forward Auth Header Validation
 
-Forward auth mode is inherently trust-based -- Muximux trusts headers from the auth proxy. The `trusted_proxies` check ensures that only connections from known proxy IPs are accepted. If an attacker connects directly (bypassing the proxy), the auth headers are rejected.
+Forward auth mode is trust-based: Muximux trusts headers from the auth proxy. The `trusted_proxies` check ensures that only connections from known proxy IPs are accepted. If an attacker connects directly (bypassing the proxy), the auth headers are rejected.
 
 ---
 
 ## What ASVS Level 2 Requires That Doesn't Apply
 
-For transparency, here are ASVS categories that are not applicable to Muximux's architecture:
+These ASVS categories do not apply to Muximux's architecture:
 
 | Category | Why N/A |
 |----------|---------|
@@ -164,7 +164,7 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
 
 ## Reporting a Vulnerability
 
-Please do not open a public issue for a security problem. Report it privately through the repository's Security tab (**Report a vulnerability**), which opens an advisory visible only to you and the maintainer; [SECURITY.md](https://github.com/mescon/Muximux/blob/main/SECURITY.md) lists what to include, what is in scope, and what to expect. Confirmed issues are fixed in a release, then published as a GitHub Security Advisory with a CVE so that Dependabot and `govulncheck` flag affected versions, and the reporter is credited unless they prefer not to be. Past advisories are listed under the repository's Security tab.
+Please do not open a public issue for a security problem. Report it privately through the repository's Security tab (**Report a vulnerability**), which opens an advisory visible only to you and the maintainer. [SECURITY.md](https://github.com/mescon/Muximux/blob/main/SECURITY.md) lists what to include, what is in scope, and what to expect. Confirmed issues are fixed in a release, then published as a GitHub Security Advisory with a CVE so that Dependabot and `govulncheck` flag affected versions. The reporter is credited unless they prefer not to be. Past advisories are listed under the repository's Security tab.
 
 ## Recommendations for Deployers
 
@@ -195,22 +195,22 @@ Please do not open a public issue for a security problem. Report it privately th
 
 ## Architectural Trade-offs
 
-These are design choices whose security implications are worth calling out so operators can weigh them against their threat model.
+These design choices have security implications that you should weigh against your threat model.
 
 ### Proxied apps share Muximux's origin
 
-When an app is configured with `proxy: true`, the reverse proxy serves it at `/proxy/{slug}/` on Muximux's own origin. This enables a few headline features: same-origin iframe embedding without X-Frame-Options friction, transparent cookie scoping, and the runtime request interceptor that rewrites fetch/XHR/WebSocket URLs for SPAs with hard-coded paths.
+When an app is configured with `proxy: true`, the reverse proxy serves it at `/proxy/{slug}/` on Muximux's own origin. Three features depend on this: same-origin iframe embedding without X-Frame-Options friction, transparent cookie scoping, and the runtime request interceptor that rewrites fetch/XHR/WebSocket URLs for SPAs with hard-coded paths.
 
 The trade-off is that a compromised or intentionally malicious proxied app is not meaningfully isolated from Muximux itself:
 
 - The iframe sandbox (`allow-scripts allow-same-origin`) specifically disables the "null origin" protection for same-origin content. An attacker who can run script inside the iframe can reach into Muximux's origin.
 - Muximux deliberately strips `Content-Security-Policy` and `X-Frame-Options` from proxied responses, because the interceptor script needs to run and upstream CSP would block it. This means any reflected-XSS primitive the upstream had is no longer constrained by its own CSP when accessed through Muximux.
-- Same-origin also means the session cookie is attached to `/proxy/...` requests, so cookie stripping in the proxy's Director (introduced as part of the batch-2 hardening) is load-bearing; Muximux's session no longer leaks to backends, but the proxied iframe itself is still same-origin from the browser's point of view.
+- Same-origin also means the browser attaches the session cookie to `/proxy/...` requests, so the proxy's Director has to strip it, and it does. Muximux's session no longer leaks to backends, but the browser still treats the proxied iframe itself as same-origin.
 
-Practically, this means: **trust a proxied app the way you trust its upstream, plus Muximux**. If you put a random untrusted web service behind `proxy: true`, any compromise of that service is a compromise of your Muximux admin surface. For apps you manage (Sonarr, Jellyfin, Home Assistant, etc.), this is fine; for third-party or multi-tenant apps, either leave `proxy: false` (iframes them as cross-origin) or don't embed them at all.
+In practice, **trust a proxied app the way you trust its upstream, plus Muximux**. If you put a random untrusted web service behind `proxy: true`, any compromise of that service is a compromise of your Muximux admin surface. For apps you manage (Sonarr, Jellyfin, Home Assistant, etc.), this is fine; for third-party or multi-tenant apps, either leave `proxy: false` (iframes them as cross-origin) or don't embed them at all.
 
 ### Permissions-Policy is permissive
 
-The HTTP `Permissions-Policy` header is the ceiling for iframe `allow` delegations. An iframe can only grant features the parent page is itself permitted to use, so Muximux ships with every delegatable feature set to `*`. This lets per-app iframe `allow` attributes scope camera/microphone/WebAuthn/etc. down to specific app origins. Muximux's own frontend never calls these APIs, so the wide ceiling does not broaden Muximux's own attack surface -- the narrowing happens per-iframe.
+The HTTP `Permissions-Policy` header is the ceiling for iframe `allow` delegations. An iframe can only grant features the parent page is itself permitted to use, so Muximux ships with every delegatable feature set to `*`. This lets per-app iframe `allow` attributes scope camera/microphone/WebAuthn/etc. down to specific app origins. Muximux's own frontend never calls these APIs, so the wide ceiling does not broaden Muximux's own attack surface. The narrowing happens per iframe.
 
-If you want to tighten this, per-app delegation is controlled by the `permissions` array on each app.
+To tighten this, use the `permissions` array on each app, which controls per-app delegation.

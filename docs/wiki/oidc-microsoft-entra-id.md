@@ -2,7 +2,7 @@
 
 This guide walks through setting up Muximux to authenticate users against Microsoft Entra ID (formerly Azure AD), including how to surface Entra group memberships so they can be used by Muximux's `admin_groups` and per-app `allowed_groups` features.
 
-The end state: users sign in to Muximux with their corporate Microsoft account, and Muximux receives their group memberships as readable names like `Engineering` rather than GUIDs.
+When you're done, users sign in to Muximux with their corporate Microsoft account, and Muximux receives their group memberships as readable names like `Engineering` rather than GUIDs.
 
 ---
 
@@ -23,7 +23,7 @@ The end state: users sign in to Muximux with their corporate Microsoft account, 
    - **Redirect URI**: choose **Web** and enter `https://muximux.example.com/api/auth/oidc/callback`. The path is fixed; the host must match your Muximux URL exactly.
 3. Click **Register**.
 
-On the resulting Overview page, note these two values, you'll paste them into `config.yaml` later:
+On the resulting Overview page, note these two values; you'll paste them into `config.yaml` later:
 
 - **Application (client) ID**
 - **Directory (tenant) ID**

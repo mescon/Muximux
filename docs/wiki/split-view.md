@@ -34,7 +34,7 @@ You can also click directly inside a panel to set it as the active target.
 
 ### Active Panel Indicator
 
-The draggable divider between panels shows a colored accent line on the active panel's edge. This provides a visual indicator of which panel is targeted without overlaying anything on the iframe content.
+The draggable divider between panels shows a colored accent line on the active panel's edge. This shows which panel is targeted without overlaying anything on the iframe content.
 
 ## Draggable Divider
 
@@ -50,11 +50,11 @@ Split view state is reflected in the URL hash:
 | `#sonarr+radarr` | Split view with Sonarr in panel 1 and Radarr in panel 2 |
 | `#sonarr+radarr?sonarr=%2Fseries%2Fx&radarr=%2Fmovie%2F1` | The same, with a page opened in each app (apps need [Allow deep links](apps.md#deep-links-in-links)) |
 
-This means you can bookmark a split view configuration or share it as a link. When Muximux loads with a `+` in the hash, it automatically enables horizontal split and loads both apps.
+You can bookmark a split view configuration or share it as a link. When Muximux loads with a `+` in the hash, it automatically enables horizontal split and loads both apps.
 
 ## Switching Orientation
 
-Click the horizontal or vertical icon to switch orientation while split view is active. Both panels and their loaded apps are preserved - only the layout direction changes.
+Click the horizontal or vertical icon to switch orientation while split view is active. Both panels and their loaded apps are preserved; only the layout direction changes.
 
 ## Closing Split View
 

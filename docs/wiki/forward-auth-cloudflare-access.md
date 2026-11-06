@@ -104,14 +104,14 @@ The `logout_url` ends in `/cdn-cgi/access/logout` and uses your Access team doma
 
 ## On Groups and Admin Promotion
 
-Cloudflare Access does not by default emit a "groups" header. Muximux's forward auth admin promotion (anyone with `admin`/`admins`/`administrators` in `Remote-Groups`) won't work out of the box.
+Cloudflare Access does not by default emit a "groups" header, so Muximux's forward auth admin promotion (anyone with `admin`/`admins`/`administrators` in `Remote-Groups`) won't work without extra setup.
 
 Two options:
 
 - **Manage admin status in Muximux directly.** First sign-in lands as a regular user; promote them via **Settings > Security > Users** in the Muximux UI.
 - **Synthesize a groups header from Access policy.** Cloudflare Access can inject custom headers based on which policy matched. In **Access > Applications > Muximux > Policies > Edit policy**, expand **Custom Headers** and set, for example, `Cf-Access-Groups: admin`. Then add `headers.groups: Cf-Access-Groups` to Muximux's config. This requires defining a separate policy per group, which gets cumbersome past two or three groups.
 
-The OIDC providers (Keycloak, Authentik, etc.) are a better fit if group-based access is central to your setup. Cloudflare Access shines when you want a single sign-on layer at the edge with simple allow/deny rules.
+The OIDC providers (Keycloak, Authentik, etc.) are a better fit if group-based access is central to your setup. Cloudflare Access suits you when you want a single sign-on layer at the edge with simple allow/deny rules.
 
 ---
 

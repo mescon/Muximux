@@ -73,7 +73,7 @@ Set `POCKETID_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ### Using Settings
 
-Instead of editing `config.yaml`, you can open **Settings > Security**, choose **Single sign-on (OIDC)**, and enter the public URL of Pocket ID (for example `https://id.example.com`, no trailing path) as the issuer URL, the client ID and secret from Step 1, `groups` added to the scopes, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
+Instead of editing `config.yaml`, you can open **Settings > Security** and choose **Single sign-on (OIDC)**. Enter the public URL of Pocket ID (for example `https://id.example.com`, no trailing path) as the issuer URL, the client ID and secret from Step 1, `groups` added to the scopes, `groups` as the groups claim, and your admin group (for example `Muximux-Admins`) under admin groups. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider, press **Test connection**, then press **Update Method**. See [Authentication](authentication#setting-up-oidc-in-settings) for how the form handles the client secret and SSO-only sign-in.
 
 ---
 
@@ -87,7 +87,7 @@ Instead of editing `config.yaml`, you can open **Settings > Security**, choose *
 
 ## Sign-out
 
-Pocket ID publishes an `end_session_endpoint` in its discovery document, and its discovery document advertises back-channel logout support. Pocket ID's client model has a list of **logout callback URLs** and a single **backchannel logout URL**. The exact labels in the admin form could not be confirmed from the documentation consulted, so check the OIDC client form in your Pocket ID version.
+Pocket ID's discovery document publishes an `end_session_endpoint` and advertises back-channel logout support. Each client has a list of **logout callback URLs** and a single **backchannel logout URL**. This guide could not confirm the exact labels in the admin form, so check the OIDC client form in your Pocket ID version.
 
 - **Return address.** Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the client's logout callback URLs, and set `provider_logout: true`.
 - **Back-channel logout.** Set the client's backchannel logout URL to `https://muximux.example.com/api/auth/oidc/backchannel-logout`. Pocket ID does not include the session ID (`sid`) in logout tokens (its discovery document reports `backchannel_logout_session_supported` as false), so Muximux matches sessions by `sub`.

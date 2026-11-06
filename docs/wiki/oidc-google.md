@@ -2,7 +2,7 @@
 
 This guide sets up Muximux to authenticate with Google accounts via Google Cloud's OAuth 2.0 client. It works for both consumer Gmail accounts and Google Workspace accounts.
 
-> **Heads up: groups don't come for free.** Google's standard OIDC tokens **do not** include group memberships. Workspace can expose groups, but only via a separate Google Cloud API call that Muximux does not currently make. Practically, this means:
+> **Note:** Google's standard OIDC tokens **do not** include group memberships. Workspace can expose groups, but only via a separate Google Cloud API call that Muximux does not currently make. In practice:
 >
 > - Sign-in works fine for any Google account you allow.
 > - `admin_groups` will not promote users to admin based on Workspace groups. Instead, decide admin status by **email allowlist** (see Step 4) or by managing the Muximux user record manually after first login.

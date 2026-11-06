@@ -2,7 +2,7 @@
 
 ## Overview
 
-Muximux periodically checks whether your apps are reachable and displays their health status in the navigation. This gives you an at-a-glance view of which services are up and which are down.
+Muximux periodically checks whether your apps are reachable and displays their health status in the navigation, so you can see at a glance which services are up and which are down.
 
 ## Configuration
 

@@ -31,7 +31,7 @@ delay, after which it is instant.
 
 ## Lucide Icons
 
-Over 1,600 open-source icons from the [Lucide](https://lucide.dev/) icon library. These are clean, consistent SVG icons organized by category.
+Over 1,600 open-source icons from the [Lucide](https://lucide.dev/) icon library. They are SVG icons in a consistent style, organized by category.
 
 ```yaml
 icon:

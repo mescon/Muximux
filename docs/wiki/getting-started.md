@@ -36,7 +36,7 @@ This step only appears during initial setup. After setup is complete, authentica
 
 This step uses a two-column layout (single column on mobile):
 
-**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. Tick the box, confirm the Docker endpoint (default is the standard unix socket) and pick a network strategy; when onboarding completes Muximux saves the discovery config so **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan - that happens post-onboarding so you can review what gets imported.
+**Left column** -- At the top, an opt-in **Have Docker?** card lets you turn on Docker discovery during onboarding. Tick the box, confirm the Docker endpoint (default is the standard unix socket) and pick a network strategy; when onboarding completes Muximux saves the discovery config so **Settings → Discovery** is ready to scan and import. The wizard itself does not run the scan. That happens after onboarding, so you can review what gets imported.
 
 Below the Docker card, browse popular self-hosted application templates organized by category:
 
@@ -52,7 +52,7 @@ At the top of the left column is the **Add Custom App** card. Click it to expand
 **Right column** -- Shows your current selections:
 
 - **Selected Apps** -- A live list of all selected template and custom apps, each with a remove button.
-- **Groups** -- Auto-populated based on the categories of your selected apps. Each group is fully editable:
+- **Groups** -- Auto-populated based on the categories of your selected apps. You can edit each group:
   - **Color** -- Click the color swatch to open a color picker.
   - **Icon** -- Click the icon area to open the icon browser and choose from Dashboard Icons, Lucide icons, or custom uploads.
   - **Name** -- Edit the group name inline.
