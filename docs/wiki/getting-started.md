@@ -6,7 +6,7 @@ This page walks you through what happens the first time you launch Muximux and h
 
 ## First Launch
 
-Muximux can start with no apps configured. This happens when no `data/config.yaml` exists, or when the file has an empty `apps` list. Then Muximux shows the **Onboarding Wizard**, a guided setup for the initial configuration.
+Muximux can start before it is set up. Then it shows the **Onboarding Wizard**, a guided setup for the initial configuration. Setup is pending when no `data/config.yaml` exists. It is also pending when the file has no apps, no users and no auth method other than `none`, and the wizard has not completed before. The `MUXIMUX_AUTH_METHOD` environment variable changes this. With `oidc`, `forward_auth` or `none`, there is no wizard. With `builtin`, the wizard runs only when there are no users. See [Authentication](authentication.md).
 
 Open your browser and go to Muximux (by default, `http://your-server:8080`).
 
@@ -14,7 +14,7 @@ Open your browser and go to Muximux (by default, `http://your-server:8080`).
 
 ## Onboarding Wizard
 
-On a first launch, the wizard has six steps. One of them is a **Security** step, where you choose your authentication method. Authentication can already be configured (e.g., you deleted all apps but kept your auth settings). In that case the wizard skips the Security step and has five steps. You can move forward and backward between steps at any time.
+The wizard has six steps. One of them is a **Security** step, where you choose your authentication method. With `MUXIMUX_AUTH_METHOD=builtin`, this step offers only password sign-in. You can move forward and backward between steps at any time.
 
 ### Step 1: Welcome
 
@@ -130,7 +130,7 @@ Once the wizard completes:
 - Your configuration is saved to `data/config.yaml`.
 - The first app in your list is automatically set as the **default app**, which loads when you open the dashboard.
 - **Health monitoring** is available but off by default. Enable it per-app in Settings, or for many apps at once in the Apps tab. When it is on, Muximux checks each app at the configured interval (default: every 30 seconds).
-- The onboarding wizard appears automatically whenever no apps are configured. After you add apps, it does not appear again, unless you remove all apps.
+- Muximux records in `config.yaml` that setup is complete (`auth.setup_complete: true`). The onboarding wizard does not appear again, also when you remove all apps. There is one exception. If `MUXIMUX_AUTH_METHOD=builtin` is set and no users are left, the wizard appears again after a restart, so that you can create an admin.
 
 You can open **Settings** at any time from the navigation bar to modify apps, groups, navigation style, themes, and all other options.
 
@@ -144,7 +144,9 @@ To completely start fresh and see the onboarding wizard again:
 2. **Delete or rename** the `data/config.yaml` file (or the config file in your configured data directory).
 3. **Start Muximux** again.
 
-The onboarding wizard appears automatically, because no apps are configured. You do not need to clear any browser state.
+The onboarding wizard appears automatically, because setup is pending again. You do not need to clear any browser state.
+
+The wizard does not appear if `MUXIMUX_AUTH_METHOD` is `oidc`, `forward_auth` or `none`. To get the wizard in that case, unset `MUXIMUX_AUTH_METHOD` and all `MUXIMUX_OIDC_*` variables before step 3. If you keep OIDC variables without `MUXIMUX_AUTH_METHOD`, Muximux does not start.
 
 ---
 

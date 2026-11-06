@@ -9,7 +9,7 @@ Connect Muximux to a Docker daemon and it can enumerate running containers, prop
 - **Scan**: lists running containers. For each one, it proposes a name, icon, URL, port, and group, with confidence ratings (high / medium / low).
 - **Import**: adds the chosen containers in one click, as apps in the menu, gateway subdomains, or both. Each row picks a routing mode: Direct URL, internal Proxy, or Gateway domain.
 - **Refresh**: a background poller (a task that runs on a timer, default 60s) looks up each tracked container on the daemon again. If the container's IP changes, it rewrites the saved URL. When gateway-site URLs change, Caddy (the web server built into Muximux) reloads once per tick (one run of the poller).
-- **Auto-import** (optional): set `discovery.docker.auto_import` to `add`/`update`/`sync`. Muximux then imports, with no modal and no click, every container that carries at least one `muximux.*` label (a `muximux.discovery.id` alone is enough) and does not carry `muximux.app.enabled=false`. Unlabelled containers are never auto-imported. `add` imports each new labeled container once. `update` also re-syncs an imported app when its labels change. `sync` also removes an imported app when its container disappears or opts out. Off by default. See [Automatic Import](#automatic-import).
+- **Auto-import** (optional): set `discovery.docker.auto_import` to `add`/`update`/`sync`. Muximux then imports, with no modal and no click, every container that carries at least one `muximux.*` label (a `muximux.discovery.id` alone is enough) and does not carry `muximux.app.enabled=false`. With [explicit opt-in](#explicit-opt-in) on, the container also needs `muximux.app.enabled=true`. Muximux also skips a container that has no usable URL or whose labels give an invalid entry (see [Why a container is skipped](#why-a-container-is-skipped)). Unlabelled containers are never auto-imported. `add` imports each new labeled container once. `update` also re-syncs an imported app when its labels change. `sync` also removes an imported app when its container disappears or opts out. Auto-import does not take over an app that you imported by hand. It leaves that app as it is, and `sync` does not remove it. Off by default. See [Automatic Import](#automatic-import).
 - **Detach / Re-link**: per-row controls in Settings → Discovery. Detach stops auto-managing an entry. Re-link points it at a different container when you migrate daemons.
 
 Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
@@ -37,8 +37,9 @@ Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
 
    The banner turns green when Muximux can reach the daemon and can identify enough about itself to use the chosen strategy.
 
-5. Open the **Apps** tab (or the **Gateway** tab).
-6. Click **Discover from Docker**.
+5. Click **Save**. The test does not save the settings.
+6. Open the **Apps** tab (or the **Gateway** tab).
+7. Click **Discover from Docker**.
 
    The modal lists every running container that the daemon returned. Muximux leaves out its own container, so you can't import yourself as an app by accident. Each row shows:
    - Suggested name, icon, group (catalog-recognised images get these auto-filled at "medium" confidence; the catalog is Muximux's built-in list of known apps)
@@ -51,16 +52,16 @@ Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
 
    A container that is already tracked shows a **Tracked** chip in the Discover dialog. The chip names what tracks it: an app, an auto-imported app, a gateway site or a quarantined entry, plus the endpoint when it differs. You cannot select its row, because you cannot import it again. A row whose name another app already uses shows "Name already in use by another app".
 
-7. Pick the routing mode for each row:
+8. Pick the routing mode for each row:
    - **Direct** - menu links to `http://<container-ip>:<port>` directly
    - **Proxy** - menu links via Muximux's `/proxy/<slug>` path-prefix reverse proxy (a server that forwards requests to another server, here under a path on the Muximux address)
    - **Gateway domain** - menu links to `https://<your-subdomain>`; you must also create the gateway site in the same row
 
-8. Click **Import**.
+9. Click **Import**.
 
    If a row's group does not exist yet, the import creates it in the same save (see [Groups are created automatically](#groups-are-created-automatically)).
 
-9. Open **Settings → Discovery → Currently tracked**.
+10. Open **Settings → Discovery → Currently tracked**.
 
    Every imported app or gateway site appears here. **Detach** on a row stops auto-management. **Re-link** appears when the saved `DockerEndpoint` no longer matches the configured endpoint (typical after a daemon migration). A row shows "Container missing since <time>" while Muximux cannot find its container on the daemon. Invalid Docker-owned entries that Muximux did not load are listed below the table; see [Quarantined entries](#quarantined-entries).
 
@@ -462,7 +463,7 @@ Unknown `muximux.*` labels are surfaced in the Discover modal's per-row notes, s
 
 ## Automatic Import
 
-Everything above is the **manual** path. Labels become high-confidence pre-fills, and you click **Import** to commit them. Automatic import removes that review step. When it is on, Muximux imports by itself every container that carries at least one `muximux.*` label (and is not opted out). There is no modal and no click. Muximux also keeps the imported apps in step with the labels over time.
+Everything above is the **manual** path. Labels become high-confidence pre-fills, and you click **Import** to commit them. Automatic import removes that review step. When it is on, Muximux imports by itself every container that carries at least one `muximux.*` label (and is not opted out). Muximux skips containers that fail the conditions in [Explicit opt-in](#explicit-opt-in) and [Why a container is skipped](#why-a-container-is-skipped). There is no modal and no click. Under `update` and `sync`, Muximux also keeps the imported apps in step with the labels over time.
 
 > **Security -- read before enabling.** Auto-import is **off by default**. Only the host operator (who controls `config.yaml` or the environment) can turn it on. Once it is on, **any container on the shared Docker socket can write itself into your config with no review step**. This includes a `muximux.app.gateway.domain` label, which publishes a **public HTTPS subdomain with an auto-issued ACME certificate** (a TLS certificate that is issued automatically). Treat enabling this as trusting every label on every container the daemon can see. If you don't control all of those containers, leave it `off` and import by hand.
 
@@ -633,7 +634,7 @@ A Docker-owned entry is an auto-imported app, or a gateway site that auto-import
 - logged once at startup as "Invalid Docker auto-imported entry quarantined", and
 - listed in **Settings -> Discovery -> Tracked** with its reason.
 
-Fix the container's labels, and the next refresh replaces the entry. Or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`. A live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded when a live app takes its name or slug, or a live gateway site takes its domain. Muximux then drops the entry from `config.yaml` at the next save and logs "Quarantined entry superseded by a live entry". A quarantined site goes with its superseded app. Under `sync`, Muximux removes a quarantined app whose container is gone from the polled endpoint after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined. Other invalid config still fails validation as before.
+If auto-import is `add`, `update` or `sync`, fix the container's labels, and the next refresh replaces a quarantined app. A quarantined gateway site of a live app is replaced only under `update` or `sync`. With auto-import `off`, a refresh does not replace the entry. Or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`. A live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded when a live app takes its name or slug, or a live gateway site takes its domain. Muximux then drops the entry from `config.yaml` at the next save and logs "Quarantined entry superseded by a live entry". A quarantined site goes with its superseded app. Under `sync`, Muximux removes a quarantined app whose container is gone from the polled endpoint after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined. Other invalid config still fails validation as before.
 
 Other housekeeping applies to discovery. Image names whose last segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry. Muximux deduplicates apps whose names differ only by case or spacing. When a tracked container goes missing, Muximux logs it once instead of on every refresh.
 
@@ -643,7 +644,7 @@ Other housekeeping applies to discovery. Image names whose last segment is gener
 
 Discovery behaves more predictably from 3.6.0, and a few changes show up on the first refresh after an upgrade:
 
-- **Auto-import needs a label.** Only containers with at least one `muximux.*` label are auto-imported. Under `update`/`sync`, the first refresh detaches an auto-imported app from auto-import if its container has no labels. The app stays and its URL keeps refreshing, but `sync` no longer removes it. Add a label (`muximux.discovery.id` is enough) if you want the container managed again. See [Containers that lose their labels](#containers-that-lose-their-labels).
+- **Auto-import needs a label.** Only containers with at least one `muximux.*` label are auto-imported. Under `update`/`sync`, the first refresh detaches an auto-imported app from auto-import if its container has no labels. The app stays and its URL keeps refreshing, but `sync` no longer removes it. A label that you add later does not put the app back under auto-import. The app stays tracked, so its `name`, `icon`, `group` and `order` labels re-sync. But `update` does not apply its other labels, and `sync` does not remove it. To make it auto-imported again, delete the app. The next refresh then imports the labelled container again, but only if the container meets the conditions in [Explicit opt-in](#explicit-opt-in) and [Why a container is skipped](#why-a-container-is-skipped). See [Containers that lose their labels](#containers-that-lose-their-labels).
 - **New tracking keys for Swarm and Compose.** Keys become `swarm:<service>` and `compose:<project>:<service>`. On the first refresh, Muximux migrates existing `name:` keys in place and logs `Docker tracking key migrated`. Entries tracked on another endpoint are migrated after **Re-link**. See [Tracking keys](#tracking-keys).
 - **Swarm app names.** Under `update`/`sync`, Muximux renames an auto-imported Swarm app without `muximux.app.name` from the task name to the service name. This can change its slug and its `/proxy/<slug>/` path. Behind a socket proxy, allow `/services` (`SERVICES=1`).
 - **Labels re-sync onto apps you imported by hand.** A set `muximux.app.name`, `icon`, `group` or `order` label now wins on every tracked app, in every mode including `off`. So the next refresh resets an edit to those fields in Settings. Remove the label or **Detach** the app to keep your edit. See [Label re-sync for tracked apps](#label-re-sync-for-tracked-apps).

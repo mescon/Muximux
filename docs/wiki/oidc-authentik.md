@@ -2,7 +2,7 @@
 
 This guide sets up Muximux to sign users in with Authentik. It also shows how to put Authentik group memberships in the ID token (the signed sign-in record that Authentik sends to Muximux). Then the groups are available to `admin_groups` and per-app `allowed_groups`.
 
-When you're done, users sign in with their Authentik account. Muximux receives their groups as `groups: ["Engineering", "Muximux-Admins"]`. Admins land on Settings automatically.
+When you're done, users sign in with their Authentik account. Muximux receives their groups as `groups: ["Engineering", "Muximux-Admins"]`. Admins see the Settings gear, which opens Settings.
 
 ---
 
@@ -119,7 +119,7 @@ You can use the Settings page instead of editing `config.yaml`:
 5. Add `groups` to the scopes.
 6. For the groups claim, enter `groups`.
 7. Under admin groups, enter your admin group (for example `Muximux-Admins`).
-8. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
+8. Copy the **Callback URL (register at the provider)** row into the provider. On authentik 2025.8 or later, you can also copy the **Back-channel logout URL** row (see [Sign-out](#sign-out)). Earlier versions do not have back-channel logout.
 9. Press **Test connection**.
 10. Press **Update Method**.
 
@@ -134,7 +134,7 @@ See [Authentication](authentication#setting-up-oidc-in-settings) for how the for
 3. Approve. Authentik sends you back to Muximux.
 4. Sign in as a member of `Muximux-Admins`.
 5. Confirm that the Settings gear is visible.
-6. To see what Muximux actually receives, open **Authentik admin > Events > Logs** after you sign in. The `Token issued` event shows the claims that Authentik put into the ID token, including `groups`.
+6. To see the claims that Authentik puts into the ID token, open the provider in **Applications > Providers** and use its **Preview** tab. Select the user. The preview shows the claims, including `groups`. On the Muximux side, the audit log line `OIDC user logged in` shows the role that Muximux gave the user.
 
 ---
 
@@ -154,7 +154,7 @@ See [Authentication](authentication#oidc-openid-connect) for what each Muximux o
 | Symptom | Cause | Fix |
 |---|---|---|
 | `invalid_redirect_uri` from Authentik | Redirect URI not on the provider's allow list. | Add `https://muximux.example.com/api/auth/oidc/callback` exactly to **Redirect URIs / Origins** on the provider. |
-| Sign-in works but admin promotion doesn't | Either the `groups` scope isn't being requested by Muximux, or the property mapping isn't producing groups. | Confirm `scopes:` in `config.yaml` includes `groups`. Then check **Events > Logs** for the latest `Token issued` event and look for the `groups` claim. |
+| Sign-in works but admin promotion doesn't | Either the `groups` scope isn't being requested by Muximux, or the property mapping isn't producing groups. | Confirm `scopes:` in `config.yaml` includes `groups`. Then open the provider's **Preview** tab in **Applications > Providers**, select the user, and look for the `groups` claim. Muximux also reads claims from the userinfo endpoint. If **Include claims in id_token** is off on the provider, the preview may not show `groups`, although userinfo returns them. Then check the userinfo response before you change the mapping. |
 | `error: unauthorized_client` | The client type or client authentication setting on the provider doesn't match what Muximux is sending. | Set the provider to **Confidential** and use the client secret. |
 | `Failed to fetch discovery document` in Muximux logs | Wrong issuer URL. | Use the **OpenID Configuration Issuer** from the provider overview page; this is the canonical value Muximux should use. |
 | Admin works for some users but not others | Some users are in groups whose names contain spaces or special characters that don't match `admin_groups` exactly. | Group matching is case-insensitive but otherwise literal. Make sure `admin_groups` matches the exact name Authentik reports. |

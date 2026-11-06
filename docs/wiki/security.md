@@ -31,7 +31,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) do not apply to
 ### Session Management (ASVS V3)
 
 - **HttpOnly cookies** -- Muximux sets session cookies with `HttpOnly`. JavaScript cannot read them, which mitigates XSS-based session theft.
-- **SameSite=Lax** -- Session cookies use `SameSite=Lax`. This prevents cross-site request forgery via form submissions, but still allows normal navigation.
+- **SameSite=Lax** -- Session cookies use `SameSite=Lax`. This blocks the cookie on cross-site POST form submissions, but still allows normal navigation. A cross-site top-level GET request (a link or a GET form) still carries the cookie. So if a proxied app changes state on a GET request, `SameSite=Lax` does not protect that app from cross-site request forgery. `SameSite=Lax` also lets through a POST from another subdomain of the same site (for example `other.example.com`), because the browser counts it as same-site. Muximux checks CSRF only on its own `/api/` routes, not on proxied apps. So a proxied app needs its own CSRF protection for requests that change state.
 - **Configurable Secure flag** -- When you set `secure_cookies: true` (recommended for HTTPS deployments), the browser sends cookies only over encrypted connections.
 - **Configurable session lifetime** -- `session_max_age` controls how long sessions last (default: 24h). Muximux automatically refreshes sessions on activity.
 - **Session invalidation** -- Changing a user's password invalidates all other sessions for that user.
@@ -45,7 +45,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) do not apply to
 
 ### Input Validation (ASVS V5)
 
-- **CSRF protection** -- CSRF (cross-site request forgery) is an attack where another site sends requests in your name. State-changing API requests (POST, PUT, DELETE, PATCH) must carry one of two things: a CSRF-safe Content-Type (`application/json`, `multipart/form-data`, or `application/x-yaml`), or an `X-Requested-With` header. A cross-origin page cannot send either without a CORS preflight, and Muximux never grants that preflight. This defeats the classic browser-form CSRF vector.
+- **CSRF protection** -- CSRF (cross-site request forgery) is an attack where another site sends requests in your name. State-changing API requests (POST, PUT, DELETE, PATCH) must carry one of two things: a CSRF-safe Content-Type (`application/json` or `application/x-yaml`), or an `X-Requested-With` header. `multipart/form-data` is not on the list, because a cross-origin page can send it without a preflight. So file uploads, such as icon uploads, must carry `X-Requested-With`. A cross-origin page cannot send the accepted types or the header without a CORS preflight (a check request that the browser sends first), and Muximux never grants that preflight. This defeats the classic browser-form CSRF vector. One endpoint is exempt: `POST /api/auth/oidc/backchannel-logout`. The identity provider calls it server to server, with a form-encoded logout token. Muximux validates that token before it ends any session.
 - **Environment variable expansion safety** -- Muximux expands only `${VAR}` syntax. It leaves bare `$VAR` references untouched. This prevents corruption of values like bcrypt hashes (`$2a$10$...`).
 
 ### Cryptography (ASVS V6)

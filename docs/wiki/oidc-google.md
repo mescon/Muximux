@@ -5,8 +5,8 @@ This guide sets up Muximux to sign users in with Google accounts. It uses a Goog
 > **Note:** Google's standard OIDC tokens **do not** include group memberships. Workspace can expose groups, but only through a separate Google Cloud API call. Muximux does not currently make this call. In practice:
 >
 > - Sign-in works fine for any Google account you allow.
-> - `admin_groups` will not promote users to admin based on Workspace groups. Instead, decide admin status by **email allowlist** (see Step 4). Or manage the Muximux user record manually after first login.
-> - Per-app `allowed_groups` filtering also will not apply to users who sign in with Google, because Google sends no groups.
+> - `admin_groups` will not promote users to admin based on Workspace groups. So with the default settings, a user who signs in with Google gets the `user` role. Step 4 lists the exceptions. Keep a local admin account for administration (see Step 4).
+> - Per-app `allowed_groups` filtering still applies. Google sends no groups, so a non-admin Google user cannot see an app that has a non-empty `allowed_groups` list. Admins bypass this filter.
 >
 > If you need group-based filtering, put Keycloak / Authentik / Pocket ID / Zitadel in front of Google as a federated identity layer (a provider that signs users in through another provider). Most of those can use Google as an upstream identity source. They still send their own `groups` claim to Muximux.
 
@@ -81,15 +81,27 @@ Set `GOOGLE_CLIENT_SECRET` in the environment. Restart Muximux.
 
 ## Step 4: Decide Who Becomes Admin
 
-`admin_groups` doesn't apply, so you set admin status per user. There are two approaches:
+Muximux gives an OIDC user the `admin` role only when one of the user's groups is in `admin_groups`. Google sends no groups, so with the default `groups_claim`, a user who signs in with Google gets the `user` role. There is one exception: Muximux reads the claim that `groups_claim` names. With `groups_claim: email`, the user's email address becomes the user's only group. An address that you put in `admin_groups` then gives that Google user the `admin` role.
 
-**Option 1: First user becomes admin, edit roles after.**
-Muximux gives the first user who signs in the user role. An existing admin can promote that user in **Settings > Security > Users** in the Muximux UI. This admin is typically the operator who first set up Muximux through the wizard. This works because an OIDC user shows up in the user list after their first sign-in. Then an admin can change their role.
+A Google sign-in never uses a local account, even when the usernames match. It always gets the role from its own sign-in.
 
-**Option 2: Restrict at the consent screen.**
-If your Google Cloud project has User type **Internal**, only members of your Workspace can sign in. If it's **External** with **Test users** set, only the listed users can sign in. Either way, combine these IdP-side restrictions with manual role assignment in Muximux. This keeps the set of admins small.
+Muximux does not add OIDC users to its user list. So you cannot promote a Google user in **Settings > Security > Users**.
 
-For a Workspace-only deployment, **Internal** + manual role assignment in Muximux is the simplest pattern.
+**Keep a local admin account.**
+To keep admin access:
+
+1. Make sure that `config.yaml` has a local admin user, for example the one that the setup wizard created.
+2. Keep password sign-in allowed. Do not set `disable_local_login: true`.
+3. When you must change settings, sign in with the local admin account. If `auto_redirect` is on, open `/login?local=1` to get the password form.
+
+If Google users must be admins, put a provider that sends groups in front of Google (see the note at the top of this page).
+
+**Restrict at the consent screen.**
+These settings control who can sign in. They do not control who is an admin. If your Google Cloud project has User type **Internal**, only members of your Workspace can sign in.
+
+With User type **External**, do not rely on the **Test users** list. A published External app lets any Google account sign in. A testing app can also let unlisted accounts sign in when it asks only for `openid`, `profile` and `email`, the scopes Muximux uses. Every account that signs in becomes a Muximux user, with the `user` role unless an exception in Step 4 applies. It sees every app that has no `min_role` or `allowed_groups`. So with External, restrict access in another way as well, for example with Cloudflare Access or a VPN in front of Muximux.
+
+For a Workspace-only deployment, **Internal** plus a local admin account is the simplest pattern.
 
 ### Using Settings
 
@@ -101,7 +113,7 @@ You can use the Settings page instead of editing `config.yaml`:
 4. Enter the client ID and secret from Step 2.
 5. For the username claim, enter `email`.
 6. Leave admin groups empty, because Google does not send groups.
-7. Copy the **Callback URL (register at the provider)** and **Back-channel logout URL** rows into the provider.
+7. Copy the **Callback URL (register at the provider)** row into the provider. Google does not offer back-channel logout, so do not look for a place to enter the **Back-channel logout URL**.
 8. Press **Test connection**.
 9. Press **Update Method**.
 
@@ -114,7 +126,7 @@ See [Authentication](authentication#setting-up-oidc-in-settings) for how the for
 1. Visit `https://muximux.example.com/login`.
 2. Click **Login with SSO**. Google's consent screen appears.
 3. Approve. You should land back on the Muximux dashboard.
-4. Check the role. The first sign-in lands as a regular user. To grant admin, use an existing admin account to change the role in **Settings > Security > Users**.
+4. Check the role. With the default settings, a Google user signs in as a regular user. For admin tasks, sign in with the local admin account (see Step 4).
 
 ---
 
@@ -132,7 +144,7 @@ If you want Muximux to be SSO-only, `auto_redirect` and `disable_local_login` st
 |---|---|---|
 | `redirect_uri_mismatch` from Google | The URI in your OAuth client doesn't exactly match what Muximux sends. | In **Credentials**, edit the OAuth client and add the exact URL, including `https://`, host, and `/api/auth/oidc/callback`. No wildcards. |
 | `access_denied` immediately after consent | The Google account isn't in the project's test-user list (External + testing) or isn't part of the Workspace (Internal). | Add the user to test users, or publish the app, or switch User type. |
-| Sign-in works but you wanted groups | Google doesn't emit groups in standard OIDC tokens. | Use a federated IdP (Keycloak, Authentik, etc.) with Google as an upstream identity source, or assign Muximux roles manually. |
+| Sign-in works but you wanted groups | Google doesn't emit groups in standard OIDC tokens. | Use a federated IdP (Keycloak, Authentik, etc.) with Google as an upstream identity source. Or give admin access in one of the ways in Step 4: a local admin account, or `groups_claim: email` with the admin addresses in `admin_groups`. |
 | Browser warns "Google hasn't verified this app" | The OAuth consent screen is still in unverified state. | Either complete Google's verification process (only required if you're publishing to a wide audience) or accept the warning for trusted users. |
 
 ---

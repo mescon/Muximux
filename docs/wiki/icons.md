@@ -41,7 +41,7 @@ icon:
 
 Muximux fetches Lucide icons from the jsDelivr CDN (a public content delivery network) and caches them locally. They work well for generic icons (settings, home, play, download, folder, etc.), when dashboard-icons does not have a match for your app.
 
-The list of icon names comes from the Lucide repository on GitHub (`api.github.com`). The categories for the picker's filter come from `https://lucide.dev/api/categories`. If the category request fails, Muximux still lists the icons, without categories. It logs a warning once (see [Troubleshooting](troubleshooting.md#lucide-icon-categories-are-missing)).
+The list of icon names comes from the Lucide repository on GitHub (`api.github.com`). The categories for the picker's filter come from `https://lucide.dev/api/categories`. If only the category request fails, Muximux still lists the icons, without categories. It logs a warning once (see [Troubleshooting](troubleshooting.md#lucide-icon-categories-are-missing)). If the request for the icon names also fails, and no cached list is available, the Lucide icon list is not available.
 
 ## Custom Icons
 

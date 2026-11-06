@@ -94,7 +94,7 @@ Those backends can run as Docker containers. Then **Apps tab → Discover from D
 
 URLs refresh automatically when container IPs change. See [Docker Discovery](docker-discovery.md).
 
-Or enable `discovery.docker.auto_import`. Then labeled containers appear automatically, without opening the modal (see [Docker Discovery](docker-discovery.md)). Note: in update/sync mode, gateway-only label changes are applied only when an app field also changes.
+Or enable `discovery.docker.auto_import`. Then labeled containers appear automatically, without opening the modal (see [Docker Discovery](docker-discovery.md)). Note: in update/sync mode, Muximux also applies gateway-only label changes, with no app-field change. For example, `muximux.gateway.require_auth=false` turns off the authentication gate for that site on the next poll. See [Gateway labels and `update`/`sync`](docker-discovery.md#gateway-labels-and-updatesync).
 
 Labels on your compose file pre-fill name, icon, port, and a stable tracking key:
 

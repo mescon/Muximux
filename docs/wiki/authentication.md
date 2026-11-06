@@ -390,9 +390,10 @@ An invalid boolean only logs a warning, and Muximux keeps the `config.yaml` valu
 
 If the provider is down and SSO-only sign-in locks you out:
 
-1. Unset `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` (or set it to `false`).
+1. Set `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` to `false`. If you only remove the variable, the `config.yaml` value applies again, and that value can also be `true`.
 2. Make sure `config.yaml` has a local admin user.
 3. Restart Muximux.
+4. Open `/login?local=1` to get the password form. If `auto_redirect` is on, the plain `/login` page still sends you to the provider.
 
 ### `${VAR}` references in config.yaml
 
@@ -632,13 +633,15 @@ Restart Muximux, and the key is live. From then on, the UI reports the key as co
 
 Muximux authentication controls access to the **Muximux dashboard and its API**. It does not automatically protect the apps that you add to it. Be aware of three configurations:
 
-- **With `proxy: true`, no `auth_bypass`** -- Requests to the app go through Muximux's built-in reverse proxy, which requires a Muximux login session. Users must be logged in to reach the app. This is the secure option for interactive use.
+- **With `proxy: true`, no `auth_bypass`** -- Requests to the app go through Muximux's built-in reverse proxy, which requires a Muximux login session. Users must be logged in to reach the app. This is the secure option for interactive use. This applies only when an authentication method is set. With `auth.method: none`, the proxy lets every request through without a login.
 
-- **With `proxy: true` and `auth_bypass` rules** -- You can open specific paths on the proxied app to non-browser integrations that present the Muximux API key. See [Per-App Auth Bypass](apps.md#per-app-auth-bypass) and the Sonarr / Seerr example in [API Key Authentication](#api-key-authentication). Muximux still sits in the request path. The Muximux API key gates the front door. `proxy_headers` adds the backend's own credentials on the way through, so the external caller never sees the backend's key. This is how you expose a backend API to another service without giving that service a Muximux login.
+- **With `proxy: true` and `auth_bypass` rules** -- You can open specific paths on the proxied app to non-browser integrations. A rule with `require_api_key: true` lets a request through only if it presents the Muximux API key. A rule without `require_api_key: true` lets every matching request through with no session and no API key. Only the rule's `allowed_ips` list, if set, limits it. See [Per-App Auth Bypass](apps.md#per-app-auth-bypass) and the Sonarr / Seerr example in [API Key Authentication](#api-key-authentication). Muximux still sits in the request path. The Muximux API key gates the front door. `proxy_headers` adds the backend's own credentials on the way through, so the external caller never sees the backend's key. This is how you expose a backend API to another service without giving that service a Muximux login.
 
 - **Without `proxy: true`** -- The browser loads the app directly from its own URL (in an iframe, new tab, etc.). Muximux is not in the request path. It cannot block or authenticate those requests. Anyone who knows the app's URL can access it directly.
 
-In short: if you expose Muximux to the internet and want it to gate access to your apps, enable the reverse proxy for those apps. If other services need to call a backend app's API through Muximux, add an `auth_bypass` rule with `require_api_key: true`. Limit that rule to the specific paths that those services need. Otherwise, secure your apps with their own authentication, a separate reverse proxy or a VPN.
+In short: if you expose Muximux to the internet and want it to gate access to your apps, set an authentication method and enable the reverse proxy for those apps. If other services need to call a backend app's API through Muximux, add an `auth_bypass` rule with `require_api_key: true`. Limit that rule to the specific paths that those services need. Otherwise, secure your apps with their own authentication, a separate reverse proxy or a VPN.
+
+Muximux only protects requests that go through it. If the backend is also reachable directly (a published port, a shared network), anyone who reaches it there skips Muximux. So block direct access to the backend from untrusted networks, or turn on the backend's own authentication.
 
 See [Apps & Groups > Open Modes](apps.md#open-modes) for more details on the three-way choice and [Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the integration pattern.
 
