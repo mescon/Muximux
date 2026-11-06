@@ -27,6 +27,15 @@ All notable changes to Muximux are documented in this file.
   API key, the key is removed before the request reaches the backend.
 - Docker discovery import refuses an app whose name maps to the same
   `/proxy/<slug>/` path as an existing app, as Settings already did.
+- **The example `docker-compose.yml` now starts.** It dropped all Linux
+  capabilities, so the entrypoint could not switch to the `PUID`/`PGID`
+  user and the container exited with `su-exec: setgroups: Operation not
+  permitted`. It now adds back `CHOWN`, `SETUID` and `SETGID`; copy those
+  three lines into your own compose file if it was based on the example.
+- Docs: a `:ro` Docker socket mount does not limit Docker API calls, so
+  it is no protection against a compromised Muximux. The guides now
+  recommend a socket proxy that filters by endpoint, and describe what
+  lifecycle controls actually need.
 
 ### Changed
 - Dependencies updated to their latest releases, including Caddy 2.11.9,
