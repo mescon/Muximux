@@ -295,7 +295,7 @@ You can use `roles`, `users`, or both. When you set both, a user who matches **e
 
 Muximux checks the list everywhere the app can be reached: the menu and the apps API, the reverse proxy (`/proxy/<slug>/`), HTTP actions, health status and Docker controls. It adds to `min_role` and `allowed_groups`: a user must pass all three. Role names are case-insensitive. Usernames must match exactly, including case. Admins always pass.
 
-The list does not cover a [gateway site](tls-and-gateway.md) linked to the app with `app_name`. A gateway site uses its own `require_auth`, `min_role` and `allowed_groups`. So set those on the site too, or a user the list keeps out can still reach the backend on the site's own domain.
+The list does not cover a [gateway site](tls-and-gateway.md) linked to the app with `app_name`. A gateway site uses its own `require_auth`, `min_role` and `allowed_groups`. So set those on the site too, or a user the list keeps out can still reach the backend on the site's own domain. A gateway site has no list of usernames. With `require_auth: true` and no `min_role` or `allowed_groups`, every signed-in user gets through. To match an app's `access` list, give those users a group and set it as the site's `allowed_groups`.
 
 ---
 
