@@ -62,6 +62,10 @@ export function parseHashRoute(hash: string): HashRoute {
 
 /** The frame URL for a hash-route path, or null (with a warning) if refused. */
 export function hashDeepLinkUrl(app: App, path: string, baseUrl: string): string | null {
+  if (app.enabled === false) {
+    console.warn(`${TAG} not opening the path in "${app.name}": the app is disabled.`);
+    return null;
+  }
   if (!app.allow_deep_links) {
     console.warn(`${TAG} not opening the path in "${app.name}": the app does not allow deep links.`,
       `Turn on "Allow deep links" for ${app.name} in Muximux.`);

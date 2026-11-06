@@ -41,6 +41,7 @@ apps:
       - microphone
     allow_notifications: false       # Enable the postMessage notification bridge (see below)
     allow_navigation: false          # Let the app switch Muximux's apps via links or postMessage (see Navigation)
+    allow_deep_links: false          # Let links with a path (#app?path=...) open a page inside this app (see Navigation)
     access:                         # Restrict access to specific roles/users
       roles: []
       users: []
@@ -426,7 +427,7 @@ apps:
     allow_navigation: true      # form label: "Allow navigating Muximux"
 ```
 
-The target app needs no setting. One setting unlocks both mechanisms below. In Docker discovery the label is `muximux.app.allow_navigation` (a strict boolean, like `muximux.app.allow_notifications`).
+Switching apps needs no setting on the target app. One setting unlocks both mechanisms below. A link that also opens a page inside the target, such as `#emby?path=...`, needs `allow_deep_links` on that target as well (see [deep links in links](#deep-links-in-links)). In Docker discovery the label is `muximux.app.allow_navigation` (a strict boolean, like `muximux.app.allow_notifications`).
 
 ### What you can do with it
 
@@ -435,7 +436,7 @@ The target app needs no setting. One setting unlocks both mechanisms below. In D
 - **Go straight to the item.** A widget that lists things can open the exact one in the app that owns it: a "recently added" list that opens the movie in Emby or Jellyfin, a request list that opens the request in Jellyseerr, an alert list that opens the matching Grafana dashboard. Put the path in the link itself ([deep links in links](#deep-links-in-links)), or use the [message API](#message-api) from a script.
 - **Runbooks that link to the tool.** A notes or wiki app embedded in Muximux can link to `#portainer` or `#proxmox` right next to the instructions, so following a runbook doesn't mean hunting through the menu.
 
-Turn `allow_navigation` on for the app the click happens in (the dashboard, the notes app), not for the apps it opens.
+Turn `allow_navigation` on for the app the click happens in (the dashboard, the notes app), not for the apps it opens. If the links also carry a path, turn `allow_deep_links` on for the apps that open those pages.
 
 ### Plain links
 
@@ -476,7 +477,7 @@ apps:
 ```
 
 - A single-app link takes `path=`. A split link takes one key per app slug (`emby=`, `uptime-kuma=`), in any order.
-- URL-encode the path (`encodeURIComponent` in JavaScript). An unencoded path works too as long as it contains no `&`.
+- URL-encode the path (`encodeURIComponent` in JavaScript). An unencoded path works too as long as it contains no `&` or `%`.
 - The path follows the same [path rule](#path-rule) as the message API: it must stay inside the target app. A refused path, or a target without `allow_deep_links`, still switches apps, and the browser console says why the page was not opened.
 - Muximux opens the page once and then shows the plain route (`#emby`) in the address bar, so a reload or Back does not reopen the item.
 - Pane choice in split view is the same as for plain links. Only the frames that get a path reload.

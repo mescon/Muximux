@@ -74,6 +74,11 @@ describe('hashDeepLinkUrl', () => {
     expect(warn.mock.calls[0][1]).toContain('Allow deep links');
   });
 
+  it('refuses a disabled app', () => {
+    expect(hashDeepLinkUrl({ ...emby, enabled: false }, '/web/', '')).toBeNull();
+    expect(warn.mock.calls[0][0]).toContain('disabled');
+  });
+
   it('refuses an app that does not open in an iframe', () => {
     expect(hashDeepLinkUrl({ ...emby, open_mode: 'new_tab' }, '/web/', '')).toBeNull();
     expect(warn.mock.calls[0][0]).toContain('iframe');
