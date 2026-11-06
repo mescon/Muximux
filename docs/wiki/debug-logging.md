@@ -111,7 +111,7 @@ Some log sources are active at the default INFO level; others only appear when y
 
 Every HTTP request is assigned a `request_id` that appears in all log entries for that request, so you can trace a single request across auth, handler, and proxy logs.
 
-- If the request carries an `X-Request-ID` header (up to 128 letters, digits, `-` or `_`), Muximux reuses it. Muximux doesn't check that it is unique: that is up to whatever set it, usually your upstream proxy (Nginx, Traefik, Caddy). A client can send one too, and two requests with the same ID show up together when you filter by it
+- If the request carries an `X-Request-ID` header (up to 128 ASCII letters, digits, `-` or `_`), Muximux reuses it. Muximux doesn't check that it is unique: that is up to whatever set it, usually your upstream proxy (Nginx, Traefik, Caddy). A client can send one too, and two requests with the same ID show up together when you filter by it
 - Otherwise, a random 16-character hex ID is generated
 - The `X-Request-ID` response header is always set, so you can match browser requests to server logs
 

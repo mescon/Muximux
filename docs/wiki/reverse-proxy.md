@@ -137,7 +137,7 @@ proxy_headers:
 
 The values are resolved per request from the current session and stripped of any CR/LF/NUL, so a crafted identity claim can't inject a header. On an unauthenticated instance (`auth.method: none`) the variables expand to empty. Static values (API keys, bearer tokens) are sent verbatim; only values containing `${...}` are templated.
 
-> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux. A shared Docker network or an internal address is not enough on its own: anything else that can reach the backend can send its own `X-Forwarded-User`. Make Muximux the only thing that can connect to the backend (a network that holds just the two of them, or a firewall rule), or have the backend also check a secret that only Muximux sends, such as a static value in `proxy_headers`. This is the same trust model as any reverse-proxy header auth.
+> **Security:** these headers assert who the user is. The backend must accept them **only** from Muximux. A shared Docker network or an internal address is not enough on its own: anything else that can reach the backend can send its own `X-Forwarded-User`. Make Muximux the only thing that can connect to the backend: a network that holds just the two of them or a firewall rule, and no published ports on the backend. Or have the backend also check a secret that only Muximux sends, such as a static value in `proxy_headers`, over HTTPS or a private network so it can't be read in transit. This is the same trust model as any reverse-proxy header auth.
 
 The global `server.proxy_timeout` (default: `30s`) controls how long the proxy waits for a backend response before timing out. This applies to all proxied apps.
 

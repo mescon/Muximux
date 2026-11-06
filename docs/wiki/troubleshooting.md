@@ -331,7 +331,7 @@ If you edited `config.yaml` directly (not through the Settings panel), Muximux w
 sudo chown -R 1000:1000 ./data
 ```
 
-Or, if you prefer to use a different UID, set `PUID` and `PGID` in your `docker-compose.yml`. Don't use `user:` for this: the entrypoint has to start as root to create the user and fix ownership of `/app/data` before it drops privileges.
+Or, if you prefer to use a different UID, set `PUID` and `PGID` in your `docker-compose.yml`. Don't use `user:` for this: the entrypoint has to start as root to create the user and fix ownership of `/app/data` before it drops privileges. If you drop capabilities (`cap_drop: ALL`), add back `CHOWN`, `SETUID` and `SETGID`, as the example `docker-compose.yml` does. Without them the container exits with `su-exec: setgroups: Operation not permitted`.
 
 ```yaml
 services:

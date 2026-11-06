@@ -331,7 +331,7 @@ As a shortcut, you can set `permissions: [all]` to delegate every supported feat
 
 When `proxy: true` is set, Muximux delegates each permission to `'self'` (the proxy's own origin). For non-proxied apps, the permission is delegated to the app's specific origin (e.g. `camera 'self' https://meet.local`).
 
-If `permissions` is omitted or empty, no features are delegated. For a non-proxied app the browser then blocks them, apart from fullscreen (every app frame allows it) and the few features browsers allow everywhere, such as picture-in-picture. A proxied app is same-origin with Muximux, so it still gets the features the browser allows same-origin frames by default (camera, microphone, geolocation, passkeys and most others); see [Security > Permissions-Policy is permissive](security.md#permissions-policy-is-permissive).
+If `permissions` is omitted or empty, no features are delegated. For an app on a different origin (scheme, host and port) than Muximux the browser then blocks them, apart from fullscreen (every app frame allows it) and the few features browsers allow everywhere, such as picture-in-picture. A proxied app, or any app served from Muximux's own origin, is same-origin with Muximux, so it still gets the features the browser allows same-origin frames by default (camera, microphone, geolocation, passkeys and most others); see [Security > Permissions-Policy is permissive](security.md#permissions-policy-is-permissive).
 
 > **Not listed**: `web-share` and `bluetooth` are valid Permissions-Policy directives in the spec but Chrome currently logs "Unrecognized feature" warnings when they appear in HTTP Permissions-Policy headers. They'll be re-added once browser support catches up.
 

@@ -177,10 +177,13 @@ Please do not open a public issue for a security problem. Report it privately th
 7. **Monitor audit logs** -- Filter for `source=audit` in the log viewer to track authentication and configuration events.
 8. **Treat the Docker socket as privileged** -- A `:ro` mount does not
    limit Docker API calls, so socket access is root on the host either way.
-   For discovery/auto-import only, put a socket proxy in front that allows
-   only `GET`; allow `POST` only if you enable lifecycle controls
-   (`discovery.docker.lifecycle_enabled`), which let authorized users
-   start/stop/restart containers (role-gated, audit-logged).
+   Put a socket proxy in front that filters by endpoint, not only by
+   method (a `GET` can attach to a container, a broad container `POST`
+   can create one). Allow the start/stop/restart endpoints only if you
+   enable lifecycle controls (`discovery.docker.lifecycle_enabled`), which
+   let authorized users start/stop/restart containers (role-gated,
+   audit-logged). Muximux's role checks do not cover requests sent to the
+   proxy directly, so keep it reachable only by Muximux.
 9. **Auto-import is opt-in** -- It is off by default. Enabling
    `discovery.docker.auto_import` imports every container with `muximux.*`
    labels without a click, including any exposed via public gateway
