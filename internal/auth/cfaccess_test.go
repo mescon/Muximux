@@ -36,7 +36,7 @@ func newCFAccessFixture(t *testing.T) *cfAccessFixture {
 	return &cfAccessFixture{srv: srv, key: key}
 }
 
-func (f *cfAccessFixture) token(t *testing.T, key *rsa.PrivateKey, aud, email string, exp time.Time) string {
+func (f *cfAccessFixture) token(t *testing.T, key *rsa.PrivateKey, aud, email string, exp time.Time, extra ...map[string]any) string {
 	t.Helper()
 	signer, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: key},
 		(&jose.SignerOptions{}).WithType("JWT").WithHeader("kid", "k1"))
@@ -46,6 +46,11 @@ func (f *cfAccessFixture) token(t *testing.T, key *rsa.PrivateKey, aud, email st
 	claims := map[string]any{
 		"iss": f.srv.URL, "aud": []string{aud}, "email": email,
 		"iat": time.Now().Add(-time.Minute).Unix(), "exp": exp.Unix(),
+	}
+	for _, e := range extra {
+		for k, v := range e {
+			claims[k] = v
+		}
 	}
 	tok, err := jwt.Signed(signer).Claims(claims).Serialize()
 	if err != nil {
@@ -73,6 +78,9 @@ func TestForwardAuth_CloudflareAccessToken(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/dashboard", nil)
 		req.RemoteAddr = "10.0.0.1:80"
 		req.Header.Set("Cf-Access-Authenticated-User-Email", headerEmail)
+		// A client-supplied groups and name header must never count.
+		req.Header.Set("Remote-Groups", "admin")
+		req.Header.Set("Remote-Name", "Spoofed Name")
 		if token != "" {
 			req.Header.Set(cfAccessJWTHeader, token)
 		}
@@ -88,6 +96,20 @@ func TestForwardAuth_CloudflareAccessToken(t *testing.T) {
 	}
 	if got.Username != "alice@example.com" || got.Email != "alice@example.com" {
 		t.Errorf("identity must come from the token: got %+v", got)
+	}
+	if got.Role != RoleUser || len(got.Groups) != 0 || got.DisplayName != "alice@example.com" {
+		t.Errorf("a spoofed Remote-Groups/Remote-Name header must not count: got %+v", got)
+	}
+
+	// Groups and name inside the signed token do count.
+	for name, extra := range map[string]map[string]any{
+		"top-level groups": {"groups": []string{"admins"}, "name": "Alice"},
+		"custom groups":    {"custom": map[string]any{"groups": []any{"admins"}}, "name": "Alice"},
+	} {
+		tok := f.token(t, f.key, "aud-123", "alice@example.com", future, extra)
+		if code := do(tok, "alice@example.com"); code != http.StatusOK || got == nil || got.Role != RoleAdmin || got.DisplayName != "Alice" {
+			t.Errorf("%s: status %d, user %+v; want admin named Alice", name, code, got)
+		}
 	}
 
 	other, err := rsa.GenerateKey(rand.Reader, 2048)

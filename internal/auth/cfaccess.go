@@ -50,22 +50,53 @@ func newCFAccessVerifierFor(issuer, certsURL, audience string) *cfAccessVerifier
 	})}
 }
 
-// verify checks token and returns the email it was issued for.
-func (v *cfAccessVerifier) verify(ctx context.Context, token string) (string, error) {
+// cfAccessIdentity is what a verified token says about the user.
+type cfAccessIdentity struct {
+	Email  string
+	Name   string
+	Groups []string
+}
+
+// verify checks token and returns the identity it was issued for. Groups
+// come from a "groups" claim, at the top level or under "custom" (where
+// Access puts identity-provider attributes passed through to the app).
+func (v *cfAccessVerifier) verify(ctx context.Context, token string) (*cfAccessIdentity, error) {
 	if token == "" {
-		return "", errors.New("missing " + cfAccessJWTHeader)
+		return nil, errors.New("missing " + cfAccessJWTHeader)
 	}
 	idt, err := v.verifier.Verify(ctx, token)
 	if err != nil {
-		return "", fmt.Errorf("invalid token: %w", err)
+		return nil, fmt.Errorf("invalid token: %w", err)
 	}
 	var claims struct {
-		Email string `json:"email"`
+		Email  string         `json:"email"`
+		Name   string         `json:"name"`
+		Groups []string       `json:"groups"`
+		Custom map[string]any `json:"custom"`
 	}
 	if err := idt.Claims(&claims); err != nil || claims.Email == "" {
-		return "", errors.New("token has no email claim")
+		return nil, errors.New("token has no email claim")
 	}
-	return claims.Email, nil
+	groups := claims.Groups
+	if len(groups) == 0 {
+		groups = stringList(claims.Custom["groups"])
+	}
+	return &cfAccessIdentity{Email: claims.Email, Name: claims.Name, Groups: groups}, nil
+}
+
+// stringList reads a JSON array of strings; anything else gives nil.
+func stringList(v any) []string {
+	arr, ok := v.([]any)
+	if !ok {
+		return nil
+	}
+	out := make([]string, 0, len(arr))
+	for _, e := range arr {
+		if s, ok := e.(string); ok && s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 // CloudflareAccessFromConfig converts the YAML block; nil stays nil.

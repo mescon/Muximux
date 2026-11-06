@@ -543,28 +543,28 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	email := r.Header.Get(emailHeader)
 	displayName := r.Header.Get(nameHeader)
 
-	// With Cloudflare Access verification on, the identity comes from
-	// the signed token, never from a header a client could set.
+	groups := r.Header.Get(groupsHeader)
+	groupList := splitGroupsHeader(groups)
+
+	// With Cloudflare Access verification on, the whole identity comes
+	// from the signed token, never from a header a client could set:
+	// Cloudflare passes request headers through, so a groups or name
+	// header could otherwise grant admin or spoof a name.
 	if snap.cfAccess != nil {
-		tokenEmail, err := snap.cfAccess.verify(r.Context(), r.Header.Get(cfAccessJWTHeader))
+		id, err := snap.cfAccess.verify(r.Context(), r.Header.Get(cfAccessJWTHeader))
 		if err != nil {
 			logging.From(r.Context()).Warn("Cloudflare Access token rejected", "source", "auth", "error", err.Error(), "client_ip", getClientIP(r, snap))
 			return nil
 		}
-		username, email = tokenEmail, tokenEmail
+		username, email, groupList = id.Email, id.Email, id.Groups
+		displayName = id.Name
 		if displayName == "" {
-			displayName = tokenEmail
+			displayName = id.Email
 		}
 	}
 	if username == "" {
 		return nil
 	}
-	groups := r.Header.Get(groupsHeader)
-
-	// Parse the comma-separated Remote-Groups list into a slice.
-	// Stored on the User so per-app allowed_groups filtering can match
-	// against it the same way OIDC's groups claim is matched.
-	groupList := splitGroupsHeader(groups)
 
 	role := RoleUser
 	// Determine the admin-group set. Custom config wins over the
