@@ -1,6 +1,6 @@
 # Docker Discovery
 
-Connect Muximux to a Docker daemon and it can enumerate running containers, propose them as apps, and keep their URLs current as IPs shift across restarts. It is off by default because it requires read access to the Docker socket.
+Docker discovery connects Muximux to a Docker daemon. Muximux can then list the running containers and propose them as apps. It also keeps their URLs current when container IPs change across restarts. The feature is off by default, because it needs read access to the Docker socket.
 
 ---
 
@@ -22,7 +22,7 @@ Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
 ✅ Container IPs change across restarts (default Docker bridge networking) and you don't want to chase them by hand
 ✅ You're comfortable granting Muximux read access to the Docker socket
 
-❌ Your apps don't run in Docker (the scanner has nothing to enumerate)
+❌ Your apps don't run in Docker (the scanner has nothing to list)
 ❌ Your containers always have stable IPs / hostnames (manual app entries are simpler)
 ❌ You can't or don't want to expose the Docker socket to Muximux (this feature is opt-in; everything else works without it)
 
@@ -42,13 +42,13 @@ Upgrading from 3.5 or earlier? Read [Upgrading to 3.6](#upgrading-to-36) first.
 7. Click **Discover from Docker**.
 
    The modal lists every running container that the daemon returned. Muximux leaves out its own container, so you can't import yourself as an app by accident. Each row shows:
-   - Suggested name, icon, group (catalog-recognised images get these auto-filled at "medium" confidence; the catalog is Muximux's built-in list of known apps)
+   - Suggested name, icon, group. For images in the catalog (Muximux's built-in list of known apps), Muximux fills these in at "medium" confidence.
    - Stable tracking key, the ID that Muximux uses to follow the container (operator label > Swarm service > Compose service > container name > container ID)
    - Resolved URL preview
    - Stability warning when the key is likely to break on a `docker-compose --force-recreate` or swarm task reschedule
    - A **Not importable** chip when auto-import would skip the container, with the reason (see [Why a container is skipped](#why-a-container-is-skipped))
 
-   The catalog matcher accepts the prefixes that operators often add to names. A container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` still picks up the matching catalog entry, just like a bare `sonarr` / `radarr` / `plex` would. The matcher splits names into tokens at `-`, `_`, and `.`. It compares whole tokens only, so `transmissionic` doesn't masquerade as `transmission`. Multi-word app names like `home-assistant` match through a fallback that compares adjacent pairs of tokens.
+   The catalog matcher accepts the prefixes that operators often add to names. A container named `homelab-sonarr`, `homelab_radarr`, or `prod.plex` still picks up the matching catalog entry, just like a bare `sonarr` / `radarr` / `plex` would. The matcher splits names into tokens at `-`, `_`, and `.`. It compares whole tokens only, so `transmissionic` does not match `transmission`. Multi-word app names like `home-assistant` match through a fallback that compares adjacent pairs of tokens.
 
    A container that is already tracked shows a **Tracked** chip in the Discover dialog. The chip names what tracks it: an app, an auto-imported app, a gateway site or a quarantined entry, plus the endpoint when it differs. You cannot select its row, because you cannot import it again. A row whose name another app already uses shows "Name already in use by another app".
 
@@ -115,7 +115,7 @@ The trailing `:ro` only stops the container from replacing or deleting the socke
 
 Container **lifecycle controls** (start / stop / restart, see below) are opt-in through two layers. The daemon must accept write requests, **and** `discovery.docker.lifecycle_enabled: true` must be set. When Muximux connects to the daemon, it sends a harmless `POST` to check the first layer. A plain socket mount passes this check, `:ro` or not. A socket proxy that blocks `POST` fails it. Neither layer alone is enough: the dashboard still won't start, stop, or restart anything until both are in place. Even with both on, Muximux can only start, stop, and restart the containers it already tracks. It can't pull or build images, create or delete containers, run commands inside them, or touch networks and volumes (Muximux never calls those parts of the Docker API). Muximux writes every action, and every blocked attempt, to the audit log.
 
-For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, two override env vars are available: `DOCKER_SOCKET` (the path the entrypoint stats) and `DOCKER_GID` (bypass auto-detect and force a specific GID). Almost no one needs these.
+For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, you can set two override env vars: `DOCKER_SOCKET` (the socket path that the entrypoint checks) and `DOCKER_GID` (skips auto-detection and forces a specific GID). Almost no one needs these.
 
 #### Linux, running Muximux as a native binary
 
@@ -634,7 +634,17 @@ A Docker-owned entry is an auto-imported app, or a gateway site that auto-import
 - logged once at startup as "Invalid Docker auto-imported entry quarantined", and
 - listed in **Settings -> Discovery -> Tracked** with its reason.
 
-If auto-import is `add`, `update` or `sync`, fix the container's labels, and the next refresh replaces a quarantined app. A quarantined gateway site of a live app is replaced only under `update` or `sync`. With auto-import `off`, a refresh does not replace the entry. Or remove it from the list (**Remove** or **Remove all**). Removing deletes the entry from `config.yaml`. A live app or gateway site that shares its tracking key stays tracked. A quarantined entry is also superseded when a live app takes its name or slug, or a live gateway site takes its domain. Muximux then drops the entry from `config.yaml` at the next save and logs "Quarantined entry superseded by a live entry". A quarantined site goes with its superseded app. Under `sync`, Muximux removes a quarantined app whose container is gone from the polled endpoint after three consecutive scans, like an auto-imported app. A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined. Other invalid config still fails validation as before.
+To clear a quarantined entry, do one of these:
+
+- **Fix the labels.** If auto-import is `add`, `update` or `sync`, fix the container's labels. The next refresh replaces a quarantined app. A quarantined gateway site of a live app is replaced only under `update` or `sync`. With auto-import `off`, a refresh does not replace the entry.
+- **Remove it.** Click **Remove** or **Remove all** in the list. Removing deletes the entry from `config.yaml`. A live app or gateway site that shares its tracking key stays tracked.
+
+Muximux also clears a quarantined entry by itself in two cases:
+
+- **A live entry supersedes it.** This happens when a live app takes its name or slug, or a live gateway site takes its domain. Muximux then drops the entry from `config.yaml` at the next save and logs "Quarantined entry superseded by a live entry". A quarantined site goes with its superseded app.
+- **The container is gone under `sync`.** Muximux removes a quarantined app whose container is gone from the polled endpoint after three consecutive scans, like an auto-imported app.
+
+A manual gateway site that was linked to a quarantined app loses its app link. Only Docker-owned entries are quarantined. Other invalid config still fails validation as before.
 
 Other housekeeping applies to discovery. Image names whose last segment is generic (`server`, `app`, `web`, `api` and similar) no longer match a catalog entry. Muximux deduplicates apps whose names differ only by case or spacing. When a tracked container goes missing, Muximux logs it once instead of on every refresh.
 
@@ -732,11 +742,11 @@ You'll see a `docker_managed_url` field appear next to `docker_key` for tracked 
 
 ## Divergence Banner
 
-Caddy's reload is transactional (all or nothing) only at the parse step. Failures after the parse step (listener collision, async cert provisioning, module panic) can leave the running config in an unknown state. The refresh poller handles this with rollback (a reload of the previous config):
+Caddy's reload is transactional (all or nothing) only at the parse step. A failure after the parse step (listener collision, async cert provisioning, module panic) can leave the running config in an unknown state. The refresh poller handles this with a rollback (a reload of the previous config):
 
-- Candidate reload fails, rollback reload succeeds → audit log warning, refresh tick skipped
-- Both fail → **divergence counter** increments, sticky red banner appears in Settings → Discovery
-- First clean tick after a divergence → banner transitions to amber "recovered"
+- The candidate reload fails and the rollback reload succeeds: Muximux logs an audit warning and skips the refresh tick.
+- Both reloads fail: the **divergence counter** goes up, and a sticky red banner appears in Settings → Discovery.
+- The first clean tick after a divergence: the banner turns amber and shows "recovered".
 
 The banner shows at a glance that the running Caddy may not match disk. Recovery happens automatically on the next successful tick. The banner stays amber until you acknowledge it (currently by waiting; a future iteration may add a "clear" button).
 

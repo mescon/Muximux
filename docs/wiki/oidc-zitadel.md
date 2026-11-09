@@ -1,6 +1,6 @@
 # OIDC: Zitadel
 
-[Zitadel](https://zitadel.com) is a self-hosted (or managed) cloud-native identity platform with a multi-organization model. It's used as a Keycloak alternative in Kubernetes and self-hosted setups.
+[Zitadel](https://zitadel.com) is a cloud-native identity platform. You can host it yourself or use the managed service. It has a multi-organization model: one instance can hold several separate organizations. People use it as a Keycloak alternative in Kubernetes and self-hosted setups.
 
 This guide sets up Muximux to sign users in with Zitadel. Zitadel puts group memberships in the ID token (the signed sign-in record that Zitadel sends to Muximux). It does this through its project roles.
 
@@ -139,7 +139,7 @@ See [Authentication](authentication#setting-up-oidc-in-settings) for how the for
 Zitadel supports RP-initiated logout (Muximux sends the user to the provider to sign out) at `/oidc/v1/end_session`. Discovery lists it as `end_session_endpoint`. Zitadel also supports OIDC back-channel logout (the provider tells Muximux directly that a session ended).
 
 - **Return address.** The `post_logout_redirect_uri` must exactly match one of the post-logout URIs registered on the application. Add `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) to the application's post-logout redirect URIs. These are in the **Redirect Settings** section of the application in Console. Then set `provider_logout: true`.
-- **Back-channel logout.** Register `https://muximux.example.com/api/auth/oidc/backchannel-logout` as the application's back-channel logout URI (`backchannel_logout_uri`). The label of this field in Console could not be confirmed from the documentation consulted. Check the application settings in your Zitadel version. After you set it, Zitadel notifies Muximux for sessions that started after you saved the setting.
+- **Back-channel logout.** Register `https://muximux.example.com/api/auth/oidc/backchannel-logout` as the application's back-channel logout URI (`backchannel_logout_uri`). We could not confirm the label of this field in Console from the documentation. Check the application settings in your Zitadel version. After you set it, Zitadel notifies Muximux for sessions that started after you saved the setting.
 
 ---
 

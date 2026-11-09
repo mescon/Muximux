@@ -1,6 +1,6 @@
 # Split View
 
-Split view displays two apps side by side (horizontal) or stacked (vertical) in a single browser tab. Each panel is an independent iframe that stays loaded when you switch focus, so you can monitor two services at once without losing state.
+Split view shows two apps in a single browser tab. The apps are side by side (horizontal) or stacked (vertical). Each panel is an independent iframe. A panel stays loaded when you switch focus. So you can monitor two services at once and not lose their state.
 
 | Horizontal Split | Vertical Split |
 |:---:|:---:|
@@ -10,7 +10,7 @@ Split view displays two apps side by side (horizontal) or stacked (vertical) in 
 
 Click the split view icon in the navigation bar. Muximux turns on horizontal split by default and opens a second panel. The navigation controls expand to show orientation and panel selection options.
 
-The split view controls appear inline in the navigation bar across all five positions (top, left, right, bottom, floating).
+The split view controls appear inline in the navigation bar. This works in all five positions (top, left, right, bottom, floating).
 
 ### Controls
 
@@ -34,7 +34,7 @@ You can also click directly inside a panel to set it as the active target.
 
 ### Active Panel Indicator
 
-The draggable divider between panels shows a colored accent line on the active panel's edge. This shows which panel is targeted without overlaying anything on the iframe content.
+The draggable divider between the panels shows a colored accent line on the edge of the active panel. This line shows the target panel. Nothing covers the iframe content.
 
 ## Draggable Divider
 
@@ -42,7 +42,7 @@ Drag the divider between the two panels to resize them. Double-click the divider
 
 ## URL Hash Routing
 
-Split view state is reflected in the URL hash:
+The URL hash (the part after `#`) shows the split view state:
 
 | URL | Result |
 |-----|--------|
@@ -50,11 +50,11 @@ Split view state is reflected in the URL hash:
 | `#sonarr+radarr` | Split view with Sonarr in panel 1 and Radarr in panel 2 |
 | `#sonarr+radarr?sonarr=%2Fseries%2Fx&radarr=%2Fmovie%2F1` | The same, with a page opened in each app (apps need [Allow deep links](apps.md#deep-links-in-links)) |
 
-You can bookmark a split view configuration or share it as a link. When Muximux loads with a `+` in the hash, it automatically enables horizontal split and loads both apps. On a screen narrower than 640px, where split view isn't available, the link opens only the first app.
+You can bookmark a split view configuration or share it as a link. When Muximux loads with a `+` in the hash, it enables horizontal split and loads both apps. Split view is not available on a screen narrower than 640px. On such a screen, the link opens only the first app.
 
 ## Switching Orientation
 
-Click the horizontal or vertical icon to switch orientation while split view is active. Both panels and their loaded apps are preserved; only the layout direction changes.
+Click the horizontal or vertical icon to switch orientation while split view is active. Both panels keep their loaded apps. Only the layout direction changes.
 
 ## Closing Split View
 

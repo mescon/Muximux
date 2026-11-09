@@ -47,7 +47,7 @@ services:
     restart: unless-stopped
 ```
 
-Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. Port 8080 does not need to be exposed. Caddy handles all traffic on 80/443.
+Configure `tls.domain` and `gateway_sites` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. You do not need to expose port 8080. Caddy handles all traffic on 80/443.
 
 > **Note:** 3.1.0 removed the legacy `server.gateway:` Caddyfile path. The declarative `server.gateway_sites:` YAML replaced it. Under 3.1.0, Muximux migrates a 3.0.x config (and any mounted `sites.Caddyfile`) automatically on first boot.
 
@@ -57,7 +57,7 @@ You can configure single sign-on entirely from the environment, with the client 
 
 Both examples assume that Muximux is already reachable at `https://muximux.example.com` through your HTTPS reverse proxy (or the built-in TLS above). The reason is that the identity provider sends the browser back to that address. Plain `http://` on port 8080 is not enough for the callback.
 
-**Docker Compose** with a file-based secret. Compose mounts it at `/run/secrets/<name>`. The file must be readable by the container user (`PUID`).
+**Docker Compose** with a file-based secret. Compose mounts it at `/run/secrets/<name>`. The container user (`PUID`) must be able to read the file.
 
 ```yaml
 # docker-compose.yml
@@ -285,7 +285,7 @@ server:
   base_path: /muximux
 ```
 
-The path must start with `/` and have no trailing slash. If not set, Muximux serves from the root.
+The path must start with `/` and have no trailing slash. If you do not set it, Muximux serves from the root.
 
 ### Nginx (subpath)
 
@@ -304,7 +304,9 @@ location /muximux/ {
 }
 ```
 
-### Traefik (subpath with StripPrefix)
+### Traefik (subpath)
+
+<a id="traefik-subpath-with-stripprefix"></a>
 
 ```yaml
 services:
@@ -347,4 +349,4 @@ services:
 - **Ports**:
   - Behind an external proxy: only 8080 (or your configured listen port). It does not need to be publicly accessible.
   - Standalone: 8080 (or your configured listen port).
-  - Full reverse proxy appliance: 80 and 443. Port 8080 is not needed externally.
+  - Full reverse proxy appliance: 80 and 443. You do not need to expose port 8080 externally.
