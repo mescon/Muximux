@@ -1,12 +1,12 @@
 # Installation
 
-Muximux is distributed as a single binary with the frontend embedded. There is nothing else to install -- no database, no external dependencies, no separate web server. Choose whichever installation method suits your setup.
+Muximux ships as a single binary. The frontend is embedded in it. There is nothing else to install: no database, no external dependencies, no separate web server. Choose whichever installation method suits your setup.
 
 ---
 
 ## Docker (Recommended)
 
-The Docker image is the simplest way to run Muximux. It is published to the GitHub Container Registry.
+The Docker image is the simplest way to run Muximux. We publish it to the GitHub Container Registry.
 
 ```bash
 mkdir -p data
@@ -28,7 +28,7 @@ The `-v $(pwd)/data:/app/data` flag maps a local `data/` directory into the cont
 - **themes/** -- user-created custom CSS theme files
 - **icons/** -- cached and uploaded icons
 
-Without this volume mount, you lose your configuration every time the container is recreated.
+Without this volume mount, you lose your configuration every time you recreate the container.
 
 ### Environment variables
 
@@ -185,7 +185,7 @@ go build -tags embed_web -o muximux ./cmd/muximux
 
 The `npm run build` step compiles the Svelte frontend and writes it to `internal/server/dist/`. The `go build -tags embed_web` step then embeds those files into the Go binary. The `-tags embed_web` flag is required. Without it, the binary does not include the web UI. The result is a single, self-contained executable.
 
-> **Note:** There is no Makefile. The two-step build (frontend, then backend) is all that is needed.
+> **Note:** There is no Makefile. The two-step build (frontend, then backend) is all you need.
 
 ---
 
@@ -223,4 +223,4 @@ Cached SVGs from the [Lucide](https://lucide.dev/) icon set, used for group icon
 
 ### icons/custom/
 
-Icons uploaded by the user through the Settings UI. These can be PNG, SVG, or any other image format.
+Icons that users upload through the Settings UI. These can be PNG, SVG, JPG, WebP or GIF.

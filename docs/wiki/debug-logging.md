@@ -36,7 +36,7 @@ localStorage.removeItem('muximux_debug');
 
 All debug messages appear in the browser console under `console.debug()`. In most browsers, you must enable the "Verbose" log level in DevTools to see them.
 
-Messages are prefixed with `[muximux:category]` for easy filtering:
+Each message starts with `[muximux:category]`, so you can filter easily:
 
 | Category | What's Logged |
 |---|---|
@@ -167,7 +167,7 @@ Muximux automatically rotates the `muximux.log` file (in the data directory), so
 - Muximux keeps up to **3** rotated copies (`muximux.log.1`, `muximux.log.2`, `muximux.log.3`)
 - Muximux automatically deletes older rotated files
 
-No external log rotation tool (e.g., `logrotate`) is needed.
+You do not need an external log rotation tool (e.g., `logrotate`).
 
 On restart, Muximux reloads the most recent log entries into the in-memory buffer. So the **/logs** page shows history from before the restart.
 
@@ -175,6 +175,6 @@ On restart, Muximux reloads the most recent log entries into the in-memory buffe
 
 ## Privacy
 
-- Frontend debug logs are written only to your browser's console. They are not sent to any server.
+- Muximux writes frontend debug logs only to your browser's console. It does not send them to any server.
 - The `localStorage` flag (`muximux_debug`) contains only the value `"1"` and no personal data.
 - Backend debug logs may include usernames and request paths. Be mindful of this when sharing logs publicly.

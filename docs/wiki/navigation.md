@@ -14,15 +14,15 @@ Muximux supports five navigation layouts. You can switch between them at any tim
 
 ### Top
 
-Horizontal bar across the top of the screen. Apps are shown as icons with optional labels below. This layout works well on wide screens with many apps, because the full width is available for app icons.
+Horizontal bar across the top of the screen. The bar shows apps as icons, with optional labels below. This layout works well on wide screens with many apps, because the full width is available for app icons.
 
 ### Left
 
-Vertical sidebar on the left side of the screen. This is the classic dashboard layout. The sidebar width is configurable.
+Vertical sidebar on the left side of the screen. This is the classic dashboard layout. You can configure the sidebar width.
 
 ### Right
 
-Vertical sidebar on the right side of the screen. A mirror of the left layout, useful if you prefer navigation on the right.
+Vertical sidebar on the right side of the screen. It mirrors the left layout. Use it if you prefer navigation on the right.
 
 ### Bottom
 
@@ -38,7 +38,7 @@ When using **top** or **bottom** navigation, you can choose between two bar styl
 
 ### Grouped (default)
 
-Apps are organized under collapsible group headers. Each group has its own section with the group name displayed above its apps. This is the standard layout and works well when you have many apps organized into distinct categories.
+The bar puts apps under collapsible group headers. Each group has its own section, with the group name above its apps. This is the standard layout. It works well when you have many apps in distinct categories.
 
 ### Flat
 
@@ -76,7 +76,7 @@ apps:
 
 ## Configuration
 
-All navigation settings are available in `config.yaml` under the `navigation` key:
+You can set all navigation settings in `config.yaml` under the `navigation` key:
 
 ```yaml
 navigation:

@@ -39,13 +39,13 @@ icon:
   name: server        # Lucide icon name
 ```
 
-Muximux fetches Lucide icons from the jsDelivr CDN (a public content delivery network) and caches them locally. They work well for generic icons (settings, home, play, download, folder, etc.), when dashboard-icons does not have a match for your app.
+Muximux fetches Lucide icons from the jsDelivr CDN (a public content delivery network) and caches them locally. They work well for generic icons (settings, home, play, download, folder, etc.). Use them when dashboard-icons does not have a match for your app.
 
 The list of icon names comes from the Lucide repository on GitHub (`api.github.com`). The categories for the picker's filter come from `https://lucide.dev/api/categories`. If only the category request fails, Muximux still lists the icons, without categories. It logs a warning once (see [Troubleshooting](troubleshooting.md#lucide-icon-categories-are-missing)). If the request for the icon names also fails, and no cached list is available, the Lucide icon list is not available.
 
 ## Custom Icons
 
-Upload your own icons (PNG, SVG, JPG, WebP) through the Settings panel or API.
+Upload your own icons (PNG, SVG, JPG, WebP, GIF) through the Settings panel or API.
 
 ```yaml
 icon:
@@ -59,7 +59,7 @@ Muximux stores custom icons in the `data/icons/custom/` directory and serves the
 
 You can add custom icons in three ways:
 1. **File upload** -- Through the Settings panel icon browser (click "Upload" in the Custom tab)
-2. **Fetch from URL** -- Paste an image URL in the Custom tab and click "Fetch". The server downloads the image, validates it, and saves it locally as a custom icon. This is the recommended way to use icons from external sources. The image is stored locally, so it does not break if the remote server goes down.
+2. **Fetch from URL** -- Paste an image URL in the Custom tab and click "Fetch". The server downloads the image, validates it, and saves it locally as a custom icon. This is the recommended way to use icons from external sources. Muximux stores the image locally, so the icon does not break if the remote server goes down.
 3. **API** -- `POST /api/icons/custom` (multipart upload) or `POST /api/icons/custom/fetch` (download from URL)
 
 ## URL Icons
@@ -104,7 +104,7 @@ The `color` field applies a color tint to Lucide icons. It has no effect on othe
 
 The `background` field sets a custom background color behind the icon. By default, Muximux uses the app's accent `color` as the icon background. `background` overrides that default for the icon only. It does not change the app's accent color elsewhere (tab indicator, sidebar highlight).
 
-The background is only visible when `show_icon_background` is enabled in the navigation settings, unless the app has `force_icon_background: true` set.
+The background shows only when `show_icon_background` is enabled in the navigation settings. An app with `force_icon_background: true` always shows it.
 
 ### Invert
 

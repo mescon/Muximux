@@ -1,8 +1,8 @@
 # OIDC: Pocket ID
 
-[Pocket ID](https://github.com/stonith404/pocket-id) is a lightweight self-hosted OIDC provider that authenticates users with passkeys instead of passwords. It's a popular choice in homelab setups because the entire IdP is one small container.
+[Pocket ID](https://github.com/stonith404/pocket-id) is a lightweight self-hosted OIDC provider. (OIDC, OpenID Connect, is a standard sign-in protocol.) Pocket ID signs users in with passkeys instead of passwords. It is popular in homelab setups, because the entire IdP (identity provider) is one small container.
 
-This guide sets up Muximux to sign in against Pocket ID. Group memberships flow through to `admin_groups`.
+This guide sets up Muximux to sign in against Pocket ID. Muximux receives the user's group memberships and matches them against `admin_groups`.
 
 ---
 
@@ -34,7 +34,7 @@ This guide sets up Muximux to sign in against Pocket ID. Group memberships flow 
 Pocket ID emits the `groups` claim (the list of the user's groups in the token) only when the client is allowed to read it.
 
 1. In the same OIDC client edit page, find the **Allowed User Groups** section.
-2. Add the groups you want Muximux to see. Anyone who belongs to one of these groups can sign in to Muximux. The IdP (identity provider) refuses everyone else. Add at least:
+2. Add the groups you want Muximux to see. Anyone who belongs to one of these groups can sign in to Muximux. The IdP refuses everyone else. Add at least:
    - `Muximux-Admins` (or whatever you want admin status to map to)
    - any other group you'll later use for per-app filtering
 3. Save.

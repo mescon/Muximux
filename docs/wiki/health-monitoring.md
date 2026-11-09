@@ -2,11 +2,11 @@
 
 ## Overview
 
-Muximux periodically checks whether your apps are reachable and displays their health status in the navigation, so you can see at a glance which services are up and which are down.
+Muximux checks at regular intervals whether your apps are reachable. It shows their health status in the navigation. So you can see at a glance which services are up and which are down.
 
 ## Configuration
 
-Health monitoring is configured in the top-level `health` section of `config.yaml`:
+You configure health monitoring in the top-level `health` section of `config.yaml`:
 
 ```yaml
 health:
@@ -21,13 +21,13 @@ Muximux reads the `health` section only at startup. After you change `enabled`, 
 
 ## How It Works
 
-- Muximux sends an HTTP GET request to each app that has `health_check: true`. It uses `health_url` if configured, otherwise the main `url`.
-- A final response with HTTP status 2xx or 3xx counts as **healthy**. Muximux follows up to 3 redirects automatically. At a fourth redirect, Muximux stops and uses that 3xx response, and it counts as healthy. Muximux does not check the destination of that redirect. Timeouts, connection errors, and 4xx/5xx responses count as **unhealthy**. Muximux ignores TLS certificate errors, so self-signed certs work fine.
+- Muximux sends an HTTP GET request to each app that has `health_check: true`. It uses `health_url` if you set it. Otherwise it uses the main `url`.
+- A final response with HTTP status 2xx or 3xx counts as **healthy**. Muximux follows up to 3 redirects automatically. At a fourth redirect, Muximux stops and uses that 3xx response. This response counts as healthy. Muximux does not check the destination of that redirect. Timeouts, connection errors, and 4xx/5xx responses count as **unhealthy**. Muximux ignores TLS certificate errors, so self-signed certs work fine.
 - Muximux sends the results to all connected browsers in real time over WebSocket (a connection that stays open so the server can push updates).
 
 ## Custom Health URLs
 
-Some apps have dedicated health or status endpoints that respond faster and don't require authentication. You can point Muximux at these instead of the main URL:
+Some apps have dedicated health or status endpoints. These respond faster and don't require authentication. You can point Muximux at these instead of the main URL:
 
 ```yaml
 apps:
@@ -36,7 +36,7 @@ apps:
     health_url: http://plex:32400/identity   # Lightweight endpoint
 ```
 
-If `health_url` is not set, the main `url` is used for health checks.
+If you do not set `health_url`, Muximux uses the main `url` for health checks.
 
 Docker-discovered apps with a `muximux.app.url` label get their health address from the container automatically. Muximux keeps that address current when the container's IP changes. See [Docker Discovery](docker-discovery.md#running-behind-your-own-reverse-proxy).
 
@@ -58,13 +58,13 @@ apps:
 ```
 
 When `health_check` is not set or is `false`:
-- No health check requests are sent for that app.
-- No health status indicator (dot) is shown in the navigation.
+- Muximux sends no health check requests for that app.
+- The navigation shows no health status indicator (dot).
 - The app always appears at full opacity regardless of other apps' health status.
 
 By default, **no apps have health checks enabled**. You enable them one by one for the apps you care about. Or use the bulk toggle in **Settings > General > Health Checks** to turn all of them on or off at once.
 
-This opt-in design keeps things quiet by default and lets you choose which apps to monitor. This helps when you have external services, VPN-only apps, or services behind firewalls that Muximux can't reach.
+This opt-in design keeps things quiet by default. It lets you choose which apps to monitor. This helps when you have external services, VPN-only apps, or services behind firewalls that Muximux can't reach.
 
 ## Health Status Indicators
 
@@ -84,7 +84,7 @@ Each app tracks the following health information:
 - **Uptime percentage** -- successful checks divided by total checks
 - **Last error message** -- the reason for the most recent failure (if unhealthy)
 
-This data is available through the API (see [API Reference](api.md)) and is displayed in the Settings panel.
+You can get this data through the API (see [API Reference](api.md)). The Settings panel also shows it.
 
 ## Manual Health Check
 

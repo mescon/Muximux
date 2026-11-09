@@ -48,20 +48,17 @@ Muximux includes a runtime URL interceptor (a script that rewrites URLs inside t
 
 **Symptom:** The app loads, but some features, API calls, or navigation links point to wrong paths. The Network tab shows 404 errors for URLs that are missing the `/proxy/{slug}/` prefix.
 
-**Patterns that may still cause issues:**
+**Patterns that may still cause issues** (the interceptor already handles `history.pushState`, `history.replaceState` and `location.pathname`):
 
 | Pattern | Example | Why |
 |---------|---------|-----|
-| `history.pushState` | `pushState({}, '', '/page')` | Client-side navigation bypasses the server |
-| `history.replaceState` | `replaceState({}, '', '/page')` | Same as above |
-| `location.pathname` checks | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
-| Inline event handlers | `<div onclick="go('/page')">` | URL in HTML attribute, not intercepted by runtime patches |
+| Inline event handlers | `<div onclick="go('/page')">` | The URL is in an HTML attribute. Runtime patches do not intercept it. |
 
 **Workaround:** Check if the app has a "base URL", "URL base", or "path prefix" setting in its own configuration. If it does, set it to `/proxy/{slug}`. The app then adds the correct prefix when it builds URLs. Many apps support this setting (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
 
 ### Single-Page App (SPA) Routing Issues
 
-**Symptom:** The app loads initially but navigating within it causes a blank page, a 404, or routes back to the home page.
+**Symptom:** The app loads at first. But when you navigate inside it, you get a blank page, a 404, or the home page again.
 
 **What happens:** SPAs define client-side routes like `/dashboard` or `/users/settings`. When Muximux proxies the app at `/proxy/my-app/`, the browser's URL becomes `/proxy/my-app/dashboard`. The app's router sees the full path, including the `/proxy/my-app/` prefix. The router doesn't recognize this path, so the route doesn't match.
 
@@ -115,7 +112,7 @@ The proxy does **not** buffer binary content (images, videos, archives, file dow
 
 **Causes:**
 - The app's main URL requires authentication, and Muximux's health checker does not send credentials.
-- The URL returns a non-2xx status code (for example, a 302 redirect to a login page).
+- The URL returns a 4xx or 5xx status code (for example, 401 or 403 because the app wants a login). Muximux treats 2xx and 3xx responses as healthy. It follows up to 3 redirects.
 - The app takes longer than the configured timeout to respond.
 
 **Solutions:**
@@ -144,7 +141,7 @@ The proxy does **not** buffer binary content (images, videos, archives, file dow
 
 **Symptom:** Health status doesn't update in real-time. You see WebSocket errors in the browser console.
 
-**Cause:** If Muximux is behind an external reverse proxy, that proxy may not be forwarding WebSocket connections correctly.
+**Cause:** If Muximux is behind an external reverse proxy, that proxy may not forward WebSocket connections correctly.
 
 **Solution:** Configure your reverse proxy to support WebSocket upgrades:
 
@@ -157,9 +154,9 @@ The proxy does **not** buffer binary content (images, videos, archives, file dow
   }
   ```
 
-- **Traefik:** WebSocket support is automatic. No extra configuration needed.
+- **Traefik:** WebSocket support is automatic. You need no extra configuration.
 
-- **Caddy:** WebSocket support is automatic. No extra configuration needed.
+- **Caddy:** WebSocket support is automatic. You need no extra configuration.
 
 ---
 
@@ -212,7 +209,7 @@ The proxy does **not** buffer binary content (images, videos, archives, file dow
 
 ## Onboarding Wizard Doesn't Appear
 
-The onboarding wizard opens only while the server reports setup as pending. Setup is pending on a new install where setup was never completed and no apps, users or auth method are configured. The wizard also opens only for an administrator. It never opens for a non-admin or on an established instance.
+The onboarding wizard opens only while the server reports setup as pending. Setup is pending on a new install that never completed setup and has no apps, users or auth method configured. The wizard also opens only for an administrator. It never opens for a non-admin or on an established instance.
 
 You may delete your `data/config.yaml` and still not see the wizard. In that case, verify that the server restarted and is serving the default (empty) config. Muximux resolves the `data/` directory relative to the binary's location, not the working directory. Make sure you're looking at the correct path. Check the server logs to confirm that the config loaded.
 
@@ -220,7 +217,7 @@ You may delete your `data/config.yaml` and still not see the wizard. In that cas
 
 ## Settings Shows Values I Did Not Set
 
-A locked field shows "From VAR" or "Set by VAR". It gets its value from an environment variable or command-line flag, for example `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`, `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_AUTH_METHOD` or a `MUXIMUX_OIDC_*` variable. An OIDC field written in `config.yaml` as exactly `${VAR}` is locked the same way. The override applies in memory only. Muximux never writes it to `config.yaml`. To see the file's value, unset the variable and restart. The full list is in the [Environment Variable Reference](configuration.md#environment-variable-reference). Settings -> Discovery shows the stored values, including the auto-import mode. If Save is blocked with a name conflict, rename one of the two apps or groups with the same name.
+A locked field shows "From VAR" or "Set by VAR". It gets its value from an environment variable or command-line flag, for example `MUXIMUX_LOG_LEVEL`, `MUXIMUX_LOG_FORMAT`, `MUXIMUX_LISTEN`, `MUXIMUX_BASE_PATH`, `MUXIMUX_DISCOVERY_AUTO_IMPORT`, `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`, `MUXIMUX_AUTH_METHOD` or a `MUXIMUX_OIDC_*` variable. Settings also locks an OIDC field when `config.yaml` holds exactly `${VAR}` for it. The override applies in memory only. Muximux never writes it to `config.yaml`. To see the file's value, unset the variable and restart. The [Environment Variable Reference](configuration.md#environment-variable-reference) has the full list. Settings -> Discovery shows the stored values, including the auto-import mode. If a name conflict blocks Save, rename one of the two apps or groups with the same name.
 
 ---
 
@@ -265,13 +262,13 @@ Open the Discover dialog. Each container that auto-import skips shows a **Not im
 
 | Reason | Fix |
 |---|---|
-| No `muximux.*` labels | Add at least one label; `muximux.discovery.id` is enough. Unlabelled containers are never auto-imported. |
-| `muximux.app.enabled=true is required` | Explicit opt-in is on (`require_explicit_enable` or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`); add the label. |
+| No `muximux.*` labels | Add at least one label. `muximux.discovery.id` is enough. Muximux never auto-imports unlabelled containers. |
+| `muximux.app.enabled=true is required` | Explicit opt-in is on (`require_explicit_enable` or `MUXIMUX_DISCOVERY_REQUIRE_EXPLICIT_ENABLE`). Add the label. |
 | No port | Add `muximux.app.port`. |
-| No URL could be built | The network strategy cannot reach the container; see [Network strategies](docker-discovery.md#network-strategies). |
-| Invalid app | The labels produce an invalid app; the detail says why. |
+| No URL could be built | The network strategy cannot reach the container. See [Network strategies](docker-discovery.md#network-strategies). |
+| Invalid app | The labels produce an invalid app. The detail says why. |
 
-A container with `muximux.app.enabled=false` is opted out and hidden from the dialog. A container that is already tracked shows a **Tracked** chip instead. See [Why a container is skipped](docker-discovery.md#why-a-container-is-skipped).
+A container with `muximux.app.enabled=false` is opted out. The dialog does not show it. A container that is already tracked shows a **Tracked** chip instead. See [Why a container is skipped](docker-discovery.md#why-a-container-is-skipped).
 
 ---
 
@@ -291,7 +288,7 @@ While an app is tracked, a set `muximux.app.name`, `icon`, `group` or `order` la
 
 1. Upgrade to 3.6.1 or later.
 2. Allow Muximux outbound HTTPS to `lucide.dev`, `api.github.com` (icon list) and `cdn.jsdelivr.net` (icon files).
-3. Restart Muximux to fetch the categories again. A restart is needed because Muximux keeps the icon list in memory for the icon cache lifetime (`icons.dashboard_icons.cache_ttl`, 7 days by default).
+3. Restart Muximux to fetch the categories again. You need a restart, because Muximux keeps the icon list in memory for the icon cache lifetime (`icons.dashboard_icons.cache_ttl`, 7 days by default).
 
 ---
 
@@ -299,10 +296,10 @@ While an app is tracked, a set `muximux.app.name`, `icon`, `group` or `order` la
 
 3.6.0 changed a few behaviours you may notice after upgrading:
 
-- **Docker discovery:** auto-import only takes containers with a `muximux.*` label, Swarm and Compose tracking keys are migrated, set labels re-sync onto apps you imported by hand, and invalid auto-imported entries are quarantined. Details in [Docker Discovery > Upgrading to 3.6](docker-discovery.md#upgrading-to-36).
-- **Saving from Settings** merges your edits onto the current server config, and Settings closes only after a successful save. API scripts that `PUT /api/config` without `base` keep the old replace behaviour; see [API Reference > Configuration](api.md#configuration).
+- **Docker discovery:** auto-import only takes containers with a `muximux.*` label. Muximux migrates Swarm and Compose tracking keys. Set labels re-sync onto apps you imported by hand. Muximux quarantines invalid auto-imported entries. Details are in [Docker Discovery > Upgrading to 3.6](docker-discovery.md#upgrading-to-36).
+- **Saving from Settings** merges your edits onto the current server config, and Settings closes only after a successful save. API scripts that `PUT /api/config` without `base` keep the old replace behaviour. See [API Reference > Configuration](api.md#configuration).
 - **Restore** goes through the startup load path and refuses a backup that still uses the legacy `server.gateway` setting, with a message explaining how to convert it. Listen address, TLS, base-path routing and session cookie settings still need a restart.
-- **Themes:** a custom theme can no longer use a bundled theme's name, and colours were adjusted for WCAG AA contrast. Custom themes that omit the new tokens get derived values; see [Themes > Status and accent tokens](themes.md#status-and-accent-tokens).
+- **Themes:** a custom theme can no longer use a bundled theme's name. Bundled colours changed to meet WCAG AA contrast. Custom themes that omit the new tokens get derived values. See [Themes > Status and accent tokens](themes.md#status-and-accent-tokens).
 - **`lifecycle_allowed_groups`** holds user and identity-provider group names, not dashboard groups.
 
 3.6.1 shows the Docker whale to admins only, applies environment overrides on a first start without `config.yaml`, and ignores `muximux.app.health` values starting with `//` and bare `muximux.app.icon` values containing `:`, `/` or spaces.
@@ -329,7 +326,7 @@ If you edit `config.yaml` directly (not through the Settings panel), Muximux pic
 
 **Symptom:** Muximux can't write to `/app/data` inside the Docker container, or you see "permission denied" errors in the logs.
 
-**Cause:** The Muximux container runs as UID 1000 by default. If your mounted data directory is owned by a different user, the container cannot write to it.
+**Cause:** The Muximux container runs as UID 1000 by default. If a different user owns your mounted data directory, the container cannot write to it.
 
 **Solution:** Set the correct ownership on your data directory:
 
@@ -362,7 +359,7 @@ start/stop/restart buttons return an error.
 **Solutions:**
 1. Mount the socket:
    `- /var/run/docker.sock:/var/run/docker.sock:ro`
-   (`:ro` doesn't limit Docker API calls; see
+   (`:ro` doesn't limit Docker API calls. See
    [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux).)
    The container entrypoint auto-detects the socket's group. It then gives the
    runtime user access. You don't need `group_add`, root, or a custom entrypoint.
