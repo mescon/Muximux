@@ -36,8 +36,15 @@ type Hub struct {
 	register   chan *Client
 	unregister chan *Client
 	kick       chan []string
+	kickUser   chan string
 	done       chan struct{}
-	mu         sync.RWMutex
+	// sessionValid, when set, is asked on register whether a socket's
+	// session still exists. A session deleted between the HTTP upgrade
+	// and registration would otherwise miss CloseSessions, which only
+	// sees registered clients. Register and CloseSessions both run on
+	// the Run goroutine, so checking here leaves no gap.
+	sessionValid func(sessionID string) bool
+	mu           sync.RWMutex
 }
 
 // NewHub creates a new WebSocket hub
@@ -48,6 +55,7 @@ func NewHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		kick:       make(chan []string, 16),
+		kickUser:   make(chan string, 16),
 		done:       make(chan struct{}),
 	}
 }
@@ -77,6 +85,12 @@ func (h *Hub) Run() {
 			return
 
 		case client := <-h.register:
+			if client.sessionID != "" && h.sessionValid != nil && !h.sessionValid(client.sessionID) {
+				client.closeCode = CloseSessionEnded
+				close(client.send)
+				logging.Debug("WebSocket client refused: session ended", "source", "websocket")
+				continue
+			}
 			h.mu.Lock()
 			h.clients[client] = true
 			total := len(h.clients)
@@ -95,6 +109,9 @@ func (h *Hub) Run() {
 
 		case ids := <-h.kick:
 			h.closeSessions(ids)
+
+		case userID := <-h.kickUser:
+			h.closeUser(userID)
 
 		case event := <-h.broadcast:
 			data, err := json.Marshal(event)
@@ -159,6 +176,44 @@ func (h *Hub) closeSessions(ids []string) {
 	if n > 0 {
 		logging.Debug("WebSocket clients closed: session ended", "source", "websocket", "clients", n)
 	}
+}
+
+// closeUser drops every client of userID with a normal close, so the
+// browser reconnects with the user's current role. Runs on the Run
+// goroutine.
+func (h *Hub) closeUser(userID string) {
+	if userID == "" {
+		return
+	}
+	h.mu.Lock()
+	for client := range h.clients {
+		if client.userID == userID {
+			delete(h.clients, client)
+			close(client.send)
+		}
+	}
+	h.mu.Unlock()
+}
+
+// CloseUser closes every socket of userID with a normal close frame.
+// The browser reconnects, and the new socket gets the user's current
+// role. Used after a role change. Never blocks once Close has run.
+func (h *Hub) CloseUser(userID string) {
+	select {
+	case <-h.done:
+		return
+	default:
+	}
+	select {
+	case h.kickUser <- userID:
+	case <-h.done:
+	}
+}
+
+// SetSessionValidator registers the check Run uses on register; see the
+// sessionValid field. Call it before Run starts.
+func (h *Hub) SetSessionValidator(fn func(sessionID string) bool) {
+	h.sessionValid = fn
 }
 
 // CloseSessions closes the sockets that belong to the given sessions,

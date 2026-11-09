@@ -2894,3 +2894,37 @@ func TestUpdateAuthMethod_ForwardAuth_KeepsCloudflareAccess(t *testing.T) {
 		t.Errorf("without cloudflare_access the header path must work: role %q", got)
 	}
 }
+
+func TestUpdateUser_RoleChangeClosesUserSockets(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	var closed []string
+	handler.SetUserSocketCloser(func(id string) { closed = append(closed, id) })
+
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{ID: "carol", Username: "carol", PasswordHash: hash, Role: "user"}); err != nil {
+		t.Fatalf("add: %v", err)
+	}
+
+	put := func(body map[string]interface{}) {
+		t.Helper()
+		b, _ := json.Marshal(body)
+		w := httptest.NewRecorder()
+		handler.UpdateUser(w, httptest.NewRequest(http.MethodPut, "/api/auth/users/carol", bytes.NewReader(b)))
+		if w.Code != http.StatusOK {
+			t.Fatalf("status = %d; body = %s", w.Code, w.Body.String())
+		}
+	}
+
+	put(map[string]interface{}{"display_name": "Carol"}) // no role change
+	if len(closed) != 0 {
+		t.Fatalf("sockets closed without a role change: %v", closed)
+	}
+	put(map[string]interface{}{"role": "power-user"})
+	if len(closed) != 1 || closed[0] != "carol" {
+		t.Fatalf("expected carol's sockets closed once, got %v", closed)
+	}
+	put(map[string]interface{}{"role": "power-user"}) // same role again
+	if len(closed) != 1 {
+		t.Fatalf("sockets closed although the role did not change: %v", closed)
+	}
+}

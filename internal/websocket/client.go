@@ -56,6 +56,9 @@ type Client struct {
 	// empty when the caller had none (forward auth, auth method none).
 	// The hub closes the socket when that session is deleted.
 	sessionID string
+	// userID is the authenticated user's ID, used to close a user's
+	// sockets after a role change. Empty when unknown.
+	userID string
 	// closeCode, when non-zero, is sent in the close frame once send is
 	// closed. The hub sets it before closing send; the channel close
 	// orders that write before WritePump reads it.
@@ -71,14 +74,27 @@ const CloseSessionEnded = 4401
 // client to receive events flagged adminOnly (config updates, raw log
 // lines). Callers are responsible for deriving this from the authenticated
 // user's role.
-func NewClient(hub *Hub, conn *websocket.Conn, isAdmin bool, sessionID string) *Client {
+func NewClient(hub *Hub, conn *websocket.Conn, id Identity) *Client {
 	return &Client{
 		hub:       hub,
 		conn:      conn,
 		send:      make(chan []byte, 256),
-		isAdmin:   isAdmin,
-		sessionID: sessionID,
+		isAdmin:   id.IsAdmin,
+		sessionID: id.SessionID,
+		userID:    id.UserID,
 	}
+}
+
+// Identity describes who opened a socket.
+type Identity struct {
+	// IsAdmin lets the socket receive admin-only events (config
+	// updates, raw log lines).
+	IsAdmin bool
+	// SessionID ties the socket to a Muximux session; empty when the
+	// caller has none (forward auth, auth method none).
+	SessionID string
+	// UserID identifies the user for Hub.CloseUser.
+	UserID string
 }
 
 // ReadPump pumps messages from the WebSocket connection to the hub
@@ -171,16 +187,15 @@ func (c *Client) WritePump() {
 // ServeWs handles WebSocket requests from the peer. isAdmin tags the client
 // as privileged so it receives admin-only broadcasts; non-admin clients
 // continue to receive health updates but not config/log events.
-// sessionID ties the socket to a Muximux session (empty when there is
-// none); see Hub.CloseSessions.
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, isAdmin bool, sessionID string) {
+// See Identity for the other fields.
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, id Identity) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logging.Error("WebSocket upgrade failed", "source", "websocket", "error", err)
 		return
 	}
 
-	client := NewClient(hub, conn, isAdmin, sessionID)
+	client := NewClient(hub, conn, id)
 	hub.Register(client)
 
 	// Start the client pumps in new goroutines

@@ -15,7 +15,7 @@ import (
 func TestNewClient(t *testing.T) {
 	hub := NewHub()
 	// Create a mock connection (nil for unit test of constructor)
-	client := NewClient(hub, nil, true, "")
+	client := NewClient(hub, nil, Identity{IsAdmin: true})
 
 	if client == nil {
 		t.Fatal("expected non-nil client")
@@ -46,7 +46,7 @@ func testWSServer(t *testing.T, hub *Hub) *httptest.Server {
 func testWSServerAs(t *testing.T, hub *Hub, isAdmin bool) *httptest.Server {
 	t.Helper()
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ServeWs(hub, w, r, isAdmin, "")
+		ServeWs(hub, w, r, Identity{IsAdmin: isAdmin})
 	}))
 }
 
@@ -418,7 +418,7 @@ func TestClient_ConnectionDrop(t *testing.T) {
 func dialSession(t *testing.T, hub *Hub, sessionID string) *websocket.Conn {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ServeWs(hub, w, r, true, sessionID)
+		ServeWs(hub, w, r, Identity{IsAdmin: true, SessionID: sessionID, UserID: "u-" + sessionID})
 	}))
 	t.Cleanup(srv.Close)
 	conn, resp, err := (&websocket.Dialer{}).Dial("ws"+strings.TrimPrefix(srv.URL, "http")+"/", http.Header{"Origin": []string{srv.URL}})
@@ -476,4 +476,65 @@ func TestCloseSessions_NoOpWhenEmptyOrClosed(t *testing.T) {
 	hub.CloseSessions(nil) // no Run loop: must not block
 	hub.Close()
 	hub.CloseSessions([]string{"x"}) // closed hub: must not block
+}
+
+func TestRegister_RefusesSocketWhoseSessionIsGone(t *testing.T) {
+	hub := NewHub()
+	hub.SetSessionValidator(func(id string) bool { return id == "sess-live" })
+	go hub.Run()
+	defer hub.Close()
+
+	dead := dialSession(t, hub, "sess-dead")
+	if err := dead.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := dead.ReadMessage()
+	var ce *websocket.CloseError
+	if !errors.As(err, &ce) || ce.Code != CloseSessionEnded {
+		t.Fatalf("expected close code %d, got %v", CloseSessionEnded, err)
+	}
+
+	dialSession(t, hub, "sess-live")
+	time.Sleep(50 * time.Millisecond)
+	if hub.ClientCount() != 1 {
+		t.Fatalf("expected only the live socket registered, got %d", hub.ClientCount())
+	}
+}
+
+func TestCloseUser_ClosesOnlyThatUsersSockets(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+	defer hub.Close()
+
+	// dialSession sets UserID to "u-" + sessionID.
+	target := dialSession(t, hub, "a")
+	other := dialSession(t, hub, "b")
+	time.Sleep(50 * time.Millisecond)
+
+	hub.CloseUser("u-a")
+	hub.CloseUser("") // ignored
+
+	if err := target.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := target.ReadMessage()
+	var ce *websocket.CloseError
+	if !errors.As(err, &ce) || ce.Code == CloseSessionEnded {
+		t.Fatalf("expected a plain close (reconnect), got %v", err)
+	}
+
+	time.Sleep(50 * time.Millisecond)
+	if hub.ClientCount() != 1 {
+		t.Fatalf("expected 1 client left, got %d", hub.ClientCount())
+	}
+	hub.BroadcastConfigUpdate()
+	if err := other.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := other.ReadMessage(); err != nil {
+		t.Fatalf("other user's socket should stay open: %v", err)
+	}
+
+	hub.Close()
+	hub.CloseUser("u-b") // closed hub: must not block
 }
