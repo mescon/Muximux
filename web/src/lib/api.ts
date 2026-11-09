@@ -1,3 +1,4 @@
+import { sessionSuspect } from './sessionGuard';
 import type { Config, ConfigSaveRequest, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryDockerConfigResponse, DiscoveryScanResult, DiscoveryImportRequest, DiscoveryImportResult, DiscoveryTrackedListResult, DiscoveryRelinkProbeResult, DiscoveryRelinkConfirmRequest, DiscoveryRelinkConfirmResult, FireActionResult, DockerState } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
@@ -71,6 +72,9 @@ async function request<R>(method: string, path: string, data?: unknown): Promise
     const message = friendly
       ? `API error: ${response.status} ${friendly}`
       : `API error: ${response.status}`;
+    // A 401 may mean the session ended under the open dashboard. Let the
+    // session guard verify (it never signs out on this alone).
+    if (response.status === 401) sessionSuspect();
     throw new ApiError(response.status, message, friendly);
   }
   if (response.status === 204 || method === 'DELETE') return undefined as R;

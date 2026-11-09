@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { sessionSuspect } from './sessionGuard';
 import type { AppHealth } from './api';
 import type { DockerState } from './types';
 import { healthData } from './healthStore';
@@ -29,6 +30,8 @@ let ws: WebSocket | null = null;
 let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 10;
+/** Close code the server sends when the socket's session was deleted. */
+export const SESSION_ENDED_CLOSE_CODE = 4401;
 const baseReconnectDelay = 1000;
 
 // Reconnect handlers: run on every 'connected' after the first one, so
@@ -89,8 +92,22 @@ export function connect(): void {
       hasConnected = true;
     };
 
-    ws.onclose = () => {
+    ws.onclose = (event?: CloseEvent) => {
       ws = null;
+
+      // The server closes with 4401 when the socket's session was deleted
+      // (logout, back-channel logout, expiry). Do not reconnect; let the
+      // session guard verify and sign in again.
+      if (event?.code === SESSION_ENDED_CLOSE_CODE) {
+        debug('ws', 'session ended');
+        connectionState.set('disconnected');
+        sessionSuspect();
+        return;
+      }
+      // Any other close may also hide a dead session (a reconnect after
+      // sleep is refused with 401, which the browser reports only as a
+      // failed handshake). The check is one cheap request.
+      sessionSuspect();
 
       // Attempt to reconnect
       if (reconnectAttempts < maxReconnectAttempts) {

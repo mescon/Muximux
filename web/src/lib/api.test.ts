@@ -51,6 +51,9 @@ import {
   updateGatewaySite,
 } from './api';
 import { makeApp, makeGroup } from './types';
+import { sessionSuspect } from './sessionGuard';
+
+vi.mock('./sessionGuard', () => ({ sessionSuspect: vi.fn() }));
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, OIDCSettings, OIDCTestResult } from './types';
 
 // --- Helpers ---
@@ -1086,5 +1089,21 @@ describe('ApiError detail and errorText', () => {
     expect(errorText(new Error('boom'), 'fallback')).toBe('boom');
     expect(errorText('nope', 'fallback')).toBe('fallback');
     expect(errorText(new ApiError(409, 'API error: 409 x'), 'fallback')).toBe('API error: 409 x');
+  });
+});
+
+describe('session guard hook', () => {
+  beforeEach(() => vi.mocked(sessionSuspect).mockClear());
+
+  it('asks the session guard to verify on a 401', async () => {
+    globalThis.fetch = mockFetchError(401, 'Unauthorized');
+    await expect(fetchConfig()).rejects.toMatchObject({ status: 401 });
+    expect(sessionSuspect).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([403, 500])('leaves the session alone on a %i', async (status) => {
+    globalThis.fetch = mockFetchError(status, 'Nope');
+    await expect(fetchConfig()).rejects.toMatchObject({ status });
+    expect(sessionSuspect).not.toHaveBeenCalled();
   });
 });

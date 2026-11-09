@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { login, consumeJustLoggedOut } from '$lib/authStore';
   import { getBase } from '$lib/api';
+  import { saveResumeHash } from '$lib/sessionGuard';
   import * as m from '$lib/paraglide/messages.js';
 
   let { onsuccess }: { onsuccess?: () => void } = $props();
@@ -76,6 +77,8 @@
   }
 
   function handleOIDCLogin() {
+    // The provider sends the browser back to a path; keep the app route.
+    saveResumeHash();
     // Get current URL as redirect target
     const redirect = encodeURIComponent(window.location.pathname);
     window.location.href = `${getBase()}/api/auth/oidc/login?redirect=${redirect}`;

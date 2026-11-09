@@ -29,6 +29,7 @@ function base(over: Partial<OIDCSettings> = {}): OIDCSettings {
     logout_url: '',
     auto_redirect: false,
     disable_local_login: false,
+    revalidate_after: '',
     env_fields: {},
     default_callback_url: 'https://mux.example.com/api/auth/oidc/callback',
     backchannel_url: 'https://mux.example.com/api/auth/oidc/backchannel-logout',
@@ -390,6 +391,41 @@ describe('OidcSettings', () => {
       render(OidcSettings, { settings: base(), onchange });
       await fireEvent.click(screen.getAllByText('Copy')[1]);
       expect(screen.queryByText('Copied')).toBeNull();
+    });
+  });
+
+  describe('revalidate_after', () => {
+    it('is empty (off) by default and sent trimmed', async () => {
+      render(OidcSettings, { settings: base(), onchange });
+      const input = el('oidc-revalidate-after');
+      expect(input.value).toBe('');
+      expect(input.getAttribute('aria-describedby')).toBe('oidc-revalidate-after-hint');
+      expect(last(onchange)[0].revalidate_after).toBe('');
+      await fireEvent.input(input, { target: { value: ' 8h ' } });
+      const [payload, valid] = last(onchange);
+      expect(payload.revalidate_after).toBe('8h');
+      expect(valid).toBe(true);
+    });
+
+    it.each(['30s', 'soon', '1d12h'])('rejects %j', async (value) => {
+      render(OidcSettings, { settings: base(), onchange });
+      const input = el('oidc-revalidate-after');
+      await fireEvent.input(input, { target: { value } });
+      expect(last(onchange)[1]).toBe(false);
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+    });
+
+    it('accepts a stored value and is locked when set by the environment', () => {
+      render(OidcSettings, {
+        settings: base({ revalidate_after: 'nonsense', env_fields: { revalidate_after: 'MUXIMUX_OIDC_REVALIDATE_AFTER' } }),
+        onchange,
+      });
+      const input = el('oidc-revalidate-after');
+      expect(input.readOnly).toBe(true);
+      expect(input.getAttribute('aria-describedby')).toBe('oidc-env-revalidate_after');
+      const [payload, valid] = last(onchange);
+      expect('revalidate_after' in payload).toBe(false);
+      expect(valid).toBe(true);
     });
   });
 });

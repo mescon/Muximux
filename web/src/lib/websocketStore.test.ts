@@ -10,6 +10,10 @@ vi.mock('./healthStore', async () => {
   };
 });
 
+// The session guard is exercised in sessionGuard.test.ts; here we only
+// check that a close reaches it.
+vi.mock('./sessionGuard', () => ({ sessionSuspect: vi.fn() }));
+
 // Mock WebSocket class
 class MockWebSocket {
   static CONNECTING = 0;
@@ -307,6 +311,37 @@ describe('websocketStore', () => {
       expect(goodHandler).toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalledWith('Error in event handler', expect.any(Error));
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe('session ended (close code 4401)', () => {
+    it('does not reconnect and asks the session guard to verify', async () => {
+      const { connect, connectionState, SESSION_ENDED_CLOSE_CODE } = await getModule();
+      const { sessionSuspect } = await import('./sessionGuard');
+
+      connect();
+      const ws = MockWebSocket.instances[0];
+      ws.simulateOpen();
+      ws.simulateClose(SESSION_ENDED_CLOSE_CODE, 'session ended');
+
+      expect(get(connectionState)).toBe('disconnected');
+      expect(sessionSuspect).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(60_000);
+      expect(MockWebSocket.instances.length).toBe(1);
+    });
+
+    it('still reconnects after any other close, and asks for a check too', async () => {
+      const { connect } = await getModule();
+      const { sessionSuspect } = await import('./sessionGuard');
+
+      connect();
+      const ws = MockWebSocket.instances[0];
+      ws.simulateOpen();
+      ws.simulateClose(1006);
+
+      expect(sessionSuspect).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(3000);
+      expect(MockWebSocket.instances.length).toBeGreaterThan(1);
     });
   });
 
