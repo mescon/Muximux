@@ -55,6 +55,19 @@ elif [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" = "0" ]; then
     DOCKER_NOTE=" (docker socket owned by root; consider adjusting host perms)"
 fi
 
+# Older images kept Caddy's state (certificates, ACME account, internal
+# CA) in /app/.local/share/caddy. If that directory survived (a volume
+# mounted there), copy it into the data volume once, so the internal CA
+# and certificates keep working after the move to $XDG_DATA_HOME/caddy.
+OLD_CADDY_DIR=/app/.local/share/caddy
+if [ -n "$XDG_DATA_HOME" ] && [ -d "$OLD_CADDY_DIR" ] && [ ! -e "$XDG_DATA_HOME/caddy" ]; then
+    if cp -a "$OLD_CADDY_DIR" "$XDG_DATA_HOME/caddy"; then
+        echo "Copied Caddy data from $OLD_CADDY_DIR to $XDG_DATA_HOME/caddy"
+    else
+        echo "Could not copy Caddy data from $OLD_CADDY_DIR to $XDG_DATA_HOME/caddy" >&2
+    fi
+fi
+
 # Ensure the data directory is owned by the runtime user
 chown -R "$PUID:$PGID" /app/data 2>/dev/null || true
 
