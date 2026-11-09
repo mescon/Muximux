@@ -99,6 +99,10 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Set up authentication
 	sessionStore, userStore, authMiddleware := setupAuth(cfg)
+	// A deleted session (logout, back-channel logout, expiry, user
+	// removal, restore) must not keep receiving broadcasts on a socket
+	// it opened earlier.
+	sessionStore.SetOnDelete(wsHub.CloseSessions)
 
 	s := &Server{
 		config:         cfg,
@@ -633,7 +637,11 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		user := auth.GetUserFromContext(r.Context())
 		isAdmin := user != nil && user.Role == auth.RoleAdmin
-		websocket.ServeWs(wsHub, w, r, isAdmin)
+		sessionID := ""
+		if session := auth.GetSessionFromContext(r.Context()); session != nil {
+			sessionID = session.ID
+		}
+		websocket.ServeWs(wsHub, w, r, isAdmin, sessionID)
 	})
 
 	return loginLimiter

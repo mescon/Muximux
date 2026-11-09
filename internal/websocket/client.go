@@ -52,18 +52,32 @@ type Client struct {
 	conn    *websocket.Conn
 	send    chan []byte
 	isAdmin bool
+	// sessionID is the Muximux session the socket was opened with, or
+	// empty when the caller had none (forward auth, auth method none).
+	// The hub closes the socket when that session is deleted.
+	sessionID string
+	// closeCode, when non-zero, is sent in the close frame once send is
+	// closed. The hub sets it before closing send; the channel close
+	// orders that write before WritePump reads it.
+	closeCode int
 }
+
+// CloseSessionEnded is the close code sent when the socket's session was
+// deleted (logout, back-channel logout, expiry). The 4000-4999 range is
+// reserved for applications; 4401 mirrors HTTP 401.
+const CloseSessionEnded = 4401
 
 // NewClient creates a new WebSocket client. isAdmin, when true, allows the
 // client to receive events flagged adminOnly (config updates, raw log
 // lines). Callers are responsible for deriving this from the authenticated
 // user's role.
-func NewClient(hub *Hub, conn *websocket.Conn, isAdmin bool) *Client {
+func NewClient(hub *Hub, conn *websocket.Conn, isAdmin bool, sessionID string) *Client {
 	return &Client{
-		hub:     hub,
-		conn:    conn,
-		send:    make(chan []byte, 256),
-		isAdmin: isAdmin,
+		hub:       hub,
+		conn:      conn,
+		send:      make(chan []byte, 256),
+		isAdmin:   isAdmin,
+		sessionID: sessionID,
 	}
 }
 
@@ -116,7 +130,11 @@ func (c *Client) WritePump() {
 				return
 			}
 			if !ok {
-				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				payload := []byte{}
+				if c.closeCode != 0 {
+					payload = websocket.FormatCloseMessage(c.closeCode, "session ended")
+				}
+				_ = c.conn.WriteMessage(websocket.CloseMessage, payload)
 				return
 			}
 
@@ -153,14 +171,16 @@ func (c *Client) WritePump() {
 // ServeWs handles WebSocket requests from the peer. isAdmin tags the client
 // as privileged so it receives admin-only broadcasts; non-admin clients
 // continue to receive health updates but not config/log events.
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, isAdmin bool) {
+// sessionID ties the socket to a Muximux session (empty when there is
+// none); see Hub.CloseSessions.
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, isAdmin bool, sessionID string) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logging.Error("WebSocket upgrade failed", "source", "websocket", "error", err)
 		return
 	}
 
-	client := NewClient(hub, conn, isAdmin)
+	client := NewClient(hub, conn, isAdmin, sessionID)
 	hub.Register(client)
 
 	// Start the client pumps in new goroutines

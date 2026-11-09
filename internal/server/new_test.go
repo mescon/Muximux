@@ -409,7 +409,7 @@ func TestHandleConfigRestore_KeepsSaveHook(t *testing.T) {
 	s.installConfigSaveHook()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		websocket.ServeWs(s.wsHub, w, r, false)
+		websocket.ServeWs(s.wsHub, w, r, false, "")
 	}))
 	defer srv.Close()
 	events := dialWS(t, srv, nil)
@@ -530,7 +530,7 @@ func TestConfigRestore_BuiltinBackupRequiresLogin(t *testing.T) {
 	t.Cleanup(s.wsHub.Close)
 	s.installConfigSaveHook()
 	wsSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		websocket.ServeWs(s.wsHub, w, r, false)
+		websocket.ServeWs(s.wsHub, w, r, false, "")
 	}))
 	defer wsSrv.Close()
 	events := dialWS(t, wsSrv, nil)

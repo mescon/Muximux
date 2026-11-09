@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,7 +15,7 @@ import (
 func TestNewClient(t *testing.T) {
 	hub := NewHub()
 	// Create a mock connection (nil for unit test of constructor)
-	client := NewClient(hub, nil, true)
+	client := NewClient(hub, nil, true, "")
 
 	if client == nil {
 		t.Fatal("expected non-nil client")
@@ -45,7 +46,7 @@ func testWSServer(t *testing.T, hub *Hub) *httptest.Server {
 func testWSServerAs(t *testing.T, hub *Hub, isAdmin bool) *httptest.Server {
 	t.Helper()
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ServeWs(hub, w, r, isAdmin)
+		ServeWs(hub, w, r, isAdmin, "")
 	}))
 }
 
@@ -411,4 +412,68 @@ func TestClient_ConnectionDrop(t *testing.T) {
 	if hub.ClientCount() != 0 {
 		t.Errorf("expected 0 clients after drop, got %d", hub.ClientCount())
 	}
+}
+
+// dialSession opens a socket on a server that tags it with sessionID.
+func dialSession(t *testing.T, hub *Hub, sessionID string) *websocket.Conn {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ServeWs(hub, w, r, true, sessionID)
+	}))
+	t.Cleanup(srv.Close)
+	conn, resp, err := (&websocket.Dialer{}).Dial("ws"+strings.TrimPrefix(srv.URL, "http")+"/", http.Header{"Origin": []string{srv.URL}})
+	if err != nil {
+		t.Fatalf("dial: %v", err)
+	}
+	resp.Body.Close()
+	t.Cleanup(func() { conn.Close() })
+	return conn
+}
+
+func TestCloseSessions_ClosesOnlyMatchingSockets(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+	defer hub.Close()
+
+	ended := dialSession(t, hub, "sess-ended")
+	kept := dialSession(t, hub, "sess-kept")
+	anon := dialSession(t, hub, "")
+	time.Sleep(50 * time.Millisecond)
+	if hub.ClientCount() != 3 {
+		t.Fatalf("expected 3 clients, got %d", hub.ClientCount())
+	}
+
+	hub.CloseSessions([]string{"sess-ended", ""})
+
+	if err := ended.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := ended.ReadMessage()
+	var ce *websocket.CloseError
+	if !errors.As(err, &ce) || ce.Code != CloseSessionEnded {
+		t.Fatalf("expected close code %d, got %v", CloseSessionEnded, err)
+	}
+
+	time.Sleep(50 * time.Millisecond)
+	if hub.ClientCount() != 2 {
+		t.Fatalf("expected 2 clients left, got %d", hub.ClientCount())
+	}
+
+	// The other sockets still receive broadcasts.
+	hub.BroadcastConfigUpdate()
+	for name, c := range map[string]*websocket.Conn{"kept": kept, "anon": anon} {
+		if err := c.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+			t.Fatal(err)
+		}
+		if _, _, err := c.ReadMessage(); err != nil {
+			t.Errorf("%s socket: expected a broadcast, got %v", name, err)
+		}
+	}
+}
+
+func TestCloseSessions_NoOpWhenEmptyOrClosed(t *testing.T) {
+	hub := NewHub()
+	hub.CloseSessions(nil) // no Run loop: must not block
+	hub.Close()
+	hub.CloseSessions([]string{"x"}) // closed hub: must not block
 }

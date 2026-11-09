@@ -35,6 +35,7 @@ type Hub struct {
 	broadcast  chan Event
 	register   chan *Client
 	unregister chan *Client
+	kick       chan []string
 	done       chan struct{}
 	mu         sync.RWMutex
 }
@@ -46,6 +47,7 @@ func NewHub() *Hub {
 		broadcast:  make(chan Event, 256),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
+		kick:       make(chan []string, 16),
 		done:       make(chan struct{}),
 	}
 }
@@ -91,6 +93,9 @@ func (h *Hub) Run() {
 			h.mu.Unlock()
 			logging.Debug("WebSocket client disconnected", "source", "websocket", "total_clients", total)
 
+		case ids := <-h.kick:
+			h.closeSessions(ids)
+
 		case event := <-h.broadcast:
 			data, err := json.Marshal(event)
 			if err != nil {
@@ -128,6 +133,50 @@ func (h *Hub) Run() {
 				h.mu.Unlock()
 			}
 		}
+	}
+}
+
+// closeSessions drops every client whose session is in ids and tells it
+// why. Runs on the Run goroutine.
+func (h *Hub) closeSessions(ids []string) {
+	gone := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		if id != "" {
+			gone[id] = struct{}{}
+		}
+	}
+	h.mu.Lock()
+	n := 0
+	for client := range h.clients {
+		if _, ok := gone[client.sessionID]; ok && client.sessionID != "" {
+			delete(h.clients, client)
+			client.closeCode = CloseSessionEnded
+			close(client.send)
+			n++
+		}
+	}
+	h.mu.Unlock()
+	if n > 0 {
+		logging.Debug("WebSocket clients closed: session ended", "source", "websocket", "clients", n)
+	}
+}
+
+// CloseSessions closes the sockets that belong to the given sessions,
+// sending close code CloseSessionEnded. Wired as the session store's
+// delete hook. Never blocks the caller (a session store under its own
+// lock contention, an HTTP handler): once Close has run it is a no-op.
+func (h *Hub) CloseSessions(ids []string) {
+	if len(ids) == 0 {
+		return
+	}
+	select {
+	case <-h.done:
+		return
+	default:
+	}
+	select {
+	case h.kick <- ids:
+	case <-h.done:
 	}
 }
 
