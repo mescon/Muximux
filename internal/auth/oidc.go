@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"crypto/rand"
-	"crypto/subtle"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -526,7 +526,9 @@ func (p *OIDCProvider) browserBinding(w http.ResponseWriter, r *http.Request) (s
 		value = v
 	}
 	path := strings.TrimRight(p.basePath, "/") + "/api/auth/oidc/"
-	http.SetCookie(w, &http.Cookie{
+	// Secure follows secure_cookies, like the session cookie, so sign-in
+	// keeps working behind plain HTTP.
+	http.SetCookie(w, &http.Cookie{ //nolint:gosec // G124: Secure is configurable on purpose (secure_cookies)
 		Name:     oidcBindingCookie,
 		Value:    value,
 		Path:     path,
