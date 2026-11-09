@@ -33,7 +33,7 @@ func TestAuthorizationURL_SilentAddsPromptNone(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
 	for _, silent := range []bool{false, true} {
-		raw, err := p.authorizationURL(context.Background(), "/", silent)
+		raw, err := p.authorizationURL(context.Background(), "/", loginOptions{silent: silent})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -53,13 +53,87 @@ func TestAuthorizationURL_SilentAddsPromptNone(t *testing.T) {
 func TestHandleLogin_PromptNoneStartsSilentRecheck(t *testing.T) {
 	srv := mockOIDCServer(t, nil)
 	defer srv.Close()
-	p, _ := newTestOIDCProvider(t, srv.URL)
+	p, ss := newTestOIDCProvider(t, srv.URL)
+	sess, _ := ss.CreateWithData("u", "u", RoleUser, map[string]interface{}{"oidc_iss": srv.URL})
 
 	rec := httptest.NewRecorder()
-	p.HandleLogin(rec, httptest.NewRequest(http.MethodGet, "/api/auth/oidc/login?prompt=none&redirect=/", nil))
+	p.HandleLogin(rec, recheckRequestTo("/api/auth/oidc/login?prompt=none&redirect=/", sess))
 	loc, _ := url.Parse(rec.Header().Get("Location"))
 	if loc.Query().Get("prompt") != "none" {
 		t.Fatalf("expected prompt=none in %s", loc)
+	}
+	p.statesMu.Lock()
+	entry := p.states[loc.Query().Get("state")]
+	p.statesMu.Unlock()
+	if entry.rechecked != sess.ID || entry.binding == "" {
+		t.Fatalf("entry = %+v, want rechecked=%s and a binding", entry, sess.ID)
+	}
+	var binding *http.Cookie
+	for _, c := range rec.Result().Cookies() {
+		if c.Name == oidcBindingCookie {
+			binding = c
+		}
+	}
+	if binding == nil || binding.Value != entry.binding || !binding.HttpOnly || binding.SameSite != http.SameSiteLaxMode || binding.Path != "/api/auth/oidc/" {
+		t.Fatalf("binding cookie = %+v", binding)
+	}
+
+	// A second sign-in from the same browser reuses the binding.
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/login", nil)
+	req.AddCookie(binding)
+	rec2 := httptest.NewRecorder()
+	p.HandleLogin(rec2, req)
+	for _, c := range rec2.Result().Cookies() {
+		if c.Name == oidcBindingCookie && c.Value != binding.Value {
+			t.Fatal("binding changed between sign-ins in one browser")
+		}
+	}
+}
+
+func recheckRequestTo(target string, sess *Session) *http.Request {
+	req := httptest.NewRequest(http.MethodGet, target, nil)
+	if sess != nil {
+		req.AddCookie(&http.Cookie{Name: "test_session", Value: sess.ID})
+	}
+	return req
+}
+
+func TestHandleCallback_RejectsCallbackFromAnotherBrowser(t *testing.T) {
+	p, ss := newTestOIDCProvider(t, "http://idp.invalid")
+	victim, _ := ss.CreateWithData("v", "v", RoleUser, map[string]interface{}{"oidc_iss": "http://idp.invalid"})
+	// The attacker started the recheck; the entry carries the attacker's
+	// binding and session.
+	for _, cookie := range []string{"", "victim-binding-0123456789abcdef0"} {
+		addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/", silent: true, rechecked: "attacker-session", binding: "attacker-binding-0123456789abcdef"})
+		req := recheckRequest("error=login_required&state=st", victim)
+		if cookie != "" {
+			req.AddCookie(&http.Cookie{Name: oidcBindingCookie, Value: cookie})
+		}
+		rec := httptest.NewRecorder()
+		p.HandleCallback(rec, req)
+		if ss.Get(victim.ID) == nil {
+			t.Fatalf("cookie %q: a callback from another browser ended the victim's session", cookie)
+		}
+	}
+
+	// Same for a code callback: refused with the state error.
+	addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/", binding: "attacker-binding-0123456789abcdef"})
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, recheckRequest("code=c&state=st", nil))
+	if loc := rec.Header().Get("Location"); !strings.Contains(loc, "error="+callbackErrState) {
+		t.Fatalf("code callback from another browser: Location = %q", loc)
+	}
+}
+
+func TestHandleCallback_SilentErrorOnlyTouchesRecheckedSession(t *testing.T) {
+	p, ss := newTestOIDCProvider(t, "http://idp.invalid")
+	other, _ := ss.CreateWithData("o", "o", RoleUser, map[string]interface{}{"oidc_iss": "http://idp.invalid"})
+	addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/", silent: true, rechecked: "some-other-session"})
+
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, recheckRequest("error=login_required&state=st", other))
+	if ss.Get(other.ID) == nil {
+		t.Fatal("a recheck for another session ended this one")
 	}
 }
 
@@ -69,7 +143,7 @@ func TestHandleCallback_SilentLoginRequiredEndsSessionAndSignsInAgain(t *testing
 			p, ss := newTestOIDCProvider(t, "http://idp.invalid")
 			p.basePath = "/mux"
 			sess, _ := ss.CreateWithData("u", "u", RoleUser, map[string]interface{}{"oidc_iss": "http://idp.invalid"})
-			addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/mux/", silent: true})
+			addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/mux/", silent: true, rechecked: sess.ID})
 
 			rec := httptest.NewRecorder()
 			p.HandleCallback(rec, recheckRequest("error="+errCode+"&state=st", sess))
@@ -103,7 +177,7 @@ func TestHandleCallback_SilentProviderErrorKeepsSession(t *testing.T) {
 	ss.mu.Lock()
 	ss.sessions[sess.ID].ProviderCheckedAt = time.Now().Add(-time.Hour)
 	ss.mu.Unlock()
-	addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/#emby", silent: true})
+	addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/#emby", silent: true, rechecked: sess.ID})
 
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, recheckRequest("error=temporarily_unavailable&state=st", sess))
@@ -144,7 +218,7 @@ func TestHandleCallback_SilentSuccessReplacesSession(t *testing.T) {
 		t.Fatal(err)
 	}
 	old, _ := ss.CreateWithData("oidcuser", "oidcuser", RoleUser, map[string]interface{}{"oidc_iss": srv.URL})
-	addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/", silent: true})
+	addState(p, &stateEntry{createdAt: time.Now(), redirectURL: "/", silent: true, rechecked: old.ID})
 
 	rec := httptest.NewRecorder()
 	p.HandleCallback(rec, recheckRequest("code=test-code&state=st", old))
