@@ -12,7 +12,7 @@ vi.mock('./healthStore', async () => {
 
 // The session guard is exercised in sessionGuard.test.ts; here we only
 // check that a close reaches it.
-vi.mock('./sessionGuard', () => ({ sessionSuspect: vi.fn() }));
+vi.mock('./sessionGuard', () => ({ sessionSuspect: vi.fn(), ensureSession: vi.fn(() => Promise.resolve('ended')) }));
 
 // Mock WebSocket class
 class MockWebSocket {
@@ -315,18 +315,47 @@ describe('websocketStore', () => {
   });
 
   describe('session ended (close code 4401)', () => {
-    it('does not reconnect and asks the session guard to verify', async () => {
+    it('does not reconnect when the session really ended', async () => {
       const { connect, connectionState, SESSION_ENDED_CLOSE_CODE } = await getModule();
-      const { sessionSuspect } = await import('./sessionGuard');
+      const { ensureSession } = await import('./sessionGuard');
+      vi.mocked(ensureSession).mockResolvedValue('ended');
 
       connect();
       const ws = MockWebSocket.instances[0];
       ws.simulateOpen();
       ws.simulateClose(SESSION_ENDED_CLOSE_CODE, 'session ended');
+      await vi.waitFor(() => expect(ensureSession).toHaveBeenCalledWith({ force: true }));
+      await Promise.resolve();
 
       expect(get(connectionState)).toBe('disconnected');
-      expect(sessionSuspect).toHaveBeenCalledTimes(1);
       vi.advanceTimersByTime(60_000);
+      expect(MockWebSocket.instances.length).toBe(1);
+    });
+
+    it('connects again at once when another tab replaced the session', async () => {
+      const { connect, SESSION_ENDED_CLOSE_CODE } = await getModule();
+      const { ensureSession } = await import('./sessionGuard');
+      vi.mocked(ensureSession).mockResolvedValue('ok');
+
+      connect();
+      MockWebSocket.instances[0].simulateOpen();
+      MockWebSocket.instances[0].simulateClose(SESSION_ENDED_CLOSE_CODE, 'session ended');
+      await vi.waitFor(() => expect(MockWebSocket.instances.length).toBe(2));
+    });
+
+    it('stays disconnected when signed out in the meantime', async () => {
+      const { connect, disconnect, SESSION_ENDED_CLOSE_CODE } = await getModule();
+      const { ensureSession } = await import('./sessionGuard');
+      let resolve!: (r: 'ok') => void;
+      vi.mocked(ensureSession).mockReturnValue(new Promise((r) => { resolve = r; }));
+
+      connect();
+      MockWebSocket.instances[0].simulateOpen();
+      MockWebSocket.instances[0].simulateClose(SESSION_ENDED_CLOSE_CODE, 'session ended');
+      disconnect();
+      resolve('ok');
+      await Promise.resolve();
+      await Promise.resolve();
       expect(MockWebSocket.instances.length).toBe(1);
     });
 

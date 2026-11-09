@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { authState } from './authStore';
 import {
+  clearResumeHash,
   ensureSession,
   installSessionGuard,
   markSessionOk,
@@ -208,7 +209,29 @@ describe('sessionGuard', () => {
     });
   });
 
+  describe('clearResumeHash', () => {
+    it('forgets a saved route', () => {
+      history.replaceState(null, '', '/#emby');
+      saveResumeHash();
+      clearResumeHash();
+      history.replaceState(null, '', '/');
+      expect(restoreResumeHash()).toBe(false);
+    });
+  });
+
   describe('startProviderRecheck', () => {
+    it('does not recheck without sessionStorage (no loop guard)', () => {
+      trapNavigation();
+      const desc = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage')!;
+      Object.defineProperty(globalThis, 'sessionStorage', { get() { throw new Error('blocked'); }, configurable: true });
+      try {
+        expect(startProviderRecheck()).toBe(false);
+        expect(hrefSet).toBeNull();
+      } finally {
+        Object.defineProperty(globalThis, 'sessionStorage', desc);
+      }
+    });
+
     it('refuses a second recheck within a minute', () => {
       trapNavigation();
       expect(startProviderRecheck()).toBe(true);

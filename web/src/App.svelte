@@ -20,7 +20,7 @@
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { authState, checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
-  import { installSessionGuard, markSessionOk, onSessionEnded, restoreResumeHash, runWithSession, startProviderRecheck } from './lib/sessionGuard';
+  import { clearResumeHash, installSessionGuard, markSessionOk, onSessionEnded, restoreResumeHash, runWithSession, startProviderRecheck } from './lib/sessionGuard';
   import { mergeOnboardingResult } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer, isDarkTheme } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
@@ -564,6 +564,10 @@
 
   async function handleLoginSuccess() {
     markSessionOk();
+    // A password sign-in keeps the hash in the address, so a route saved
+    // when the session ended is not needed; a later reload must not
+    // bring it back.
+    clearResumeHash();
     // Fix URL — the backend redirects unauthenticated requests to /login,
     // but the SPA handles auth client-side so we restore the root path.
     if (location.pathname.endsWith('/login')) {

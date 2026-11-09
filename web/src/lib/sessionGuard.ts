@@ -62,6 +62,16 @@ export function markSessionOk(): void {
   ended = false;
 }
 
+/** Forget a saved app route (after a sign-in that did not need it, such
+ * as a password sign-in that keeps the hash in the address). */
+export function clearResumeHash(): void {
+  try {
+    storage()?.removeItem(RESUME_HASH_KEY);
+  } catch {
+    // nothing to clear
+  }
+}
+
 export function sessionFresh(): boolean {
   return Date.now() - lastOk < FRESH_MS;
 }
@@ -107,10 +117,12 @@ export function restoreResumeHash(): boolean {
  * start twice within a minute, so a misbehaving server cannot loop. */
 export function startProviderRecheck(): boolean {
   const s = storage();
+  // Without storage there is no loop guard: do not recheck.
+  if (!s) return false;
   try {
-    const last = Number(s?.getItem(RECHECK_AT_KEY) || 0);
+    const last = Number(s.getItem(RECHECK_AT_KEY) || 0);
     if (Date.now() - last < FRESH_MS) return false;
-    s?.setItem(RECHECK_AT_KEY, String(Date.now()));
+    s.setItem(RECHECK_AT_KEY, String(Date.now()));
   } catch {
     // without storage there is no loop guard: do not recheck
     return false;

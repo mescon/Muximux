@@ -1,5 +1,5 @@
 import { writable, get } from 'svelte/store';
-import { sessionSuspect } from './sessionGuard';
+import { ensureSession, sessionSuspect } from './sessionGuard';
 import type { AppHealth } from './api';
 import type { DockerState } from './types';
 import { healthData } from './healthStore';
@@ -101,7 +101,15 @@ export function connect(): void {
       if (event?.code === SESSION_ENDED_CLOSE_CODE) {
         debug('ws', 'session ended');
         connectionState.set('disconnected');
-        sessionSuspect();
+        void ensureSession({ force: true }).then((result) => {
+          // Still signed in: another tab replaced the session (a provider
+          // recheck, a quick sign-in again) and the cookie is new. Connect
+          // again with it. disconnect() in the meantime (sign-out) wins.
+          if (result === 'ok' && !ws && reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts = 0;
+            connect();
+          }
+        });
         return;
       }
       // Any other close may also hide a dead session (a reconnect after
