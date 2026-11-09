@@ -59,12 +59,21 @@ fi
 # CA) in /app/.local/share/caddy. If that directory survived (a volume
 # mounted there), copy it into the data volume once, so the internal CA
 # and certificates keep working after the move to $XDG_DATA_HOME/caddy.
+# The copy goes to a temporary directory first and is renamed only when
+# complete, so a failed copy never leaves a partial directory behind that
+# would stop the next start from retrying. On failure Muximux does not
+# start: Caddy would otherwise create a new CA next to the old one.
 OLD_CADDY_DIR=/app/.local/share/caddy
 if [ -n "$XDG_DATA_HOME" ] && [ -d "$OLD_CADDY_DIR" ] && [ ! -e "$XDG_DATA_HOME/caddy" ]; then
-    if cp -a "$OLD_CADDY_DIR" "$XDG_DATA_HOME/caddy"; then
+    TMP_CADDY_DIR="$XDG_DATA_HOME/.caddy-migrate.$$"
+    rm -rf "$TMP_CADDY_DIR"
+    if cp -a "$OLD_CADDY_DIR" "$TMP_CADDY_DIR" && mv "$TMP_CADDY_DIR" "$XDG_DATA_HOME/caddy"; then
         echo "Copied Caddy data from $OLD_CADDY_DIR to $XDG_DATA_HOME/caddy"
     else
-        echo "Could not copy Caddy data from $OLD_CADDY_DIR to $XDG_DATA_HOME/caddy" >&2
+        rm -rf "$TMP_CADDY_DIR"
+        echo "Could not copy Caddy data from $OLD_CADDY_DIR to $XDG_DATA_HOME/caddy." >&2
+        echo "Fix the problem (free space, permissions) and start again, or copy the directory by hand." >&2
+        exit 1
     fi
 fi
 
