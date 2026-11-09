@@ -462,6 +462,12 @@
     await checkAuthStatus();
     if (get(isAuthenticated)) {
       markSessionOk();
+      // Back from an SSO sign-in that started on /login (the server sends
+      // unauthenticated requests there): show the dashboard's own path.
+      if (location.pathname.endsWith('/login')) {
+        const base = location.pathname.replace(/\/login$/, '') || '/';
+        history.replaceState(history.state, '', base + location.hash);
+      }
       // auth.oidc.revalidate_after: the provider has not vouched for this
       // session in a while. The silent round trip reloads the page.
       if (get(authState).revalidate && startProviderRecheck()) return;
