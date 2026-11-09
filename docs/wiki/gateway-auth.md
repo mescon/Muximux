@@ -1,6 +1,6 @@
 # Gateway Auth Gate
 
-Muximux can optionally act as a security gate in front of your gateway sites. You turn the gate on per site. Then requests to that subdomain go through Muximux's session check before they reach the backend (the app behind the site). Muximux sends anonymous visitors to its login page. It forwards signed-in visitors based on their role and group membership.
+Muximux can act as a security gate in front of your gateway sites. (A gateway site is an extra site that Muximux's built-in Caddy serves, see [TLS and Gateway](tls-and-gateway.md#gateway-additional-sites).) This is optional. You turn the gate on per site. Then requests to that subdomain go through Muximux's session check before they reach the backend (the app behind the site). Muximux sends anonymous visitors to its login page. It forwards signed-in visitors based on their role and group membership.
 
 The gate sits **in front of** the backend. If the backend has its own authentication, the gate does not replace it. The two work as separate layers. Log in to Muximux once, and you can reach every gated subdomain you have permission for.
 
@@ -22,7 +22,7 @@ Browser -> sonarr.example.com (Caddy)
 ## When to enable
 
 ✅ You want a single sign-on layer in front of multiple homelab apps
-✅ One or more apps lack their own auth (Plex, Grafana, custom Flask app)
+✅ One or more apps lack their own auth (a custom Flask app, a status page, a file browser)
 ✅ You're already using Muximux as your dashboard with built-in / OIDC / forward-auth users
 ✅ All gated subdomains share a parent domain (`*.example.com`)
 
@@ -86,7 +86,7 @@ After that restart, a save in the Gateway tab reloads Caddy for you. If you chan
 
 ## Permission model
 
-Identical to the App access rules used by the dashboard:
+The gate uses the same access rules as apps on the dashboard:
 
 | Setting | Meaning |
 |---|---|
@@ -137,9 +137,9 @@ The gate endpoint has some extra layers of protection (defence in depth):
 
 | Muximux auth method | Gate behaviour |
 |---|---|
-| `auth.method: builtin` | Native users; session check is straightforward. |
-| `auth.method: oidc` | Sessions backed by OIDC tokens; gate uses the same session check. Operators get OIDC users surfaced to gated apps via `X-Muximux-User`. |
-| `auth.method: forwardauth` (Authelia / Authentik) | Muximux trusts an upstream `Remote-User` header to create a session, then the gate reads that session. Daisy-chained forward-auth works but adds a network hop; consider whether the upstream is already gating the same set of apps. |
+| `auth.method: builtin` | Native users. The session check is straightforward. |
+| `auth.method: oidc` | OIDC tokens back the sessions. The gate uses the same session check. Gated apps see OIDC users through `X-Muximux-User`. |
+| `auth.method: forward_auth` (Authelia / Authentik) | Not supported. Forward auth reads the user from trusted headers on each request and creates no Muximux session. The gate only checks the Muximux session cookie, so it sends every user to the login page. Gate these sites in the upstream proxy (Authelia, Authentik) instead, or use built-in or OIDC sign-in. |
 
 ---
 
@@ -152,8 +152,8 @@ The gate endpoint has some extra layers of protection (defence in depth):
 | Startup error "session_cookie_domain is required when any gateway site has require_auth=true" | You enabled require_auth without setting the cookie scope. Either set `session_cookie_domain` or unset the auth flag. |
 | Startup error "gateway site X is not under server.session_cookie_domain" | A gated subdomain doesn't share the parent domain. Move the site or widen the cookie scope. |
 | 403 on a gated site you should have access to | Your account's role or groups don't satisfy the site's rules. The forbidden page names the reason (`role_insufficient` or `group_mismatch`). |
-| Backend doesn't recognise X-Muximux-User | Most backends ignore the header. The gate still enforces; the header is purely informational for backends that opt in. |
-| WebSocket connection drops the gate | Caddy's `forward_auth` runs on the initial HTTP `Upgrade` request; once the WebSocket is up, the connection bypasses forward_auth (standard Caddy behaviour). |
+| Backend doesn't recognise X-Muximux-User | Most backends ignore the header. The gate still enforces access. The header only gives information to backends that opt in. |
+| WebSocket connection drops the gate | Caddy's `forward_auth` runs on the initial HTTP `Upgrade` request. Once the WebSocket is up, the connection bypasses forward_auth (standard Caddy behaviour). |
 
 ---
 
@@ -178,7 +178,7 @@ server:
 
 ## Audit log
 
-Every forward-auth result is recorded with `source=audit`:
+Muximux records every forward-auth result with `source=audit`:
 
 ```
 forward-auth allowed source=audit host=sonarr.example.com user=alice role=user

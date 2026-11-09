@@ -86,7 +86,7 @@ auth:
 
   session_max_age: 24h         # Session duration (default: 24h)
   secure_cookies: false        # Require HTTPS for session cookies
-  api_key_hash: ""             # Optional bcrypt hash of API key for X-Api-Key auth
+  api_key_hash: ""             # Optional SHA-256 hash of API key for X-Api-Key auth (muximux hash --api-key)
 
   # Builtin auth users
   users:
@@ -368,7 +368,7 @@ Muximux validates the configuration on startup. If the configuration is invalid,
 
 - If `tls.domain` is set, `tls.email` is required (for Let's Encrypt registration).
 - `tls.cert` and `tls.key` must both be set or both empty. You cannot provide only one.
-- `tls.domain` and `tls.cert` are mutually exclusive. Use either auto-HTTPS or manual certificates, not both.
+- You cannot set both `tls.domain` and `tls.cert`. Use either auto-HTTPS or manual certificates.
 - On first boot under 3.1.0, Muximux auto-migrates legacy `gateway:` (Caddyfile path) configs from 3.0.x to `gateway_sites:`. This applies to clean conversions only. A lossy conversion (one that would lose settings) shows a hard error that points at `muximux migrate-gateway`.
 - If any `gateway_sites[]` entry has `require_auth: true`, then `server.session_cookie_domain` is required. Every gated site must also be a subdomain of it. The check is a real host-suffix check: `evilexample.com` is not a subdomain of `example.com`.
 - `gateway_sites[].min_role` must be one of `user`, `power-user`, `admin` when set (empty means "any authenticated user").
@@ -384,7 +384,7 @@ The following settings **require a restart** to take effect:
 - `server.tls.*` (all TLS settings)
 - `server.gateway_listen` (overrides the bind port for the embedded Caddy)
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
-- `server.gateway_sites:` schema changes (the auth gate; backend swaps and TLS-mode flips reload Caddy in place)
+- `server.gateway_sites:`, but only when Muximux started without TLS or gateway sites, so Caddy is not running yet. Once Caddy runs, Muximux reloads it in place for every gateway site change, including the auth gate.
 
 When Muximux saves the configuration, it writes defaults for fields you omitted. A saved `config.yaml` can therefore contain more keys than you wrote by hand.
 
@@ -396,7 +396,7 @@ Every open browser gets a live update (the `config_updated` event) and refetches
 
 Muximux reads a restored backup exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once. Listen address, TLS, base-path routing and session cookie settings still need a restart.
 
-Everything else is applied immediately: navigation, themes, apps, groups, icons, keybindings, health monitoring, log level and log format.
+Muximux applies everything else immediately: navigation, themes, apps, groups, icons, keybindings, health monitoring, log level and log format.
 
 ## Config Export and Import
 

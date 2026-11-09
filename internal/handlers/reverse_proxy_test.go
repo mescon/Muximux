@@ -721,6 +721,7 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 				method = "POST"
 			}
 			req := httptest.NewRequest(method, "/proxy/sonarr/api/action", nil)
+			req.Host = "muximux.example.com"
 			if tt.origin != "" {
 				req.Header.Set("Origin", tt.origin)
 			}
@@ -762,6 +763,7 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 		subURL, _ := url.Parse("http://192.0.2.100/admin")
 		subDirector := buildDirector("/proxy/pihole", "/admin", subURL, nil, "", true)
 		req := httptest.NewRequest("POST", "/proxy/pihole/settings", nil)
+		req.Host = "muximux.example.com"
 		req.Header.Set("Referer", "https://muximux.example.com/proxy/pihole/settings")
 		subDirector(req)
 		want := "http://192.0.2.100/admin/settings"
@@ -769,6 +771,46 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 			t.Errorf("Referer = %q, want %q", got, want)
 		}
 	})
+}
+
+// A Referer from another site must not be rewritten to the backend's host,
+// or it would pass the backend's own Referer-based CSRF check.
+func TestDirectorDropsForeignReferer(t *testing.T) {
+	targetURL, _ := url.Parse("https://192.0.2.42:8989")
+	director := buildDirector("/proxy/sonarr", "", targetURL, nil, "", true)
+
+	tests := []struct {
+		name, host, fetchSite, fwdHost, referer, want string
+	}{
+		{"same-origin per fetch metadata", "muximux.example.com", "same-origin", "", "https://muximux.example.com/proxy/sonarr/x", "https://192.0.2.42:8989/x"},
+		{"cross-site per fetch metadata", "muximux.example.com", "cross-site", "", "https://muximux.example.com/proxy/sonarr/x", ""},
+		{"same-site subdomain", "muximux.example.com", "same-site", "", "https://sonarr.example.com/", ""},
+		{"user-initiated (none)", "muximux.example.com", "none", "", "https://muximux.example.com/", ""},
+		{"no fetch metadata, matching host", "muximux.example.com", "", "", "https://muximux.example.com/proxy/sonarr/x", "https://192.0.2.42:8989/x"},
+		{"no fetch metadata, host case differs", "Muximux.Example.com", "", "", "https://muximux.example.com/proxy/sonarr/x", "https://192.0.2.42:8989/x"},
+		{"no fetch metadata, foreign host", "muximux.example.com", "", "", "https://evil.example.net/form", ""},
+		{"behind a proxy that rewrote Host", "muximux:8080", "", "muximux.example.com", "https://muximux.example.com/proxy/sonarr/x", "https://192.0.2.42:8989/x"},
+		{"forwarded host list uses the first entry", "muximux:8080", "", "muximux.example.com, internal", "https://muximux.example.com/proxy/sonarr/x", "https://192.0.2.42:8989/x"},
+		{"forwarded host does not match", "muximux:8080", "", "muximux.example.com", "https://evil.example.net/", ""},
+		{"unparseable referer", "muximux.example.com", "", "", "::not a url", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPost, "/proxy/sonarr/x", nil)
+			req.Host = tt.host
+			req.Header.Set("Referer", tt.referer)
+			if tt.fetchSite != "" {
+				req.Header.Set("Sec-Fetch-Site", tt.fetchSite)
+			}
+			if tt.fwdHost != "" {
+				req.Header.Set("X-Forwarded-Host", tt.fwdHost)
+			}
+			director(req)
+			if got := req.Header.Get("Referer"); got != tt.want {
+				t.Errorf("Referer = %q, want %q", got, tt.want)
+			}
+		})
+	}
 }
 
 // TestProxyRouteCreation tests that proxy routes are correctly created from config

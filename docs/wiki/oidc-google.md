@@ -33,7 +33,7 @@ This guide sets up Muximux to sign users in with Google accounts. It uses a Goog
    - User support email: your email
    - Developer contact: your email
 7. On the **Scopes** screen, click **Add or Remove Scopes**.
-8. Add `openid`, `email`, and `profile`. No other scopes are needed.
+8. Add `openid`, `email`, and `profile`. Muximux needs no other scopes.
 9. If you chose **External**, set who can sign in. Do one of these:
    - On **Test users**, add the Google accounts that will sign in. This applies only to the External user type while the app is in testing mode.
    - Click **Publish App** to take the consent screen to production. This removes the test-user restriction. For an unverified app, Google still warns first-time users.

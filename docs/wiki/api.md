@@ -180,9 +180,9 @@ OIDC fields set by a `MUXIMUX_OIDC_*` variable or a `${VAR}` reference keep thei
 | `/api/config/restore` | POST | Pre-setup only (requires `X-Setup-Token`) | Replace the live config with an uploaded YAML during first-run onboarding; parsed like `config.yaml` at startup |
 | `/api/appearance` | GET | Any authenticated user, or any caller with `X-Api-Key` | Read-only snapshot of language + theme + colors for embedded apps |
 
-The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) need a restart.
+The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS) need a restart. This endpoint ignores gateway site fields: use the gateway endpoints to change sites. A site change reloads Caddy in place when Caddy is running; otherwise Muximux needs a restart (see [Configuration](configuration.md)).
 
-**Saving with `base` (three-way merge).** The request body may carry an optional `base`: the config the client loaded before editing. When `base` is present, Muximux merges the edit onto the current server config. Muximux applies only the fields you changed. Everything else keeps the server's value. Changes made while you were editing are therefore kept (a Docker URL refresh, auto-import, a gateway cookie scope, another tab's save). The merge may produce two apps or two groups with the same name. In that case, Muximux refuses the save with `409 Conflict` and a message naming the conflict. Without `base`, the payload replaces the config (the old two-way behaviour). Omitted fields are reset, and an omitted `proxy_timeout` clears it. Scripts that `PUT /api/config` without `base` keep working unchanged.
+**Saving with `base` (three-way merge).** The request body may carry an optional `base`: the config the client loaded before editing. When `base` is present, Muximux merges the edit onto the current server config. Muximux applies only the fields you changed. Everything else keeps the server's value. So Muximux keeps the changes that happened while you were editing (a Docker URL refresh, auto-import, a gateway cookie scope, another tab's save). The merge may produce two apps or two groups with the same name. In that case, Muximux refuses the save with `409 Conflict` and a message naming the conflict. Without `base`, the payload replaces the config (the old two-way behaviour). Omitted fields are reset, and an omitted `proxy_timeout` clears it. Scripts that `PUT /api/config` without `base` keep working unchanged.
 
 Apps and groups in the payload may carry `original_name`, the name they had when loaded. It tells the merge which server item matches an edited item. A rename therefore keeps the app's access rules, Docker tracking and forwarded-headers setting. `POST /api/groups` and `PUT /api/group/{name}` ignore `original_name`.
 
@@ -506,7 +506,7 @@ Muximux stores logs in a 1000-entry ring buffer (a fixed-size list that overwrit
 
 ## Gateway
 
-The declarative `server.gateway_sites:` model is the current gateway path (the legacy Caddyfile was removed in 3.1.0).
+You declare gateway sites under `server.gateway_sites:`. Version 3.1.0 removed the legacy Caddyfile.
 
 | Endpoint | Method | Role | Description |
 |----------|--------|------|-------------|
@@ -538,13 +538,13 @@ Connect to `/ws` to receive real-time updates. Muximux sends events as JSON mess
 
 | Type | Payload | Description |
 |------|---------|-------------|
-| `config_updated` | Empty | Configuration was changed (Settings, API, import, auto-import). Sent to every connected client, which refetches `GET /api/config`. An open Settings dialog keeps unsaved edits and rebases them onto the new state |
+| `config_updated` | Empty | The configuration changed (Settings, API, import, auto-import). Sent to every connected client, which refetches `GET /api/config`. An open Settings dialog keeps unsaved edits and rebases them onto the new state |
 | `health_changed` | Array of health statuses | Health status changed for one or more apps |
 | `app_health_changed` | `{"app": "name", "health": {...}}` | Health status changed for a specific app |
 | `docker_state_changed` | `{"app_name": "name", "state": {...}}` | Container state changed for a Docker-tracked app (status, health, restart count, etc.) |
 | `log_entry` | `LogEntry` object | A new log entry was recorded (see Logs section above). Admin-only: only broadcast to admin clients |
 
-If the connection drops, the WebSocket client automatically reconnects. It uses exponential backoff (a wait that grows after each failed try), up to 30 seconds between retries, max 10 attempts.
+If the connection drops, the WebSocket client reconnects automatically. It uses exponential backoff (a wait that grows after each failed try). It waits at most 30 seconds between retries, and it tries at most 10 times.
 
 When the session that opened the connection ends (logout, back-channel logout, expiry, account removal), Muximux closes the connection with close code `4401`. Do not reconnect with the same session. When a user's role changes, Muximux closes that user's connections with a normal close. Reconnect, and the new connection gets the new role.
 

@@ -4,13 +4,13 @@
 
 ## Overview
 
-Muximux always serves on one port (configured in `server.listen`). TLS and gateway features are optional -- when they are on, an embedded Caddy server (a web server built into Muximux) handles the user-facing port. Caddy forwards traffic to the Go server internally.
+Muximux always serves on one port (configured in `server.listen`). TLS and gateway features are optional. When they are on, an embedded Caddy server (a web server built into Muximux) handles the user-facing port. Caddy forwards traffic to the Go server internally.
 
 ---
 
 ## When Caddy Starts
 
-Caddy starts automatically when **either** `tls` or one or more `gateway_sites` is configured. If neither is set, Caddy does not start. Go serves directly, with no Caddy overhead.
+Caddy starts automatically when you configure **either** `tls` or one or more `gateway_sites`. If neither is set, Caddy does not start. Go serves directly, with no Caddy overhead.
 
 | `tls` | `gateway_sites` | What happens |
 |-------|-----------|-------------|
@@ -37,7 +37,7 @@ server:
 
 - Caddy gets and renews certificates automatically from Let's Encrypt.
 - `email` is required. Let's Encrypt uses it for registration and expiry notifications.
-- Caddy also listens on ports 80 and 443 for the ACME challenge (the check Let's Encrypt uses to confirm that you control the domain) -- make sure these ports are accessible from the internet.
+- Caddy also listens on ports 80 and 443 for the ACME challenge (the check Let's Encrypt uses to confirm that you control the domain). Make sure these ports are accessible from the internet.
 - After setup, access Muximux at `https://muximux.example.com`.
 
 ---
@@ -52,7 +52,7 @@ server:
     key: /path/to/key.pem
 ```
 
-- Both `cert` and `key` must be set (or both left empty).
+- Set both `cert` and `key`, or leave both empty.
 - You cannot use `domain` and `cert`/`key` at the same time.
 - Muximux serves HTTPS on the configured port using your certificates.
 
@@ -74,9 +74,9 @@ Each entry declares a public hostname (`domain`) and the upstream server it forw
 
 With this, you can reverse proxy other sites and services on your network that don't need to be in the Muximux menu. Examples are Grafana dashboards, wiki pages, or any other web app that just needs HTTPS or a public hostname. Everything runs through the same Caddy instance.
 
-When a gateway site uses auto-HTTPS (the default), Caddy automatically gets TLS certificates for that domain. It also listens on ports 80 and 443 for that domain. Make sure those ports are accessible -- in Docker, add `-p 80:80 -p 443:443` to your port mappings.
+When a gateway site uses auto-HTTPS (the default), Caddy automatically gets TLS certificates for that domain. It also listens on ports 80 and 443 for that domain. Make sure those ports are accessible. In Docker, add `-p 80:80 -p 443:443` to your port mappings.
 
-> **Note:** Adding or removing `gateway_sites` reloads Caddy in place -- no full restart is required.
+> **Note:** Adding or removing `gateway_sites` reloads Caddy in place. You do not need a full restart.
 
 ---
 
@@ -124,7 +124,7 @@ muximux.example.com          -> https terminated upstream -> http://muximux-host
 
 | Per-site `tls` | Gateway port serves | Notes |
 |---|---|---|
-| `auto` | Plain HTTP | Cert issuance via HTTP-01 needs port 80, which we don't bind here. The site still works but the operator is expected to terminate TLS upstream. |
+| `auto` | Plain HTTP | Certificate issuance through HTTP-01 needs port 80. Caddy does not bind port 80 in this mode. The site still works, but you are expected to terminate TLS upstream. |
 | `none` | Plain HTTP | Same outcome as `auto` in this mode. |
 | `custom` | HTTPS with operator-supplied cert | Useful for split-DNS where some clients hit Muximux directly. The cert must be valid for the gateway domain. |
 
@@ -200,11 +200,11 @@ services:
       - ./data:/app/data
 ```
 
-You do not need to expose port 8080 -- Caddy handles all traffic on 80/443 and forwards it to the Go server internally.
+You do not need to expose port 8080. Caddy handles all traffic on 80/443 and forwards it to the Go server internally.
 
 **Binary / systemd:**
 
-No extra configuration is needed -- Caddy binds to ports 80 and 443 directly. Make sure no other service (like nginx or Apache) uses those ports.
+You need no extra configuration. Caddy binds to ports 80 and 443 directly. Make sure no other service (like nginx or Apache) uses those ports.
 
 ### 4. Point your DNS records
 
@@ -227,15 +227,15 @@ DNS must propagate, and Caddy must get certificates (usually within seconds). Th
 
 Caddy automatically redirects all HTTP requests (port 80) to HTTPS (port 443).
 
-> **Tip:** Caddy serves gateway sites directly -- they do not go through Muximux's built-in reverse proxy. You can still add these apps to Muximux's dashboard using their `https://` URLs and `open_mode: new_tab` or `open_mode: iframe`.
+> **Tip:** Caddy serves gateway sites directly. They do not go through Muximux's built-in reverse proxy. You can still add these apps to Muximux's dashboard using their `https://` URLs and `open_mode: new_tab` or `open_mode: iframe`.
 
-For more practical examples -- custom headers, Docker networking, security headers, and common homelab apps -- see [Gateway Examples](gateway-examples.md).
+For more practical examples, see [Gateway Examples](gateway-examples.md). It covers custom headers, Docker networking, security headers, and common homelab apps.
 
 ---
 
 ## Important Notes
 
-- The built-in reverse proxy (`proxy: true` per app) works in **all** modes -- it is independent of Caddy.
-- Caddy's admin API is disabled for security.
-- When you use auto-HTTPS with a domain, Caddy handles the user-facing port entirely. The `listen` address becomes the internal forward target.
+- The built-in reverse proxy (`proxy: true` per app) works in **all** modes. It is independent of Caddy.
+- Muximux disables Caddy's admin API for security.
+- When you use auto-HTTPS with a domain, Caddy handles the user-facing ports entirely. Muximux itself moves to the internal port (listen port + 10000), and Caddy forwards to it.
 - When a gateway site uses auto-HTTPS, Caddy automatically listens on ports 80 and 443 for that domain even if `tls.domain` is not set for Muximux itself.

@@ -10,7 +10,7 @@ Muximux works with Cloudflare Access through **forward auth** (a proxy in front 
 
 - A Cloudflare account with Zero Trust enabled.
 - A domain on Cloudflare (any plan, including the free plan).
-- Muximux running somewhere that a Cloudflare Tunnel can reach. It doesn't need to be exposed to the internet, because the tunnel handles incoming traffic.
+- Muximux running somewhere that a Cloudflare Tunnel can reach. You don't need to expose it to the internet, because the tunnel handles incoming traffic.
 - `cloudflared` installed and authenticated against your Cloudflare account.
 
 ---
@@ -73,9 +73,9 @@ auth:
     audience: "<AUD tag of the Muximux application>"
 ```
 
-`cloudflare_access` makes Muximux check the `Cf-Access-Jwt-Assertion` token on every request. Muximux checks its signature against your team's public keys, and checks the issuer, the audience and the expiry. Then it takes the user's email, name and groups from the token, not from any header. A request without a valid token is refused.
+`cloudflare_access` makes Muximux check the `Cf-Access-Jwt-Assertion` token on every request. Muximux checks its signature against your team's public keys, and checks the issuer, the audience and the expiry. Then it takes the user's email, name and groups from the token, not from any header. Muximux refuses a request without a valid token.
 
-- `team_domain` is your Access team domain. It is shown at the top of the Zero Trust dashboard.
+- `team_domain` is your Access team domain. You can see it at the top of the Zero Trust dashboard.
 - `audience` is the **Application Audience (AUD) Tag**. Open **Access > Applications**, select the Muximux application, and copy the tag from its **Overview** tab.
 
 `trusted_proxies` is the most important field. Muximux only trusts identity headers from these IPs. Muximux checks the address of the direct connection. With a Cloudflare Tunnel, that is always the `cloudflared` connector, not a Cloudflare address. So list the address that the connector uses to reach Muximux:

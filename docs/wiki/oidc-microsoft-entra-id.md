@@ -146,7 +146,7 @@ Entra ID does not offer OIDC back-channel logout (the provider tells Muximux dir
 | `redirect_uri mismatch` from Entra | The URI in the app registration doesn't match what Muximux sends. | Copy the **Redirect URL** in your Muximux config (`redirect_url:` line) into Entra exactly, including scheme, host, port, and path. |
 | User signs in but isn't promoted to admin even though they're in the right group | Group claim isn't configured (Step 3 skipped), or `admin_groups` has GUIDs but Entra is emitting names (or vice versa). | Add `?debug=true` to your Muximux URL after sign-in and check the browser console. Or set log level to `debug` and look at the `OIDC user logged in` line. Either the `groups` claim is missing, or its values don't match `admin_groups`. |
 | `AADSTS50011: The redirect URI specified in the request does not match` | Trailing slash mismatch, or HTTPS vs HTTP. | Both sides must match byte-for-byte. |
-| Entra returns `interaction_required` even after consent | Conditional Access policy is blocking the session. | Check **Microsoft Entra ID > Sign-in logs** for the user. The failure reason is logged there. |
+| Entra returns `interaction_required` even after consent | A Conditional Access policy blocks the session. | Check **Microsoft Entra ID > Sign-in logs** for the user. The sign-in log shows the failure reason. |
 | Group claim contains GUIDs you didn't expect | Token configuration emits Group ID instead of display name. | Re-open **Token configuration > groups claim** and switch to `sAMAccountName` or **Cloud-only group display names**. |
 
 ---

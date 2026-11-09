@@ -39,16 +39,16 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 - Strips `ETag` and `Last-Modified` on responses whose body was rewritten (prevents stale cache hits)
 
 **Request headers:**
-- Strips the `Origin` header entirely (a server-to-server request has no meaningful browser origin, and backends with no CORS config reject any request bearing an `Origin`); CSRF protection for frameworks that check `Origin` is instead covered by the rewritten `Referer`
-- Rewrites `Referer` to match the backend's scheme and host, preventing CSRF rejections
+- Strips the `Origin` header entirely. A server-to-server request has no meaningful browser origin, and backends with no CORS config reject any request that carries an `Origin`
+- Rewrites `Referer` to match the backend's scheme and host, but only when the request comes from the dashboard itself. Backends that check `Referer` for CSRF then accept requests made from the dashboard. A `Referer` from any other site is removed, so a cross-site request still fails that check. Do not rely on these headers alone: a proxied app should have its own CSRF protection
 - Sets `Host` to the backend host
 - Forwards `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto`, and `X-Real-IP`
 
 ### HTML Content
 
 - Rewrites `href`, `src`, `action`, `poster`, `srcset`, `content`, and `data-*` attributes
-- Rewrites `<base href>` tags to point to the proxy path; injects a `<base>` tag when the document has none, so apps using relative resource URLs (e.g. qBittorrent's `css/style.css`) resolve against the proxy prefix
-- Strips `<meta http-equiv="Content-Security-Policy">` tags so the injected interceptor script is not blocked by nonce requirements
+- Rewrites `<base href>` tags to point to the proxy path. Injects a `<base>` tag when the document has none, so that relative resource URLs (e.g. qBittorrent's `css/style.css`) resolve against the proxy prefix
+- Strips `<meta http-equiv="Content-Security-Policy">` tags, so that nonce requirements do not block the injected interceptor script
 
 ### CSS Content
 
@@ -59,28 +59,28 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 - Strips SRI integrity checks (which break when content is modified)
 - Rewrites absolute URLs pointing to the backend server
 - Rewrites base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/sonarr"`)
-- Root-relative paths in JS/JSON/XML are **not** statically rewritten - the runtime interceptor (see below) handles these to avoid corrupting URLs meant for third-party servers
+- Does **not** statically rewrite root-relative paths in JS/JSON/XML. The runtime interceptor (see below) handles these, to avoid corrupting URLs meant for third-party servers. One exception: ES module `import` and `export` specifiers (`from '/path'`) in JS are rewritten, because the browser loads modules without going through the interceptor
 
 ### Runtime URL Interceptor
 
 Some single-page applications (SPAs, apps that load one page and then update it with JavaScript) build URLs dynamically in JavaScript. For these apps, static text rewriting is not enough. The proxy injects a small script into every HTML response. This script intercepts URL usage at runtime:
 
-- **`fetch()`, `XMLHttpRequest`, `sendBeacon()`** - API calls are rewritten before they leave the browser
-- **`WebSocket`, `EventSource`** - Real-time connections are routed through the proxy
+- **`fetch()`, `XMLHttpRequest`, `sendBeacon()`** - The interceptor rewrites API calls before they leave the browser
+- **`WebSocket`, `EventSource`** - The interceptor routes real-time connections through the proxy
 - **DOM property setters** - `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` - the browser's internal setter only ever sees the rewritten URL
 - **`img.srcset`** - Custom setter parses comma-separated `url descriptor` pairs and rewrites each URL
 - **`setAttribute()`** - Wrapped so libraries using `el.setAttribute('src', url)` get synchronous URL rewriting
 - **`CSSStyleSheet.insertRule()`** - Rewrites `url()` references in CSS-in-JS rules (styled-components, emotion)
 - **`insertAdjacentHTML()`** - Synchronously fixes URLs in newly inserted HTML fragments
-- **`history.pushState/replaceState`** - Wrapped so the app's router always reads back the path it navigated to, without the proxy prefix. Browsers expose `location` as unforgeable, so the prefix cannot be hidden by patching getters; instead the address is kept clean for the life of the document, including navigations that happen after the page has loaded (an auth check that finishes late, for example)
-- **Full-document loads** - Because the address at rest has no prefix, a reload of the frame or a `location.href` assignment would leave the proxy. Browsers with the Navigation API (Chromium) are redirected to the prefixed path before the request is made; elsewhere the request reaches the Muximux shell, which recognises the app frame by its `window.name` and sends it back to `/proxy/<slug>/...`
+- **`history.pushState/replaceState`** - Wrapped so the app's router always reads back the path it navigated to, without the proxy prefix. Browsers expose `location` as unforgeable, so patching getters cannot hide the prefix. Instead, the interceptor keeps the address clean for the life of the document, including navigations that happen after the page has loaded (an auth check that finishes late, for example)
+- **Full-document loads** - Because the address at rest has no prefix, a reload of the frame or a `location.href` assignment would leave the proxy. In browsers with the Navigation API (Chromium), the interceptor redirects the load to the prefixed path before the request goes out. In other browsers, the request reaches the Muximux shell. The shell recognises the app frame by its `window.name` and sends it back to `/proxy/<slug>/...`
 - **`location.assign/replace`, `window.open`** - Wrapped to route through the proxy
 - **`Worker`, `SharedWorker`, `Audio` constructors** - Script/source URLs routed through the proxy
-- **Inside Web Workers** - Workers have their own global scope, so the page patches above do not reach them. A small worker prelude gives them the same `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource` and `importScripts` routing: the proxy prepends it to scripts the browser loads as a worker, and workers started from a `blob:` URL (mpegts.js, hls.js and other bundled players) are restarted from a new blob with the prelude in front. This is what lets players that stream from a worker, such as Dispatcharr's, reach their app
+- **Inside Web Workers** - Workers have their own global scope, so the page patches above do not reach them. A small worker prelude gives them the same `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource` and `importScripts` routing. The proxy prepends it to scripts that the browser loads as a worker. Workers started from a `blob:` URL (mpegts.js, hls.js and other bundled players) restart from a new blob with the prelude in front. This is what lets players that stream from a worker, such as Dispatcharr's, reach their app
 - **`MutationObserver` fallback** - Catches elements created via `innerHTML` or HTML parsing where property setters don't fire
-- **`window.parent` and `window.top` isolation** - Overridden to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. Smart detection keeps `window.parent` intact for sub-iframes within the same proxied app (e.g., qBittorrent's MochaUI dialogs).
-- **`localStorage` / `sessionStorage` isolation** - Namespaced per proxied app so multiple apps sharing the Muximux origin don't collide on storage keys
-- **Service worker blocking** - `register()` is no-op'd to prevent proxied apps from registering service workers under the Muximux origin; existing proxy-scoped registrations are unregistered
+- **`window.parent` and `window.top` isolation** - The interceptor overrides them to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. Smart detection keeps `window.parent` intact for sub-iframes within the same proxied app (e.g., qBittorrent's MochaUI dialogs).
+- **`localStorage` / `sessionStorage` isolation** - The interceptor namespaces storage per proxied app, so multiple apps sharing the Muximux origin don't collide on storage keys
+- **Service worker blocking** - The interceptor turns `register()` into a no-op. This prevents proxied apps from registering service workers under the Muximux origin. It also unregisters existing proxy-scoped registrations
 
 Some apps, like **Plex**, construct all their image and API URLs in JavaScript at runtime. These apps work through the proxy without any configuration in the app itself.
 
@@ -91,7 +91,7 @@ Some apps, like **Plex**, construct all their image and API URLs in JavaScript a
 
 ### Gzip Handling
 
-The proxy transparently decompresses compressed (gzipped) responses before rewriting. It sends the rewritten response uncompressed. If Muximux sits behind an external reverse proxy (nginx, Traefik, Caddy), that proxy can apply its own compression to the final response. No configuration is needed.
+The proxy transparently decompresses compressed (gzipped) responses before rewriting. It sends the rewritten response uncompressed. If Muximux sits behind an external reverse proxy (nginx, Traefik, Caddy), that proxy can apply its own compression to the final response. You need no configuration for this.
 
 ---
 
@@ -165,9 +165,9 @@ Leave `proxy: false` (or omit it) when:
 
 Some applications may not work correctly in an iframe, even with the proxy and runtime interceptor enabled. The most common reasons are:
 
-- **Binary protocols** -- gRPC, MessagePack, and other non-text formats with embedded paths cannot be rewritten.
+- **Binary protocols** -- The proxy cannot rewrite gRPC, MessagePack, and other non-text formats with embedded paths.
 - **Runtime-constructed paths** -- Template literals (`` `${base}/api` ``) and string concatenation (`'/api' + endpoint`) are invisible to any rewriter.
-- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. The runtime interceptor tries to patch `location.pathname` so that it returns the path without the prefix. Some browsers do not let scripts patch `location` properties. There, the interceptor removes the prefix from the page address with `history.replaceState` instead, after each navigation and on back/forward. This handles most cases.
+- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. Browsers do not let scripts change what `location` returns. So the interceptor removes the prefix from the page address with `history.replaceState`, after each navigation and on back/forward. The router then reads the path without the prefix. This handles most cases.
 
 > **Note:** The proxy handles these patterns automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
 
@@ -179,7 +179,7 @@ The proxy fully supports WebSocket connections. It detects `Upgrade: websocket` 
 
 ### Mixed Content
 
-Muximux may be served over HTTPS while the proxied app is HTTP-only on the internal network. The proxy handles this transparently: the browser talks HTTPS to Muximux, and Muximux talks HTTP to the app. However, the app's JavaScript may make direct HTTP requests to other internal services. The browser may block those requests as mixed content (HTTP content on an HTTPS page).
+You may serve Muximux over HTTPS while the proxied app is HTTP-only on the internal network. The proxy handles this transparently: the browser talks HTTPS to Muximux, and Muximux talks HTTP to the app. However, the app's JavaScript may make direct HTTP requests to other internal services. The browser may block those requests as mixed content (HTTP content on an HTTPS page).
 
 ---
 
@@ -189,7 +189,7 @@ Muximux may be served over HTTPS while the proxied app is HTTP-only on the inter
 
 Open the browser's developer tools (F12). Check the Console tab for errors. Common causes:
 
-- The app uses a Content-Security-Policy that was not fully stripped. Look for "refused to frame" or "blocked by Content-Security-Policy" messages.
+- The app uses a Content-Security-Policy that the proxy did not fully strip. Look for "refused to frame" or "blocked by Content-Security-Policy" messages.
 - The app's URL is unreachable from the Muximux server. Verify you can reach the URL from the machine running Muximux.
 
 ### Broken Styles or Images
@@ -229,7 +229,7 @@ The built-in reverse proxy and the Caddy-based gateway are completely separate s
 | **Purpose** | Embed apps in iframes | Serve Muximux with TLS, or host additional sites alongside it |
 | **Configured by** | `proxy: true` on individual apps | `server.gateway_sites:` declarative YAML (or Settings -> Gateway) |
 | **Runs inside** | The Go server process | Embedded Caddy instance |
-| **Works without TLS** | Yes | The gateway is only active when TLS/Caddy is enabled |
+| **Works without TLS** | Yes | Yes. Gateway sites start Caddy on their own, with or without TLS for Muximux itself |
 | **Rewrites content** | Yes (headers, HTML, CSS, JS, runtime) | No (standard reverse proxy behavior) |
 
 The per-app `proxy: true` setting is for iframe embedding. The `gateway_sites:` entries serve additional sites alongside Muximux on their own subdomains, or handle TLS termination. You can use them independently or together.
@@ -258,7 +258,7 @@ When a response passes through the proxy, the Go server rewrites URLs in the res
 |---|---|
 | HTML | Full rewriting - attribute paths (`href`, `src`, etc.), base tags, SRI stripping, CSP meta tag stripping, and interceptor script injection |
 | CSS | Full rewriting - `url()` references |
-| JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
+| JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. The proxy leaves root-relative paths untouched, to avoid corrupting API data. In JS, ES module `import`/`export` specifiers are the exception and are rewritten |
 
 API responses (JSON, XML) contain data that the SPA reads programmatically. The proxy could rewrite paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`). The SPA may then embed those already-rewritten paths in new URLs. This causes double-prefixing (the prefix appears twice).
 
@@ -274,8 +274,8 @@ The proxy injects a small `<script>` tag into every HTML response. This script p
 | Real-time | `WebSocket`, `EventSource` constructors | Wrapper rewrites URL argument |
 | DOM setters | `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` | Property setter override on prototype |
 | Special setters | `img.srcset`, `setAttribute()`, `CSSStyleSheet.insertRule()`, `insertAdjacentHTML()` | Custom wrappers for multi-URL and CSS-in-JS |
-| Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip prefix where the browser lets the interceptor patch them; otherwise `history.replaceState` removes the prefix from the page address; setters add prefix; Navigation API fallback intercepts `location.href` assignment when setter is non-configurable (Chrome) |
-| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; when getters can't be patched (Chrome), a guard re-strips the prefix after each call, for the life of the page; a full reload of the frame then reaches the Muximux shell, which sends the frame back to `/proxy/<slug>/...` |
+| Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip the prefix where the browser lets the interceptor patch them. Otherwise, `history.replaceState` removes the prefix from the page address. Setters add the prefix. A Navigation API fallback intercepts `location.href` assignment when the setter is non-configurable (Chrome) |
+| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds the proxy prefix. When getters can't be patched (Chrome), a guard re-strips the prefix after each call, for the life of the page. A full reload of the frame then reaches the Muximux shell, which sends the frame back to `/proxy/<slug>/...` |
 | Constructors | `Worker`, `SharedWorker`, `Audio` | Wrapper rewrites URL argument |
 | Isolation | `window.parent`, `window.top` | `Object.defineProperty` override |
 | Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |
@@ -289,13 +289,13 @@ A `MutationObserver` (a browser API that reports changes to the page) watches fo
 
 ### Chrome Iframe Timeline Workaround
 
-Chrome may freeze `document.timeline` inside iframes. CSS and Web Animations API animations then stall. Some apps (notably Plex) use `element.animate()` for image fade-in effects with `fill: "auto"`. With this setting, the animation's end state is not persisted. When the timeline freezes, images stay stuck at opacity 0, even though they are fully loaded.
+Chrome may freeze `document.timeline` inside iframes. CSS and Web Animations API animations then stall. Some apps (notably Plex) use `element.animate()` for image fade-in effects with `fill: "auto"`. With this setting, the browser does not keep the animation's end state. When the timeline freezes, images stay stuck at opacity 0, even though they are fully loaded.
 
 The interceptor includes a periodic scan (every 200ms for the first 30 seconds). The scan detects loaded images with `style.opacity === "0"`. It cancels any frozen animations and forces the images visible. The scan turns itself off after 30 seconds, to avoid unnecessary work on long-lived pages.
 
 ### Tested Apps
 
-The following apps have been tested with the built-in reverse proxy and runtime interceptor:
+We tested the following apps with the built-in reverse proxy and runtime interceptor:
 
 | App | Status | Notes |
 |---|---|---|

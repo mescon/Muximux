@@ -129,12 +129,13 @@ See [Authentication](authentication#setting-up-oidc-in-settings) for how the for
 
 ## Step 6: Validate
 
-1. Visit `https://muximux.example.com/login` and click **Login with SSO**.
-2. Sign in at Authentik. The first time, Authentik can also ask for consent, depending on the flow you chose.
-3. Approve. Authentik sends you back to Muximux.
-4. Sign in as a member of `Muximux-Admins`.
-5. Confirm that the Settings gear is visible.
-6. To see the claims that Authentik puts into the ID token, open the provider in **Applications > Providers** and use its **Preview** tab. Select the user. The preview shows the claims, including `groups`. On the Muximux side, the audit log line `OIDC user logged in` shows the role that Muximux gave the user.
+1. Visit `https://muximux.example.com/login`.
+2. Click **Login with SSO**.
+3. Sign in at Authentik. The first time, Authentik can also ask for consent, depending on the flow you chose.
+4. Approve. Authentik sends you back to Muximux.
+5. Sign in as a member of `Muximux-Admins`.
+6. Confirm that the Settings gear is visible.
+7. To see the claims that Authentik puts into the ID token, open the provider in **Applications > Providers** and use its **Preview** tab. Select the user. The preview shows the claims, including `groups`. On the Muximux side, the audit log line `OIDC user logged in` shows the role that Muximux gave the user.
 
 ---
 
@@ -143,7 +144,7 @@ See [Authentication](authentication#setting-up-oidc-in-settings) for how the for
 authentik supports RP-initiated logout (Muximux sends the user to the provider to sign out). Its OIDC discovery document lists an `end_session_endpoint`. authentik also supports OIDC back-channel logout (the provider tells Muximux directly that a session ended).
 
 - **Back-channel logout.** Edit the OAuth2/OpenID provider (**Applications > Providers**). Enter `https://muximux.example.com/api/auth/oidc/backchannel-logout` in the **Logout URI** field. Choose **Back-channel** as the **Logout Method**. The authentik documentation lists this feature as available from authentik 2025.8.
-- **Post-logout redirect.** authentik added `post_logout_redirect_uri` support for OAuth2 providers in release 2026.5. In that release, you can give the provider's redirect URIs a logout type. On older releases, or if you cannot find the setting, check the authentik documentation for your version. The exact label could not be confirmed here. Register `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) there. If no post-logout redirect URIs are saved on the provider, authentik skips the matching.
+- **Post-logout redirect.** authentik added `post_logout_redirect_uri` support for OAuth2 providers in release 2026.5. In that release, you can give the provider's redirect URIs a logout type. On older releases, or if you cannot find the setting, check the authentik documentation for your version. We could not confirm the exact label. Register `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) there. If no post-logout redirect URIs are saved on the provider, authentik skips the matching.
 
 Some authentik versions do not send the back-channel logout in every case (see goauthentik/authentik#25826). Then a Muximux session can outlive the authentik session. To cover this, set `revalidate_after` (see [Rechecking the provider session](authentication#rechecking-the-provider-session)).
 
@@ -155,8 +156,8 @@ See [Authentication](authentication#oidc-openid-connect) for what each Muximux o
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `invalid_redirect_uri` from Authentik | Redirect URI not on the provider's allow list. | Add `https://muximux.example.com/api/auth/oidc/callback` exactly to **Redirect URIs / Origins** on the provider. |
-| Sign-in works but admin promotion doesn't | Either the `groups` scope isn't being requested by Muximux, or the property mapping isn't producing groups. | Confirm `scopes:` in `config.yaml` includes `groups`. Then open the provider's **Preview** tab in **Applications > Providers**, select the user, and look for the `groups` claim. Muximux also reads claims from the userinfo endpoint. If **Include claims in id_token** is off on the provider, the preview may not show `groups`, although userinfo returns them. Then check the userinfo response before you change the mapping. |
+| `invalid_redirect_uri` from Authentik | The redirect URI is not on the provider's allow list. | Add `https://muximux.example.com/api/auth/oidc/callback` exactly to **Redirect URIs / Origins** on the provider. |
+| Sign-in works but admin promotion doesn't | Either Muximux does not request the `groups` scope, or the property mapping does not produce groups. | Confirm `scopes:` in `config.yaml` includes `groups`. Then open the provider's **Preview** tab in **Applications > Providers**, select the user, and look for the `groups` claim. Muximux also reads claims from the userinfo endpoint. If **Include claims in id_token** is off on the provider, the preview may not show `groups`, although userinfo returns them. Then check the userinfo response before you change the mapping. |
 | `error: unauthorized_client` | The client type or client authentication setting on the provider doesn't match what Muximux is sending. | Set the provider to **Confidential** and use the client secret. |
 | `Failed to fetch discovery document` in Muximux logs | Wrong issuer URL. | Use the **OpenID Configuration Issuer** from the provider overview page; this is the canonical value Muximux should use. |
 | Admin works for some users but not others | Some users are in groups whose names contain spaces or special characters that don't match `admin_groups` exactly. | Group matching is case-insensitive but otherwise literal. Make sure `admin_groups` matches the exact name Authentik reports. |
