@@ -139,7 +139,7 @@ The gate endpoint has some extra layers of protection (defence in depth):
 |---|---|
 | `auth.method: builtin` | Native users. The session check is straightforward. |
 | `auth.method: oidc` | OIDC tokens back the sessions. The gate uses the same session check. Gated apps see OIDC users through `X-Muximux-User`. |
-| `auth.method: forward_auth` (Authelia / Authentik) | Muximux trusts an upstream `Remote-User` header to create a session. Then the gate reads that session. Chained forward auth works, but it adds a network hop. Check whether the upstream already gates the same set of apps. |
+| `auth.method: forward_auth` (Authelia / Authentik) | Not supported. Forward auth reads the user from trusted headers on each request and creates no Muximux session. The gate only checks the Muximux session cookie, so it sends every user to the login page. Gate these sites in the upstream proxy (Authelia, Authentik) instead, or use built-in or OIDC sign-in. |
 
 ---
 

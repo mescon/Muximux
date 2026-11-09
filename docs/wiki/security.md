@@ -22,7 +22,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) do not apply to
 ### Authentication (ASVS V2)
 
 - **Bcrypt password hashing** -- Muximux hashes all user passwords with bcrypt (cost 12) before storage. Plaintext passwords never touch disk. A stored password hash can use a cost below the current target. On a successful login, Muximux silently re-hashes it, so older accounts migrate forward on their own.
-- **Bcrypt API key hashing** -- Muximux stores API keys as bcrypt hashes in `config.yaml`. Nobody can recover the original key from the hash. Verification uses `bcrypt.CompareHashAndPassword`, which is constant-time and resistant to timing attacks.
+- **API key hashing** -- Muximux stores the API key as a SHA-256 hash in `config.yaml` and compares it in constant time. A generated key is 32 random bytes, so nobody can guess it back from the hash. A short key that you chose yourself can be guessed offline from a leaked `config.yaml`. Use a long random key, and rotate it if the file was exposed. Older bcrypt hashes still work and are upgraded on first use.
 - **Rate limiting** -- Login endpoints allow 5 attempts per minute per IP address. This prevents brute-force attacks.
 - **OIDC ID token validation** -- When you use OpenID Connect (OIDC, a standard for single sign-on), Muximux validates the ID token. It checks the token's cryptographic signature (via JWKS), issuer, audience, expiry, and nonce. This prevents token forgery and replay attacks.
 - **Nonce binding** -- OIDC authorization requests include a cryptographically random nonce (a single-use value). Muximux verifies it in the callback to prevent replay attacks.
@@ -74,7 +74,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) do not apply to
 ### Data Protection (ASVS V8)
 
 - **Sensitive data stripping** -- Config exports automatically strip password hashes, API key hashes, and OIDC client secrets before download.
-- **No plaintext secrets** -- Muximux stores passwords and API keys as one-way bcrypt hashes. OIDC client secrets support environment variable references.
+- **No plaintext secrets** -- Muximux stores passwords as bcrypt hashes and the API key as a SHA-256 hash. Both are one-way. OIDC client secrets support environment variable references.
 - **File permissions** -- Muximux writes config files with `0600` permissions (owner read/write only).
 
 ### HTTP Security Headers (ASVS V14)

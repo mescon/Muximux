@@ -39,8 +39,8 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 - Strips `ETag` and `Last-Modified` on responses whose body was rewritten (prevents stale cache hits)
 
 **Request headers:**
-- Strips the `Origin` header entirely. A server-to-server request has no meaningful browser origin, and backends with no CORS config reject any request that carries an `Origin`. For frameworks that check `Origin` for CSRF protection, the rewritten `Referer` covers this instead
-- Rewrites `Referer` to match the backend's scheme and host, preventing CSRF rejections
+- Strips the `Origin` header entirely. A server-to-server request has no meaningful browser origin, and backends with no CORS config reject any request that carries an `Origin`
+- Rewrites `Referer` to match the backend's scheme and host, but only when the request comes from the dashboard itself. Backends that check `Referer` for CSRF then accept requests made from the dashboard. A `Referer` from any other site is removed, so a cross-site request still fails that check. Do not rely on these headers alone: a proxied app should have its own CSRF protection
 - Sets `Host` to the backend host
 - Forwards `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto`, and `X-Real-IP`
 
@@ -59,7 +59,7 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 - Strips SRI integrity checks (which break when content is modified)
 - Rewrites absolute URLs pointing to the backend server
 - Rewrites base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/sonarr"`)
-- Does **not** statically rewrite root-relative paths in JS/JSON/XML. The runtime interceptor (see below) handles these, to avoid corrupting URLs meant for third-party servers
+- Does **not** statically rewrite root-relative paths in JS/JSON/XML. The runtime interceptor (see below) handles these, to avoid corrupting URLs meant for third-party servers. One exception: ES module `import` and `export` specifiers (`from '/path'`) in JS are rewritten, because the browser loads modules without going through the interceptor
 
 ### Runtime URL Interceptor
 
@@ -258,7 +258,7 @@ When a response passes through the proxy, the Go server rewrites URLs in the res
 |---|---|
 | HTML | Full rewriting - attribute paths (`href`, `src`, etc.), base tags, SRI stripping, CSP meta tag stripping, and interceptor script injection |
 | CSS | Full rewriting - `url()` references |
-| JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. The proxy leaves root-relative paths untouched, to avoid corrupting API data |
+| JS, JSON, XML | Safe-only - SRI stripping, absolute URL rewriting, base path config values. The proxy leaves root-relative paths untouched, to avoid corrupting API data. In JS, ES module `import`/`export` specifiers are the exception and are rewritten |
 
 API responses (JSON, XML) contain data that the SPA reads programmatically. The proxy could rewrite paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`). The SPA may then embed those already-rewritten paths in new URLs. This causes double-prefixing (the prefix appears twice).
 
