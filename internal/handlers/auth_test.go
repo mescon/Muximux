@@ -2928,3 +2928,48 @@ func TestUpdateUser_RoleChangeClosesUserSockets(t *testing.T) {
 		t.Fatalf("sockets closed although the role did not change: %v", closed)
 	}
 }
+
+func TestAuthStatus_RevalidateFlag(t *testing.T) {
+	status := func(h *AuthHandler, sess *auth.Session) map[string]interface{} {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		if sess != nil {
+			ctx := auth.WithUserContext(req.Context(), &auth.User{ID: sess.UserID, Username: sess.Username, Role: sess.Role})
+			ctx = context.WithValue(ctx, auth.ContextKeySession, sess)
+			req = req.WithContext(ctx)
+		}
+		w := httptest.NewRecorder()
+		h.AuthStatus(w, req)
+		var body map[string]interface{}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		return body
+	}
+	oidcSession := func(store *auth.SessionStore, checkedAgo time.Duration) *auth.Session {
+		s, _ := store.CreateWithData("u", "u", auth.RoleUser, map[string]interface{}{"oidc_iss": "https://idp"})
+		c := store.Get(s.ID)
+		c.ProviderCheckedAt = time.Now().Add(-checkedAgo)
+		return c
+	}
+
+	h, store, _ := oidcHandlerWithDiscovery(t, func(c *config.OIDCConfig) { c.RevalidateAfter = "1h" })
+	if b := status(h, oidcSession(store, 2*time.Hour)); b["revalidate"] != true {
+		t.Errorf("stale OIDC session: %v", b)
+	}
+	if b := status(h, oidcSession(store, 10*time.Minute)); b["revalidate"] != nil {
+		t.Errorf("fresh OIDC session: %v", b)
+	}
+	local, _ := store.Create("admin", "admin", auth.RoleAdmin)
+	if b := status(h, local); b["revalidate"] != nil {
+		t.Errorf("local session must never be rechecked: %v", b)
+	}
+	if b := status(h, nil); b["revalidate"] != nil {
+		t.Errorf("anonymous: %v", b)
+	}
+
+	off, offStore, _ := oidcHandlerWithDiscovery(t, nil)
+	if b := status(off, oidcSession(offStore, 48*time.Hour)); b["revalidate"] != nil {
+		t.Errorf("revalidate_after unset: %v", b)
+	}
+}

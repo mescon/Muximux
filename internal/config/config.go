@@ -493,6 +493,29 @@ type OIDCConfig struct {
 	// DisableLocalLogin refuses username/password sign-in while OIDC is
 	// enabled. Recovery when the provider is down: set it false here.
 	DisableLocalLogin bool `yaml:"disable_local_login,omitempty"`
+	// RevalidateAfter, when set, makes the dashboard recheck the
+	// provider session (a top-level prompt=none round trip) once an OIDC
+	// session has gone this long without one. Covers a provider that
+	// fails to send a back-channel logout. Empty: off.
+	RevalidateAfter string `yaml:"revalidate_after,omitempty"`
+}
+
+// MinOIDCRevalidateAfter is the shortest accepted revalidate_after. Each
+// recheck reloads the dashboard, so a tiny value would make it unusable.
+const MinOIDCRevalidateAfter = time.Minute
+
+// OIDCRevalidateAfter parses RevalidateAfter. It returns 0 (off) for an
+// empty or invalid value; validation rejects invalid values on load and
+// save, so 0 here only means "not set".
+func (o *OIDCConfig) OIDCRevalidateAfter() time.Duration {
+	if o.RevalidateAfter == "" {
+		return 0
+	}
+	d, err := ParseFlexDuration(o.RevalidateAfter)
+	if err != nil || d < MinOIDCRevalidateAfter {
+		return 0
+	}
+	return d
 }
 
 // NavigationConfig holds navigation layout settings
@@ -1127,6 +1150,15 @@ func validateOIDC(o *OIDCConfig, label func(path string) string) error {
 		}
 		if !isAbsHTTPURL(check.value) {
 			return fmt.Errorf("%s must be an absolute http(s) URL", label(check.name))
+		}
+	}
+	if o.RevalidateAfter != "" {
+		d, err := ParseFlexDuration(o.RevalidateAfter)
+		if err != nil {
+			return fmt.Errorf("%s: %w", label("auth.oidc.revalidate_after"), err)
+		}
+		if d < MinOIDCRevalidateAfter {
+			return fmt.Errorf("%s must be at least %s", label("auth.oidc.revalidate_after"), MinOIDCRevalidateAfter)
 		}
 	}
 	return nil

@@ -619,6 +619,12 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 	if user != nil {
 		response["user"] = h.buildUserResponse(user)
+		if oidcOn {
+			oc := oidc.Config()
+			if oidcRecheckDue(auth.GetSessionFromContext(r.Context()), oc.OIDCRevalidateAfter(), time.Now()) {
+				response["revalidate"] = true
+			}
+		}
 	}
 
 	if h.setupChecker != nil {
@@ -1324,4 +1330,18 @@ func (h *AuthHandler) refreshAuthSnapshotLocked() {
 		CloudflareAccess:       auth.CloudflareAccessFromConfig(h.config.Auth.CloudflareAccess),
 	}
 	h.authMiddleware.UpdateConfig(&authCfg)
+}
+
+// oidcRecheckDue reports whether an OIDC session has gone longer than
+// after without the provider vouching for it (auth.oidc.revalidate_after).
+// The dashboard then sends the browser through a prompt=none round trip.
+// A local session, or after == 0, never needs one.
+func oidcRecheckDue(session *auth.Session, after time.Duration, now time.Time) bool {
+	if session == nil || after <= 0 {
+		return false
+	}
+	if iss, _ := session.Data["oidc_iss"].(string); iss == "" {
+		return false
+	}
+	return now.Sub(session.ProviderCheckedAt) > after
 }

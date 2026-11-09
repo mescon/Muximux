@@ -267,13 +267,13 @@ func TestApplyOIDCSettings(t *testing.T) {
 		ClientID: s(" cid "), RedirectURL: s("https://d/cb"), UsernameClaim: s("sub"), EmailClaim: s("mail"),
 		GroupsClaim: s("roles"), DisplayNameClaim: s("nick"), AdminGroups: []string{"ops"},
 		PostLogoutRedirectURL: s("https://d/bye"), LogoutURL: s("https://idp/logout"),
-		AutoRedirect: b(true), DisableLocalLogin: b(true),
+		AutoRedirect: b(true), DisableLocalLogin: b(true), RevalidateAfter: s(" 4h "),
 	}, nil)
 	want := config.OIDCConfig{
 		Enabled: true, IssuerURL: "https://a", ClientID: "cid", ClientSecret: "keep", RedirectURL: "https://d/cb",
 		Scopes: []string{"openid"}, UsernameClaim: "sub", EmailClaim: "mail", GroupsClaim: "roles", DisplayNameClaim: "nick",
 		AdminGroups: []string{"ops"}, PostLogoutRedirectURL: "https://d/bye", LogoutURL: "https://idp/logout",
-		AutoRedirect: true, DisableLocalLogin: true,
+		AutoRedirect: true, DisableLocalLogin: true, RevalidateAfter: "4h",
 	}
 	if !reflect.DeepEqual(all, want) {
 		t.Errorf("got  %+v\nwant %+v", all, want)

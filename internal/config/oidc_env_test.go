@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -46,10 +47,10 @@ func clearAuthEnv(t *testing.T) {
 
 func TestAuthEnvVarNames(t *testing.T) {
 	names := AuthEnvVarNames()
-	if len(names) != 19 {
-		t.Fatalf("got %d names, want 19: %v", len(names), names)
+	if len(names) != 20 {
+		t.Fatalf("got %d names, want 20: %v", len(names), names)
 	}
-	for _, want := range []string{EnvAuthMethod, EnvOIDCClientID + "_FILE", EnvOIDCClientSecret + "_FILE", EnvOIDCDisableLocalLogin} {
+	for _, want := range []string{EnvAuthMethod, EnvOIDCClientID + "_FILE", EnvOIDCClientSecret + "_FILE", EnvOIDCDisableLocalLogin, EnvOIDCRevalidateAfter} {
 		found := false
 		for _, n := range names {
 			found = found || n == want
@@ -93,6 +94,7 @@ func TestApplyAuthEnv_EachVariable(t *testing.T) {
 		{EnvOIDCLogoutURL, "https://id.example.com/logout", OverrideOIDCLogoutURL, func(o *OIDCConfig) bool { return o.LogoutURL == "https://id.example.com/logout" }},
 		{EnvOIDCAutoRedirect, "on", OverrideOIDCAutoRedirect, func(o *OIDCConfig) bool { return o.AutoRedirect }},
 		{EnvOIDCDisableLocalLogin, "1", OverrideOIDCDisableLocalLogin, func(o *OIDCConfig) bool { return o.DisableLocalLogin }},
+		{EnvOIDCRevalidateAfter, " 2h ", OverrideOIDCRevalidateAfter, func(o *OIDCConfig) bool { return o.RevalidateAfter == "2h" }},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -897,8 +899,8 @@ func TestApplyOverride_AuthFieldsAll(t *testing.T) {
 		cfg.ApplyOverride(v.field, v.name, val)
 	}
 	cfg.ApplyOverride(OverrideAuthMethod, EnvAuthMethod, "oidc")
-	if len(cfg.EnvOverrides()) != 17 {
-		t.Fatalf("EnvOverrides() = %d entries, want 17", len(cfg.EnvOverrides()))
+	if len(cfg.EnvOverrides()) != 18 {
+		t.Fatalf("EnvOverrides() = %d entries, want 18", len(cfg.EnvOverrides()))
 	}
 	v := cfg.fileView()
 	if !reflect.DeepEqual(v.Auth, defaultConfig().Auth) {
@@ -1075,5 +1077,26 @@ func TestApplyAuthEnv_EmptyFileVarIsUnset(t *testing.T) {
 	}
 	if cfg.Auth.OIDC.ClientID != "cid" || cfg.EnvOverrides()[string(OverrideOIDCClientID)] != EnvOIDCClientID {
 		t.Errorf("client id = %q, %v", cfg.Auth.OIDC.ClientID, cfg.EnvOverrides())
+	}
+}
+
+func TestValidateOIDC_RevalidateAfter(t *testing.T) {
+	for value, ok := range map[string]bool{"": true, "1m": true, "2h": true, "7d": true, "30s": false, "soon": false, "-1h": false} {
+		err := ValidateOIDC(&OIDCConfig{RevalidateAfter: value})
+		if (err == nil) != ok {
+			t.Errorf("%q: err = %v, want ok=%v", value, err, ok)
+		}
+		if err != nil && !strings.Contains(err.Error(), "auth.oidc.revalidate_after") {
+			t.Errorf("%q: error should name the field: %v", value, err)
+		}
+	}
+}
+
+func TestOIDCRevalidateAfter(t *testing.T) {
+	for value, want := range map[string]time.Duration{"": 0, "90m": 90 * time.Minute, "1d": 24 * time.Hour, "10s": 0, "bad": 0} {
+		o := OIDCConfig{RevalidateAfter: value}
+		if got := o.OIDCRevalidateAfter(); got != want {
+			t.Errorf("%q: got %s, want %s", value, got, want)
+		}
 	}
 }

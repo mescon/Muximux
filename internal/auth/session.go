@@ -19,7 +19,11 @@ type Session struct {
 	Role      string
 	CreatedAt time.Time
 	ExpiresAt time.Time
-	Data      map[string]interface{}
+	// ProviderCheckedAt is when the identity provider last vouched for
+	// an OIDC session: the sign-in, or a prompt=none recheck that could
+	// not reach a verdict. auth.oidc.revalidate_after counts from here.
+	ProviderCheckedAt time.Time
+	Data              map[string]interface{}
 }
 
 // IsExpired checks if the session has expired
@@ -189,14 +193,16 @@ func (s *SessionStore) create(gen *uint64, userID, username, role string, data m
 		sessionData[k] = v
 	}
 
+	now := time.Now()
 	session := &Session{
-		ID:        id,
-		UserID:    userID,
-		Username:  username,
-		Role:      role,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(s.maxAge),
-		Data:      sessionData,
+		ID:                id,
+		UserID:            userID,
+		Username:          username,
+		Role:              role,
+		CreatedAt:         now,
+		ExpiresAt:         now.Add(s.maxAge),
+		ProviderCheckedAt: now,
+		Data:              sessionData,
 	}
 
 	s.mu.Lock()
@@ -285,6 +291,17 @@ func (s *SessionStore) Refresh(id string) {
 		}
 	}
 	session.ExpiresAt = newExpiry
+}
+
+// MarkProviderChecked resets the session's revalidation clock. Used when
+// a prompt=none recheck could not reach a verdict (provider error), so
+// the dashboard does not retry it in a loop.
+func (s *SessionStore) MarkProviderChecked(id string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if session, ok := s.sessions[id]; ok {
+		session.ProviderCheckedAt = time.Now()
+	}
 }
 
 // GetFromRequest extracts session from HTTP request cookie

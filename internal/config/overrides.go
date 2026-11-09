@@ -42,6 +42,7 @@ const (
 	OverrideOIDCLogoutURL             OverrideField = "auth.oidc.logout_url"
 	OverrideOIDCAutoRedirect          OverrideField = "auth.oidc.auto_redirect"
 	OverrideOIDCDisableLocalLogin     OverrideField = "auth.oidc.disable_local_login"
+	OverrideOIDCRevalidateAfter       OverrideField = "auth.oidc.revalidate_after"
 )
 
 // override remembers where an overridden value came from and the value
@@ -194,6 +195,8 @@ func (c *Config) stringOverrideField(field OverrideField) *string {
 		return &o.PostLogoutRedirectURL
 	case OverrideOIDCLogoutURL:
 		return &o.LogoutURL
+	case OverrideOIDCRevalidateAfter:
+		return &o.RevalidateAfter
 	}
 	return nil
 }
