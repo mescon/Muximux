@@ -480,7 +480,7 @@ func TestCloseSessions_NoOpWhenEmptyOrClosed(t *testing.T) {
 
 func TestRegister_RefusesSocketWhoseSessionIsGone(t *testing.T) {
 	hub := NewHub()
-	hub.SetSessionValidator(func(id string) bool { return id == "sess-live" })
+	hub.SetSessionCheck(func(id string) (bool, bool) { return false, id == "sess-live" })
 	go hub.Run()
 	defer hub.Close()
 
@@ -537,4 +537,29 @@ func TestCloseUser_ClosesOnlyThatUsersSockets(t *testing.T) {
 
 	hub.Close()
 	hub.CloseUser("u-b") // closed hub: must not block
+}
+
+func TestRegister_RederivesAdminFromSession(t *testing.T) {
+	hub := NewHub()
+	// The socket was opened as admin (dialSession), but the session's
+	// user is no longer an admin by the time it registers.
+	hub.SetSessionCheck(func(string) (bool, bool) { return false, true })
+	go hub.Run()
+	defer hub.Close()
+
+	conn := dialSession(t, hub, "demoted")
+	time.Sleep(50 * time.Millisecond)
+
+	hub.BroadcastLogEntry(map[string]string{"msg": "secret"}) // admin-only
+	hub.BroadcastHealthUpdate(map[string]string{"ok": "yes"})
+	if err := conn.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	_, data, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "secret") || !strings.Contains(string(data), string(EventHealthChanged)) {
+		t.Fatalf("demoted socket got %s", data)
+	}
 }

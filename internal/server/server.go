@@ -103,7 +103,13 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// removal, restore) must not keep receiving broadcasts on a socket
 	// it opened earlier.
 	sessionStore.SetOnDelete(wsHub.CloseSessions)
-	wsHub.SetSessionValidator(func(id string) bool { return sessionStore.Get(id) != nil })
+	wsHub.SetSessionCheck(func(id string) (bool, bool) {
+		user := authMiddleware.UserForSessionID(id)
+		if user == nil {
+			return false, false
+		}
+		return user.Role == auth.RoleAdmin, true
+	})
 
 	s := &Server{
 		config:         cfg,

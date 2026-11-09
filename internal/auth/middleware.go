@@ -284,20 +284,7 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 	case AuthMethodBuiltin, AuthMethodOIDC:
 		session := m.sessionStore.GetFromRequest(r)
 		if session != nil {
-			// An OIDC session never resolves to a local account. Its ID
-			// is the provider's username claim, so a provider user named
-			// like a local user (a kept break-glass "admin", say) would
-			// otherwise sign in with that account's role.
-			if isOIDCSession(session) {
-				return userFromSession(session), session
-			}
-			user := m.userStore.GetByID(session.UserID)
-			if user == nil {
-				// Session-only user, not in the config-based UserStore.
-				// Reconstruct from session data.
-				user = userFromSession(session)
-			}
-			return user, session
+			return m.userForSession(session), session
 		}
 		return nil, nil
 
@@ -307,6 +294,36 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 	default:
 		return nil, nil
 	}
+}
+
+// userForSession resolves the user a session acts as, with the role the
+// user has now (a local user's role is read from the user store, not
+// from the session).
+func (m *Middleware) userForSession(session *Session) *User {
+	// An OIDC session never resolves to a local account. Its ID is the
+	// provider's username claim, so a provider user named like a local
+	// user (a kept break-glass "admin", say) would otherwise sign in with
+	// that account's role.
+	if isOIDCSession(session) {
+		return userFromSession(session)
+	}
+	if user := m.userStore.GetByID(session.UserID); user != nil {
+		return user
+	}
+	// Session-only user, not in the config-based UserStore. Reconstruct
+	// from session data.
+	return userFromSession(session)
+}
+
+// UserForSessionID returns the user a live session acts as, or nil when
+// the session does not exist or has expired. The WebSocket hub uses it
+// to re-derive a socket's role at registration.
+func (m *Middleware) UserForSessionID(id string) *User {
+	session := m.sessionStore.Get(id)
+	if session == nil {
+		return nil
+	}
+	return m.userForSession(session)
 }
 
 // userFromSession constructs a User from session data. This is used for

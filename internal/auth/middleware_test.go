@@ -1441,3 +1441,37 @@ func TestOIDCSessionDoesNotResolveToLocalUser(t *testing.T) {
 		}
 	}
 }
+
+func TestUserForSessionID(t *testing.T) {
+	m, ss, us := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
+	if err := us.Add(&User{ID: "alice", Username: "alice", Role: RoleUser}); err != nil {
+		t.Fatal(err)
+	}
+
+	if m.UserForSessionID("missing") != nil {
+		t.Fatal("unknown session resolved to a user")
+	}
+
+	// A local session reads the role from the user store, not the session.
+	local, _ := ss.Create("alice", "alice", RoleAdmin)
+	if u := m.UserForSessionID(local.ID); u == nil || u.Role != RoleUser {
+		t.Fatalf("local session: got %+v, want role %q", u, RoleUser)
+	}
+
+	// An OIDC session never maps to a local account.
+	oidc, _ := ss.CreateWithData("alice", "alice", RolePowerUser, map[string]interface{}{"oidc_iss": "https://idp.example.com"})
+	if u := m.UserForSessionID(oidc.ID); u == nil || u.Role != RolePowerUser {
+		t.Fatalf("OIDC session: got %+v, want role %q", u, RolePowerUser)
+	}
+
+	// A session-only user falls back to the session's data.
+	ghost, _ := ss.Create("ghost", "ghost", RoleUser)
+	if u := m.UserForSessionID(ghost.ID); u == nil || u.Username != "ghost" {
+		t.Fatalf("session-only user: got %+v", u)
+	}
+
+	ss.Delete(local.ID)
+	if m.UserForSessionID(local.ID) != nil {
+		t.Fatal("deleted session still resolves")
+	}
+}

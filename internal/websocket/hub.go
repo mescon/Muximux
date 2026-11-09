@@ -38,12 +38,13 @@ type Hub struct {
 	kick       chan []string
 	kickUser   chan string
 	done       chan struct{}
-	// sessionValid, when set, is asked on register whether a socket's
-	// session still exists. A session deleted between the HTTP upgrade
-	// and registration would otherwise miss CloseSessions, which only
-	// sees registered clients. Register and CloseSessions both run on
-	// the Run goroutine, so checking here leaves no gap.
-	sessionValid func(sessionID string) bool
+	// sessionCheck, when set, is asked on register whether a socket's
+	// session still exists and whether its user is an admin now. A
+	// session deleted, or a role changed, between the HTTP upgrade and
+	// registration would otherwise slip past CloseSessions / CloseUser,
+	// which only see registered clients. Register and those calls all
+	// run on the Run goroutine, so checking here leaves no gap.
+	sessionCheck func(sessionID string) (isAdmin bool, ok bool)
 	mu           sync.RWMutex
 }
 
@@ -85,11 +86,15 @@ func (h *Hub) Run() {
 			return
 
 		case client := <-h.register:
-			if client.sessionID != "" && h.sessionValid != nil && !h.sessionValid(client.sessionID) {
-				client.closeCode = CloseSessionEnded
-				close(client.send)
-				logging.Debug("WebSocket client refused: session ended", "source", "websocket")
-				continue
+			if client.sessionID != "" && h.sessionCheck != nil {
+				isAdmin, ok := h.sessionCheck(client.sessionID)
+				if !ok {
+					client.closeCode = CloseSessionEnded
+					close(client.send)
+					logging.Debug("WebSocket client refused: session ended", "source", "websocket")
+					continue
+				}
+				client.isAdmin = isAdmin
 			}
 			h.mu.Lock()
 			h.clients[client] = true
@@ -210,10 +215,10 @@ func (h *Hub) CloseUser(userID string) {
 	}
 }
 
-// SetSessionValidator registers the check Run uses on register; see the
-// sessionValid field. Call it before Run starts.
-func (h *Hub) SetSessionValidator(fn func(sessionID string) bool) {
-	h.sessionValid = fn
+// SetSessionCheck registers the check Run uses on register; see the
+// sessionCheck field. Call it before Run starts.
+func (h *Hub) SetSessionCheck(fn func(sessionID string) (isAdmin bool, ok bool)) {
+	h.sessionCheck = fn
 }
 
 // CloseSessions closes the sockets that belong to the given sessions,
