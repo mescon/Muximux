@@ -310,7 +310,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Environment Variables** | `${VAR}` expansion in config.yaml, plus `MUXIMUX_*` overrides for the data directory, listen address, base path, logging, Docker auto-import, the auth method and OIDC. Overrides stay in memory and never end up in `config.yaml` ([full list](docs/wiki/configuration.md#environment-variable-reference)) |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
 | **Single Binary** | The frontend is embedded in the Go binary, so you deploy one file with no runtime dependencies |
-| **Portable** | No database: one YAML config file stores everything. Every setting is editable in the GUI, saves merge onto the live config, and every open browser picks up a change at once. Copy one file to back up or migrate |
+| **Portable** | No database: one YAML config file stores everything. Every setting is editable in the GUI, saves merge onto the live config, and every open browser picks up a change at once. To back up or migrate, copy that file plus any custom icons and themes |
 
 ---
 
