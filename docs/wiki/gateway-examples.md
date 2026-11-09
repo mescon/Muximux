@@ -2,7 +2,7 @@
 
 > **3.1.0 note:** The recipes below are written as gateway Caddyfile blocks for reference. In 3.1.0+ the supported configuration form is `server.gateway_sites:` declarative YAML. On first boot, Muximux auto-migrates a 3.0.x Caddyfile to the YAML form. Use the [Configuration Reference](configuration.md) for the YAML schema. Use **Settings -> Gateway** in the dashboard to edit visually. The Caddyfile snippets here still describe what each gateway-site option *does*. Map them to the YAML equivalents by hand. Or feed your existing Caddyfile through `muximux migrate-gateway` to see the conversion side-by-side.
 
-Practical recipes for using Muximux's embedded Caddy as a reverse proxy (a server that forwards requests to another server) for your other services. See [TLS & HTTPS](tls-and-gateway.md) for initial setup.
+This page has practical recipes for using Muximux's embedded Caddy as a reverse proxy (a server that forwards requests to another server) for your other services. See [TLS & HTTPS](tls-and-gateway.md) for initial setup.
 
 ---
 
@@ -22,7 +22,7 @@ server:
       tls: auto                      # auto | none | custom
 ```
 
-Expose ports 80 and 443. Caddy needs both, for ACME (automatic certificate requests) and for HTTPS. When you add or remove `gateway_sites:` entries, Caddy reloads in place -- no full restart required. Schema changes to existing sites (TLS-mode flip, auth gate toggle) also reload in place.
+Expose ports 80 and 443. Caddy needs both, for ACME (automatic certificate requests) and for HTTPS. When you add or remove `gateway_sites:` entries, Caddy reloads in place. You do not need a full restart. Schema changes to existing sites (TLS-mode flip, auth gate toggle) also reload in place.
 
 The recipe sections below show the Caddyfile shape for each scenario. Translate each one into the matching `gateway_sites:` entry fields (see [Configuration Reference](configuration.md) for the full schema).
 
@@ -171,7 +171,7 @@ gateway_sites:
     backend_skip_tls_verify: true            # skip verifying the backend cert
 ```
 
-`backend_skip_tls_verify` only applies to an `https://` `backend_url`. It affects only the hop from the gateway to the backend -- it does not affect the public-facing certificate that Caddy serves for `proxmox.example.com`. (Label form: `muximux.gateway.skip_tls_verify=true`.)
+`backend_skip_tls_verify` only applies to an `https://` `backend_url`. It affects only the hop from the gateway to the backend. It does not affect the public-facing certificate that Caddy serves for `proxmox.example.com`. (Label form: `muximux.gateway.skip_tls_verify=true`.)
 
 ### Vaultwarden
 
@@ -220,7 +220,7 @@ filebrowser.example.com {
 }
 ```
 
-Generate a bcrypt hash with Caddy's own tool (`caddy hash-password`) or any bcrypt utility -- for example `htpasswd -nbBC 12 "" 'your-password' | cut -d: -f2`. Muximux's embedded Caddy runs internally only. It does not have a command-line tool of its own.
+Generate a bcrypt hash with Caddy's own tool (`caddy hash-password`) or any bcrypt utility. For example: `htpasswd -nbBC 12 "" 'your-password' | cut -d: -f2`. Muximux's embedded Caddy runs internally only. It does not have a command-line tool of its own.
 
 > Not available via `gateway_sites`: this requires an external Caddy/nginx in front of Muximux. The embedded gateway only proxies one `backend_url` per domain. To gate a site behind Muximux's own login instead, set `require_auth` on the gateway site (see [Gateway Auth](gateway-auth.md)).
 
@@ -265,7 +265,7 @@ services.example.com {
 }
 ```
 
-Make sure each service is configured to serve from the correct subpath (e.g., Grafana's `GF_SERVER_ROOT_URL=https://services.example.com/grafana/`).
+Configure each service to serve from its own subpath (e.g., Grafana's `GF_SERVER_ROOT_URL=https://services.example.com/grafana/`).
 
 > Not available via `gateway_sites`: this requires an external Caddy/nginx in front of Muximux. The embedded gateway only proxies one `backend_url` per domain (no path or `handle` routing).
 
@@ -428,8 +428,8 @@ Each gateway site you add automatically gets HTTPS. Add a corresponding app entr
 
 ## Tips
 
-- **In-place reload**: Adding, editing, or removing `gateway_sites` reloads Caddy in place -- no full restart required.
+- **In-place reload**: Adding, editing, or removing `gateway_sites` reloads Caddy in place. You do not need a full restart.
 - **Validated before apply**: Muximux validates gateway sites when the config loads, or when you save in Settings → Gateway. It rejects an invalid entry (bad domain, backend with a path, unknown `tls` mode) with a specific error. It does not silently break Caddy.
-- **Certificate storage**: Caddy stores certificates in its default data directory. In Docker, this is inside the container -- so Caddy gets new certificates each time you recreate the container. To keep them, mount a volume to `/data` (Caddy's default storage path inside the Muximux container).
-- **Dashboard integration**: Caddy proxies gateway sites directly -- they don't go through Muximux's built-in reverse proxy. To see them on the dashboard, add them as apps in `config.yaml` with their `https://` domain URLs.
-- **Debug**: If a gateway service isn't working, check Muximux's logs. Caddy logs through Muximux's logging system. It reports certificate errors and unreachable backends.
+- **Certificate storage**: Caddy stores certificates in its default data directory. In Docker, this is inside the container. So Caddy gets new certificates each time you recreate the container. To keep them, mount a volume to `/data` (Caddy's default storage path inside the Muximux container).
+- **Dashboard integration**: Caddy proxies gateway sites directly. They do not go through Muximux's built-in reverse proxy. To see them on the dashboard, add them as apps in `config.yaml` with their `https://` domain URLs.
+- **Debug**: If a gateway service isn't working, check Muximux's logs. Caddy logs through Muximux's logging system. It reports certificate errors and backends that it cannot reach.

@@ -69,7 +69,7 @@ The `open_mode` field controls how Muximux opens an app when you click it in the
 
 - **new_tab** -- Opens the app in a new browser tab. Use this for apps that cannot work in iframes at all. Examples are apps with complex authentication flows, or apps with heavy JavaScript that breaks under proxy rewriting.
 
-- **new_window** -- Opens the app in a new browser window (popup-style). Behaves like `new_tab` but opens a separate window instead of a tab.
+- **new_window** -- Opens the app in a new browser window (popup-style). It works like `new_tab`, but opens a separate window instead of a tab.
 
 - **redirect** -- Navigates the current browser tab to the app URL. This leaves Muximux entirely. Use the browser's back button to return.
 
@@ -110,7 +110,7 @@ You can add apps from the gallery, in the onboarding wizard or in Settings. If t
 
 Muximux sorts apps by their `order` value within their group. It sorts groups by their own `order` field. Lower numbers appear first.
 
-If two apps or groups share the same `order` value, their relative order is not guaranteed. Assign unique order values to get a predictable layout.
+If two apps or groups share the same `order` value, Muximux does not guarantee which one comes first. Give each one a unique order value to get a predictable layout.
 
 ---
 
@@ -140,7 +140,7 @@ https://muximux.example.com/#plex
 https://muximux.example.com/#sonarr
 ```
 
-The hash is the app name converted to a URL-friendly slug (lowercase, spaces replaced with hyphens, special characters removed). For example:
+The hash is the app's slug. The slug is the app name in a URL-friendly form: lowercase, with spaces changed to hyphens and special characters removed. For example:
 
 | App Name | Direct Link |
 |---|---|
@@ -235,7 +235,7 @@ This is useful for temporarily hiding apps that are down for maintenance or that
 
 When authentication is enabled globally, some paths of a proxied app may need to work without a login. The `auth_bypass` field lets you define these exceptions.
 
-This is also the main reason Muximux has an API key. Combine `proxy: true` with `auth_bypass: [{path: /api/*, require_api_key: true}]`. Change `/api/*` to the API path of your backend. Muximux ignores a rule without a `path`. This exposes a backend app's API through Muximux without a Muximux login session. Integrations present the Muximux API key at the front door. Muximux then forwards the request to the backend, and adds the backend's own credentials through `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
+This is also the main reason Muximux has an API key. Combine `proxy: true` with `auth_bypass: [{path: /api/*, require_api_key: true}]`. Change `/api/*` to the API path of your backend. This exposes a backend app's API through Muximux without a Muximux login session. (Muximux ignores a rule without a `path`.) Integrations present the Muximux API key at the front door. Muximux then forwards the request to the backend, and adds the backend's own credentials through `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
 
 ```yaml
 apps:
@@ -258,8 +258,8 @@ Each bypass rule supports the following fields:
 |---|---|---|
 | `path` | Yes | URL path pattern. Use `*` at the end to match any suffix. |
 | `methods` | No | List of HTTP methods to allow. If omitted, all methods are allowed. |
-| `require_api_key` | No | If `true`, the request must include a valid `X-Api-Key` header. This trades one form of auth for another rather than removing it entirely. |
-| `allowed_ips` | No | List of IP addresses or CIDR ranges. If set, only requests from these sources are allowed through. |
+| `require_api_key` | No | If `true`, the request must include a valid `X-Api-Key` header. The rule replaces the login check with a key check. It does not remove the check. |
+| `allowed_ips` | No | List of IP addresses or CIDR ranges. If set, only requests from these sources get through. |
 
 Paths are relative to the app's proxy path. On Sonarr, `/api/*` covers `/proxy/sonarr/api/*`. The full path (`/proxy/sonarr/api/*`) works too. Rules only apply to apps that are enabled and have `proxy: true`, because only their traffic passes through Muximux. Muximux ignores a rule that could reach outside its app, and logs a warning. These rules are: an empty `path`, a path under another app's `/proxy/` prefix, or a path containing `..`. Changes apply as soon as you save the config.
 
@@ -271,13 +271,13 @@ Common use cases:
 - Allowing API integrations (e.g., Seerr calling Sonarr) to communicate through the proxy
 - Allowing webhook receivers (e.g., from GitHub or notification services) to reach an app endpoint
 
-> **Tip:** Combine `require_api_key` or `allowed_ips` with auth bypass, so that the endpoint stays protected. These checks then protect it, not Muximux's session-based login.
+> **Tip:** Add `require_api_key` or `allowed_ips` to each auth bypass rule. The endpoint then stays protected: these checks take the place of Muximux's session-based login.
 
 ---
 
 ## Per-App Access Control
 
-You can restrict which users or roles are allowed to see specific apps using the `access` field:
+Use the `access` field to choose which users or roles can see an app:
 
 ```yaml
 apps:
@@ -398,16 +398,16 @@ window.parent.postMessage({
 
 Muximux validates every notification request:
 
-- The `type` must be `'muximux:notify'` (ignored otherwise).
+- The `type` must be `'muximux:notify'`. Muximux ignores other types.
 - The sending iframe must belong to an app with `allow_notifications: true`.
 - Rate limit: at most one notification per app every 2 seconds.
 - The notification always uses the app's configured icon. Muximux ignores any icon URL in the message so one embedded app cannot spoof another app's branding.
-- Clicking the notification focuses the Muximux tab and switches to the sending app. Arbitrary click targets from the message are ignored.
+- A click on the notification focuses the Muximux tab and switches to the sending app. Muximux ignores any click target in the message.
 - The first notification from any app triggers a browser permission prompt from Muximux's origin. Users grant or deny once for Muximux as a whole, not per embedded app.
 
 ### Limitations
 
-- The shim only forwards `title`, `body`, and `tag`. Advanced Notification API features (`actions`, `data`, `onclick` handlers, service-worker-delivered notifications) are not supported.
+- The shim only forwards `title`, `body`, and `tag`. It does not support advanced Notification API features (`actions`, `data`, `onclick` handlers, service-worker-delivered notifications).
 - Browsers only allow notifications in **secure contexts**. So you must serve Muximux over HTTPS, or open it through `localhost`/`127.0.0.1`. On plain HTTP (non-localhost), the browser permanently denies notifications. The bridge can do nothing about it.
 
 ### Platform support
@@ -761,7 +761,7 @@ The endpoint does not push updates. If the operator changes the theme while your
 
 ### Limitations
 
-- Proxied apps authenticate automatically through the session cookie (same-origin), but must use a protocol-relative URL so the interceptor does not send the request to the app's backend. External integrations need an `X-Api-Key` header. Other `/api/*` endpoints are not reachable by API key.
+- Proxied apps authenticate automatically through the session cookie (same-origin), but must use a protocol-relative URL so the interceptor does not send the request to the app's backend. External integrations need an `X-Api-Key` header. The API key does not reach other `/api/*` endpoints.
 - No push / event channel. Apps read once on boot.
 - `colors` is a curated subset, not every theme variable. Use `theme_css_url` for the rest.
 - `variant: "system"` resolves to the dark palette server-side; clients that care can check `prefers-color-scheme`.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Muximux supports four authentication methods, configured via `auth.method` in `config.yaml`:
+Muximux supports four authentication methods. You choose one with `auth.method` in `config.yaml`:
 
 | Method | Description |
 |--------|-------------|
@@ -28,7 +28,7 @@ Anyone who can reach Muximux can use it. This suits trusted networks. It also su
 
 ## Built-in Authentication
 
-Username/password login with bcrypt-hashed passwords (passwords stored in a one-way scrambled form) and cookie-based sessions.
+Users sign in with a username and password. Muximux stores each password as a bcrypt hash (a one-way scrambled form). Sessions use a cookie.
 
 ```yaml
 auth:
@@ -81,10 +81,10 @@ python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-secret-password', bcrypt.gen
 
 ### Sessions
 
-- Cookie-based (cookie name: `muximux_session`)
-- Automatically refreshed on activity
-- Can be invalidated by changing the user's password (all other sessions for that user are invalidated)
-- `session_max_age` accepts duration strings like `1h`, `24h`, `7d`
+- Muximux keeps the session in a cookie named `muximux_session`.
+- Muximux refreshes the session automatically when the user is active.
+- A password change ends all other sessions of that user.
+- `session_max_age` accepts duration strings like `1h`, `24h`, `7d`.
 
 ---
 
@@ -182,7 +182,7 @@ Your reverse proxy (Nginx, Traefik, Caddy) authenticates users through Authelia.
 
 ## OIDC (OpenID Connect)
 
-Direct integration with identity providers like Authentik, Keycloak, Auth0, Okta, and others.
+OIDC (OpenID Connect) is a standard sign-in protocol. With it, Muximux connects directly to an identity provider (IdP), such as Authentik, Keycloak, Auth0 or Okta.
 
 ### Setting up OIDC in Settings
 
@@ -194,7 +194,7 @@ You can configure single sign-on from the UI instead of editing `config.yaml`. O
 2. Adjust the **scopes** (space-separated) if your provider needs more than the defaults.
 3. Set the claims that Muximux reads: username, email, display name and groups. Claims are the fields of user data that the provider sends.
 4. Enter **admin groups** as a comma-separated list.
-5. Copy the two read-only rows into your provider with their **Copy** buttons. **Callback URL (register at the provider)** is the redirect URL to register. It is your override if you set one, otherwise `<origin><base path>/api/auth/oidc/callback`. **Back-channel logout URL** is where the provider sends logout notifications. The optional callback URL override is for setups where Muximux cannot work out its public address.
+5. Copy the two read-only rows into your provider. Use their **Copy** buttons. **Callback URL (register at the provider)** is the redirect URL to register. It is your override if you set one, otherwise `<origin><base path>/api/auth/oidc/callback`. **Back-channel logout URL** is where the provider sends logout notifications. The optional callback URL override is for setups where Muximux cannot work out its public address.
 6. Press **Test connection**. Muximux fetches the issuer's discovery document (the provider's published list of its endpoints and features). It reports whether the provider is reachable, and which of these it offers: authorization, token, userinfo and JWKS endpoints, sign-out at the provider (`end_session_endpoint`), and back-channel logout. The test only follows `http` and `https`, and times out after 10 seconds. It reads at most 1 MB, and follows redirects only within the same host (at most 10). Private and LAN addresses are allowed.
 7. Press **Update Method**. Muximux checks the provider through discovery before it saves anything. If that check fails, nothing changes and Muximux shows the error. On success, Muximux writes the settings to `config.yaml`. They take effect immediately, without a restart. Once it succeeds the change is already saved.
 
@@ -261,10 +261,11 @@ auth:
 
 ### Setting Up Your OIDC Provider
 
-- Create a new application/client in your provider.
-- Set the redirect/callback URL to: `https://your-muximux-domain/api/auth/oidc/callback`
-- Note the client ID and client secret.
-- The issuer URL is usually the base URL of your provider (e.g., `https://auth.example.com/application/o/muximux/` for Authentik).
+1. Create a new application (client) in your provider.
+2. Set the redirect (callback) URL to: `https://your-muximux-domain/api/auth/oidc/callback`
+3. Note the client ID and client secret.
+
+The issuer URL is usually the base URL of your provider (e.g., `https://auth.example.com/application/o/muximux/` for Authentik).
 
 For step-by-step instructions tailored to a specific provider, including how to surface group memberships so `admin_groups` matches:
 
@@ -409,7 +410,7 @@ References stay in the file when you save from Settings. So secrets kept in the 
 
 ## Per-App Group Filtering
 
-`min_role` gates an app on the user's role tier (admin > power-user > user). For finer control, you can also restrict an app to specific **groups** that the user belongs to.
+`min_role` shows an app only to users with at least that role (admin > power-user > user). For finer control, you can also limit an app to specific **groups** of users.
 
 ```yaml
 apps:
@@ -589,9 +590,9 @@ This is deliberate. A session cookie is attributable to a specific user in audit
 
 Muximux stores the API key as a **bcrypt hash** in `config.yaml`, not as plaintext. When a request arrives with `X-Api-Key`, Muximux verifies it against the stored hash with `bcrypt.CompareHashAndPassword`. This means:
 
-- The original API key cannot be recovered from the config file
-- If `config.yaml` is compromised, the attacker cannot extract the key
-- Verification is constant-time, preventing timing attacks
+- Nobody can recover the original API key from the config file.
+- An attacker who gets a copy of `config.yaml` cannot extract the key.
+- The check takes the same time for every key, so timing attacks do not work.
 
 ### Generating an API Key
 

@@ -366,7 +366,7 @@ Muximux validates the configuration on startup. If the configuration is invalid,
 
 - If `tls.domain` is set, `tls.email` is required (for Let's Encrypt registration).
 - `tls.cert` and `tls.key` must both be set or both empty. You cannot provide only one.
-- `tls.domain` and `tls.cert` are mutually exclusive. Use either auto-HTTPS or manual certificates, not both.
+- You cannot set both `tls.domain` and `tls.cert`. Use either auto-HTTPS or manual certificates.
 - On first boot under 3.1.0, Muximux auto-migrates legacy `gateway:` (Caddyfile path) configs from 3.0.x to `gateway_sites:`. This applies to clean conversions only. A lossy conversion (one that would lose settings) shows a hard error that points at `muximux migrate-gateway`.
 - If any `gateway_sites[]` entry has `require_auth: true`, then `server.session_cookie_domain` is required. Every gated site must also be a subdomain of it. The check is a real host-suffix check: `evilexample.com` is not a subdomain of `example.com`.
 - `gateway_sites[].min_role` must be one of `user`, `power-user`, `admin` when set (empty means "any authenticated user").
@@ -394,7 +394,7 @@ Every open browser gets a live update (the `config_updated` event) and refetches
 
 Muximux reads a restored backup exactly like `config.yaml` at startup: `${VAR}` expansion, defaults and validation. Restore reloads users, auth, OIDC, discovery and proxy routes at once. Listen address, TLS, base-path routing and session cookie settings still need a restart.
 
-Everything else is applied immediately: navigation, themes, apps, groups, icons, keybindings, health monitoring, log level and log format.
+Muximux applies everything else immediately: navigation, themes, apps, groups, icons, keybindings, health monitoring, log level and log format.
 
 ## Config Export and Import
 

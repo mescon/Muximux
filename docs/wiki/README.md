@@ -17,7 +17,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 
 **Dashboard only** -- Run Muximux behind your existing reverse proxy (Traefik, nginx, Caddy, etc.) with `auth: none` and let your proxy handle TLS and authentication. Apps open via their direct URLs or in iframes. This is the simplest setup.
 
-**Dashboard + built-in reverse proxy** -- Same as above, but enable `proxy: true` on apps that don't work in iframes. Muximux proxies those apps through `/proxy/{slug}/`, stripping iframe-blocking headers and rewriting paths. This works in all deployment modes -- no extra configuration needed.
+**Dashboard + built-in reverse proxy** -- Same as above, but enable `proxy: true` on apps that don't work in iframes. Muximux proxies those apps through `/proxy/{slug}/`. The proxy strips the headers that block iframes, and rewrites paths. This works in all deployment modes, with no extra configuration.
 
 **Full reverse proxy appliance** -- Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS and declare your other services under `gateway_sites:` (or set them up in **Settings -> Gateway**) to serve them on their own subdomains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing -- all from one binary. Optionally gate each subdomain behind the Muximux login (`require_auth: true`) so one sign-in covers your whole homelab. See [TLS & HTTPS](tls-and-gateway.md) and [Gateway Auth Gate](gateway-auth.md) for full walkthroughs.
 
