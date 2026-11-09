@@ -91,7 +91,11 @@ type stateEntry struct {
 // oidcBindingCookie ties a pending sign-in to the browser that started
 // it. HttpOnly and SameSite=Lax: it travels on the provider's top-level
 // redirect back to the callback, never on cross-site subrequests.
-const oidcBindingCookie = "muximux_oidc_binding"
+const oidcBindingCookie = OIDCBindingCookie
+
+// OIDCBindingCookie is the binding cookie's name, exported so the reverse
+// proxy can keep it from reaching proxied apps.
+const OIDCBindingCookie = "muximux_oidc_binding"
 
 // oidcStateTTL is how long a pending sign-in stays valid.
 const oidcStateTTL = 10 * time.Minute
@@ -519,10 +523,7 @@ func (p *OIDCProvider) browserBinding(w http.ResponseWriter, r *http.Request) (s
 		}
 		value = v
 	}
-	// Path "/" rather than the callback path: a reverse proxy that serves
-	// Muximux under a prefix it strips (base_path unset) would otherwise
-	// put the callback outside the cookie's path.
-	path := "/"
+	path := p.bindingCookiePath()
 	// Secure follows secure_cookies, like the session cookie, so sign-in
 	// keeps working behind plain HTTP.
 	http.SetCookie(w, &http.Cookie{ //nolint:gosec // G124: Secure is configurable on purpose (secure_cookies)
@@ -553,6 +554,19 @@ func (p *OIDCProvider) failSignIn(w http.ResponseWriter, r *http.Request, entry 
 		p.sessionStore.MarkProviderChecked(cur.ID)
 	}
 	http.Redirect(w, r, sanitizeRedirectURL(entry.redirectURL, p.basePath), http.StatusFound)
+}
+
+// bindingCookiePath scopes the binding cookie to the OIDC routes as the
+// browser sees them: the directory of redirect_url's path, so a reverse
+// proxy that adds a prefix Muximux never sees (base_path unset) is
+// covered. Never "/": the cookie must not travel to /proxy/ apps.
+func (p *OIDCProvider) bindingCookiePath() string {
+	if cb, err := url.Parse(p.config.RedirectURL); err == nil {
+		if prefix, ok := strings.CutSuffix(cb.Path, "/callback"); ok && prefix != "" {
+			return prefix + "/"
+		}
+	}
+	return strings.TrimRight(p.basePath, "/") + "/api/auth/oidc/"
 }
 
 // oidcHopParam marks a login request that already moved to the callback

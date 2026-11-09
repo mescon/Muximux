@@ -76,7 +76,7 @@ func TestHandleLogin_PromptNoneStartsSilentRecheck(t *testing.T) {
 			binding = c
 		}
 	}
-	if binding == nil || binding.Value != entry.binding || !binding.HttpOnly || binding.SameSite != http.SameSiteLaxMode || binding.Path != "/" {
+	if binding == nil || binding.Value != entry.binding || !binding.HttpOnly || binding.SameSite != http.SameSiteLaxMode || binding.Path != "/api/auth/oidc/" {
 		t.Fatalf("binding cookie = %+v", binding)
 	}
 
@@ -348,5 +348,25 @@ func TestHandleCallback_SilentFailureAfterCodeKeepsSession(t *testing.T) {
 	p.HandleCallback(rec2, recheckRequest("code=c&state=st", nil))
 	if loc := rec2.Header().Get("Location"); !strings.Contains(loc, "/login?error="+callbackErrFailed) {
 		t.Fatalf("interactive: Location = %q", loc)
+	}
+}
+
+func TestBindingCookiePath(t *testing.T) {
+	p, _ := newTestOIDCProvider(t, "http://idp.invalid")
+	for redirect, want := range map[string]string{
+		"https://dash.example.com/api/auth/oidc/callback":     "/api/auth/oidc/",
+		"https://dash.example.com/mux/api/auth/oidc/callback": "/mux/api/auth/oidc/",
+		"https://dash.example.com/custom":                     "/api/auth/oidc/",
+		"":                                                    "/api/auth/oidc/",
+	} {
+		p.config.RedirectURL = redirect
+		if got := p.bindingCookiePath(); got != want {
+			t.Errorf("%q: path %q, want %q", redirect, got, want)
+		}
+	}
+	p.config.RedirectURL = ""
+	p.basePath = "/base"
+	if got := p.bindingCookiePath(); got != "/base/api/auth/oidc/" {
+		t.Errorf("base path fallback: %q", got)
 	}
 }
