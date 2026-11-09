@@ -382,7 +382,7 @@ The following settings **require a restart** to take effect:
 - `server.tls.*` (all TLS settings)
 - `server.gateway_listen` (overrides the bind port for the embedded Caddy)
 - `server.session_cookie_domain` (cookie scope; takes effect on next login)
-- `server.gateway_sites:` schema changes (the auth gate; backend swaps and TLS-mode flips reload Caddy in place)
+- `server.gateway_sites:`, but only when Muximux started without TLS or gateway sites, so Caddy is not running yet. Once Caddy runs, Muximux reloads it in place for every gateway site change, including the auth gate.
 
 When Muximux saves the configuration, it writes defaults for fields you omitted. A saved `config.yaml` can therefore contain more keys than you wrote by hand.
 

@@ -656,7 +656,7 @@ to the request, and Muximux accepts it for `GET /api/appearance` specifically. T
 
 The API key lives on disk as a **bcrypt hash** (a one-way scrambled form of the key) at `auth.api_key_hash` in `config.yaml`. Muximux never stores the plaintext value. Once you set it, only the hash remains. There are two ways to create one:
 
-**In the UI:** **Settings → Security → API Key.** Paste or generate a key, then save. Muximux hashes the key before it saves it.
+**In the UI:** **Settings → Security → API Key.** Press **Generate API key** (or **Rotate key** to replace an existing one). Muximux shows the new key once, so copy it then. It saves only the hash.
 
 **On the command line:** use the built-in hash subcommand:
 
