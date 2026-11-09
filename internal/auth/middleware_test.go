@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -1473,5 +1474,69 @@ func TestUserForSessionID(t *testing.T) {
 	ss.Delete(local.ID)
 	if m.UserForSessionID(local.ID) != nil {
 		t.Fatal("deleted session still resolves")
+	}
+}
+
+func TestHandleUnauthenticated_FrameNavigationGetsSessionEndedPage(t *testing.T) {
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, BasePath: "/mux"})
+	h := m.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("handler reached without a session")
+	}))
+
+	cases := []struct {
+		name, method, dest, path string
+		wantStatus               int
+	}{
+		{"iframe navigation", http.MethodGet, "iframe", "/proxy/app/", http.StatusUnauthorized},
+		{"legacy frame", http.MethodGet, "frame", "/proxy/app/", http.StatusUnauthorized},
+		{"HEAD in a frame", http.MethodHead, "iframe", "/proxy/app/", http.StatusUnauthorized},
+		{"top-level document", http.MethodGet, "document", "/proxy/app/", http.StatusFound},
+		{"no fetch metadata", http.MethodGet, "", "/proxy/app/", http.StatusFound},
+		{"subresource", http.MethodGet, "image", "/proxy/app/logo.png", http.StatusFound},
+		{"form post in a frame", http.MethodPost, "iframe", "/proxy/app/form", http.StatusFound},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, tc.path, nil)
+			if tc.dest != "" {
+				req.Header.Set("Sec-Fetch-Dest", tc.dest)
+			}
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, req)
+			if w.Code != tc.wantStatus {
+				t.Fatalf("status = %d, want %d", w.Code, tc.wantStatus)
+			}
+			if tc.wantStatus != http.StatusUnauthorized {
+				if loc := w.Header().Get("Location"); loc != "/mux/login" {
+					t.Fatalf("Location = %q", loc)
+				}
+				return
+			}
+			body := w.Body.String()
+			for _, want := range []string{`muximux:auth-required`, `href="/mux/"`, `target="_top"`} {
+				if !strings.Contains(body, want) {
+					t.Errorf("body missing %q", want)
+				}
+			}
+			csp := w.Header().Get("Content-Security-Policy")
+			if !strings.Contains(csp, sessionEndedScriptCSP) || !strings.Contains(csp, "default-src 'none'") {
+				t.Errorf("CSP = %q", csp)
+			}
+			if w.Header().Get("Cache-Control") != "no-store" {
+				t.Error("page must not be cached")
+			}
+		})
+	}
+}
+
+func TestHandleUnauthenticated_APIStill401(t *testing.T) {
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
+	h := m.RequireAuth(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+	req.Header.Set("Sec-Fetch-Dest", "iframe")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusUnauthorized || strings.Contains(w.Body.String(), "auth-required") {
+		t.Fatalf("API request: status %d body %q", w.Code, w.Body.String())
 	}
 }

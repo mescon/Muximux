@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
+	"encoding/base64"
 	"encoding/hex"
+	"html"
+	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -749,8 +752,59 @@ func handleUnauthenticated(w http.ResponseWriter, r *http.Request, snap *authSna
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	if isFrameNavigation(r) {
+		writeSessionEndedFrame(w, snap.config.BasePath)
+		return
+	}
 
 	http.Redirect(w, r, snap.config.BasePath+"/login", http.StatusFound)
+}
+
+// isFrameNavigation reports whether r loads a document into an iframe
+// (an embedded app's page, typically under /proxy/<slug>/). Browsers set
+// Sec-Fetch-Dest on every request; older ones that do not fall back to
+// the redirect.
+func isFrameNavigation(r *http.Request) bool {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		return false
+	}
+	switch r.Header.Get("Sec-Fetch-Dest") {
+	case "iframe", "frame":
+		return true
+	}
+	return false
+}
+
+// sessionEndedScript tells the dashboard (the frame's parent, which is
+// on this same origin) that the session is gone, so it can sign in
+// again in the top-level window. The target origin keeps the message
+// from reaching a parent on any other origin.
+const sessionEndedScript = `try{window.parent.postMessage({type:"muximux:auth-required"},location.origin)}catch(e){}`
+
+// sessionEndedScriptCSP is the script's CSP hash source.
+var sessionEndedScriptCSP = func() string {
+	sum := sha256.Sum256([]byte(sessionEndedScript))
+	return "'sha256-" + base64.StdEncoding.EncodeToString(sum[:]) + "'"
+}()
+
+// writeSessionEndedFrame answers a frame navigation that has no valid
+// session. Redirecting to /login would load the login page (and with
+// auto_redirect the identity provider) inside the app's frame, where
+// passkeys and many providers do not work. This page instead asks the
+// dashboard to sign in again at the top level, and offers a link for
+// the case where the frame is not inside the dashboard.
+func writeSessionEndedFrame(w http.ResponseWriter, basePath string) {
+	h := w.Header()
+	h.Set("Content-Type", "text/html; charset=utf-8")
+	h.Set("Cache-Control", "no-store")
+	h.Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; script-src "+sessionEndedScriptCSP+"; base-uri 'none'; form-action 'none'")
+	w.WriteHeader(http.StatusUnauthorized)
+	home := html.EscapeString(basePath + "/")
+	_, _ = io.WriteString(w, `<!doctype html><html><head><meta charset="utf-8"><title>Session ended</title>`+
+		`<meta name="viewport" content="width=device-width, initial-scale=1">`+
+		`<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#888;background:transparent}a{color:inherit}</style>`+
+		`</head><body><p>Your Muximux session has ended. <a href="`+home+`" target="_top">Sign in again</a></p>`+
+		`<script>`+sessionEndedScript+`</script></body></html>`)
 }
 
 // GetUserFromContext extracts the user from request context
