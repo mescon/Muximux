@@ -962,6 +962,34 @@ func sanitizeHeaderValue(v string) string {
 	return strings.NewReplacer("\r", "", "\n", "", "\x00", "").Replace(v)
 }
 
+// refererFromDashboard reports whether a request's Referer comes from
+// the dashboard's own origin. Browsers say so directly in Sec-Fetch-Site.
+// Without that header (older browsers, scripts) the Referer's host must
+// match the Host the request was sent to, or X-Forwarded-Host when a
+// reverse proxy in front of Muximux rewrote Host. A cross-site page cannot
+// set either header on a request it makes.
+func refererFromDashboard(req *http.Request, referer, dashboardHost string) bool {
+	switch req.Header.Get("Sec-Fetch-Site") {
+	case "same-origin":
+		return true
+	case "":
+		// fall through to the host check
+	default: // same-site, cross-site, none
+		return false
+	}
+	u, err := url.Parse(referer)
+	if err != nil || u.Host == "" {
+		return false
+	}
+	if strings.EqualFold(u.Host, dashboardHost) {
+		return true
+	}
+	if fwd := strings.TrimSpace(strings.Split(req.Header.Get("X-Forwarded-Host"), ",")[0]); fwd != "" {
+		return strings.EqualFold(u.Host, fwd)
+	}
+	return false
+}
+
 func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string, sessionCookieName string, forwardedHeaders bool) func(*http.Request) {
 	// Precompute whether any custom-header value uses an identity
 	// template, so the common (static-header) path never touches the
@@ -975,6 +1003,10 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 	}
 
 	return func(req *http.Request) {
+		// The Host the browser addressed, before it is pointed at the
+		// backend below.
+		dashboardHost := req.Host
+
 		// Strip the /proxy/{slug} prefix from the request path
 		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
 		if reqPath == "" {
@@ -1027,7 +1059,13 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		// which is rewritten below to match the backend host.
 		req.Header.Del("Origin")
 		if referer := req.Header.Get("Referer"); referer != "" {
-			if u, err := url.Parse(referer); err == nil {
+			// Only a Referer from the dashboard itself is rewritten. One
+			// from another site is dropped: rewritten, it would carry the
+			// backend's own host and pass the backend's Referer-based
+			// CSRF check for a cross-site request.
+			if !refererFromDashboard(req, referer, dashboardHost) {
+				req.Header.Del("Referer")
+			} else if u, err := url.Parse(referer); err == nil {
 				u.Scheme = targetURL.Scheme
 				u.Host = targetURL.Host
 				u.Path = strings.TrimPrefix(u.Path, proxyPrefix)
