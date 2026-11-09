@@ -81,6 +81,12 @@ RUN chmod +x /docker-entrypoint.sh
 # PUID/PGID for bind-mount permission matching (linuxserver.io convention)
 ENV PUID=1000 PGID=1000
 
+# Caddy keeps its certificates, ACME account and internal CA under
+# $XDG_DATA_HOME/caddy. Point it into the data volume so they survive
+# when the container is recreated (the runtime user's HOME is /app,
+# which is not a volume).
+ENV XDG_DATA_HOME=/app/data
+
 # Data directory for config, icons, etc.
 VOLUME /app/data
 
