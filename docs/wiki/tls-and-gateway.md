@@ -237,5 +237,5 @@ For more practical examples, see [Gateway Examples](gateway-examples.md). It cov
 
 - The built-in reverse proxy (`proxy: true` per app) works in **all** modes. It is independent of Caddy.
 - Muximux disables Caddy's admin API for security.
-- When you use auto-HTTPS with a domain, Caddy handles the user-facing port entirely. The `listen` address becomes the internal forward target.
+- When you use auto-HTTPS with a domain, Caddy handles the user-facing ports entirely. Muximux itself moves to the internal port (listen port + 10000), and Caddy forwards to it.
 - When a gateway site uses auto-HTTPS, Caddy automatically listens on ports 80 and 443 for that domain even if `tls.domain` is not set for Muximux itself.

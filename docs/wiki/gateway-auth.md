@@ -22,7 +22,7 @@ Browser -> sonarr.example.com (Caddy)
 ## When to enable
 
 ✅ You want a single sign-on layer in front of multiple homelab apps
-✅ One or more apps lack their own auth (Plex, Grafana, custom Flask app)
+✅ One or more apps lack their own auth (a custom Flask app, a status page, a file browser)
 ✅ You're already using Muximux as your dashboard with built-in / OIDC / forward-auth users
 ✅ All gated subdomains share a parent domain (`*.example.com`)
 
@@ -139,7 +139,7 @@ The gate endpoint has some extra layers of protection (defence in depth):
 |---|---|
 | `auth.method: builtin` | Native users. The session check is straightforward. |
 | `auth.method: oidc` | OIDC tokens back the sessions. The gate uses the same session check. Gated apps see OIDC users through `X-Muximux-User`. |
-| `auth.method: forwardauth` (Authelia / Authentik) | Muximux trusts an upstream `Remote-User` header to create a session. Then the gate reads that session. Chained forward auth works, but it adds a network hop. Check whether the upstream already gates the same set of apps. |
+| `auth.method: forward_auth` (Authelia / Authentik) | Muximux trusts an upstream `Remote-User` header to create a session. Then the gate reads that session. Chained forward auth works, but it adds a network hop. Check whether the upstream already gates the same set of apps. |
 
 ---
 

@@ -45,7 +45,7 @@ The list of icon names comes from the Lucide repository on GitHub (`api.github.c
 
 ## Custom Icons
 
-Upload your own icons (PNG, SVG, JPG, WebP) through the Settings panel or API.
+Upload your own icons (PNG, SVG, JPG, WebP, GIF) through the Settings panel or API.
 
 ```yaml
 icon:

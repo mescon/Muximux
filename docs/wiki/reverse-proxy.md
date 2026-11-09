@@ -167,7 +167,7 @@ Some applications may not work correctly in an iframe, even with the proxy and r
 
 - **Binary protocols** -- The proxy cannot rewrite gRPC, MessagePack, and other non-text formats with embedded paths.
 - **Runtime-constructed paths** -- Template literals (`` `${base}/api` ``) and string concatenation (`'/api' + endpoint`) are invisible to any rewriter.
-- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. The runtime interceptor tries to patch `location.pathname` so that it returns the path without the prefix. Some browsers do not let scripts patch `location` properties. There, the interceptor removes the prefix from the page address with `history.replaceState` instead, after each navigation and on back/forward. This handles most cases.
+- **SPA routing conflicts** -- Some SPAs hardcode routes instead of using a configurable base path. Their client-side router may not recognize the `/proxy/{slug}/` prefix. Browsers do not let scripts change what `location` returns. So the interceptor removes the prefix from the page address with `history.replaceState`, after each navigation and on back/forward. The router then reads the path without the prefix. This handles most cases.
 
 > **Note:** The proxy handles these patterns automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
 
@@ -229,7 +229,7 @@ The built-in reverse proxy and the Caddy-based gateway are completely separate s
 | **Purpose** | Embed apps in iframes | Serve Muximux with TLS, or host additional sites alongside it |
 | **Configured by** | `proxy: true` on individual apps | `server.gateway_sites:` declarative YAML (or Settings -> Gateway) |
 | **Runs inside** | The Go server process | Embedded Caddy instance |
-| **Works without TLS** | Yes | The gateway is only active when TLS/Caddy is enabled |
+| **Works without TLS** | Yes | Yes. Gateway sites start Caddy on their own, with or without TLS for Muximux itself |
 | **Rewrites content** | Yes (headers, HTML, CSS, JS, runtime) | No (standard reverse proxy behavior) |
 
 The per-app `proxy: true` setting is for iframe embedding. The `gateway_sites:` entries serve additional sites alongside Muximux on their own subdomains, or handle TLS termination. You can use them independently or together.

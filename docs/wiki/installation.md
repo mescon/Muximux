@@ -223,4 +223,4 @@ Cached SVGs from the [Lucide](https://lucide.dev/) icon set, used for group icon
 
 ### icons/custom/
 
-Icons that users upload through the Settings UI. These can be PNG, SVG, or any other image format.
+Icons that users upload through the Settings UI. These can be PNG, SVG, JPG, WebP or GIF.

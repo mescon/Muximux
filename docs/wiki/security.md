@@ -158,7 +158,7 @@ These ASVS categories do not apply to Muximux's architecture:
 | Hardware security modules | Self-hosted single-binary app |
 | File upload malware scanning | No untrusted user file uploads. Custom-icon upload (PNG/SVG/JPG/WebP/GIF, 2 MB cap, admin-only, type-validated) and config import are the only upload paths. Both are size-limited and validated. |
 | Multi-tenant data isolation | Single-tenant application |
-| WebSocket message authentication | Muximux uses WebSocket for read-only log streaming, not for commands |
+| WebSocket message authentication | Muximux uses WebSocket only to push updates to the browser (health, config changes, Docker state, logs). It accepts no commands over it. |
 
 ---
 

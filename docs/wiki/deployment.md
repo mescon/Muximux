@@ -304,7 +304,7 @@ location /muximux/ {
 }
 ```
 
-### Traefik (subpath with StripPrefix)
+### Traefik (subpath)
 
 ```yaml
 services:

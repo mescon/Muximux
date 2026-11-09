@@ -48,13 +48,10 @@ Muximux includes a runtime URL interceptor (a script that rewrites URLs inside t
 
 **Symptom:** The app loads, but some features, API calls, or navigation links point to wrong paths. The Network tab shows 404 errors for URLs that are missing the `/proxy/{slug}/` prefix.
 
-**Patterns that may still cause issues:**
+**Patterns that may still cause issues** (the interceptor already handles `history.pushState`, `history.replaceState` and `location.pathname`):
 
 | Pattern | Example | Why |
 |---------|---------|-----|
-| `history.pushState` | `pushState({}, '', '/page')` | Client-side navigation bypasses the server |
-| `history.replaceState` | `replaceState({}, '', '/page')` | Same as above |
-| `location.pathname` checks | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
 | Inline event handlers | `<div onclick="go('/page')">` | The URL is in an HTML attribute. Runtime patches do not intercept it. |
 
 **Workaround:** Check if the app has a "base URL", "URL base", or "path prefix" setting in its own configuration. If it does, set it to `/proxy/{slug}`. The app then adds the correct prefix when it builds URLs. Many apps support this setting (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Seerr, Tautulli, etc.).
@@ -115,7 +112,7 @@ The proxy does **not** buffer binary content (images, videos, archives, file dow
 
 **Causes:**
 - The app's main URL requires authentication, and Muximux's health checker does not send credentials.
-- The URL returns a non-2xx status code (for example, a 302 redirect to a login page).
+- The URL returns a 4xx or 5xx status code (for example, 401 or 403 because the app wants a login). Muximux treats 2xx and 3xx responses as healthy. It follows up to 3 redirects.
 - The app takes longer than the configured timeout to respond.
 
 **Solutions:**
