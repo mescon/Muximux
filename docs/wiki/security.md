@@ -9,7 +9,7 @@ This page covers the security measures built into Muximux, the standards they're
 
 ## Security Standards
 
-Muximux's security posture is evaluated against the [OWASP Application Security Verification Standard (ASVS) 4.0](https://owasp.org/www-project-application-security-verification-standard/), Level 2. ASVS is the industry standard for web application security requirements. The Open Worldwide Application Security Project maintains it.
+We evaluate Muximux's security posture against the [OWASP Application Security Verification Standard (ASVS) 4.0](https://owasp.org/www-project-application-security-verification-standard/), Level 2. ASVS is the industry standard for web application security requirements. The Open Worldwide Application Security Project maintains it.
 
 ASVS defines three levels: L1 (minimum), L2 (standard, recommended for applications that handle sensitive data), and L3 (advanced: banking, healthcare, critical infrastructure). Muximux is a self-hosted application portal that manages access to your services. Level 2 is therefore the right target.
 
@@ -21,7 +21,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) do not apply to
 
 ### Authentication (ASVS V2)
 
-- **Bcrypt password hashing** -- Muximux hashes all user passwords with bcrypt (cost 12) before storage. Plaintext passwords never touch disk. A password may be stored below the current target cost. On a successful login, Muximux silently re-hashes it, so older accounts migrate forward on their own.
+- **Bcrypt password hashing** -- Muximux hashes all user passwords with bcrypt (cost 12) before storage. Plaintext passwords never touch disk. A stored password hash can use a cost below the current target. On a successful login, Muximux silently re-hashes it, so older accounts migrate forward on their own.
 - **Bcrypt API key hashing** -- Muximux stores API keys as bcrypt hashes in `config.yaml`. Nobody can recover the original key from the hash. Verification uses `bcrypt.CompareHashAndPassword`, which is constant-time and resistant to timing attacks.
 - **Rate limiting** -- Login endpoints allow 5 attempts per minute per IP address. This prevents brute-force attacks.
 - **OIDC ID token validation** -- When you use OpenID Connect (OIDC, a standard for single sign-on), Muximux validates the ID token. It checks the token's cryptographic signature (via JWKS), issuer, audience, expiry, and nonce. This prevents token forgery and replay attacks.
@@ -39,7 +39,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) do not apply to
 
 ### Access Control (ASVS V4)
 
-- **Role-based access control** -- Three roles (`admin`, `power-user`, `user`) with enforced privilege separation. Admin operations require the `admin` role; regular users cannot escalate privileges.
+- **Role-based access control** -- Three roles (`admin`, `power-user`, `user`) with enforced privilege separation. Admin operations require the `admin` role. Regular users cannot escalate privileges.
 - **Per-app access control** -- You can restrict apps by role or by specific usernames with the `access` and `min_role` fields.
 - **Forward auth proxy validation** -- With forward auth, Muximux accepts only connections from `trusted_proxies` CIDR ranges. It rejects auth headers from untrusted sources. The check uses the TCP source address (`RemoteAddr`), not forwarded headers.
 
@@ -110,7 +110,7 @@ base-uri 'self'
 **Design decisions:**
 
 - **`frame-src *`** -- Muximux's core feature is embedding arbitrary web applications in iframes. Restricting frame sources would break the primary use case.
-- **`frame-ancestors 'self'`** -- Modern clickjacking protection (protection against a page that hides your site in a frame to trick clicks). It replaces reliance on the deprecated `X-Frame-Options` alone. Muximux will only load inside its own origin.
+- **`frame-ancestors 'self'`** -- Modern clickjacking protection (protection against a page that hides your site in a frame to trick clicks). It replaces reliance on the deprecated `X-Frame-Options` alone. Muximux loads only inside its own origin.
 - **`form-action 'self'`** -- Blocks a form-hijack that would POST user submissions to an attacker origin.
 - **`connect-src 'self'`** -- Same-origin fetches and WebSocket (`ws://`/`wss://` on the same host) both fall under `'self'`. Leaving out the wildcard `ws: wss:` closes a WebSocket exfiltration path for any injected script.
 - **`style-src 'unsafe-inline'`** -- Required for Svelte component scoped styles and CSS custom property theming. The strict `script-src 'self'` policy mitigates the risk, because it prevents inline script execution.
@@ -135,7 +135,7 @@ When you enable `proxy: true` for an app, Muximux acts as a reverse proxy (a ser
 
 - All requests to that app go through Muximux's authentication middleware
 - Backend apps don't need their own authentication (though defense-in-depth is always recommended)
-- TLS certificate verification for backends is configurable per-app (`proxy_skip_tls_verify`)
+- You can configure TLS certificate verification for backends per app (`proxy_skip_tls_verify`)
 
 When `proxy: false`, the browser connects directly to the app. Muximux has no control over those requests.
 
@@ -156,15 +156,15 @@ These ASVS categories do not apply to Muximux's architecture:
 | LDAP injection | No LDAP integration |
 | SMS/phone OTP | Not offered as an auth method |
 | Hardware security modules | Self-hosted single-binary app |
-| File upload malware scanning | No untrusted user file uploads. Custom-icon upload (PNG/SVG/JPG/WebP/GIF, 2 MB cap, admin-only, type-validated) and config import are the only upload paths; both are size-limited and validated. |
+| File upload malware scanning | No untrusted user file uploads. Custom-icon upload (PNG/SVG/JPG/WebP/GIF, 2 MB cap, admin-only, type-validated) and config import are the only upload paths. Both are size-limited and validated. |
 | Multi-tenant data isolation | Single-tenant application |
-| WebSocket message authentication | WebSocket is used for read-only log streaming, not commands |
+| WebSocket message authentication | Muximux uses WebSocket for read-only log streaming, not for commands |
 
 ---
 
 ## Reporting a Vulnerability
 
-Please do not open a public issue for a security problem. Report it privately through the repository's Security tab (**Report a vulnerability**). This opens an advisory that only you and the maintainer can see. [SECURITY.md](https://github.com/mescon/Muximux/blob/main/SECURITY.md) lists what to include, what is in scope, and what to expect. A release fixes each confirmed issue. The issue is then published as a GitHub Security Advisory with a CVE, so that Dependabot and `govulncheck` flag affected versions. The reporter is credited unless they prefer not to be. Past advisories are listed under the repository's Security tab.
+Please do not open a public issue for a security problem. Report it privately through the repository's Security tab (**Report a vulnerability**). This opens an advisory that only you and the maintainer can see. [SECURITY.md](https://github.com/mescon/Muximux/blob/main/SECURITY.md) lists what to include, what is in scope, and what to expect. A release fixes each confirmed issue. Then the maintainer publishes the issue as a GitHub Security Advisory with a CVE, so that Dependabot and `govulncheck` flag affected versions. The advisory credits the reporter, unless they prefer not to be credited. The repository's Security tab lists past advisories.
 
 ## Recommendations for Deployers
 
@@ -172,7 +172,7 @@ Please do not open a public issue for a security problem. Report it privately th
 2. **Set `secure_cookies: true`** when serving over HTTPS.
 3. **Use environment variables for secrets** -- Store OIDC client secrets and API keys as `${ENV_VAR}` references rather than plaintext in config.
 4. **Enable authentication** -- The default is `auth: none`. Switch to `builtin`, `forward_auth`, or `oidc` for any internet-facing deployment.
-5. **Use the reverse proxy for sensitive apps** -- Set `proxy: true` on apps that should be gated behind Muximux's authentication.
+5. **Use the reverse proxy for sensitive apps** -- Set `proxy: true` on apps that you want behind Muximux's authentication.
 6. **Restrict network access** -- In a homelab, consider running Muximux on an internal network or behind a VPN for defense-in-depth.
 7. **Monitor audit logs** -- Filter for `source=audit` in the log viewer to track authentication and configuration events.
 8. **Treat the Docker socket as privileged** -- A `:ro` mount does not

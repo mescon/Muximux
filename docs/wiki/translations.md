@@ -1,6 +1,6 @@
 # Translations
 
-Muximux supports 36 languages out of the box. The interface language is set per-installation in **Settings > General > Language** and syncs across all devices.
+Muximux supports 36 languages out of the box. You set the interface language once per installation, in **Settings > General > Language**. The setting syncs across all devices.
 
 ## Supported Languages
 
@@ -136,7 +136,7 @@ Muximux uses [Paraglide.js](https://inlang.com/m/gerre34r/library-inlang-paragli
 
 Muximux stores the locale in three places that stay in sync:
 - **Server config** (`config.yaml` → `server.language`) -- source of truth, synced across devices.
-- **localStorage** (`PARAGLIDE_LOCALE`) -- used by Paraglide on page load, before Muximux fetches the server config.
-- **`<html lang="..." dir="...">` attributes** -- set on every page load for accessibility and CSS logical properties (RTL support).
+- **localStorage** (`PARAGLIDE_LOCALE`) -- Paraglide reads it on page load, before Muximux fetches the server config.
+- **`<html lang="..." dir="...">` attributes** -- Muximux sets these on every page load, for accessibility and for CSS logical properties (RTL support).
 
 When the user changes the language in Settings and saves, Muximux writes the config to the server. The page then reloads. On reload, Paraglide reads the locale from localStorage and renders the new language immediately. Then the server config confirms it.

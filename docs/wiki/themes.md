@@ -1,10 +1,10 @@
 # Themes
 
-Muximux uses a CSS custom properties system for theming. You can choose from built-in themes, create your own through the Settings panel, or edit theme CSS files directly.
+Muximux uses CSS custom properties (CSS variables) for theming. You can choose from built-in themes, create your own through the Settings panel, or edit theme CSS files directly.
 
 ## Configuration
 
-The active theme is stored in your `data/config.yaml`:
+Muximux stores the active theme in your `data/config.yaml`:
 
 ```yaml
 theme:
@@ -12,7 +12,7 @@ theme:
   variant: system              # dark, light, system
 ```
 
-This is the source of truth. It syncs across all browsers and devices. The browser also caches the current theme in localStorage (the browser's local storage for this site). This lets it apply the theme instantly on page load, without a flash of unstyled content. But when the server config loads, it always takes precedence.
+This is the source of truth. It syncs across all browsers and devices. The browser also caches the current theme in localStorage (the browser's local storage for this site). This lets it apply the theme instantly on page load, without a flash of unstyled content. When the server config loads, the server value always wins.
 
 ## Built-in Themes
 
@@ -28,7 +28,7 @@ Muximux ships with multiple built-in theme families, each with dark and light va
 - **Cineplex** -- Warm amber and gold tones inspired by media player interfaces.
 - **Rose Pine** -- Soft, muted tones with a natural feel.
 
-Built-in themes cannot be deleted.
+You cannot delete built-in themes.
 
 ## Variant Modes
 
@@ -44,7 +44,7 @@ Each theme supports three variant modes:
 2. Go to the **Appearance** tab.
 3. Select a theme family and a variant mode.
 
-Changes apply instantly. Muximux saves them to `config.yaml` when you click Save. No restart is needed. If you switch theme from the command palette, you get a preview in that browser only. The next Settings save keeps it.
+Changes apply instantly. Muximux saves them to `config.yaml` when you click Save. You do not need to restart. If you switch theme from the command palette, you get a preview in that browser only. The next Settings save keeps it.
 
 [![Theme selector with 9 theme families](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)
 
@@ -125,7 +125,7 @@ The theme's `@theme-is-dark` header decides which way to go. The app turns this 
 
 The `themeContrast` test in `web/src/lib/themeContrast.test.ts` is strict (no list of known failures). It checks every bundled theme and the derived fallback. It is the reference implementation. `web/src/lib/builtCss.test.ts` guards the compiled CSS against `light-dark()`. The build would turn that function into a form that ignores the theme's scheme.
 
-The bundled themes were adjusted for contrast:
+We adjusted the bundled themes for contrast:
 
 - Muted and secondary text is slightly lighter on the dark themes and darker on the light ones. Solarized Light and Tokyo Night Light also darken their primary text.
 - The elevated and overlay surfaces of Catppuccin, Cineplex Dark, Gruvbox, Nord and Solarized Dark are a step darker.
@@ -140,7 +140,7 @@ If a theme file omits `--accent-on-primary`, Muximux derives it at runtime from 
 
 The primary button and the floating navigation button keep their `--accent-primary` fill on hover. They show the hover with a glow and shadow (`--shadow-glow`) instead of switching to `--accent-secondary`.
 
-The `--color-brand-*` palette is no longer used by the interface and is kept only for older theme files.
+The interface no longer uses the `--color-brand-*` palette. Muximux keeps it only for older theme files.
 
 ### Focus, motion and screen readers
 
@@ -149,7 +149,7 @@ The `--color-brand-*` palette is no longer used by the interface and is kept onl
 - **Links and toasts.** Links in running text are underlined, so they do not rely on colour. Toasts use the theme's surface and status tokens instead of always being dark.
 - **Reduced motion.** When your operating system asks for reduced motion, transitions collapse, spinners slow down and pulses stop.
 - **Health indicator.** Each status has its own shape (circle, diamond or ring) so it does not rely on colour alone. The indicator has an accessible name and a tooltip that opens with the keyboard. The "Check now" action in that tooltip is mouse-only for now.
-- **Screen readers.** Errors are announced as alerts and confirmations as status messages. The onboarding wizard announces each step change, and the log level filters report whether they are on or off. Form controls and icon-only buttons have names, and per-row actions name their item or position.
+- **Screen readers.** Screen readers announce errors as alerts and confirmations as status messages. The onboarding wizard announces each step change, and the log level filters report whether they are on or off. Form controls and icon-only buttons have names, and per-row actions name their item or position.
 
 ## Importing and Exporting Themes
 
@@ -167,4 +167,4 @@ To delete a custom theme:
 2. Find the custom theme card.
 3. Click the **delete** button on the theme card.
 
-If the deleted theme was active, Muximux reverts to the default dark theme. Built-in themes cannot be deleted.
+If the deleted theme was active, Muximux reverts to the default dark theme. You cannot delete built-in themes.

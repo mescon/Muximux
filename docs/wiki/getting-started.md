@@ -1,6 +1,6 @@
 # Getting Started
 
-This page walks you through what happens the first time you launch Muximux and how to get your dashboard up and running.
+This page tells you what happens the first time you launch Muximux. It also shows how to get your dashboard up and running.
 
 ---
 
@@ -58,7 +58,7 @@ The **Add Custom App** card is at the top of the left column. Click it to expand
 **Right column** -- Shows your current selections:
 
 - **Selected Apps** -- A live list of all selected template and custom apps, each with a remove button.
-- **Groups** -- Auto-populated based on the categories of your selected apps. You can edit each group:
+- **Groups** -- Muximux fills this list from the categories of your selected apps. You can edit each group:
   - **Color** -- Click the color swatch to open a color picker.
   - **Icon** -- Click the icon area to open the icon browser and choose from Dashboard Icons, Lucide icons, or custom uploads.
   - **Name** -- Edit the group name inline.
@@ -79,7 +79,7 @@ Choose how the navigation bar appears in your dashboard:
 | **Bottom Bar** | Horizontal navigation across the bottom of the page |
 | **Floating** | Floating action button with popover panel |
 
-You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
+You can also toggle **Show App Labels**. It shows or hides the app names next to their icons in the navigation.
 
 | Left Sidebar | Top Bar | Bottom Bar |
 |:---:|:---:|:---:|
@@ -127,10 +127,10 @@ Muximux validates the config, saves it, and reloads. It skips the entire wizard.
 
 Once the wizard completes:
 
-- Your configuration is saved to `data/config.yaml`.
-- The first app in your list is automatically set as the **default app**, which loads when you open the dashboard.
+- Muximux saves your configuration to `data/config.yaml`.
+- Muximux makes the first app in your list the **default app**. The default app loads when you open the dashboard.
 - **Health monitoring** is available but off by default. Enable it per-app in Settings, or for many apps at once in the Apps tab. When it is on, Muximux checks each app at the configured interval (default: every 30 seconds).
-- Muximux records in `config.yaml` that setup is complete (`auth.setup_complete: true`). The onboarding wizard does not appear again, also when you remove all apps. There is one exception. If `MUXIMUX_AUTH_METHOD=builtin` is set and no users are left, the wizard appears again after a restart, so that you can create an admin.
+- Muximux records in `config.yaml` that setup is complete (`auth.setup_complete: true`). The onboarding wizard does not appear again, even when you remove all apps. There is one exception. If `MUXIMUX_AUTH_METHOD=builtin` is set and no users are left, the wizard appears again after a restart, so that you can create an admin.
 
 You can open **Settings** at any time from the navigation bar to modify apps, groups, navigation style, themes, and all other options.
 

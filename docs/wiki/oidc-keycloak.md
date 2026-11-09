@@ -142,11 +142,11 @@ See [Authentication](authentication#oidc-openid-connect) for what each option do
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Invalid parameter: redirect_uri` | The URI in Muximux's `redirect_url` doesn't match the **Valid redirect URIs** list on the client. | Set the client's redirect URI to exactly `https://muximux.example.com/api/auth/oidc/callback`. Wildcards aren't great here; use the exact value. |
+| `Invalid parameter: redirect_uri` | The URI in Muximux's `redirect_url` doesn't match the **Valid redirect URIs** list on the client. | Set the client's redirect URI to exactly `https://muximux.example.com/api/auth/oidc/callback`. Avoid wildcards here. Use the exact value. |
 | Sign-in works but admin promotion doesn't | The `groups` mapper either isn't attached or has **Full group path** on. | Re-check the mapper in Step 2. Names must come through as plain strings (`Engineering`), not paths (`/Engineering`). |
 | `404 Not Found` from Keycloak when Muximux fetches discovery | Wrong issuer URL format. Keycloak 17+ dropped the `/auth/` prefix. | Use `https://<host>/realms/<realm>`, not `https://<host>/auth/realms/<realm>`. |
 | `Invalid token issuer` after upgrading Keycloak | The issuer in tokens changed because the public-facing URL of Keycloak changed. | Set `KC_HOSTNAME_URL` (or the older `KEYCLOAK_FRONTEND_URL`) on the Keycloak side to its public-facing URL, and make sure `issuer_url:` in Muximux matches. |
-| Browser console shows CORS errors during sign-in | Web origin isn't whitelisted. | Add `https://muximux.example.com` to the client's **Web origins**. |
+| Browser console shows CORS errors during sign-in | The client does not allow the Muximux web origin. | Add `https://muximux.example.com` to the client's **Web origins**. |
 
 ---
 
