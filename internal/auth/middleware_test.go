@@ -1519,7 +1519,7 @@ func TestHandleUnauthenticated_FrameNavigationGetsSessionEndedPage(t *testing.T)
 				}
 			}
 			csp := w.Header().Get("Content-Security-Policy")
-			if !strings.Contains(csp, sessionEndedScriptCSP) || !strings.Contains(csp, "default-src 'none'") {
+			if !strings.Contains(csp, sessionEndedScriptCSP) || !strings.Contains(csp, "default-src 'none'") || !strings.Contains(csp, "frame-ancestors 'self'") {
 				t.Errorf("CSP = %q", csp)
 			}
 			if w.Header().Get("Cache-Control") != "no-store" {

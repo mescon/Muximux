@@ -31,7 +31,7 @@ func TestOIDC_FullFlow(t *testing.T) {
 	us := p.userStore
 
 	// Step 1: Get authorization URL (triggers discovery)
-	authURL, err := p.GetAuthorizationURL(context.Background(), "/settings")
+	authURL, err := p.testAuthorizationURL(context.Background(), "/settings")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL: %v", err)
 	}
@@ -469,7 +469,7 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
 	// Authorization URL should use the discovered endpoint
-	authURL, err := p.GetAuthorizationURL(context.Background(), "/")
+	authURL, err := p.testAuthorizationURL(context.Background(), "/")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL: %v", err)
 	}
@@ -782,7 +782,7 @@ func TestOIDC_SessionStoreResetMidCallbackRefused(t *testing.T) {
 		idp.ServeHTTP(w, r)
 	})
 
-	authURL, err := p.GetAuthorizationURL(context.Background(), "/")
+	authURL, err := p.testAuthorizationURL(context.Background(), "/")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL: %v", err)
 	}

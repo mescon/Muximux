@@ -206,12 +206,6 @@ func (p *OIDCProvider) loadDiscovery(ctx context.Context) error {
 	return nil
 }
 
-// GetAuthorizationURL returns the URL to redirect the user to for authentication.
-// ctx is used to cancel the discovery fetch if the caller goes away.
-func (p *OIDCProvider) GetAuthorizationURL(ctx context.Context, redirectAfterLogin string) (string, error) {
-	return p.authorizationURL(ctx, redirectAfterLogin, loginOptions{})
-}
-
 // loginOptions are the per-request parts of a pending sign-in.
 type loginOptions struct {
 	// silent adds prompt=none: the provider answers at once, with a code
@@ -358,7 +352,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		logging.From(r.Context()).Warn("OIDC callback: missing authorization code", "source", "auth")
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 
@@ -371,7 +365,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	tokens, err := p.exchangeCode(ctx, code, entry.codeVerifier)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC code exchange failed", "source", "auth", "error", err)
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 
@@ -382,13 +376,13 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// id_token (misconfig, bug, MITM) must be rejected outright.
 	if tokens.IDToken == "" {
 		logging.From(r.Context()).Warn("OIDC: token endpoint returned no id_token; rejecting login", "source", "audit")
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 	provider, err := p.goOIDCProvider(ctx)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 	verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
@@ -397,14 +391,14 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		// Warn so monitoring set to warn-and-up notices an IdP that's
 		// been misconfigured or an attacker replaying expired tokens.
 		logging.From(r.Context()).Warn("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 	if idToken.Nonce != entry.nonce {
 		// Warn — nonce mismatch is a CSRF / replay signal worth
 		// surfacing even at warn-only logging levels.
 		logging.From(r.Context()).Warn("OIDC: nonce mismatch", "source", "audit")
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 
@@ -412,7 +406,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	userInfo, err := p.getUserInfo(ctx, tokens.AccessToken)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC user info retrieval failed", "source", "auth", "error", err)
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 
@@ -478,12 +472,12 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	session, err := p.sessionStore.CreateWithDataAt(gen, user.ID, user.Username, user.Role, data)
 	if errors.Is(err, ErrSessionGenerationChanged) {
 		logging.From(r.Context()).Warn("OIDC: login refused, auth settings were replaced while it was in progress", "source", "audit", "user", username)
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
-		p.failCallback(w, r, callbackErrFailed)
+		p.failSignIn(w, r, &entry)
 		return
 	}
 
@@ -502,8 +496,8 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 // boundToBrowser reports whether the callback comes from the browser that
-// started the sign-in. An entry without a binding (built by
-// GetAuthorizationURL, outside HandleLogin) is not bound.
+// started the sign-in. Production code only starts sign-ins in HandleLogin,
+// which always sets a binding; an entry without one exists only in tests.
 func (p *OIDCProvider) boundToBrowser(r *http.Request, entry *stateEntry) bool {
 	if entry.binding == "" {
 		return true
@@ -525,7 +519,10 @@ func (p *OIDCProvider) browserBinding(w http.ResponseWriter, r *http.Request) (s
 		}
 		value = v
 	}
-	path := strings.TrimRight(p.basePath, "/") + "/api/auth/oidc/"
+	// Path "/" rather than the callback path: a reverse proxy that serves
+	// Muximux under a prefix it strips (base_path unset) would otherwise
+	// put the callback outside the cookie's path.
+	path := "/"
 	// Secure follows secure_cookies, like the session cookie, so sign-in
 	// keeps working behind plain HTTP.
 	http.SetCookie(w, &http.Cookie{ //nolint:gosec // G124: Secure is configurable on purpose (secure_cookies)
@@ -538,6 +535,57 @@ func (p *OIDCProvider) browserBinding(w http.ResponseWriter, r *http.Request) (s
 		SameSite: http.SameSiteLaxMode,
 	})
 	return value, nil
+}
+
+// failSignIn ends a sign-in that failed after the provider answered with
+// a code (exchange, token or userinfo failure). A failed silent recheck
+// keeps the session it was about, resets its clock and returns the user
+// to where they were: showing the login error page would repeat on every
+// page load until the next successful recheck. An interactive sign-in
+// goes to the login page with the error, as before.
+func (p *OIDCProvider) failSignIn(w http.ResponseWriter, r *http.Request, entry *stateEntry) {
+	if !entry.silent {
+		p.failCallback(w, r, callbackErrFailed)
+		return
+	}
+	logging.From(r.Context()).Warn("OIDC recheck failed after the provider answered; keeping the session", "source", "auth")
+	if cur := p.sessionStore.GetFromRequest(r); cur != nil && cur.ID == entry.rechecked {
+		p.sessionStore.MarkProviderChecked(cur.ID)
+	}
+	http.Redirect(w, r, sanitizeRedirectURL(entry.redirectURL, p.basePath), http.StatusFound)
+}
+
+// oidcHopParam marks a login request that already moved to the callback
+// host, so the move happens at most once.
+const oidcHopParam = "callback_host"
+
+// callbackHostHop returns the URL to move a login request to when it
+// arrived on a different host than redirect_url names, or "" to go on.
+// The move happens once: the hop parameter stops a second one, so a
+// reverse proxy that rewrites Host cannot cause a loop.
+func (p *OIDCProvider) callbackHostHop(r *http.Request) string {
+	if p.config.RedirectURL == "" || r.URL.Query().Get(oidcHopParam) != "" {
+		return ""
+	}
+	cb, err := url.Parse(p.config.RedirectURL)
+	if err != nil || cb.Host == "" || strings.EqualFold(cb.Host, r.Host) {
+		return ""
+	}
+	// The login route sits next to the callback, under whatever prefix
+	// the public URL has (a proxy may add one that Muximux never sees).
+	prefix, ok := strings.CutSuffix(cb.Path, "/callback")
+	if !ok {
+		return ""
+	}
+	q := r.URL.Query()
+	q.Set(oidcHopParam, "1")
+	target := url.URL{
+		Scheme:   cb.Scheme,
+		Host:     cb.Host,
+		Path:     prefix + "/login",
+		RawQuery: q.Encode(),
+	}
+	return target.String()
 }
 
 // takeState removes and returns the pending login for state.
@@ -925,13 +973,25 @@ func sanitizeRedirectURL(redirectURL, basePath string) string {
 
 // HandleLogin redirects to the OIDC provider for authentication
 func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	// The binding cookie must be set on the host the provider sends the
+	// browser back to. A sign-in started on another host (a LAN address
+	// while redirect_url names the public one) first moves there, once.
+	if target := p.callbackHostHop(r); target != "" {
+		http.Redirect(w, r, target, http.StatusFound)
+		return
+	}
+
 	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"), p.basePath)
+	opts := loginOptions{}
 	// prompt=none asks the provider to confirm an existing session
-	// without any interaction (the dashboard's revalidate_after recheck).
-	opts := loginOptions{silent: r.URL.Query().Get("prompt") == "none"}
-	if opts.silent {
-		// A recheck is about the session this browser holds now.
+	// without any interaction: the dashboard's revalidate_after recheck.
+	// It is honoured only when rechecks are on and there is a session to
+	// recheck. Otherwise a link from any site could send a signed-in user
+	// through it, and a provider answer such as account_selection_required
+	// would end their session. Such a request becomes a normal sign-in.
+	if r.URL.Query().Get("prompt") == "none" && p.config.OIDCRevalidateAfter() > 0 {
 		if cur := p.sessionStore.GetFromRequest(r); cur != nil {
+			opts.silent = true
 			opts.rechecked = cur.ID
 		}
 	}

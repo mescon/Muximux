@@ -797,7 +797,7 @@ func writeSessionEndedFrame(w http.ResponseWriter, basePath string) {
 	h := w.Header()
 	h.Set("Content-Type", "text/html; charset=utf-8")
 	h.Set("Cache-Control", "no-store")
-	h.Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; script-src "+sessionEndedScriptCSP+"; base-uri 'none'; form-action 'none'")
+	h.Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; script-src "+sessionEndedScriptCSP+"; base-uri 'none'; form-action 'none'; frame-ancestors 'self'")
 	w.WriteHeader(http.StatusUnauthorized)
 	home := html.EscapeString(basePath + "/")
 	_, _ = io.WriteString(w, `<!doctype html><html><head><meta charset="utf-8"><title>Session ended</title>`+

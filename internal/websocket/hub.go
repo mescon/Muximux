@@ -202,7 +202,8 @@ func (h *Hub) closeUser(userID string) {
 
 // CloseUser closes every socket of userID with a normal close frame.
 // The browser reconnects, and the new socket gets the user's current
-// role. Used after a role change. Never blocks once Close has run.
+// role. Used after a role change. Blocks only while the queue is full;
+// a no-op once Close has run.
 func (h *Hub) CloseUser(userID string) {
 	select {
 	case <-h.done:
@@ -223,8 +224,9 @@ func (h *Hub) SetSessionCheck(fn func(sessionID string) (isAdmin bool, ok bool))
 
 // CloseSessions closes the sockets that belong to the given sessions,
 // sending close code CloseSessionEnded. Wired as the session store's
-// delete hook. Never blocks the caller (a session store under its own
-// lock contention, an HTTP handler): once Close has run it is a no-op.
+// delete hook. Blocks only while the 16-slot queue is full (the Run loop
+// drains it and takes no lock a caller holds); once Close has run it is
+// a no-op.
 func (h *Hub) CloseSessions(ids []string) {
 	if len(ids) == 0 {
 		return
