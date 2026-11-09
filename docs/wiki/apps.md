@@ -259,7 +259,7 @@ Each bypass rule supports the following fields:
 | `path` | Yes | URL path pattern. Use `*` at the end to match any suffix. |
 | `methods` | No | List of HTTP methods to allow. If omitted, all methods are allowed. |
 | `require_api_key` | No | If `true`, the request must include a valid `X-Api-Key` header. The rule replaces the login check with a key check. It does not remove the check. |
-| `allowed_ips` | No | List of IP addresses or CIDR ranges. If set, only requests from these sources get through. |
+| `allowed_ips` | No | List of IP addresses or CIDR ranges. If set, the rule only skips the login check for requests from these sources. Requests from other addresses still need a normal login. This is not a general IP block. |
 
 Paths are relative to the app's proxy path. On Sonarr, `/api/*` covers `/proxy/sonarr/api/*`. The full path (`/proxy/sonarr/api/*`) works too. Rules only apply to apps that are enabled and have `proxy: true`, because only their traffic passes through Muximux. Muximux ignores a rule that could reach outside its app, and logs a warning. These rules are: an empty `path`, a path under another app's `/proxy/` prefix, or a path containing `..`. Changes apply as soon as you save the config.
 
@@ -654,15 +654,15 @@ to the request, and Muximux accepts it for `GET /api/appearance` specifically. T
 
 ### Finding or creating the API key
 
-The API key lives on disk as a **bcrypt hash** (a one-way scrambled form of the key) at `auth.api_key_hash` in `config.yaml`. Muximux never stores the plaintext value. Once you set it, only the hash remains. There are two ways to create one:
+The API key lives on disk as a **SHA-256 hash** (a one-way scrambled form of the key) at `auth.api_key_hash` in `config.yaml`. Muximux never stores the plaintext value. Once you set it, only the hash remains. There are two ways to create one:
 
 **In the UI:** **Settings → Security → API Key.** Press **Generate API key** (or **Rotate key** to replace an existing one). Muximux shows the new key once, so copy it then. It saves only the hash.
 
 **On the command line:** use the built-in hash subcommand:
 
 ```bash
-muximux hash 'your-chosen-api-key'
-# prints: $2a$12$...
+muximux hash --api-key 'your-chosen-api-key'
+# prints: sha256:...
 ```
 
 Then add the output to your config:
@@ -670,7 +670,7 @@ Then add the output to your config:
 ```yaml
 auth:
   method: builtin
-  api_key_hash: "$2a$12$..."
+  api_key_hash: "sha256:..."
 ```
 
 Restart Muximux (or hot-reload through the UI). The key is then live. Give the plaintext value to your integration as its `X-Api-Key` header value.

@@ -60,7 +60,7 @@ Muximux includes a runtime URL interceptor (a script that rewrites URLs inside t
 
 **Symptom:** The app loads at first. But when you navigate inside it, you get a blank page, a 404, or the home page again.
 
-**What happens:** SPAs define client-side routes like `/dashboard` or `/users/settings`. When Muximux proxies the app at `/proxy/my-app/`, the browser's URL becomes `/proxy/my-app/dashboard`. The app's router sees the full path, including the `/proxy/my-app/` prefix. The router doesn't recognize this path, so the route doesn't match.
+**What happens:** SPAs define client-side routes like `/dashboard` or `/users/settings`. Muximux proxies the app at `/proxy/my-app/`. The runtime interceptor keeps the frame's address free of that prefix, so the router normally reads `/dashboard`. Routing can still fail when the app builds its URLs in a way the interceptor does not see, for example in an inline event handler (see the table above).
 
 The proxy reduces this problem. It rewrites base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/my-app"`), which helps many apps. However, some apps may still break: apps that hardcode routes in their JavaScript, and apps that use a routing framework that doesn't respect the base path.
 

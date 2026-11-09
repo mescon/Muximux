@@ -86,7 +86,7 @@ auth:
 
   session_max_age: 24h         # Session duration (default: 24h)
   secure_cookies: false        # Require HTTPS for session cookies
-  api_key_hash: ""             # Optional bcrypt hash of API key for X-Api-Key auth
+  api_key_hash: ""             # Optional SHA-256 hash of API key for X-Api-Key auth (muximux hash --api-key)
 
   # Builtin auth users
   users:

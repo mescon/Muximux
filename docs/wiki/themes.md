@@ -4,7 +4,7 @@ Muximux uses CSS custom properties (CSS variables) for theming. You can choose f
 
 ## Configuration
 
-Muximux stores the active theme in your `data/config.yaml`:
+Muximux stores the active theme in `config.yaml` (by default `data/config.yaml`):
 
 ```yaml
 theme:

@@ -306,6 +306,8 @@ location /muximux/ {
 
 ### Traefik (subpath)
 
+<a id="traefik-subpath-with-stripprefix"></a>
+
 ```yaml
 services:
   muximux:

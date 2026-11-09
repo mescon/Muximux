@@ -35,7 +35,7 @@ auth:
   method: builtin
   session_max_age: 24h        # How long sessions last (default: 24h)
   secure_cookies: true         # Set true if serving over HTTPS
-  api_key_hash: "$2a$12$..."    # Optional: bcrypt hash of API key (see below)
+  api_key_hash: "sha256:..."    # Optional: SHA-256 hash of API key (see below)
   users:
     - username: admin
       password_hash: "$2a$12$..."  # bcrypt hash
@@ -565,7 +565,7 @@ In GitHub, configure the webhook with:
 Then the request flow is:
 
 1. External service POSTs to `https://muximux.example.com/proxy/ci/hooks/github` with `X-Api-Key`.
-2. Muximux's `auth_bypass` matches `/proxy/ci/hooks/github` + `POST` + `require_api_key: true`. Muximux verifies the bcrypt hash, and lets the request through without a session cookie.
+2. Muximux's `auth_bypass` matches `/proxy/ci/hooks/github` + `POST` + `require_api_key: true`. Muximux verifies the key against its stored hash, and lets the request through without a session cookie.
 3. Muximux's reverse proxy forwards the request to `http://ci.internal:8080/hooks/github`. The original payload, `X-Hub-Signature-256` and other app-specific headers pass through unchanged.
 4. The CI tool processes the webhook normally.
 
@@ -588,11 +588,11 @@ This is deliberate. A session cookie is attributable to a specific user in audit
 
 ### How It Works
 
-Muximux stores the API key as a **bcrypt hash** in `config.yaml`, not as plaintext. When a request arrives with `X-Api-Key`, Muximux verifies it against the stored hash with `bcrypt.CompareHashAndPassword`. This means:
+Muximux stores the API key as a **SHA-256 hash** (`sha256:<hex>`) in `config.yaml`, not as plaintext. When a request arrives with `X-Api-Key`, Muximux hashes the key and compares the result with the stored hash in constant time, so timing attacks do not work.
 
-- Nobody can recover the original API key from the config file.
-- An attacker who gets a copy of `config.yaml` cannot extract the key.
-- The check takes the same time for every key, so timing attacks do not work.
+- A generated key is 32 random bytes. Nobody can guess it back from the hash.
+- A key that you choose yourself is only as strong as you make it. Someone with a copy of `config.yaml` can try to guess a short or common key offline. Use a long random key. Rotate it if `config.yaml` was exposed.
+- Older versions stored a bcrypt hash (`$2a$...`). Muximux still accepts it. On the first request that uses the key, Muximux replaces it with the SHA-256 form.
 
 ### Generating an API Key
 
@@ -601,22 +601,20 @@ Muximux stores the API key as a **bcrypt hash** in `config.yaml`, not as plainte
 1. Open **Settings → Security → API Key** as an admin.
 2. Click **Generate API key**.
 
-Muximux uses 32 bytes of `crypto/rand`. It prefixes the result with `muximux_`, so that a leaked key is recognisable. It stores only the bcrypt hash on disk. Muximux shows the plaintext exactly once, so that you can copy it into your integration. If you lose it, click **Rotate** to generate a new one. **Delete** clears the configured key. After that, every allowlisted path immediately stops accepting `X-Api-Key`.
+Muximux uses 32 bytes of `crypto/rand`. It prefixes the result with `muximux_`, so that a leaked key is recognisable. It stores only the SHA-256 hash on disk. Muximux shows the plaintext exactly once, so that you can copy it into your integration. If you lose it, click **Rotate** to generate a new one. **Delete** clears the configured key. After that, every allowlisted path immediately stops accepting `X-Api-Key`.
 
 **Alternative: command line.** If you want to set a key that you generated yourself, hash it first. Then write the hash into `config.yaml`:
 
 ```bash
 # Using the built-in hash subcommand
-muximux hash 'my-api-key'
-
-# Using htpasswd
-htpasswd -nbBC 12 "" 'my-api-key' | cut -d: -f2
+muximux hash --api-key 'my-api-key'
+# prints: sha256:...
 ```
 
 ```yaml
 auth:
   method: builtin
-  api_key_hash: "$2a$12$..."
+  api_key_hash: "sha256:..."
 ```
 
 Restart Muximux, and the key is live. From then on, the UI reports the key as configured and offers Rotate / Delete.

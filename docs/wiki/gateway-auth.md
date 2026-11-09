@@ -1,6 +1,6 @@
 # Gateway Auth Gate
 
-Muximux can act as a security gate in front of your gateway sites. (A gateway site is an extra site that Muximux's built-in Caddy serves, see [TLS and Gateway](tls-and-gateway#gateway-additional-sites).) This is optional. You turn the gate on per site. Then requests to that subdomain go through Muximux's session check before they reach the backend (the app behind the site). Muximux sends anonymous visitors to its login page. It forwards signed-in visitors based on their role and group membership.
+Muximux can act as a security gate in front of your gateway sites. (A gateway site is an extra site that Muximux's built-in Caddy serves, see [TLS and Gateway](tls-and-gateway.md#gateway-additional-sites).) This is optional. You turn the gate on per site. Then requests to that subdomain go through Muximux's session check before they reach the backend (the app behind the site). Muximux sends anonymous visitors to its login page. It forwards signed-in visitors based on their role and group membership.
 
 The gate sits **in front of** the backend. If the backend has its own authentication, the gate does not replace it. The two work as separate layers. Log in to Muximux once, and you can reach every gated subdomain you have permission for.
 
