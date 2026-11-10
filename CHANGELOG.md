@@ -2,6 +2,79 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.7.2] - 2026-11-10
+
+An open dashboard now notices when its session has ended, whether through
+a logout elsewhere, a back-channel logout, an expiry or a night of sleep.
+It then signs in again in the main window instead of letting an app's
+next page load end in a sign-in inside the app's frame, where passkeys
+fail. For providers that do not always send a back-channel logout, an
+optional setting rechecks the provider session. This release also closes
+several session and proxy weaknesses found along the way, keeps gateway
+certificates across container recreation, and corrects more of the wiki.
+
+Upgrade notes:
+- **OIDC sign-in must finish in the browser that started it.** Muximux now
+  ties each sign-in to the browser with a short-lived cookie. A sign-in
+  that starts on another host than `redirect_url` names (a LAN address,
+  say) first moves to that host, once.
+- **Gateway certificates move into the data volume** (`/app/data/caddy`).
+  Caddy requests new certificates once after the upgrade. A volume you
+  mounted at `/app/.local/share/caddy` is copied over on first start. If
+  that copy fails, the container stops with a message instead of starting
+  a new internal CA.
+
+### Added
+- **The dashboard rechecks its session** before it opens an app (unless a
+  check passed in the last minute), when you return to the tab after a
+  minute or more, and after a lost connection. When the session has
+  ended, it closes every app and shows the sign-in screen in the main
+  window. After you sign in, the same app opens, also across an SSO round
+  trip. An unreachable server is never taken as a logout. (#554)
+- **`auth.oidc.revalidate_after`** (off by default, at least `1m`; also in
+  Settings and `MUXIMUX_OIDC_REVALIDATE_AFTER`). Once an OIDC session has
+  gone that long without the provider vouching for it, page load or
+  return to the tab sends the browser through a silent `prompt=none`
+  round trip. A live provider session continues without a prompt. An
+  ended one (`login_required` and similar) ends the Muximux session and
+  starts a normal sign-in. Any other provider error keeps the session.
+  (#554)
+- An embedded app's page load without a session gets a short "session
+  ended" page that tells the dashboard, instead of the login page inside
+  the app's frame.
+
+### Security
+- **WebSocket connections end with their session.** After a logout, a
+  back-channel logout or an expiry, an open connection kept receiving
+  updates, for an admin including config changes and raw log lines. It is
+  now closed with code 4401.
+- **A role change reaches open connections.** A demoted admin's
+  connection kept receiving admin-only events until it reconnected.
+- **OIDC sign-ins are bound to the browser that started them.** A callback
+  URL from someone else's sign-in could sign a browser in as that person
+  (login CSRF).
+- **The proxy rewrites only a `Referer` from the dashboard itself.** It
+  rewrote any `Referer`, including one from another site, to the
+  backend's host, which then passed a backend's Referer-based CSRF check,
+  for example on paths in `auth_bypass`. (#557)
+
+### Fixed
+- **Gateway certificates survive container recreation.** Caddy kept its
+  certificates, ACME account and internal CA in
+  `/app/.local/share/caddy`, outside the data volume, so each recreate
+  requested new certificates (with the risk of rate limits) and created a
+  new internal CA. (#555)
+- After an SSO sign-in the address no longer keeps `/login`.
+- More wiki pages corrected where they did not match the code: API key
+  hashing (SHA-256), gateway reloads and the auth gate with forward auth,
+  health check status codes, the proxy's handling of module imports and
+  `Referer`, custom icon formats, and certificate storage. (#556)
+
+### Changed
+- The wiki and README got a second pass for simpler English. The README
+  copy is plainer. (#556)
+- Dependencies updated to their latest minor and patch releases.
+
 ## [3.7.1] - 2026-11-06
 
 Links can now open a page inside an app, not just switch to it, so a
