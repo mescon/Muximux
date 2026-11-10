@@ -2,6 +2,18 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Security
+- **go-jose v3 is no longer in the build.** Caddy's internal CA library
+  (`smallstep/certificates`) is moved to an untagged upstream commit that
+  switches to go-jose v4. That clears GHSA-mgcc-cww5-fp2q (JWK parsing
+  DoS), GHSA-4w3g-jfj2-cw2q and GHSA-vvm8-gf78-28g4 (panics), which have
+  no fixed v3 release. Muximux never called the affected code (Muximux's
+  own OIDC code already used go-jose v4), so this removes the dependency
+  rather than a live risk. It moves to a tagged release once smallstep
+  publishes v0.30.3.
+
 ## [3.7.2] - 2026-11-10
 
 An open dashboard now notices when its session has ended, whether through
