@@ -635,6 +635,14 @@
     showSplash = true;
     showSettings = false;
     showLogs = false;
+    // Nothing from the ended session may outlive it: an open confirm
+    // dialog would fire an action without a session, and open overlays
+    // would come back after the next sign-in.
+    pendingConfirm = null;
+    showCommandPalette = false;
+    showShortcuts = false;
+    deepLinks = {};
+    prefsDeferred = false;
     authState.update((s) => ({ ...s, authenticated: false, user: null, revalidate: false }));
     toasts.info(m.toast_sessionEnded());
   }

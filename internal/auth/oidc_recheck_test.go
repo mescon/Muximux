@@ -139,6 +139,23 @@ func TestHandleCallback_SilentErrorOnlyTouchesRecheckedSession(t *testing.T) {
 	if ss.Get(other.ID) == nil {
 		t.Fatal("a recheck for another session ended this one")
 	}
+	if sessionCookieCleared(rec) {
+		t.Fatal("the browser's newer session cookie must not be cleared")
+	}
+	if loc := rec.Header().Get("Location"); loc != "/" {
+		t.Fatalf("Location = %q, want the original page (no new sign-in needed)", loc)
+	}
+}
+
+// sessionCookieCleared reports whether the response deletes the session
+// cookie.
+func sessionCookieCleared(rec *httptest.ResponseRecorder) bool {
+	for _, c := range rec.Result().Cookies() {
+		if c.Name == "test_session" && c.MaxAge < 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func TestHandleCallback_SilentLoginRequiredEndsSessionAndSignsInAgain(t *testing.T) {
@@ -159,16 +176,7 @@ func TestHandleCallback_SilentLoginRequiredEndsSessionAndSignsInAgain(t *testing
 			if got := rec.Header().Get("Location"); got != want {
 				t.Fatalf("Location = %q, want %q", got, want)
 			}
-			if strings.Contains(rec.Header().Get("Location"), "prompt=none") {
-				t.Fatal("the follow-up sign-in must be interactive")
-			}
-			cleared := false
-			for _, c := range rec.Result().Cookies() {
-				if c.Name == "test_session" && c.MaxAge < 0 {
-					cleared = true
-				}
-			}
-			if !cleared {
+			if !sessionCookieCleared(rec) {
 				t.Fatal("session cookie should be cleared")
 			}
 		})

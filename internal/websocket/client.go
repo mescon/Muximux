@@ -130,6 +130,33 @@ func (c *Client) ReadPump() {
 	}
 }
 
+// writeClose sends the close frame, with the hub's close code when it set
+// one (CloseSessionEnded).
+func (c *Client) writeClose() {
+	payload := []byte{}
+	if c.closeCode != 0 {
+		payload = websocket.FormatCloseMessage(c.closeCode, "session ended")
+	}
+	_ = c.conn.WriteMessage(websocket.CloseMessage, payload)
+}
+
+// writeBatch writes message and every message already queued behind it
+// as one WebSocket frame. Returns false when the connection failed.
+func (c *Client) writeBatch(message []byte) bool {
+	w, err := c.conn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		logging.Debug("WebSocket write failed, closing connection", "source", "websocket", "error", err)
+		return false
+	}
+	w.Write(message)
+	n := len(c.send)
+	for i := 0; i < n; i++ {
+		w.Write([]byte{'\n'})
+		w.Write(<-c.send)
+	}
+	return w.Close() == nil
+}
+
 // WritePump pumps messages from the hub to the WebSocket connection
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(pingPeriod)
@@ -146,29 +173,10 @@ func (c *Client) WritePump() {
 				return
 			}
 			if !ok {
-				payload := []byte{}
-				if c.closeCode != 0 {
-					payload = websocket.FormatCloseMessage(c.closeCode, "session ended")
-				}
-				_ = c.conn.WriteMessage(websocket.CloseMessage, payload)
+				c.writeClose()
 				return
 			}
-
-			w, err := c.conn.NextWriter(websocket.TextMessage)
-			if err != nil {
-				logging.Debug("WebSocket write failed, closing connection", "source", "websocket", "error", err)
-				return
-			}
-			w.Write(message)
-
-			// Add queued messages to the current WebSocket message
-			n := len(c.send)
-			for i := 0; i < n; i++ {
-				w.Write([]byte{'\n'})
-				w.Write(<-c.send)
-			}
-
-			if err := w.Close(); err != nil {
+			if !c.writeBatch(message) {
 				return
 			}
 

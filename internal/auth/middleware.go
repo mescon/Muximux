@@ -548,6 +548,26 @@ func matchAllowedIPs(r *http.Request, rule BypassRule, snap *authSnapshot) bool 
 	return false
 }
 
+// forwardAuthRole returns RoleAdmin when one of groups is an admin group.
+// Custom admin groups win over the default; an empty list keeps the old
+// hardcoded set so existing deployments don't suddenly demote everyone.
+// The compare is case-insensitive to match OIDC: Authelia, Authentik and
+// others keep the operator's casing ("Admins", "ADMIN"), and a silently
+// case-sensitive check was a common misconfiguration trap (findings.md M2).
+func forwardAuthRole(groups, adminGroups []string) string {
+	if len(adminGroups) == 0 {
+		adminGroups = []string{"admin", "admins", "administrators"}
+	}
+	for _, g := range groups {
+		for _, ag := range adminGroups {
+			if strings.EqualFold(g, ag) {
+				return RoleAdmin
+			}
+		}
+	}
+	return RoleUser
+}
+
 func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	if !isFromTrustedProxy(r, snap) {
 		logging.From(r.Context()).Warn("Forward auth request not from trusted proxy", "source", "auth", "client_ip", getClientIP(r, snap))
@@ -586,30 +606,7 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 		return nil
 	}
 
-	role := RoleUser
-	// Determine the admin-group set. Custom config wins over the
-	// default; an empty config keeps the old hardcoded list so
-	// existing deployments don't suddenly demote everyone.
-	adminGroups := snap.config.ForwardAuthAdminGroups
-	if len(adminGroups) == 0 {
-		adminGroups = []string{"admin", "admins", "administrators"}
-	}
-	for _, g := range groupList {
-		// Case-insensitive compare to match OIDC's behaviour.
-		// Authelia/Authentik etc. tend to preserve the operator's
-		// configured casing ("Admins", "ADMIN"), and a silently
-		// case-sensitive check here was a common misconfig trap
-		// (findings.md M2).
-		for _, ag := range adminGroups {
-			if strings.EqualFold(g, ag) {
-				role = RoleAdmin
-				break
-			}
-		}
-		if role == RoleAdmin {
-			break
-		}
-	}
+	role := forwardAuthRole(groupList, snap.config.ForwardAuthAdminGroups)
 
 	return &User{
 		ID:          username,

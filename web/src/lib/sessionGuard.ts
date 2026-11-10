@@ -178,9 +178,7 @@ async function check(allowRecheck: boolean): Promise<SessionResult> {
  * Concurrent callers share one request. */
 export function ensureSession(opts: CheckOptions = {}): Promise<SessionResult> {
   if (!opts.force && sessionFresh()) return Promise.resolve('ok');
-  if (!inFlight) {
-    inFlight = check(opts.allowRecheck ?? false).finally(() => { inFlight = null; });
-  }
+  inFlight ??= check(opts.allowRecheck ?? false).finally(() => { inFlight = null; });
   return inFlight;
 }
 

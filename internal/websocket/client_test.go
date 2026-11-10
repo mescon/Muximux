@@ -3,6 +3,7 @@ package websocket
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -561,5 +562,50 @@ func TestRegister_RederivesAdminFromSession(t *testing.T) {
 	}
 	if strings.Contains(string(data), "secret") || !strings.Contains(string(data), string(EventHealthChanged)) {
 		t.Fatalf("demoted socket got %s", data)
+	}
+}
+
+func TestCloseSessions_NeverBlocksAndLosesNothing(t *testing.T) {
+	hub := NewHub()
+	// Run is not started yet: the requests pile up without blocking.
+	done := make(chan struct{})
+	go func() {
+		for i := 0; i < 1000; i++ {
+			hub.CloseSessions([]string{fmt.Sprintf("s%d", i)})
+			hub.CloseUser(fmt.Sprintf("u%d", i))
+		}
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("CloseSessions/CloseUser blocked without a running hub")
+	}
+	hub.kickMu.Lock()
+	n, m := len(hub.kickPending.sessions), len(hub.kickPending.users)
+	hub.kickMu.Unlock()
+	if n != 1000 || m != 1000 {
+		t.Fatalf("queued %d sessions and %d users, want 1000 each", n, m)
+	}
+
+	// Once Run starts, the whole queue is processed.
+	go hub.Run()
+	defer hub.Close()
+	conn := dialSession(t, hub, "s999")
+	time.Sleep(50 * time.Millisecond)
+	hub.CloseSessions([]string{"s999"})
+	if err := conn.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := conn.ReadMessage()
+	var ce *websocket.CloseError
+	if !errors.As(err, &ce) || ce.Code != CloseSessionEnded {
+		t.Fatalf("expected close code %d, got %v", CloseSessionEnded, err)
+	}
+	hub.kickMu.Lock()
+	left := len(hub.kickPending.sessions) + len(hub.kickPending.users)
+	hub.kickMu.Unlock()
+	if left != 0 {
+		t.Fatalf("%d requests left in the queue", left)
 	}
 }

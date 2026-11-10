@@ -329,7 +329,7 @@ describe('websocketStore', () => {
 
       expect(get(connectionState)).toBe('disconnected');
       vi.advanceTimersByTime(60_000);
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocket.instances).toHaveLength(1);
     });
 
     it('connects again at once when another tab replaced the session', async () => {
@@ -340,7 +340,7 @@ describe('websocketStore', () => {
       connect();
       MockWebSocket.instances[0].simulateOpen();
       MockWebSocket.instances[0].simulateClose(SESSION_ENDED_CLOSE_CODE, 'session ended');
-      await vi.waitFor(() => expect(MockWebSocket.instances.length).toBe(2));
+      await vi.waitFor(() => expect(MockWebSocket.instances).toHaveLength(2));
     });
 
     it('stays disconnected when signed out in the meantime', async () => {
@@ -356,7 +356,7 @@ describe('websocketStore', () => {
       resolve('ok');
       await Promise.resolve();
       await Promise.resolve();
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocket.instances).toHaveLength(1);
     });
 
     it('still reconnects after any other close, and asks for a check too', async () => {

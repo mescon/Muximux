@@ -1506,26 +1506,33 @@ func TestHandleUnauthenticated_FrameNavigationGetsSessionEndedPage(t *testing.T)
 			if w.Code != tc.wantStatus {
 				t.Fatalf("status = %d, want %d", w.Code, tc.wantStatus)
 			}
-			if tc.wantStatus != http.StatusUnauthorized {
-				if loc := w.Header().Get("Location"); loc != "/mux/login" {
-					t.Fatalf("Location = %q", loc)
-				}
-				return
-			}
-			body := w.Body.String()
-			for _, want := range []string{`muximux:auth-required`, `href="/mux/"`, `target="_top"`} {
-				if !strings.Contains(body, want) {
-					t.Errorf("body missing %q", want)
-				}
-			}
-			csp := w.Header().Get("Content-Security-Policy")
-			if !strings.Contains(csp, sessionEndedScriptCSP) || !strings.Contains(csp, "default-src 'none'") || !strings.Contains(csp, "frame-ancestors 'self'") {
-				t.Errorf("CSP = %q", csp)
-			}
-			if w.Header().Get("Cache-Control") != "no-store" {
-				t.Error("page must not be cached")
+			if tc.wantStatus == http.StatusUnauthorized {
+				checkSessionEndedPage(t, w)
+			} else if loc := w.Header().Get("Location"); loc != "/mux/login" {
+				t.Fatalf("Location = %q", loc)
 			}
 		})
+	}
+}
+
+// checkSessionEndedPage asserts the body and headers of the page a frame
+// gets when its session has ended (base path /mux).
+func checkSessionEndedPage(t *testing.T, w *httptest.ResponseRecorder) {
+	t.Helper()
+	body := w.Body.String()
+	for _, want := range []string{`muximux:auth-required`, `href="/mux/"`, `target="_top"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("body missing %q", want)
+		}
+	}
+	csp := w.Header().Get("Content-Security-Policy")
+	for _, want := range []string{sessionEndedScriptCSP, "default-src 'none'", "frame-ancestors 'self'"} {
+		if !strings.Contains(csp, want) {
+			t.Errorf("CSP %q missing %q", csp, want)
+		}
+	}
+	if w.Header().Get("Cache-Control") != "no-store" {
+		t.Error("page must not be cached")
 	}
 }
 

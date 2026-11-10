@@ -342,7 +342,9 @@ The check works like this:
 1. Muximux sends the browser to the provider with `prompt=none`. This asks the provider to answer without showing anything.
 2. If your provider session is still valid, the provider sends you straight back. Muximux starts a new session. The page reloads once and opens the same app.
 3. If your provider session has ended, the provider says so (`login_required`). Muximux ends its own session too and starts a normal sign-in in the main window.
-4. If the provider answers with any other error, or is down, you stay signed in. Muximux tries again after `revalidate_after`.
+4. If the provider answers with any other error, you stay signed in. Muximux tries again after `revalidate_after`.
+
+If the browser cannot reach the provider at all, the provider cannot answer. The browser then shows its own error page for the provider's address. Your Muximux session is still valid: open the dashboard again.
 
 `revalidate_after` is off by default, because each check reloads the page and every open app. The value must be at least `1m`. Set it in **Settings > Security**, in `config.yaml`, or with `MUXIMUX_OIDC_REVALIDATE_AFTER`.
 

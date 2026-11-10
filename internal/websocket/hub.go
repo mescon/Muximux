@@ -35,9 +35,13 @@ type Hub struct {
 	broadcast  chan Event
 	register   chan *Client
 	unregister chan *Client
-	kick       chan []string
-	kickUser   chan string
 	done       chan struct{}
+	// Close requests (CloseSessions, CloseUser) wait in kickPending and
+	// kickSignal wakes Run. Callers never block and no request is lost,
+	// however many arrive before Run drains them.
+	kickMu      sync.Mutex
+	kickPending kickRequests
+	kickSignal  chan struct{}
 	// sessionCheck, when set, is asked on register whether a socket's
 	// session still exists and whether its user is an admin now. A
 	// session deleted, or a role changed, between the HTTP upgrade and
@@ -55,8 +59,7 @@ func NewHub() *Hub {
 		broadcast:  make(chan Event, 256),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		kick:       make(chan []string, 16),
-		kickUser:   make(chan string, 16),
+		kickSignal: make(chan struct{}, 1),
 		done:       make(chan struct{}),
 	}
 }
@@ -112,11 +115,17 @@ func (h *Hub) Run() {
 			h.mu.Unlock()
 			logging.Debug("WebSocket client disconnected", "source", "websocket", "total_clients", total)
 
-		case ids := <-h.kick:
-			h.closeSessions(ids)
-
-		case userID := <-h.kickUser:
-			h.closeUser(userID)
+		case <-h.kickSignal:
+			h.kickMu.Lock()
+			req := h.kickPending
+			h.kickPending = kickRequests{}
+			h.kickMu.Unlock()
+			if len(req.sessions) > 0 {
+				h.closeSessions(req.sessions)
+			}
+			for _, userID := range req.users {
+				h.closeUser(userID)
+			}
 
 		case event := <-h.broadcast:
 			data, err := json.Marshal(event)
@@ -200,20 +209,37 @@ func (h *Hub) closeUser(userID string) {
 	h.mu.Unlock()
 }
 
-// CloseUser closes every socket of userID with a normal close frame.
-// The browser reconnects, and the new socket gets the user's current
-// role. Used after a role change. Blocks only while the queue is full;
-// a no-op once Close has run.
-func (h *Hub) CloseUser(userID string) {
+// kickRequests are the close requests waiting for Run.
+type kickRequests struct {
+	sessions []string
+	users    []string
+}
+
+// queueKick records a close request and wakes Run. It never blocks.
+func (h *Hub) queueKick(add func(*kickRequests)) {
 	select {
 	case <-h.done:
 		return
 	default:
 	}
+	h.kickMu.Lock()
+	add(&h.kickPending)
+	h.kickMu.Unlock()
 	select {
-	case h.kickUser <- userID:
-	case <-h.done:
+	case h.kickSignal <- struct{}{}:
+	default: // Run is already due to drain the queue
 	}
+}
+
+// CloseUser closes every socket of userID with a normal close frame.
+// The browser reconnects, and the new socket gets the user's current
+// role. Used after a role change. Never blocks; a no-op once Close has
+// run.
+func (h *Hub) CloseUser(userID string) {
+	if userID == "" {
+		return
+	}
+	h.queueKick(func(k *kickRequests) { k.users = append(k.users, userID) })
 }
 
 // SetSessionCheck registers the check Run uses on register; see the
@@ -224,22 +250,12 @@ func (h *Hub) SetSessionCheck(fn func(sessionID string) (isAdmin bool, ok bool))
 
 // CloseSessions closes the sockets that belong to the given sessions,
 // sending close code CloseSessionEnded. Wired as the session store's
-// delete hook. Blocks only while the 16-slot queue is full (the Run loop
-// drains it and takes no lock a caller holds); once Close has run it is
-// a no-op.
+// delete hook. Never blocks; a no-op once Close has run.
 func (h *Hub) CloseSessions(ids []string) {
 	if len(ids) == 0 {
 		return
 	}
-	select {
-	case <-h.done:
-		return
-	default:
-	}
-	select {
-	case h.kick <- ids:
-	case <-h.done:
-	}
+	h.queueKick(func(k *kickRequests) { k.sessions = append(k.sessions, ids...) })
 }
 
 // Register adds a client to the hub. Becomes a no-op once Close has run.

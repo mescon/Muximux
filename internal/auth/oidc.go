@@ -326,28 +326,13 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 
 	// Check for errors from provider
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
-		if entry, ok := p.takeState(r.URL.Query().Get("state")); ok && entry.silent && p.boundToBrowser(r, &entry) {
-			p.handleSilentError(w, r, errParam, &entry)
-			return
-		}
-		errDesc := r.URL.Query().Get("error_description")
-		logging.From(r.Context()).Warn("OIDC authentication error", "source", "auth", "error", errParam, "description", errDesc)
-		code := callbackErrFailed
-		if errParam == "access_denied" {
-			code = callbackErrDenied
-		}
-		p.failCallback(w, r, code)
+		p.handleProviderError(w, r, errParam)
 		return
 	}
 
 	// Verify state parameter
-	entry, ok := p.takeState(r.URL.Query().Get("state"))
-	if ok && !p.boundToBrowser(r, &entry) {
-		logging.From(r.Context()).Warn("OIDC callback: sign-in was started in a different browser", "source", "audit")
-		ok = false
-	}
+	entry, ok := p.callbackState(r)
 	if !ok {
-		logging.From(r.Context()).Warn("OIDC callback: invalid state parameter", "source", "auth")
 		p.failCallback(w, r, callbackErrState)
 		return
 	}
@@ -602,6 +587,39 @@ func (p *OIDCProvider) callbackHostHop(r *http.Request) string {
 	return target.String()
 }
 
+// handleProviderError finishes a callback that carries ?error=. A bound
+// silent recheck has its own rules (handleSilentError); anything else
+// goes back to the login page with a fixed code.
+func (p *OIDCProvider) handleProviderError(w http.ResponseWriter, r *http.Request, errParam string) {
+	if entry, ok := p.takeState(r.URL.Query().Get("state")); ok && entry.silent && p.boundToBrowser(r, &entry) {
+		p.handleSilentError(w, r, errParam, &entry)
+		return
+	}
+	errDesc := r.URL.Query().Get("error_description")
+	logging.From(r.Context()).Warn("OIDC authentication error", "source", "auth", "error", errParam, "description", errDesc)
+	code := callbackErrFailed
+	if errParam == "access_denied" {
+		code = callbackErrDenied
+	}
+	p.failCallback(w, r, code)
+}
+
+// callbackState takes the pending sign-in named by ?state= and checks it
+// belongs to this browser. ok is false for an unknown, expired or foreign
+// state; the reason is logged.
+func (p *OIDCProvider) callbackState(r *http.Request) (stateEntry, bool) {
+	entry, ok := p.takeState(r.URL.Query().Get("state"))
+	if !ok {
+		logging.From(r.Context()).Warn("OIDC callback: invalid state parameter", "source", "auth")
+		return entry, false
+	}
+	if !p.boundToBrowser(r, &entry) {
+		logging.From(r.Context()).Warn("OIDC callback: sign-in was started in a different browser", "source", "audit")
+		return entry, false
+	}
+	return entry, true
+}
+
 // takeState removes and returns the pending login for state.
 func (p *OIDCProvider) takeState(state string) (stateEntry, bool) {
 	if state == "" {
@@ -638,11 +656,15 @@ var providerSessionEnded = map[string]bool{
 // session: a provider outage is not a logout. The revalidation clock is
 // reset so the dashboard does not retry at once.
 func (p *OIDCProvider) handleSilentError(w http.ResponseWriter, r *http.Request, errParam string, entry *stateEntry) {
-	// Only the session the recheck was started for is touched.
-	var session *Session
-	if cur := p.sessionStore.GetFromRequest(r); cur != nil && cur.ID == entry.rechecked {
-		session = cur
+	// Only the session the recheck was started for is touched. When the
+	// browser has signed in again meanwhile (another live session), the
+	// answer is about an old session: leave the new one alone.
+	cur := p.sessionStore.GetFromRequest(r)
+	if cur != nil && cur.ID != entry.rechecked {
+		http.Redirect(w, r, sanitizeRedirectURL(entry.redirectURL, p.basePath), http.StatusFound)
+		return
 	}
+	session := cur
 	if providerSessionEnded[errParam] {
 		if session != nil {
 			p.sessionStore.Delete(session.ID)
