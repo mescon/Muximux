@@ -32,6 +32,7 @@ type oidcSettingsResponse struct {
 	LogoutURL             string            `json:"logout_url"`
 	AutoRedirect          bool              `json:"auto_redirect"`
 	DisableLocalLogin     bool              `json:"disable_local_login"`
+	RevalidateAfter       string            `json:"revalidate_after"`
 	EnvFields             map[string]string `json:"env_fields"` // field -> variable name
 	DefaultCallbackURL    string            `json:"default_callback_url"`
 	BackchannelURL        string            `json:"backchannel_url"`
@@ -68,6 +69,7 @@ type oidcSettingsRequest struct {
 	LogoutURL             *string  `json:"logout_url"`
 	AutoRedirect          *bool    `json:"auto_redirect"`
 	DisableLocalLogin     *bool    `json:"disable_local_login"`
+	RevalidateAfter       *string  `json:"revalidate_after"`
 }
 
 // oidcRefFieldNames are the string OIDC fields that can be written in
@@ -75,7 +77,7 @@ type oidcSettingsRequest struct {
 // one set by a MUXIMUX_OIDC_* variable.
 var oidcRefFieldNames = []string{
 	"issuer_url", "client_id", "client_secret", "redirect_url", "username_claim", "email_claim",
-	"groups_claim", "display_name_claim", "post_logout_redirect_url", "logout_url",
+	"groups_claim", "display_name_claim", "post_logout_redirect_url", "logout_url", "revalidate_after",
 }
 
 // oidcOverridePrefix is the env_overrides key prefix of the OIDC fields.
@@ -152,7 +154,7 @@ func (h *AuthHandler) GetOIDCSettings(w http.ResponseWriter, r *http.Request) {
 		RedirectURL: o.RedirectURL, Scopes: o.Scopes, UsernameClaim: o.UsernameClaim, EmailClaim: o.EmailClaim,
 		GroupsClaim: o.GroupsClaim, DisplayNameClaim: o.DisplayNameClaim, AdminGroups: o.AdminGroups,
 		ProviderLogout: o.ProviderLogout, PostLogoutRedirectURL: o.PostLogoutRedirectURL, LogoutURL: o.LogoutURL,
-		AutoRedirect: o.AutoRedirect, DisableLocalLogin: o.DisableLocalLogin, EnvFields: env,
+		AutoRedirect: o.AutoRedirect, DisableLocalLogin: o.DisableLocalLogin, RevalidateAfter: o.RevalidateAfter, EnvFields: env,
 		DefaultCallbackURL: origin + base + "/api/auth/oidc/callback",
 		BackchannelURL:     origin + base + "/api/auth/oidc/backchannel-logout",
 	}
@@ -262,6 +264,7 @@ func applyOIDCSettings(cur *config.OIDCConfig, req *oidcSettingsRequest, envLock
 	setStr("display_name_claim", &out.DisplayNameClaim, req.DisplayNameClaim)
 	setStr("post_logout_redirect_url", &out.PostLogoutRedirectURL, req.PostLogoutRedirectURL)
 	setStr("logout_url", &out.LogoutURL, req.LogoutURL)
+	setStr("revalidate_after", &out.RevalidateAfter, req.RevalidateAfter)
 	setList("scopes", &out.Scopes, req.Scopes)
 	setList("admin_groups", &out.AdminGroups, req.AdminGroups)
 	setBool("provider_logout", &out.ProviderLogout, req.ProviderLogout)
@@ -366,6 +369,7 @@ func oidcChangedFields(prev, next *config.OIDCConfig) []string {
 	add("logout_url", prev.LogoutURL != next.LogoutURL)
 	add("auto_redirect", prev.AutoRedirect != next.AutoRedirect)
 	add("disable_local_login", prev.DisableLocalLogin != next.DisableLocalLogin)
+	add("revalidate_after", prev.RevalidateAfter != next.RevalidateAfter)
 	return changed
 }
 

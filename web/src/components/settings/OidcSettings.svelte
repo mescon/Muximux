@@ -2,6 +2,7 @@
   import { untrack } from 'svelte';
   import type { OIDCSettings, OIDCSettingsUpdate, OIDCTestResult } from '$lib/types';
   import { testOIDCProvider, errorText } from '$lib/api';
+  import { parseDurationMs } from '$lib/duration';
   import * as m from '$lib/paraglide/messages.js';
 
   let { settings, onchange }: {
@@ -30,6 +31,7 @@
   let logoutUrl = $state(initial.logout_url);
   let autoRedirect = $state(initial.auto_redirect);
   let disableLocal = $state(initial.disable_local_login);
+  let revalidateAfter = $state(initial.revalidate_after ?? '');
 
   let testing = $state(false);
   let testResult = $state<OIDCTestResult | null>(null);
@@ -69,6 +71,11 @@
   }
 
   const optionalUrlOk = (value: string) => value.trim() === '' || isAbsoluteHttpUrl(value.trim());
+  // Empty (off) or a duration of at least one minute, as the server accepts.
+  const revalidateAfterOk = (value: string) => {
+    const v = value.trim();
+    return v === '' || (parseDurationMs(v) ?? 0) >= 60_000;
+  };
 
   const payload = $derived.by(() => {
     const p: Record<string, unknown> = {
@@ -86,6 +93,7 @@
       logout_url: logoutUrl.trim(),
       auto_redirect: autoRedirect,
       disable_local_login: disableLocal,
+      revalidate_after: revalidateAfter.trim(),
     };
     if (clientSecret !== '') p.client_secret = clientSecret;
     for (const f of Object.keys(envFields)) delete p[f];
@@ -98,6 +106,7 @@
     (fromEnv('redirect_url') || optionalUrlOk(redirectUrl)) &&
     (fromEnv('post_logout_redirect_url') || optionalUrlOk(postLogoutUrl)) &&
     (fromEnv('logout_url') || optionalUrlOk(logoutUrl)) &&
+    (fromEnv('revalidate_after') || revalidateAfterOk(revalidateAfter)) &&
     !newSsoOnlyWithChange
   );
 
@@ -284,6 +293,17 @@
       {#if disableLocal}
         <p class="text-xs text-warning-text mt-1" data-testid="oidc-disable-local-warning">{m.oidc_disable_local_warning()}</p>
       {/if}
+    </div>
+
+    <div>
+      <label for="oidc-revalidate-after" class="block text-sm text-text-muted mb-1">{m.oidc_revalidate_after()}</label>
+      <input id="oidc-revalidate-after" type="text" bind:value={revalidateAfter} readonly={fromEnv('revalidate_after')}
+        placeholder={m.oidc_revalidate_after_placeholder()}
+        aria-describedby={envNoteId('revalidate_after') ?? 'oidc-revalidate-after-hint'}
+        aria-invalid={!fromEnv('revalidate_after') && !revalidateAfterOk(revalidateAfter)}
+        class={inputClass} />
+      {@render envNote('revalidate_after')}
+      <p id="oidc-revalidate-after-hint" class="text-xs text-text-muted mt-1">{m.oidc_revalidate_after_hint()}</p>
     </div>
   </div>
 

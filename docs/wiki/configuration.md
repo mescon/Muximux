@@ -128,6 +128,7 @@ auth:
     logout_url: ""             # End-session URL for providers without one in discovery
     auto_redirect: false       # Login page goes straight to SSO (except after logout, ?local=1 or an error)
     disable_local_login: false # Refuse password sign-in while OIDC is on (API keys still work)
+    revalidate_after: ""       # Recheck the provider session after this long (e.g. 8h, at least 1m); empty = off
 
 # ─── Theme ─────────────────────────────────────
 theme:
@@ -337,6 +338,7 @@ Muximux treats an unknown `MUXIMUX_DISCOVERY_AUTO_IMPORT` value as `off` and log
 | `MUXIMUX_OIDC_LOGOUT_URL` | `auth.oidc.logout_url` | Absolute `http(s)` URL |
 | `MUXIMUX_OIDC_AUTO_REDIRECT` | `auth.oidc.auto_redirect` | Boolean |
 | `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` | `auth.oidc.disable_local_login` | Boolean |
+| `MUXIMUX_OIDC_REVALIDATE_AFTER` | `auth.oidc.revalidate_after` | Duration, at least `1m` |
 
 Each defaults to the config file value. An empty or blank auth variable counts as unset. This includes an empty `X_FILE`, so `X=value` with `X_FILE=` uses the value. Setting both `X` and `X_FILE` is an error. Invalid auth configuration stops startup instead of leaving the instance open. Two examples: an unknown `MUXIMUX_AUTH_METHOD`, or OIDC variables without `MUXIMUX_AUTH_METHOD` on an instance whose `config.yaml` is not already on OIDC. Muximux logs an unknown `MUXIMUX_OIDC_*` name as a warning. The full rules, with examples, are in [Configuring OIDC with environment variables](authentication.md#configuring-oidc-with-environment-variables). Compose and Swarm examples with Docker secrets are in [Deployment](deployment.md#oidc-from-environment-variables-and-docker-secrets).
 

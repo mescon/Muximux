@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
+	"encoding/base64"
 	"encoding/hex"
+	"html"
+	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -284,20 +287,7 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 	case AuthMethodBuiltin, AuthMethodOIDC:
 		session := m.sessionStore.GetFromRequest(r)
 		if session != nil {
-			// An OIDC session never resolves to a local account. Its ID
-			// is the provider's username claim, so a provider user named
-			// like a local user (a kept break-glass "admin", say) would
-			// otherwise sign in with that account's role.
-			if isOIDCSession(session) {
-				return userFromSession(session), session
-			}
-			user := m.userStore.GetByID(session.UserID)
-			if user == nil {
-				// Session-only user, not in the config-based UserStore.
-				// Reconstruct from session data.
-				user = userFromSession(session)
-			}
-			return user, session
+			return m.userForSession(session), session
 		}
 		return nil, nil
 
@@ -307,6 +297,36 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 	default:
 		return nil, nil
 	}
+}
+
+// userForSession resolves the user a session acts as, with the role the
+// user has now (a local user's role is read from the user store, not
+// from the session).
+func (m *Middleware) userForSession(session *Session) *User {
+	// An OIDC session never resolves to a local account. Its ID is the
+	// provider's username claim, so a provider user named like a local
+	// user (a kept break-glass "admin", say) would otherwise sign in with
+	// that account's role.
+	if isOIDCSession(session) {
+		return userFromSession(session)
+	}
+	if user := m.userStore.GetByID(session.UserID); user != nil {
+		return user
+	}
+	// Session-only user, not in the config-based UserStore. Reconstruct
+	// from session data.
+	return userFromSession(session)
+}
+
+// UserForSessionID returns the user a live session acts as, or nil when
+// the session does not exist or has expired. The WebSocket hub uses it
+// to re-derive a socket's role at registration.
+func (m *Middleware) UserForSessionID(id string) *User {
+	session := m.sessionStore.Get(id)
+	if session == nil {
+		return nil
+	}
+	return m.userForSession(session)
 }
 
 // userFromSession constructs a User from session data. This is used for
@@ -528,6 +548,26 @@ func matchAllowedIPs(r *http.Request, rule BypassRule, snap *authSnapshot) bool 
 	return false
 }
 
+// forwardAuthRole returns RoleAdmin when one of groups is an admin group.
+// Custom admin groups win over the default; an empty list keeps the old
+// hardcoded set so existing deployments don't suddenly demote everyone.
+// The compare is case-insensitive to match OIDC: Authelia, Authentik and
+// others keep the operator's casing ("Admins", "ADMIN"), and a silently
+// case-sensitive check was a common misconfiguration trap (findings.md M2).
+func forwardAuthRole(groups, adminGroups []string) string {
+	if len(adminGroups) == 0 {
+		adminGroups = []string{"admin", "admins", "administrators"}
+	}
+	for _, g := range groups {
+		for _, ag := range adminGroups {
+			if strings.EqualFold(g, ag) {
+				return RoleAdmin
+			}
+		}
+	}
+	return RoleUser
+}
+
 func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	if !isFromTrustedProxy(r, snap) {
 		logging.From(r.Context()).Warn("Forward auth request not from trusted proxy", "source", "auth", "client_ip", getClientIP(r, snap))
@@ -566,30 +606,7 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 		return nil
 	}
 
-	role := RoleUser
-	// Determine the admin-group set. Custom config wins over the
-	// default; an empty config keeps the old hardcoded list so
-	// existing deployments don't suddenly demote everyone.
-	adminGroups := snap.config.ForwardAuthAdminGroups
-	if len(adminGroups) == 0 {
-		adminGroups = []string{"admin", "admins", "administrators"}
-	}
-	for _, g := range groupList {
-		// Case-insensitive compare to match OIDC's behaviour.
-		// Authelia/Authentik etc. tend to preserve the operator's
-		// configured casing ("Admins", "ADMIN"), and a silently
-		// case-sensitive check here was a common misconfig trap
-		// (findings.md M2).
-		for _, ag := range adminGroups {
-			if strings.EqualFold(g, ag) {
-				role = RoleAdmin
-				break
-			}
-		}
-		if role == RoleAdmin {
-			break
-		}
-	}
+	role := forwardAuthRole(groupList, snap.config.ForwardAuthAdminGroups)
 
 	return &User{
 		ID:          username,
@@ -732,8 +749,59 @@ func handleUnauthenticated(w http.ResponseWriter, r *http.Request, snap *authSna
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	if isFrameNavigation(r) {
+		writeSessionEndedFrame(w, snap.config.BasePath)
+		return
+	}
 
 	http.Redirect(w, r, snap.config.BasePath+"/login", http.StatusFound)
+}
+
+// isFrameNavigation reports whether r loads a document into an iframe
+// (an embedded app's page, typically under /proxy/<slug>/). Browsers set
+// Sec-Fetch-Dest on every request; older ones that do not fall back to
+// the redirect.
+func isFrameNavigation(r *http.Request) bool {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		return false
+	}
+	switch r.Header.Get("Sec-Fetch-Dest") {
+	case "iframe", "frame":
+		return true
+	}
+	return false
+}
+
+// sessionEndedScript tells the dashboard (the frame's parent, which is
+// on this same origin) that the session is gone, so it can sign in
+// again in the top-level window. The target origin keeps the message
+// from reaching a parent on any other origin.
+const sessionEndedScript = `try{window.parent.postMessage({type:"muximux:auth-required"},location.origin)}catch(e){}`
+
+// sessionEndedScriptCSP is the script's CSP hash source.
+var sessionEndedScriptCSP = func() string {
+	sum := sha256.Sum256([]byte(sessionEndedScript))
+	return "'sha256-" + base64.StdEncoding.EncodeToString(sum[:]) + "'"
+}()
+
+// writeSessionEndedFrame answers a frame navigation that has no valid
+// session. Redirecting to /login would load the login page (and with
+// auto_redirect the identity provider) inside the app's frame, where
+// passkeys and many providers do not work. This page instead asks the
+// dashboard to sign in again at the top level, and offers a link for
+// the case where the frame is not inside the dashboard.
+func writeSessionEndedFrame(w http.ResponseWriter, basePath string) {
+	h := w.Header()
+	h.Set("Content-Type", "text/html; charset=utf-8")
+	h.Set("Cache-Control", "no-store")
+	h.Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; script-src "+sessionEndedScriptCSP+"; base-uri 'none'; form-action 'none'; frame-ancestors 'self'")
+	w.WriteHeader(http.StatusUnauthorized)
+	home := html.EscapeString(basePath + "/")
+	_, _ = io.WriteString(w, `<!doctype html><html><head><meta charset="utf-8"><title>Session ended</title>`+
+		`<meta name="viewport" content="width=device-width, initial-scale=1">`+
+		`<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#888;background:transparent}a{color:inherit}</style>`+
+		`</head><body><p>Your Muximux session has ended. <a href="`+home+`" target="_top">Sign in again</a></p>`+
+		`<script>`+sessionEndedScript+`</script></body></html>`)
 }
 
 // GetUserFromContext extracts the user from request context

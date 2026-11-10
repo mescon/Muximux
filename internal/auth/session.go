@@ -19,7 +19,11 @@ type Session struct {
 	Role      string
 	CreatedAt time.Time
 	ExpiresAt time.Time
-	Data      map[string]interface{}
+	// ProviderCheckedAt is when the identity provider last vouched for
+	// an OIDC session: the sign-in, or a prompt=none recheck that could
+	// not reach a verdict. auth.oidc.revalidate_after counts from here.
+	ProviderCheckedAt time.Time
+	Data              map[string]interface{}
 }
 
 // IsExpired checks if the session has expired
@@ -41,6 +45,34 @@ type SessionStore struct {
 	// restore). A login captures it before checking credentials and
 	// CreateWithDataAt refuses to publish a session once it has moved.
 	generation uint64
+	// onDelete, when set, is called with the IDs of sessions that were
+	// removed (logout, back-channel logout, user removal, invalidation,
+	// expiry sweep). It runs after the store's lock is released, so it
+	// may call back into the store. Used to close WebSockets that belong
+	// to a session that no longer exists.
+	onDelete func(ids []string)
+}
+
+// SetOnDelete registers fn to be told about removed sessions. Call it
+// once during setup, before the store is shared.
+func (s *SessionStore) SetOnDelete(fn func(ids []string)) {
+	s.mu.Lock()
+	s.onDelete = fn
+	s.mu.Unlock()
+}
+
+// notifyDeleted reports removed session IDs to the onDelete hook. The
+// caller must not hold s.mu.
+func (s *SessionStore) notifyDeleted(ids []string) {
+	if len(ids) == 0 {
+		return
+	}
+	s.mu.RLock()
+	fn := s.onDelete
+	s.mu.RUnlock()
+	if fn != nil {
+		fn(ids)
+	}
 }
 
 // ErrSessionGenerationChanged is returned by CreateWithDataAt when the
@@ -61,11 +93,15 @@ func (s *SessionStore) Generation() uint64 {
 // were removed.
 func (s *SessionStore) InvalidateAll() int {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	s.generation++
-	n := len(s.sessions)
+	ids := make([]string, 0, len(s.sessions))
+	for id := range s.sessions {
+		ids = append(ids, id)
+	}
 	s.sessions = make(map[string]*Session)
-	return n
+	s.mu.Unlock()
+	s.notifyDeleted(ids)
+	return len(ids)
 }
 
 // SetCookieDomain configures the Domain attribute applied to every
@@ -157,14 +193,16 @@ func (s *SessionStore) create(gen *uint64, userID, username, role string, data m
 		sessionData[k] = v
 	}
 
+	now := time.Now()
 	session := &Session{
-		ID:        id,
-		UserID:    userID,
-		Username:  username,
-		Role:      role,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(s.maxAge),
-		Data:      sessionData,
+		ID:                id,
+		UserID:            userID,
+		Username:          username,
+		Role:              role,
+		CreatedAt:         now,
+		ExpiresAt:         now.Add(s.maxAge),
+		ProviderCheckedAt: now,
+		Data:              sessionData,
 	}
 
 	s.mu.Lock()
@@ -195,19 +233,26 @@ func (s *SessionStore) Get(id string) *Session {
 // Delete removes a session
 func (s *SessionStore) Delete(id string) {
 	s.mu.Lock()
+	_, existed := s.sessions[id]
 	delete(s.sessions, id)
 	s.mu.Unlock()
+	if existed {
+		s.notifyDeleted([]string{id})
+	}
 }
 
 // DeleteByUserID removes all sessions for a user, optionally excluding one session
 func (s *SessionStore) DeleteByUserID(userID string, exceptSessionID string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	var ids []string
 	for id, session := range s.sessions {
 		if session.UserID == userID && id != exceptSessionID {
 			delete(s.sessions, id)
+			ids = append(ids, id)
 		}
 	}
+	s.mu.Unlock()
+	s.notifyDeleted(ids)
 }
 
 // DeleteMatching removes every session for which match returns true and
@@ -215,15 +260,16 @@ func (s *SessionStore) DeleteByUserID(userID string, exceptSessionID string) {
 // must not call back into the store.
 func (s *SessionStore) DeleteMatching(match func(*Session) bool) int {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	n := 0
+	var ids []string
 	for id, session := range s.sessions {
 		if match(session) {
 			delete(s.sessions, id)
-			n++
+			ids = append(ids, id)
 		}
 	}
-	return n
+	s.mu.Unlock()
+	s.notifyDeleted(ids)
+	return len(ids)
 }
 
 // Refresh extends the session expiration. The extension is capped by the
@@ -245,6 +291,17 @@ func (s *SessionStore) Refresh(id string) {
 		}
 	}
 	session.ExpiresAt = newExpiry
+}
+
+// MarkProviderChecked resets the session's revalidation clock. Used when
+// a prompt=none recheck could not reach a verdict (provider error), so
+// the dashboard does not retry it in a loop.
+func (s *SessionStore) MarkProviderChecked(id string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if session, ok := s.sessions[id]; ok {
+		session.ProviderCheckedAt = time.Now()
+	}
 }
 
 // GetFromRequest extracts session from HTTP request cookie
@@ -316,22 +373,29 @@ func (s *SessionStore) cleanup() {
 	for {
 		select {
 		case <-ticker.C:
-			s.mu.Lock()
-			count := 0
-			for id, session := range s.sessions {
-				if session.IsExpired() {
-					delete(s.sessions, id)
-					count++
-				}
+			ids := s.removeExpired()
+			if len(ids) > 0 {
+				logging.Debug("Session cleanup", "source", "auth", "expired", len(ids))
 			}
-			s.mu.Unlock()
-			if count > 0 {
-				logging.Debug("Session cleanup", "source", "auth", "expired", count)
-			}
+			s.notifyDeleted(ids)
 		case <-s.done:
 			return
 		}
 	}
+}
+
+// removeExpired deletes every expired session and returns their IDs.
+func (s *SessionStore) removeExpired() []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var ids []string
+	for id, session := range s.sessions {
+		if session.IsExpired() {
+			delete(s.sessions, id)
+			ids = append(ids, id)
+		}
+	}
+	return ids
 }
 
 // Count returns the number of active sessions

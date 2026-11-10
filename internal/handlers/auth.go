@@ -36,6 +36,11 @@ type AuthHandler struct {
 	bypassRules           []auth.BypassRule
 	changePasswordLimiter *userAttemptLimiter
 	discoveryProbe        DockerLifecycleProbe
+	// closeUserSockets, when set, closes the user's open WebSockets so
+	// they reconnect with the user's current role. A socket keeps the
+	// role it had when it opened, so a demoted admin would otherwise
+	// keep receiving admin-only events.
+	closeUserSockets func(userID string)
 }
 
 // userAttemptLimiter is a minimal per-key attempt counter with a sliding
@@ -187,6 +192,12 @@ func (h *AuthHandler) CloseOIDC() error {
 // SetSetupChecker sets the function used to check if setup is required.
 func (h *AuthHandler) SetSetupChecker(fn func() bool) {
 	h.setupChecker = fn
+}
+
+// SetUserSocketCloser wires the WebSocket hub so a role change takes
+// effect on open sockets too.
+func (h *AuthHandler) SetUserSocketCloser(fn func(userID string)) {
+	h.closeUserSockets = fn
 }
 
 // SetDockerLifecycleProbe wires the discovery service so /api/auth/me
@@ -608,6 +619,12 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 	if user != nil {
 		response["user"] = h.buildUserResponse(user)
+		if oidcOn {
+			oc := oidc.Config()
+			if oidcRecheckDue(auth.GetSessionFromContext(r.Context()), oc.OIDCRevalidateAfter(), time.Now()) {
+				response["revalidate"] = true
+			}
+		}
 	}
 
 	if h.setupChecker != nil {
@@ -853,6 +870,10 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		logging.From(r.Context()).Error("Failed to persist user update; reverted", "source", "auth", "user", username, "error", err)
 		respondError(w, r, http.StatusInternalServerError, "Failed to persist user update")
 		return
+	}
+
+	if user.Role != prev.Role && h.closeUserSockets != nil {
+		h.closeUserSockets(user.ID)
 	}
 
 	logging.From(r.Context()).Info("User updated", "source", "audit", "user", username, "role", user.Role)
@@ -1309,4 +1330,18 @@ func (h *AuthHandler) refreshAuthSnapshotLocked() {
 		CloudflareAccess:       auth.CloudflareAccessFromConfig(h.config.Auth.CloudflareAccess),
 	}
 	h.authMiddleware.UpdateConfig(&authCfg)
+}
+
+// oidcRecheckDue reports whether an OIDC session has gone longer than
+// after without the provider vouching for it (auth.oidc.revalidate_after).
+// The dashboard then sends the browser through a prompt=none round trip.
+// A local session, or after == 0, never needs one.
+func oidcRecheckDue(session *auth.Session, after time.Duration, now time.Time) bool {
+	if session == nil || after <= 0 {
+		return false
+	}
+	if iss, _ := session.Data["oidc_iss"].(string); iss == "" {
+		return false
+	}
+	return now.Sub(session.ProviderCheckedAt) > after
 }

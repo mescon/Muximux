@@ -99,6 +99,17 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Set up authentication
 	sessionStore, userStore, authMiddleware := setupAuth(cfg)
+	// A deleted session (logout, back-channel logout, expiry, user
+	// removal, restore) must not keep receiving broadcasts on a socket
+	// it opened earlier.
+	sessionStore.SetOnDelete(wsHub.CloseSessions)
+	wsHub.SetSessionCheck(func(id string) (bool, bool) {
+		user := authMiddleware.UserForSessionID(id)
+		if user == nil {
+			return false, false
+		}
+		return user.Role == auth.RoleAdmin, true
+	})
 
 	s := &Server{
 		config:         cfg,
@@ -133,6 +144,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware, &s.configMu)
 	authHandler.SetBypassRules(defaultBypassRules)
 	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
+	authHandler.SetUserSocketCloser(wsHub.CloseUser)
 	// Migrate a legacy bcrypt api_key_hash to sha256: on first successful
 	// use, so an existing install closes the bcrypt DoS window without a
 	// manual key rotation.
@@ -633,7 +645,14 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		user := auth.GetUserFromContext(r.Context())
 		isAdmin := user != nil && user.Role == auth.RoleAdmin
-		websocket.ServeWs(wsHub, w, r, isAdmin)
+		id := websocket.Identity{IsAdmin: isAdmin}
+		if user != nil {
+			id.UserID = user.ID
+		}
+		if session := auth.GetSessionFromContext(r.Context()); session != nil {
+			id.SessionID = session.ID
+		}
+		websocket.ServeWs(wsHub, w, r, id)
 	})
 
 	return loginLimiter

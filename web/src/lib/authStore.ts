@@ -21,6 +21,9 @@ export interface AuthState {
   error: string | null;
   setupRequired: boolean;
   logoutUrl: string | null;
+  // The server wants the provider session rechecked (auth.oidc.
+  // revalidate_after); see sessionGuard.ts.
+  revalidate?: boolean;
   // Set when MUXIMUX_AUTH_METHOD fixes the auth method: the method and the
   // variable's name. The setup wizard locks its method choice to it.
   authMethodEnv?: { method: string; variable: string };
@@ -109,6 +112,7 @@ export async function checkAuthStatus(): Promise<void> {
       logout_url?: string;
       auth_method?: string;
       auth_method_env?: string;
+      revalidate?: boolean;
     } | null;
     if (!data) {
       authState.set({
@@ -129,6 +133,7 @@ export async function checkAuthStatus(): Promise<void> {
       error: null,
       setupRequired: data.setup_required || false,
       logoutUrl: data.logout_url || null,
+      ...(data.revalidate ? { revalidate: true } : {}),
       ...(data.auth_method_env && data.auth_method
         ? { authMethodEnv: { method: data.auth_method, variable: data.auth_method_env } }
         : {}),

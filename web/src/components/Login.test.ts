@@ -151,10 +151,10 @@ describe('Login', () => {
     let hrefSetter: ReturnType<typeof vi.fn>;
     const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'location')!;
 
-    function setup(search: string, status: Record<string, unknown>) {
+    function setup(search: string, status: Record<string, unknown>, hash = '') {
       hrefSetter = vi.fn();
       Object.defineProperty(window, 'location', {
-        value: { pathname: '/', search, set href(v: string) { hrefSetter(v); } },
+        value: { pathname: '/', search, hash, set href(v: string) { hrefSetter(v); } },
         writable: true,
         configurable: true,
       });
@@ -174,6 +174,16 @@ describe('Login', () => {
       await waitFor(() => {
         expect(hrefSetter).toHaveBeenCalledWith('/api/auth/oidc/login?redirect=%2F');
       });
+    });
+
+    it('keeps the app route for the round trip through the provider', async () => {
+      sessionStorage.clear();
+      setup('', { oidc_auto_redirect: true }, '#emby');
+      render(Login);
+      await waitFor(() => expect(hrefSetter).toHaveBeenCalled());
+      const saved = JSON.parse(sessionStorage.getItem('muximux_resume_hash') ?? '{}');
+      expect(saved.hash).toBe('#emby');
+      sessionStorage.clear();
     });
 
     it.each(['?logged_out=1', '?local=1', '?error=x'])('does not auto-redirect with %s', async (search) => {

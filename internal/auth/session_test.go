@@ -575,3 +575,82 @@ func TestSessionStore_GenerationGuardsCreate(t *testing.T) {
 		t.Errorf("plain Create after a reset: %v", err)
 	}
 }
+
+func TestSessionStore_OnDeleteReportsEveryRemovalPath(t *testing.T) {
+	store := NewSessionStore("s", time.Hour, false)
+	defer store.Close()
+
+	var got [][]string
+	store.SetOnDelete(func(ids []string) {
+		// Calling back into the store must not deadlock.
+		_ = store.Count()
+		got = append(got, append([]string(nil), ids...))
+	})
+
+	mk := func(user string) string {
+		s, err := store.Create(user, user, RoleUser)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s.ID
+	}
+
+	a := mk("alice")
+	store.Delete(a)
+	store.Delete(a) // already gone: no second report
+	if len(got) != 1 || len(got[0]) != 1 || got[0][0] != a {
+		t.Fatalf("Delete: got %v", got)
+	}
+
+	keep := mk("bob")
+	drop := mk("bob")
+	store.DeleteByUserID("bob", keep)
+	if len(got) != 2 || len(got[1]) != 1 || got[1][0] != drop {
+		t.Fatalf("DeleteByUserID: got %v", got)
+	}
+
+	c := mk("carol")
+	if n := store.DeleteMatching(func(s *Session) bool { return s.UserID == "carol" }); n != 1 {
+		t.Fatalf("DeleteMatching removed %d", n)
+	}
+	if len(got) != 3 || got[2][0] != c {
+		t.Fatalf("DeleteMatching: got %v", got)
+	}
+
+	// Nothing matched: no report.
+	store.DeleteMatching(func(*Session) bool { return false })
+	if len(got) != 3 {
+		t.Fatalf("empty DeleteMatching reported: %v", got)
+	}
+
+	mk("dave")
+	if n := store.InvalidateAll(); n != 2 { // bob's kept session + dave
+		t.Fatalf("InvalidateAll removed %d", n)
+	}
+	if len(got) != 4 || len(got[3]) != 2 {
+		t.Fatalf("InvalidateAll: got %v", got)
+	}
+}
+
+func TestSessionStore_RemoveExpiredReportsIDs(t *testing.T) {
+	store := NewSessionStore("s", time.Hour, false)
+	defer store.Close()
+	var got []string
+	store.SetOnDelete(func(ids []string) { got = append(got, ids...) })
+
+	live, _ := store.Create("u", "u", RoleUser)
+	old, _ := store.Create("v", "v", RoleUser)
+	store.mu.Lock()
+	store.sessions[old.ID].ExpiresAt = time.Now().Add(-time.Minute)
+	store.mu.Unlock()
+
+	ids := store.removeExpired()
+	store.notifyDeleted(ids)
+	if len(got) != 1 || got[0] != old.ID {
+		t.Fatalf("expected only the expired session, got %v", got)
+	}
+	if store.Get(live.ID) == nil {
+		t.Fatal("live session was removed")
+	}
+	store.notifyDeleted(nil) // no-op
+}

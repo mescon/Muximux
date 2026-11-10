@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -1439,5 +1440,110 @@ func TestOIDCSessionDoesNotResolveToLocalUser(t *testing.T) {
 		if u == nil || u.Role != c.want {
 			t.Errorf("%s: user %+v, want role %s", c.name, u, c.want)
 		}
+	}
+}
+
+func TestUserForSessionID(t *testing.T) {
+	m, ss, us := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
+	if err := us.Add(&User{ID: "alice", Username: "alice", Role: RoleUser}); err != nil {
+		t.Fatal(err)
+	}
+
+	if m.UserForSessionID("missing") != nil {
+		t.Fatal("unknown session resolved to a user")
+	}
+
+	// A local session reads the role from the user store, not the session.
+	local, _ := ss.Create("alice", "alice", RoleAdmin)
+	if u := m.UserForSessionID(local.ID); u == nil || u.Role != RoleUser {
+		t.Fatalf("local session: got %+v, want role %q", u, RoleUser)
+	}
+
+	// An OIDC session never maps to a local account.
+	oidc, _ := ss.CreateWithData("alice", "alice", RolePowerUser, map[string]interface{}{"oidc_iss": "https://idp.example.com"})
+	if u := m.UserForSessionID(oidc.ID); u == nil || u.Role != RolePowerUser {
+		t.Fatalf("OIDC session: got %+v, want role %q", u, RolePowerUser)
+	}
+
+	// A session-only user falls back to the session's data.
+	ghost, _ := ss.Create("ghost", "ghost", RoleUser)
+	if u := m.UserForSessionID(ghost.ID); u == nil || u.Username != "ghost" {
+		t.Fatalf("session-only user: got %+v", u)
+	}
+
+	ss.Delete(local.ID)
+	if m.UserForSessionID(local.ID) != nil {
+		t.Fatal("deleted session still resolves")
+	}
+}
+
+func TestHandleUnauthenticated_FrameNavigationGetsSessionEndedPage(t *testing.T) {
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, BasePath: "/mux"})
+	h := m.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("handler reached without a session")
+	}))
+
+	cases := []struct {
+		name, method, dest, path string
+		wantStatus               int
+	}{
+		{"iframe navigation", http.MethodGet, "iframe", "/proxy/app/", http.StatusUnauthorized},
+		{"legacy frame", http.MethodGet, "frame", "/proxy/app/", http.StatusUnauthorized},
+		{"HEAD in a frame", http.MethodHead, "iframe", "/proxy/app/", http.StatusUnauthorized},
+		{"top-level document", http.MethodGet, "document", "/proxy/app/", http.StatusFound},
+		{"no fetch metadata", http.MethodGet, "", "/proxy/app/", http.StatusFound},
+		{"subresource", http.MethodGet, "image", "/proxy/app/logo.png", http.StatusFound},
+		{"form post in a frame", http.MethodPost, "iframe", "/proxy/app/form", http.StatusFound},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, tc.path, nil)
+			if tc.dest != "" {
+				req.Header.Set("Sec-Fetch-Dest", tc.dest)
+			}
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, req)
+			if w.Code != tc.wantStatus {
+				t.Fatalf("status = %d, want %d", w.Code, tc.wantStatus)
+			}
+			if tc.wantStatus == http.StatusUnauthorized {
+				checkSessionEndedPage(t, w)
+			} else if loc := w.Header().Get("Location"); loc != "/mux/login" {
+				t.Fatalf("Location = %q", loc)
+			}
+		})
+	}
+}
+
+// checkSessionEndedPage asserts the body and headers of the page a frame
+// gets when its session has ended (base path /mux).
+func checkSessionEndedPage(t *testing.T, w *httptest.ResponseRecorder) {
+	t.Helper()
+	body := w.Body.String()
+	for _, want := range []string{`muximux:auth-required`, `href="/mux/"`, `target="_top"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("body missing %q", want)
+		}
+	}
+	csp := w.Header().Get("Content-Security-Policy")
+	for _, want := range []string{sessionEndedScriptCSP, "default-src 'none'", "frame-ancestors 'self'"} {
+		if !strings.Contains(csp, want) {
+			t.Errorf("CSP %q missing %q", csp, want)
+		}
+	}
+	if w.Header().Get("Cache-Control") != "no-store" {
+		t.Error("page must not be cached")
+	}
+}
+
+func TestHandleUnauthenticated_APIStill401(t *testing.T) {
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
+	h := m.RequireAuth(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+	req.Header.Set("Sec-Fetch-Dest", "iframe")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusUnauthorized || strings.Contains(w.Body.String(), "auth-required") {
+		t.Fatalf("API request: status %d body %q", w.Code, w.Body.String())
 	}
 }

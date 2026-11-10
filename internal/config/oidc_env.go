@@ -36,6 +36,7 @@ const (
 	EnvOIDCLogoutURL             = "MUXIMUX_OIDC_LOGOUT_URL"
 	EnvOIDCAutoRedirect          = "MUXIMUX_OIDC_AUTO_REDIRECT"
 	EnvOIDCDisableLocalLogin     = "MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN"
+	EnvOIDCRevalidateAfter       = "MUXIMUX_OIDC_REVALIDATE_AFTER"
 
 	// envFileSuffix names the Docker-secrets variant of a variable:
 	// MUXIMUX_OIDC_CLIENT_SECRET_FILE=/run/secrets/x reads the value from x.
@@ -87,6 +88,7 @@ var oidcEnvVars = []oidcEnvVar{
 	{name: EnvOIDCLogoutURL, field: OverrideOIDCLogoutURL, kind: envString},
 	{name: EnvOIDCAutoRedirect, field: OverrideOIDCAutoRedirect, kind: envBool},
 	{name: EnvOIDCDisableLocalLogin, field: OverrideOIDCDisableLocalLogin, kind: envBool},
+	{name: EnvOIDCRevalidateAfter, field: OverrideOIDCRevalidateAfter, kind: envString},
 }
 
 // AuthEnvVarNames returns every variable ApplyAuthEnv reads, including the

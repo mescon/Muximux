@@ -86,3 +86,6 @@ findings.md
 # Brainstorming companion (mockups + session state)
 .superpowers/
 /web/.a11y-shots/
+
+# inlang plugin cache (created by the paraglide build)
+web/project.inlang/cache/

@@ -26,7 +26,7 @@ When authentication is enabled, most endpoints need a valid session cookie. An A
 | `/api/auth/api-key` | POST | Admin | Generate or rotate the instance API key |
 | `/api/auth/api-key` | DELETE | Admin | Clear the instance API key |
 | `/api/auth/setup` | POST | No (but requires `X-Setup-Token`) | Initial setup (onboarding wizard). See [Authentication > First-Run Setup](authentication.md#first-run-setup) for the token. |
-| `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider |
+| `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider. `?redirect=<path>` sets where to land afterwards. `?prompt=none` rechecks the current session without any prompt (see [Rechecking the provider session](authentication.md#rechecking-the-provider-session)) |
 | `/api/auth/oidc/callback` | GET | No | OIDC callback handler |
 | `/api/auth/oidc/backchannel-logout` | POST | No (signed logout token) | OIDC back-channel logout. See [Authentication > Back-channel logout](authentication.md#back-channel-logout) |
 | `/api/auth/settings/oidc` | GET | Admin | Current OIDC settings (the client secret is reported only as `client_secret_set`), with `env_fields` for fields owned by the environment |
@@ -72,7 +72,7 @@ GET /api/auth/status
 }
 ```
 
-The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. The response includes a `logout_url` field when `auth_method` is `forward_auth` and a logout URL is configured. The client uses it to redirect on sign-out. The response also carries `oidc_auto_redirect` and `local_login` (whether the password form is offered). While the method comes from the environment, it also carries `auth_method_env` (the variable's name, for example `MUXIMUX_AUTH_METHOD`).
+The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. The response includes a `logout_url` field when `auth_method` is `forward_auth` and a logout URL is configured. The client uses it to redirect on sign-out. The response also carries `oidc_auto_redirect` and `local_login` (whether the password form is offered). While the method comes from the environment, it also carries `auth_method_env` (the variable's name, for example `MUXIMUX_AUTH_METHOD`). For an OIDC session, it carries `"revalidate": true` when `auth.oidc.revalidate_after` is set and the provider has not vouched for the session for that long.
 
 **Before setup completes.** On a new install, only these endpoints answer until the onboarding wizard finishes: `GET /api/auth/status`, `POST /api/auth/setup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, the `/api/auth/oidc/*` sign-in routes, `GET /api/health`, `POST /api/config/restore`, and the read-only theme list and icon routes the wizard uses. Every other endpoint returns `503` with `{"error": "setup_required"}`. This includes user and API key management, the auth method and OIDC settings, the log viewer, `/api/system/*`, the `/ws` live stream and the `/proxy/` app routes.
 
@@ -545,6 +545,8 @@ Connect to `/ws` to receive real-time updates. Muximux sends events as JSON mess
 | `log_entry` | `LogEntry` object | A new log entry was recorded (see Logs section above). Admin-only: only broadcast to admin clients |
 
 If the connection drops, the WebSocket client reconnects automatically. It uses exponential backoff (a wait that grows after each failed try). It waits at most 30 seconds between retries, and it tries at most 10 times.
+
+When the session that opened the connection ends (logout, back-channel logout, expiry, account removal), Muximux closes the connection with close code `4401`. Do not reconnect with the same session. When a user's role changes, Muximux closes that user's connections with a normal close. Reconnect, and the new connection gets the new role.
 
 ---
 

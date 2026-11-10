@@ -86,6 +86,20 @@ python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-secret-password', bcrypt.gen
 - A password change ends all other sessions of that user.
 - `session_max_age` accepts duration strings like `1h`, `24h`, `7d`.
 
+#### When a session ends
+
+A session can end while the dashboard is open: you log out in another tab, an admin removes your account, the session expires, or the provider sends a back-channel logout. The dashboard notices in these ways:
+
+- **At once**, through its live connection (WebSocket). Muximux closes the connection of a session that ends.
+- **Before it opens an app**, if it has not checked in the last minute.
+- **When you come back to the tab** after a minute or more away, for example after the computer slept.
+- **On the next request** that the server refuses, such as the regular health update.
+- **When an embedded app loads a page.** A proxied app's page load without a session gets a short "session ended" page instead of the login page. That page tells the dashboard.
+
+The dashboard then closes every app and shows the sign-in screen in the main window. Sign-in never happens inside an app's frame. Passkeys and many providers do not work there. After you sign in again, the same app opens.
+
+A server that cannot be reached does not count as a logout. The dashboard keeps working and checks again later.
+
 ---
 
 ## Forward Auth (Authelia / Authentik / Traefik Forward Auth)
@@ -248,6 +262,7 @@ auth:
     # logout_url: ""                          # End-session URL for providers without one in discovery
     # auto_redirect: false                    # Skip the login page and go straight to SSO
     # disable_local_login: false              # Refuse username/password sign-in
+    # revalidate_after: ""                    # Recheck the provider session after this long (e.g. 8h); empty = off
 ```
 
 ### How It Works
@@ -316,6 +331,25 @@ https://muximux.example.com/api/auth/oidc/backchannel-logout
 
 Each provider guide has a **Sign-out** section with the provider's field names.
 
+### Rechecking the provider session
+
+Back-channel logout only works when the provider sends it. Some providers skip it in some cases. Then the Muximux session stays valid after you sign out at the provider. It stays valid for up to `session_max_age`, even after a reload.
+
+`revalidate_after` closes that gap. Set it to a duration, for example `8h`. Once an OIDC session is that old without a check, Muximux asks the provider again. It does this when the page loads, or when you come back to the tab. It does not do it while you switch between apps.
+
+The check works like this:
+
+1. Muximux sends the browser to the provider with `prompt=none`. This asks the provider to answer without showing anything.
+2. If your provider session is still valid, the provider sends you straight back. Muximux starts a new session. The page reloads once and opens the same app.
+3. If your provider session has ended, the provider says so (`login_required`). Muximux ends its own session too and starts a normal sign-in in the main window.
+4. If the provider answers with any other error, you stay signed in. Muximux tries again after `revalidate_after`.
+
+If the browser cannot reach the provider at all, the provider cannot answer. The browser then shows its own error page for the provider's address. Your Muximux session is still valid: open the dashboard again.
+
+`revalidate_after` is off by default, because each check reloads the page and every open app. The value must be at least `1m`. Set it in **Settings > Security**, in `config.yaml`, or with `MUXIMUX_OIDC_REVALIDATE_AFTER`.
+
+A shorter `session_max_age` is the other option. It works with every provider, but you then sign in again more often.
+
 ### Configuring OIDC with environment variables
 
 Every OIDC setting, and the auth method itself, can come from environment variables instead of `config.yaml`. A fresh container can have no `config.yaml`, only these variables and a Docker secret. Such a container starts with OIDC as its auth method and skips the setup wizard. Redeploying with the same variables gives the same configuration.
@@ -339,6 +373,7 @@ Every OIDC setting, and the auth method itself, can come from environment variab
 | `MUXIMUX_OIDC_LOGOUT_URL` | `logout_url` | absolute `http(s)` URL |
 | `MUXIMUX_OIDC_AUTO_REDIRECT` | `auto_redirect` | boolean |
 | `MUXIMUX_OIDC_DISABLE_LOCAL_LOGIN` | `disable_local_login` | boolean |
+| `MUXIMUX_OIDC_REVALIDATE_AFTER` | `revalidate_after` | duration, at least `1m` (for example `8h`) |
 
 Booleans accept `true`, `1`, `yes`, `on` and `false`, `0`, `no`, `off`. An empty or blank variable counts as unset. So a blank entry in a compose file never clears a value. Unset scopes and claims use the provider defaults listed under [Setting up OIDC in config.yaml](#setting-up-oidc-in-configyaml). `MUXIMUX_AUTH_METHOD=oidc` also turns `enabled` on. So you only need `MUXIMUX_OIDC_ENABLED` to turn it off (for example with another method).
 

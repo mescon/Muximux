@@ -363,6 +363,7 @@ export interface OIDCSettings {
   logout_url: string;
   auto_redirect: boolean;
   disable_local_login: boolean;
+  revalidate_after: string;
   env_fields: Record<string, string>;
   default_callback_url: string;
   backchannel_url: string;

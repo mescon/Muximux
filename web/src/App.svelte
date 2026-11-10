@@ -19,7 +19,8 @@
   import { applyConfigToShell, applyServerConfig, settingsAllowHashChange, reapplyDeferredPrefs, type ShellState, type ShellActions, type ApplyDeps } from './lib/configSync';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
-  import { checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
+  import { authState, checkAuthStatus, isAuthenticated, isAdmin, setupRequired } from './lib/authStore';
+  import { clearResumeHash, installSessionGuard, markSessionOk, onSessionEnded, restoreResumeHash, runWithSession, startProviderRecheck } from './lib/sessionGuard';
   import { mergeOnboardingResult } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer, isDarkTheme } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
@@ -363,6 +364,9 @@
     // Initialize debug logging (must come before other inits)
     initDebug();
 
+    // Back from a sign-in round trip: put the app route back (#554).
+    restoreResumeHash();
+
     // Initialize theme system
     initTheme();
 
@@ -415,7 +419,11 @@
       },
       baseUrl: baseUrl(),
     });
-    bridgeCleanup = () => { removeNotificationBridge(); removeNavigationBridge(); };
+    // Session guard (#554): re-check the session on resume and react when
+    // it has ended, signing in again in this window, not in an app frame.
+    onSessionEnded(handleSessionEnded);
+    const removeSessionGuard = installSessionGuard();
+    bridgeCleanup = () => { removeNotificationBridge(); removeNavigationBridge(); removeSessionGuard(); };
 
     // Tag the initial history entry as Muximux's own so Back/Forward onto it
     // takes the traversal path in the hashchange handler below.
@@ -439,7 +447,8 @@
         // Entries Muximux created are tagged; an untagged one came from a
         // link click (or a typed hash) rather than Back/Forward.
         currentNavHash = location.hash;
-        selectAppFromHash(history.state);
+        const entryState = history.state;
+        runWithSession(() => selectAppFromHash(entryState));
       } else {
         // Hash cleared (e.g. navigating to /): go home.
         currentNavHash = '';
@@ -451,6 +460,18 @@
 
     // First check auth status
     await checkAuthStatus();
+    if (get(isAuthenticated)) {
+      markSessionOk();
+      // Back from an SSO sign-in that started on /login (the server sends
+      // unauthenticated requests there): show the dashboard's own path.
+      if (location.pathname.endsWith('/login')) {
+        const base = location.pathname.replace(/\/login$/, '') || '/';
+        history.replaceState(history.state, '', base + location.hash);
+      }
+      // auth.oidc.revalidate_after: the provider has not vouched for this
+      // session in a while. The silent round trip reloads the page.
+      if (get(authState).revalidate && startProviderRecheck()) return;
+    }
     authChecked = true;
 
     // If setup is needed, go straight to unified wizard
@@ -548,6 +569,11 @@
   });
 
   async function handleLoginSuccess() {
+    markSessionOk();
+    // A password sign-in keeps the hash in the address, so a route saved
+    // when the session ended is not needed; a later reload must not
+    // bring it back.
+    clearResumeHash();
     // Fix URL — the backend redirects unauthenticated requests to /login,
     // but the SPA handles auth client-side so we restore the root path.
     if (location.pathname.endsWith('/login')) {
@@ -591,6 +617,34 @@
     } catch (e) {
       error = e instanceof Error ? e.message : m.error_failedLoadConfig();
     }
+  }
+
+  // The session ended under the open dashboard (#554): drop every app frame
+  // and show the sign-in screen in this top-level window. The app route
+  // stays in the address (and was saved for an SSO round trip), so the
+  // user lands back on it.
+  function handleSessionEnded() {
+    stopHealthPolling();
+    disconnectWs();
+    authRequired = true;
+    config = null;
+    apps = [];
+    resetSplit();
+    visitedAppNames.clear();
+    visitedOrder = [];
+    showSplash = true;
+    showSettings = false;
+    showLogs = false;
+    // Nothing from the ended session may outlive it: an open confirm
+    // dialog would fire an action without a session, and open overlays
+    // would come back after the next sign-in.
+    pendingConfirm = null;
+    showCommandPalette = false;
+    showShortcuts = false;
+    deepLinks = {};
+    prefsDeferred = false;
+    authState.update((s) => ({ ...s, authenticated: false, user: null, revalidate: false }));
+    toasts.info(m.toast_sessionEnded());
   }
 
   async function handleLogout() {
@@ -765,11 +819,14 @@
       }
       void fireAction(app);
     } else {
-      trackVisit(app.name);
-      setPanelApp(app);
-      showSplash = false;
-      showLogs = false;
-      updateHash();
+      // Open the app only once the session is known to be good (#554).
+      runWithSession(() => {
+        trackVisit(app.name);
+        setPanelApp(app);
+        showSplash = false;
+        showLogs = false;
+        updateHash();
+      });
     }
   }
 
@@ -795,10 +852,12 @@
 
   // An accepted request from an embedded app (navigationBridge.ts).
   function navigateFromApp(req: Parameters<typeof applyNavigate>[0]) {
-    applyNavigate(req, deepLinks, trackVisit);
-    showSplash = false;
-    showLogs = false;
-    updateHash();
+    runWithSession(() => {
+      applyNavigate(req, deepLinks, trackVisit);
+      showSplash = false;
+      showLogs = false;
+      updateHash();
+    });
   }
 
   function navigateHash(newHash: string) {

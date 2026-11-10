@@ -1982,16 +1982,16 @@ func (route *proxyRoute) resolveBackendPath(reqPath string) string {
 // operator of (or attacker between Muximux and) the backend would
 // otherwise gain equivalent access.
 func stripSessionCookie(r *http.Request, name string) {
-	if name == "" {
-		return
-	}
 	cookies := r.Cookies()
 	if len(cookies) == 0 {
 		return
 	}
 	filtered := make([]*http.Cookie, 0, len(cookies))
 	for _, c := range cookies {
-		if c.Name == name {
+		// The OIDC binding cookie is Muximux's own too. It is scoped to
+		// the sign-in routes, but a browser may still hold one with a
+		// wider path; a proxied app must never see it.
+		if (name != "" && c.Name == name) || c.Name == auth.OIDCBindingCookie {
 			continue
 		}
 		filtered = append(filtered, c)

@@ -328,7 +328,7 @@ func TestGetAuthorizationURL(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	authURL, err := p.GetAuthorizationURL(context.Background(), "/dashboard")
+	authURL, err := p.testAuthorizationURL(context.Background(), "/dashboard")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL failed: %v", err)
 	}
@@ -403,7 +403,7 @@ func TestGetAuthorizationURL_StateCapEvictsOldest(t *testing.T) {
 	p.statesMu.Unlock()
 
 	// One more login: must evict an oldest synthetic and stay at the cap.
-	if _, err := p.GetAuthorizationURL(context.Background(), "/new"); err != nil {
+	if _, err := p.testAuthorizationURL(context.Background(), "/new"); err != nil {
 		t.Fatalf("GetAuthorizationURL failed: %v", err)
 	}
 
@@ -462,7 +462,7 @@ func TestGetAuthorizationURL_EvictionPrefersOlderEntries(t *testing.T) {
 	// branch many chances to mis-target the legit entry.
 	const trials = 200
 	for i := 0; i < trials; i++ {
-		if _, err := p.GetAuthorizationURL(context.Background(), "/new"); err != nil {
+		if _, err := p.testAuthorizationURL(context.Background(), "/new"); err != nil {
 			t.Fatalf("trial %d: %v", i, err)
 		}
 	}
@@ -854,6 +854,7 @@ func TestHandleLogin(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/login?redirect=/settings", nil)
+	req.Host = "localhost:3000" // the host redirect_url names
 	rec := httptest.NewRecorder()
 
 	p.HandleLogin(rec, req)
@@ -1691,7 +1692,7 @@ func TestPKCE_StrictProviderAcceptsExchange(t *testing.T) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 	p, _ := newTestOIDCProvider(t, srv.URL)
-	authURL, err := p.GetAuthorizationURL(context.Background(), "/")
+	authURL, err := p.testAuthorizationURL(context.Background(), "/")
 	if err != nil {
 		t.Fatal(err)
 	}

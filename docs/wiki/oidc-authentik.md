@@ -146,6 +146,8 @@ authentik supports RP-initiated logout (Muximux sends the user to the provider t
 - **Back-channel logout.** Edit the OAuth2/OpenID provider (**Applications > Providers**). Enter `https://muximux.example.com/api/auth/oidc/backchannel-logout` in the **Logout URI** field. Choose **Back-channel** as the **Logout Method**. The authentik documentation lists this feature as available from authentik 2025.8.
 - **Post-logout redirect.** authentik added `post_logout_redirect_uri` support for OAuth2 providers in release 2026.5. In that release, you can give the provider's redirect URIs a logout type. On older releases, or if you cannot find the setting, check the authentik documentation for your version. We could not confirm the exact label. Register `https://muximux.example.com/login?logged_out=1` (or your `post_logout_redirect_url`) there. If no post-logout redirect URIs are saved on the provider, authentik skips the matching.
 
+Some authentik versions do not send the back-channel logout in every case (see goauthentik/authentik#25826). Then a Muximux session can outlive the authentik session. To cover this, set `revalidate_after` (see [Rechecking the provider session](authentication#rechecking-the-provider-session)).
+
 See [Authentication](authentication#oidc-openid-connect) for what each Muximux option does.
 
 ---

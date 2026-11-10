@@ -3796,6 +3796,18 @@ func TestStripSessionCookie(t *testing.T) {
 			strip:    "muximux_session",
 			expected: "Muximux_Session=secret",
 		},
+		{
+			name:     "always strips the OIDC binding cookie",
+			cookie:   "muximux_oidc_binding=b; prefs=dark; muximux_session=s",
+			strip:    "muximux_session",
+			expected: "prefs=dark",
+		},
+		{
+			name:     "strips the OIDC binding cookie even without a session name",
+			cookie:   "muximux_oidc_binding=b; prefs=dark",
+			strip:    "",
+			expected: "prefs=dark",
+		},
 	}
 
 	for _, tt := range tests {
