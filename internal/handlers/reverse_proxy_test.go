@@ -4473,7 +4473,12 @@ func TestWebSocketProxy_PathCannotInjectRequest(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	got := <-received
+	var got string
+	select {
+	case got = <-received:
+	case <-time.After(5 * time.Second):
+		t.Fatalf("backend never received the upgrade request (proxy answered %d)", resp.StatusCode)
+	}
 	firstLine, _, _ := strings.Cut(got, "\r\n")
 	wantLine := "GET /public/a%20HTTP/1.1%0D%0AX-Canary:%20injected%0D%0A%0D%0APOST%20/private/admin-action%20HTTP/1.1%0D%0AX-Pad:%20b HTTP/1.1"
 	if firstLine != wantLine {
