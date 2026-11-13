@@ -4377,3 +4377,109 @@ if(bad.length){console.log(bad.join("; "));process.exit(1)}`
 		t.Errorf("R() rewrote the wrong URLs: %s", out)
 	}
 }
+
+// TestUpgradeRequestTarget pins the request-target escaping for the
+// hand-written WebSocket upgrade request (GHSA-v2x3-5q4j-25fj): decoded
+// space, CR and LF in the path must leave escaped, never as raw bytes.
+func TestUpgradeRequestTarget(t *testing.T) {
+	tests := []struct {
+		name, path, query, want string
+		ok                      bool
+	}{
+		{"plain", "/ws", "", "/ws", true},
+		{"query kept raw", "/socket.io/", "EIO=4&transport=websocket", "/socket.io/?EIO=4&transport=websocket", true},
+		{"encoded query kept", "/ws", "a=%20b", "/ws?a=%20b", true},
+		{"space escaped", "/public/a b", "", "/public/a%20b", true},
+		{
+			"request line injection escaped",
+			"/public/a HTTP/1.1\r\nHost: stub\r\n\r\nPOST /private/admin-action HTTP/1.1\r\nX-Pad: b",
+			"",
+			"/public/a%20HTTP/1.1%0D%0AHost:%20stub%0D%0A%0D%0APOST%20/private/admin-action%20HTTP/1.1%0D%0AX-Pad:%20b",
+			true,
+		},
+		{"NUL escaped", "/a\x00b", "", "/a%00b", true},
+		{"query with raw space rejected", "/ws", "a b", "", false},
+		{"query with raw CRLF rejected", "/ws", "a\r\nX: y", "", false},
+		{"relative path rejected", "ws", "", "", false},
+		{"empty path rejected", "", "", "", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, ok := upgradeRequestTarget(tt.path, tt.query)
+			if ok != tt.ok || got != tt.want {
+				t.Fatalf("upgradeRequestTarget(%q, %q) = %q, %v; want %q, %v", tt.path, tt.query, got, ok, tt.want, tt.ok)
+			}
+		})
+	}
+}
+
+// TestWebSocketProxy_PathCannotInjectRequest sends the advisory's
+// payload through the real proxy and checks the bytes the backend
+// receives: one request line, the payload still percent-encoded, no
+// injected header and no second request (GHSA-v2x3-5q4j-25fj).
+func TestWebSocketProxy_PathCannotInjectRequest(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ln.Close()
+	received := make(chan string, 1)
+	go func() {
+		c, err := ln.Accept()
+		if err != nil {
+			received <- ""
+			return
+		}
+		defer c.Close()
+		var buf bytes.Buffer
+		_ = c.SetReadDeadline(time.Now().Add(2 * time.Second))
+		tmp := make([]byte, 4096)
+		for !strings.Contains(buf.String(), "\r\n\r\n") {
+			n, err := c.Read(tmp)
+			buf.Write(tmp[:n])
+			if err != nil {
+				break
+			}
+		}
+		// Anything injected arrives in the same write; give it a moment.
+		_ = c.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
+		for {
+			n, err := c.Read(tmp)
+			buf.Write(tmp[:n])
+			if err != nil {
+				break
+			}
+		}
+		_, _ = c.Write([]byte("HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"))
+		received <- buf.String()
+	}()
+
+	apps := []config.AppConfig{{Name: "Echo", URL: "http://" + ln.Addr().String(), Enabled: true, Proxy: true}}
+	proxyServer := httptest.NewServer(NewReverseProxyHandler(apps, "30s"))
+	defer proxyServer.Close()
+	proxyURL, _ := url.Parse(proxyServer.URL)
+
+	conn, err := net.Dial("tcp", proxyURL.Host)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+	payload := "/proxy/echo/public/a%20HTTP/1.1%0d%0aX-Canary:%20injected%0d%0a%0d%0aPOST%20/private/admin-action%20HTTP/1.1%0d%0aX-Pad:%20b"
+	fmt.Fprintf(conn, "GET %s HTTP/1.1\r\nHost: %s\r\nConnection: Upgrade\r\nUpgrade: websocket\r\n"+
+		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n", payload, proxyURL.Host)
+	resp, err := http.ReadResponse(bufio.NewReader(conn), nil)
+	if err != nil {
+		t.Fatalf("read response: %v", err)
+	}
+	resp.Body.Close()
+
+	got := <-received
+	firstLine, _, _ := strings.Cut(got, "\r\n")
+	wantLine := "GET /public/a%20HTTP/1.1%0D%0AX-Canary:%20injected%0D%0A%0D%0APOST%20/private/admin-action%20HTTP/1.1%0D%0AX-Pad:%20b HTTP/1.1"
+	if firstLine != wantLine {
+		t.Errorf("backend request line = %q, want %q", firstLine, wantLine)
+	}
+	if strings.Contains(got, "\r\nX-Canary:") || strings.Contains(got, "\r\nPOST ") || strings.Count(got, " HTTP/1.1\r\n") != 1 {
+		t.Errorf("backend received injected content:\n%s", got)
+	}
+}

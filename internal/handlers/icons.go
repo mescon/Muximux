@@ -252,7 +252,7 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 	// Get the icon (falls back through svg → webp → png)
 	data, contentType, err := h.dashboardClient.GetIcon(name, variant)
 	if err != nil {
-		respondError(w, r, http.StatusNotFound, err.Error())
+		respondError(w, r, iconErrorStatus(err), err.Error())
 		return
 	}
 
@@ -313,7 +313,7 @@ func (h *IconHandler) GetLucideIcon(w http.ResponseWriter, r *http.Request) {
 
 	data, contentType, err := h.lucideClient.GetIcon(path)
 	if err != nil {
-		respondError(w, r, http.StatusNotFound, err.Error())
+		respondError(w, r, iconErrorStatus(err), err.Error())
 		return
 	}
 
@@ -351,7 +351,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 
 		data, contentType, err := h.dashboardClient.GetIcon(iconName, variant)
 		if err != nil {
-			respondError(w, r, http.StatusNotFound, err.Error())
+			respondError(w, r, iconErrorStatus(err), err.Error())
 			return
 		}
 
@@ -404,7 +404,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimSuffix(iconName, filepath.Ext(iconName))
 		data, contentType, err := h.lucideClient.GetIcon(name)
 		if err != nil {
-			respondError(w, r, http.StatusNotFound, err.Error())
+			respondError(w, r, iconErrorStatus(err), err.Error())
 			return
 		}
 
@@ -637,4 +637,14 @@ func (h *IconHandler) DeleteCustomIcon(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, http.StatusOK, map[string]string{
 		"status": "deleted",
 	})
+}
+
+// iconErrorStatus maps a remote-icon lookup error to an HTTP status:
+// 400 for a name that could never be a real icon, 404 for everything
+// else (not on the CDN, CDN unreachable).
+func iconErrorStatus(err error) int {
+	if errors.Is(err, icons.ErrInvalidIconName) {
+		return http.StatusBadRequest
+	}
+	return http.StatusNotFound
 }

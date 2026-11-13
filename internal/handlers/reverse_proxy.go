@@ -2126,6 +2126,34 @@ func (route *proxyRoute) buildUpgradeRequest(r *http.Request, backendPath, targe
 	return reqBuf.Bytes()
 }
 
+// upgradeRequestTarget builds the request-target for the hand-written
+// upgrade request from the decoded backend path and the raw query.
+//
+// The path is decoded (r.URL.Path), so a client's %20, %0d and %0a are
+// literal space, CR and LF by now. Written as-is they would end the
+// request line early, letting the client add headers and a second request
+// for any path and method, past the auth_bypass check that saw only the
+// decoded path (GHSA-v2x3-5q4j-25fj). Re-escape it the way
+// httputil.ReverseProxy does on the HTTP path (url.URL.EscapedPath on the
+// rewritten Path). The raw query is sent as received; the HTTP server has
+// already refused raw control characters and spaces in the request line,
+// and the final check rejects anything that would still break the line.
+func upgradeRequestTarget(decodedPath, rawQuery string) (string, bool) {
+	target := (&url.URL{Path: decodedPath}).EscapedPath()
+	if rawQuery != "" {
+		target += "?" + rawQuery
+	}
+	if target == "" || target[0] != '/' {
+		return "", false
+	}
+	for i := 0; i < len(target); i++ {
+		if c := target[i]; c <= ' ' || c == 0x7f {
+			return "", false
+		}
+	}
+	return target, true
+}
+
 // containsCRLF reports whether s contains any CR, LF, or NUL byte. These
 // are the request-smuggling primitives for anything that writes HTTP
 // bytes directly to a socket.
@@ -2238,10 +2266,10 @@ func (route *proxyRoute) bridgeConnections(clientConn net.Conn, clientBuf *bufio
 // handleWebSocket hijacks the client connection and proxies raw WebSocket frames
 // to/from the backend. Path rewriting uses the same logic as normal HTTP requests.
 func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	// Resolve the backend path
-	backendPath := route.resolveBackendPath(r.URL.Path)
-	if r.URL.RawQuery != "" {
-		backendPath += "?" + r.URL.RawQuery
+	backendPath, ok := upgradeRequestTarget(route.resolveBackendPath(r.URL.Path), r.URL.RawQuery)
+	if !ok {
+		respondError(w, r, http.StatusBadRequest, "Invalid request path", "source", "proxy", "app", route.name)
+		return
 	}
 
 	// Dial the backend

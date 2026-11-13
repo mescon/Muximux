@@ -2,6 +2,7 @@ package icons
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -63,7 +64,16 @@ var variantPreference = []string{"svg", "webp", "png"}
 // hint whether the icon truly didn't exist or the CDN was down /
 // rate-limited / DNS-stuck (codebase review E1).
 func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, error) {
-	if variant == "" {
+	// name and variant come from the request (path and ?variant=) and
+	// are joined into a cache path below. Accept plain icon names only,
+	// and map any variant the CDN does not serve to svg (as the download
+	// step always did) before it gets near a path: a variant such as
+	// "/../../../config.yaml" used to resolve to any file the process
+	// could read (GHSA-hmxg-x42v-gfgq).
+	if !isValidRemoteIconName(name) {
+		return nil, "", fmt.Errorf("%w: %q", ErrInvalidIconName, name)
+	}
+	if !isDashboardVariant(variant) {
 		variant = "svg"
 	}
 
@@ -152,6 +162,38 @@ func (c *DashboardIconsClient) SearchIcons(query string) ([]IconInfo, error) {
 		}
 	}
 	return results, nil
+}
+
+// ErrInvalidIconName rejects a requested name that could not be a real
+// remote icon before it reaches a file path.
+var ErrInvalidIconName = errors.New("invalid icon name")
+
+// isValidRemoteIconName reports whether name is a plain icon name: ASCII
+// letters, digits, '-' and '_', starting with a letter or digit. Every
+// dashboard-icons and Lucide name fits ([a-z0-9-]); anything else (a
+// slash, a dot, a backslash) could only serve to steer the cache path.
+func isValidRemoteIconName(name string) bool {
+	if name == "" || len(name) > 128 {
+		return false
+	}
+	for i := 0; i < len(name); i++ {
+		c := name[i]
+		alnum := (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+		if !alnum && (i == 0 || (c != '-' && c != '_')) {
+			return false
+		}
+	}
+	return true
+}
+
+// isDashboardVariant reports whether variant is a format the
+// dashboard-icons CDN serves.
+func isDashboardVariant(variant string) bool {
+	switch variant {
+	case "svg", "png", "webp":
+		return true
+	}
+	return false
 }
 
 // getCachePath returns the local cache path for an icon
