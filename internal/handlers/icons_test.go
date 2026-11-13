@@ -1306,3 +1306,65 @@ func TestCustomIcon_ServedWithETagAndNoCache(t *testing.T) {
 		t.Error("ETag did not change after replacement")
 	}
 }
+
+// TestDashboardIconRoutes_NoFileReadThroughVariant pins
+// GHSA-hmxg-x42v-gfgq at the HTTP layer, on both the public /icons route
+// (reachable before setup) and the API route.
+func TestDashboardIconRoutes_NoFileReadThroughVariant(t *testing.T) {
+	dataDir := t.TempDir()
+	cacheDir := filepath.Join(dataDir, "icons", "dashboard")
+	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	token := "0123456789abcdef0123456789abcdef"
+	if err := os.WriteFile(filepath.Join(dataDir, ".setup-token"), []byte(token), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	// A cached x.svg keeps the test off the network: the bad variant is
+	// mapped to svg and must serve this file, never the token.
+	if err := os.WriteFile(filepath.Join(cacheDir, "x.svg"), []byte("<svg>x</svg>"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	client := icons.NewDashboardIconsClient(cacheDir, time.Hour)
+	handler, _ := NewIconHandler(client, nil, t.TempDir())
+
+	for _, target := range []string{
+		"/icons/dashboard/x?variant=/../../../.setup-token",
+		"/api/icons/dashboard/x?variant=/../../../.setup-token",
+	} {
+		req := httptest.NewRequest(http.MethodGet, target, nil)
+		w := httptest.NewRecorder()
+		if strings.HasPrefix(target, "/api/") {
+			handler.GetDashboardIcon(w, req)
+		} else {
+			handler.ServeIcon(w, req)
+		}
+		if strings.Contains(w.Body.String(), token) {
+			t.Fatalf("%s returned the setup token", target)
+		}
+		if w.Code != http.StatusOK || w.Body.String() != "<svg>x</svg>" {
+			t.Errorf("%s: got %d %q, want the cached svg", target, w.Code, w.Body.String())
+		}
+	}
+}
+
+func TestIconRoutes_InvalidNameIs400(t *testing.T) {
+	client := icons.NewDashboardIconsClient(t.TempDir(), time.Hour)
+	lucide := icons.NewLucideClient(t.TempDir(), time.Hour)
+	handler, _ := NewIconHandler(client, lucide, t.TempDir())
+	cases := []struct {
+		target string
+		serve  func(http.ResponseWriter, *http.Request)
+	}{
+		{"/api/icons/dashboard/a.b.svg", handler.GetDashboardIcon},
+		{"/icons/dashboard/a%5Cb", handler.ServeIcon},
+		{"/icons/lucide/.hidden", handler.ServeIcon},
+	}
+	for _, c := range cases {
+		w := httptest.NewRecorder()
+		c.serve(w, httptest.NewRequest(http.MethodGet, c.target, nil))
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400", c.target, w.Code)
+		}
+	}
+}

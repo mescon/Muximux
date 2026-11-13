@@ -63,6 +63,10 @@ func NewLucideClient(cacheDir string, cacheTTL time.Duration) *LucideClient {
 func (c *LucideClient) GetIcon(name string) ([]byte, string, error) {
 	// Strip .svg extension if present
 	name = strings.TrimSuffix(name, ".svg")
+	// The name is joined into a cache path; accept plain names only.
+	if !isValidRemoteIconName(name) {
+		return nil, "", fmt.Errorf("%w: %q", ErrInvalidIconName, name)
+	}
 
 	// Check cache first
 	cached, err := c.getFromCache(name)

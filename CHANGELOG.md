@@ -5,6 +5,29 @@ All notable changes to Muximux are documented in this file.
 ## [Unreleased]
 
 ### Security
+- **Dashboard icon requests could read any file Muximux can read**
+  (GHSA-hmxg-x42v-gfgq, high). The `variant` query parameter of
+  `/icons/dashboard/{name}` and `/api/icons/dashboard/{name}` went
+  unchecked into the icon cache path, so `variant=/../../../<file>`
+  returned any readable file changed within the cache TTL (7 days by
+  default). Before setup, anyone who could reach the instance could read
+  the setup token and create the first admin; after setup, any signed-in
+  user could read `config.yaml` with every password hash and stored
+  secret. Variants other than `svg`, `png` and `webp` now fall back to
+  `svg`, and dashboard and Lucide icon names must be plain names (letters,
+  digits, `-`, `_`); anything else gets 400.
+- **WebSocket upgrades through `/proxy/` could inject headers and a second
+  request** (GHSA-v2x3-5q4j-25fj, high). The upgrade request to the
+  backend is written by hand, and it used the decoded path, so `%0d%0a` in
+  the URL became a line break. An anonymous client allowed onto an
+  `auth_bypass` path could add headers and send a request of any method to
+  any path of the backend. The path is now re-encoded as on ordinary
+  proxied requests.
+- **A proxied path could step above the app's base path.** The proxy
+  strips a doubled `/proxy/{slug}` prefix for apps that build URLs that
+  way, and it did so on a bare string, so `/proxy/app/proxy/app../x`
+  became `../x` and reached the backend as `<base>/../x`. The prefix is now
+  stripped only at a path segment boundary.
 - **go-jose v3 is no longer in the build.** Caddy's internal CA library
   (`smallstep/certificates`) is moved to an untagged upstream commit that
   switches to go-jose v4. That clears GHSA-mgcc-cww5-fp2q (JWK parsing

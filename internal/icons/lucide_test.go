@@ -2,6 +2,7 @@ package icons
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -672,5 +673,14 @@ func TestLucideClient_fetchIconList_CategoriesFailureDegrades(t *testing.T) {
 	}
 	if !client.catWarned.Load() {
 		t.Error("expected the warning flag to be set after a failure")
+	}
+}
+
+func TestLucideClient_GetIcon_RejectsUnsafeNames(t *testing.T) {
+	client := NewLucideClient(t.TempDir(), time.Hour)
+	for _, name := range []string{"../config", "a/b", ".setup-token"} {
+		if _, _, err := client.GetIcon(name); !errors.Is(err, ErrInvalidIconName) {
+			t.Errorf("GetIcon(%q): err = %v, want ErrInvalidIconName", name, err)
+		}
 	}
 }

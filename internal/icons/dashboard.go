@@ -2,6 +2,7 @@ package icons
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -63,8 +64,9 @@ var variantPreference = []string{"svg", "webp", "png"}
 // hint whether the icon truly didn't exist or the CDN was down /
 // rate-limited / DNS-stuck (codebase review E1).
 func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, error) {
-	if variant == "" {
-		variant = "svg"
+	variant, err := normalizeIconRequest(name, variant)
+	if err != nil {
+		return nil, "", err
 	}
 
 	// Check cache first for the requested variant
@@ -106,8 +108,9 @@ func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, er
 
 // GetIconPath returns the local file path for a cached icon
 func (c *DashboardIconsClient) GetIconPath(name, variant string) (string, error) {
-	if variant == "" {
-		variant = "svg"
+	variant, err := normalizeIconRequest(name, variant)
+	if err != nil {
+		return "", err
 	}
 
 	cachePath := c.getCachePath(name, variant)
@@ -116,8 +119,7 @@ func (c *DashboardIconsClient) GetIconPath(name, variant string) (string, error)
 	}
 
 	// Download if not cached
-	_, _, err := c.downloadIcon(name, variant)
-	if err != nil {
+	if _, _, err := c.downloadIcon(name, variant); err != nil {
 		return "", err
 	}
 
@@ -152,6 +154,55 @@ func (c *DashboardIconsClient) SearchIcons(query string) ([]IconInfo, error) {
 		}
 	}
 	return results, nil
+}
+
+// ErrInvalidIconName rejects a requested name that could not be a real
+// remote icon before it reaches a file path.
+var ErrInvalidIconName = errors.New("invalid icon name")
+
+// isValidRemoteIconName reports whether name is a plain icon name: ASCII
+// letters, digits, '-' and '_', starting with a letter or digit. Every
+// dashboard-icons and Lucide name fits ([a-z0-9-]); anything else (a
+// slash, a dot, a backslash) could only serve to steer the cache path.
+func isValidRemoteIconName(name string) bool {
+	if name == "" || len(name) > 128 {
+		return false
+	}
+	for i := 0; i < len(name); i++ {
+		c := name[i]
+		alnum := (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+		if !alnum && (i == 0 || (c != '-' && c != '_')) {
+			return false
+		}
+	}
+	return true
+}
+
+// normalizeIconRequest validates a requested dashboard icon before name
+// and variant are joined into a cache path. name and variant come from
+// the request (path and ?variant=): accept plain icon names only, and map
+// any variant the CDN does not serve to svg (as the download step always
+// did). A variant such as "/../../../config.yaml" used to resolve to any
+// file the process could read (GHSA-hmxg-x42v-gfgq).
+func normalizeIconRequest(name, variant string) (string, error) {
+	if !isValidRemoteIconName(name) {
+		return "", fmt.Errorf("%w: %q", ErrInvalidIconName, name)
+	}
+	variant = strings.ToLower(variant)
+	if !isDashboardVariant(variant) {
+		variant = "svg"
+	}
+	return variant, nil
+}
+
+// isDashboardVariant reports whether variant is a format the
+// dashboard-icons CDN serves.
+func isDashboardVariant(variant string) bool {
+	switch variant {
+	case "svg", "png", "webp":
+		return true
+	}
+	return false
 }
 
 // getCachePath returns the local cache path for an icon

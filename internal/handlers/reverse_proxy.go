@@ -1007,18 +1007,7 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		// backend below.
 		dashboardHost := req.Host
 
-		// Strip the /proxy/{slug} prefix from the request path
-		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
-		if reqPath == "" {
-			reqPath = "/"
-		}
-
-		// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint.
-		// Use TrimPrefix (not ReplaceAll) to avoid corrupting paths that happen to
-		// contain the proxy prefix as a substring (e.g. /api/proxy/application/).
-		reqPath = strings.TrimPrefix(reqPath, proxyPrefix)
-
-		req.URL.Path = resolveBackendRequestPath(reqPath, targetPath)
+		req.URL.Path = resolveBackendRequestPath(stripProxyPrefix(req.URL.Path, proxyPrefix), targetPath)
 		req.URL.Scheme = targetURL.Scheme
 		req.URL.Host = targetURL.Host
 
@@ -1966,14 +1955,31 @@ func isWebSocketUpgrade(r *http.Request) bool {
 // resolveBackendPath translates a proxy request path to the backend path,
 // applying the same logic as the Director (strip prefix, double-prefix, api bypass).
 func (route *proxyRoute) resolveBackendPath(reqPath string) string {
-	path := strings.TrimPrefix(reqPath, route.proxyPrefix)
-	if path == "" {
-		path = "/"
+	return resolveBackendRequestPath(stripProxyPrefix(reqPath, route.proxyPrefix), route.targetPath)
+}
+
+// stripProxyPrefix removes the /proxy/{slug} prefix from a request path,
+// and a second copy of it for SPAs that build URLs as urlBase + endpoint
+// (double prefixing). Each strip happens only at a segment boundary: the
+// prefix must be the whole path or be followed by '/'. Stripping a bare
+// string prefix turned "/proxy/app/proxy/app../x" into "../x", a dot
+// segment that the router's dot-segment guard never saw and that the
+// backend then resolved above the app's base path.
+func stripProxyPrefix(reqPath, proxyPrefix string) string {
+	strip := func(p string) string {
+		if p == proxyPrefix {
+			return "/"
+		}
+		if strings.HasPrefix(p, proxyPrefix+"/") {
+			return p[len(proxyPrefix):]
+		}
+		return p
 	}
-
-	path = strings.TrimPrefix(path, route.proxyPrefix)
-
-	return resolveBackendRequestPath(path, route.targetPath)
+	p := strip(strip(reqPath))
+	if p == "" {
+		return "/"
+	}
+	return p
 }
 
 // stripSessionCookie removes the named cookie from the outgoing Cookie
@@ -2126,6 +2132,34 @@ func (route *proxyRoute) buildUpgradeRequest(r *http.Request, backendPath, targe
 	return reqBuf.Bytes()
 }
 
+// upgradeRequestTarget builds the request-target for the hand-written
+// upgrade request from the decoded backend path and the raw query.
+//
+// The path is decoded (r.URL.Path), so a client's %20, %0d and %0a are
+// literal space, CR and LF by now. Written as-is they would end the
+// request line early, letting the client add headers and a second request
+// for any path and method, past the auth_bypass check that saw only the
+// decoded path (GHSA-v2x3-5q4j-25fj). Re-escape it the way
+// httputil.ReverseProxy does on the HTTP path (url.URL.EscapedPath on the
+// rewritten Path). The raw query is sent as received; the HTTP server has
+// already refused raw control characters and spaces in the request line,
+// and the final check rejects anything that would still break the line.
+func upgradeRequestTarget(decodedPath, rawQuery string) (string, bool) {
+	target := (&url.URL{Path: decodedPath}).EscapedPath()
+	if rawQuery != "" {
+		target += "?" + rawQuery
+	}
+	if target == "" || target[0] != '/' {
+		return "", false
+	}
+	for i := 0; i < len(target); i++ {
+		if c := target[i]; c <= ' ' || c == 0x7f {
+			return "", false
+		}
+	}
+	return target, true
+}
+
 // containsCRLF reports whether s contains any CR, LF, or NUL byte. These
 // are the request-smuggling primitives for anything that writes HTTP
 // bytes directly to a socket.
@@ -2238,10 +2272,10 @@ func (route *proxyRoute) bridgeConnections(clientConn net.Conn, clientBuf *bufio
 // handleWebSocket hijacks the client connection and proxies raw WebSocket frames
 // to/from the backend. Path rewriting uses the same logic as normal HTTP requests.
 func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	// Resolve the backend path
-	backendPath := route.resolveBackendPath(r.URL.Path)
-	if r.URL.RawQuery != "" {
-		backendPath += "?" + r.URL.RawQuery
+	backendPath, ok := upgradeRequestTarget(route.resolveBackendPath(r.URL.Path), r.URL.RawQuery)
+	if !ok {
+		respondError(w, r, http.StatusBadRequest, "Invalid request path", "source", "proxy", "app", route.name)
+		return
 	}
 
 	// Dial the backend

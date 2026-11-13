@@ -3,10 +3,12 @@ package icons
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -691,5 +693,95 @@ func TestDashboardClient_fetchIconList_HTTPError(t *testing.T) {
 	_, err := client.fetchIconList()
 	if err == nil {
 		t.Error("expected error for HTTP failure")
+	}
+}
+
+// TestDashboardClient_GetIcon_VariantCannotEscapeCache pins
+// GHSA-hmxg-x42v-gfgq: a variant carrying a path must not read a file
+// outside the cache directory, even a fresh one inside the TTL.
+func TestDashboardClient_GetIcon_VariantCannotEscapeCache(t *testing.T) {
+	dataDir := t.TempDir()
+	cacheDir := filepath.Join(dataDir, "icons", "dashboard")
+	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	secret := []byte("password_hash: secret\n")
+	if err := os.WriteFile(filepath.Join(dataDir, "config.yaml"), secret, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	client := NewDashboardIconsClient(cacheDir, time.Hour)
+	client.httpClient = &http.Client{Transport: &testTransport{
+		handler: func(req *http.Request) (*http.Response, error) {
+			w := httptest.NewRecorder()
+			w.WriteHeader(http.StatusNotFound)
+			return w.Result(), nil
+		},
+	}}
+
+	for _, variant := range []string{"/../../../config.yaml", "../../../config.yaml", "svg/../../../config.yaml", `..\..\..\config.yaml`} {
+		data, _, err := client.GetIcon("x", variant)
+		if bytes.Contains(data, secret) {
+			t.Fatalf("variant %q returned a file outside the cache", variant)
+		}
+		if err == nil {
+			t.Fatalf("variant %q: expected an error (icon not on the CDN), got data %q", variant, data)
+		}
+	}
+}
+
+func TestDashboardClient_GetIcon_RejectsUnsafeNames(t *testing.T) {
+	client := NewDashboardIconsClient(t.TempDir(), time.Hour)
+	client.httpClient = &http.Client{Transport: &testTransport{
+		handler: func(req *http.Request) (*http.Response, error) {
+			t.Errorf("unexpected CDN request for %s", req.URL)
+			return httptest.NewRecorder().Result(), nil
+		},
+	}}
+	for _, name := range []string{"", "../config", "a/b", `a\b`, ".setup-token", "x.", "-x", strings.Repeat("a", 129)} {
+		if _, _, err := client.GetIcon(name, "svg"); !errors.Is(err, ErrInvalidIconName) {
+			t.Errorf("GetIcon(%q): err = %v, want ErrInvalidIconName", name, err)
+		}
+	}
+}
+
+func TestIsValidRemoteIconName(t *testing.T) {
+	for _, name := range []string{"plex", "home-assistant-alt", "1password", "a_b", "Plex", strings.Repeat("a", 128)} {
+		if !isValidRemoteIconName(name) {
+			t.Errorf("isValidRemoteIconName(%q) = false, want true", name)
+		}
+	}
+	for _, name := range []string{"", ".", "..", "a.b", "a/b", "_a", "a b", "a%2f", "é"} {
+		if isValidRemoteIconName(name) {
+			t.Errorf("isValidRemoteIconName(%q) = true, want false", name)
+		}
+	}
+}
+
+func TestDashboardClient_VariantCaseAndIconPath(t *testing.T) {
+	cacheDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(cacheDir, "plex.png"), []byte("PNG"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	client := NewDashboardIconsClient(cacheDir, time.Hour)
+	client.httpClient = &http.Client{Transport: &testTransport{
+		handler: func(req *http.Request) (*http.Response, error) {
+			w := httptest.NewRecorder()
+			w.WriteHeader(http.StatusNotFound)
+			return w.Result(), nil
+		},
+	}}
+	data, ct, err := client.GetIcon("plex", "PNG")
+	if err != nil || string(data) != "PNG" || ct != "image/png" {
+		t.Fatalf("GetIcon(plex, PNG) = %q, %q, %v; want cached png", data, ct, err)
+	}
+	p, err := client.GetIconPath("plex", "png")
+	if err != nil || p != filepath.Join(cacheDir, "plex.png") {
+		t.Fatalf("GetIconPath(plex, png) = %q, %v", p, err)
+	}
+	if _, err := client.GetIconPath("../x", "svg"); !errors.Is(err, ErrInvalidIconName) {
+		t.Errorf("GetIconPath(../x): err = %v, want ErrInvalidIconName", err)
+	}
+	if p, err := client.GetIconPath("plex", "/../../../config.yaml"); err == nil && !strings.HasPrefix(p, cacheDir+string(filepath.Separator)) {
+		t.Errorf("GetIconPath with path variant escaped the cache: %q", p)
 	}
 }
