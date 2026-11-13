@@ -64,17 +64,9 @@ var variantPreference = []string{"svg", "webp", "png"}
 // hint whether the icon truly didn't exist or the CDN was down /
 // rate-limited / DNS-stuck (codebase review E1).
 func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, error) {
-	// name and variant come from the request (path and ?variant=) and
-	// are joined into a cache path below. Accept plain icon names only,
-	// and map any variant the CDN does not serve to svg (as the download
-	// step always did) before it gets near a path: a variant such as
-	// "/../../../config.yaml" used to resolve to any file the process
-	// could read (GHSA-hmxg-x42v-gfgq).
-	if !isValidRemoteIconName(name) {
-		return nil, "", fmt.Errorf("%w: %q", ErrInvalidIconName, name)
-	}
-	if !isDashboardVariant(variant) {
-		variant = "svg"
+	variant, err := normalizeIconRequest(name, variant)
+	if err != nil {
+		return nil, "", err
 	}
 
 	// Check cache first for the requested variant
@@ -116,8 +108,9 @@ func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, er
 
 // GetIconPath returns the local file path for a cached icon
 func (c *DashboardIconsClient) GetIconPath(name, variant string) (string, error) {
-	if variant == "" {
-		variant = "svg"
+	variant, err := normalizeIconRequest(name, variant)
+	if err != nil {
+		return "", err
 	}
 
 	cachePath := c.getCachePath(name, variant)
@@ -126,8 +119,7 @@ func (c *DashboardIconsClient) GetIconPath(name, variant string) (string, error)
 	}
 
 	// Download if not cached
-	_, _, err := c.downloadIcon(name, variant)
-	if err != nil {
+	if _, _, err := c.downloadIcon(name, variant); err != nil {
 		return "", err
 	}
 
@@ -184,6 +176,23 @@ func isValidRemoteIconName(name string) bool {
 		}
 	}
 	return true
+}
+
+// normalizeIconRequest validates a requested dashboard icon before name
+// and variant are joined into a cache path. name and variant come from
+// the request (path and ?variant=): accept plain icon names only, and map
+// any variant the CDN does not serve to svg (as the download step always
+// did). A variant such as "/../../../config.yaml" used to resolve to any
+// file the process could read (GHSA-hmxg-x42v-gfgq).
+func normalizeIconRequest(name, variant string) (string, error) {
+	if !isValidRemoteIconName(name) {
+		return "", fmt.Errorf("%w: %q", ErrInvalidIconName, name)
+	}
+	variant = strings.ToLower(variant)
+	if !isDashboardVariant(variant) {
+		variant = "svg"
+	}
+	return variant, nil
 }
 
 // isDashboardVariant reports whether variant is a format the

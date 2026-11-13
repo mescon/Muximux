@@ -23,6 +23,11 @@ All notable changes to Muximux are documented in this file.
   `auth_bypass` path could add headers and send a request of any method to
   any path of the backend. The path is now re-encoded as on ordinary
   proxied requests.
+- **A proxied path could step above the app's base path.** The proxy
+  strips a doubled `/proxy/{slug}` prefix for apps that build URLs that
+  way, and it did so on a bare string, so `/proxy/app/proxy/app../x`
+  became `../x` and reached the backend as `<base>/../x`. The prefix is now
+  stripped only at a path segment boundary.
 - **go-jose v3 is no longer in the build.** Caddy's internal CA library
   (`smallstep/certificates`) is moved to an untagged upstream commit that
   switches to go-jose v4. That clears GHSA-mgcc-cww5-fp2q (JWK parsing

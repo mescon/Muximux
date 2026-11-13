@@ -756,3 +756,32 @@ func TestIsValidRemoteIconName(t *testing.T) {
 		}
 	}
 }
+
+func TestDashboardClient_VariantCaseAndIconPath(t *testing.T) {
+	cacheDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(cacheDir, "plex.png"), []byte("PNG"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	client := NewDashboardIconsClient(cacheDir, time.Hour)
+	client.httpClient = &http.Client{Transport: &testTransport{
+		handler: func(req *http.Request) (*http.Response, error) {
+			w := httptest.NewRecorder()
+			w.WriteHeader(http.StatusNotFound)
+			return w.Result(), nil
+		},
+	}}
+	data, ct, err := client.GetIcon("plex", "PNG")
+	if err != nil || string(data) != "PNG" || ct != "image/png" {
+		t.Fatalf("GetIcon(plex, PNG) = %q, %q, %v; want cached png", data, ct, err)
+	}
+	p, err := client.GetIconPath("plex", "png")
+	if err != nil || p != filepath.Join(cacheDir, "plex.png") {
+		t.Fatalf("GetIconPath(plex, png) = %q, %v", p, err)
+	}
+	if _, err := client.GetIconPath("../x", "svg"); !errors.Is(err, ErrInvalidIconName) {
+		t.Errorf("GetIconPath(../x): err = %v, want ErrInvalidIconName", err)
+	}
+	if p, err := client.GetIconPath("plex", "/../../../config.yaml"); err == nil && !strings.HasPrefix(p, cacheDir+string(filepath.Separator)) {
+		t.Errorf("GetIconPath with path variant escaped the cache: %q", p)
+	}
+}

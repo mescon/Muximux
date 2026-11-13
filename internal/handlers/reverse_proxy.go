@@ -1007,18 +1007,7 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		// backend below.
 		dashboardHost := req.Host
 
-		// Strip the /proxy/{slug} prefix from the request path
-		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
-		if reqPath == "" {
-			reqPath = "/"
-		}
-
-		// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint.
-		// Use TrimPrefix (not ReplaceAll) to avoid corrupting paths that happen to
-		// contain the proxy prefix as a substring (e.g. /api/proxy/application/).
-		reqPath = strings.TrimPrefix(reqPath, proxyPrefix)
-
-		req.URL.Path = resolveBackendRequestPath(reqPath, targetPath)
+		req.URL.Path = resolveBackendRequestPath(stripProxyPrefix(req.URL.Path, proxyPrefix), targetPath)
 		req.URL.Scheme = targetURL.Scheme
 		req.URL.Host = targetURL.Host
 
@@ -1966,14 +1955,31 @@ func isWebSocketUpgrade(r *http.Request) bool {
 // resolveBackendPath translates a proxy request path to the backend path,
 // applying the same logic as the Director (strip prefix, double-prefix, api bypass).
 func (route *proxyRoute) resolveBackendPath(reqPath string) string {
-	path := strings.TrimPrefix(reqPath, route.proxyPrefix)
-	if path == "" {
-		path = "/"
+	return resolveBackendRequestPath(stripProxyPrefix(reqPath, route.proxyPrefix), route.targetPath)
+}
+
+// stripProxyPrefix removes the /proxy/{slug} prefix from a request path,
+// and a second copy of it for SPAs that build URLs as urlBase + endpoint
+// (double prefixing). Each strip happens only at a segment boundary: the
+// prefix must be the whole path or be followed by '/'. Stripping a bare
+// string prefix turned "/proxy/app/proxy/app../x" into "../x", a dot
+// segment that the router's dot-segment guard never saw and that the
+// backend then resolved above the app's base path.
+func stripProxyPrefix(reqPath, proxyPrefix string) string {
+	strip := func(p string) string {
+		if p == proxyPrefix {
+			return "/"
+		}
+		if strings.HasPrefix(p, proxyPrefix+"/") {
+			return p[len(proxyPrefix):]
+		}
+		return p
 	}
-
-	path = strings.TrimPrefix(path, route.proxyPrefix)
-
-	return resolveBackendRequestPath(path, route.targetPath)
+	p := strip(strip(reqPath))
+	if p == "" {
+		return "/"
+	}
+	return p
 }
 
 // stripSessionCookie removes the named cookie from the outgoing Cookie

@@ -4483,3 +4483,29 @@ func TestWebSocketProxy_PathCannotInjectRequest(t *testing.T) {
 		t.Errorf("backend received injected content:\n%s", got)
 	}
 }
+
+// TestStripProxyPrefix pins segment-boundary prefix stripping: a bare
+// string strip turned "/proxy/app/proxy/app../x" into "../x", a dot
+// segment the router guard never saw.
+func TestStripProxyPrefix(t *testing.T) {
+	const prefix = "/proxy/app"
+	tests := map[string]string{
+		"/proxy/app":                 "/",
+		"/proxy/app/":                "/",
+		"/proxy/app/ws":              "/ws",
+		"/proxy/app/proxy/app":       "/",
+		"/proxy/app/proxy/app/api/x": "/api/x",
+		"/proxy/app/proxy/app../x":   "/proxy/app../x",
+		"/proxy/app/proxy/apple/x":   "/proxy/apple/x",
+		"/proxy/app/api/proxy/app/x": "/api/proxy/app/x",
+	}
+	for in, want := range tests {
+		if got := stripProxyPrefix(in, prefix); got != want {
+			t.Errorf("stripProxyPrefix(%q) = %q, want %q", in, got, want)
+		}
+	}
+	route := &proxyRoute{proxyPrefix: prefix, targetPath: "/base"}
+	if got := route.resolveBackendPath("/proxy/app/proxy/app../x"); got != "/base/proxy/app../x" {
+		t.Errorf("resolveBackendPath double-prefix dot case = %q, want /base/proxy/app../x", got)
+	}
+}
