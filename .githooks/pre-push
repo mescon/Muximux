@@ -40,11 +40,25 @@ errors=0
 # Only fires on release tags, so ordinary pushes are unaffected.
 # Bypass with: git push --no-verify
 pushing_release_tag=false
-while read -r _lref _lsha rref _rsha; do
+only_deletes=true
+saw_ref=false
+while read -r _lref lsha rref _rsha; do
     case "${rref:-}" in
         refs/tags/v[0-9]*) pushing_release_tag=true ;;
     esac
+    saw_ref=true
+    # A deleted ref arrives with an all-zero local sha.
+    case "${lsha:-}" in
+        *[!0]*) only_deletes=false ;;
+    esac
 done
+
+# A push that only deletes remote refs sends no code, so there is nothing
+# to test. Running the full suite here only risks the server dropping the
+# idle connection before the push starts.
+if [ "$saw_ref" = true ] && [ "$only_deletes" = true ]; then
+    exit 0
+fi
 
 if [ "$pushing_release_tag" = true ]; then
     info "Release tag detected — checking dependencies are current..."
