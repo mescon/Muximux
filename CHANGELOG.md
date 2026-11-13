@@ -2,7 +2,20 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.7.3] - 2026-11-13
+
+A security release. It fixes two privately reported vulnerabilities, both
+rated high: dashboard icon requests could read any file Muximux can read,
+including the setup token before setup and `config.yaml` after it, and a
+WebSocket upgrade through `/proxy/` could smuggle a second request to the
+backend past `auth_bypass` rules. Upgrade as soon as you can. Thanks to
+Shxsu1x for reporting both.
+
+Upgrade notes:
+- **Icon names must be plain names.** Dashboard and Lucide icon names may
+  contain only letters, digits, `-` and `_`. Every icon in both libraries
+  fits, so configured icons keep working; a name with a dot or a slash
+  now gets 400 instead of 404.
 
 ### Security
 - **Dashboard icon requests could read any file Muximux can read**
@@ -36,6 +49,11 @@ All notable changes to Muximux are documented in this file.
   own OIDC code already used go-jose v4), so this removes the dependency
   rather than a live risk. It moves to a tagged release once smallstep
   publishes v0.30.3.
+
+### Changed
+- Dependencies updated: golang.org/x/crypto 0.59.0, vite 8.3.8, the npm
+  patch releases, and the grpc, OpenTelemetry and Google API modules that
+  come with the smallstep update.
 
 ## [3.7.2] - 2026-11-10
 
