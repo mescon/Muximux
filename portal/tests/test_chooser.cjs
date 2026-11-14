@@ -5,7 +5,11 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const ext = fs.readFileSync(path.join(__dirname, '../ui/ports/ext.js'), 'utf8');
-const chooser = ext.slice(ext.indexOf('const TAILNET_HOST ='));
+const prelude = 'let TAILNET_HOST = "https://tailnet-host.example.ts.net";\n'
+  + 'let tailnetOk = null, tailnetAt = 0, tailnetProbe = null;\n'
+  + 'const PROBE_TTL_MS = 60000;\n';
+const body = ext.slice(ext.indexOf('async function loadTailnetHost'));
+const chooser = prelude + body.replace(/^let TAILNET_HOST.*\n/m, '').replace(/^const PROBE_TTL_MS.*\n/m, '').replace(/^let tailnetOk.*\n/m, '').replace(/^let tailnetProbe.*\n/m, '');
 const attrs = { src: '/p/3701/moct/', allow: "camera 'none'" };
 const frame = {
   getAttribute: key => attrs[key] || null,
@@ -22,7 +26,7 @@ const context = vm.createContext({
 vm.runInContext(chooser, context);
 (async () => {
   await vm.runInContext('probeTailnet().then(rewritePortIframes)', context);
-  assert.equal(attrs.src, 'https://ddv-server-00.zubron-denebola.ts.net/p/3701/moct/');
+  assert.equal(attrs.src, 'https://tailnet-host.example.ts.net/p/3701/moct/');
   assert.equal(attrs.allow, "camera 'none'; local-network-access");
   ok = false;
   await vm.runInContext('probeTailnet(true).then(rewritePortIframes)', context);

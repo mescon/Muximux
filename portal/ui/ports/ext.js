@@ -10,9 +10,8 @@ let registry = null;
 let claimsPromise = null;
 
 function loadClaims() {
-  if (!claimsPromise) claimsPromise = fetch("/portal-ext/gateway-apps.json", { cache: "no-store" })
-    .then((r) => r.ok ? r.json() : { claims: [] })
-    .then((data) => data.claims || [])
+  if (!claimsPromise) claimsPromise = loadClaimsRaw()
+    .then((data) => (data && data.claims) || [])
     .catch(() => { claimsPromise = null; return []; });
   return claimsPromise;
 }
@@ -263,20 +262,39 @@ new MutationObserver(() => {
 }).observe(document.documentElement, { childList: true, subtree: true });
 
 /* -- tailnet chooser (M-323) ----------------------------------------------
- * portal.ddvnguyen.com is the only URL. When this browser can reach the
+ * <portal-public-host> is the only URL. When this browser can reach the
  * tailnet gateway directly, /p/<n>/ iframes are rewritten to it (faster,
  * no Cloudflare hop); otherwise they stay on the Cloudflare path.
  * Chromium's Local Network Access may show a one-time "local network
- * access" prompt for portal.ddvnguyen.com; without the grant the probe
+ * access" prompt for <portal-public-host>; without the grant the probe
  * fails and the portal silently stays on the Cloudflare path. */
 
-const TAILNET_HOST = "https://ddv-server-00.zubron-denebola.ts.net";
+let TAILNET_HOST = "";  // set from /portal-ext/gateway-apps.json (tailnet_host); "" disables the chooser rewrite
 const PROBE_TTL_MS = 60 * 1000;
 let tailnetOk = null;   // null = unknown, true/false = probed
 let tailnetAt = 0;
 let tailnetProbe = null;
 
+async function loadTailnetHost() {
+  if (TAILNET_HOST) return TAILNET_HOST;
+  try {
+    const data = await loadClaimsRaw();
+    if (data && typeof data.tailnet_host === "string" && data.tailnet_host) {
+      TAILNET_HOST = data.tailnet_host.replace(/\/+$/, "");
+    }
+  } catch { /* chooser stays disabled */ }
+  return TAILNET_HOST;
+}
+
+function loadClaimsRaw() {
+  return fetch("/portal-ext/gateway-apps.json", { cache: "no-store" })
+    .then((r) => r.ok ? r.json() : null)
+    .catch(() => null);
+}
+
 async function probeTailnet(force) {
+  await loadTailnetHost();
+  if (!TAILNET_HOST) return false;
   const now = Date.now();
   if (!force && tailnetOk !== null && now - tailnetAt < PROBE_TTL_MS) return tailnetOk;
   if (tailnetProbe) return tailnetProbe;

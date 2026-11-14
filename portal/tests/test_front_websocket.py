@@ -51,7 +51,7 @@ class FrontWebsocketRouting(unittest.TestCase):
 
     def test_tailnet_probe_origin_is_added_without_relaxing_other_sources(self):
         result = front.allow_tailnet_probe("default-src 'self'; connect-src 'self'; object-src 'none'")
-        self.assertIn("connect-src 'self' https://ddv-server-00.zubron-denebola.ts.net", result)
+        self.assertIn("connect-src 'self' https://tailnet-host.example.ts.net", result)
         self.assertIn("object-src 'none'", result)
         self.assertNotIn("connect-src *", result)
 

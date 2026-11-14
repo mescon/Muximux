@@ -2,18 +2,21 @@
   "apps": [
     "multica.web",
     "Cockpit",
-    "hydra.prom"
+    "hydra.prom",
+    "agents.opencode",
+    "hydra.grafana",
+    "dsh-x.web",
+    "freebuff.web"
   ],
+  "registered_apps": [],
+  "tailnet_host": "",
+  "public_host": "",
   "claims": [
     {
       "port": 3701,
       "app": "multica",
       "prefix": "/moct/",
-      "hosts": [
-        "portal.ddvnguyen.com",
-        "ddv-server-00.zubron-denebola.ts.net",
-        "multica.ddvnguyen.com"
-      ]
+      "hosts": []
     }
   ]
 }

@@ -23,7 +23,7 @@ class OriginGuardNone(unittest.TestCase):
                 self.headers = {"Origin": origin}
                 self.method = "POST"
         self.assertFalse(gateway.origin_allowed(Request("https://evil.example"), 3701))
-        self.assertTrue(gateway.origin_allowed(Request("https://portal.ddvnguyen.com"), 3701))
+        self.assertTrue(gateway.origin_allowed(Request("https://portal.example.com"), 3701))
 
 
 if __name__ == "__main__":

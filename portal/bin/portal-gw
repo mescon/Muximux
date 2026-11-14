@@ -2,7 +2,7 @@
 """portal-gw — production port gateway (M-323, parent M-237).
 
 One gateway behind the portal Caddy (:3720), reached two ways: Cloudflare
-tunnel (portal.ddvnguyen.com) and `tailscale serve --https=443` (node
+tunnel (<portal-public-host>) and `tailscale serve --https=443` (node
 MagicDNS). Muximux app URLs stay relative (`/p/<port>/`), so they work on
 either host.
 
@@ -479,8 +479,8 @@ async def ping(r):
         "Cache-Control": "no-store",
         "Vary": "Origin",
     }
-    if r.headers.get("Origin") == "https://portal.ddvnguyen.com":
-        headers["Access-Control-Allow-Origin"] = "https://portal.ddvnguyen.com"
+    if r.headers.get("Origin") == PORTAL_HOST:
+        headers["Access-Control-Allow-Origin"] = PORTAL_HOST
     return web.Response(text="pgw-ok", headers=headers)
 
 

@@ -17,7 +17,7 @@ import re
 import urllib.parse
 import urllib.request
 
-TS_HOST = "ddv-server-00.zubron-denebola.ts.net"
+TS_HOST = os.environ.get("PORTAL_TAILNET_HOST", "tailnet-host.example.ts.net")  # legacy; tailnet_url profiles carry the real address
 EMBED_WARNING = "may not render (SPA)"
 MODES = ("auto", "tailnet", "public", "embed")
 

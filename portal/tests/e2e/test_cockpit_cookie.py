@@ -27,7 +27,7 @@ class Request:
 
 class CockpitGatewayCookie(unittest.TestCase):
     def test_tailnet_https_is_recognized_after_tls_termination(self):
-        req = Request("ddv-server-00.zubron-denebola.ts.net", "http")
+        req = Request("tailnet-host.example.ts.net", "http")
         self.assertTrue(gateway.request_is_https(req))
         self.assertEqual(
             gateway.rewrite_cookie("cockpit=value; SameSite=Strict",
@@ -35,12 +35,12 @@ class CockpitGatewayCookie(unittest.TestCase):
             "cockpit=value; Path=/; Secure; SameSite=None; Partitioned")
 
     def test_canonical_portal_and_forwarded_https_are_secure(self):
-        self.assertTrue(gateway.request_is_https(Request("portal.ddvnguyen.com", "http")))
+        self.assertTrue(gateway.request_is_https(Request("portal.example.com", "http")))
         self.assertTrue(gateway.request_is_https(Request("localhost:3738", "https")))
 
     def test_https_external_host_survives_local_proxy_host_rewrite(self):
         req = Request("127.0.0.1:3738", "http")
-        req.headers["X-Forwarded-Host"] = "ddv-server-00.zubron-denebola.ts.net"
+        req.headers["X-Forwarded-Host"] = "tailnet-host.example.ts.net"
         self.assertTrue(gateway.request_is_https(req))
 
     def test_plain_local_http_does_not_receive_cross_site_cookie_attributes(self):

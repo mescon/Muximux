@@ -44,10 +44,10 @@ class GatewayCsp(unittest.TestCase):
         class Request:
             def __init__(self, origin):
                 self.headers = {"Origin": origin}
-        allowed = asyncio.run(gateway.ping(Request("https://portal.ddvnguyen.com")))
+        allowed = asyncio.run(gateway.ping(Request("https://portal.example.com")))
         other = asyncio.run(gateway.ping(Request("https://example.org")))
         self.assertEqual(allowed.headers.get("Access-Control-Allow-Origin"),
-                         "https://portal.ddvnguyen.com")
+                         "https://portal.example.com")
         self.assertEqual(allowed.headers.get("Access-Control-Allow-Private-Network"), "true")
         self.assertNotIn("Access-Control-Allow-Origin", other.headers)
 

@@ -16,9 +16,9 @@ Covers (per the M-323 acceptance):
 - denied port (port:5432) shows the reason
 - plain http load (insecure context guard)
 
-Cloudflare Access blocks headless runs against portal.ddvnguyen.com, so the
+Cloudflare Access blocks headless runs against portal.example.com, so the
 Cloudflare path is exercised through the LOCAL Caddy with a secure origin:
-https://ddv-server-00.zubron-denebola.ts.net (same Caddy, same gateway code
+https://<tailnet-host> (same Caddy, same gateway code
 path as the tailnet host). The tailnet iframe rewrite is asserted by unit
 (presence of the chooser in ext.js + /pgw-ping CORS *); live Owner-run steps
 (Cockpit login, interactive Multica email-code, real Edge LNA prompt) are
@@ -205,4 +205,4 @@ with sync_playwright() as p:
 print("M-323 gateway e2e complete in", OUT)
 print("NOT covered (need Owner/Architect run): Cockpit post-login, "
       "Multica interactive email-code login, Edge LNA prompt, "
-      "portal.ddvnguyen.com headless (Cloudflare Access).")
+      "portal.example.com headless (Cloudflare Access).")

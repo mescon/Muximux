@@ -3,7 +3,7 @@
 Status: draft by the Architect (M-237), 2026-11-14. Commands marked (verify) were read from the code, not run end to end. Update this file with the engineer's M-323 findings.
 
 ## 0. What "works" means
-A service is **portal-ready** only when it passes the gateway check in section 4 on the real URLs (tailnet host and `portal.ddvnguyen.com`), after login, with its WebSocket up. Until then it must not be in `gateway-apps.json`; it opens by its fallback (section 5), never as a broken tab.
+A service is **portal-ready** only when it passes the gateway check in section 4 on the real URLs (tailnet host and `<portal-public-host>`), after login, with its WebSocket up. Until then it must not be in `gateway-apps.json`; it opens by its fallback (section 5), never as a broken tab.
 
 ## 1. Register the port (pick one)
 | Case | How | Result |
@@ -20,7 +20,7 @@ Never hard-code a port: resolve with `bin/ports get <id> --port`.
 The gateway talks to `127.0.0.1:<port>` and rewrites Host/Origin/Referer to `localhost:<port>`. The service needs: listen on loopback or all interfaces; no hard dependency on its own public hostname.
 
 ## 4. Gateway compatibility check (do this before enabling)
-Run in a real Chromium (headed or Playwright) against `/p/<port>/` on the tailnet host AND inside the portal iframe on `portal.ddvnguyen.com`:
+Run in a real Chromium (headed or Playwright) against `/p/<port>/` on the tailnet host AND inside the portal iframe on `<portal-public-host>`:
 1. First load: no blank page; no failed requests; JS returns `application/javascript` (not HTML).
 2. Login completes and survives reload (cookies: upstream `SameSite=Strict`, `Domain`, `Path` are rewritten by the gateway; check the `multica_auth`-style cookie is sent on API and WS requests).
 3. WebSocket/SSE connect (`ws upgrade <port> … cookie`, status 101, no `NO-COOKIE`); origin-checking servers (Multica, Cockpit) rely on the Host/Origin rewrite.
@@ -39,7 +39,7 @@ Known breakers: `<base href>`, CSP nonces vs the injected shim, hard-coded absol
 - Origin guard (ADR decision 11): state-changing methods and WS upgrades require a real `Origin` in {portal host, tailnet host, localhost, 127.0.0.1}; forged origins get 403. Override per port with `origin: none|<explicit>` in `port-profiles.yaml`.
 - No service is added to `gateway-apps.json` without passing section 4 with evidence on the card.
 
-## 7. Perf baseline (M-341, 2026-11-14, same machine `ddv-server`)
+## 7. Perf baseline (M-341, 2026-11-14, same machine `<server>`)
 Chunk `/_next/static/chunks/02iy0-j94q3_r.js` (Multica :3701), 5-run medians:
 | Path | Bytes on wire (gzip offered) | p50 latency |
 | --- | --- | --- |

@@ -38,7 +38,7 @@ with sync_playwright() as p:
     field = page.locator(".command-palette-input")
     field.wait_for(timeout=10000)
     page.wait_for_function("() => document.querySelector('.command-palette-input')?.dataset.portalExtHooked === '1'", timeout=10000)
-    field.fill("https://multica.ddvnguyen.com/moct/runtimes/local%3A456?foo=bar#frag")
+    field.fill("https://public-host.example/moct/runtimes/local%3A456?foo=bar#frag")
     page.get_by_role("button", name="Open Multica link").click(timeout=10000)
     page.wait_for_function("""() => {
       const f = document.querySelector('iframe[data-app="Multica"]');

@@ -35,11 +35,23 @@ function showMsg(text, isErr) {
 
 /* -- tailnet probe (M-323 chooser: 2 s abort, 60 s cache, visibility refresh) - */
 
+async function tailnetProbeUrl() {
+  try {
+    const r = await fetch("/portal-ext/gateway-apps.json", { cache: "no-store" });
+    const data = r.ok ? await r.json() : null;
+    if (data && typeof data.tailnet_host === "string" && data.tailnet_host) {
+      return data.tailnet_host.replace(/\/+$/, "") + "/pgw-ping";
+    }
+  } catch { /* chooser stays on the Cloudflare path */ }
+  return "";
+}
+
 async function probeTailnet(force) {
   const now = Date.now();
   if (!force && probeDone && now - (probeTailnet._at || 0) < 60 * 1000) return probeOk;
   probeDone = true;
-  const probe = "https://ddv-server-00.zubron-denebola.ts.net/pgw-ping";
+  const probe = await tailnetProbeUrl();
+  if (!probe) return false;
   try {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 2000);

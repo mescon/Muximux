@@ -63,7 +63,7 @@ class TestParseHash(unittest.TestCase):
 
 class TestResolve(unittest.TestCase):
     def test_tailnet_stored_and_reachable(self):
-        r = portpage.resolve(3701, public_url="https://multica.ddvnguyen.com",
+        r = portpage.resolve(3701, public_url="https://public-host.example",
                              tailnet_reachable=True,
                              profile={"tailnet_url": "https://multica.x.ts.net/",
                                       "open": "auto", "path": "/"})
@@ -73,12 +73,12 @@ class TestResolve(unittest.TestCase):
     def test_auto_prefers_proxy_without_tailnet(self):
         # M-315 gap 4: auto never renders the public host; only an explicit
         # `public` profile choice does. The public URL stays as popout.
-        r = portpage.resolve(3701, public_url="https://multica.ddvnguyen.com",
+        r = portpage.resolve(3701, public_url="https://public-host.example",
                              profile={"spa": True, "open": "auto", "path": "/"})
         self.assertEqual((r["action"], r["gateway"]), ("frame", "proxy"))
         self.assertEqual(r["url"], "/p/3701/")
         self.assertIn("may not render", r["warning"])
-        self.assertEqual(r["popout_url"], "https://multica.ddvnguyen.com")
+        self.assertEqual(r["popout_url"], "https://public-host.example")
     def test_plain_port_embeds(self):
         r = portpage.resolve(4321, profile=portpage.default_profile(4321))
         self.assertEqual((r["action"], r["gateway"]), ("frame", "proxy"))
@@ -93,15 +93,15 @@ class TestResolve(unittest.TestCase):
 
     def test_pinned_modes(self):
         r = portpage.resolve(3701, profile={"open": "public"},
-                             public_url="https://multica.ddvnguyen.com",
+                             public_url="https://public-host.example",
                              tailnet_reachable=True)
         self.assertEqual(r["gateway"], "public")
         r = portpage.resolve(3701, profile={"open": "tailnet"},
-                             public_url="https://multica.ddvnguyen.com",
+                             public_url="https://public-host.example",
                              tailnet_reachable=False)
         self.assertEqual(r["action"], "refuse")
         r = portpage.resolve(3701, overrides={"open": "embed"},
-                             public_url="https://multica.ddvnguyen.com",
+                             public_url="https://public-host.example",
                              tailnet_reachable=True)
         self.assertEqual(r["gateway"], "proxy")
 
@@ -149,14 +149,14 @@ class TestLookup(unittest.TestCase):
     def test_public_url_for(self):
         reg = [{"id": "multica.web", "port": 3701}]
         self.assertEqual(portpage.public_url_for(
-            3701, {"multica.web": "https://multica.ddvnguyen.com"}, reg),
-            "https://multica.ddvnguyen.com")
+            3701, {"multica.web": "https://public-host.example"}, reg),
+            "https://public-host.example")
         self.assertIsNone(portpage.public_url_for(
-            4321, {"multica.web": "https://multica.ddvnguyen.com"}, reg))
+            4321, {"multica.web": "https://public-host.example"}, reg))
         self.assertEqual(portpage.public_url_for(
-            9090, {"Cockpit": "https://server.ddvnguyen.com"}, reg,
+            9090, {"Cockpit": "https://cockpit-host.example"}, reg,
             [{"name": "Cockpit", "port": 9090}]),
-            "https://server.ddvnguyen.com")
+            "https://cockpit-host.example")
 
     def test_pinned_public_without_hostname_refuses(self):
         r = portpage.resolve(4321, profile={"open": "public"})

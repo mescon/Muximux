@@ -1,4 +1,4 @@
-# Portal router (M-237): ONE hostname, portal.ddvnguyen.com. Tab UI + /p/<port>/ gateway to allowlisted localhost ports.
+# Portal router: ONE public hostname (<portal-public-host>, e.g. portal.example.com). Tab UI + /p/<port>/ gateway to allowlisted localhost ports.
 {
 	admin localhost:2022
 	auto_https off
@@ -8,7 +8,7 @@
 	}
 }
 
-http://portal.ddvnguyen.com:3720 {
+http://<portal-public-host>:3720 {
 	log
 	import routes/pgw.inc
 	import routes/lease.inc
@@ -16,9 +16,9 @@ http://portal.ddvnguyen.com:3720 {
 	import routes/front.inc
 }
 
-# Tailnet gateway (M-237, Owner: 2 gateways). tailscale serve --https=443 -> :3720; Host = node MagicDNS name.
+# Tailnet gateway: `tailscale serve --https=443 -> :3720`; Host = node MagicDNS name (<tailnet-host>).
 # Rollback: delete this block, `tailscale serve --https=443 off`.
-http://ddv-server-00.zubron-denebola.ts.net:3720 {
+http://<tailnet-host>:3720 {
 	log
 	import routes/pgw.inc
 	import routes/lease.inc
