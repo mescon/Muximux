@@ -12,7 +12,8 @@ async function portFor(e) {
   if (p) return p;
   // Parser-inserted subresources of a navigating document can arrive with
   // an empty clientId before the new client exists (M-323): fall back to
-  // the navigation's own port (Referer is /p/<port>/... at that point).
+  // the navigation's own port (request Referer is /p/<port>/... then).
+  // NOTE: FetchEvent has no .referrer — it lives on e.request (a Request).
   if (!e.clientId && e.request.referrer) {
     try {
       const rm = new URL(e.request.referrer).pathname.match(PRE);
@@ -42,7 +43,6 @@ self.addEventListener('fetch', e => {
     }
     return;
   }
-  e.stopImmediatePropagation();
   e.respondWith((async () => {
     try {
       const port = await portFor(e);

@@ -57,7 +57,7 @@ DENY_FILE = os.environ.get("PORTAL_GW_DENY_FILE") or os.path.join(HERE, "ports-d
 FALLBACK_PORTS = {3701, 9090}
 CACHE_SECONDS = 5
 
-_cache = {"t": 0.0, "allow": set()}
+_cache = {"t": 0.0, "allow": set(FALLBACK_PORTS)}
 
 
 def _load_deny():
@@ -132,6 +132,7 @@ def shim_hash(port):
 def allow_shim(csp, port):
     """Allow exactly our injected script while retaining the upstream CSP."""
     directives = [part.strip() for part in csp.split(";") if part.strip()]
+
     def find(name):
         return next((i for i, part in enumerate(directives)
                      if part.split(None, 1)[0].lower() == name), None)
@@ -168,7 +169,6 @@ def rewrite_cookie(cookie, secure):
         cookie += "; SameSite=None; Partitioned"
     return cookie
 
-
 async def sw(request):
     """COMBINED worker: ours first, then the live Muximux /sw.js verbatim."""
     try:
@@ -184,7 +184,6 @@ async def sw(request):
         text=ours + "\n// ---- muximux sw.js (verbatim, M-323) ----\n" + mux,
         content_type="text/javascript",
         headers={"Cache-Control": "no-store", "Service-Worker-Allowed": "/"})
-
 
 async def gw(request):
     port = int(request.match_info["port"])

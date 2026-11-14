@@ -42,6 +42,9 @@ def desired(mode):
     if os.path.exists(gf):
         with open(gf) as f:
             gateway_config = json.load(f)
+    # tolerate the old bare-list shape
+    if isinstance(gateway_config, list):
+        gateway_config = {"apps": gateway_config}
     gateway = set(gateway_config.get("apps", []))
     claimed_ports = {claim["port"] for claim in gateway_config.get("claims", [])}
     def add(name, group, port, scheme="http", host="127.0.0.1", key=None):
