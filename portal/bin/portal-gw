@@ -209,7 +209,7 @@ window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2
 var sw=navigator.serviceWorker;
 function ping(){return new Promise(function(res){if(!sw||!sw.controller)return res(false);var c=new MessageChannel(),t=setTimeout(function(){res(false)},400);c.port1.onmessage=function(){clearTimeout(t);res(true)};try{sw.controller.postMessage({pgw:'ping'},[c.port2])}catch(e){res(false)}})}
 var ok=false;try{ok=localStorage.getItem('__pgw_ok')==='1'}catch(e){}
-if(sw&&sw.controller&&ok&&location.pathname.indexOf(P+'/')===0){history.replaceState(history.state,'',(location.pathname.slice(P.length)||'/')+location.search+location.hash)}
+if(location.pathname.indexOf(P+'/')===0){try{history.replaceState(history.state,'',(location.pathname.slice(P.length)||'/')+location.search+location.hash)}catch(e){}}
 else if(sw){(async function(){try{var reg=await sw.register('/sw.js',{scope:'/'});try{await reg.update()}catch(e){}await sw.ready;
  var good=false;for(var i=0;i<14&&!good;i++){good=await ping();if(!good)await new Promise(function(r){setTimeout(r,250)})}
  if(good){try{localStorage.setItem('__pgw_ok','1')}catch(e){}}
