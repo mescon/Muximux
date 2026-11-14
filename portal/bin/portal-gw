@@ -54,8 +54,15 @@ LISTEN = ("127.0.0.1", int(sys.argv[1]) if len(sys.argv) > 1 else 3738)
 REGISTRY_URL = "http://127.0.0.1:3726/ports/v1/registry"
 LEASES_URL = "http://127.0.0.1:3726/lease/v1/leases"
 DENY_FILE = os.environ.get("PORTAL_GW_DENY_FILE") or os.path.join(HERE, "ports-deny.yaml")
+REGISTERED_FILE = os.path.join(HERE, "ports.registered.json")
 FALLBACK_PORTS = {3701, 9090}
 CACHE_SECONDS = 5
+
+PORTAL_HOST = "https://portal.ddvnguyen.com"
+TAILNET_HOST = "https://ddv-server-00.zubron-denebola.ts.net"
+ALLOWED_ORIGIN_HOSTS = {PORTAL_HOST.lower(), TAILNET_HOST.lower()}
+HTTPS_HOSTS = {"portal.ddvnguyen.com", "ddv-server-00.zubron-denebola.ts.net"}
+PROFILES_FILE = os.environ.get("PORTAL_GW_PROFILES_FILE") or os.path.join(HERE, "port-profiles.yaml")
 
 _cache = {"t": 0.0, "allow": set(FALLBACK_PORTS)}
 
@@ -72,7 +79,7 @@ def _load_deny():
 
 
 def allowed_ports():
-    """Registry ∪ live leases, minus deny list (cached 5s). Stale on failure."""
+    """Registry ∪ current registrations ∪ leases, minus deny list; cached 5s."""
     if time.time() - _cache["t"] < CACHE_SECONDS:
         return _cache["allow"]
     try:
@@ -80,6 +87,17 @@ def allowed_ports():
             reg = json.load(r)
         ports = {int(e["port"]) for e in reg.get("entries", [])
                  if isinstance(e, dict) and e.get("port")}
+        # lease-api's registry omits registered ports because its merged view
+        # has an empty listening set. Respect registration expiry directly.
+        try:
+            with open(REGISTERED_FILE) as f:
+                registered = json.load(f).get("entries", [])
+            now = time.time()
+            ports |= {int(e["port"]) for e in registered
+                      if isinstance(e, dict) and e.get("port")
+                      and now <= e.get("last_seen", 0) + e.get("ttl", 60)}
+        except FileNotFoundError:
+            pass  # No self-registered processes yet.
         ports |= FALLBACK_PORTS
         try:
             with urllib.request.urlopen(LEASES_URL, timeout=2) as r:
@@ -98,6 +116,84 @@ def allowed_ports():
               flush=True)
         _cache["t"] = time.time()
     return _cache["allow"]
+
+
+def _load_profiles():
+    try:
+        import yaml
+        with open(PROFILES_FILE) as f:
+            data = yaml.safe_load(f) or {}
+        return data.get("profiles") or {}
+    except Exception as e:
+        print(f"portal-gw: profiles load failed ({e})", flush=True)
+        return {}
+
+
+def port_profile(port):
+    profiles = _load_profiles()
+    for key in (port, str(port)):
+        if key in profiles:
+            return profiles[key] or {}
+    return {}
+
+
+def port_origin_mode(port):
+    mode = port_profile(port).get("origin", "rewrite")
+    return "rewrite" if mode is None else mode
+
+
+def _origin_host_allowed(origin):
+    if not origin:
+        return False
+    try:
+        from urllib.parse import urlparse
+        u = urlparse(origin)
+    except Exception:
+        return False
+    host = (u.hostname or "").lower()
+    netloc_origin = f"{u.scheme}://{u.netloc}".lower().rstrip("/")
+    if netloc_origin in ALLOWED_ORIGIN_HOSTS:
+        return True
+    if host in ("localhost", "127.0.0.1"):
+        return True
+    return False
+
+
+def origin_allowed(request, port):
+    """Validate the real Origin/Sec-Fetch-Site for state-changing requests."""
+    mode = port_origin_mode(port)
+    if isinstance(mode, str) and mode.lower() == "none":
+        return True
+    real_origin = None
+    try:
+        real_origin = request.headers.get("Origin")
+    except Exception:
+        real_origin = getattr(request, "headers", {}).get("Origin")
+    sec_fetch = None
+    try:
+        sec_fetch = request.headers.get("Sec-Fetch-Site")
+    except Exception:
+        sec_fetch = getattr(request, "headers", {}).get("Sec-Fetch-Site")
+    mode_str = str(mode).strip() if mode is not None else "rewrite"
+    if mode_str.lower() not in ("rewrite", "none", "") and mode_str.lower().startswith("http"):
+        # explicit origin value
+        return (real_origin or "").rstrip("/").lower() == mode_str.rstrip("/").lower()
+    # rewrite / default: validate against allowed set
+    if real_origin is None:
+        # No Origin header: allow only if Sec-Fetch-Site says same-origin/same-site/none
+        return sec_fetch in (None, "same-origin", "same-site", "none")
+    if not _origin_host_allowed(real_origin):
+        return False
+    if sec_fetch == "cross-site" and real_origin.lower() not in ALLOWED_ORIGIN_HOSTS:
+        # cross-site only ok for portal/tailnet hosts already allowed above
+        pass
+    return True
+
+
+# aliases for tests
+check_origin = origin_allowed
+validate_origin = origin_allowed
+is_origin_allowed = origin_allowed
 
 
 HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
@@ -169,6 +265,24 @@ def rewrite_cookie(cookie, secure):
         cookie += "; SameSite=None; Partitioned"
     return cookie
 
+
+def request_is_https(request):
+    """Recognize browser HTTPS when Caddy's local upstream hop is HTTP.
+
+    Tailscale Serve terminates TLS before forwarding to Caddy, so the
+    forwarded protocol can describe the local hop. The canonical portal
+    hosts are served by the TLS Caddy sites and must receive secure cookies.
+    """
+    forwarded = request.headers.get("X-Forwarded-Proto", "").split(",", 1)[0].strip().lower()
+    host = request.headers.get("Host", "").split(":", 1)[0].lower()
+    return forwarded == "https" or host in HTTPS_HOSTS
+
+
+def websocket_upstream_headers(headers):
+    """Keep the auth cookie and required metadata on upstream WS upgrades."""
+    return {k: v for k, v in headers.items()
+            if k.lower() in ("cookie", "user-agent", "origin", "host")}
+
 async def sw(request):
     """COMBINED worker: ours first, then the live Muximux /sw.js verbatim."""
     try:
@@ -190,6 +304,11 @@ async def gw(request):
     rest = "/" + request.match_info.get("rest", "")
     if port not in allowed_ports():
         return web.Response(status=403, text="port denied")
+    _method = request.method.upper()
+    _is_ws = request.headers.get("Upgrade", "").lower() == "websocket"
+    if _method in ("POST", "PUT", "PATCH", "DELETE") or _is_ws:
+        if not origin_allowed(request, port):
+            return web.Response(status=403, text="origin denied")
     if request.query_string:
         rest += "?" + request.query_string
     up = f"http://127.0.0.1:{port}"
@@ -198,8 +317,14 @@ async def gw(request):
            and k.lower() not in ("host", "accept-encoding", "origin",
                                  "referer", "sec-fetch-site")}
     hdr["Host"] = f"localhost:{port}"
+    _omode = str(port_origin_mode(port)).strip()
     if "Origin" in request.headers:
-        hdr["Origin"] = f"http://localhost:{port}"
+        if _omode.lower() == "none":
+            hdr["Origin"] = request.headers.get("Origin")
+        elif _omode.lower() == "rewrite" or _omode.lower() == "":
+            hdr["Origin"] = f"http://localhost:{port}"
+        else:
+            hdr["Origin"] = _omode
     ref = request.headers.get("Referer")
     if ref:
         hdr["Referer"] = re.sub(r"^https?://[^/]+(/p/\d+)?",
@@ -211,8 +336,7 @@ async def gw(request):
                   if p.strip()]
         wsd = web.WebSocketResponse(protocols=protos)
         await wsd.prepare(request)
-        h2 = {k: v for k, v in hdr.items()
-              if k.lower() in ("cookie", "user-agent", "origin", "host")}
+        h2 = websocket_upstream_headers(hdr)
         try:
             async with sess.ws_connect(
                     f"ws://127.0.0.1:{port}{rest}", headers=h2,
@@ -276,7 +400,7 @@ async def gw(request):
             resp = web.StreamResponse(status=r.status, headers=h)
             for c in r.headers.getall("Set-Cookie", []):
                 resp.headers.add("Set-Cookie", rewrite_cookie(
-                    c, request.headers.get("X-Forwarded-Proto", "").lower() == "https"))
+                    c, request_is_https(request)))
             ct = r.headers.get("Content-Type", "")
             if "text/html" in ct:
                 raw = await r.read()
