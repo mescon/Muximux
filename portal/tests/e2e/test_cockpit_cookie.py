@@ -78,6 +78,100 @@ class CockpitGatewayCookie(unittest.TestCase):
         html = '<script src="/api/app.js"></script><a href="/">home</a>'
         self.assertEqual(gateway.rewrite_cockpit_html_paths(html), html)
 
+    def test_cockpit_shell_base_stays_inside_gateway(self):
+        # Post-login shell: absolute-path base (nested @localhost iframe root)
+        html = ('<base href="/cockpit/@localhost/shell/index.html">'
+                '<link href="shell.css" rel="stylesheet" />')
+        self.assertEqual(
+            gateway.rewrite_cockpit_html_paths(html),
+            '<base href="/p/9090/cockpit/@localhost/shell/index.html">'
+            '<link href="shell.css" rel="stylesheet" />')
+
+    def test_cockpit_rewriter_takes_throwaway_port(self):
+        html = ('<base href="/cockpit/@localhost/shell/index.html">'
+                '<script src="/cockpit/static/login.js"></script>')
+        self.assertEqual(
+            gateway.rewrite_cockpit_html_paths(html, 45991),
+            '<base href="/p/45991/cockpit/@localhost/shell/index.html">'
+            '<script src="/p/45991/cockpit/static/login.js"></script>')
+
+    def test_cockpit_login_base_still_rewritten(self):
+        self.assertEqual(
+            gateway.rewrite_cockpit_html_paths('<base href="/">'),
+            '<base href="/p/9090/">')
+
+    def test_cockpit_rewriter_ignores_absolute_and_empty_base(self):
+        html = '<base href="https://example.com/">'
+        self.assertEqual(gateway.rewrite_cockpit_html_paths(html), html)
+        html = '<base href="">'
+        self.assertEqual(gateway.rewrite_cockpit_html_paths(html), html)
+
+
+MUX_SAMPLE = """const CACHE_NAME = 'muximux-v2';
+// Install: cache shell
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(['./', './x']))
+  );
+  self.skipWaiting();
+});
+
+// Activate: clean old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(caches.keys().then((keys) =>
+    Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+});
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
+});
+"""
+
+
+class CombinedWorkerSanitizer(unittest.TestCase):
+    def test_install_and_activate_are_cut(self):
+        out = gateway.sw_without_lifecycle(MUX_SAMPLE)
+        self.assertNotIn("addEventListener('install'", out)
+        self.assertNotIn('addEventListener("install"', out)
+        self.assertNotIn("addEventListener('activate'", out)
+        self.assertNotIn("addAll(", out)
+        self.assertNotIn("caches.delete", out)
+        self.assertNotIn("clients.claim", out)
+
+    def test_fetch_and_notification_handlers_survive(self):
+        out = gateway.sw_without_lifecycle(MUX_SAMPLE)
+        self.assertIn("addEventListener('notificationclick'", out)
+        self.assertIn("addEventListener('fetch'", out)
+        self.assertIn("event.notification.close();", out)
+        self.assertIn("event.respondWith(fetch(event.request));", out)
+
+    def test_braces_in_strings_do_not_break_cut(self):
+        mux = ("self.addEventListener('install', (event) => {\n"
+               "  event.waitUntil(foo('{ not a brace }'));\n"
+               "});\n"
+               "self.addEventListener('fetch', (e) => { e.respondWith(f(e)); });\n")
+        out = gateway.sw_without_lifecycle(mux)
+        self.assertNotIn("install", out)
+        self.assertIn("addEventListener('fetch'", out)
+
+    def test_no_markers_is_noop(self):
+        mux = "self.addEventListener('fetch', (e) => {});\n"
+        self.assertEqual(gateway.sw_without_lifecycle(mux), mux)
+
+    def test_double_quoted_listener_names_cut(self):
+        mux = ('self.addEventListener("install", (e) => {\n'
+               '  e.waitUntil(caches.open("x").then((c) => c.addAll(["./"])));\n'
+               '});\nkeep();\n')
+        out = gateway.sw_without_lifecycle(mux)
+        self.assertNotIn("install", out)
+        self.assertIn("keep();", out)
+
 
 if __name__ == "__main__":
     unittest.main()

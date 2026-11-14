@@ -306,19 +306,109 @@ def websocket_upstream_headers(headers):
             if k.lower() in ("cookie", "user-agent", "origin", "host")}
 
 
-def rewrite_cockpit_html_paths(html):
-    """Keep Cockpit's HTML URLs inside the port gateway on its first load."""
+def rewrite_cockpit_html_paths(html, port=9090):
+    """Keep Cockpit's HTML URLs inside the port gateway on its first load.
+
+    The login page uses <base href="/">; the post-login shell (and its
+    nested /cockpit/@localhost/... iframes) uses an absolute-path base
+    such as /cockpit/@localhost/shell/index.html. Both must stay under
+    /p/<port>/ or subresources resolve at the host root and 404.
+    """
     html = re.sub(
         r'(?i)(<base\b[^>]*\bhref\s*=\s*)(["\'])/(["\'])',
-        lambda match: match.group(1) + match.group(2) + "/p/9090/" + match.group(3),
+        lambda match: (match.group(1) + match.group(2) + f"/p/{port}/"
+                       + match.group(3)),
+        html)
+    html = re.sub(
+        r'(?i)(<base\b[^>]*\bhref\s*=\s*)(["\'])/cockpit/',
+        lambda match: (match.group(1) + match.group(2)
+                       + f"/p/{port}/cockpit/"),
         html)
     return re.sub(
         r'(?i)(\b(?:src|href|action|poster|data)\s*=\s*)(["\'])/cockpit/',
-        lambda match: match.group(1) + match.group(2) + "/p/9090/cockpit/",
+        lambda match: (match.group(1) + match.group(2)
+                       + f"/p/{port}/cockpit/"),
         html)
 
+def sw_without_lifecycle(mux):
+    """Drop Muximux's install/activate handlers from the combined worker.
+
+    At gateway scope (127.0.0.1:3738, path /) their precache list
+    ('./', './index.html', './manifest.json') 404s, so cache.addAll
+    rejects and the whole worker (including our port-mapping fetch
+    handler) never installs -- portal-wide, for every app. Their
+    activate handler would also wipe every non-mux cache (our pgw-map
+    included). notificationclick/fetch handlers are kept verbatim.
+    """
+    out = []
+    pos = 0
+    needle = "self.addEventListener("
+    while True:
+        start = mux.find(needle, pos)
+        if start < 0:
+            out.append(mux[pos:])
+            break
+        name = re.match(r"self\.addEventListener\(\s*['\"]([^'\"]+)['\"]",
+                        mux[start:])
+        if not name or name.group(1) not in ("install", "activate"):
+            out.append(mux[pos:start + len(needle)])
+            pos = start + len(needle)
+            continue
+        brace = mux.find("{", start)
+        if brace < 0:
+            out.append(mux[pos:])
+            break
+        depth, i = 0, brace
+        in_str = None
+        line_comment = block_comment = False
+        while i < len(mux):
+            ch, nxt = mux[i], mux[i + 1] if i + 1 < len(mux) else ""
+            if line_comment:
+                if ch == "\n":
+                    line_comment = False
+            elif block_comment:
+                if ch == "*" and nxt == "/":
+                    block_comment = False
+                    i += 1
+            elif in_str:
+                if ch == "\\":
+                    i += 1
+                elif ch == in_str:
+                    in_str = None
+            elif ch == "/" and nxt == "/":
+                line_comment = True
+                i += 1
+            elif ch == "/" and nxt == "*":
+                block_comment = True
+                i += 1
+            elif ch in "'\"`":
+                in_str = ch
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            i += 1
+        j = i + 1
+        while j < len(mux) and mux[j] in " \t)":
+            j += 1
+        if j < len(mux) and mux[j] == ";":
+            j += 1
+        while j < len(mux) and mux[j] in " \t\n":
+            j += 1
+        out.append(mux[pos:start])
+        pos = j
+    return "".join(out)
+
+
 async def sw(request):
-    """COMBINED worker: ours first, then the live Muximux /sw.js verbatim."""
+    """COMBINED worker: ours first, then Muximux's (lifecycle handlers cut).
+
+    Muximux's fetch/notification handlers stay verbatim; its install /
+    activate handlers are gateway-scope-wrong (see sw_without_lifecycle)
+    and would prevent installation entirely.
+    """
     try:
         ours = open(SWFILE).read()
     except OSError as e:
@@ -329,7 +419,8 @@ async def sw(request):
     except Exception:
         mux = ""
     return web.Response(
-        text=ours + "\n// ---- muximux sw.js (verbatim, M-323) ----\n" + mux,
+        text=(ours + "\n// ---- muximux sw.js (lifecycle cut, M-337) ----\n"
+              + sw_without_lifecycle(mux)),
         content_type="text/javascript",
         headers={"Cache-Control": "no-store", "Service-Worker-Allowed": "/"})
 
@@ -445,8 +536,12 @@ async def gw(request):
             if "text/html" in ct:
                 raw = await r.read()
                 s = raw.decode("utf-8", "replace")
-                if port == 9090:
-                    s = rewrite_cockpit_html_paths(s)
+                if port == 9090 or "shell-page" in s or "/cockpit/@localhost" in s:
+                    # 9090: login page (base "/") + post-login shell (base
+                    # /cockpit/@localhost/...). Content gate extends the same
+                    # rewrite to any-port Cockpit instance (e.g. throwaway
+                    # --local-session test servers); other apps unaffected.
+                    s = rewrite_cockpit_html_paths(s, port)
                 m = re.search(r"<head[^>]*>", s, re.I)
                 s = (s[:m.end()] + SHIM % port + s[m.end():]) if m else SHIM % port + s
                 out = s.encode()
