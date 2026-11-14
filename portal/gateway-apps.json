@@ -6,6 +6,7 @@
     "agents.opencode",
     "hydra.grafana",
     "dsh-x.web",
+    "dsh-z.web",
     "freebuff.web"
   ],
   "registered_apps": [],

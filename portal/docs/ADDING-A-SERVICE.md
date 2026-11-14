@@ -33,6 +33,28 @@ Known breakers: `<base href>`, CSP nonces vs the injected shim, hard-coded absol
 - **Failed or unverified:** leave it out; set the port's `open:` profile in `port-profiles.yaml` to `public` or `newtab` (opens outside the iframe) and record the reason in the ADR open items.
 - Rollback: remove the name from `gateway-apps.json`; the next sync (~30 s) restores the previous behaviour.
 
+## 5b. Tab icons — the app's own favicon (M-357)
+Every gateway tab shows the app's own web-page favicon, not a generic icon:
+- `portal-muximux-sync` sets each `/p/<port>/` tab's Muximux icon to
+  `{"type": "url", "url": "/p/<port>/__favicon"}`.
+- `bin/portal-gw` serves `GET /p/<port>/__favicon`: it fetches the app
+  page upstream, resolves `<link rel=icon>` (relative hrefs resolved
+  against the page URL; the light `media=` variant wins over dark;
+  `apple-touch-icon` then `mask-icon` as fallbacks), else `/favicon.ico`,
+  and returns the bytes with the upstream (or extension-sniffed)
+  `Content-Type`. One cache entry per port (TTL 3600 s); `?refresh=1`
+  (called by the sync on every run) re-fetches at most every 300 s.
+  Failures serve stale cache, else 404 — the tab then silently shows
+  its letter, never a broken image.
+- Override per port in `port-profiles.yaml` with `icon:` (missing key =
+  default favicon URL; `""`/null/false = letter fallback; an
+  `http(s)://` or `/` string = `url` icon; any other string =
+  `dashboard` icon name; a `{type: ...}` dict is passed through as-is
+  for `dashboard`/`lucide`/`custom`/`url`).
+- Unit tests: `tests/test_favicon.py` (relative href, svg, missing,
+  redirect, light preference) and `tests/test_gateway_apps.py`
+  (sync icon + override shapes + change detection).
+
 ## 6. Guardrails to make this hold in most cases
 - A registry-vs-allowlist test: every Muximux app with `url: /p/<port>/` must be allowed by the gateway (no 403).
 - A per-service smoke test in `tests/e2e/` (first load, login if needed, WS 101) run by a new `bin/portal-compat <port>` (to build, M-323; `bin/ports check` already exists and only checks registry drift).
