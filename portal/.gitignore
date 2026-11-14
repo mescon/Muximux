@@ -3,7 +3,6 @@
 ports.dynamic.json
 ports.registered.json
 routes/all.inc
-ports-deny.yaml
 dynamic.tsv
 muximux/data/
 muximux/muximux-v3.7.2
@@ -26,3 +25,5 @@ spike/tsprobe/state/
 tests/e2e/shots/
 __pycache__/
 *.pyc
+shots/
+state/
