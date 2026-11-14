@@ -58,10 +58,12 @@ REGISTERED_FILE = os.path.join(HERE, "ports.registered.json")
 FALLBACK_PORTS = {3701, 9090}
 CACHE_SECONDS = 5
 
-PORTAL_HOST = "https://portal.ddvnguyen.com"
-TAILNET_HOST = "https://ddv-server-00.zubron-denebola.ts.net"
+PORTAL_HOST = "https://" + os.environ.get("PORTAL_PUBLIC_HOST", "portal.example.com")
+TAILNET_HOST = "https://" + os.environ.get("PORTAL_TAILNET_HOST", "tailnet-host.example.ts.net")
 ALLOWED_ORIGIN_HOSTS = {PORTAL_HOST.lower(), TAILNET_HOST.lower()}
-HTTPS_HOSTS = {"portal.ddvnguyen.com", "ddv-server-00.zubron-denebola.ts.net"}
+_TAILNET_BARE = os.environ.get("PORTAL_TAILNET_HOST", "tailnet-host.example.ts.net").split(":", 1)[0].lower()
+_PORTAL_BARE = os.environ.get("PORTAL_PUBLIC_HOST", "portal.example.com").split(":", 1)[0].lower()
+HTTPS_HOSTS = {_PORTAL_BARE, _TAILNET_BARE}
 PROFILES_FILE = os.environ.get("PORTAL_GW_PROFILES_FILE") or os.path.join(HERE, "port-profiles.yaml")
 
 _cache = {"t": 0.0, "allow": set(FALLBACK_PORTS)}
@@ -140,6 +142,14 @@ def port_profile(port):
 def port_origin_mode(port):
     mode = port_profile(port).get("origin", "rewrite")
     return "rewrite" if mode is None else mode
+
+
+def port_upstream_host(port):
+    """Per-port upstream address from port-profiles.yaml (default 127.0.0.1)."""
+    host = port_profile(port).get("host", "127.0.0.1")
+    if host is None or str(host).strip() == "":
+        host = "127.0.0.1"
+    return str(host).strip()
 
 
 def _origin_host_allowed(origin):
@@ -272,14 +282,28 @@ def request_is_https(request):
     hosts are served by the TLS Caddy sites and must receive secure cookies.
     """
     forwarded = request.headers.get("X-Forwarded-Proto", "").split(",", 1)[0].strip().lower()
-    host = request.headers.get("Host", "").split(":", 1)[0].lower()
-    return forwarded == "https" or host in HTTPS_HOSTS
+    hosts = (request.headers.get("Host", "") + "," +
+             request.headers.get("X-Forwarded-Host", "")).split(",")
+    hosts = {value.strip().split(":", 1)[0].lower() for value in hosts}
+    return forwarded == "https" or bool(hosts & HTTPS_HOSTS)
 
 
 def websocket_upstream_headers(headers):
     """Keep the auth cookie and required metadata on upstream WS upgrades."""
     return {k: v for k, v in headers.items()
             if k.lower() in ("cookie", "user-agent", "origin", "host")}
+
+
+def rewrite_cockpit_html_paths(html):
+    """Keep Cockpit's HTML URLs inside the port gateway on its first load."""
+    html = re.sub(
+        r'(?i)(<base\b[^>]*\bhref\s*=\s*)(["\'])/(["\'])',
+        lambda match: match.group(1) + match.group(2) + "/p/9090/" + match.group(3),
+        html)
+    return re.sub(
+        r'(?i)(\b(?:src|href|action|poster|data)\s*=\s*)(["\'])/cockpit/',
+        lambda match: match.group(1) + match.group(2) + "/p/9090/cockpit/",
+        html)
 
 async def sw(request):
     """COMBINED worker: ours first, then the live Muximux /sw.js verbatim."""
@@ -309,7 +333,8 @@ async def gw(request):
             return web.Response(status=403, text="origin denied")
     if request.query_string:
         rest += "?" + request.query_string
-    up = f"http://127.0.0.1:{port}"
+    _host = port_upstream_host(port)
+    up = f"http://{_host}:{port}"
     hdr = {k: v for k, v in request.headers.items()
            if k.lower() not in HOP
            and k.lower() not in ("host", "accept-encoding", "origin",
@@ -337,7 +362,7 @@ async def gw(request):
         h2 = websocket_upstream_headers(hdr)
         try:
             async with sess.ws_connect(
-                    f"ws://127.0.0.1:{port}{rest}", headers=h2,
+                    f"ws://{port_upstream_host(port)}:{port}{rest}", headers=h2,
                     protocols=wsd.ws_protocol and [wsd.ws_protocol] or (),
                     autoclose=False, autoping=False) as wsu:
                 async def a():
@@ -374,10 +399,15 @@ async def gw(request):
             print("portal-gw: ws error", port, rest, repr(e), flush=True)
         await wsd.close()
         return wsd
-    body = await request.read()
+    # M-341: stream the client body upstream instead of buffering it whole
+    # (was `body = await request.read()`). Bounded prefetch only to decide
+    # GET-with-body vs empty; HTML still buffers the *response* for shim
+    # injection below, everything else streams both ways.
+    _has_body = request.can_read_body
+    _body_gen = request.content.iter_chunked(65536) if _has_body else None
     try:
         async with sess.request(request.method, up + rest, headers=hdr,
-                                 data=body or None,
+                                 data=_body_gen,
                                  allow_redirects=False) as r:
             h = {}
             for k, v in r.headers.items():
@@ -397,12 +427,14 @@ async def gw(request):
                 h[k] = v
             resp = web.StreamResponse(status=r.status, headers=h)
             for c in r.headers.getall("Set-Cookie", []):
-                resp.headers.add("Set-Cookie", rewrite_cookie(
-                    c, request_is_https(request)))
+                rewritten = rewrite_cookie(c, request_is_https(request))
+                resp.headers.add("Set-Cookie", rewritten)
             ct = r.headers.get("Content-Type", "")
             if "text/html" in ct:
                 raw = await r.read()
                 s = raw.decode("utf-8", "replace")
+                if port == 9090:
+                    s = rewrite_cockpit_html_paths(s)
                 m = re.search(r"<head[^>]*>", s, re.I)
                 s = (s[:m.end()] + SHIM % port + s[m.end():]) if m else SHIM % port + s
                 out = s.encode()
@@ -419,8 +451,13 @@ async def gw(request):
 
 
 async def init(app):
+    # M-341: explicit keep-alive pool. Default connector already reuses
+    # connections, but the 100-connection / 30s-cleanup ceiling bounds
+    # tail-latency under burst fan-out (was unbounded default).
     app["sess"] = aiohttp.ClientSession(
         auto_decompress=True, cookie_jar=aiohttp.DummyCookieJar(),
+        connector=aiohttp.TCPConnector(limit=100, limit_per_host=20,
+                                       keepalive_timeout=30),
         timeout=aiohttp.ClientTimeout(total=None, sock_connect=5))
 
 
@@ -428,7 +465,9 @@ async def close(app):
     await app["sess"].close()
 
 
-app = web.Application()
+# aiohttp default client_max_size is 1 MiB -> 413 on uploads (Owner report 2026-11-14)
+MAX_BODY = int(os.environ.get("PORTAL_GW_MAX_BODY", str(256 * 1024 * 1024)))
+app = web.Application(client_max_size=MAX_BODY)
 app.on_startup.append(init)
 app.on_cleanup.append(close)
 

@@ -5,7 +5,10 @@ function load() { return loaded || (loaded = caches.open('pgw').then(c => c.matc
 function save() { return caches.open('pgw').then(c => c.put('/pgw-map', new Response(JSON.stringify(Object.fromEntries(map))))); }
 function setp(id, p) { if (id && map.get(id) !== p) { map.set(id, p); save(); } }
 const PRE = /^\/p\/(\d+)(\/|$)/;
-self.addEventListener('message', e => { if (e.data && e.data.pgw === 'ping' && e.ports[0]) e.ports[0].postMessage('pong'); });
+// Hashed build output only: /_next/static/* is content-hashed per build,
+// so keying by URL has no stale risk. Everything else revalidates upstream.
+const IMMUTABLE_CACHE = 'pgw-immutable-v1';
+const IMMUTABLE_RE = /\/_next\/static\//;
 async function portFor(e) {
   await load();
   let p = map.get(e.clientId);
@@ -28,6 +31,7 @@ async function portFor(e) {
 }
 self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
+  if (u.origin !== location.origin) return; // M-341: cross-origin (fonts, CDNs) skips the SW round-trip entirely
   const m = u.pathname.match(PRE);
   if (m) {
     if (e.request.mode === 'navigate') {
@@ -41,6 +45,19 @@ self.addEventListener('fetch', e => {
         return response;
       })());
     }
+    // M-341: /_next/static/* is content-hashed per build; serve cache-first
+    // so repeat views and back/forward never re-hit the gateway. URL-keyed,
+    // a new deploy has a new hash, so no stale risk.
+    if (e.request.method === 'GET' && IMMUTABLE_RE.test(u.pathname)) {
+      e.respondWith((async () => {
+        const cache = await caches.open(IMMUTABLE_CACHE);
+        const hit = await cache.match(e.request.url);
+        if (hit) return hit;
+        const res = await fetch(e.request);
+        if (res.ok) cache.put(e.request.url, res.clone());
+        return res;
+      })());
+    }
     return;
   }
   e.respondWith((async () => {
@@ -52,8 +69,20 @@ self.addEventListener('fetch', e => {
         setp(e.resultingClientId, port);
         return Response.redirect(new URL(nu, location.origin).href, 302);
       }
+      // M-341: immutable hashed assets rewritten above go cache-first;
+      // stream the body through instead of buffering it whole.
+      if (e.request.method === 'GET' && IMMUTABLE_RE.test(u.pathname)) {
+        const cache = await caches.open(IMMUTABLE_CACHE);
+        const key = new URL(nu, location.origin).href;
+        const hit = await cache.match(key);
+        if (hit) return hit;
+        const res = await fetch(nu);
+        if (res.ok) cache.put(key, res.clone());
+        return res;
+      }
       const r = e.request, init = { method: r.method, headers: r.headers, credentials: r.credentials, redirect: r.redirect };
-      if (r.method !== 'GET' && r.method !== 'HEAD') init.body = await r.arrayBuffer();
+      if (r.method !== 'GET' && r.method !== 'HEAD') init.body = r.body;
+      init.duplex = 'half';
       return await fetch(nu, init);
     } catch (err) { return new Response('sw error: ' + err, { status: 598 }); }
   })());
