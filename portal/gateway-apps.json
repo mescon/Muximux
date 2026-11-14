@@ -1,0 +1,11 @@
+{
+  "apps": ["multica.web", "Cockpit", "hydra.prom"],
+  "claims": [
+    {
+      "port": 3701,
+      "app": "multica",
+      "prefix": "/moct/",
+      "hosts": ["portal.ddvnguyen.com", "ddv-server-00.zubron-denebola.ts.net", "multica.ddvnguyen.com"]
+    }
+  ]
+}

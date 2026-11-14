@@ -1,0 +1,15 @@
+# Example registry. Replace with the deployment's local registry before use.
+version: 1
+alloc:
+  range: [45000, 45999]
+dynamic: []
+static:
+  - id: multica.web
+    app: multica
+    lane: none
+    role: web
+    port: 3701
+    bind: 127.0.0.1
+    unit: ""
+    health: ""
+    portal: {title: Multica, tab: true}

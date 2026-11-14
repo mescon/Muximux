@@ -1,0 +1,247 @@
+#!/usr/bin/python3 -I
+"""ports — CLI for the app-level port registry (M-245).
+
+  ports list [--app X] [--json]
+  ports get <id> [--port|--url] [--json]
+  ports alloc <app> <lane> <role> [--port N] [--json]
+  ports check [--json]
+
+list/get talk to the ports-api HTTP service (127.0.0.1:3725, token in
+<home>/.ports.token); alloc/check read the registry files directly, so check
+works even when the API is down. Exit: 1 on not-found/alloc-refused/check-drift.
+"""
+import argparse
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib"))
+import portslib  # noqa: E402
+
+API_URL = os.environ.get("PORTS_API_URL", "http://127.0.0.1:3725").rstrip("/")
+TOKEN_FILE = os.environ.get("PORTS_TOKEN_FILE") or os.path.join(portslib.home(), ".ports.token")
+
+
+def die(msg, code=1):
+    print(msg, file=sys.stderr)
+    sys.exit(code)
+
+
+def api_get(path):
+    try:
+        with open(TOKEN_FILE) as f:
+            token = f.read().strip()
+    except OSError as exc:
+        die(f"ports: cannot read token file {TOKEN_FILE}: {exc}")
+    req = urllib.request.Request(API_URL + path, headers={"X-Ports-Token": token})
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return json.loads(resp.read().decode())
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode(errors="replace")
+        die(f"ports: API {exc.code} on {path}: {body}")
+    except (urllib.error.URLError, OSError, ValueError) as exc:
+        die(f"ports: ports-api not reachable at {API_URL} ({exc}) — start it: systemctl --user start ports-api")
+
+
+def fmt_row(r):
+    up = "up" if r.get("up") else "down"
+    return f"{r['id']:<28} {r['app']:<9} {r['lane']:<5} {r['role']:<9} {r['port']:<6} {r['source']:<10} {up}"
+
+
+def cmd_list(args):
+    data = api_get("/v1/ports" + (f"?app={args.app}" if args.app else ""))
+    rows = data["entries"]
+    if args.json:
+        json.dump(rows, sys.stdout, indent=1)
+        print()
+    else:
+        if not rows:
+            print("no entries")
+            return
+        print(f"{'ID':<28} {'APP':<9} {'LANE':<5} {'ROLE':<9} {'PORT':<6} {'SOURCE':<10} STATE")
+        for r in rows:
+            print(fmt_row(r))
+
+
+def cmd_get(args):
+    data = api_get("/v1/ports")
+    for r in data["entries"]:
+        if r["id"] == args.id:
+            if args.port:
+                print(r["port"])
+            elif args.url:
+                print(r["health"] or f"http://127.0.0.1:{r['port']}/")
+            elif args.json:
+                json.dump(r, sys.stdout, indent=1)
+                print()
+            else:
+                print(fmt_row(r))
+            return
+    die(f"ports: id {args.id!r} not found (try: ports list)")
+
+
+def _load_checked():
+    try:
+        return portslib.load_registry()
+    except portslib.RegistryError as exc:
+        die(f"ports: {exc}")
+
+
+def cmd_alloc(args):
+    reg = _load_checked()
+    if args.app not in portslib.APPS:
+        die(f"ports: app {args.app!r} not in {sorted(portslib.APPS)}")
+    if args.lane not in portslib.LANES:
+        die(f"ports: lane {args.lane!r} not in {sorted(portslib.LANES)}")
+    if not args.role or not args.role.replace("-", "").isalnum():
+        die(f"ports: bad role {args.role!r}")
+    listen = portslib.ss_listen()
+    try:
+        if args.port is not None:
+            if args.port in portslib.taken_ports(reg, listen=listen):
+                die(f"ports: port {args.port} taken (listening or already registered)")
+            port = args.port
+        else:
+            port = portslib.choose_port(reg, listen=listen)
+    except portslib.RegistryError as exc:
+        die(f"ports: {exc}")
+    idm = f"{args.app}-{args.lane}.{args.role}"
+    if any(e["id"] == idm for e in reg["static"]):
+        die(f"ports: id {idm} already in ports.yaml")
+    entry = {
+        "id": idm, "app": args.app, "lane": args.lane, "role": args.role,
+        "port": port, "bind": "127.0.0.1", "unit": "", "health": "",
+        "portal": {"title": idm, "tab": False},
+    }
+    path = os.path.join(portslib.home(), portslib.YAML_FILE)
+    try:
+        portslib.append_static(path, entry)
+    except portslib.RegistryError as exc:
+        die(f"ports: append failed, ports.yaml left unchanged: {exc}")
+    if args.json:
+        json.dump(entry, sys.stdout, indent=1)
+        print()
+    else:
+        print(f"allocated {idm} port {port} -> ports.yaml")
+
+
+def _unit_active(unit):
+    import subprocess
+    try:
+        r = subprocess.run(["systemctl", "--user", "is-active", unit],
+                           capture_output=True, text=True, timeout=10)
+    except Exception:
+        return None
+    return r.returncode == 0
+
+
+def cmd_check(args):
+    reg = _load_checked()
+    try:
+        listen = portslib.ss_listen()
+    except OSError as exc:
+        die(f"ports: cannot run ss: {exc}")
+    listening = set(listen)
+    root = portslib.home()
+    try:
+        registered = portslib.reap_registered(
+            portslib.load_registered(root), listening, now=__import__("time").time())
+    except portslib.RegistryError as exc:
+        die(f"ports: {exc}")
+    dynamic = [e for e in portslib.load_dynamic(root) if e["port"] in listening]
+    findings = []
+
+    covered = {e["port"] for e in reg["static"]} | set(reg.get("ignore", []))
+    covered |= {e["port"] for e in dynamic} | {e["port"] for e in registered}
+    for port in sorted(listening - covered):
+        info = listen[port]
+        detail = ""
+        for pid in info["pids"]:
+            cmd = portslib._cmdline(pid) or ""
+            if cmd:
+                detail = f"pid={pid} {cmd[:90]}"
+                break
+        if not detail and info["pids"]:
+            detail = f"pid={info['pids'][0]}"
+        findings.append({"type": "unregistered", "port": port, "bind": info["bind"], "detail": detail})
+
+    active_cache = {}
+    for e in reg["static"]:
+        if e["port"] in listening:
+            continue
+        unit = e.get("unit", "")
+        if unit:
+            if unit not in active_cache:
+                active_cache[unit] = _unit_active(unit)
+            if active_cache[unit] is not True:
+                continue  # unit stopped: expected down, not drift
+        findings.append({"type": "registered_but_down", "port": e["port"],
+                         "id": e["id"], "unit": unit,
+                         "detail": f"{e['id']} port {e['port']} not listening"
+                                   + (f" (unit {unit} active)" if unit else " (no unit)")})
+
+    claims = {}
+    for e in reg["static"]:
+        claims.setdefault(e["port"], []).append(f"static:{e['id']}")
+    for e in registered:
+        claims.setdefault(e["port"], []).append(f"registered:{e['id']}")
+    for e in dynamic:
+        claims.setdefault(e["port"], []).append(f"dynamic:{e['id']}")
+    for port, owners in sorted(claims.items()):
+        if len(owners) > 1:
+            findings.append({"type": "duplicate", "port": port, "detail": ", ".join(owners)})
+
+    findings.sort(key=lambda f: (f["type"], f["port"]))
+    if args.json:
+        json.dump({"findings": findings,
+                   "listening": len(listening),
+                   "static": len(reg["static"]),
+                   "dynamic": len(dynamic),
+                   "registered": len(registered)}, sys.stdout, indent=1)
+        print()
+    else:
+        for f in findings:
+            print(f"{f['type']:<20} {f['port']:<6} {f.get('detail', '')}")
+        print(f"-- {len(findings)} finding(s); listening={len(listening)} "
+              f"static={len(reg['static'])} dynamic={len(dynamic)} registered={len(registered)}")
+    sys.exit(1 if findings else 0)
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(prog="ports", description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    pl = sub.add_parser("list", help="list all registered ports")
+    pl.add_argument("--app", help="filter by app (dsh|mmx|moct|multica|hydra|agents|freebuff)")
+    pl.add_argument("--json", action="store_true")
+    pl.set_defaults(fn=cmd_list)
+
+    pg = sub.add_parser("get", help="look up one entry by id")
+    pg.add_argument("id")
+    pg.add_argument("--port", action="store_true", help="print only the port number")
+    pg.add_argument("--url", action="store_true", help="print only the health/base URL")
+    pg.add_argument("--json", action="store_true")
+    pg.set_defaults(fn=cmd_get)
+
+    pa = sub.add_parser("alloc", help="reserve a free port into ports.yaml")
+    pa.add_argument("app")
+    pa.add_argument("lane")
+    pa.add_argument("role")
+    pa.add_argument("--port", type=int, help="use this exact port (fails if taken)")
+    pa.add_argument("--json", action="store_true")
+    pa.set_defaults(fn=cmd_alloc)
+
+    pc = sub.add_parser("check", help="registry vs ss -ltnp vs unit files")
+    pc.add_argument("--json", action="store_true")
+    pc.set_defaults(fn=cmd_check)
+
+    args = p.parse_args(argv)
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()

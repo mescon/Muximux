@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Port leases — portal</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px/1.5 system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.2rem; }
+  form { display: flex; gap: .5rem; margin: 1rem 0; }
+  input[type=number] { width: 9rem; padding: .4rem .6rem; }
+  button { padding: .4rem .9rem; cursor: pointer; }
+  ul { list-style: none; padding: 0; }
+  li { display: flex; align-items: center; gap: .6rem; padding: .5rem .7rem;
+       border: 1px solid #8884; border-radius: 6px; margin-bottom: .4rem; }
+  li a { flex: 1; }
+  .state { color: #888; }
+  .err { color: #c0392b; white-space: pre-wrap; }
+  .grace { color: #b8860b; }
+</style>
+</head>
+<body>
+<h1>Open any local port</h1>
+<p>Opens <code>127.0.0.1:&lt;port&gt;</code> as a proxied tab in the portal
+(sidebar group <b>Leases</b>). The lease lives while this page is open: it dies
+30&nbsp;s after the connection drops, and never lasts past 8&nbsp;h. Reloads and
+tab switches within the grace period are safe. Some ports (SSH, databases,
+Caddy admin, …) are denied — see the portal <code>ports-deny.yaml</code>.</p>
+<form id="open">
+  <input id="port" type="number" min="1" max="65535" placeholder="port e.g. 4096" autofocus>
+  <button type="submit">Open</button>
+</form>
+<p id="error" class="err"></p>
+<p class="state" id="state">connecting…</p>
+<ul id="leases"></ul>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+/* Ports manager (M-315 gap 1): look like part of Muximux. Uses the same
+ * CSS variable names and fonts as the Muximux SPA (data-theme muximux /
+ * muximux-light set by index.html), with local fallbacks when a token is
+ * missing. Dark is the default; light follows the Muximux light theme. */
+:root, [data-theme="muximux"] {
+  color-scheme: dark;
+  --mx-bg: var(--bg-base, #09090b);
+  --mx-surface: var(--bg-surface, #111114);
+  --mx-elevated: var(--bg-elevated, #18181c);
+  --mx-hover: var(--bg-hover, #27272d);
+  --mx-active: var(--bg-active, #2f2f36);
+  --mx-text: var(--text-primary, #fafafa);
+  --mx-text-2: var(--text-secondary, #a1a1aa);
+  --mx-muted: var(--text-muted, #8d8d99);
+  --mx-border: var(--border-default, #ffffff1a);
+  --mx-border-strong: var(--border-strong, #ffffff29);
+  --mx-accent: var(--accent-primary, #2dd4bf);
+  --mx-accent-ink: var(--accent-on-primary, #111);
+  --mx-font: var(--font-body, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --mx-mono: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --mx-danger: var(--danger-text, var(--status-error, #f87171));
+  --mx-warn: var(--warning-text, var(--status-warning, #fbbf24));
+}
+[data-theme="muximux-light"] {
+  color-scheme: light;
+  --mx-bg: var(--bg-base, #fafafa);
+  --mx-surface: var(--bg-surface, #fff);
+  --mx-elevated: var(--bg-elevated, #f5f5f7);
+  --mx-hover: var(--bg-hover, #f0f0f2);
+  --mx-active: var(--bg-active, #e8e8eb);
+  --mx-text: var(--text-primary, #18181b);
+  --mx-text-2: var(--text-secondary, #52525b);
+  --mx-muted: var(--text-muted, #636369);
+  --mx-border: var(--border-default, #0000001f);
+  --mx-border-strong: var(--border-strong, #0000002e);
+  --mx-accent: var(--accent-primary, #0d9488);
+  --mx-accent-ink: var(--accent-on-primary, #fff);
+  --mx-font: var(--font-body, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --mx-mono: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --mx-danger: var(--danger-text, var(--status-error, #dc2626));
+  --mx-warn: var(--warning-text, var(--status-warning, #b45309));
+}
+* { box-sizing: border-box; }
+body {
+  font-family: var(--mx-font);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0 1rem 3rem;
+  background: var(--mx-bg);
+  color: var(--mx-text);
+}
+.top { max-width: 1100px; margin: 1.5rem auto 1rem; }
+.top h1 { font-size: 1.25rem; margin: 0 0 .25rem; }
+.sub { color: var(--mx-muted); margin: 0 0 .75rem; }
+.sub code {
+  font-family: var(--mx-mono);
+  background: var(--mx-elevated);
+  border: 1px solid var(--mx-border);
+  border-radius: 4px;
+  padding: 0 .3em;
+}
+.msg { min-height: 1.4em; color: var(--mx-muted); }
+.msg.err { color: var(--mx-danger); }
+.stage { max-width: 1100px; margin: 0 auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--mx-surface);
+  border: 1px solid var(--mx-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--mx-text-2);
+  background: var(--mx-elevated);
+  padding: .6rem .7rem;
+  border-bottom: 1px solid var(--mx-border);
+}
+tbody td {
+  padding: .55rem .7rem;
+  border-bottom: 1px solid var(--mx-border);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--mx-hover); }
+td.num { font-family: var(--mx-mono); white-space: nowrap; }
+td .st-live { color: var(--mx-accent); }
+td .st-down { color: var(--mx-muted); }
+td .pill {
+  display: inline-block;
+  font-family: var(--mx-mono);
+  font-size: .78rem;
+  background: var(--mx-elevated);
+  border: 1px solid var(--mx-border);
+  border-radius: 4px;
+  padding: .1em .45em;
+  margin: 0 .15em .15em 0;
+  white-space: nowrap;
+}
+td .lease-active { color: var(--mx-accent); }
+button {
+  font: inherit;
+  color: var(--mx-text);
+  background: var(--mx-elevated);
+  border: 1px solid var(--mx-border-strong);
+  border-radius: 6px;
+  padding: .35rem .7rem;
+  margin-right: .35rem;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--mx-hover); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary {
+  background: var(--mx-accent);
+  border-color: transparent;
+  color: var(--mx-accent-ink);
+  font-weight: 600;
+}
+.viewer .bar {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 .5rem;
+}
+.via { color: var(--mx-muted); font-size: .85rem; }
+.warn { color: var(--mx-warn); font-size: .85rem; }
+.refuse {
+  color: var(--mx-danger);
+  border: 1px solid var(--mx-danger);
+  border-radius: 6px;
+  padding: .6rem .8rem;
+}
+#vframe {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid var(--mx-border);
+  border-radius: 8px;
+  background: var(--mx-surface);
+}
+.prof {
+  max-width: 560px;
+  background: var(--mx-surface);
+  border: 1px solid var(--mx-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+.prof label { display: block; margin: .6rem 0; color: var(--mx-text-2); }
+.prof input[type="text"], .prof select {
+  width: 100%;
+  padding: .4rem .6rem;
+  margin-top: .2rem;
+  color: var(--mx-text);
+  background: var(--mx-elevated);
+  border: 1px solid var(--mx-border-strong);
+  border-radius: 6px;
+  font: inherit;
+}
+.prof .check input { width: auto; }
+.prof .row { display: flex; gap: .6rem; align-items: center; }
+.backlink { margin: 0 0 .75rem; }
+.backlink a { color: var(--mx-accent); }

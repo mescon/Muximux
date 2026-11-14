@@ -1,0 +1,221 @@
+#!/usr/bin/python3 -I
+"""portal-front — transparent Muximux shim with extension script injection (M-312).
+
+Listens on 127.0.0.1:3736. Caddy routes `/` through here; rollback = route
+`/` back to :45001 (see routes/front.inc).
+
+- Plain HTTP: proxied to Muximux (127.0.0.1:45001). For HTML responses only,
+  `<script src="/portal-ext/ext.js">` is inserted before `</body>` (identity
+  encoding forced so the match works). Content-Length is reframed.
+- `/portal-ext/*`: served from lease-api (127.0.0.1:3726), same origin.
+- `Upgrade: websocket`: raw TCP relay to Muximux (urllib cannot do 101).
+"""
+import socket
+import sys
+import threading
+import json
+import os
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit, urlencode
+import re
+MUX_HOST, MUX_PORT = "127.0.0.1", 45001
+API_HOST, API_PORT = "127.0.0.1", 3726
+GW_HOST, GW_PORT = "127.0.0.1", 3738
+LISTEN = ("127.0.0.1", 3736)
+EXT_JS = "/mnt/workspace/portal/ui/ports/ext.js"
+GATEWAY_APPS = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "gateway-apps.json")
+INJECT = b'<script src="/portal-ext/ext.js"></script>'
+TAILNET_ORIGIN = "https://ddv-server-00.zubron-denebola.ts.net"
+HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
+       "te", "trailer", "transfer-encoding", "upgrade"}
+
+
+def allow_tailnet_probe(csp):
+    directives = [part.strip() for part in csp.split(";") if part.strip()]
+    for i, part in enumerate(directives):
+        if part.split(None, 1)[0].lower() == "connect-src":
+            if TAILNET_ORIGIN not in part.split():
+                directives[i] += " " + TAILNET_ORIGIN
+            return "; ".join(directives)
+    for part in directives:
+        if part.split(None, 1)[0].lower() == "default-src":
+            directives.append("connect-src " + part.partition(" ")[2] + " " + TAILNET_ORIGIN)
+            break
+    return "; ".join(directives)
+
+
+def relay(a, b):
+    try:
+        while True:
+            chunk = a.recv(65536)
+            if not chunk:
+                break
+            b.sendall(chunk)
+    except OSError:
+        pass
+
+
+class Handler(BaseHTTPRequestHandler):
+    server_version = "portal-front/312"
+    protocol_version = "HTTP/1.1"
+
+    def _proxy_to(self, host, port, inject, path=None):
+        length = int(self.headers.get("Content-Length") or 0)
+        body = self.rfile.read(length) if length else None
+        url = f"http://{host}:{port}" + (self.path if path is None else path)
+        headers = {k: v for k, v in self.headers.items()
+                   if k.lower() not in HOP and k.lower() != "host"}
+        headers["Accept-Encoding"] = "identity"  # injection needs raw bytes
+        try:
+            with urlopen(Request(url, data=body, headers=headers,
+                                 method=self.command), timeout=30) as r:
+                if not inject and (r.headers.get("Content-Type") or "").lower().startswith("text/event-stream"):
+                    self.send_response(r.status)
+                    for k, v in r.headers.items():
+                        if k.lower() not in HOP and k.lower() != "content-length":
+                            self.send_header(k, v)
+                    self.send_header("Connection", "close")
+                    self.end_headers()
+                    self.close_connection = True
+                    try:
+                        while chunk := r.read1(65536):
+                            self.wfile.write(chunk)
+                            self.wfile.flush()
+                    except (BrokenPipeError, ConnectionResetError, OSError):
+                        pass
+                    return
+                status, rheaders, raw = r.status, r.headers, r.read()
+        except HTTPError as e:
+            status, rheaders, raw = e.code, e.headers, e.read()
+        except URLError as e:
+            self.send_error(502, f"upstream unreachable: {e.reason}")
+            return
+        ctype = (rheaders.get("Content-Type") or "")
+        if inject and "text/html" in ctype and b"</body>" in raw:
+            raw = raw.replace(b"</body>", INJECT + b"</body>", 1)
+            rheaders = {k: allow_tailnet_probe(v) if k.lower() == "content-security-policy" else v
+                        for k, v in rheaders.items()
+                        if k.lower() != "content-length"}
+        self.send_response(status)
+        for k, v in rheaders.items():
+            if k.lower() not in HOP:
+                self.send_header(k, v)
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(raw)
+
+
+    def _relay_ws(self, host, port):
+        req_head = f"{self.command} {self.path} {self.request_version}\r\n"
+        for k, v in self.headers.items():
+            req_head += f"{k}: {v}\r\n"
+        req_head += "\r\n"
+        try:
+            up = socket.create_connection((host, port), timeout=30)
+            up.sendall(req_head.encode())
+        except OSError:
+            self.send_error(502, "websocket upstream unreachable")
+            return
+        down = self.connection
+        down.settimeout(60)
+        up.settimeout(60)
+        t = threading.Thread(target=relay, args=(up, down), daemon=True)
+        t.start()
+        relay(down, up)
+        up.close()
+
+    def _handle(self):
+        parts = urlsplit(self.path)
+        if self.command == "GET" and self.headers.get("Sec-Fetch-Dest") == "document":
+            try:
+                with open(GATEWAY_APPS) as f:
+                    claims = json.load(f).get("claims", [])
+            except (OSError, ValueError):
+                claims = []
+            for claim in claims:
+                prefix = claim.get("prefix", "")
+                port = claim.get("port")
+                if not prefix.startswith("/") or not isinstance(port, int):
+                    continue
+                nested = f"/p/{port}" + prefix
+                if parts.path.startswith(prefix):
+                    self.send_response(302)
+                    self.send_header("Location", f"/p/{port}" + self.path)
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
+                    return
+                if parts.path.startswith(nested):
+                    query = urlencode({"gateway_port": port,
+                                       "gateway_path": parts.path[len(f"/p/{port}"):] +
+                                       ("?" + parts.query if parts.query else "")})
+                    self.send_response(302)
+                    self.send_header("Location", "/?" + query)
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
+                    return
+        # Before the service worker controls an app, its parser can request
+        # root-relative assets. Route those using its same-origin entry URL.
+        # Navigations and the worker itself must remain portal routes.
+        ref = urlsplit(self.headers.get("Referer", ""))
+        match = re.match(r"^/p/(\d+)(?:/|$)", ref.path)
+        if (match and ref.netloc == self.headers.get("Host") and
+                self.headers.get("Sec-Fetch-Mode") != "navigate" and
+                self.headers.get("Sec-Fetch-Dest") != "serviceworker" and
+                self.headers.get("Upgrade", "").lower() != "websocket" and
+                not self.path.startswith("/p/") and
+                self.path.split("?", 1)[0] not in ("/sw.js", "/pgw-sw.js", "/pgw-ping")):
+            return self._proxy_to(GW_HOST, GW_PORT, inject=False,
+                                  path=f"/p/{match.group(1)}" + self.path)
+        if (self.headers.get("Upgrade", "").lower() == "websocket" or
+                self.path.startswith("/ws")):
+            if self.path.startswith("/p/"):
+                self._relay_ws(GW_HOST, GW_PORT)
+            else:
+                self._relay_ws(MUX_HOST, MUX_PORT)
+        elif self.path in ("/portal-ext/ext.js", "/portal-ext/gateway-apps.json"):
+            try:
+                with open(EXT_JS if self.path.endswith("ext.js") else GATEWAY_APPS, "rb") as f:
+                    raw = f.read()
+            except OSError:
+                self.send_error(404, "no ext.js")
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "text/javascript" if self.path.endswith("ext.js") else "application/json")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(raw)))
+            self.end_headers()
+            self.wfile.write(raw)
+        elif (self.path.startswith("/ports")
+                or self.path.startswith("/lease")):
+            self._proxy_to(API_HOST, API_PORT, inject=False)
+        elif (self.path.startswith("/p/") or self.path == "/sw.js"
+                or self.path == "/pgw-sw.js" or self.path == "/pgw-ping"):
+            # M-323: port gateway lives behind Caddy :3720, but tests and
+            # direct-:3736 traffic must reach it too — same origin either way.
+            self._proxy_to(GW_HOST, GW_PORT, inject=False)
+        else:
+            self._proxy_to(MUX_HOST, MUX_PORT, inject=True)
+
+    do_GET = _handle
+    do_POST = _handle
+    do_PUT = _handle
+    do_DELETE = _handle
+    do_PATCH = _handle
+    do_HEAD = _handle
+    do_OPTIONS = _handle
+
+    def log_message(self, fmt, *args):
+        sys.stderr.write("portal-front: " + fmt % args + "\n")
+
+
+def main():
+    srv = ThreadingHTTPServer(LISTEN, Handler)
+    print(f"portal-front: listening on {LISTEN[0]}:{LISTEN[1]}", flush=True)
+    srv.serve_forever()
+
+
+if __name__ == "__main__":
+    main()

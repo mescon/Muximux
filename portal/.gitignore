@@ -1,0 +1,14 @@
+.ports.token
+ports-deny.yaml
+routes/all.inc
+muximux/data/
+logs/
+cf-backups/
+browser/
+*.env
+.env*
+tunnel-config*.json
+spike/tsprobe/state/
+tests/e2e/shots/
+__pycache__/
+*.pyc
