@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal</title>
+<style>
+:root{--bg:#1e1e1e;--side:#252526;--bar:#2d2d2d;--fg:#ccc;--mut:#8a8a8a;--acc:#3794ff;--ok:#3fb950;--bad:#f85149;--bd:#3c3c3c}
+@media (prefers-color-scheme:light){:root{--bg:#fff;--side:#f3f3f3;--bar:#ececec;--fg:#333;--mut:#777;--bd:#d4d4d4}}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:13px system-ui,sans-serif}
+#app{display:grid;grid-template-columns:250px 1fr;height:100%}
+#side{background:var(--side);border-right:1px solid var(--bd);overflow:auto}
+#side h1{font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:0;padding:12px 12px 6px;color:var(--mut)}
+#q{width:calc(100% - 20px);margin:4px 10px 8px;padding:6px 8px;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px}
+.grp{padding:8px 12px 3px;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.item{display:flex;align-items:center;gap:8px;padding:5px 12px;cursor:pointer}.item:hover{background:var(--bar)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mut);flex:none}.dot.up{background:var(--ok)}.dot.down{background:var(--bad)}
+.item .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.item .p{color:var(--mut);font-size:11px}
+#main{display:flex;flex-direction:column;min-width:0}
+#bar{display:flex;gap:8px;align-items:center;padding:6px 10px;background:var(--bar);border-bottom:1px solid var(--bd)}
+#bar span{flex:1;color:var(--mut)}#bar button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:3px 9px;cursor:pointer}
+#msg{color:var(--acc)}
+iframe{flex:1;border:0;width:100%;background:#000}
+</style></head><body><div id="app">
+<div id="side"><h1>Services</h1><input id="q" placeholder="Filter…"><div id="list"></div></div>
+<div id="main"><div id="bar"><span>Browser running on the server: every service opens at <code>127.0.0.1:&lt;port&gt;</code> in a tab below. <b id="msg"></b></span><button id="reload">⟳ Reconnect</button><button id="full">↗ Full window</button></div>
+<iframe id="vb" src="/browser/" allow="clipboard-read; clipboard-write; fullscreen; autoplay; microphone; camera"></iframe></div></div>
+<script src="/_portal/app.js"></script></body></html>

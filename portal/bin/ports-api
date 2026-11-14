@@ -79,12 +79,14 @@ def validate_registration(body):
     missing = [k for k in ("id", "app", "lane", "role", "port") if k not in body]
     if missing:
         raise portslib.RegistryError(f"missing fields: {', '.join(missing)}")
+    portal = body.get("portal") or {"title": body["id"], "tab": False}
+    portslib._check_portal(body["id"], portal)
     entry = {
         "id": body["id"], "app": body["app"], "lane": body["lane"],
         "role": body["role"], "port": body["port"],
         "bind": body.get("bind", ""), "unit": body.get("unit", ""),
         "health": body.get("health", ""),
-        "portal": {"title": body["id"], "tab": False},
+        "portal": portal,
     }
     ids, ports = set(), {}
     portslib._check_static_entry(entry, "post", ids, ports)  # schema + id/port checks

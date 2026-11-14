@@ -46,11 +46,12 @@ def desired(mode):
     if isinstance(gateway_config, list):
         gateway_config = {"apps": gateway_config}
     gateway = set(gateway_config.get("apps", []))
+    registered_gateway = set(gateway_config.get("registered_apps", []))
     claimed_ports = {claim["port"] for claim in gateway_config.get("claims", [])}
-    def add(name, group, port, scheme="http", host="127.0.0.1", key=None):
+    def add(name, group, port, scheme="http", host="127.0.0.1", key=None, registered=False):
         if name in seen: return
         seen.add(name)
-        if mode == "proxy" and (key or name) in gateway:
+        if mode == "proxy" and ((key or name) in gateway or (registered and key in registered_gateway)):
             # local port through the portal gateway (service-worker rewrite), never the public hostname
             a = {"name": name, "url": f"/p/{port}/", "group": group, "enabled": True, "open_mode": "iframe", "proxy": False}
             if port in claimed_ports:
@@ -70,7 +71,8 @@ def desired(mode):
         if tab not in (True, "auto"): continue
         title = (p.get("portal") or {}).get("title") or p["id"]
         name = title if p.get("source") == "static" else f"{title} :{p['port']}"
-        add(name, GROUP.get(p["app"], p["app"].title()), p["port"], host=host_of(p), key=p["id"])
+        add(name, GROUP.get(p["app"], p["app"].title()), p["port"], host=host_of(p), key=p["id"],
+            registered=p.get("source") == "registered")
     extra = os.path.join(HERE, "extra-apps.json")
     if os.path.exists(extra):
         for e in json.load(open(extra)):

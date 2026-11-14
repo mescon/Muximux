@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+R=/mnt/workspace/portal
+grep -v -P "^$1\t" $R/services.tsv > $R/services.tsv.new && mv $R/services.tsv.new $R/services.tsv
+exec $R/bin/portal-sync

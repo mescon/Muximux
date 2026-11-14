@@ -1,0 +1,45 @@
+#!/usr/bin/python3 -I
+"""portal-scan — find listening TCP ports whose process matches dynamic-rules.tsv, write dynamic.tsv, resync on change.
+Only matching processes become reachable (as portal.<domain>/p/<port>/). Everything else stays closed."""
+import re, subprocess, os, sys
+ROOT = "/mnt/workspace/portal"
+DENY = {22, 53, 2019, 2020, 2021, 2022, 3720, 3721, 5432, 5900, 6379, 9222, 9230, 55432, 55433, 55499}
+rules = []
+for l in open(f"{ROOT}/dynamic-rules.tsv"):
+    if l.startswith("#") or not l.strip(): continue
+    f = l.rstrip("\n").split("\t"); rules.append((re.compile(f[0]), f[1], f[2] if len(f) > 2 else "Live ports"))
+static = set()
+for l in open(f"{ROOT}/services.tsv"):
+    f = l.split("\t")
+    if not l.startswith("#") and len(f) > 1 and f[1].isdigit(): static.add(int(f[1]))
+found = {}
+ss_out = subprocess.run(["ss", "-ltnpH"], capture_output=True, text=True).stdout
+for line in ss_out.splitlines():
+    cols = line.split()
+    addr = cols[3]; host, _, port = addr.rpartition(":")
+    if not port.isdigit() or int(port) in DENY or int(port) in static: continue
+    if host not in ("127.0.0.1", "0.0.0.0", "*", "[::]", "[::1]"): continue
+    for pid in re.findall(r"pid=(\d+)", line):
+        try: cmd = open(f"/proc/{pid}/cmdline").read().replace("\0", " ").strip()
+        except OSError: continue
+        for rx, label, group in rules:
+            if rx.search(cmd): found[int(port)] = (label, group, cmd[:80]); break
+rows = "".join(f"{p}\t{l}\t{g}\t{c}\n" for p, (l, g, c) in sorted(found.items()))
+path = f"{ROOT}/dynamic.tsv"
+old = open(path).read() if os.path.exists(path) else None
+if rows != old:
+    open(path, "w").write(rows)
+    subprocess.run([f"{ROOT}/bin/portal-sync"], check=True, capture_output=True)
+    print("dynamic ports:", sorted(found))
+
+# M-245: also fill ports.dynamic.json from the dynamic families in ports.yaml
+# (same ss pass as above). Runs after the legacy path so a broken ports.yaml
+# never blocks dynamic.tsv; errors exit non-zero and show up in the journal.
+sys.path.insert(0, f"{ROOT}/lib")
+import portslib  # noqa: E402
+reg = portslib.load_registry(ROOT)
+listen = portslib.ss_listen(ss_out)
+portslib.write_json_atomic(
+    f"{ROOT}/{portslib.DYNAMIC_FILE}",
+    {"generated_at": portslib.ts(), "entries": portslib.scan_dynamic(reg, listen)},
+)

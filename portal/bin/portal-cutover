@@ -1,0 +1,13 @@
+#!/bin/bash
+# portal-cutover muximux|chromium : switch what portal-caddy (:3720) serves, then reload. Rollback = run with the other arg.
+set -euo pipefail
+cd /mnt/workspace/portal
+case "${1:-}" in
+  muximux)  inc=routes/muximux.inc ;;
+  chromium) inc=routes/all.inc ;;
+  *) echo "usage: $0 muximux|chromium" >&2; exit 2 ;;
+esac
+sed -i -E "s#^(\s*)import routes/[a-z.]+#\1import $inc#" Caddyfile
+/home/ddv/.local/bin/caddy validate --config Caddyfile --adapter caddyfile >/dev/null
+/home/ddv/.local/bin/caddy reload --config Caddyfile --adapter caddyfile --address localhost:2022
+echo "portal now serves: $1"

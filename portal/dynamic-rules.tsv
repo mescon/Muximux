@@ -1,0 +1,4 @@
+# regex (searched in the process command line)	label	group
+freebuff-runtime/orchestrator/orchestrator\.js	Freebuff runtime orchestrator	Live ports
+(^|/)opencode2?( |$)	opencode instance	Live ports
+multica-x/packages/.*(vite|dsh-plugin)	Multica dev UI (vite)	Live ports

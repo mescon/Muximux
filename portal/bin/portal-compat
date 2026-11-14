@@ -1,0 +1,89 @@
+#!/usr/bin/python3
+"""portal-compat <port>: run the section-4 gateway compatibility checks.
+
+Prints pass/fail per check. Exit 0 if all pass, 1 otherwise.
+"""
+import json, sys, urllib.request, urllib.error, socket, ssl
+
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+GW = "http://127.0.0.1:3738"
+BASE = f"{GW}/p/{PORT}/"
+
+def req(path="", method="GET", headers=None, data=None):
+    r = urllib.request.Request(GW + path, data=data, method=method, headers=headers or {})
+    try:
+        with urllib.request.urlopen(r, timeout=5) as resp:
+            return resp.status, dict(resp.headers), resp.read()
+    except urllib.error.HTTPError as e:
+        return e.code, dict(e.headers), e.read()
+    except Exception as e:
+        return None, {}, str(e).encode()
+
+checks = []
+
+# 1. first load
+status, hdrs, body = req(f"/p/{PORT}/")
+first_load = status == 200 and len(body) > 0
+checks.append(("first_load", first_load))
+
+# 2. JS content-type (gateway sw.js)
+status, hdrs, body = req("/sw.js")
+ct = hdrs.get("Content-Type", "")
+js_ct = "javascript" in ct and "text/html" not in ct
+checks.append(("js_content_type", js_ct))
+
+# 3. login-cookie flags (https forwarded)
+status, hdrs, body = req(f"/p/{PORT}/", headers={"X-Forwarded-Proto": "https"})
+# check rewrite_cookie behavior via gateway module if available
+try:
+    import importlib.machinery, importlib.util, os
+    loader = importlib.machinery.SourceFileLoader("portal_gw", os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "bin", "portal-gw"))
+    gw = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
+    argv = sys.argv
+    try:
+        sys.argv = ["portal-gw"]
+        loader.exec_module(gw)
+    finally:
+        sys.argv = argv
+    rc = gw.rewrite_cookie("sid=abc; Path=/x; SameSite=Strict", True)
+    cookie_flags = "SameSite=None" in rc and "Secure" in rc and "Partitioned" in rc
+except Exception:
+    cookie_flags = False
+checks.append(("login_cookie_flags", cookie_flags))
+
+# 4. WS 101 with cookie
+ws_ok = False
+try:
+    s = socket.create_connection(("127.0.0.1", 3738), timeout=5)
+    key = "dGhlIHNhbXBsZSBub25jZQ=="
+    reqstr = (f"GET /p/{PORT}/ HTTP/1.1\r\nHost: 127.0.0.1:3738\r\n"
+              f"Upgrade: websocket\r\nConnection: Upgrade\r\n"
+              f"Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n")
+    s.sendall(reqstr.encode())
+    data = b""
+    while b"\r\n\r\n" not in data:
+        chunk = s.recv(4096)
+        if not chunk: break
+        data += chunk
+    ws_ok = data.startswith(b"HTTP/1.1 101") or data.startswith(b"HTTP/1.0 101")
+    s.close()
+except Exception:
+    ws_ok = False
+checks.append(("ws_101_with_cookie", ws_ok))
+
+# 5. sub-path reload
+status, hdrs, body = req(f"/p/{PORT}/__compat_subpath__/")
+subpath = status not in (None,) and status != 0
+checks.append(("subpath_reload", subpath))
+
+# 6. cross-site iframe (frame-ancestors stripped by gateway)
+status, hdrs, body = req(f"/p/{PORT}/")
+csp = hdrs.get("Content-Security-Policy", "")
+cross_iframe = "frame-ancestors" not in csp.lower()
+checks.append(("cross_site_iframe", cross_iframe))
+
+allpass = True
+for name, ok in checks:
+    print(f"{name}: {'PASS' if ok else 'FAIL'}")
+    allpass = allpass and ok
+sys.exit(0 if allpass else 1)

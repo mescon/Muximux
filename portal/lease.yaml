@@ -1,0 +1,9 @@
+# Lease proxy numbers — owner-approved in M-237/M-249 (2026-11-06), kept here per M-249 scope.
+grace_seconds: 30        # after the last session WS drops, lease is removed this many seconds later
+max_lifetime_seconds: 28800  # hard cap 8h, applies even while the session stays connected
+sweep_interval_seconds: 2    # internal: how often grace/cap expiries are enforced
+heartbeat_seconds: 15        # server-side WS protocol ping interval (browser answers even in background tabs)
+listen: 127.0.0.1:3726
+muximux_base: http://127.0.0.1:45001
+lease_group: Leases
+audit_log: logs/lease-audit.jsonl

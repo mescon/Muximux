@@ -65,7 +65,8 @@ class SchemaTest(unittest.TestCase):
     def test_repo_registry_is_valid(self):
         reg = portslib.load_registry(ROOT)
         self.assertEqual(reg["version"], 1)
-        self.assertTrue(reg["static"])
+        self.assertGreaterEqual(len(reg["static"]), 10)
+        self.assertGreaterEqual(len(reg["dynamic"]), 3)
 
     def _mutated(self, mutate):
         data = yaml.safe_load(MINI_YAML)
