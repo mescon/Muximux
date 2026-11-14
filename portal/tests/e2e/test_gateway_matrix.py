@@ -71,6 +71,18 @@ with sync_playwright() as p:
         page.on("response", response)
         page.on("pageerror", lambda e: failures.append("pageerror " + str(e)[:160]))
         try:
+            # First loads install the SW; measure only the SW-controlled
+            # pass (pre-control asset 404s hit the portal shell, not the
+            # gateway — see M-323 evidence). Failures accumulate per
+            # context, so clear before the measured pass.
+            for _ in range(2):
+                page.goto(f"{BASE}/p/{port}/", wait_until="domcontentloaded", timeout=15000)
+                try:
+                    page.wait_for_function("() => !!navigator.serviceWorker.controller", timeout=15000)
+                except Exception:
+                    pass
+                page.wait_for_timeout(2000)
+            del failures[:]
             r = page.goto(f"{BASE}/p/{port}/", wait_until="domcontentloaded", timeout=15000)
             page.wait_for_timeout(4000)
             page.screenshot(path=str(OUT / f"m323-matrix-{port}-{scheme}.png"))
