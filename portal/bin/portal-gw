@@ -49,6 +49,18 @@ from aiohttp import WSMsgType, web
 
 HERE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(HERE, "lib"))
+try:
+    from pgw.favicon import (  # M-357: per-app tab icons
+        content_type_for,
+        favicon_candidates,
+    )
+except Exception:  # isolated test harnesses without lib/pgw
+    content_type_for = None
+    favicon_candidates = None
+
+FAVICON_TTL = 3600  # cache seconds per port; ?refresh=1 re-fetches
+FAVICON_REFRESH_MIN = 300  # min seconds between ?refresh=1 fetches
+_favicon_cache = {}  # port -> {"body", "content_type", "at"}
 
 LISTEN = ("127.0.0.1", int(sys.argv[1]) if len(sys.argv) > 1 else 3738)
 REGISTRY_URL = "http://127.0.0.1:3726/ports/v1/registry"
@@ -484,11 +496,82 @@ async def ping(r):
     return web.Response(text="pgw-ok", headers=headers)
 
 
+async def favicon(request):
+    """Serve an app's own favicon for its Muximux tab icon (M-357).
+
+    GET /p/<port>/__favicon: fetch the app page upstream, resolve its
+    <link rel=icon> (relative hrefs, light preferred), else /favicon.ico,
+    and return the bytes with the upstream (or extension-sniffed)
+    Content-Type. One cache entry per port (FAVICON_TTL); ?refresh=1
+    (used by portal-muximux-sync) re-fetches at most every
+    FAVICON_REFRESH_MIN. Failures serve stale cache, else 404 so the
+    tab silently falls back to its letter.
+    """
+    port = int(request.match_info["port"])
+    if port not in allowed_ports():
+        return web.Response(status=403, text="port denied")
+    now = time.time()
+    cached = _favicon_cache.get(port)
+    force = request.query.get("refresh") == "1"
+    if cached and not force and now - cached["at"] < FAVICON_TTL:
+        return web.Response(body=cached["body"],
+                            content_type=cached["content_type"],
+                            headers={"Cache-Control": "public, max-age=3600"})
+    if force and cached and now - cached.get("fetched_at", 0) < FAVICON_REFRESH_MIN:
+        return web.Response(body=cached["body"],
+                            content_type=cached["content_type"],
+                            headers={"Cache-Control": "public, max-age=3600"})
+
+    async def _get(session, url):
+        async with session.get(url, allow_redirects=True,
+                               timeout=aiohttp.ClientTimeout(total=8)) as r:
+            if r.status != 200:
+                return None
+            body = await r.read()
+            if len(body) > 512 * 1024:
+                return None
+            return body, r.headers.get("Content-Type", "")
+
+    try:
+        if favicon_candidates is None:
+            raise RuntimeError("favicon resolver unavailable")
+        host = port_upstream_host(port)
+        sess = request.app["sess"]
+        page_url = f"http://{host}:{port}/"
+        got = await _get(sess, page_url)
+        if got is None:
+            raise RuntimeError(f"page fetch failed for {port}")
+        page_body, _ = got
+        html = page_body.decode("utf-8", "replace")
+        for cand in favicon_candidates(page_url, html):
+            got = await _get(sess, cand)
+            if got is None:
+                continue
+            icon_body, icon_ct = got
+            ct = content_type_for(cand, icon_ct)
+            if not ct.startswith("image/"):
+                continue
+            _favicon_cache[port] = {"body": icon_body, "content_type": ct,
+                                   "at": now, "fetched_at": now}
+            return web.Response(body=icon_body, content_type=ct,
+                                headers={"Cache-Control": "public, max-age=3600"})
+        raise RuntimeError(f"no fetchable icon for {port}")
+    except Exception as e:
+        print(f"portal-gw: favicon {port} failed ({e!r}), "
+              f"{'serving stale' if cached else '404'}", flush=True)
+        if cached:
+            return web.Response(body=cached["body"],
+                                content_type=cached["content_type"],
+                                headers={"Cache-Control": "public, max-age=3600"})
+        return web.Response(status=404, text="no favicon")
+
+
 app.router.add_route("*", "/pgw-ping", ping)
 app.router.add_get("/pgw-sw.js", sw)
 app.router.add_get("/sw.js", sw)
 app.router.add_route("*", "/p/{port:\\d+}",
                      lambda r: web.HTTPFound(f"/p/{r.match_info['port']}/"))
+app.router.add_route("GET", "/p/{port:\\d+}/__favicon", favicon)
 app.router.add_route("*", "/p/{port:\\d+}/{rest:.*}", gw)
 if __name__ == "__main__":
     web.run_app(app, host=LISTEN[0], port=LISTEN[1],
