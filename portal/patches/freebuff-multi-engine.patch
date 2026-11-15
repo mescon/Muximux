@@ -1,0 +1,846 @@
+diff -ruN rev/freebuff/server/src/index.ts live2/freebuff/server/src/index.ts
+--- a/freebuff/server/src/index.ts	2026-11-13 23:49:51.732088832 +0700
++++ b/freebuff/server/src/index.ts	2026-11-14 19:10:56.136050840 +0700
+@@ -4,13 +4,17 @@
+ import { createAuth } from './auth'
+ import { lanAddresses, loadWebServerConfig } from './config'
+ import {
++  startMultiEngine,
++  type EnginePorts,
++  type MultiEngineHandle,
++} from './multi-engine'
++import {
+   findFreebuffBundle,
+   readAppVersion,
+   startOrchestrator,
+   type OrchestratorHandle,
+ } from './orchestrator'
+ import { startProxy, type ProxyHandle } from './proxy'
+-
+ const HELP = `Freebuff Web — serve the installed Freebuff Desktop app to browsers on your network.
+ 
+ Usage:
+@@ -27,6 +31,8 @@
+   FREEBUFF_WEB_TLS_KEY         PEM private key for HTTPS
+   FREEBUFF_APP_PATH            Freebuff Desktop app bundle or its Resources directory
+   FREEBUFF_DESKTOP_STATE       Desktop state.json to seed projects from on first run
++  FREEBUFF_ENGINE_REGISTRY     Daemon registry.json for multi-engine mode
++  FREEBUFF_ENGINE_BASE_PORT    First listener port for multi-engine mode
+ 
+ The server never opens the Desktop app's live profile. It runs its own orchestrator
+ on a loopback port and puts this password-protected proxy in front.
+@@ -100,6 +106,55 @@
+   )
+   console.log('')
+ }
++function enginePorts(): EnginePorts | null {
++  const url = process.env.PORTS_API_URL?.trim()
++  const tokenFile = process.env.PORTS_API_TOKEN_FILE?.trim()
++  if (!url || !tokenFile) return null
++  let token: string
++  try {
++    token = readFileSync(tokenFile, 'utf8').trim()
++  } catch {
++    return null
++  }
++  if (!token) return null
++  const base = url.replace(/\/+$/, '')
++  const call = async (
++    method: string,
++    reqPath: string,
++    body?: unknown,
++  ): Promise<void> => {
++    const controller = new AbortController()
++    const timer = setTimeout(() => controller.abort(), 2000)
++    timer.unref?.()
++    try {
++      const response = await fetch(`${base}${reqPath}`, {
++        method,
++        headers: {
++          'X-Ports-Token': token,
++          ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
++        },
++        body: body !== undefined ? JSON.stringify(body) : undefined,
++        signal: controller.signal,
++      })
++      await response.text().catch(() => '')
++    } catch {
++      // Registry down never blocks the proxy; removal retries next cycle.
++    } finally {
++      clearTimeout(timer)
++    }
++  }
++  return {
++    register: async (_id, record) => {
++      await call('POST', '/v1/ports', record)
++    },
++    heartbeat: async (id) => {
++      await call('PUT', `/v1/ports/${encodeURIComponent(id)}`)
++    },
++    remove: async (id) => {
++      await call('DELETE', `/v1/ports/${encodeURIComponent(id)}`)
++    },
++  }
++}
+ 
+ async function main(): Promise<void> {
+   if (process.argv.includes('--help') || process.argv.includes('-h')) {
+@@ -108,8 +163,6 @@
+   }
+ 
+   const config = await loadWebServerConfig()
+-  const bundle = findFreebuffBundle()
+-  const version = readAppVersion(bundle)
+   const logPath = path.join(config.configDir, 'orchestrator.log')
+   const tls = config.tls
+     ? {
+@@ -129,6 +182,7 @@
+ 
+   let proxy: ProxyHandle | null = null
+   let orchestrator: OrchestratorHandle | null = null
++  let multi: MultiEngineHandle | null = null
+   let shuttingDown = false
+ 
+   const shutdown = async (code: number): Promise<void> => {
+@@ -144,12 +198,46 @@
+     } catch (error) {
+       console.error(`[web] orchestrator shutdown failed: ${String(error)}`)
+     }
++    try {
++      await multi?.stop()
++    } catch (error) {
++      console.error(`[web] multi-engine shutdown failed: ${String(error)}`)
++    }
+     process.exit(code)
+   }
+ 
+   process.on('SIGINT', () => void shutdown(0))
+   process.on('SIGTERM', () => void shutdown(0))
+ 
++  // Multi-engine mode (M-322): instead of spawning one orchestrator, front
++  // the daemon's engines from its registry.json. The 4320 server keeps its
++  // single-engine path when the env var is unset.
++  const enginesRegistry = process.env.FREEBUFF_ENGINE_REGISTRY?.trim()
++  if (enginesRegistry) {
++    const basePort = Number.parseInt(
++      process.env.FREEBUFF_ENGINE_BASE_PORT?.trim() || '4330',
++      10,
++    )
++    multi = startMultiEngine({
++      registryPath: enginesRegistry,
++      hostname: config.hostname,
++      basePort: Number.isInteger(basePort) ? basePort : 4330,
++      auth,
++      secureCookie: !!tls,
++      tls,
++      ports: enginePorts(),
++      onEvent: (message) => console.error(message),
++    })
++    console.log(
++      `[web] multi-engine mode: watching ${enginesRegistry} (base port ${Number.isInteger(basePort) ? basePort : 4330})`,
++    )
++    // Keep the process alive; listeners are stopped via shutdown hooks.
++    await new Promise(() => {})
++    return
++  }
++  const bundle = findFreebuffBundle()
++  const version = readAppVersion(bundle)
++
+   orchestrator = await startOrchestrator({
+     bundle,
+     profilePath: config.profilePath,
+@@ -171,12 +259,13 @@
+       auth,
+       secureCookie: !!tls,
+       tls,
++      versionLabel: process.env.FREEBUFF_WEB_VERSION?.trim() || version,
++      accountLabel: 'local',
+     })
+   } catch (error) {
+     await orchestrator.stop()
+     throw error
+   }
+-
+   printBanner({
+     version,
+     resourcesDir: bundle.resourcesDir,
+diff -ruN rev/freebuff/server/src/multi-engine.ts live2/freebuff/server/src/multi-engine.ts
+--- a/freebuff/server/src/multi-engine.ts	1970-01-01 08:00:00.000000000 +0800
++++ b/freebuff/server/src/multi-engine.ts	2026-11-14 19:10:56.136050840 +0700
+@@ -0,0 +1,385 @@
++/**
++ * Multi-engine front for daemon-spawned Freebuff Desktop engines (M-322).
++ *
++ * The daemon publishes one entry per connected account to
++ * `<profiles-root>/registry.json` (0600, atomic rename):
++ * `{accountId, runtimeId, label, version, port, pid, launchId}`.
++ * For each entry this module opens a loopback listener that injects
++ * `x-freebuff-launch-id` on every upstream HTTP and WebSocket request and
++ * stamps the version badge into document responses — the same proxy the
++ * single-engine server uses, with the password gate kept in front.
++ *
++ * Stable per-account ports come from the app port registry
++ * (`ports alloc freebuff none proxy`), heartbeat-kept with a TTL; the
++ * registry file names the account, the ports registry names the listener.
++ * Registry down never blocks start; a stopped engine loses its listener and
++ * its registration.
++ */
++import {
++  existsSync,
++  readFileSync,
++  statSync,
++  watch,
++  type FSWatcher,
++} from 'node:fs'
++import path from 'node:path'
++
++import { startProxy, type ProxyAuth, type ProxyHandle, type ProxyTls } from './proxy'
++
++export type EngineEntry = {
++  accountId: string
++  runtimeId?: string
++  label?: string
++  version?: string
++  port: number
++  pid?: number
++  launchId: string
++}
++
++export type EnginePorts = {
++  remove: (id: string) => Promise<void>
++  register: (
++    id: string,
++    record: Record<string, unknown>,
++  ) => Promise<void>
++  /** Refresh last_seen so the registry (TTL) does not reap a live listener. */
++  heartbeat: (id: string) => Promise<void>
++}
++
++export type MultiEngineAuth = ProxyAuth
++export type MultiEngineTls = ProxyTls
++
++export type MultiEngineOptions = {
++  registryPath: string
++  hostname: string
++  basePort: number
++  auth: MultiEngineAuth
++  secureCookie: boolean
++  tls?: MultiEngineTls
++  ports: EnginePorts | null
++  onEvent?: (message: string) => void
++}
++
++export type MultiEngineHandle = {
++  engines: Map<string, { entry: EngineEntry; proxy: ProxyHandle }>
++  stop: () => Promise<void>
++}
++
++function validEntry(raw: unknown): EngineEntry | null {
++  if (!raw || typeof raw !== 'object') return null
++  const e = raw as Record<string, unknown>
++  const accountId = typeof e.accountId === 'string' ? e.accountId.trim() : ''
++  const port = typeof e.port === 'number' ? e.port : Number.NaN
++  const launchId = typeof e.launchId === 'string' ? e.launchId : ''
++  if (!accountId || !Number.isInteger(port) || port < 1 || port > 65535)
++    return null
++  if (!launchId) return null
++  const version = typeof e.version === 'string' ? e.version : ''
++  const label = typeof e.label === 'string' ? e.label : ''
++  const pid = typeof e.pid === 'number' ? e.pid : undefined
++  return { accountId, port, launchId, version, label, pid }
++}
++
++function readEntries(registryPath: string): Map<string, EngineEntry> {
++  const out = new Map<string, EngineEntry>()
++  let raw: string
++  try {
++    raw = readFileSync(registryPath, 'utf8')
++  } catch {
++    return out
++  }
++  try {
++    const parsed: unknown = JSON.parse(raw)
++    const list = Array.isArray(parsed) ? parsed : []
++    for (const item of list) {
++      const entry = validEntry(item)
++      if (entry) out.set(entry.accountId, entry)
++    }
++  } catch {
++    // A torn read resolves on the next watch event; atomic renames make
++    // partial JSON rare and self-healing.
++  }
++  return out
++}
++
++/**
++ * Display version for an engine (M-322 follow-up): prefer the daemon
++ * registry's `version` (written by daemons with PR #193), else read
++ * FREEBUFF_APP_VERSION from the engine process environment via /proc
++ * (same-user read; the version is not secret), else 'unknown'.
++ * The cmdline guard avoids trusting a reused pid. Never throws.
++ */
++export function parseAppVersion(environText: string): string | null {
++  for (const kv of environText.split('\0')) {
++    if (kv.startsWith('FREEBUFF_APP_VERSION=')) {
++      const v = kv.slice('FREEBUFF_APP_VERSION='.length).trim()
++      if (v) return v
++    }
++  }
++  return null
++}
++
++function engineCmdlineOk(pid: number): boolean {
++  try {
++    return readFileSync(`/proc/${pid}/cmdline`, 'utf8').includes('orchestrator')
++  } catch {
++    return false
++  }
++}
++
++export function displayVersion(entry: EngineEntry): string {
++  const fromRegistry = entry.version?.trim()
++  if (fromRegistry) return fromRegistry
++  if (
++    entry.pid &&
++    Number.isInteger(entry.pid) &&
++    entry.pid > 0 &&
++    engineCmdlineOk(entry.pid)
++  ) {
++    try {
++      const found = parseAppVersion(
++        readFileSync(`/proc/${entry.pid}/environ`, 'utf8'),
++      )
++      if (found) return found
++    } catch {
++      // Environ unreadable; fall through to 'unknown'.
++    }
++  }
++  return 'unknown'
++}
++
++const MONTHS = [
++  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
++  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
++]
++
++/** Format an epoch-ms timestamp as YYMMMDD.HHMM in server-local time. */
++export function formatProcStart(mtimeMs: number): string {
++  const d = new Date(mtimeMs)
++  const yy = String(d.getFullYear() % 100).padStart(2, '0')
++  const mmm = MONTHS[d.getMonth()]
++  const dd = String(d.getDate()).padStart(2, '0')
++  const hh = String(d.getHours()).padStart(2, '0')
++  const mi = String(d.getMinutes()).padStart(2, '0')
++  return `${yy}${mmm}${dd}.${hh}${mi}`
++}
++
++/**
++ * Engine start tag from /proc (same-user read, orchestrator-guard so a
++ * reused pid can't spoof it). Null when unknown — never throws.
++ */
++export function procStartTag(pid: number | undefined): string | null {
++  if (!pid || !Number.isInteger(pid) || pid <= 0 || !engineCmdlineOk(pid)) {
++    return null
++  }
++  try {
++    return formatProcStart(statSync(`/proc/${pid}`).mtimeMs)
++  } catch {
++    return null
++  }
++}
++
++/**
++ * Compact badge version: `<semver>-<YYMMMDD.HHMM>` from the engine's start
++ * time, plain `<semver>` when the start time is unknown (e.g. no pid yet).
++ */
++export function versionTag(entry: EngineEntry): string {
++  const v = displayVersion(entry)
++  const t = procStartTag(entry.pid)
++  return t ? `${v}-${t}` : v
++}
++
++export function proxyIdFor(accountId: string): string {
++  return `freebuff.proxy[${accountId}]`
++}
++
++function currentPorts(
++  current: Map<string, { entry: EngineEntry; proxy: ProxyHandle }>,
++): Set<number> {
++  const used = new Set<number>()
++  for (const state of current.values()) used.add(state.proxy.port)
++  return used
++}
++
++async function portFree(port: number): Promise<boolean> {
++  try {
++    const probe = Bun.serve({ port, hostname: '127.0.0.1', fetch: () => new Response('ok') })
++    await probe.stop(true)
++    return true
++  } catch {
++    return false
++  }
++}
++
++async function pickPort(base: number, used: Set<number>): Promise<number> {
++  for (let port = base; port < base + 100; port += 1) {
++    if (used.has(port)) continue
++    if (await portFree(port)) return port
++  }
++  throw new Error(`no free listener port near ${base}`)
++}
++export async function reconcileEngines(
++  wanted: Map<string, EngineEntry>,
++  current: Map<string, { entry: EngineEntry; proxy: ProxyHandle }>,
++  options: MultiEngineOptions,
++): Promise<void> {
++  const log = options.onEvent ?? ((): void => {})
++  for (const [accountId, state] of current) {
++    const next = wanted.get(accountId)
++    if (
++      next &&
++      next.port === state.entry.port &&
++      next.launchId === state.entry.launchId &&
++      (next.version ?? '') === (state.entry.version ?? '')
++    ) {
++      continue
++    }
++    try {
++      await state.proxy.stop()
++    } catch (error) {
++      log(`[multi-engine] stop ${accountId} failed: ${String(error)}`)
++    }
++    current.delete(accountId)
++    if (options.ports) {
++      try {
++        await options.ports.remove(proxyIdFor(accountId))
++      } catch (error) {
++        log(`[multi-engine] unregister ${accountId} failed: ${String(error)}`)
++      }
++    }
++  }
++  for (const [accountId, entry] of wanted) {
++    const state = current.get(accountId)
++    if (
++      state &&
++      state.entry.port === entry.port &&
++      state.entry.launchId === entry.launchId &&
++      (state.entry.version ?? '') === (entry.version ?? '')
++    ) {
++      continue
++    }
++    if (state) {
++      try {
++        await state.proxy.stop()
++      } catch (error) {
++        log(`[multi-engine] restart stop ${accountId} failed: ${String(error)}`)
++      }
++      current.delete(accountId)
++    }
++    const listenPort = await pickPort(options.basePort, currentPorts(current))
++    const proxy = startProxy({
++      hostname: options.hostname,
++      port: listenPort,
++      orchestratorPort: entry.port,
++      auth: options.auth,
++      secureCookie: options.secureCookie,
++      tls: options.tls,
++      launchId: entry.launchId,
++      versionLabel: versionTag(entry),
++      accountLabel: entry.label || accountId,
++    })
++    current.set(accountId, { entry, proxy })
++    if (options.ports) {
++      try {
++        await options.ports.register(proxyIdFor(accountId), {
++          id: proxyIdFor(accountId),
++          app: 'freebuff',
++          lane: 'none',
++          role: 'proxy',
++          port: proxy.port,
++          pid: entry.pid ?? null,
++          ttl: 60,
++          portal: {
++            title: `Freebuff Desktop ${versionTag(entry)} · ${entry.label || accountId}`,
++            tab: true,
++          },
++        })
++      } catch (error) {
++        log(`[multi-engine] register ${accountId} failed: ${String(error)}`)
++      }
++    }
++    log(
++      `[multi-engine] ${accountId} (engine :${entry.port}) -> :${proxy.port}`,
++    )
++  }
++}
++
++export function startMultiEngine(
++  options: MultiEngineOptions,
++): MultiEngineHandle {
++  const engines = new Map<string, { entry: EngineEntry; proxy: ProxyHandle }>()
++  const log = options.onEvent ?? ((): void => {})
++
++  const sync = (): void => {
++    void reconcileEngines(readEntries(options.registryPath), engines, options)
++      .catch((error: unknown) => {
++        log(`[multi-engine] reconcile failed: ${String(error)}`)
++      })
++  }
++
++  sync()
++  // Heartbeat below the 60s registry TTL so live listeners are never reaped.
++  const beat = setInterval(() => {
++    if (!options.ports) return
++    for (const accountId of engines.keys()) {
++      void options.ports
++        .heartbeat(proxyIdFor(accountId))
++        .catch((error: unknown) => {
++          log(`[multi-engine] heartbeat ${accountId} failed: ${String(error)}`)
++        })
++    }
++  }, 25_000)
++  beat.unref?.()
++  let watcher: FSWatcher | null = null
++  try {
++    const dir = path.dirname(options.registryPath)
++    if (existsSync(dir)) {
++      watcher = watch(dir, (_event, filename) => {
++        if (
++          typeof filename === 'string' &&
++          filename !== path.basename(options.registryPath)
++        ) {
++          return
++        }
++        sync()
++      })
++      watcher.on('error', () => {
++        watcher = null
++      })
++    }
++  } catch {
++    watcher = null
++  }
++  // The daemon rewrites the file on every connect/disconnect; poll as a
++  // backstop for watchers lost to renames or network filesystems.
++  const poll = setInterval(sync, 15_000)
++  poll.unref?.()
++
++  return {
++    engines,
++    stop: async () => {
++      clearInterval(poll)
++      clearInterval(beat)
++      try {
++        watcher?.close()
++      } catch {
++        // Already closed.
++      }
++      for (const [accountId, state] of engines) {
++        try {
++          await state.proxy.stop()
++        } catch {
++          // Best-effort shutdown.
++        }
++        if (options.ports) {
++          try {
++            await options.ports.remove(proxyIdFor(accountId))
++          } catch {
++            // Best-effort shutdown.
++          }
++        }
++      }
++      engines.clear()
++    },
++  }
++}
+diff -ruN rev/freebuff/server/src/proxy.ts live2/freebuff/server/src/proxy.ts
+--- a/freebuff/server/src/proxy.ts	2026-11-13 23:49:51.732009392 +0700
++++ b/freebuff/server/src/proxy.ts	2026-11-14 19:10:56.136050840 +0700
+@@ -34,7 +34,15 @@
+   auth: Auth | null
+   secureCookie: boolean
+   tls?: { cert: string; key: string } | null
++  /** Launch id injected as x-freebuff-launch-id on every upstream request (multi-engine mode). */
++  launchId?: string | null
++  /** Version badge shown in the proxied UI (multi-engine mode). */
++  versionLabel?: string | null
++  /** Account id shown in the proxied UI badge (multi-engine mode). */
++  accountLabel?: string | null
+ }
++export type ProxyAuth = ProxyOptions['auth']
++export type ProxyTls = ProxyOptions['tls']
+ 
+ export type ProxyHandle = {
+   port: number
+@@ -120,6 +128,17 @@
+     .replaceAll(upstreamOrigin(port), '')
+     .replaceAll(`http://localhost:${port}`, '')
+ }
++/**
++ * Multi-engine mode: stamp the proxied document with the engine version and
++ * account so the browser shows which engine it is talking to. Document
++ * responses only; the engine CSP allows same-origin connect and has no
++ * style-src/default-src, so an inline-style badge needs no CSP change.
++ */
++function stampVersionBadge(body: string, options: ProxyOptions): string {
++  const title = options.versionLabel?.trim() || 'unknown'
++  const stamped = body.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`)
++  return `${stamped}<div style="position:fixed;bottom:8px;right:8px;z-index:99999;background:#111;color:#fff;font:12px sans-serif;padding:4px 8px;border-radius:6px;opacity:.85">${title}</div>`
++}
+ 
+ function originAllowed(request: Request): boolean {
+   const origin = request.headers.get('origin')
+@@ -229,6 +248,9 @@
+   const headers: Record<string, string> = {
+     origin: upstreamOrigin(options.orchestratorPort),
+   }
++  if (options.launchId) {
++    headers['x-freebuff-launch-id'] = options.launchId
++  }
+   const cookie = request.headers.get('cookie')
+   if (cookie && options.auth) {
+     const filtered = stripCookie(cookie, [options.auth.cookieName])
+@@ -349,6 +371,9 @@
+   headers.set('x-forwarded-for', clientKey(request, server))
+   headers.set('x-forwarded-proto', options.secureCookie ? 'https' : 'http')
+   headers.set('x-forwarded-host', url.host)
++  if (options.launchId) {
++    headers.set('x-freebuff-launch-id', options.launchId)
++  }
+ 
+   const hasBody = request.method !== 'GET' && request.method !== 'HEAD'
+   const upstreamUrl = `${upstreamOrigin(options.orchestratorPort)}${url.pathname}${url.search}`
+@@ -419,7 +444,10 @@
+             await upstream.text(),
+             options.orchestratorPort,
+           )
+-        : upstream.body
++        : (options.launchId || options.versionLabel) &&
++            upstream.headers.get('content-type')?.includes('text/html')
++          ? stampVersionBadge(await upstream.text(), options)
++          : upstream.body
+   return new Response(body, {
+     status: upstream.status,
+     statusText: upstream.statusText,
+diff -ruN rev/freebuff/server/src/__tests__/multi-engine.test.ts live2/freebuff/server/src/__tests__/multi-engine.test.ts
+--- a/freebuff/server/src/__tests__/multi-engine.test.ts	1970-01-01 08:00:00.000000000 +0800
++++ b/freebuff/server/src/__tests__/multi-engine.test.ts	2026-11-14 19:10:56.136050840 +0700
+@@ -0,0 +1,218 @@
++import { describe, expect, it } from 'bun:test'
++
++import {
++  displayVersion,
++  formatProcStart,
++  parseAppVersion,
++  procStartTag,
++  proxyIdFor,
++  reconcileEngines,
++  versionTag,
++  type EngineEntry,
++  type MultiEngineAuth,
++} from '../multi-engine'
++import { startProxy } from '../proxy'
++
++function upstreamApp() {
++  return Bun.serve({
++    hostname: '127.0.0.1',
++    port: 0,
++    fetch: (request) => {
++      const url = new URL(request.url)
++      if (url.pathname === '/') {
++        return new Response('<html><head><title>Freebuff Desktop</title></head><body>hi</body></html>', {
++          headers: { 'content-type': 'text/html' },
++        })
++      }
++      if (url.pathname === '/api/echo-header') {
++        return Response.json({
++          launch: request.headers.get('x-freebuff-launch-id'),
++        })
++      }
++      return new Response('not found', { status: 404 })
++    },
++  })
++}
++
++describe('multi-engine reconcile', () => {
++  it('injects the launch id and stamps the version badge', async () => {
++    const upstream = upstreamApp()
++    const upstreamPort = upstream.port
++    if (!upstreamPort) throw new Error('fake engine did not bind')
++    const entry: EngineEntry = {
++      accountId: 'acc-1',
++      port: upstreamPort,
++      launchId: 'launch-secret-1',
++      version: '9.9.9',
++      label: 'owner@example.com',
++    }
++    const engines = new Map()
++    const id = proxyIdFor('acc-1')
++    expect(id).toBe('freebuff.proxy[acc-1]')
++    const registered: Array<{ id: string; record: Record<string, unknown> }> = []
++    await reconcileEngines(new Map([['acc-1', entry]]), engines, {
++      registryPath: '/nonexistent/registry.json',
++      hostname: '127.0.0.1',
++      basePort: 45660,
++      auth: null as MultiEngineAuth,
++      secureCookie: false,
++      ports: {
++        register: async (regId, record) => {
++          registered.push({ id: regId, record })
++        },
++        remove: async () => {},
++        heartbeat: async () => {},
++      },
++    })
++    expect(registered.length).toBe(1)
++    expect(registered[0].id).toBe('freebuff.proxy[acc-1]')
++    expect((registered[0].record.portal as { tab: boolean }).tab).toBe(true)
++    try {
++      const state = engines.get('acc-1')
++      if (!state) throw new Error('engine was not proxied')
++      const base = `http://127.0.0.1:${state.proxy.port}`
++      const echo = await (
++        await fetch(`${base}/api/echo-header`)
++      ).json()
++      expect(echo.launch).toBe('launch-secret-1')
++      const doc = await (await fetch(`${base}/`)).text()
++      expect(doc).toContain('<title>9.9.9</title>')
++      expect(doc).toContain('>9.9.9</div>')
++    } finally {
++      for (const state of engines.values()) await state.proxy.stop()
++      upstream.stop(true)
++    }
++  })
++
++  it('drops the listener when the engine disappears', async () => {
++    const upstream = upstreamApp()
++    const upstreamPort = upstream.port
++    if (!upstreamPort) throw new Error('fake engine did not bind')
++    const entry: EngineEntry = {
++      accountId: 'acc-2',
++      port: upstreamPort,
++      launchId: 'launch-secret-2',
++      version: '9.9.9',
++    }
++    const engines = new Map()
++    const options = {
++      registryPath: '/nonexistent/registry.json',
++      hostname: '127.0.0.1',
++      basePort: 45670,
++      auth: null as MultiEngineAuth,
++      secureCookie: false,
++      ports: {
++        register: async () => {},
++        remove: async () => {},
++        heartbeat: async () => {},
++      },
++    }
++    await reconcileEngines(new Map([['acc-2', entry]]), engines, options)
++    const first = engines.get('acc-2')
++    if (!first) throw new Error('engine was not proxied')
++    const firstPort = first.proxy.port
++    await reconcileEngines(new Map(), engines, options)
++    expect(engines.size).toBe(0)
++    await expect(fetch(`http://127.0.0.1:${firstPort}/`)).rejects.toThrow()
++    upstream.stop(true)
++  })
++
++  it('leaves the stock single-engine proxy path unchanged', async () => {
++    const upstream = upstreamApp()
++    const upstreamPort = upstream.port
++    if (!upstreamPort) throw new Error('fake engine did not bind')
++    const proxy = startProxy({
++      hostname: '127.0.0.1',
++      port: 0,
++      orchestratorPort: upstreamPort,
++      auth: null as MultiEngineAuth,
++      secureCookie: false,
++    })
++    try {
++      const doc = await (
++        await fetch(`http://127.0.0.1:${proxy.port}/`)
++      ).text()
++      expect(doc).toContain('<title>Freebuff Desktop</title>')
++      expect(doc).not.toContain('position:fixed')
++    } finally {
++      await proxy.stop()
++      upstream.stop(true)
++    }
++  })
++
++  it('resolves display version: registry first, /proc fallback, unknown', () => {
++    expect(parseAppVersion('A=1\0FREEBUFF_APP_VERSION=0.0.190\0B=2\0')).toBe(
++      '0.0.190',
++    )
++    expect(parseAppVersion('A=1\0B=2\0')).toBeNull()
++    expect(
++      displayVersion({
++        accountId: 'a',
++        port: 1,
++        launchId: 'x',
++        version: '9.9.9',
++        pid: 1,
++      }),
++    ).toBe('9.9.9')
++    // pid 1 is not an orchestrator (or unreadable): falls back to unknown.
++    expect(
++      displayVersion({ accountId: 'a', port: 1, launchId: 'x', pid: 1 }),
++    ).toBe('unknown')
++    // The live engines carry FREEBUFF_APP_VERSION in their environment.
++    const live = displayVersion({
++      accountId: 'a',
++      port: 38973,
++      launchId: 'x',
++      pid: 26439,
++    })
++    expect(live === 'unknown' || /^\d+\.\d+\.\d+$/.test(live)).toBe(true)
++  })
++
++  it('formats the compact start tag', () => {
++    // Fixed local wall-clock: 2026-01-05 09:07 -> 26JAN05.0907.
++    expect(formatProcStart(new Date(2026, 0, 5, 9, 7, 0).getTime())).toBe(
++      '26JAN05.0907',
++    )
++    expect(procStartTag(99999999)).toBeNull()
++    expect(procStartTag(undefined)).toBeNull()
++    // Registry version wins; tag suffix appears only with a live engine pid.
++    expect(
++      versionTag({ accountId: 'a', port: 1, launchId: 'x', version: '9.9.9' }),
++    ).toBe('9.9.9')
++    const live = versionTag({
++      accountId: 'a',
++      port: 38973,
++      launchId: 'x',
++      pid: 26439,
++    })
++    expect(
++      live === 'unknown' ||
++        /^\d+\.\d+\.\d+$/.test(live) ||
++        /^\d+\.\d+\.\d+-\d{2}[A-Z]{3}\d{2}\.\d{4}$/.test(live),
++    ).toBe(true)
++  })
++
++  it('stamps the version badge with versionLabel and no launchId', async () => {
++    const upstream = upstreamApp()
++    const upstreamPort = upstream.port
++    if (!upstreamPort) throw new Error('fake engine did not bind')
++    const proxy = startProxy({
++      hostname: '127.0.0.1',
++      port: 0,
++      orchestratorPort: upstreamPort,
++      auth: null as MultiEngineAuth,
++      secureCookie: false,
++      versionLabel: '1.2.3',
++      accountLabel: 'local',
++    })
++    try {
++      const doc = await (
++        await fetch(`http://127.0.0.1:${proxy.port}/`)
++      ).text()
++      expect(doc).toContain('<title>1.2.3</title>')
++    } finally {
++      await proxy.stop()
++      upstream.stop(true)
++    }
++  })
++})

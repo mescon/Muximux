@@ -1,0 +1,12 @@
+# name	port	group	title	description	path	existing_host(y/n)	rewrite_host_origin(y/n)
+# Allowlist: only ports listed here get a hostname. Edit via bin/portal-add / bin/portal-rm, then bin/portal-sync.
+dsh-x	3181	DSH	DSH-X	DSH fleet lane x	/	y
+dsh-z	3180	DSH	DSH-Z	DSH fleet lane z (test lane)	/	y
+bili	18791	DSH	Bili plugin	dsh-z __bili plugin (embed)	/__bili/?embed=1	n	y
+multica	3701	MOCT	Multica	Multica web UI	/	y
+moct-x	8210	MOCT	MOCT-X API	moct team backend x (API, no UI)	/	n
+moct-z	8310	MOCT	MOCT-Z API	moct team backend z (API, no UI)	/	n
+opencode	4096	Agents	opencode	opencode server	/	n
+freebuff	4320	Agents	Freebuff Desktop	Freebuff control UI	/	n
+grafana	3000	Hydra	Grafana	Hydra dashboards	/	n
+prom	9090	Hydra	Prometheus	Metrics	/	n

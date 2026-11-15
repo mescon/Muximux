@@ -1,0 +1,32 @@
+#!/usr/bin/python3 -I
+"""portal-opener: 127.0.0.1:3735. Opens/activates a tab for an ALLOWLISTED localhost port in the virtual browser via CDP (127.0.0.1:9223)."""
+import json, urllib.request, urllib.parse
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+CDP = "http://127.0.0.1:9223"
+SVC = "/mnt/workspace/portal/ui/_portal/services.json"
+def cdp(path, method="GET"):
+    with urllib.request.urlopen(urllib.request.Request(CDP + path, method=method), timeout=5) as r:
+        return json.loads(r.read() or b"null") if r.headers.get_content_type() == "application/json" else r.read().decode()
+class H(BaseHTTPRequestHandler):
+    def reply(self, code, obj):
+        b = json.dumps(obj).encode(); self.send_response(code); self.send_header("Content-Type", "application/json"); self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
+    def do_GET(self):
+        u = urllib.parse.urlparse(self.path); q = urllib.parse.parse_qs(u.query)
+        if self.headers.get("X-Portal") != "1": return self.reply(403, {"error": "missing X-Portal"})
+        try:
+            if u.path == "/open":
+                port = int(q["port"][0]); path = q.get("path", ["/"])[0]
+                if not path.startswith("/"): path = "/" + path
+                if port not in {s["port"] for s in json.load(open(SVC))}: return self.reply(404, {"error": "port not allowlisted"})
+                url = f"http://127.0.0.1:{port}{path}"
+                for t in cdp("/json/list"):
+                    if t.get("type") == "page" and t.get("url", "").startswith(f"http://127.0.0.1:{port}/"):
+                        cdp("/json/activate/" + t["id"]); return self.reply(200, {"activated": t["id"]})
+                t = cdp("/json/new?" + urllib.parse.quote(url, safe=":/?=&"), "PUT"); return self.reply(200, {"opened": t.get("id")})
+            if u.path == "/tabs":
+                return self.reply(200, [{"id": t["id"], "title": t["title"], "url": t["url"]} for t in cdp("/json/list") if t.get("type") == "page"])
+            self.reply(404, {"error": "unknown"})
+        except Exception as e:
+            self.reply(502, {"error": str(e)[:200]})
+    def log_message(self, *a): pass
+ThreadingHTTPServer(("127.0.0.1", 3735), H).serve_forever()

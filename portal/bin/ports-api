@@ -1,0 +1,247 @@
+#!/usr/bin/python3 -I
+"""ports-api — loopback-only registration HTTP API for the port registry (M-245).
+
+  GET    /v1/ports[?app=X]   merged static + dynamic + registered view (reaps first)
+  POST   /v1/ports           register {id, app, lane, role, port, pid?, ttl?}
+  PUT    /v1/ports/<id>      heartbeat (refreshes last_seen)
+  DELETE /v1/ports/<id>      unregister (idempotent)
+
+Every request needs header `X-Ports-Token: <token>`; the token lives in
+<home>/.ports.token (0600, generated on first start). Binds 127.0.0.1 only.
+Entries are reaped on every request: pid gone / port not listening / ttl expired.
+"""
+import json
+import os
+import secrets
+import sys
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib"))
+import portslib  # noqa: E402
+
+ROOT = portslib.home()
+PORT = int(os.environ.get("PORTS_API_PORT", "3725"))
+TOKEN_PATH = os.environ.get("PORTS_TOKEN_FILE") or os.path.join(ROOT, ".ports.token")
+REGISTERED_PATH = os.path.join(ROOT, portslib.REGISTERED_FILE)
+DEFAULT_TTL = 60
+MAX_BODY = 64 * 1024
+
+_lock = threading.Lock()
+_store = {"entries": []}
+
+
+def ensure_token():
+    try:
+        fd = os.open(TOKEN_PATH, os.O_RDONLY)
+        os.close(fd)
+        with open(TOKEN_PATH) as f:
+            token = f.read().strip()
+        os.chmod(TOKEN_PATH, 0o600)
+    except FileNotFoundError:
+        token = secrets.token_hex(32)
+        fd = os.open(TOKEN_PATH, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as f:
+            f.write(token + "\n")
+    if not token:
+        raise SystemExit(f"ports-api: empty token file {TOKEN_PATH}")
+    return token
+
+
+TOKEN = ensure_token()
+
+
+def load_store():
+    try:
+        data = portslib._load_json(REGISTERED_PATH) or {"entries": []}
+    except portslib.RegistryError as exc:
+        raise SystemExit(f"ports-api: {exc}")
+    if not isinstance(data, dict) or not isinstance(data.get("entries"), list):
+        raise SystemExit(f"ports-api: {REGISTERED_PATH}: bad content")
+    return data
+
+
+def reap_locked(now=None):
+    """Reap under lock; persists only when something was dropped."""
+    now = time.time() if now is None else now
+    listen = portslib.ss_listen()
+    kept = portslib.reap_registered(_store["entries"], set(listen), now)
+    dropped = len(_store["entries"]) - len(kept)
+    if dropped:
+        _store["entries"] = kept
+        portslib.write_json_atomic(REGISTERED_PATH, _store)
+    return listen, dropped
+
+
+def validate_registration(body):
+    missing = [k for k in ("id", "app", "lane", "role", "port") if k not in body]
+    if missing:
+        raise portslib.RegistryError(f"missing fields: {', '.join(missing)}")
+    portal = body.get("portal") or {"title": body["id"], "tab": False}
+    portslib._check_portal(body["id"], portal)
+    entry = {
+        "id": body["id"], "app": body["app"], "lane": body["lane"],
+        "role": body["role"], "port": body["port"],
+        "bind": body.get("bind", ""), "unit": body.get("unit", ""),
+        "health": body.get("health", ""),
+        "portal": portal,
+    }
+    ids, ports = set(), {}
+    portslib._check_static_entry(entry, "post", ids, ports)  # schema + id/port checks
+    ttl = body.get("ttl", DEFAULT_TTL)
+    if not isinstance(ttl, int) or isinstance(ttl, bool) or not 5 <= ttl <= 3600:
+        raise portslib.RegistryError("ttl must be an int in 5..3600")
+    pid = body.get("pid")
+    if pid is not None and (not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0):
+        raise portslib.RegistryError("pid must be a positive int")
+    return entry, ttl, pid
+
+
+class Handler(BaseHTTPRequestHandler):
+    server_version = "ports-api/1.0"
+
+    def _send(self, code, obj):
+        payload = json.dumps(obj).encode()
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _authorized(self):
+        import hmac
+        supplied = self.headers.get("X-Ports-Token") or ""
+        if not supplied or not hmac.compare_digest(supplied, TOKEN):
+            self._send(401, {"error": "unauthorized"})
+            return False
+        return True
+
+    def _body(self):
+        length = int(self.headers.get("Content-Length") or 0)
+        if length <= 0 or length > MAX_BODY:
+            self._send(400, {"error": "body required"})
+            return None
+        try:
+            return json.loads(self.rfile.read(length).decode())
+        except ValueError:
+            self._send(400, {"error": "invalid JSON"})
+            return None
+
+    def _entry_path_id(self):
+        path = urlparse(self.path).path[len("/v1/ports"):]
+        path = path.lstrip("/")
+        from urllib.parse import unquote
+        return unquote(path) if path else None
+
+    def do_GET(self):
+        if not self._authorized():
+            return
+        parsed = urlparse(self.path)
+        if parsed.path.rstrip("/") != "/v1/ports":
+            self._send(404, {"error": "not found"})
+            return
+        app = (parse_qs(parsed.query).get("app") or [None])[0]
+        with _lock:
+            listen, _ = reap_locked()
+            try:
+                reg = portslib.load_registry(ROOT)
+            except portslib.RegistryError as exc:
+                self._send(500, {"error": str(exc)})
+                return
+            entries = portslib.merge(reg, portslib.load_dynamic(ROOT),
+                                     _store["entries"], set(listen))
+        if app:
+            entries = [e for e in entries if e["app"] == app]
+        self._send(200, {"entries": entries, "generated_at": portslib.ts()})
+
+    def do_POST(self):
+        if not self._authorized():
+            return
+        if urlparse(self.path).path.rstrip("/") != "/v1/ports":
+            self._send(404, {"error": "not found"})
+            return
+        body = self._body()
+        if body is None:
+            return
+        try:
+            entry, ttl, pid = validate_registration(body)
+            reg = portslib.load_registry(ROOT)
+        except portslib.RegistryError as exc:
+            self._send(400, {"error": str(exc)})
+            return
+        if any(e["id"] == entry["id"] for e in reg["static"]):
+            self._send(409, {"error": f"id {entry['id']} is already in ports.yaml"})
+            return
+        now = time.time()
+        record = {**entry, "ttl": ttl, "last_seen": int(now),
+                  "registered_at": portslib.ts(now)}
+        if pid is not None:
+            record["pid"] = pid
+        with _lock:
+            listen, _ = reap_locked(now)
+            if any(e["id"] == record["id"] for e in _store["entries"]):
+                self._send(409, {"error": f"id {record['id']} already registered"})
+                return
+            if record["port"] not in listen:
+                # registering a port that is not listening: still allowed? No —
+                # the registry describes live services; refuse early.
+                self._send(400, {"error": f"port {record['port']} is not listening"})
+                return
+            _store["entries"].append(record)
+            portslib.write_json_atomic(REGISTERED_PATH, _store)
+        self._send(201, {"ok": True, "entry": record})
+
+    def do_PUT(self):
+        if not self._authorized():
+            return
+        idm = self._entry_path_id()
+        if not idm:
+            self._send(404, {"error": "not found"})
+            return
+        now = time.time()
+        with _lock:
+            listen, _ = reap_locked(now)
+            for e in _store["entries"]:
+                if e["id"] == idm:
+                    e["last_seen"] = int(now)
+                    portslib.write_json_atomic(REGISTERED_PATH, _store)
+                    self._send(200, {"ok": True, "entry": e})
+                    return
+        self._send(404, {"error": f"{idm} not registered"})
+
+    def do_DELETE(self):
+        if not self._authorized():
+            return
+        idm = self._entry_path_id()
+        if not idm:
+            self._send(404, {"error": "not found"})
+            return
+        with _lock:
+            reap_locked()
+            before = len(_store["entries"])
+            _store["entries"] = [e for e in _store["entries"] if e["id"] != idm]
+            removed = before - len(_store["entries"])
+            if removed:
+                portslib.write_json_atomic(REGISTERED_PATH, _store)
+        self._send(200, {"ok": True, "removed": removed})
+
+    def log_message(self, fmt, *args):
+        sys.stdout.write("%s %s\n" % (self.log_date_time_string(), fmt % args))
+        sys.stdout.flush()
+
+
+def main():
+    _store.update(load_store())
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    print(f"ports-api listening on 127.0.0.1:{PORT} (home={ROOT}, "
+          f"token={TOKEN_PATH})", flush=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+
+if __name__ == "__main__":
+    main()

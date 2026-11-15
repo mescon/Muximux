@@ -1,0 +1,199 @@
+#!/usr/bin/python3 -I
+"""portal-muximux-sync (M-195/M-237): make a Muximux instance mirror the port registry.
+
+  portal-muximux-sync [--base URL] [--mode proxy|tailnet] [--dry-run]
+
+Source of truth: `bin/ports list --json` (portal.tab true|auto) + extra-apps.json.
+mode proxy   : apps reachable at http://127.0.0.1:PORT, embedded via Muximux /proxy/<slug>/ (Cloudflare door).
+mode tailnet : apps opened at https://<node>.ts.net:PORT (Tailscale Serve door), new tab.
+Reconciles through the Muximux REST API (POST/PUT/DELETE /api/app[s]); idempotent. Auth must be 'none' (Cloudflare Access is the gate).
+"""
+import argparse, json, os, subprocess, sys, urllib.request, urllib.error
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TS_HOST = os.environ.get("PORTAL_TAILNET_HOST", "tailnet-host.example.ts.net")
+LEASE_PREFIX = "Lease :"   # apps owned by bin/lease-api (M-249), never hand-edited
+LEASE_API = "http://127.0.0.1:3726"
+GW_LOCAL = "http://127.0.0.1:3738"  # M-357: favicon refresh target
+GROUP = {"dsh": "DSH", "moct": "MOCT", "multica": "Multica", "mmx": "MMX", "agents": "Agents",
+         "freebuff": "Freebuff", "hydra": "Hydra", "system": "System"}
+
+def _load_profiles():
+    """port-profiles.yaml profiles (for the M-357 `icon:` override)."""
+    pf = os.path.join(HERE, "port-profiles.yaml")
+    try:
+        import yaml
+        with open(pf) as f:
+            return (yaml.safe_load(f) or {}).get("profiles") or {}
+    except Exception:
+        return {}
+
+def app_icon(port):
+    """Muximux icon for a gateway tab (M-357): the app's own favicon.
+
+    Default: {"type": "url", "url": "/p/<port>/__favicon"} served by
+    bin/portal-gw. Override per port in port-profiles.yaml `icon:`:
+      missing key -> default favicon URL
+      "" / null / false -> letter fallback (clears any icon)
+      "https://..." or "/..." -> {"type": "url", ...}
+      "somename" -> {"type": "dashboard", "name": "somename"}
+      {type: ...} dict -> passed through (dashboard/lucide/custom/url)
+    """
+    profiles = _load_profiles()
+    profile = profiles.get(port, profiles.get(str(port), {})) or {}
+    if "icon" not in profile:
+        return {"type": "url", "url": f"/p/{port}/__favicon"}
+    override = profile["icon"]
+    if override in (None, "", False):
+        return {"type": ""}
+    if isinstance(override, dict):
+        return dict(override)
+    if isinstance(override, str):
+        s = override.strip()
+        if s.startswith(("http://", "https://", "/")):
+            return {"type": "url", "url": s}
+        if s:
+            return {"type": "dashboard", "name": s}
+        return {"type": ""}
+    return {"type": "url", "url": f"/p/{port}/__favicon"}
+
+def _icon_key(icon):
+    """Semantic identity for change detection (Muximux stores extra keys)."""
+    if not isinstance(icon, dict):
+        return None
+    t = icon.get("type", "") or ""
+    if t == "url":
+        return ("url", icon.get("url", ""))
+    if t in ("dashboard", "lucide"):
+        return (t, icon.get("name", ""), icon.get("variant", ""))
+    if t == "custom":
+        return ("custom", icon.get("file", ""))
+    return (t,)
+
+def _same(key, have_val, want_val):
+    if key == "icon":
+        return _icon_key(have_val) == _icon_key(want_val)
+    return have_val == want_val
+
+def api(base, method, path, body=None):
+    data = None if body is None else json.dumps(body).encode()
+    req = urllib.request.Request(base + path, data=data, method=method, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            raw = r.read()
+            return json.loads(raw) if raw else None
+    except urllib.error.HTTPError as e:
+        raise SystemExit(f"{method} {path} -> {e.code} {e.read()[:200]!r}")
+    except urllib.error.URLError as e:
+        raise SystemExit(f"{base} unreachable: {e.reason}")
+
+def host_of(p):
+    b = str(p.get("bind") or "")
+    return b if b and b not in ("*", "0.0.0.0", "::", "127.0.0.1", "localhost") else "127.0.0.1"
+
+def desired(mode):
+    ports = json.loads(subprocess.check_output([os.path.join(HERE, "bin", "ports"), "list", "--json"]))
+    apps, seen = [], set()
+    pf = os.path.join(HERE, "public-hosts.json")
+    public = json.load(open(pf)) if os.path.exists(pf) else {}
+    gf = os.path.join(HERE, "gateway-apps.json")   # M-237: apps verified to work through the port gateway (/p/<port>/)
+    gateway_config = {}
+    if os.path.exists(gf):
+        with open(gf) as f:
+            gateway_config = json.load(f)
+    # tolerate the old bare-list shape
+    if isinstance(gateway_config, list):
+        gateway_config = {"apps": gateway_config}
+    gateway = set(gateway_config.get("apps", []))
+    registered_gateway = set(gateway_config.get("registered_apps", []))
+    claimed_ports = {claim["port"] for claim in gateway_config.get("claims", [])}
+    def add(name, group, port, scheme="http", host="127.0.0.1", key=None, registered=False):
+        if name in seen: return
+        seen.add(name)
+        if mode == "proxy" and ((key or name) in gateway or (registered and key in registered_gateway)):
+            # local port through the portal gateway (service-worker rewrite), never the public hostname
+            a = {"name": name, "url": f"/p/{port}/", "group": group, "enabled": True, "open_mode": "iframe", "proxy": False,
+                 "icon": app_icon(port)}  # M-357: the app's own favicon as the tab icon
+            if port in claimed_ports:
+                a["allow_deep_links"] = True
+        elif mode == "proxy" and (key or name) in public:
+            # has its own Cloudflare hostname: open natively (websocket-heavy apps break under /proxy/<slug>/)
+            a = {"name": name, "url": public[key or name], "group": group, "enabled": True, "open_mode": "new_tab", "proxy": False}
+        elif mode == "proxy":
+            a = {"name": name, "url": f"{scheme}://{host}:{port}", "group": group, "enabled": True,
+                 "open_mode": "iframe", "proxy": True, "proxy_skip_tls_verify": True}
+        else:
+            a = {"name": name, "url": f"https://{TS_HOST}:{port}", "group": group, "enabled": True,
+                 "open_mode": "new_tab", "proxy": False}
+        apps.append(a)
+    for p in ports:
+        tab = (p.get("portal") or {}).get("tab")
+        if tab not in (True, "auto"): continue
+        title = (p.get("portal") or {}).get("title") or p["id"]
+        name = title if p.get("source") == "static" else f"{title} :{p['port']}"
+        add(name, GROUP.get(p["app"], p["app"].title()), p["port"], host=host_of(p), key=p["id"],
+            registered=p.get("source") == "registered")
+    extra = os.path.join(HERE, "extra-apps.json")
+    if os.path.exists(extra):
+        for e in json.load(open(extra)):
+            add(e["name"], GROUP.get(e.get("group", "system"), e.get("group")), e["port"], e.get("scheme", "http"))
+    # M-312: the ports page is standalone (/ports/, served by lease-api);
+    # Muximux holds at most one link tab to it, never the ports themselves.
+    if "Ports" not in seen:
+        apps.append({"name": "Ports", "url": "/ports/", "group": "System", "enabled": True,
+                     "open_mode": "iframe", "proxy": False, "proxy_skip_tls_verify": True})
+        seen.add("Ports")
+    return apps
+
+def lease_names():
+    """Active lease app names from lease-api, or None if it is unreachable
+    (then lease apps are left strictly alone — lease-api owns their lifecycle)."""
+    try:
+        data = api(LEASE_API, "GET", "/lease/v1/leases") or {}
+        return {x["name"] for x in data.get("leases", [])}
+    except SystemExit:
+        return None
+
+def main():
+    ap = argparse.ArgumentParser(); ap.add_argument("--base", default="http://127.0.0.1:45001")
+    ap.add_argument("--mode", choices=["proxy", "tailnet"], default="proxy"); ap.add_argument("--dry-run", action="store_true")
+    a = ap.parse_args()
+    want = {x["name"]: x for x in desired(a.mode)}
+    have = {x["name"]: x for x in (api(a.base, "GET", "/api/apps") or [])}
+    active_leases = lease_names()
+    ops = []
+    for n, w in want.items():
+        h = have.get(n)
+        if h is None: ops.append(("POST", "/api/apps", w, n))
+        elif any(not _same(k, h.get(k), v) for k, v in w.items()): ops.append(("PUT", "/api/app/" + urllib.parse.quote(n), {**h, **w}, n))
+    for n in have:
+        if n.startswith(LEASE_PREFIX):
+            # M-249: keep exactly the leases lease-api reports active (its
+            # tabs would otherwise be wiped by this sync every 30s).
+            if active_leases is not None and n not in active_leases:
+                ops.append(("DELETE", "/api/app/" + urllib.parse.quote(n), None, n))
+        elif n not in want:
+            ops.append(("DELETE", "/api/app/" + urllib.parse.quote(n), None, n))
+    order = {"DELETE": 0, "PUT": 1, "POST": 2}
+    ops.sort(key=lambda o: order[o[0]])  # deletes first: Muximux rejects two apps with the same proxy slug
+    for m, path, body, n in ops:
+        print(("would " if a.dry_run else "") + f"{m} {n}")
+        if not a.dry_run: api(a.base, m, path, body)
+    if not a.dry_run and a.mode == "proxy":
+        # M-357: refresh the one-cache-per-port favicon on every sync
+        # (gateway re-fetches upstream at most every FAVICON_REFRESH_MIN;
+        # failures fall back silently to the letter icon).
+        for n, w in want.items():
+            url = w.get("url", "")
+            if w.get("icon", {}).get("type") == "url" and url.startswith("/p/"):
+                try:
+                    port = int(url.split("/")[2])
+                    req = urllib.request.Request(
+                        f"{GW_LOCAL}/p/{port}/__favicon?refresh=1")
+                    with urllib.request.urlopen(req, timeout=10):
+                        pass
+                except Exception:
+                    pass
+    print(f"mode={a.mode} desired={len(want)} existing={len(have)} changes={len(ops)}")
+
+import urllib.parse
+if __name__ == "__main__": main()

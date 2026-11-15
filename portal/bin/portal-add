@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# portal-add <name> <port> [group] [title] [desc] [path]
+set -euo pipefail
+R=/mnt/workspace/portal
+n=$1; p=$2
+[[ $n =~ ^[a-z0-9-]+$ && $p =~ ^[0-9]+$ ]] || { echo "usage: portal-add <name> <port> [group] [title] [desc] [path]"; exit 2; }
+grep -q -P "^$n\t" $R/services.tsv && $R/bin/portal-rm "$n"
+printf '%s\t%s\t%s\t%s\t%s\t%s\tn\n' "$n" "$p" "${3:-Other}" "${4:-$n}" "${5:-}" "${6:-/}" >> $R/services.tsv
+exec $R/bin/portal-sync

@@ -1,0 +1,673 @@
+#!/usr/bin/python3
+"""portal-gw — production port gateway (M-323, parent M-237).
+
+One gateway behind the portal Caddy (:3720), reached two ways: Cloudflare
+tunnel (<portal-public-host>) and `tailscale serve --https=443` (node
+MagicDNS). Muximux app URLs stay relative (`/p/<port>/`), so they work on
+either host.
+
+  /p/<port>/...  strips the prefix, proxies to 127.0.0.1:<port>
+                 (deny list + registry/lease allowlist below).
+  /sw.js         COMBINED service worker: ours (maps each /p/<port>/
+                 document to its port, rewrites root-absolute requests
+                 like /api, /_next, /cockpit/...) + the live Muximux /sw.js
+                 (ours stopImmediatePropagation's what it handles).
+  /pgw-ping      CORS * reachability probe for the tailnet chooser.
+  /pgw-sw.js     same as /sw.js (legacy spike path).
+
+Allowlist: ports.yaml static + dynamic + registered (via lease-api's
+/ports/v1/registry, cached 5s), union {3701, 9090} fallback, minus
+ports-deny.yaml. Memory only; a restart keeps last-known until refresh.
+
+HTML: Location rewritten, frame-blocking headers stripped, CSP
+frame-ancestors removed, Set-Cookie -> SameSite=None;Secure;Partitioned
+on https (cross-site tailnet iframe), head shim (WS prefix, SW
+register + one guarded reload, history.replaceState strip).
+WebSocket: no Referer, so the shim prefixes the URL; Host/Origin rewritten
+to localhost:<port> (Multica's WS origin check rejects 127.0.0.1).
+
+Known limit: two different ports in two tabs of one browser can race on
+cookies for WebSockets. Referer covers everything else.
+
+Rollback: point routes/pgw.inc back at :3738 and restart the spike, or
+`git checkout routes/pgw.inc` + `caddy reload` to drop the gateway.
+Logs: logs/portal-gw.log (stdout of the unit).
+"""
+import asyncio
+import base64
+from functools import lru_cache
+import hashlib
+import json
+import os
+import re
+import sys
+import time
+import urllib.request
+
+import aiohttp
+from aiohttp import WSMsgType, web
+
+HERE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(HERE, "lib"))
+try:
+    from pgw.favicon import (  # M-357: per-app tab icons
+        content_type_for,
+        favicon_candidates,
+    )
+except Exception:  # isolated test harnesses without lib/pgw
+    content_type_for = None
+    favicon_candidates = None
+
+FAVICON_TTL = 3600  # cache seconds per port; ?refresh=1 re-fetches
+FAVICON_REFRESH_MIN = 300  # min seconds between ?refresh=1 fetches
+_favicon_cache = {}  # port -> {"body", "content_type", "at"}
+
+LISTEN = ("127.0.0.1", int(sys.argv[1]) if len(sys.argv) > 1 else 3738)
+REGISTRY_URL = "http://127.0.0.1:3726/ports/v1/registry"
+LEASES_URL = "http://127.0.0.1:3726/lease/v1/leases"
+DENY_FILE = os.environ.get("PORTAL_GW_DENY_FILE") or os.path.join(HERE, "ports-deny.yaml")
+REGISTERED_FILE = os.path.join(HERE, "ports.registered.json")
+FALLBACK_PORTS = {3701, 9090}
+CACHE_SECONDS = 5
+
+PORTAL_HOST = "https://" + os.environ.get("PORTAL_PUBLIC_HOST", "portal.example.com")
+TAILNET_HOST = "https://" + os.environ.get("PORTAL_TAILNET_HOST", "tailnet-host.example.ts.net")
+ALLOWED_ORIGIN_HOSTS = {PORTAL_HOST.lower(), TAILNET_HOST.lower()}
+_TAILNET_BARE = os.environ.get("PORTAL_TAILNET_HOST", "tailnet-host.example.ts.net").split(":", 1)[0].lower()
+_PORTAL_BARE = os.environ.get("PORTAL_PUBLIC_HOST", "portal.example.com").split(":", 1)[0].lower()
+HTTPS_HOSTS = {_PORTAL_BARE, _TAILNET_BARE}
+PROFILES_FILE = os.environ.get("PORTAL_GW_PROFILES_FILE") or os.path.join(HERE, "port-profiles.yaml")
+
+_cache = {"t": 0.0, "allow": set(FALLBACK_PORTS)}
+
+
+def _load_deny():
+    try:
+        import yaml
+        with open(DENY_FILE) as f:
+            entries = (yaml.safe_load(f) or {}).get("deny") or []
+        return {int(e["port"]) for e in entries}
+    except Exception as e:
+        print(f"portal-gw: deny load failed ({e}), fail-closed", flush=True)
+        return None  # fail closed: caller keeps last-known
+
+
+def allowed_ports():
+    """Registry ∪ current registrations ∪ leases, minus deny list; cached 5s."""
+    if time.time() - _cache["t"] < CACHE_SECONDS:
+        return _cache["allow"]
+    try:
+        with urllib.request.urlopen(REGISTRY_URL, timeout=2) as r:
+            reg = json.load(r)
+        ports = {int(e["port"]) for e in reg.get("entries", [])
+                 if isinstance(e, dict) and e.get("port")}
+        # lease-api's registry omits registered ports because its merged view
+        # has an empty listening set. Respect registration expiry directly.
+        try:
+            with open(REGISTERED_FILE) as f:
+                registered = json.load(f).get("entries", [])
+            now = time.time()
+            ports |= {int(e["port"]) for e in registered
+                      if isinstance(e, dict) and e.get("port")
+                      and now <= e.get("last_seen", 0) + e.get("ttl", 60)}
+        except FileNotFoundError:
+            pass  # No self-registered processes yet.
+        ports |= FALLBACK_PORTS
+        try:
+            with urllib.request.urlopen(LEASES_URL, timeout=2) as r:
+                leases = json.load(r).get("leases", [])
+            ports |= {int(l["port"]) for l in leases
+                      if isinstance(l, dict) and l.get("port")}
+        except Exception as e:
+            print(f"portal-gw: leases refresh failed ({e!r}), registry only",
+                  flush=True)
+        deny = _load_deny()
+        if deny is None:
+            raise RuntimeError("deny list unreadable")
+        _cache.update(t=time.time(), allow=ports - deny)
+    except Exception as e:
+        print(f"portal-gw: allowlist refresh failed ({e!r}), keeping stale",
+              flush=True)
+        _cache["t"] = time.time()
+    return _cache["allow"]
+
+
+def _load_profiles():
+    try:
+        import yaml
+        with open(PROFILES_FILE) as f:
+            data = yaml.safe_load(f) or {}
+        return data.get("profiles") or {}
+    except Exception as e:
+        print(f"portal-gw: profiles load failed ({e})", flush=True)
+        return {}
+
+
+def port_profile(port):
+    profiles = _load_profiles()
+    for key in (port, str(port)):
+        if key in profiles:
+            return profiles[key] or {}
+    return {}
+
+
+def port_origin_mode(port):
+    mode = port_profile(port).get("origin", "rewrite")
+    return "rewrite" if mode is None else mode
+
+
+def port_upstream_host(port):
+    """Per-port upstream address from port-profiles.yaml (default 127.0.0.1)."""
+    host = port_profile(port).get("host", "127.0.0.1")
+    if host is None or str(host).strip() == "":
+        host = "127.0.0.1"
+    return str(host).strip()
+
+
+def _origin_host_allowed(origin):
+    if not origin:
+        return False
+    try:
+        from urllib.parse import urlparse
+        u = urlparse(origin)
+    except Exception:
+        return False
+    host = (u.hostname or "").lower()
+    netloc_origin = f"{u.scheme}://{u.netloc}".lower().rstrip("/")
+    if netloc_origin in ALLOWED_ORIGIN_HOSTS:
+        return True
+    if host in ("localhost", "127.0.0.1"):
+        return True
+    return False
+
+
+def origin_allowed(request, port):
+    """Validate the real Origin/Sec-Fetch-Site for state-changing requests."""
+    mode = port_origin_mode(port)
+    real_origin = None
+    try:
+        real_origin = request.headers.get("Origin")
+    except Exception:
+        real_origin = getattr(request, "headers", {}).get("Origin")
+    sec_fetch = None
+    try:
+        sec_fetch = request.headers.get("Sec-Fetch-Site")
+    except Exception:
+        sec_fetch = getattr(request, "headers", {}).get("Sec-Fetch-Site")
+    mode_str = str(mode).strip() if mode is not None else "rewrite"
+    if mode_str.lower() not in ("rewrite", "none", "") and mode_str.lower().startswith("http"):
+        # explicit origin value
+        return (real_origin or "").rstrip("/").lower() == mode_str.rstrip("/").lower()
+    # rewrite / default: validate against allowed set
+    if real_origin is None:
+        # No Origin header: allow only if Sec-Fetch-Site says same-origin/same-site/none
+        return sec_fetch in (None, "same-origin", "same-site", "none")
+    if not _origin_host_allowed(real_origin):
+        return False
+    if sec_fetch == "cross-site" and real_origin.lower() not in ALLOWED_ORIGIN_HOSTS:
+        # cross-site only ok for portal/tailnet hosts already allowed above
+        pass
+    return True
+
+
+# aliases for tests
+check_origin = origin_allowed
+validate_origin = origin_allowed
+is_origin_allowed = origin_allowed
+
+
+HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
+       "te", "trailer", "transfer-encoding", "upgrade", "content-length",
+       "content-encoding"}
+STRIP = {"x-frame-options", "cross-origin-resource-policy",
+         "cross-origin-opener-policy"}
+SWFILE = os.path.join(HERE, "lib", "pgw", "sw.js")
+SHIM = """<script>(function(){var P='/p/%d';var W=window.WebSocket;function f(u){try{var a=new URL(u,location.href);
+if(a.host===location.host&&a.pathname.indexOf(P+'/')!==0&&a.pathname!==P){a.pathname=P+a.pathname}return a.href}catch(e){return u}}
+window.WebSocket=function(u,p){u=f(u);return p===undefined?new W(u):new W(u,p)};window.WebSocket.prototype=W.prototype;
+window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2;window.WebSocket.CLOSED=3;
+var sw=navigator.serviceWorker;
+function ping(){return new Promise(function(res){if(!sw||!sw.controller)return res(false);var c=new MessageChannel(),t=setTimeout(function(){res(false)},400);c.port1.onmessage=function(){clearTimeout(t);res(true)};try{sw.controller.postMessage({pgw:'ping'},[c.port2])}catch(e){res(false)}})}
+var ok=false;try{ok=localStorage.getItem('__pgw_ok')==='1'}catch(e){}
+if(location.pathname.indexOf(P+'/')===0){try{history.replaceState(history.state,'',(location.pathname.slice(P.length)||'/')+location.search+location.hash)}catch(e){}}
+if(sw){(async function(){try{var reg=await sw.register('/sw.js',{scope:'/'});try{await reg.update()}catch(e){}await sw.ready;
+ var good=false;for(var i=0;i<14&&!good;i++){good=await ping();if(!good)await new Promise(function(r){setTimeout(r,250)})}
+ if(good){try{localStorage.setItem('__pgw_ok','1')}catch(e){}}
+ var did=false;try{did=sessionStorage.getItem('__pgw_r')==='1'}catch(e){}
+ if(!did){try{sessionStorage.setItem('__pgw_r','1')}catch(e){}location.reload()}}catch(e){}})()}
+})();</script>"""
+
+
+@lru_cache(maxsize=256)
+def shim_hash(port):
+    source = (SHIM % port).removeprefix("<script>").removesuffix("</script>")
+    digest = base64.b64encode(hashlib.sha256(source.encode()).digest()).decode()
+    return "'sha256-" + digest + "'"
+
+
+def allow_shim(csp, port):
+    """Allow exactly our injected script while retaining the upstream CSP."""
+    directives = [part.strip() for part in csp.split(";") if part.strip()]
+
+    def find(name):
+        return next((i for i, part in enumerate(directives)
+                     if part.split(None, 1)[0].lower() == name), None)
+    index = find("script-src-elem")
+    if index is None:
+        index = find("script-src")
+    effective = directives[index] if index is not None else (
+        directives[find("default-src")] if find("default-src") is not None else "")
+    sources = effective.split()[1:]
+    if "'unsafe-inline'" in sources and not any(
+            s.startswith(("'nonce-", "'sha256-", "'sha384-", "'sha512-")) for s in sources):
+        return csp
+    token = shim_hash(port)
+    if index is None:
+        default = find("default-src")
+        if default is None:
+            return csp
+        directives.append("script-src " + directives[default].partition(" ")[2] + " " + token)
+    else:
+        directives[index] += " " + token
+    return "; ".join(directives)
+
+
+def rewrite_cookie(cookie, secure):
+    cookie = re.sub(r";\s*domain=[^;]*", "", cookie, flags=re.I)
+    if re.search(r";\s*path=", cookie, flags=re.I):
+        cookie = re.sub(r";\s*path=[^;]*", "; Path=/", cookie, flags=re.I)
+    else:
+        cookie += "; Path=/"
+    if secure:
+        cookie = re.sub(r";\s*(?:samesite|partitioned)(?:=[^;]*)?", "", cookie, flags=re.I)
+        if not re.search(r";\s*secure(?:;|$)", cookie, flags=re.I):
+            cookie += "; Secure"
+        cookie += "; SameSite=None; Partitioned"
+    return cookie
+
+
+def request_is_https(request):
+    """Recognize browser HTTPS when Caddy's local upstream hop is HTTP.
+
+    Tailscale Serve terminates TLS before forwarding to Caddy, so the
+    forwarded protocol can describe the local hop. The canonical portal
+    hosts are served by the TLS Caddy sites and must receive secure cookies.
+    """
+    forwarded = request.headers.get("X-Forwarded-Proto", "").split(",", 1)[0].strip().lower()
+    hosts = (request.headers.get("Host", "") + "," +
+             request.headers.get("X-Forwarded-Host", "")).split(",")
+    hosts = {value.strip().split(":", 1)[0].lower() for value in hosts}
+    return forwarded == "https" or bool(hosts & HTTPS_HOSTS)
+
+
+def websocket_upstream_headers(headers):
+    """Keep the auth cookie and required metadata on upstream WS upgrades."""
+    return {k: v for k, v in headers.items()
+            if k.lower() in ("cookie", "user-agent", "origin", "host")}
+
+
+def rewrite_cockpit_html_paths(html, port=9090):
+    """Keep Cockpit's HTML URLs inside the port gateway on its first load.
+
+    The login page uses <base href="/">; the post-login shell (and its
+    nested /cockpit/@localhost/... iframes) uses an absolute-path base
+    such as /cockpit/@localhost/shell/index.html. Both must stay under
+    /p/<port>/ or subresources resolve at the host root and 404.
+    """
+    html = re.sub(
+        r'(?i)(<base\b[^>]*\bhref\s*=\s*)(["\'])/(["\'])',
+        lambda match: (match.group(1) + match.group(2) + f"/p/{port}/"
+                       + match.group(3)),
+        html)
+    html = re.sub(
+        r'(?i)(<base\b[^>]*\bhref\s*=\s*)(["\'])/cockpit/',
+        lambda match: (match.group(1) + match.group(2)
+                       + f"/p/{port}/cockpit/"),
+        html)
+    return re.sub(
+        r'(?i)(\b(?:src|href|action|poster|data)\s*=\s*)(["\'])/cockpit/',
+        lambda match: (match.group(1) + match.group(2)
+                       + f"/p/{port}/cockpit/"),
+        html)
+
+def sw_without_lifecycle(mux):
+    """Drop Muximux's install/activate handlers from the combined worker.
+
+    At gateway scope (127.0.0.1:3738, path /) their precache list
+    ('./', './index.html', './manifest.json') 404s, so cache.addAll
+    rejects and the whole worker (including our port-mapping fetch
+    handler) never installs -- portal-wide, for every app. Their
+    activate handler would also wipe every non-mux cache (our pgw-map
+    included). notificationclick/fetch handlers are kept verbatim.
+    """
+    out = []
+    pos = 0
+    needle = "self.addEventListener("
+    while True:
+        start = mux.find(needle, pos)
+        if start < 0:
+            out.append(mux[pos:])
+            break
+        name = re.match(r"self\.addEventListener\(\s*['\"]([^'\"]+)['\"]",
+                        mux[start:])
+        if not name or name.group(1) not in ("install", "activate"):
+            out.append(mux[pos:start + len(needle)])
+            pos = start + len(needle)
+            continue
+        brace = mux.find("{", start)
+        if brace < 0:
+            out.append(mux[pos:])
+            break
+        depth, i = 0, brace
+        in_str = None
+        line_comment = block_comment = False
+        while i < len(mux):
+            ch, nxt = mux[i], mux[i + 1] if i + 1 < len(mux) else ""
+            if line_comment:
+                if ch == "\n":
+                    line_comment = False
+            elif block_comment:
+                if ch == "*" and nxt == "/":
+                    block_comment = False
+                    i += 1
+            elif in_str:
+                if ch == "\\":
+                    i += 1
+                elif ch == in_str:
+                    in_str = None
+            elif ch == "/" and nxt == "/":
+                line_comment = True
+                i += 1
+            elif ch == "/" and nxt == "*":
+                block_comment = True
+                i += 1
+            elif ch in "'\"`":
+                in_str = ch
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            i += 1
+        j = i + 1
+        while j < len(mux) and mux[j] in " \t)":
+            j += 1
+        if j < len(mux) and mux[j] == ";":
+            j += 1
+        while j < len(mux) and mux[j] in " \t\n":
+            j += 1
+        out.append(mux[pos:start])
+        pos = j
+    return "".join(out)
+
+
+async def sw(request):
+    """COMBINED worker: ours first, then Muximux's (lifecycle handlers cut).
+
+    Muximux's fetch/notification handlers stay verbatim; its install /
+    activate handlers are gateway-scope-wrong (see sw_without_lifecycle)
+    and would prevent installation entirely.
+    """
+    try:
+        ours = open(SWFILE).read()
+    except OSError as e:
+        return web.Response(status=500, text=f"gateway sw.js missing: {e}")
+    try:
+        async with request.app["sess"].get("http://127.0.0.1:45001/sw.js") as r:
+            mux = await r.text() if r.status == 200 else ""
+    except Exception:
+        mux = ""
+    return web.Response(
+        text=(ours + "\n// ---- muximux sw.js (lifecycle cut, M-337) ----\n"
+              + sw_without_lifecycle(mux)),
+        content_type="text/javascript",
+        headers={"Cache-Control": "no-store", "Service-Worker-Allowed": "/"})
+
+async def gw(request):
+    port = int(request.match_info["port"])
+    rest = "/" + request.match_info.get("rest", "")
+    if port not in allowed_ports():
+        return web.Response(status=403, text="port denied")
+    _method = request.method.upper()
+    _is_ws = request.headers.get("Upgrade", "").lower() == "websocket"
+    if _method in ("POST", "PUT", "PATCH", "DELETE") or _is_ws:
+        if not origin_allowed(request, port):
+            return web.Response(status=403, text="origin denied")
+    if request.query_string:
+        rest += "?" + request.query_string
+    _host = port_upstream_host(port)
+    up = f"http://{_host}:{port}"
+    hdr = {k: v for k, v in request.headers.items()
+           if k.lower() not in HOP
+           and k.lower() not in ("host", "accept-encoding", "origin",
+                                 "referer", "sec-fetch-site")}
+    hdr["Host"] = f"localhost:{port}"
+    _omode = str(port_origin_mode(port)).strip()
+    if "Origin" in request.headers:
+        if _omode.lower() == "none":
+            pass  # validate above, but do not forward Origin upstream
+        elif _omode.lower() == "rewrite" or _omode.lower() == "":
+            hdr["Origin"] = f"http://localhost:{port}"
+        else:
+            hdr["Origin"] = _omode
+    ref = request.headers.get("Referer")
+    if ref:
+        hdr["Referer"] = re.sub(r"^https?://[^/]+(/p/\d+)?",
+                                f"http://localhost:{port}", ref)
+    sess = request.app["sess"]
+    if request.headers.get("Upgrade", "").lower() == "websocket":
+        protos = [p.strip() for p in
+                  request.headers.get("Sec-WebSocket-Protocol", "").split(",")
+                  if p.strip()]
+        wsd = web.WebSocketResponse(protocols=protos)
+        await wsd.prepare(request)
+        h2 = websocket_upstream_headers(hdr)
+        try:
+            async with sess.ws_connect(
+                    f"ws://{port_upstream_host(port)}:{port}{rest}", headers=h2,
+                    protocols=wsd.ws_protocol and [wsd.ws_protocol] or (),
+                    autoclose=False, autoping=False) as wsu:
+                async def a():
+                    async for m in wsd:
+                        if m.type == WSMsgType.TEXT:
+                            await wsu.send_str(m.data)
+                        elif m.type == WSMsgType.BINARY:
+                            await wsu.send_bytes(m.data)
+                        elif m.type == WSMsgType.PING:
+                            await wsu.ping(m.data)
+                        elif m.type == WSMsgType.PONG:
+                            await wsu.pong(m.data)
+                        else:
+                            break
+
+                async def b():
+                    async for m in wsu:
+                        if m.type == WSMsgType.TEXT:
+                            await wsd.send_str(m.data)
+                        elif m.type == WSMsgType.BINARY:
+                            await wsd.send_bytes(m.data)
+                        elif m.type == WSMsgType.PING:
+                            await wsd.ping(m.data)
+                        elif m.type == WSMsgType.PONG:
+                            await wsd.pong(m.data)
+                        else:
+                            break
+                done, pend = await asyncio.wait(
+                    [asyncio.create_task(a()), asyncio.create_task(b())],
+                    return_when=asyncio.FIRST_COMPLETED)
+                for t in pend:
+                    t.cancel()
+        except Exception as e:
+            print("portal-gw: ws error", port, rest, repr(e), flush=True)
+        await wsd.close()
+        return wsd
+    # M-341: stream the client body upstream instead of buffering it whole
+    # (was `body = await request.read()`). Bounded prefetch only to decide
+    # GET-with-body vs empty; HTML still buffers the *response* for shim
+    # injection below, everything else streams both ways.
+    _has_body = request.can_read_body
+    _body_gen = request.content.iter_chunked(65536) if _has_body else None
+    try:
+        async with sess.request(request.method, up + rest, headers=hdr,
+                                 data=_body_gen,
+                                 allow_redirects=False) as r:
+            h = {}
+            for k, v in r.headers.items():
+                kl = k.lower()
+                if kl in HOP or kl in STRIP:
+                    continue
+                if kl == "content-security-policy":
+                    v = re.sub(r"frame-ancestors[^;]*;?", "", v)
+                    if not v.strip():
+                        continue
+                    if "text/html" in r.headers.get("Content-Type", ""):
+                        v = allow_shim(v, port)
+                if kl == "location" and v.startswith("/") and not v.startswith("//"):
+                    v = f"/p/{port}" + v
+                if kl == "set-cookie":
+                    continue
+                h[k] = v
+            resp = web.StreamResponse(status=r.status, headers=h)
+            for c in r.headers.getall("Set-Cookie", []):
+                rewritten = rewrite_cookie(c, request_is_https(request))
+                resp.headers.add("Set-Cookie", rewritten)
+            ct = r.headers.get("Content-Type", "")
+            if "text/html" in ct:
+                raw = await r.read()
+                s = raw.decode("utf-8", "replace")
+                if port == 9090 or "shell-page" in s or "/cockpit/@localhost" in s:
+                    # 9090: login page (base "/") + post-login shell (base
+                    # /cockpit/@localhost/...). Content gate extends the same
+                    # rewrite to any-port Cockpit instance (e.g. throwaway
+                    # --local-session test servers); other apps unaffected.
+                    s = rewrite_cockpit_html_paths(s, port)
+                m = re.search(r"<head[^>]*>", s, re.I)
+                s = (s[:m.end()] + SHIM % port + s[m.end():]) if m else SHIM % port + s
+                out = s.encode()
+                resp.content_length = len(out)
+                await resp.prepare(request)
+                await resp.write(out)
+                return resp
+            await resp.prepare(request)
+            async for chunk in r.content.iter_chunked(65536):
+                await resp.write(chunk)
+            return resp
+    except aiohttp.ClientError as e:
+        return web.Response(status=502, text=f"upstream {port}: {e}")
+
+
+async def init(app):
+    # M-341: explicit keep-alive pool. Default connector already reuses
+    # connections, but the 100-connection / 30s-cleanup ceiling bounds
+    # tail-latency under burst fan-out (was unbounded default).
+    app["sess"] = aiohttp.ClientSession(
+        auto_decompress=True, cookie_jar=aiohttp.DummyCookieJar(),
+        connector=aiohttp.TCPConnector(limit=100, limit_per_host=20,
+                                       keepalive_timeout=30),
+        timeout=aiohttp.ClientTimeout(total=None, sock_connect=5))
+
+
+async def close(app):
+    await app["sess"].close()
+
+
+# aiohttp default client_max_size is 1 MiB -> 413 on uploads (Owner report 2026-11-14)
+MAX_BODY = int(os.environ.get("PORTAL_GW_MAX_BODY", str(256 * 1024 * 1024)))
+app = web.Application(client_max_size=MAX_BODY)
+app.on_startup.append(init)
+app.on_cleanup.append(close)
+
+
+async def ping(r):
+    headers = {
+        "Access-Control-Allow-Private-Network": "true",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Cache-Control": "no-store",
+        "Vary": "Origin",
+    }
+    if r.headers.get("Origin") == PORTAL_HOST:
+        headers["Access-Control-Allow-Origin"] = PORTAL_HOST
+    return web.Response(text="pgw-ok", headers=headers)
+
+
+async def favicon(request):
+    """Serve an app's own favicon for its Muximux tab icon (M-357).
+
+    GET /p/<port>/__favicon: fetch the app page upstream, resolve its
+    <link rel=icon> (relative hrefs, light preferred), else /favicon.ico,
+    and return the bytes with the upstream (or extension-sniffed)
+    Content-Type. One cache entry per port (FAVICON_TTL); ?refresh=1
+    (used by portal-muximux-sync) re-fetches at most every
+    FAVICON_REFRESH_MIN. Failures serve stale cache, else 404 so the
+    tab silently falls back to its letter.
+    """
+    port = int(request.match_info["port"])
+    if port not in allowed_ports():
+        return web.Response(status=403, text="port denied")
+    now = time.time()
+    cached = _favicon_cache.get(port)
+    force = request.query.get("refresh") == "1"
+    if cached and not force and now - cached["at"] < FAVICON_TTL:
+        return web.Response(body=cached["body"],
+                            content_type=cached["content_type"],
+                            headers={"Cache-Control": "public, max-age=3600"})
+    if force and cached and now - cached.get("fetched_at", 0) < FAVICON_REFRESH_MIN:
+        return web.Response(body=cached["body"],
+                            content_type=cached["content_type"],
+                            headers={"Cache-Control": "public, max-age=3600"})
+
+    async def _get(session, url):
+        async with session.get(url, allow_redirects=True,
+                               timeout=aiohttp.ClientTimeout(total=8)) as r:
+            if r.status != 200:
+                return None
+            body = await r.read()
+            if len(body) > 512 * 1024:
+                return None
+            return body, r.headers.get("Content-Type", "")
+
+    try:
+        if favicon_candidates is None:
+            raise RuntimeError("favicon resolver unavailable")
+        host = port_upstream_host(port)
+        sess = request.app["sess"]
+        page_url = f"http://{host}:{port}/"
+        got = await _get(sess, page_url)
+        if got is None:
+            raise RuntimeError(f"page fetch failed for {port}")
+        page_body, _ = got
+        html = page_body.decode("utf-8", "replace")
+        for cand in favicon_candidates(page_url, html):
+            got = await _get(sess, cand)
+            if got is None:
+                continue
+            icon_body, icon_ct = got
+            ct = content_type_for(cand, icon_ct)
+            if not ct.startswith("image/"):
+                continue
+            _favicon_cache[port] = {"body": icon_body, "content_type": ct,
+                                   "at": now, "fetched_at": now}
+            return web.Response(body=icon_body, content_type=ct,
+                                headers={"Cache-Control": "public, max-age=3600"})
+        raise RuntimeError(f"no fetchable icon for {port}")
+    except Exception as e:
+        print(f"portal-gw: favicon {port} failed ({e!r}), "
+              f"{'serving stale' if cached else '404'}", flush=True)
+        if cached:
+            return web.Response(body=cached["body"],
+                                content_type=cached["content_type"],
+                                headers={"Cache-Control": "public, max-age=3600"})
+        return web.Response(status=404, text="no favicon")
+
+
+app.router.add_route("*", "/pgw-ping", ping)
+app.router.add_get("/pgw-sw.js", sw)
+app.router.add_get("/sw.js", sw)
+app.router.add_route("*", "/p/{port:\\d+}",
+                     lambda r: web.HTTPFound(f"/p/{r.match_info['port']}/"))
+app.router.add_route("GET", "/p/{port:\\d+}/__favicon", favicon)
+app.router.add_route("*", "/p/{port:\\d+}/{rest:.*}", gw)
+if __name__ == "__main__":
+    web.run_app(app, host=LISTEN[0], port=LISTEN[1],
+                print=lambda *_: print("portal-gw listening", LISTEN, flush=True))

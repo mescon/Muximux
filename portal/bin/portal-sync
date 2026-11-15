@@ -1,0 +1,57 @@
+#!/usr/bin/python3 -I
+"""Generate the single-domain portal from services.tsv + dynamic.tsv:
+ - routes/all.inc : Caddy routes under portal.<domain>  (/p/<port>/ , Referer fallback, cookie fallback)
+ - ui/_portal/services.json : the service list the tab UI reads
+Then validate + reload Caddy. No other hostnames are involved."""
+import sys, os, json, subprocess
+root = "/mnt/workspace/portal"
+rows, dyn = [], []
+for line in open(f"{root}/services.tsv"):
+    if line.startswith("#") or not line.strip(): continue
+    f = line.rstrip("\n").split("\t"); f += [""] * (8 - len(f))
+    r = dict(zip(["name","port","group","title","desc","path","existing","rewrite"], f))
+    assert r["port"].isdigit() and r["name"].replace("-","").isalnum(), r
+    rows.append(r)
+if os.path.exists(f"{root}/dynamic.tsv"):
+    for line in open(f"{root}/dynamic.tsv"):
+        f = line.rstrip("\n").split("\t")
+        if len(f) >= 3 and f[0].isdigit(): dyn.append(dict(port=f[0], title=f[1], group=f[2], desc="dynamic", path="/", rewrite="", name=f"dyn-{f[0]}"))
+allsvc = rows + dyn
+ports = []
+for r in allsvc:
+    if r["port"] not in ports: ports.append(r["port"])
+origin = {r["port"]: r["rewrite"] == "y" for r in allsvc}
+
+env = dict(l.strip().split("=", 1) for l in open(f"{root}/browser/env") if "=" in l)
+import base64
+auth = base64.b64encode(f"{env['CUSTOM_USER']}:{env['PASSWORD']}".encode()).decode()
+out = ["""@ui path / /_portal/*
+handle @ui {
+	root * /mnt/workspace/portal/ui
+	@root path /
+	rewrite @root /_portal/index.html
+	header Cache-Control no-store
+	file_server
+}
+""".replace("handle @ui", "handle_path /_portal/api/* {\n\treverse_proxy 127.0.0.1:3735\n}\nhandle @ui"),
+"""handle /browser/* {
+	reverse_proxy 127.0.0.1:3730 {
+		flush_interval -1
+		header_up Authorization "Basic %s"
+		header_down -X-Frame-Options
+		header_down -Content-Security-Policy
+	}
+}
+handle {
+	respond "not found" 404
+}
+""" % auth]
+os.makedirs(f"{root}/routes", exist_ok=True); os.makedirs(f"{root}/ui/_portal", exist_ok=True)
+fd = os.open(f"{root}/routes/all.inc", os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600); os.write(fd, "\n".join(out).encode()); os.close(fd)
+svc = [dict(name=r["name"], title=r["title"], group=r["group"], port=int(r["port"]), desc=r["desc"], path=r["path"] or "/", dynamic=r["name"].startswith("dyn-")) for r in allsvc]
+json.dump(svc, open(f"{root}/ui/_portal/services.json", "w"), indent=1)
+caddy = "/home/ddv/.local/bin/caddy"
+subprocess.run([caddy, "validate", "--config", f"{root}/Caddyfile", "--adapter", "caddyfile"], check=True, stderr=subprocess.DEVNULL)
+if subprocess.run(["systemctl","--user","is-active","portal-caddy"],capture_output=True,text=True).stdout.strip() == "active":
+    subprocess.run([caddy, "reload", "--config", f"{root}/Caddyfile", "--adapter", "caddyfile", "--address", "localhost:2022"], check=True, stderr=subprocess.DEVNULL)
+print(f"synced {len(allsvc)} services, {len(ports)} ports")

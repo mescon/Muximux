@@ -1,0 +1,10 @@
+{
+	auto_https off
+}
+
+:38100 {
+	import ../../routes/pgw.inc
+	handle {
+		respond "portal"
+	}
+}

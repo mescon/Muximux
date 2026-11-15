@@ -1,0 +1,101 @@
+[
+ {
+  "name": "dsh-x",
+  "title": "DSH-X",
+  "group": "DSH",
+  "port": 3181,
+  "desc": "DSH fleet lane x",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "dsh-z",
+  "title": "DSH-Z",
+  "group": "DSH",
+  "port": 3180,
+  "desc": "DSH fleet lane z (test lane)",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "bili",
+  "title": "Bili plugin",
+  "group": "DSH",
+  "port": 18791,
+  "desc": "dsh-z __bili plugin (embed)",
+  "path": "/__bili/?embed=1",
+  "dynamic": false
+ },
+ {
+  "name": "multica",
+  "title": "Multica",
+  "group": "MOCT",
+  "port": 3701,
+  "desc": "Multica web UI",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "moct-x",
+  "title": "MOCT-X API",
+  "group": "MOCT",
+  "port": 8210,
+  "desc": "moct team backend x (API, no UI)",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "moct-z",
+  "title": "MOCT-Z API",
+  "group": "MOCT",
+  "port": 8310,
+  "desc": "moct team backend z (API, no UI)",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "opencode",
+  "title": "opencode",
+  "group": "Agents",
+  "port": 4096,
+  "desc": "opencode server",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "freebuff",
+  "title": "Freebuff Desktop",
+  "group": "Agents",
+  "port": 4320,
+  "desc": "Freebuff control UI",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "grafana",
+  "title": "Grafana",
+  "group": "Hydra",
+  "port": 3000,
+  "desc": "Hydra dashboards",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "prom",
+  "title": "Prometheus",
+  "group": "Hydra",
+  "port": 9090,
+  "desc": "Metrics",
+  "path": "/",
+  "dynamic": false
+ },
+ {
+  "name": "dyn-49374",
+  "title": "opencode instance",
+  "group": "Live ports",
+  "port": 49374,
+  "desc": "dynamic",
+  "path": "/",
+  "dynamic": true
+ }
+]

@@ -1,0 +1,83 @@
+# port-profiles.yaml — per-port open profiles for /ports/ (M-312 respec).
+# Saved by the page (PUT /ports/v1/profile/<port>); hand-editing is fine too.
+# `open`: auto | tailnet | public | embed. `tailnet_url`: Tailscale Services
+# hostname (provisioned by the Owner step); empty until then. `spa`: needs
+# tailnet or public host, warns up front in the path proxy.
+profiles:
+  3701:
+    label: Multica
+    scheme: http
+    host: 127.0.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite
+  9090:
+    label: Cockpit
+    scheme: https
+    host: 127.0.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite
+  3181:
+    label: DSH-X
+    scheme: http
+    host: 127.0.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite
+  3180:
+    label: DSH-Z
+    scheme: http
+    host: 10.88.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite
+  4096:
+    label: opencode
+    scheme: http
+    host: 127.0.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite
+  4320:
+    label: Freebuff Desktop
+    scheme: http
+    host: 127.0.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite
+  3000:
+    label: Grafana
+    scheme: http
+    host: 127.0.0.1
+    path: /
+    open: auto
+    newtab: false
+    pinned: false
+    tailnet_url: ""
+    spa: true
+    origin: rewrite

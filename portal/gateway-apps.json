@@ -1,0 +1,23 @@
+{
+  "apps": [
+    "multica.web",
+    "Cockpit",
+    "hydra.prom",
+    "agents.opencode",
+    "hydra.grafana",
+    "dsh-x.web",
+    "dsh-z.web",
+    "freebuff.web"
+  ],
+  "registered_apps": [],
+  "tailnet_host": "",
+  "public_host": "",
+  "claims": [
+    {
+      "port": 3701,
+      "app": "multica",
+      "prefix": "/moct/",
+      "hosts": []
+    }
+  ]
+}

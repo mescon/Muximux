@@ -1,0 +1,31 @@
+# Portal router: ONE public hostname (<portal-public-host>, e.g. portal.example.com). Tab UI + /p/<port>/ gateway to allowlisted localhost ports.
+{
+	admin localhost:2022
+	auto_https off
+	default_bind 127.0.0.1 10.88.0.1 192.168.7.99
+	servers {
+		protocols h1
+	}
+}
+
+http://<portal-public-host>:3720 {
+	log
+	import routes/pgw.inc
+	import routes/lease.inc
+	import routes/ports.inc
+	import routes/front.inc
+}
+
+# Tailnet gateway: `tailscale serve --https=443 -> :3720`; Host = node MagicDNS name (<tailnet-host>).
+# Rollback: delete this block, `tailscale serve --https=443 off`.
+http://<tailnet-host>:3720 {
+	log
+	import routes/pgw.inc
+	import routes/lease.inc
+	import routes/ports.inc
+	import routes/front.inc
+}
+
+http://:3720 {
+	respond "not registered" 404
+}

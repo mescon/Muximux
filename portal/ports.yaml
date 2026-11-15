@@ -1,0 +1,220 @@
+# ports.yaml — app-level port registry (M-245, parent M-237).
+# Static ports we choose (hand-edit or `bin/ports alloc`); dynamic families are
+# RULES — bin/portal-scan fills ports.dynamic.json from them every 30s.
+# Schema: id = <app>-[<lane>].<role>  (lane segment omitted iff lane: none)
+#   app  in [dsh mmx moct multica hydra agents freebuff]
+#   lane in [x z none];  portal.tab in [true false auto]
+# Never hand-edit ports.dynamic.json or ports.registered.json.
+version: 1
+
+alloc:
+  range: [45000, 45999]   # `ports alloc` picks from here
+
+dynamic:
+  # Freebuff engines: spawned with PORT=0, identity in env state path.
+  # Key falls back to the port when the env has no accounts/<id> part.
+  - id: freebuff.engine
+    app: freebuff
+    lane: none
+    role: engine
+    match: "orchestrator/orchestrator\\.js"
+    instance_key: {env: FREEBUFF_DESKTOP_STATE_PATH, extract: "accounts/([^/]+)"}
+    portal: {title: Freebuff engine, tab: false}
+  # opencode: fixed server is static (agents.opencode 4096); `opencode2 serve`
+  # instances are dynamic (key = port).
+  - id: agents.opencode
+    app: agents
+    lane: none
+    role: opencode
+    match: "(^|/)opencode2?( |$)"
+    portal: {title: opencode instance, tab: true}
+  # multica-x (MMX) vite dev servers.
+  - id: mmx.vite
+    app: mmx
+    lane: none
+    role: vite
+    match: "multica-x/packages/.*(vite|dsh-plugin)"
+    portal: {title: Multica dev UI (vite), tab: true}
+
+ignore:
+  # listeners that are deliberately not app ports; `ports check` skips these.
+  - 22      # ssh
+  - 53      # DNS (host + systemd-resolved)
+  - 2019    # caddy admin API (paseo-app)
+  - 2020    # caddy admin API (paseo-app-beta)
+  - 2021    # caddy admin API (multica-caddy)
+  - 2022    # caddy admin API (portal-caddy, M-237)
+  - 3080    # dsh-prod (excluded from M-237)
+  - 3081    # dsh-test (excluded from M-237)
+  - 3100    # Loki (infra container)
+  - 36153   # postgres, local
+  - 3720    # portal-caddy router (M-237)
+  - 3725    # ports-api — this registry's own service
+  - 3730    # portal-browser nginx (M-237)
+  - 3731    # portal-browser nginx alt (M-237)
+  - 3735    # portal-opener (M-237)
+  - 5432    # postgres (multica/infra)
+  - 55432   # multica-dev-pg container
+  - 55433   # m210-pg container
+  - 55499   # postgres, local
+  - 5900    # VNC
+  - 6379    # redis
+  - 8100    # searxng (infra container)
+  - 8620    # atlas-lan-forward (socat)
+  - 9222    # obscura CDP
+  - 9223    # portal Chromium CDP (M-237)
+  - 9230    # dsh-test child listener (excluded)
+
+static:
+  # KEEP THIS THE LAST TOP-LEVEL KEY: `bin/ports alloc` appends entries at EOF.
+  # --- dsh (fleet lanes) ---
+  - id: dsh-x.web          # services.tsv + dsh-x.service
+    app: dsh
+    lane: x
+    role: web
+    port: 3181
+    bind: 0.0.0.0
+    unit: dsh-x.service
+    health: http://127.0.0.1:3181/
+    portal: {title: DSH-X, tab: true}
+  - id: dsh-z.web          # services.tsv + dsh-z.service
+    app: dsh
+    lane: z
+    role: web
+    port: 3180
+    bind: 10.88.0.1      # dsh-z binds only the podman bridge address, not loopback
+    unit: dsh-z.service
+    health: http://127.0.0.1:3180/
+    portal: {title: DSH-Z, tab: true}
+  - id: dsh-z.bili         # services.tsv; child listener of dsh-z
+    app: dsh
+    lane: z
+    role: bili
+    port: 18791
+    bind: 127.0.0.1
+    unit: dsh-z.service
+    health: http://127.0.0.1:18791/
+    portal: {title: Bili plugin, tab: true}
+  # --- moct (team backends) ---
+  - id: moct-x.api         # services.tsv + moct-x.service
+    app: moct
+    lane: x
+    role: api
+    port: 8210
+    bind: 127.0.0.1
+    unit: moct-x.service
+    health: http://127.0.0.1:8210/
+    portal: {title: MOCT-X API, tab: true}
+  - id: moct-z.api         # services.tsv + moct-backend-z.service
+    app: moct
+    lane: z
+    role: api
+    port: 8310
+    bind: 127.0.0.1
+    unit: moct-backend-z.service
+    health: http://127.0.0.1:8310/
+    portal: {title: MOCT-Z API, tab: true}
+  - id: moct.api           # moct-backend.service (ORCHESTRATION_PORT); unit currently inactive
+    app: moct
+    lane: none
+    role: api
+    port: 8110
+    bind: 127.0.0.1
+    unit: moct-backend.service
+    health: http://127.0.0.1:8110/
+    portal: {title: MOCT API (test), tab: false}
+  # --- multica (self-host stack) ---
+  - id: multica.web        # services.tsv + multica-caddy.service
+    app: multica
+    lane: none
+    role: web
+    port: 3701
+    bind: "*"
+    unit: multica-caddy.service
+    health: http://127.0.0.1:3701/
+    portal: {title: Multica, tab: true}
+  - id: multica.daemon     # multica-daemon.service
+    app: multica
+    lane: none
+    role: daemon
+    port: 19514
+    bind: 127.0.0.1
+    unit: multica-daemon.service
+    health: ""
+    portal: {title: Multica daemon, tab: false}
+  - id: multica-z.daemon   # multica-daemon-z.service
+    app: multica
+    lane: z
+    role: daemon
+    port: 19637
+    bind: 127.0.0.1
+    unit: multica-daemon-z.service
+    health: ""
+    portal: {title: Multica daemon (lane z), tab: false}
+  # --- mmx (moct-multica-x: multica-x Go backend, lane z) ---
+  - id: mmx-z.api          # multica-be-z.service
+    app: mmx
+    lane: z
+    role: api
+    port: 4390
+    bind: 127.0.0.1
+    unit: multica-be-z.service
+    health: http://127.0.0.1:4390/
+    portal: {title: MMX API (lane z), tab: false}
+  - id: mmx-z.pprof        # multica-be-z.service, net/http/pprof
+    app: mmx
+    lane: z
+    role: pprof
+    port: 6060
+    bind: 127.0.0.1
+    unit: multica-be-z.service
+    health: http://127.0.0.1:6060/debug/pprof/
+    portal: {title: MMX pprof (lane z), tab: false}
+  # --- agents ---
+  - id: agents.opencode    # services.tsv; `opencode web`, no systemd unit
+    app: agents
+    lane: none
+    role: opencode
+    port: 4096
+    bind: 0.0.0.0
+    unit: ""
+    health: http://127.0.0.1:4096/
+    portal: {title: opencode, tab: true}
+  # --- freebuff ---
+  - id: freebuff.web       # services.tsv + freebuff-web.service (FREEBUFF_WEB_PORT)
+    app: freebuff
+    lane: none
+    role: web
+    port: 4320
+    bind: 0.0.0.0
+    unit: freebuff-web.service
+    health: http://127.0.0.1:4320/
+    portal: {title: Freebuff Desktop, tab: true}
+  # --- hydra (dashboards; grafana/prometheus run as podman containers) ---
+  - id: hydra.grafana      # services.tsv; container infra-grafana
+    app: hydra
+    lane: none
+    role: grafana
+    port: 3000
+    bind: "*"
+    unit: ""
+    health: http://127.0.0.1:3000/
+    portal: {title: Grafana, tab: true}
+  - id: hydra.prom         # services.tsv; container infra-prometheus
+    app: hydra
+    lane: none
+    role: prom
+    port: 9091            # host side of infra-prometheus (:9090 on the host is Cockpit)
+    bind: "*"
+    unit: ""
+    health: http://127.0.0.1:9091/-/healthy
+    portal: {title: Prometheus, tab: true}
+  - id: hydra.web          # hydra-dashboard.service; unit currently inactive
+    app: hydra
+    lane: none
+    role: web
+    port: 8098
+    bind: 127.0.0.1
+    unit: hydra-dashboard.service
+    health: http://127.0.0.1:8098/
+    portal: {title: Hydra dashboard, tab: false}

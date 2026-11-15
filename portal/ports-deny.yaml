@@ -1,0 +1,20 @@
+# Loopback ports that may NEVER be leased (M-249, owner-approved seed + verified with `ss -ltnp` 2026-11-11).
+# Targets are always 127.0.0.1:<port>; the host never comes from the request (no SSRF).
+# Keep sorted by port. Add with a reason — the reason is quoted in the 403 and the audit log.
+deny:
+  - {port: 22,     reason: "sshd (ss -ltnp: 0.0.0.0:22, system SSH)"}
+  - {port: 2019,   reason: "Caddy admin API (paseo instance)"}
+  - {port: 2020,   reason: "Caddy admin API (paseo-beta instance)"}
+  - {port: 2021,   reason: "Caddy admin API (multica instance)"}
+  - {port: 2022,   reason: "Caddy admin API (portal router; route manipulation)"}
+  - {port: 3720,   reason: "portal router itself (proxying it would loop)"}
+  - {port: 3726,   reason: "lease-api itself (proxying it would loop)"}
+  - {port: 3735,   reason: "portal-opener (CDP bridge; currently inactive but its port)"}
+  - {port: 45001,  reason: "Muximux itself (proxying it would loop)"}
+  - {port: 5432,   reason: "PostgreSQL (ss -ltnp: 0.0.0.0:5432)"}
+  - {port: 6379,   reason: "Redis (ss -ltnp: 127.0.0.1:6379)"}
+  - {port: 9222,   reason: "CDP/debug port (ss -ltnp: held by process 'obscura' pid 3960)"}
+  - {port: 9223,   reason: "CDP debug port of portal-browser Chromium (inactive today)"}
+  - {port: 5900,   reason: "VNC/RFB (ss -ltnp: 127.0.0.1:5900)"}
+  - {port: 55432,  reason: "Postgres container port (seeded owner list; not listening today)"}
+  - {port: 55433,  reason: "Postgres container port (seeded owner list; not listening today)"}
