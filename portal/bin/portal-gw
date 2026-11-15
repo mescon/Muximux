@@ -180,6 +180,25 @@ def port_upstream_host(port):
     return str(host).strip()
 
 
+PROXY_IDENTITY = {"x-forwarded-for", "cf-connecting-ip", "x-real-ip",
+                  "forwarded", "true-client-ip"}
+
+
+def port_is_loopback_source(port):
+    return str(port_profile(port).get("source", "")).strip().lower() == "loopback"
+
+
+def port_session(app, port):
+    """Pooled client session for `port`. Profile `source: loopback` (M-379)
+    connects from 127.0.0.1 so upstreams that fence on the peer address
+    (e.g. @norman-else/dsh-claude `trustedRequest`) see a loopback peer even
+    when they listen on a non-loopback bind (10.88.0.1). Loopback-only source:
+    never changes who can reach the port from outside."""
+    if port_is_loopback_source(port):
+        return app["sess_lo"]
+    return app["sess"]
+
+
 def _origin_host_allowed(origin):
     if not origin:
         return False
@@ -496,6 +515,11 @@ async def gw(request):
            if k.lower() not in HOP
            and k.lower() not in ("host", "accept-encoding", "origin",
                                  "referer", "sec-fetch-site")}
+    if port_is_loopback_source(port):
+        # M-379: upstream fences (git-graph isLoopbackRequest) reject any request
+        # carrying proxy identity headers; the loopback source is the identity.
+        for _k in [k for k in hdr if k.lower() in PROXY_IDENTITY]:
+            del hdr[_k]
     hdr["Host"] = f"localhost:{port}"
     _omode = str(port_origin_mode(port)).strip()
     if "Origin" in request.headers:
@@ -509,7 +533,7 @@ async def gw(request):
     if ref:
         hdr["Referer"] = re.sub(r"^https?://[^/]+(/p/\d+)?",
                                 f"http://localhost:{port}", ref)
-    sess = request.app["sess"]
+    sess = port_session(request.app, port)
     if request.headers.get("Upgrade", "").lower() == "websocket":
         protos = [p.strip() for p in
                   request.headers.get("Sec-WebSocket-Protocol", "").split(",")
@@ -621,10 +645,18 @@ async def init(app):
         connector=aiohttp.TCPConnector(limit=100, limit_per_host=20,
                                        keepalive_timeout=30),
         timeout=aiohttp.ClientTimeout(total=None, sock_connect=5))
+    # M-379: same pool, but sourced from 127.0.0.1 (profile `source: loopback`)
+    app["sess_lo"] = aiohttp.ClientSession(
+        auto_decompress=True, cookie_jar=aiohttp.DummyCookieJar(),
+        connector=aiohttp.TCPConnector(limit=50, limit_per_host=20,
+                                       keepalive_timeout=30,
+                                       local_addr=("127.0.0.1", 0)),
+        timeout=aiohttp.ClientTimeout(total=None, sock_connect=5))
 
 
 async def close(app):
     await app["sess"].close()
+    await app["sess_lo"].close()
 
 
 # aiohttp default client_max_size is 1 MiB -> 413 on uploads (Owner report 2026-11-14)
@@ -686,7 +718,7 @@ async def favicon(request):
         if favicon_candidates is None:
             raise RuntimeError("favicon resolver unavailable")
         host = port_upstream_host(port)
-        sess = request.app["sess"]
+        sess = port_session(request.app, port)
         page_url = f"http://{host}:{port}/"
         got = await _get(sess, page_url)
         if got is None:

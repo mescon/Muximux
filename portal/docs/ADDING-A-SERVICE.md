@@ -37,6 +37,24 @@ turn the gateway into an open loopback proxy. Unit:
 shim, node-run rewrite cases). Playwright: no `http://127.0.0.1:18791/*`
 requests from the DSH-Z page, only `/p/18791/*` with zero bili failures.
 
+## 3c. Upstream trust fences: peer address (M-379)
+Plugins that act on the host (Claude Code `@norman-else/dsh-claude`, git-graph)
+accept only requests that look like the desktop: **peer address 127.0.0.1**,
+loopback `Host`, same-origin `Origin`, and **no proxy headers**
+(`X-Forwarded-For`, `CF-Connecting-IP`). Symptom: `403 {"error":"forbidden"}`
+or `forbidden: loopback-only` on `/plugins/<name>/*` and `/git/*`, identical
+direct on the lane port, while the page itself loads. DSH-Z binds `10.88.0.1`,
+so even the gateway arrives from a non-loopback peer. The gateway already sets
+`Host`/`Origin` to `localhost:<port>`; for such a port set
+`source: loopback` in `port-profiles.yaml`. The gateway then (a) connects from
+`127.0.0.1` (socket source address; the listener stays on its bind, nothing new
+is exposed) and (b) drops `X-Forwarded-For`, `CF-Connecting-IP`, `X-Real-IP`,
+`Forwarded`, `True-Client-IP` on that port. Only local processes can originate a
+loopback-sourced connection, and the port is still behind the allowlist, the
+origin guard and Cloudflare Access. Do not set it for services that rely on
+client IP. Unit: `tests/test_port_session.py`. Check: `curl -X POST
+-H 'X-Forwarded-For: 1.2.3.4' .../p/<port>/git/status` is not 403.
+
 ## 4. Gateway compatibility check (do this before enabling)
 Run in a real Chromium (headed or Playwright) against `/p/<port>/` on the tailnet host AND inside the portal iframe on `<portal-public-host>`:
 1. First load: no blank page; no failed requests; JS returns `application/javascript` (not HTML).
