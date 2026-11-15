@@ -48,6 +48,7 @@ profiles:
     tailnet_url: ""
     spa: true
     origin: rewrite
+    source: loopback  # M-379: dsh-claude trustedRequest needs a loopback peer (dsh-z binds 10.88.0.1)
     loopback_map: [18791]  # M-372: billion-context __BILI__.origin (http://127.0.0.1:18791)
   4096:
     label: opencode
