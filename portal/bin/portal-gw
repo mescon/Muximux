@@ -155,6 +155,22 @@ def port_origin_mode(port):
     mode = port_profile(port).get("origin", "rewrite")
     return "rewrite" if mode is None else mode
 
+def port_loopback_map(port):
+    """Ports whose loopback absolute URLs the shim maps to /p/<port>/.
+
+    M-372: DSH plugin JS (billion-context `__BILI__.origin`) calls
+    `http://127.0.0.1:<port>` directly. Inside the portal the browser is
+    remote, so that URL points at the viewer's own machine. Ports listed
+    here are rewritten to same-origin `/p/<port>/...` before fetch/WS.
+    Per-port opt-in via `loopback_map: [<ports>]` in port-profiles.yaml;
+    each target must pass the gateway allowlist at request time.
+    """
+    try:
+        raw = port_profile(port).get("loopback_map") or []
+        return {int(p) for p in raw} if isinstance(raw, list) else set()
+    except (TypeError, ValueError):
+        return set()
+
 
 def port_upstream_host(port):
     """Per-port upstream address from port-profiles.yaml (default 127.0.0.1)."""
@@ -222,6 +238,44 @@ HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
 STRIP = {"x-frame-options", "cross-origin-resource-policy",
          "cross-origin-opener-policy"}
 SWFILE = os.path.join(HERE, "lib", "pgw", "sw.js")
+def shim_source(port):
+    """Inline head shim for one gateway tab (M-323 WS prefix + M-372 loopback map).
+
+    Loopback mapping: absolute `http(s)://127.0.0.1:<q>/...`,
+    `http(s)://localhost:<q>/...` and `ws(s)://...` URLs for ports `q` in
+    `port_loopback_map(port)` are rewritten to same-origin `/p/<q>/...`
+    (the upstream Host/Origin/Referer rewrite already covers those paths
+    once same-origin). Opt-in per port; XHR/fetch patched alongside the
+    WebSocket constructor because the service worker cannot see WebSockets
+    and pages without SW control need the same mapping.
+    """
+    targets = sorted(port_loopback_map(port))
+    head = ("""<script>(function(){var P='/p/%d';var L=%s;var W=window.WebSocket;
+function isLoop(u){try{var h=(u.hostname||'').toLowerCase();return h==='127.0.0.1'||h==='localhost'||h==='::1'}catch(e){return false}}
+function mapLoop(u){try{var q=+u.port;if(L.indexOf(q)>=0){return '/p/'+q+(u.pathname||'/')+(u.search||'')}}catch(e){}return null}
+function f(u){try{var rel=typeof u==='string'&&u.charAt(0)==='/';var a=new URL(u,location.href);
+var m=isLoop(a)?mapLoop(a):null;if(m!==null&&m!==undefined)return m;
+if(a.host===location.host&&a.pathname.indexOf(P+'/')!==0&&a.pathname!==P){a.pathname=P+a.pathname;return rel?a.pathname+a.search:a.href}return rel?u:a.href}catch(e){return u}}
+function fw(u){try{var a=new URL(u,location.href);var m=isLoop(a)?mapLoop(a):null;
+if(m!==null&&m!==undefined){var p=a.protocol||'';if(p.indexOf('ws')===0){var s=p==='wss:'||location.protocol==='https:'?'wss://':'ws://';return s+location.host+m}return m}
+return f(u)}catch(e){return u}}
+var _fetch=window.fetch;window.fetch=function(u,o){if(typeof u==='string'||u instanceof URL){try{u=fw(u.toString())}catch(e){}}else if(u&&u.url){try{var n=fw(u.url);if(n!==u.url)u=new Request(n,u)}catch(e){}}return _fetch.call(this,u,o)};
+var _XO=window.XMLHttpRequest.prototype.open;window.XMLHttpRequest.prototype.open=function(m,u){try{arguments[1]=fw(u)}catch(e){}return _XO.apply(this,arguments)};
+window.WebSocket=function(u,p){u=fw(u);return p===undefined?new W(u):new W(u,p)};window.WebSocket.prototype=W.prototype;
+window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2;window.WebSocket.CLOSED=3;""" % (port, json.dumps(targets)))
+    tail = """var sw=navigator.serviceWorker;
+function ping(){return new Promise(function(res){if(!sw||!sw.controller)return res(false);var c=new MessageChannel(),t=setTimeout(function(){res(false)},400);c.port1.onmessage=function(){clearTimeout(t);res(true)};try{sw.controller.postMessage({pgw:'ping'},[c.port2])}catch(e){res(false)}})}
+var ok=false;try{ok=localStorage.getItem('__pgw_ok')==='1'}catch(e){}
+if(location.pathname.indexOf(P+'/')===0){try{history.replaceState(history.state,'',(location.pathname.slice(P.length)||'/')+location.search+location.hash)}catch(e){}}
+if(sw){(async function(){try{var reg=await sw.register('/sw.js',{scope:'/'});try{await reg.update()}catch(e){}await sw.ready;
+ var good=false;for(var i=0;i<14&&!good;i++){good=await ping();if(!good)await new Promise(function(r){setTimeout(r,250)})}
+ if(good){try{localStorage.setItem('__pgw_ok','1')}catch(e){}}
+ var did=false;try{did=sessionStorage.getItem('__pgw_r')==='1'}catch(e){}
+ if(!did){try{sessionStorage.setItem('__pgw_r','1')}catch(e){}location.reload()}}catch(e){}})()}
+})();</script>"""
+    return head + tail
+
+
 SHIM = """<script>(function(){var P='/p/%d';var W=window.WebSocket;function f(u){try{var a=new URL(u,location.href);
 if(a.host===location.host&&a.pathname.indexOf(P+'/')!==0&&a.pathname!==P){a.pathname=P+a.pathname}return a.href}catch(e){return u}}
 window.WebSocket=function(u,p){u=f(u);return p===undefined?new W(u):new W(u,p)};window.WebSocket.prototype=W.prototype;
@@ -238,9 +292,9 @@ if(sw){(async function(){try{var reg=await sw.register('/sw.js',{scope:'/'});try
 })();</script>"""
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=1024)
 def shim_hash(port):
-    source = (SHIM % port).removeprefix("<script>").removesuffix("</script>")
+    source = shim_source(port).removeprefix("<script>").removesuffix("</script>")
     digest = base64.b64encode(hashlib.sha256(source.encode()).digest()).decode()
     return "'sha256-" + digest + "'"
 
@@ -543,7 +597,8 @@ async def gw(request):
                     # --local-session test servers); other apps unaffected.
                     s = rewrite_cockpit_html_paths(s, port)
                 m = re.search(r"<head[^>]*>", s, re.I)
-                s = (s[:m.end()] + SHIM % port + s[m.end():]) if m else SHIM % port + s
+                shim = shim_source(port)
+                s = (s[:m.end()] + shim + s[m.end():]) if m else shim + s
                 out = s.encode()
                 resp.content_length = len(out)
                 await resp.prepare(request)
