@@ -19,6 +19,24 @@ Never hard-code a port: resolve with `bin/ports get <id> --port`.
 ## 3. Make the service reachable through the gateway
 The gateway talks to `127.0.0.1:<port>` and rewrites Host/Origin/Referer to `localhost:<port>`. The service needs: listen on loopback or all interfaces; no hard dependency on its own public hostname.
 
+## 3b. Plugin loopback calls (M-372)
+Some plugins call `http(s)://127.0.0.1:<port>` / `localhost:<port>` directly
+from the page (billion-context embeds
+`globalThis.__BILI__ = {origin: "http://127.0.0.1:18791"}` and fetches it).
+On localhost browser == server so it works; inside the portal the browser is
+remote and the URL points at the viewer's own machine (CORS error, panel
+shows "remote" state). The gateway shim maps opted-in loopback ports to
+same-origin `/p/<port>/...` before `fetch`, `XMLHttpRequest.open` and the
+`WebSocket` constructor run (the SW cannot see WebSockets, and pages without
+SW control need the same mapping). Opt in per page-port in
+`port-profiles.yaml`: `3180: {loopback_map: [18791]}`. Each target must pass
+`allowed_ports()` (registry `dsh-z.bili` is the 18791 entry) at request
+time; unlisted ports pass through untouched, so a default-on rewrite cannot
+turn the gateway into an open loopback proxy. Unit:
+`tests/test_loopback_map.py` (profile parsing, CSP hash of the generated
+shim, node-run rewrite cases). Playwright: no `http://127.0.0.1:18791/*`
+requests from the DSH-Z page, only `/p/18791/*` with zero bili failures.
+
 ## 4. Gateway compatibility check (do this before enabling)
 Run in a real Chromium (headed or Playwright) against `/p/<port>/` on the tailnet host AND inside the portal iframe on `<portal-public-host>`:
 1. First load: no blank page; no failed requests; JS returns `application/javascript` (not HTML).

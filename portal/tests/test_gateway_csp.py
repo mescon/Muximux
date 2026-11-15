@@ -25,7 +25,7 @@ class GatewayCsp(unittest.TestCase):
     def test_shim_hash_is_added_without_allowing_other_inline_scripts(self):
         csp = "default-src 'self'; script-src 'self' 'sha256-original'; object-src 'none'"
         result = gateway.allow_shim(csp, 4096)
-        script = (gateway.SHIM % 4096)[len("<script>"):-len("</script>")]
+        script = gateway.shim_source(4096)[len("<script>"):-len("</script>")]
         digest = base64.b64encode(hashlib.sha256(script.encode()).digest()).decode()
         self.assertIn("'sha256-" + digest + "'", result)
         self.assertIn("'sha256-original'", result)
