@@ -106,7 +106,15 @@ function syncFabSize() {
 }
 syncFabSize();
 window.addEventListener("storage", (event) => { if (event.key === FAB_SIZE_KEY) syncFabSize(); });
-new MutationObserver(syncFabSize).observe(document.documentElement, { childList: true, subtree: true });
+let fabSyncScheduled = false;
+new MutationObserver(() => {
+  if (fabSyncScheduled) return;
+  fabSyncScheduled = true;
+  requestAnimationFrame(() => {
+    fabSyncScheduled = false;
+    syncFabSize();
+  });
+}).observe(document.documentElement, { childList: true, subtree: true });
 
 let sid = null;
 try { sid = sessionStorage.getItem("portal.ext.session"); } catch { sid = null; }
