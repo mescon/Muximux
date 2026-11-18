@@ -60,6 +60,17 @@ body {
   border-radius: 4px;
   padding: 0 .3em;
 }
+.fab-setting { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; margin: .9rem 0; }
+.fab-setting label { font-weight: 600; }
+.fab-setting select {
+  font: inherit;
+  color: var(--mx-text);
+  background: var(--mx-elevated);
+  border: 1px solid var(--mx-border-strong);
+  border-radius: 6px;
+  padding: .3rem .55rem;
+}
+.fab-setting .sub { margin: 0; }
 .msg { min-height: 1.4em; color: var(--mx-muted); }
 .msg.err { color: var(--mx-danger); }
 .stage { max-width: 1100px; margin: 0 auto; }

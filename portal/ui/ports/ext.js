@@ -44,6 +44,78 @@ async function restoreClaimedNavigation() {
 }
 restoreClaimedNavigation();
 
+function restoreInAppPath() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const slash = raw.indexOf("/");
+  if (slash < 1) return;
+  const slug = raw.slice(0, slash);
+  loadClaims().then((claims) => {
+    const claim = claims.find((item) => item.app === slug &&
+      Array.isArray(item.hosts) && item.hosts.includes(location.hostname));
+    if (!claim) return;
+    const requested = `/${raw.slice(slash + 1)}`;
+    const path = `${claim.prefix.replace(/\/$/, "")}${requested}`;
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#${slug}?path=${encodeURIComponent(path.replace(/^\//, ""))}`);
+  }).catch(() => {});
+}
+restoreInAppPath();
+
+async function watchInAppPaths() {
+  const claims = await loadClaims();
+  window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (!data || data.type !== "portal-gateway-path" || typeof data.path !== "string" || !data.path.startsWith("/")) return;
+    const frame = [...document.querySelectorAll("iframe[src]")].find((item) => item.contentWindow === event.source);
+    if (!frame) return;
+    let frameUrl;
+    try { frameUrl = new URL(frame.src, location.href); } catch { return; }
+    const claim = claims.find((item) => item.port === data.port &&
+      Array.isArray(item.hosts) && item.hosts.includes(frameUrl.hostname) &&
+      item.hosts.includes(location.hostname));
+    if (!claim || event.origin !== frameUrl.origin) return;
+    const prefix = claim.prefix.replace(/\/$/, "");
+    if (data.path !== prefix && !data.path.startsWith(`${prefix}/`)) return;
+    const appPath = data.path.slice(prefix.length) || "/";
+    const route = appPath === "/" && !data.path.includes("?") && !data.path.includes("#")
+      ? `#${claim.app}`
+      : `#${claim.app}${appPath}`;
+    history.replaceState(history.state, "", `${location.pathname}${location.search}${route}`);
+  });
+}
+watchInAppPaths();
+
+const FAB_SIZE_KEY = "portal.fab.size";
+const FAB_SIZES = { small: 44, medium: 56, large: 68 };
+function applyFabSize(value) {
+  const size = FAB_SIZES[value] || FAB_SIZES.medium;
+  document.documentElement.style.setProperty("--portal-fab-size", `${size}px`);
+  const fab = document.querySelector('[role="navigation"].fixed.z-40 > button');
+  if (fab) {
+    fab.style.width = `${size}px`;
+    fab.style.height = `${size}px`;
+    fab.style.padding = "0";
+    const icon = fab.querySelector("svg");
+    if (icon) { icon.style.width = `${Math.round(size * 0.43)}px`; icon.style.height = `${Math.round(size * 0.43)}px`; }
+  }
+}
+function syncFabSize() {
+  let value = "medium";
+  try { value = localStorage.getItem(FAB_SIZE_KEY) || "medium"; } catch { /* private mode */ }
+  applyFabSize(value);
+}
+syncFabSize();
+window.addEventListener("storage", (event) => { if (event.key === FAB_SIZE_KEY) syncFabSize(); });
+let fabSyncScheduled = false;
+new MutationObserver(() => {
+  if (fabSyncScheduled) return;
+  fabSyncScheduled = true;
+  requestAnimationFrame(() => {
+    fabSyncScheduled = false;
+    syncFabSize();
+  });
+}).observe(document.documentElement, { childList: true, subtree: true });
+
 let sid = null;
 try { sid = sessionStorage.getItem("portal.ext.session"); } catch { sid = null; }
 if (!sid) {

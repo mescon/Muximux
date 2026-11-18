@@ -278,10 +278,14 @@ if(a.host===location.host&&a.pathname.indexOf(P+'/')!==0&&a.pathname!==P){a.path
 function fw(u){try{var a=new URL(u,location.href);var m=isLoop(a)?mapLoop(a):null;
 if(m!==null&&m!==undefined){var p=a.protocol||'';if(p.indexOf('ws')===0){var s=p==='wss:'||location.protocol==='https:'?'wss://':'ws://';return s+location.host+m}return m}
 return f(u)}catch(e){return u}}
+/* Keep claimed deep links in the portal address bar. The parent validates
+   both this frame's origin and its configured port before accepting updates. */
+function notifyPortalPath(){try{if(window.parent!==window)window.parent.postMessage({type:'portal-gateway-path',port:%d,path:location.pathname+location.search+location.hash},'*')}catch(e){}}
+try{var _ps=history.pushState.bind(history),_rs=history.replaceState.bind(history);history.pushState=function(){var r=_ps.apply(this,arguments);setTimeout(notifyPortalPath,0);return r};history.replaceState=function(){var r=_rs.apply(this,arguments);setTimeout(notifyPortalPath,0);return r};window.addEventListener('popstate',notifyPortalPath);window.addEventListener('hashchange',notifyPortalPath);setTimeout(notifyPortalPath,0)}catch(e){}
 var _fetch=window.fetch;window.fetch=function(u,o){if(typeof u==='string'||u instanceof URL){try{u=fw(u.toString())}catch(e){}}else if(u&&u.url){try{var n=fw(u.url);if(n!==u.url)u=new Request(n,u)}catch(e){}}return _fetch.call(this,u,o)};
 var _XO=window.XMLHttpRequest.prototype.open;window.XMLHttpRequest.prototype.open=function(m,u){try{arguments[1]=fw(u)}catch(e){}return _XO.apply(this,arguments)};
 window.WebSocket=function(u,p){u=fw(u);return p===undefined?new W(u):new W(u,p)};window.WebSocket.prototype=W.prototype;
-window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2;window.WebSocket.CLOSED=3;""" % (port, json.dumps(targets)))
+window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2;window.WebSocket.CLOSED=3;""" % (port, json.dumps(targets), port))
     tail = """var sw=navigator.serviceWorker;
 function ping(){return new Promise(function(res){if(!sw||!sw.controller)return res(false);var c=new MessageChannel(),t=setTimeout(function(){res(false)},400);c.port1.onmessage=function(){clearTimeout(t);res(true)};try{sw.controller.postMessage({pgw:'ping'},[c.port2])}catch(e){res(false)}})}
 var ok=false;try{ok=localStorage.getItem('__pgw_ok')==='1'}catch(e){}

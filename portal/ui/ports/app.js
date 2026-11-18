@@ -7,6 +7,8 @@
 const $ = (id) => document.getElementById(id);
 const sidKey = "portal.ports.session";
 const probeKey = "portal.ports.tailnet";
+const fabSizeKey = "portal.fab.size";
+const fabSizes = ["small", "medium", "large"];
 
 function newSid() {
   try {
@@ -31,6 +33,22 @@ let ws = null;
 function showMsg(text, isErr) {
   $("msg").textContent = text || "";
   $("msg").classList.toggle("err", !!isErr);
+}
+
+const fabSize = $("fab-size");
+if (fabSize) {
+  let savedSize = "medium";
+  try { savedSize = localStorage.getItem(fabSizeKey) || "medium"; } catch { /* storage unavailable */ }
+  fabSize.value = fabSizes.includes(savedSize) ? savedSize : "medium";
+  fabSize.addEventListener("change", () => {
+    const value = fabSizes.includes(fabSize.value) ? fabSize.value : "medium";
+    try {
+      localStorage.setItem(fabSizeKey, value);
+      showMsg("Floating button size saved and applied.");
+    } catch {
+      showMsg("Could not save the floating button size in this browser.", true);
+    }
+  });
 }
 
 /* -- tailnet probe (M-323 chooser: 2 s abort, 60 s cache, visibility refresh) - */
