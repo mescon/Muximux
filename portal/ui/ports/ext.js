@@ -44,19 +44,39 @@ async function restoreClaimedNavigation() {
 }
 restoreClaimedNavigation();
 
+function toSlug(name) {
+  let t = [], n = true;
+  for (let r of String(name || "")) {
+    if (r >= "A" && r <= "Z") { t.push(r.toLowerCase()); n = false; }
+    else if ((r >= "a" && r <= "z") || (r >= "0" && r <= "9")) { t.push(r); n = false; }
+    else if (r === " " || r === "-" || r === "_") { if (!n) { t.push("-"); n = true; } }
+  }
+  let r = t.join("");
+  return r.endsWith("-") ? r.slice(0, -1) : r;
+}
+
 function restoreInAppPath() {
   const raw = location.hash.slice(1);
   if (!raw) return;
   const slash = raw.indexOf("/");
   if (slash < 1) return;
   const slug = raw.slice(0, slash);
+  const requested = raw.slice(slash + 1);
   loadClaims().then((claims) => {
+    // M-502: tolerate bookmarks saved by the doubled-prefix bug (#cockpit/p/9090/podman).
+    const clean = requested.replace(/^p\/\d+\//, "").replace(/^\/p\/\d+\//, "/").replace(/^\//, "");
     const claim = claims.find((item) => item.app === slug &&
       Array.isArray(item.hosts) && item.hosts.includes(location.hostname));
-    if (!claim) return;
-    const requested = `/${raw.slice(slash + 1)}`;
-    const path = `${claim.prefix.replace(/\/$/, "")}${requested}`;
-    history.replaceState(history.state, "", `${location.pathname}${location.search}#${slug}?path=${encodeURIComponent(path.replace(/^\//, ""))}`);
+    const pre = claim ? (claim.prefix || "").replace(/\/$/, "") : "";
+    let c = clean;
+    if (claim && pre) {
+      const ps = pre.replace(/^\//, "");
+      if (c === ps) c = "";
+      else if (ps && c.startsWith(`${ps}/`)) c = c.slice(ps.length + 1);
+    }
+    const path = claim ? `${pre}/${c}` : c;
+    const suffix = c ? `?path=${encodeURIComponent(path.replace(/^\//, ""))}` : "";
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#${slug}${suffix}`);
   }).catch(() => {});
 }
 restoreInAppPath();
@@ -73,13 +93,39 @@ async function watchInAppPaths() {
     const claim = claims.find((item) => item.port === data.port &&
       Array.isArray(item.hosts) && item.hosts.includes(frameUrl.hostname) &&
       item.hosts.includes(location.hostname));
-    if (!claim || event.origin !== frameUrl.origin) return;
-    const prefix = claim.prefix.replace(/\/$/, "");
-    if (data.path !== prefix && !data.path.startsWith(`${prefix}/`)) return;
-    const appPath = data.path.slice(prefix.length) || "/";
+    if (event.origin !== frameUrl.origin) return;
+
+    const match = frameUrl.pathname.match(/^\/p\/(\d+)(?:\/|$)/);
+    const framePort = match ? Number(match[1]) : null;
+    if (framePort !== null && framePort !== data.port) return;
+
+    // M-502: the shim posts location.pathname, which inside the gateway starts
+    // with /p/<port>. Strip it (claimed apps first strip to their prefix,
+    // then to the claim) so the hash never becomes #cockpit/p/9090/podman.
+    const inApp = data.path.replace(new RegExp(`^/p/${data.port}(?=/|$)`), "") || "/";
+    // In-app URL paths for all portal apps: apps without a claim
+    // (Cockpit, Grafana, ...) track by slug.
+    let slug, prefix = "";
+    if (claim) {
+      slug = claim.app;
+      prefix = (claim.prefix || "").replace(/\/$/, "");
+    } else {
+      const appName = frame.getAttribute("data-app") || frame.getAttribute("title");
+      slug = appName ? toSlug(appName) : null;
+    }
+    if (!slug) return;
+
+    let appPath;
+    if (prefix) {
+      if (inApp !== prefix && !inApp.startsWith(`${prefix}/`)) return;
+      appPath = inApp.slice(prefix.length) || "/";
+    } else {
+      appPath = inApp;
+    }
+
     const route = appPath === "/" && !data.path.includes("?") && !data.path.includes("#")
-      ? `#${claim.app}`
-      : `#${claim.app}${appPath}`;
+      ? `#${slug}`
+      : `#${slug}${appPath.startsWith("/") ? appPath : "/" + appPath}`;
     history.replaceState(history.state, "", `${location.pathname}${location.search}${route}`);
   });
 }
