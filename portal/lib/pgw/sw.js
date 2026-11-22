@@ -39,10 +39,12 @@ self.addEventListener('fetch', e => {
       // portal shell. Do not label the resulting shell client as an app.
       e.stopImmediatePropagation();
       e.respondWith((async () => {
-        const response = await fetch(e.request);
-        const final = new URL(response.url).pathname.match(PRE);
-        if (final) setp(e.resultingClientId, +final[1]);
-        return response;
+        try {
+          const response = await fetch(e.request);
+          const final = new URL(response.url).pathname.match(PRE);
+          if (final) setp(e.resultingClientId, +final[1]);
+          return response;
+        } catch (err) { return new Response('pgw navigate fetch failed: ' + err, { status: 598 }); }
       })());
     }
     // M-341: /_next/static/* is content-hashed per build; serve cache-first
@@ -50,12 +52,14 @@ self.addEventListener('fetch', e => {
     // a new deploy has a new hash, so no stale risk.
     if (e.request.method === 'GET' && IMMUTABLE_RE.test(u.pathname)) {
       e.respondWith((async () => {
-        const cache = await caches.open(IMMUTABLE_CACHE);
-        const hit = await cache.match(e.request.url);
-        if (hit) return hit;
-        const res = await fetch(e.request);
-        if (res.ok) cache.put(e.request.url, res.clone());
-        return res;
+        try {
+          const cache = await caches.open(IMMUTABLE_CACHE);
+          const hit = await cache.match(e.request.url);
+          if (hit) return hit;
+          const res = await fetch(e.request);
+          if (res.ok) cache.put(e.request.url, res.clone());
+          return res;
+        } catch (err) { return new Response('pgw immutable fetch failed: ' + err, { status: 598 }); }
       })());
     }
     return;
@@ -63,7 +67,7 @@ self.addEventListener('fetch', e => {
   e.respondWith((async () => {
     try {
       const port = await portFor(e);
-      if (!port) { return fetch(e.request); }
+      if (!port) { try { return await fetch(e.request); } catch (err) { return new Response('pgw passthrough fetch failed: ' + err, { status: 598 }); } }
       const nu = '/p/' + port + u.pathname + u.search;
       if (e.request.mode === 'navigate') {
         setp(e.resultingClientId, port);
