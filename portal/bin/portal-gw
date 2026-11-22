@@ -407,6 +407,59 @@ def rewrite_cockpit_html_paths(html, port=9090):
                        + f"/p/{port}/cockpit/"),
         html)
 
+
+def rewrite_manifest_link(html, port):
+    """Prefix the app manifest link and force credentialed fetch (M-514).
+
+    Chromium fetches `<link rel=manifest>` with no cookies and no Referer
+    (verified locally): through Cloudflare Access the unprefixed fetch
+    either misses the gateway (no Referer for the portal-front fallback)
+    or arrives unauthenticated at the edge, which 302s to the Access
+    login page and the browser reports CORS (`No
+    'Access-Control-Allow-Origin' header`). Rewriting the href under
+    `/p/<port>/` keeps the fetch same-origin through the gateway, and
+    `crossorigin="use-credentials"` attaches the Access cookie so the
+    edge lets it through (MDN: required when the manifest needs
+    credentials, even same-origin). Only the first manifest link is
+    touched; pages without one pass through unchanged.
+    """
+    def fix(match):
+        tag = match.group(0)
+        if re.search(r"(?i)\bcrossorigin\s*=", tag):
+            fixed = tag
+        else:
+            fixed = re.sub(r"\s*/?>$", ' crossorigin="use-credentials">', tag)
+            if fixed == tag:
+                fixed = tag + ' crossorigin="use-credentials"'
+        pre = f"/p/{port}/"
+        def prefix(m):
+            if (m.group(0) + m.string[m.end():]).startswith(
+                    m.group(1) + m.group(2) + pre):
+                return m.group(0)  # already gateway-prefixed: leave alone
+            return m.group(1) + m.group(2) + pre
+        return re.sub(r"(?i)(\bhref\s*=\s*)([\"'])/(?!/)", prefix,
+                      fixed, count=1)
+    return re.sub(r"(?i)<link\b[^>]*\brel\s*=\s*([\"'])manifest\1[^>]*>",
+                   fix, html, count=1)
+
+
+def unload_policy(headers):
+    """Merge `unload=(self)` into an upstream Permissions-Policy (M-514).
+
+    Chrome 155+ disables `unload` handlers by default; embedded apps
+    with PostHog-style analytics fill the console with "unload is not
+    allowed" violations. Re-enable for our origin without dropping any
+    upstream directive the app set.
+    """
+    for key in list(headers):
+        if key.lower() == "permissions-policy":
+            existing = headers[key]
+            if re.search(r"(?i)(?:^|[;,])\s*unload\s*=", existing):
+                return existing
+            sep = "" if not existing.strip() or existing.rstrip().endswith((",", ";")) else ", "
+            return existing + sep + "unload=(self)"
+    return "unload=(self)"
+
 def sw_without_lifecycle(mux):
     """Drop Muximux's install/activate handlers from the combined worker.
 
@@ -624,6 +677,10 @@ async def gw(request):
                     # rewrite to any-port Cockpit instance (e.g. throwaway
                     # --local-session test servers); other apps unaffected.
                     s = rewrite_cockpit_html_paths(s, port)
+                s = rewrite_manifest_link(s, port)
+                resp.headers["Permissions-Policy"] = unload_policy(
+                    {k: v for k, v in r.headers.items()
+                     if k.lower() == "permissions-policy"})
                 m = re.search(r"<head[^>]*>", s, re.I)
                 shim = shim_source(port)
                 s = (s[:m.end()] + shim + s[m.end():]) if m else shim + s
