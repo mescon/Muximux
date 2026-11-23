@@ -28,3 +28,35 @@ One portal at `<portal-public-host>` (Muximux front end, behind Cloudflare Acces
 
 ## Decision 11 (2026-11-14): origin handling
 Default `origin: rewrite` for every port, guarded: the gateway validates the real `Origin`/`Sec-Fetch-Site` on state-changing methods and WebSocket upgrades against {portal host, tailnet host, localhost/127.0.0.1} before rewriting to `http://localhost:<port>`; others get 403. Reason: the gateway sets `SameSite=None` cookies, so an unguarded rewrite would allow cross-site CSRF into the upstream apps. Override per port with `origin: none|<explicit>` in `port-profiles.yaml`. Implemented by M-323.
+
+## Decision 12 (2026-11-23, M-540): tailnet gateway iframe navigations
+Symptom (Owner, Zen/Firefox + Tailscale): Cockpit tab showed "will not allow
+... embedded"; Multica only worked via the public portal host.
+
+Root cause: `portal-front` routed prefix-less requests to Muximux unless
+(a) the `Sec-Fetch-Dest: document` claim redirect fired or (b) a
+same-origin `/p/<port>/` Referer matched (navigations excluded). Iframe
+navigations (`Sec-Fetch-Dest: iframe`, e.g. Multica `/moct/`) got the
+Muximux SPA with `X-Frame-Options: SAMEORIGIN` + `frame-ancestors 'self'`,
+which the cross-site tailnet embed refuses. Cockpit pushState URLs
+(`/podman`, `/cockpit/login`) likewise had no hint: the gateway sends
+`Referrer-Policy: no-referrer`, and iframe reloads carry no usable Referer.
+
+Fix (cookie over Referer-policy change — no-referrer stays for privacy):
+1. Claim redirect fires for `Sec-Fetch-Dest` in (`document`, `iframe`).
+2. The gateway remembers the last `/p/<port>/` document per browser in a
+   `pgw-port` cookie (`Path=/; Secure; SameSite=None; Partitioned`,
+   document responses only). The front consults it for prefix-less
+   iframe/document navigations when the Referer hint is absent.
+3. The front forwards the original `Host` as `X-Forwarded-Host` so the
+   gateway's `request_is_https` (hosts from `gateway-apps.json` claim
+   entries, same file the front reads) recognizes the TLS portal hosts
+   behind `tailscale serve` TLS termination.
+4. Defence in depth: Muximux responses on the tailnet host drop
+   `X-Frame-Options` and widen to `frame-ancestors 'self'
+   https://<portal-public-host>` — a mis-route renders the SPA, never a
+   blank browser error.
+
+Verified: curl matrix (document/iframe x claim/cookie/Referer/no hint),
+portal-compat 9090 7/7, Playwright Chromium+Firefox through the tailnet
+host from a cross-site embedder (Cockpit login loads, no frame-block).

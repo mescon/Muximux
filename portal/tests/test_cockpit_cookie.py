@@ -37,6 +37,14 @@ class CockpitCookie(unittest.TestCase):
         self.assertEqual(gateway.stale_cookie_expiry(sc, False), [])
         self.assertEqual(gateway.stale_cookie_expiry(["other=1"], True), [])
 
+    def test_gateway_port_cookie_is_partitioned_and_https_only(self):
+        # M-540: the front reads pgw-port same-origin; Partitioned keeps
+        # the cross-site tailnet embed working.
+        self.assertEqual(
+            gateway.gateway_port_cookie(9090, True),
+            "pgw-port=9090; Path=/; Secure; SameSite=None; Partitioned")
+        self.assertIsNone(gateway.gateway_port_cookie(9090, False))
+
 
 if __name__ == "__main__":
     unittest.main()

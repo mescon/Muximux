@@ -339,6 +339,12 @@ def allow_shim(csp, port):
         directives[index] += " " + token
     return "; ".join(directives)
 
+def gateway_port_cookie(port, secure):
+    """Remember the last gateway port per browser (M-540)."""
+    if not secure:
+        return None
+    return f"pgw-port={port}; Path=/; Secure; SameSite=None; Partitioned"
+
 
 def rewrite_cookie(cookie, secure):
     cookie = re.sub(r";\s*domain=[^;]*", "", cookie, flags=re.I)
@@ -390,12 +396,26 @@ def request_is_https(request):
     Tailscale Serve terminates TLS before forwarding to Caddy, so the
     forwarded protocol can describe the local hop. The canonical portal
     hosts are served by the TLS Caddy sites and must receive secure cookies.
+    Hosts come from gateway-apps.json claim entries (same file the front
+    reads; live values written by portal-muximux-sync, redacted in repo).
+    Falls back to the PORTAL_*_HOST env placeholders for test harnesses.
     """
     forwarded = request.headers.get("X-Forwarded-Proto", "").split(",", 1)[0].strip().lower()
     hosts = (request.headers.get("Host", "") + "," +
              request.headers.get("X-Forwarded-Host", "")).split(",")
     hosts = {value.strip().split(":", 1)[0].lower() for value in hosts}
-    return forwarded == "https" or bool(hosts & HTTPS_HOSTS)
+    if forwarded == "https":
+        return True
+    if hosts & HTTPS_HOSTS:
+        return True
+    try:
+        with open(os.path.join(HERE, "gateway-apps.json")) as f:
+            claims = json.load(f).get("claims", [])
+    except (OSError, ValueError):
+        return False
+    known = {h.lower() for claim in claims for h in claim.get("hosts", [])
+             if isinstance(h, str)}
+    return bool(hosts & known)
 
 
 def websocket_upstream_headers(headers):
@@ -708,6 +728,14 @@ async def gw(request):
             for c in _set_cookies:
                 rewritten = rewrite_cookie(c, request_is_https(request))
                 resp.headers.add("Set-Cookie", rewritten)
+            # M-540: remember this port for prefix-less iframe navigations.
+            # Document-only: the front consults it solely for iframe/document
+            # navigations, and a subresource must never overwrite it.
+            if (request.method == "GET" and
+                    request.headers.get("Sec-Fetch-Dest") == "document"):
+                remembered = gateway_port_cookie(port, request_is_https(request))
+                if remembered is not None:
+                    resp.headers.add("Set-Cookie", remembered)
             ct = r.headers.get("Content-Type", "")
             if "text/html" in ct:
                 raw = await r.read()

@@ -68,11 +68,12 @@ class FrontWebsocketRouting(unittest.TestCase):
                 ("/moct/runtimes/local%3A123?x=1", "/p/3701/moct/runtimes/local%3A123?x=1"),
                 ("/p/3701/moct/runtimes/local%3A123?x=1", "/?gateway_port=3701&gateway_path=%2Fmoct%2Fruntimes%2Flocal%253A123%3Fx%3D1"),
             ):
-                request = urllib.request.Request(base + path, headers={"Sec-Fetch-Dest": "document"})
-                with self.assertRaises(urllib.error.HTTPError) as caught:
-                    opener.open(request, timeout=3)
-                self.assertEqual(caught.exception.code, 302)
-                self.assertEqual(caught.exception.headers["Location"], location)
+                for dest in ("document", "iframe"):  # M-540: Zen embeds the gateway cross-site
+                    request = urllib.request.Request(base + path, headers={"Sec-Fetch-Dest": dest})
+                    with self.assertRaises(urllib.error.HTTPError) as caught:
+                        opener.open(request, timeout=3)
+                    self.assertEqual(caught.exception.code, 302)
+                    self.assertEqual(caught.exception.headers["Location"], location)
         finally:
             server.shutdown()
             server.server_close()
@@ -147,6 +148,104 @@ class FrontWebsocketRouting(unittest.TestCase):
             server.server_close()
             gateway.shutdown()
             gateway.server_close()
+    def test_iframe_navigation_uses_port_cookie_without_referer(self):
+        # M-540: iframe reload sends no Referer (gateway: no-referrer) and
+        # Sec-Fetch-Mode: navigate is excluded from the Referer rule.
+        seen = []
+        class Gateway(BaseHTTPRequestHandler):
+            def do_GET(self):
+                seen.append(self.path)
+                self.send_response(200)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+            def log_message(self, *args):
+                pass
+        class Mux(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html")
+                raw = b"<html><body>x</body></html>"
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+            def log_message(self, *args):
+                pass
+        gateway = ThreadingHTTPServer(("127.0.0.1", 0), Gateway)
+        mux = ThreadingHTTPServer(("127.0.0.1", 0), Mux)
+        front.GW_PORT = gateway.server_port
+        front.MUX_PORT = mux.server_address[1]
+        server = ThreadingHTTPServer(("127.0.0.1", 0), front.Handler)
+        for srv in (gateway, mux, server):
+            threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            host = f"127.0.0.1:{server.server_port}"
+            def get(path, headers):
+                with socket.create_connection(server.server_address, timeout=3) as client:
+                    client.settimeout(3)
+                    head = "".join(f"{k}: {v}\r\n" for k, v in headers.items())
+                    client.sendall((f"GET {path} HTTP/1.1\r\nHost: {host}\r\n{head}Connection: close\r\n\r\n").encode())
+                    return client.recv(65536)
+            nav = {"Sec-Fetch-Dest": "iframe", "Sec-Fetch-Mode": "navigate"}
+            # No hint anywhere: Muximux SPA (falls through to the shell).
+            self.assertIn(b"200 OK", get("/podman", nav))
+            self.assertEqual(seen, [])
+            # Cookie hint from the last gateway document: routed to /p/<port>/.
+            cookie = dict(nav, Cookie="pgw-port=9090")
+            self.assertIn(b"200 OK", get("/podman", cookie))
+            self.assertEqual(seen, ["/p/9090/podman"])
+            self.assertIn(b"200 OK", get("/cockpit/login", cookie))
+            self.assertEqual(seen, ["/p/9090/podman", "/p/9090/cockpit/login"])
+            # Bogus cookie: treated as no hint, Muximux SPA again.
+            self.assertIn(b"200 OK", get("/podman", dict(nav, Cookie="pgw-port=abc")))
+            self.assertEqual(seen, ["/p/9090/podman", "/p/9090/cockpit/login"])
+            # Subresources never consult the cookie (Referer rule is theirs).
+            sub = {"Sec-Fetch-Dest": "script", "Sec-Fetch-Mode": "no-cors",
+                   "Cookie": "pgw-port=9090"}
+            self.assertIn(b"200 OK", get("/assets/app.js", sub))
+            self.assertEqual(seen, ["/p/9090/podman", "/p/9090/cockpit/login"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            gateway.shutdown()
+            gateway.server_close()
+            mux.shutdown()
+            mux.server_close()
+
+    def test_mux_response_opens_framing_to_portal_host(self):
+        # M-540 defence in depth: a mis-route renders the SPA, never the
+        # blank Zen "will not allow ... embedded" error on the tailnet host.
+        class Mux(BaseHTTPRequestHandler):
+            def do_GET(self):
+                raw = b"<html><body>x</body></html>"
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html")
+                self.send_header("X-Frame-Options", "SAMEORIGIN")
+                self.send_header("Content-Security-Policy",
+                                 "default-src 'self'; frame-ancestors 'self'")
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+            def log_message(self, *args):
+                pass
+        mux = ThreadingHTTPServer(("127.0.0.1", 0), Mux)
+        front.MUX_PORT = mux.server_address[1]
+        server = ThreadingHTTPServer(("127.0.0.1", 0), front.Handler)
+        for srv in (mux, server):
+            threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            with socket.create_connection(server.server_address, timeout=3) as client:
+                client.settimeout(3)
+                client.sendall(b"GET /podman HTTP/1.1\r\nHost: x\r\n"
+                               b"Sec-Fetch-Dest: iframe\r\nConnection: close\r\n\r\n")
+                head = client.recv(65536).decode("latin-1")
+            self.assertNotIn("x-frame-options", head.lower())
+            self.assertIn("frame-ancestors 'self' https://", head)
+        finally:
+            server.shutdown()
+            server.server_close()
+            mux.shutdown()
+            mux.server_close()
+
 
 
 if __name__ == "__main__":
