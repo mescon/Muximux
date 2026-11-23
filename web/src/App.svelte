@@ -35,6 +35,7 @@
   import { applyFrameLink, reportFramedLoad, restoreFrame } from './lib/framedLoad';
   import { applyHashPaths, parseHashRoute } from './lib/hashRoute';
   import { NAV_STATE } from './lib/navHistory';
+  import { DASHBOARD_MANIFEST_HREF, swapManifestLink, syncManifestToRoute } from './lib/appManifest';
   import { applyLinkHash, applyNavigate, consumeDeepLink, deepLinkKey, installFramePaneTracker, isFrameVisible, layoutHash, type DeepLinks } from './lib/linkNavigation';
   import { applyConfigLocale } from './lib/localeStore';
   import * as m from '$lib/paraglide/messages.js';
@@ -249,7 +250,10 @@
 
 
   function showDefaultApp() {
-    // Hash deep-link takes priority (e.g. /#Plex)
+    // Hash deep-link takes priority (e.g. /#Plex). This also covers a
+    // launch from an installed per-app PWA (display-mode: standalone):
+    // the start_url carries the slug hash, so selectApp opens that app
+    // directly instead of the splash (updateHash syncs the manifest link).
     if (selectAppFromHash()) return;
     if (!config || config.navigation.show_splash_on_startup) return;
     const defaultApp = apps.find(app => app.default);
@@ -448,13 +452,17 @@
         // link click (or a typed hash) rather than Back/Forward.
         currentNavHash = location.hash;
         const entryState = history.state;
-        runWithSession(() => selectAppFromHash(entryState));
+        runWithSession(() => {
+          selectAppFromHash(entryState);
+          syncManifestToRoute(location.hash.slice(1).split('?')[0], apps);
+        });
       } else {
         // Hash cleared (e.g. navigating to /): go home.
         currentNavHash = '';
         showLogs = false;
         if (splitState.panels[0] || splitState.panels[1]) resetSplit();
         showSplash = true;
+        syncManifestToRoute('', apps);
       }
     });
 
@@ -504,13 +512,10 @@
 
       // Inject PWA manifest now that auth has passed — deferred from index.html
       // so forward-auth proxies don't redirect the manifest fetch to a login page.
-      if (!document.querySelector('link[rel="manifest"]')) {
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = './manifest.json';
-        link.crossOrigin = 'use-credentials';
-        document.head.appendChild(link);
-      }
+      // Uses the per-app manifest when booting into a single-app route (a
+      // launched PWA or hash deep-link), else the dashboard manifest.
+      swapManifestLink(DASHBOARD_MANIFEST_HREF);
+      syncManifestToRoute(location.hash.slice(1).split('?')[0], apps);
 
       // Load custom themes from server (non-blocking)
       loadCustomThemesFromServer();
@@ -872,6 +877,7 @@
   function updateHash() {
     const newHash = layoutHash();
     if (newHash) navigateHash(newHash);
+    syncManifestToRoute(newHash.slice(1).split('?')[0], apps);
   }
 
   function clearHash() {
@@ -917,6 +923,7 @@
     showLogs = false;
     resetSplit();
     clearHash();
+    syncManifestToRoute('', apps);
   }
 
   async function openSettings() {

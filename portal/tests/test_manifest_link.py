@@ -45,6 +45,18 @@ class ManifestLinkRewrite(unittest.TestCase):
         page = "<html><head><title>t</title></head></html>"
         self.assertEqual(gateway.rewrite_manifest_link(page, 3701), page)
 
+    def test_leaves_relative_per_app_manifest_alone(self):
+        # M-536: per-app links are relative (./manifest/<slug>.webmanifest)
+        # so they resolve under the gateway prefix already; only absolute
+        # root hrefs need prefixing (M-514). Credentials still enforced.
+        src = ('<link rel="manifest" href="./manifest/plex.webmanifest"'
+               ' crossorigin="use-credentials">')
+        self.assertEqual(gateway.rewrite_manifest_link(src, 3701), src)
+        self.assertEqual(
+            gateway.rewrite_manifest_link(
+                '<link rel="manifest" href="./manifest/plex.webmanifest">', 3701).count(
+                "crossorigin"), 1)
+
 
 class UnloadPolicy(unittest.TestCase):
     """Gateway HTML opts back into unload handlers for our origin

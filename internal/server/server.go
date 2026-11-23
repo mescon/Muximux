@@ -454,6 +454,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Serve sw.js with version-aware cache name so deployments bust the cache.
 	mux.HandleFunc("/sw.js", s.handleServiceWorker(distFS))
 
+	// Per-app PWA manifest (M-536): lets each dashboard app install as its
+	// own standalone PWA instead of the whole dashboard. Registered before
+	// the SPA fallback so the path is not swallowed by index.html.
+	mux.HandleFunc("/manifest/", s.handleAppManifest)
+
 	// Serve static files with SPA fallback
 	mux.Handle("/", staticHandler)
 
@@ -508,6 +513,7 @@ var defaultBypassRules = []auth.BypassRule{
 	{Path: "/assets/*"},
 	{Path: "/themes/*"},
 	{Path: "/manifest.json"},
+	{Path: "/manifest/*"},
 	{Path: "/sw.js"},
 	{Path: "/favicon.ico"},
 	{Path: "/favicon-16x16.png"},

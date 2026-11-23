@@ -101,9 +101,18 @@ export async function updateFavicons(color: string): Promise<void> {
 }
 
 /**
- * Dynamically update the manifest with themed icons.
+ * Dynamically update the manifest with themed icons. Only re-themes the
+ * dashboard manifest: while a per-app manifest is active (M-536) the link
+ * points at that app's install entry and must be left alone, or the theme
+ * sync would silently uninstall the app's install target.
  */
 function updateManifest(color: string, png192DataURL: string) {
+  const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+  if (!link) return;
+  // .href resolves relative URLs against the document base on real DOM
+  // nodes (and is a plain property on test doubles); either way a per-app
+  // manifest URL contains /manifest/.
+  if ((link.href ?? '').includes('/manifest/')) return;
   const manifest = {
     name: 'Muximux',
     short_name: 'Muximux',
@@ -117,7 +126,7 @@ function updateManifest(color: string, png192DataURL: string) {
 
   const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  setLinkHref('link[rel="manifest"]', url);
+  link.href = url;
 }
 
 /**
