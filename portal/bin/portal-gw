@@ -290,29 +290,20 @@ window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2
 function ping(){return new Promise(function(res){if(!sw||!sw.controller)return res(false);var c=new MessageChannel(),t=setTimeout(function(){res(false)},400);c.port1.onmessage=function(){clearTimeout(t);res(true)};try{sw.controller.postMessage({pgw:'ping'},[c.port2])}catch(e){res(false)}})}
 var ok=false;try{ok=localStorage.getItem('__pgw_ok')==='1'}catch(e){}
 if(location.pathname.indexOf(P+'/')===0){try{history.replaceState(history.state,'',(location.pathname.slice(P.length)||'/')+location.search+location.hash)}catch(e){}}
-if(sw){(async function(){try{var reg=await sw.register('/sw.js',{scope:'/'});try{await reg.update()}catch(e){}await sw.ready;
- var good=false;for(var i=0;i<14&&!good;i++){good=await ping();if(!good)await new Promise(function(r){setTimeout(r,250)})}
- if(good){try{localStorage.setItem('__pgw_ok','1')}catch(e){}}
- var did=false;try{did=sessionStorage.getItem('__pgw_r')==='1'}catch(e){}
- if(!did){try{sessionStorage.setItem('__pgw_r','1')}catch(e){}location.reload()}}catch(e){}})()}
+/* M-532: one-shot reload only claims the first document into SW control.
+   Never reload a document that is already controlled (sw.controller set),
+   and never wipe a login form or drop in-flight auth: defer while a
+   password/text input has focus or a value, or a request is in flight;
+   retry every 2 s up to ~60 s, then give up. Waits bounded at 5 s. */
+function formBusy(){try{var a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return true;var els=document.querySelectorAll('input[type=password],input[type=text][value],input:not([type])');for(var i=0;i<els.length;i++){if(els[i].value||els[i]===a)return true}}catch(e){}return false}
+var inflight=0;try{var _f=window.fetch;window.fetch=function(u,o){inflight++;return _f.apply(this,arguments).then(function(r){inflight--;return r},function(e){inflight--;throw e})};var _so=window.XMLHttpRequest.prototype.send;window.XMLHttpRequest.prototype.send=function(){inflight++;var x=this;var done=function(){try{inflight--}catch(e){}};try{x.addEventListener('loadend',done)}catch(e){done()}return _so.apply(this,arguments)}}catch(e){}
+function tryReload(n){try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;if(formBusy()||inflight>0){if(n>0)setTimeout(function(){tryReload(n-1)},2000);return}var did=false;try{did=sessionStorage.getItem('__pgw_r')==='1'}catch(e){}if(!did){try{sessionStorage.setItem('__pgw_r','1')}catch(e){}location.reload()}}catch(e){}}
+if(sw){(async function(){try{if(sw.controller)return;var reg=await sw.register('/sw.js',{scope:'/'});try{await Promise.race([reg.update(),new Promise(function(r){setTimeout(r,5000)})])}catch(e){}try{await Promise.race([sw.ready,new Promise(function(r){setTimeout(r,5000)})])}catch(e){}
+ var good=false;for(var i=0;i<12&&!good;i++){good=await ping();if(!good)await new Promise(function(r){setTimeout(r,250)})}
+ if(good){try{localStorage.setItem('__pgw_ok','1')}catch(e){}tryReload(30)}}catch(e){}})()}
 })();</script>"""
     return head + tail
 
-
-SHIM = """<script>(function(){var P='/p/%d';var W=window.WebSocket;function f(u){try{var a=new URL(u,location.href);
-if(a.host===location.host&&a.pathname.indexOf(P+'/')!==0&&a.pathname!==P){a.pathname=P+a.pathname}return a.href}catch(e){return u}}
-window.WebSocket=function(u,p){u=f(u);return p===undefined?new W(u):new W(u,p)};window.WebSocket.prototype=W.prototype;
-window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2;window.WebSocket.CLOSED=3;
-var sw=navigator.serviceWorker;
-function ping(){return new Promise(function(res){if(!sw||!sw.controller)return res(false);var c=new MessageChannel(),t=setTimeout(function(){res(false)},400);c.port1.onmessage=function(){clearTimeout(t);res(true)};try{sw.controller.postMessage({pgw:'ping'},[c.port2])}catch(e){res(false)}})}
-var ok=false;try{ok=localStorage.getItem('__pgw_ok')==='1'}catch(e){}
-if(location.pathname.indexOf(P+'/')===0){try{history.replaceState(history.state,'',(location.pathname.slice(P.length)||'/')+location.search+location.hash)}catch(e){}}
-if(sw){(async function(){try{var reg=await sw.register('/sw.js',{scope:'/'});try{await reg.update()}catch(e){}await sw.ready;
- var good=false;for(var i=0;i<14&&!good;i++){good=await ping();if(!good)await new Promise(function(r){setTimeout(r,250)})}
- if(good){try{localStorage.setItem('__pgw_ok','1')}catch(e){}}
- var did=false;try{did=sessionStorage.getItem('__pgw_r')==='1'}catch(e){}
- if(!did){try{sessionStorage.setItem('__pgw_r','1')}catch(e){}location.reload()}}catch(e){}})()}
-})();</script>"""
 
 
 @lru_cache(maxsize=1024)
