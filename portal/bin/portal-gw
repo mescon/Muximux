@@ -354,6 +354,36 @@ def rewrite_cookie(cookie, secure):
     return cookie
 
 
+def dedupe_cookie(cookie_header, name):
+    """Keep only the LAST `name=` pair in a Cookie header.
+
+    A browser can hold an old unpartitioned cookie and the current Partitioned
+    one under the same name; it sends both, oldest first, and servers such as
+    cockpit-ws read the first match. Cockpit then rejects the stale value and
+    answers `cockpit=deleted`, clobbering the fresh login (M-237: PAM login
+    succeeds, browser stays on the login form). The freshest cookie is last.
+    """
+    parts = [p.strip() for p in cookie_header.split(";") if p.strip()]
+    idx = [i for i, p in enumerate(parts) if p.split("=", 1)[0] == name]
+    if len(idx) < 2:
+        return cookie_header
+    keep = idx[-1]
+    return "; ".join(p for i, p in enumerate(parts) if i not in idx or i == keep)
+
+
+def stale_cookie_expiry(set_cookies, secure):
+    """Expire legacy unpartitioned copies of cookies we re-issue as Partitioned.
+
+    Only for the Cockpit session cookie; an unpartitioned `cockpit` cookie
+    shadows the partitioned one (see dedupe_cookie), so remove it at the source.
+    """
+    if not secure:
+        return []
+    names = {c.split("=", 1)[0].strip() for c in set_cookies}
+    return [f"{n}=; Max-Age=0; Path=/; Secure; SameSite=None"
+            for n in sorted(names) if n == "cockpit"]
+
+
 def request_is_https(request):
     """Recognize browser HTTPS when Caddy's local upstream hop is HTTP.
 
@@ -568,6 +598,9 @@ async def gw(request):
         # carrying proxy identity headers; the loopback source is the identity.
         for _k in [k for k in hdr if k.lower() in PROXY_IDENTITY]:
             del hdr[_k]
+    if "Cookie" in hdr or "cookie" in hdr:
+        _ck_key = "Cookie" if "Cookie" in hdr else "cookie"
+        hdr[_ck_key] = dedupe_cookie(hdr[_ck_key], "cockpit")
     hdr["Host"] = f"localhost:{port}"
     _omode = str(port_origin_mode(port)).strip()
     if "Origin" in request.headers:
@@ -655,7 +688,24 @@ async def gw(request):
                     continue
                 h[k] = v
             resp = web.StreamResponse(status=r.status, headers=h)
-            for c in r.headers.getall("Set-Cookie", []):
+            _set_cookies = r.headers.getall("Set-Cookie", [])
+            if rest.split("?", 1)[0].endswith("/cockpit/login"):
+                # M-532 follow-up diagnostics: a Cockpit PAM login can succeed
+                # server-side while the browser keeps no session. Log the shape
+                # (never the values) so the next report has evidence.
+                _ck = request.headers.get("Cookie", "")
+                print("portal-gw: login-diag " + json.dumps({
+                    "t": time.strftime("%H:%M:%S"), "port": port,
+                    "auth_hdr": "Authorization" in request.headers,
+                    "status": r.status,
+                    "req_cockpit_cookies": len(re.findall(r"(?:^|;\s*)cockpit=", _ck)),
+                    "set_cookie": [re.sub(r"=[^;]*", "=<v>", c, count=1) for c in _set_cookies],
+                    "https": request_is_https(request),
+                    "ua": request.headers.get("User-Agent", "")[-40:],
+                }), flush=True)
+            for c in stale_cookie_expiry(_set_cookies, request_is_https(request)):
+                resp.headers.add("Set-Cookie", c)
+            for c in _set_cookies:
                 rewritten = rewrite_cookie(c, request_is_https(request))
                 resp.headers.add("Set-Cookie", rewritten)
             ct = r.headers.get("Content-Type", "")
