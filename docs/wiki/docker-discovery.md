@@ -121,6 +121,15 @@ For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, you c
 
 Rootful Podman creates its socket as `root:root` with mode `0660`. A rootless Podman socket also shows as `root:root` inside the container when Podman uses its default user mapping. The entrypoint does not give the runtime user access to a socket that the root group owns, because that also makes the user a member of the root group inside the container. In this case the entrypoint prints a warning to the container log at startup, and the Discover banner shows `Daemon unreachable: ... connect: permission denied`.
 
+Mount the Podman socket at the path that Muximux expects. For rootful Podman:
+
+```yaml
+    volumes:
+      - /run/podman/podman.sock:/var/run/docker.sock:ro
+```
+
+For rootless Podman, the host path is `/run/user/<uid>/podman/podman.sock`.
+
 Use one of these fixes. For rootful Podman, the first one is better. For rootless Podman, use the second one.
 
 1. Give the socket its own group on the host. For rootful Podman:
