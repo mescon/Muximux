@@ -2,18 +2,31 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.7.4] - 2026-11-24
+
+### Security
+- **gorilla/websocket updated for GO-2026-6278** (GHSA-w67g-5rqw-f597) --
+  v1.5.3 generated the WebSocket mask key with a weak random number
+  generator. Only WebSocket clients create mask keys, and Muximux uses the
+  library on the server side only, so the practical impact is low. No
+  tagged release has the fix yet, so the module is pinned to a commit on
+  its master branch that has it.
 
 ### Fixed
 - **Docker discovery with Podman** -- a socket owned by group root (the
   default for rootful Podman) failed with `permission denied`, and setting
   `DOCKER_GID=0` did not help. `DOCKER_GID=0` now adds the runtime user to
-  the root group, and the entrypoint logs a warning with both fixes when it
-  finds such a socket. The Docker Discovery guide has a new Podman section
-  (#569).
+  the root group, and the entrypoint prints a warning with both fixes when
+  it finds such a socket. The Docker Discovery guide has a new Podman
+  section (#569).
+- **Startup line shows the real group** -- when `PUID` names a user that
+  already exists in the image, the entrypoint printed the `PGID` group
+  instead of the group the process runs with, and compared the socket
+  group with the wrong one.
 
 ### Changed
-- Dependencies updated.
+- Dependencies updated, including DOMPurify 3.5.0, Svelte 5.59.1, marked
+  18.3.0 and the OpenTelemetry log SDK 1.47.0.
 
 ## [3.7.3] - 2026-11-13
 
