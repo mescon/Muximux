@@ -119,18 +119,25 @@ For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, you c
 
 #### Podman, or a socket owned by group root
 
-Rootful Podman creates its socket as `root:root` with mode `0660`. The entrypoint does not give the runtime user access to a socket that the root group owns, because that also makes the user a member of the root group inside the container. In this case Muximux logs a warning at startup, and the Discover banner shows `Daemon unreachable: ... connect: permission denied`.
+Rootful Podman creates its socket as `root:root` with mode `0660`. A rootless Podman socket also shows as `root:root` inside the container. The entrypoint does not give the runtime user access to a socket that the root group owns, because that also makes the user a member of the root group inside the container. In this case the entrypoint prints a warning to the container log at startup, and the Discover banner shows `Daemon unreachable: ... connect: permission denied`.
 
-Use one of these fixes. The first one is better.
+Use one of these fixes. For rootful Podman, the first one is better. For rootless Podman, use the second one.
 
-1. Give the socket its own group on the host. For Podman, run `sudo systemctl edit podman.socket` and add:
+1. Give the socket its own group on the host. For rootful Podman:
+
+   ```bash
+   sudo groupadd podman
+   sudo systemctl edit podman.socket
+   ```
+
+   Add these lines in the editor:
 
    ```ini
    [Socket]
    SocketGroup=podman
    ```
 
-   Create the group first if it does not exist (`sudo groupadd podman`). Then run `sudo systemctl restart podman.socket` and restart Muximux. The entrypoint detects the new group automatically.
+   Then run `sudo systemctl restart podman.socket` and restart Muximux. The entrypoint detects the new group automatically.
 2. Set `DOCKER_GID=0` on the Muximux container. The entrypoint then adds the runtime user to the root group inside the container. Muximux still runs as a non-root user.
 
 Do not set `PUID=0` only to reach the socket. That runs all of Muximux as root.

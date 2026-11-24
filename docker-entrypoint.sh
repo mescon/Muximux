@@ -39,6 +39,7 @@ USER_NAME=$(getent passwd "$PUID" | cut -d: -f1)
 # The primary group the process really gets: PGID applies only to a user
 # created above, an existing user keeps the group from its passwd entry.
 USER_GID=$(getent passwd "$PUID" | cut -d: -f4)
+USER_GROUP_NAME=$(getent group "$USER_GID" | cut -d: -f1)
 
 # Auto-detect the Docker socket's group ownership and grant the
 # runtime user access. Mounting the socket is sufficient on its own;
@@ -94,7 +95,7 @@ fi
 # Ensure the data directory is owned by the runtime user
 chown -R "$PUID:$PGID" /app/data 2>/dev/null || true
 
-echo "Starting Muximux as ${USER_NAME}(${PUID}):${GROUP_NAME}(${PGID})${DOCKER_NOTE}"
+echo "Starting Muximux as ${USER_NAME}(${PUID}):${USER_GROUP_NAME:-$USER_GID}(${USER_GID})${DOCKER_NOTE}"
 
 # Use the username form of su-exec so initgroups(3) runs and the
 # user's supplementary groups (including the docker group above)
