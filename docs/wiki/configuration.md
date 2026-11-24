@@ -350,7 +350,7 @@ The Docker image's entrypoint (the start script of the container) reads these, n
 |----------|---------|---------|
 | `PUID`, `PGID` | User and group ID the process runs as, to match your bind-mounted `data/` directory | `1000` |
 | `DOCKER_SOCKET` | Path of the Docker socket whose group the entrypoint detects | `/var/run/docker.sock` |
-| `DOCKER_GID` | Force the group ID used for Docker socket access instead of detecting it | Detected |
+| `DOCKER_GID` | Force the group ID used for Docker socket access instead of detecting it. `0` adds the runtime user to the root group, for a socket owned by group root (Podman) | Detected |
 | `TZ` | Time zone | `UTC` |
 
 ### Booleans, precedence and the memory-only rule

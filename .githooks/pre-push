@@ -127,7 +127,9 @@ if go test -count=1 -race -coverprofile="$GO_COVER_FILE" $GO_PACKAGES 2>&1 | tai
     pass "Go tests passed"
 
     # Parse overall coverage
-    GO_COVERAGE=$(go tool cover -func="$GO_COVER_FILE" | grep "^total:" | awk '{print $NF}' | sed 's/%//')
+    # "|| true": with pipefail, a grep that matches nothing would end the
+    # hook here; an empty value reaches the "could not parse" warning instead.
+    GO_COVERAGE=$(go tool cover -func="$GO_COVER_FILE" | grep "^total:" | awk '{print $NF}' | sed 's/%//' || true)
 
     if [ -n "$GO_COVERAGE" ]; then
         # Compare as integers (bash doesn't do float comparison natively)
@@ -191,7 +193,7 @@ if [ $FE_EXIT -eq 0 ]; then
     pass "Frontend tests passed"
 
     # Parse overall statement coverage from the "All files" line
-    FE_COVERAGE=$(echo "$FE_OUTPUT" | grep "All files" | awk -F'|' '{gsub(/ /,"",$2); print $2}')
+    FE_COVERAGE=$(echo "$FE_OUTPUT" | grep "All files" | awk -F'|' '{gsub(/ /,"",$2); print $2}' || true)
 
     if [ -n "$FE_COVERAGE" ]; then
         FE_COV_INT=$(echo "$FE_COVERAGE" | cut -d. -f1)

@@ -375,3 +375,7 @@ start/stop/restart buttons return an error.
 5. For rootless Docker, a docker-socket-proxy sidecar, or a custom socket
    path, set the `DOCKER_SOCKET` and `DOCKER_GID` override env vars (see
    [Docker Discovery](docker-discovery.md#make-the-daemon-socket-reachable-from-muximux)).
+6. For Podman, or any socket owned by group root, the entrypoint does not
+   grant access automatically. Give the socket its own group on the host, or
+   set `DOCKER_GID=0` (see
+   [Docker Discovery](docker-discovery.md#podman-or-a-socket-owned-by-group-root)).
