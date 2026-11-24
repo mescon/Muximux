@@ -8,7 +8,10 @@ require (
 	github.com/caddyserver/caddy/v2 v2.11.9
 	github.com/coreos/go-oidc/v3 v3.21.0
 	github.com/go-jose/go-jose/v4 v4.1.9
-	github.com/gorilla/websocket v1.5.3
+	// Pinned to the master branch: no tagged release after v1.5.3 contains
+	// the fix for GO-2026-6278 / GHSA-w67g-5rqw-f597 (weak PRNG for the mask
+	// key). Replace with v1.5.4 or later once tagged.
+	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	golang.org/x/crypto v0.59.0
 	golang.org/x/term v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
