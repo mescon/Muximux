@@ -36,6 +36,9 @@ if ! getent passwd "$PUID" >/dev/null 2>&1; then
     adduser -D -u "$PUID" -G "$GROUP_NAME" -h /app muximux
 fi
 USER_NAME=$(getent passwd "$PUID" | cut -d: -f1)
+# The primary group the process really gets: PGID applies only to a user
+# created above, an existing user keeps the group from its passwd entry.
+USER_GID=$(getent passwd "$PUID" | cut -d: -f4)
 
 # Auto-detect the Docker socket's group ownership and grant the
 # runtime user access. Mounting the socket is sufficient on its own;
@@ -47,7 +50,7 @@ if [ -n "$DOCKER_GID" ]; then
 elif [ -S "$DOCKER_SOCKET" ]; then
     DOCKER_GROUP_GID=$(stat -c '%g' "$DOCKER_SOCKET" 2>/dev/null || echo "")
 fi
-if [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" != "$PGID" ] &&
+if [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" != "$USER_GID" ] &&
     { [ "$DOCKER_GROUP_GID" != "0" ] || [ "$DOCKER_GID" = "0" ]; }; then
     # GID 0 gets here only when the operator set DOCKER_GID=0 explicitly.
     if ! getent group "$DOCKER_GROUP_GID" >/dev/null 2>&1; then
@@ -56,8 +59,9 @@ if [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" != "$PGID" ] &&
     DOCKER_GROUP_NAME=$(getent group "$DOCKER_GROUP_GID" | cut -d: -f1)
     addgroup "$USER_NAME" "$DOCKER_GROUP_NAME" 2>/dev/null || true
     DOCKER_NOTE=" +${DOCKER_GROUP_NAME}(${DOCKER_GROUP_GID})"
-elif [ "$DOCKER_GROUP_GID" = "0" ] && [ "$PUID" != "0" ] && [ "$PGID" != "0" ]; then
-    # PUID=0 or PGID=0 already reaches a root-group socket.
+elif [ "$DOCKER_GROUP_GID" = "0" ] && [ "$PUID" != "0" ] && [ "$USER_GID" != "0" ]; then
+    # A user that is root, or whose primary group is root, already reaches
+    # a root-group socket.
     echo "Warning: $DOCKER_SOCKET is owned by group root (GID 0), so Muximux" >&2
     echo "cannot use it as UID $PUID. Give the socket its own group on the host" >&2
     echo "(for Podman: SocketGroup= in podman.socket), or set DOCKER_GID=0 to" >&2
