@@ -56,7 +56,8 @@ if [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" != "$PGID" ] &&
     DOCKER_GROUP_NAME=$(getent group "$DOCKER_GROUP_GID" | cut -d: -f1)
     addgroup "$USER_NAME" "$DOCKER_GROUP_NAME" 2>/dev/null || true
     DOCKER_NOTE=" +${DOCKER_GROUP_NAME}(${DOCKER_GROUP_GID})"
-elif [ "$DOCKER_GROUP_GID" = "0" ] && [ "$PUID" != "0" ]; then
+elif [ "$DOCKER_GROUP_GID" = "0" ] && [ "$PUID" != "0" ] && [ "$PGID" != "0" ]; then
+    # PUID=0 or PGID=0 already reaches a root-group socket.
     echo "Warning: $DOCKER_SOCKET is owned by group root (GID 0), so Muximux" >&2
     echo "cannot use it as UID $PUID. Give the socket its own group on the host" >&2
     echo "(for Podman: SocketGroup= in podman.socket), or set DOCKER_GID=0 to" >&2
