@@ -2,6 +2,19 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Docker discovery with Podman** -- a socket owned by group root (the
+  default for rootful Podman) failed with `permission denied`, and setting
+  `DOCKER_GID=0` did not help. `DOCKER_GID=0` now adds the runtime user to
+  the root group, and the entrypoint logs a warning with both fixes when it
+  finds such a socket. The Docker Discovery guide has a new Podman section
+  (#569).
+
+### Changed
+- Dependencies updated.
+
 ## [3.7.3] - 2026-11-13
 
 A security release. It fixes two privately reported vulnerabilities, both

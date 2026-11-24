@@ -117,6 +117,24 @@ Container **lifecycle controls** (start / stop / restart, see below) are opt-in 
 
 For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, you can set two override env vars: `DOCKER_SOCKET` (the socket path that the entrypoint checks) and `DOCKER_GID` (skips auto-detection and forces a specific GID). Almost no one needs these.
 
+#### Podman, or a socket owned by group root
+
+Rootful Podman creates its socket as `root:root` with mode `0660`. The entrypoint does not give the runtime user access to a socket that the root group owns, because that also makes the user a member of the root group inside the container. In this case Muximux logs a warning at startup, and the Discover banner shows `Daemon unreachable: ... connect: permission denied`.
+
+Use one of these fixes. The first one is better.
+
+1. Give the socket its own group on the host. For Podman, run `sudo systemctl edit podman.socket` and add:
+
+   ```ini
+   [Socket]
+   SocketGroup=podman
+   ```
+
+   Create the group first if it does not exist (`sudo groupadd podman`). Then run `sudo systemctl restart podman.socket` and restart Muximux. The entrypoint detects the new group automatically.
+2. Set `DOCKER_GID=0` on the Muximux container. The entrypoint then adds the runtime user to the root group inside the container. Muximux still runs as a non-root user.
+
+Do not set `PUID=0` only to reach the socket. That runs all of Muximux as root.
+
 #### Linux, running Muximux as a native binary
 
 In this setup there is no container, so there is no entrypoint script. Linux's normal socket permissions apply. The OS user that runs the binary must be a member of the host's `docker` group.
@@ -774,7 +792,7 @@ To have the dashboard open your proxy's public names instead of container addres
 |---|---|
 | Banner: "Connected to Docker but strategy `container_ip` cannot identify Muximux's container" | Muximux runs natively (not in a container). Set `network_filter` to scope the scan to a known docker network, or switch to `host_port`. |
 | Banner: "Daemon unreachable: dial unix … no such file or directory" | The `endpoint` path is wrong, or the socket isn't bind-mounted into Muximux's container. |
-| Banner: "Daemon unreachable: connect: permission denied" | The socket is mounted but the entrypoint's auto-detection didn't fire (e.g. unusual mount path, docker-socket-proxy sidecar). Override with `DOCKER_GID` set to the docker group GID the socket is owned by, or `DOCKER_SOCKET` to point the detection at a non-default path. See [Make the daemon socket reachable](#make-the-daemon-socket-reachable-from-muximux). |
+| Banner: "Daemon unreachable: connect: permission denied" | If the socket is owned by group root (rootful Podman), see [Podman, or a socket owned by group root](#podman-or-a-socket-owned-by-group-root). Otherwise the entrypoint's auto-detection didn't fire (e.g. unusual mount path, docker-socket-proxy sidecar). Override with `DOCKER_GID` set to the docker group GID the socket is owned by, or `DOCKER_SOCKET` to point the detection at a non-default path. See [Make the daemon socket reachable](#make-the-daemon-socket-reachable-from-muximux). |
 | Discover modal shows containers but no auto-fill | The image isn't in Muximux's catalog. Add `muximux.app.*` labels to the container, or fill the fields manually before importing. |
 | Imported app's URL doesn't update when container restarts | Check `refresh_interval` isn't set to 1h. Check the audit log for `Docker app URL refreshed` (and `Docker health address refreshed` for health addresses). Check the container hasn't been renamed (breaks `name:` tracking keys; Swarm and Compose containers use stable keys). |
 | Gateway site doesn't serve after import | If you set `server.gateway_listen`, your upstream proxy needs to forward the host header to that port. Try `curl -H 'Host: site.example.com' http://muximux-host:8443/` to bypass the upstream. |

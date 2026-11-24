@@ -12,7 +12,10 @@
 # discovery feature works.
 #
 # DOCKER_GID is supported as an explicit override for unusual setups
-# (rootless docker, socket-proxy sidecars, custom mount paths).
+# (rootless docker, socket-proxy sidecars, custom mount paths). A socket
+# owned by group root (GID 0, the default for rootful Podman) is never
+# granted automatically; DOCKER_GID=0 opts in to adding the runtime user
+# to the root group.
 # DOCKER_SOCKET overrides the auto-detection path from
 # /var/run/docker.sock.
 
@@ -44,15 +47,21 @@ if [ -n "$DOCKER_GID" ]; then
 elif [ -S "$DOCKER_SOCKET" ]; then
     DOCKER_GROUP_GID=$(stat -c '%g' "$DOCKER_SOCKET" 2>/dev/null || echo "")
 fi
-if [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" != "0" ] && [ "$DOCKER_GROUP_GID" != "$PGID" ]; then
+if [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" != "$PGID" ] &&
+    { [ "$DOCKER_GROUP_GID" != "0" ] || [ "$DOCKER_GID" = "0" ]; }; then
+    # GID 0 gets here only when the operator set DOCKER_GID=0 explicitly.
     if ! getent group "$DOCKER_GROUP_GID" >/dev/null 2>&1; then
         addgroup -g "$DOCKER_GROUP_GID" docker_host
     fi
     DOCKER_GROUP_NAME=$(getent group "$DOCKER_GROUP_GID" | cut -d: -f1)
     addgroup "$USER_NAME" "$DOCKER_GROUP_NAME" 2>/dev/null || true
     DOCKER_NOTE=" +${DOCKER_GROUP_NAME}(${DOCKER_GROUP_GID})"
-elif [ -n "$DOCKER_GROUP_GID" ] && [ "$DOCKER_GROUP_GID" = "0" ]; then
-    DOCKER_NOTE=" (docker socket owned by root; consider adjusting host perms)"
+elif [ "$DOCKER_GROUP_GID" = "0" ] && [ "$PUID" != "0" ]; then
+    echo "Warning: $DOCKER_SOCKET is owned by group root (GID 0), so Muximux" >&2
+    echo "cannot use it as UID $PUID. Give the socket its own group on the host" >&2
+    echo "(for Podman: SocketGroup= in podman.socket), or set DOCKER_GID=0 to" >&2
+    echo "add the runtime user to the root group." >&2
+    DOCKER_NOTE=" (docker socket owned by group root; see warning above)"
 fi
 
 # Older images kept Caddy's state (certificates, ACME account, internal
