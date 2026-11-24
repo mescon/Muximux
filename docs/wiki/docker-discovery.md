@@ -119,7 +119,7 @@ For rootless Docker, docker-socket-proxy sidecars, or custom socket paths, you c
 
 #### Podman, or a socket owned by group root
 
-Rootful Podman creates its socket as `root:root` with mode `0660`. A rootless Podman socket also shows as `root:root` inside the container. The entrypoint does not give the runtime user access to a socket that the root group owns, because that also makes the user a member of the root group inside the container. In this case the entrypoint prints a warning to the container log at startup, and the Discover banner shows `Daemon unreachable: ... connect: permission denied`.
+Rootful Podman creates its socket as `root:root` with mode `0660`. A rootless Podman socket also shows as `root:root` inside the container when Podman uses its default user mapping. The entrypoint does not give the runtime user access to a socket that the root group owns, because that also makes the user a member of the root group inside the container. In this case the entrypoint prints a warning to the container log at startup, and the Discover banner shows `Daemon unreachable: ... connect: permission denied`.
 
 Use one of these fixes. For rootful Podman, the first one is better. For rootless Podman, use the second one.
 
@@ -138,7 +138,9 @@ Use one of these fixes. For rootful Podman, the first one is better. For rootles
    ```
 
    Then run `sudo systemctl restart podman.socket` and restart Muximux. The entrypoint detects the new group automatically.
-2. Set `DOCKER_GID=0` on the Muximux container. The entrypoint then adds the runtime user to the root group inside the container. Muximux still runs as a non-root user.
+2. Set `DOCKER_GID=0` on the Muximux container. The entrypoint then adds the runtime user to the root group inside the container. Muximux still runs as a non-root user. Use this only when the startup warning appears, or when `stat -c '%g' /var/run/docker.sock` inside the container prints `0`. `DOCKER_GID` replaces the detected group. If the socket has a different group, `DOCKER_GID=0` removes access.
+
+On a host with SELinux in enforcing mode, a container can reach the Podman socket only when it runs with `--security-opt label=disable` (`security_opt: [label=disable]` in Compose). This turns off SELinux confinement for the Muximux container.
 
 Do not set `PUID=0` only to reach the socket. That runs all of Muximux as root.
 
