@@ -166,8 +166,9 @@ fi
 info "Running govulncheck..."
 GOBIN_PATH="$(go env GOPATH)/bin"
 if [ -x "$GOBIN_PATH/govulncheck" ] || command -v govulncheck >/dev/null 2>&1; then
-    PATH="$GOBIN_PATH:$PATH" govulncheck ./... > /tmp/govulncheck.out 2>&1
-    GOVULN_EXIT=$?
+    # "|| VAR=$?" keeps set -e from ending the hook here without a message.
+    GOVULN_EXIT=0
+    PATH="$GOBIN_PATH:$PATH" govulncheck ./... > /tmp/govulncheck.out 2>&1 || GOVULN_EXIT=$?
     if [ "$GOVULN_EXIT" -eq 0 ]; then
         pass "govulncheck found no vulnerabilities"
     else
@@ -183,8 +184,8 @@ fi
 # ─── Frontend tests with coverage ─────────────────────────────────
 info "Running frontend tests with coverage..."
 
-FE_OUTPUT=$(cd "$REPO_ROOT/web" && npm test -- --coverage 2>&1)
-FE_EXIT=$?
+FE_EXIT=0
+FE_OUTPUT=$(cd "$REPO_ROOT/web" && npm test -- --coverage 2>&1) || FE_EXIT=$?
 
 if [ $FE_EXIT -eq 0 ]; then
     pass "Frontend tests passed"
