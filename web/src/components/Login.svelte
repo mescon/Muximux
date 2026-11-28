@@ -81,7 +81,8 @@
     saveResumeHash();
     // Get current URL as redirect target
     const redirect = encodeURIComponent(window.location.pathname);
-    window.location.href = `${getBase()}/api/auth/oidc/login?redirect=${redirect}`;
+    // Leave no sign-in page behind the dashboard after the OIDC round trip.
+    window.location.replace(`${getBase()}/api/auth/oidc/login?redirect=${redirect}`);
   }
 
   function handleKeydown(event: KeyboardEvent) {
