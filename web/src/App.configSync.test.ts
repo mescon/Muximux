@@ -169,6 +169,30 @@ describe('App login path', () => {
   });
 });
 
+describe('App navigation history', () => {
+  it('returns to the overview on Back after opening the first app', async () => {
+    await loggedIn();
+    await fireEvent.click(screen.getByTestId('select-a'));
+    await waitFor(() => expect(location.hash).toBe('#a'));
+    history.back();
+    await waitFor(() => expect(location.hash).toBe(''));
+    await screen.findByTestId('splash');
+    history.forward();
+    await waitFor(() => expect(location.hash).toBe('#a'));
+    await waitFor(() => expect(screen.queryByTestId('splash')).not.toBeInTheDocument());
+  });
+
+  it('replaces rather than pushes when opening the configured startup app', async () => {
+    const push = vi.spyOn(history, 'pushState');
+    const config = makeConfig();
+    config.navigation.show_splash_on_startup = false;
+    config.apps[0].default = true;
+    await mountAndLogin(config);
+    await waitFor(() => expect(location.hash).toBe('#a'));
+    expect(push).not.toHaveBeenCalled();
+  });
+});
+
 describe('App save path', () => {
   it('restarts health polling with the saved interval and enabled flag', async () => {
     await loggedIn();

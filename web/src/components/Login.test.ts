@@ -148,13 +148,13 @@ describe('Login', () => {
   });
 
   describe('SSO options', () => {
-    let hrefSetter: ReturnType<typeof vi.fn>;
+    let replaceLocation: ReturnType<typeof vi.fn>;
     const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'location')!;
 
     function setup(search: string, status: Record<string, unknown>, hash = '') {
-      hrefSetter = vi.fn();
+      replaceLocation = vi.fn();
       Object.defineProperty(window, 'location', {
-        value: { pathname: '/', search, hash, set href(v: string) { hrefSetter(v); } },
+        value: { pathname: '/', search, hash, replace: replaceLocation },
         writable: true,
         configurable: true,
       });
@@ -172,15 +172,23 @@ describe('Login', () => {
       setup('', { oidc_auto_redirect: true });
       render(Login);
       await waitFor(() => {
-        expect(hrefSetter).toHaveBeenCalledWith('/api/auth/oidc/login?redirect=%2F');
+        expect(replaceLocation).toHaveBeenCalledWith('/api/auth/oidc/login?redirect=%2F');
       });
+    });
+
+    it('replaces the login history entry when the user starts SSO', async () => {
+      setup('', {});
+      render(Login);
+      const button = await screen.findByRole('button', { name: /Sign in with SSO/i });
+      button.click();
+      expect(replaceLocation).toHaveBeenCalledWith('/api/auth/oidc/login?redirect=%2F');
     });
 
     it('keeps the app route for the round trip through the provider', async () => {
       sessionStorage.clear();
       setup('', { oidc_auto_redirect: true }, '#emby');
       render(Login);
-      await waitFor(() => expect(hrefSetter).toHaveBeenCalled());
+      await waitFor(() => expect(replaceLocation).toHaveBeenCalled());
       const saved = JSON.parse(sessionStorage.getItem('muximux_resume_hash') ?? '{}');
       expect(saved.hash).toBe('#emby');
       sessionStorage.clear();
@@ -192,7 +200,7 @@ describe('Login', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Username')).toBeInTheDocument();
       });
-      expect(hrefSetter).not.toHaveBeenCalled();
+      expect(replaceLocation).not.toHaveBeenCalled();
     });
 
     it('does not auto-redirect right after an in-app logout', async () => {
@@ -202,7 +210,7 @@ describe('Login', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Username')).toBeInTheDocument();
       });
-      expect(hrefSetter).not.toHaveBeenCalled();
+      expect(replaceLocation).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -217,7 +225,7 @@ describe('Login', () => {
         expect(screen.getByRole('alert')).toHaveTextContent(text);
       });
       expect(screen.queryByText(/provider text/)).not.toBeInTheDocument();
-      expect(hrefSetter).not.toHaveBeenCalled();
+      expect(replaceLocation).not.toHaveBeenCalled();
     });
 
     it('shows the SSO error even when local login is off', async () => {

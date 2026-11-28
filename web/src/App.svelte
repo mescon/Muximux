@@ -254,7 +254,7 @@
     if (!config || config.navigation.show_splash_on_startup) return;
     const defaultApp = apps.find(app => app.default);
     if (defaultApp) {
-      selectApp(defaultApp);
+      selectApp(defaultApp, undefined, false);
     }
   }
 
@@ -788,7 +788,7 @@
     }
   }
 
-  function selectApp(app: App, e?: MouseEvent) {
+  function selectApp(app: App, e?: MouseEvent, preserveOverview = true) {
     // Middle-click on an action app must stay a no-op (as it was before
     // auxclick handling existed) -- falling through would fire the webhook.
     if (e?.button === 1 && app.open_mode === 'http_action') return;
@@ -825,7 +825,7 @@
         setPanelApp(app);
         showSplash = false;
         showLogs = false;
-        updateHash();
+        updateHash(preserveOverview);
       });
     }
   }
@@ -860,8 +860,8 @@
     });
   }
 
-  function navigateHash(newHash: string) {
-    if (newHash !== currentNavHash && currentNavHash !== '') {
+  function navigateHash(newHash: string, preserveOverview = false) {
+    if (newHash !== currentNavHash && (currentNavHash !== '' || preserveOverview)) {
       history.pushState(NAV_STATE, '', newHash);
     } else {
       history.replaceState(NAV_STATE, '', newHash);
@@ -869,9 +869,9 @@
     currentNavHash = newHash;
   }
 
-  function updateHash() {
+  function updateHash(preserveOverview = false) {
     const newHash = layoutHash();
-    if (newHash) navigateHash(newHash);
+    if (newHash) navigateHash(newHash, preserveOverview);
   }
 
   function clearHash() {
