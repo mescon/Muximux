@@ -191,6 +191,15 @@ describe('App navigation history', () => {
     await waitFor(() => expect(location.hash).toBe('#a'));
     expect(push).not.toHaveBeenCalled();
   });
+
+  it('does not push a duplicate entry when starting on an app bookmark', async () => {
+    history.replaceState(null, '', '/#a');
+    const push = vi.spyOn(history, 'pushState');
+    await mountAndLogin(makeConfig());
+    await screen.findByTestId('frame-a');
+    expect(location.hash).toBe('#a');
+    expect(push).not.toHaveBeenCalled();
+  });
 });
 
 describe('App save path', () => {

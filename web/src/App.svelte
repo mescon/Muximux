@@ -1007,7 +1007,8 @@
         currentNavHash = linkHash;
         return true;
       }
-      selectApp(app);
+      // The browser already created the entry for this hash.
+      selectApp(app, undefined, false);
       return true;
     }
     return false;
